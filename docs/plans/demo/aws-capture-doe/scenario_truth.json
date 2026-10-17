@@ -1,0 +1,591 @@
+{
+  "scenario": "BOPET 12 µm TDO/MDO face-centred CCD, captured as AgentWorkShop DAQ exports",
+  "seed": 20261017,
+  "line_id": "bopet-lineA",
+  "design": {
+    "type": "rsm_ccd",
+    "alpha": 1.0,
+    "factorial": "2^3",
+    "n_executions": 22,
+    "n_distinct": 15,
+    "n_centre_executions": 6,
+    "n_axial": 6,
+    "n_repeats": 2,
+    "n_blocks": 3
+  },
+  "factors": {
+    "tdo_z4_temp": {
+      "centre": 200.0,
+      "half": 4.0,
+      "unit": "°C",
+      "hard": [
+        195.0,
+        205.0
+      ]
+    },
+    "mdo_speed": {
+      "centre": 320.0,
+      "half": 10.0,
+      "unit": "m/min",
+      "hard": [
+        300.0,
+        340.0
+      ]
+    },
+    "tdo_ratio": {
+      "centre": 3.0,
+      "half": 0.1,
+      "unit": "-",
+      "hard": [
+        2.7,
+        3.3
+      ]
+    }
+  },
+  "planted_surface": {
+    "thickness_um": {
+      "intercept": 50.0,
+      "zt": 1.2,
+      "zm": -0.9,
+      "zr": -0.35,
+      "zt2": -1.1,
+      "zm2": -0.8,
+      "zr2": -0.3,
+      "zt_zm": 0.5
+    },
+    "haze_pct": {
+      "intercept": 2.0,
+      "zt": 0.16,
+      "zm": -0.11,
+      "zr": 0.04,
+      "zt2": 0.07
+    },
+    "tensile_mpa": {
+      "intercept": 185.0,
+      "zt": 6.0,
+      "zm": -4.0,
+      "zr": 2.0,
+      "zt2": -3.0
+    },
+    "edge_dev": {
+      "intercept": 0.22,
+      "zt": 0.05,
+      "zm": -0.03
+    }
+  },
+  "stationary": {
+    "stationary_thickness_coded": [
+      0.4495412844036697,
+      -0.4220183486238532,
+      0.0
+    ],
+    "stationary_thickness_raw": {
+      "tdo_z4_temp": 201.7981651376147,
+      "mdo_speed": 315.7798165137615,
+      "tdo_ratio": 3.0
+    }
+  },
+  "anomaly": {
+    "window": "line/ 2026-10-16 08:00-14:00",
+    "z4_drift_c_per_h": 0.9,
+    "tension_step_at_fraction": 0.6,
+    "tension_step_n": 8.0,
+    "ambient_step_at_fraction": 0.6,
+    "ambient_step_c": 1.5,
+    "thickness_spikes_at_fraction": [
+      0.3,
+      0.55,
+      0.8
+    ],
+    "chiller_frozen_fraction": [
+      0.4,
+      0.5
+    ]
+  },
+  "runs": [
+    {
+      "run_id": "doerun-001",
+      "design_point_id": "dp-01",
+      "coded": [
+        -1,
+        -1,
+        -1
+      ],
+      "raw": {
+        "tdo_z4_temp": 196.0,
+        "mdo_speed": 310.0,
+        "tdo_ratio": 2.9
+      },
+      "planted": {
+        "thickness_um": 48.35,
+        "haze_pct": 1.9800000000000002,
+        "tensile_mpa": 178.0,
+        "gauge_mean": 48.47,
+        "edge_dev": 0.19999999999999998
+      },
+      "block": "B1"
+    },
+    {
+      "run_id": "doerun-002",
+      "design_point_id": "dp-07r",
+      "coded": [
+        1,
+        1,
+        -1
+      ],
+      "raw": {
+        "tdo_z4_temp": 204.0,
+        "mdo_speed": 330.0,
+        "tdo_ratio": 2.9
+      },
+      "planted": {
+        "thickness_um": 48.95000000000001,
+        "haze_pct": 2.08,
+        "tensile_mpa": 182.0,
+        "gauge_mean": 49.07000000000001,
+        "edge_dev": 0.24000000000000002
+      },
+      "block": "B2"
+    },
+    {
+      "run_id": "doerun-003",
+      "design_point_id": "dp-c3",
+      "coded": [
+        0,
+        0,
+        0
+      ],
+      "raw": {
+        "tdo_z4_temp": 200.0,
+        "mdo_speed": 320.0,
+        "tdo_ratio": 3.0
+      },
+      "planted": {
+        "thickness_um": 50.0,
+        "haze_pct": 2.0,
+        "tensile_mpa": 185.0,
+        "gauge_mean": 50.12,
+        "edge_dev": 0.22
+      },
+      "block": "B3"
+    },
+    {
+      "run_id": "doerun-004",
+      "design_point_id": "dp-02r",
+      "coded": [
+        -1,
+        -1,
+        1
+      ],
+      "raw": {
+        "tdo_z4_temp": 196.0,
+        "mdo_speed": 310.0,
+        "tdo_ratio": 3.1
+      },
+      "planted": {
+        "thickness_um": 47.65,
+        "haze_pct": 2.06,
+        "tensile_mpa": 182.0,
+        "gauge_mean": 47.769999999999996,
+        "edge_dev": 0.19999999999999998
+      },
+      "block": "B1"
+    },
+    {
+      "run_id": "doerun-005",
+      "design_point_id": "dp-c1",
+      "coded": [
+        0,
+        0,
+        0
+      ],
+      "raw": {
+        "tdo_z4_temp": 200.0,
+        "mdo_speed": 320.0,
+        "tdo_ratio": 3.0
+      },
+      "planted": {
+        "thickness_um": 50.0,
+        "haze_pct": 2.0,
+        "tensile_mpa": 185.0,
+        "gauge_mean": 50.12,
+        "edge_dev": 0.22
+      },
+      "block": "B2"
+    },
+    {
+      "run_id": "doerun-006",
+      "design_point_id": "dp-03",
+      "coded": [
+        -1,
+        1,
+        -1
+      ],
+      "raw": {
+        "tdo_z4_temp": 196.0,
+        "mdo_speed": 330.0,
+        "tdo_ratio": 2.9
+      },
+      "planted": {
+        "thickness_um": 45.550000000000004,
+        "haze_pct": 1.76,
+        "tensile_mpa": 170.0,
+        "gauge_mean": 45.67,
+        "edge_dev": 0.13999999999999999
+      },
+      "block": "B3"
+    },
+    {
+      "run_id": "doerun-007",
+      "design_point_id": "dp-c5",
+      "coded": [
+        0,
+        0,
+        0
+      ],
+      "raw": {
+        "tdo_z4_temp": 200.0,
+        "mdo_speed": 320.0,
+        "tdo_ratio": 3.0
+      },
+      "planted": {
+        "thickness_um": 50.0,
+        "haze_pct": 2.0,
+        "tensile_mpa": 185.0,
+        "gauge_mean": 50.12,
+        "edge_dev": 0.22
+      },
+      "block": "B1"
+    },
+    {
+      "run_id": "doerun-008",
+      "design_point_id": "dp-11",
+      "coded": [
+        0,
+        -1,
+        0
+      ],
+      "raw": {
+        "tdo_z4_temp": 200.0,
+        "mdo_speed": 310.0,
+        "tdo_ratio": 3.0
+      },
+      "planted": {
+        "thickness_um": 50.1,
+        "haze_pct": 2.11,
+        "tensile_mpa": 189.0,
+        "gauge_mean": 50.22,
+        "edge_dev": 0.25
+      },
+      "block": "B2"
+    },
+    {
+      "run_id": "doerun-009",
+      "design_point_id": "dp-c2",
+      "coded": [
+        0,
+        0,
+        0
+      ],
+      "raw": {
+        "tdo_z4_temp": 200.0,
+        "mdo_speed": 320.0,
+        "tdo_ratio": 3.0
+      },
+      "planted": {
+        "thickness_um": 50.0,
+        "haze_pct": 2.0,
+        "tensile_mpa": 185.0,
+        "gauge_mean": 50.12,
+        "edge_dev": 0.22
+      },
+      "block": "B3"
+    },
+    {
+      "run_id": "doerun-010",
+      "design_point_id": "dp-c6",
+      "coded": [
+        0,
+        0,
+        0
+      ],
+      "raw": {
+        "tdo_z4_temp": 200.0,
+        "mdo_speed": 320.0,
+        "tdo_ratio": 3.0
+      },
+      "planted": {
+        "thickness_um": 50.0,
+        "haze_pct": 2.0,
+        "tensile_mpa": 185.0,
+        "gauge_mean": 50.12,
+        "edge_dev": 0.22
+      },
+      "block": "B1"
+    },
+    {
+      "run_id": "doerun-011",
+      "design_point_id": "dp-09",
+      "coded": [
+        -1,
+        0,
+        0
+      ],
+      "raw": {
+        "tdo_z4_temp": 196.0,
+        "mdo_speed": 320.0,
+        "tdo_ratio": 3.0
+      },
+      "planted": {
+        "thickness_um": 47.699999999999996,
+        "haze_pct": 1.9100000000000001,
+        "tensile_mpa": 176.0,
+        "gauge_mean": 47.81999999999999,
+        "edge_dev": 0.16999999999999998
+      },
+      "block": "B2"
+    },
+    {
+      "run_id": "doerun-012",
+      "design_point_id": "dp-02",
+      "coded": [
+        -1,
+        -1,
+        1
+      ],
+      "raw": {
+        "tdo_z4_temp": 196.0,
+        "mdo_speed": 310.0,
+        "tdo_ratio": 3.1
+      },
+      "planted": {
+        "thickness_um": 47.65,
+        "haze_pct": 2.06,
+        "tensile_mpa": 182.0,
+        "gauge_mean": 47.769999999999996,
+        "edge_dev": 0.19999999999999998
+      },
+      "block": "B3"
+    },
+    {
+      "run_id": "doerun-013",
+      "design_point_id": "dp-c4",
+      "coded": [
+        0,
+        0,
+        0
+      ],
+      "raw": {
+        "tdo_z4_temp": 200.0,
+        "mdo_speed": 320.0,
+        "tdo_ratio": 3.0
+      },
+      "planted": {
+        "thickness_um": 50.0,
+        "haze_pct": 2.0,
+        "tensile_mpa": 185.0,
+        "gauge_mean": 50.12,
+        "edge_dev": 0.22
+      },
+      "block": "B1"
+    },
+    {
+      "run_id": "doerun-014",
+      "design_point_id": "dp-10",
+      "coded": [
+        1,
+        0,
+        0
+      ],
+      "raw": {
+        "tdo_z4_temp": 204.0,
+        "mdo_speed": 320.0,
+        "tdo_ratio": 3.0
+      },
+      "planted": {
+        "thickness_um": 50.1,
+        "haze_pct": 2.23,
+        "tensile_mpa": 188.0,
+        "gauge_mean": 50.22,
+        "edge_dev": 0.27
+      },
+      "block": "B2"
+    },
+    {
+      "run_id": "doerun-015",
+      "design_point_id": "dp-07",
+      "coded": [
+        1,
+        1,
+        -1
+      ],
+      "raw": {
+        "tdo_z4_temp": 204.0,
+        "mdo_speed": 330.0,
+        "tdo_ratio": 2.9
+      },
+      "planted": {
+        "thickness_um": 48.95000000000001,
+        "haze_pct": 2.08,
+        "tensile_mpa": 182.0,
+        "gauge_mean": 49.07000000000001,
+        "edge_dev": 0.24000000000000002
+      },
+      "block": "B3"
+    },
+    {
+      "run_id": "doerun-016",
+      "design_point_id": "dp-08",
+      "coded": [
+        1,
+        1,
+        1
+      ],
+      "raw": {
+        "tdo_z4_temp": 204.0,
+        "mdo_speed": 330.0,
+        "tdo_ratio": 3.1
+      },
+      "planted": {
+        "thickness_um": 48.25000000000001,
+        "haze_pct": 2.16,
+        "tensile_mpa": 186.0,
+        "gauge_mean": 48.370000000000005,
+        "edge_dev": 0.24000000000000002
+      },
+      "block": "B1"
+    },
+    {
+      "run_id": "doerun-017",
+      "design_point_id": "dp-14",
+      "coded": [
+        0,
+        0,
+        1
+      ],
+      "raw": {
+        "tdo_z4_temp": 200.0,
+        "mdo_speed": 320.0,
+        "tdo_ratio": 3.1
+      },
+      "planted": {
+        "thickness_um": 49.35,
+        "haze_pct": 2.04,
+        "tensile_mpa": 187.0,
+        "gauge_mean": 49.47,
+        "edge_dev": 0.22
+      },
+      "block": "B2"
+    },
+    {
+      "run_id": "doerun-018",
+      "design_point_id": "dp-04",
+      "coded": [
+        -1,
+        1,
+        1
+      ],
+      "raw": {
+        "tdo_z4_temp": 196.0,
+        "mdo_speed": 330.0,
+        "tdo_ratio": 3.1
+      },
+      "planted": {
+        "thickness_um": 44.85,
+        "haze_pct": 1.84,
+        "tensile_mpa": 174.0,
+        "gauge_mean": 44.97,
+        "edge_dev": 0.13999999999999999
+      },
+      "block": "B3"
+    },
+    {
+      "run_id": "doerun-019",
+      "design_point_id": "dp-05",
+      "coded": [
+        1,
+        -1,
+        -1
+      ],
+      "raw": {
+        "tdo_z4_temp": 204.0,
+        "mdo_speed": 310.0,
+        "tdo_ratio": 2.9
+      },
+      "planted": {
+        "thickness_um": 49.75000000000001,
+        "haze_pct": 2.3,
+        "tensile_mpa": 190.0,
+        "gauge_mean": 49.870000000000005,
+        "edge_dev": 0.30000000000000004
+      },
+      "block": "B1"
+    },
+    {
+      "run_id": "doerun-020",
+      "design_point_id": "dp-13",
+      "coded": [
+        0,
+        0,
+        -1
+      ],
+      "raw": {
+        "tdo_z4_temp": 200.0,
+        "mdo_speed": 320.0,
+        "tdo_ratio": 2.9
+      },
+      "planted": {
+        "thickness_um": 50.050000000000004,
+        "haze_pct": 1.96,
+        "tensile_mpa": 183.0,
+        "gauge_mean": 50.17,
+        "edge_dev": 0.22
+      },
+      "block": "B2"
+    },
+    {
+      "run_id": "doerun-021",
+      "design_point_id": "dp-06",
+      "coded": [
+        1,
+        -1,
+        1
+      ],
+      "raw": {
+        "tdo_z4_temp": 204.0,
+        "mdo_speed": 310.0,
+        "tdo_ratio": 3.1
+      },
+      "planted": {
+        "thickness_um": 49.050000000000004,
+        "haze_pct": 2.38,
+        "tensile_mpa": 194.0,
+        "gauge_mean": 49.17,
+        "edge_dev": 0.30000000000000004
+      },
+      "block": "B3"
+    },
+    {
+      "run_id": "doerun-022",
+      "design_point_id": "dp-12",
+      "coded": [
+        0,
+        1,
+        0
+      ],
+      "raw": {
+        "tdo_z4_temp": 200.0,
+        "mdo_speed": 330.0,
+        "tdo_ratio": 3.0
+      },
+      "planted": {
+        "thickness_um": 48.300000000000004,
+        "haze_pct": 1.89,
+        "tensile_mpa": 181.0,
+        "gauge_mean": 48.42,
+        "edge_dev": 0.19
+      },
+      "block": "B1"
+    }
+  ]
+}

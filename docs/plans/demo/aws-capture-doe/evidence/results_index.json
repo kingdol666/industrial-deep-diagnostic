@@ -1,0 +1,247 @@
+{
+  "contract_version": "1.0",
+  "generated_by": "run_demo.py",
+  "scenarios": {
+    "anomaly": "quick-screen",
+    "fluctuation": "stability-report",
+    "doe": "doe-analysis"
+  },
+  "entries": [
+    {
+      "id": "doe_effects",
+      "title": "DOE 效应表（厚度/雾度/拉伸/在线测厚/剖面）",
+      "tags": [
+        "DOE",
+        "因子",
+        "效应",
+        "显著性",
+        "ANOVA",
+        "厚度",
+        "雾度",
+        "拉伸",
+        "q值"
+      ],
+      "path": "doe_effect_table.json",
+      "summary": "全因子主效应 + 2FI + 二次项，含效应 CI 与 BH q",
+      "metrics": {
+        "tdo_z4_temp": 1.2511,
+        "mdo_speed": -0.9375,
+        "tdo_ratio": -0.3597
+      }
+    },
+    {
+      "id": "doe_recommendations",
+      "title": "联合设定点与推荐操作窗",
+      "tags": [
+        "推荐",
+        "联合设定点",
+        "操作窗",
+        "优化",
+        "参数",
+        "执行",
+        "厚度",
+        "雾度",
+        "拉伸"
+      ],
+      "path": "doe_recommendations.json",
+      "summary": "joint_setpoints 是唯一可执行载体；逐因子窗口为边际诊断",
+      "metrics": {
+        "joint": {
+          "tdo_z4_temp": 200.0,
+          "mdo_speed": 317.5,
+          "tdo_ratio": 3.075
+        },
+        "D": 0.861011
+      }
+    },
+    {
+      "id": "doe_guidance",
+      "title": "平台落参指导（recipe patch）",
+      "tags": [
+        "平台",
+        "recipe",
+        "setpoint",
+        "执行",
+        "联合设定点",
+        "优化"
+      ],
+      "path": "doe_optimization_guidance.json",
+      "summary": "带 platform_ref 的 recipe_patch 与 node_setpoints",
+      "metrics": {
+        "patches": 3
+      }
+    },
+    {
+      "id": "doe_next_design",
+      "title": "下一轮布点建议",
+      "tags": [
+        "下一轮",
+        "布点",
+        "确认",
+        "augment",
+        "设计"
+      ],
+      "path": "doe_next_design.json",
+      "summary": "recommended_action=none",
+      "metrics": {}
+    },
+    {
+      "id": "doe_ontology",
+      "title": "场景本体与 Agent 理解 brief",
+      "tags": [
+        "本体",
+        "场景",
+        "机理",
+        "因子",
+        "响应",
+        "单位",
+        "混杂",
+        "审计"
+      ],
+      "path": "doe_ontology_brief.json",
+      "summary": "因子/响应/单位/预期方向/机理/混杂，coverage=1.0",
+      "metrics": {}
+    },
+    {
+      "id": "doe_association",
+      "title": "全参数关联筛查（causal_claim=none）",
+      "tags": [
+        "相关",
+        "关联",
+        "全参数",
+        "筛查",
+        "因果边界"
+      ],
+      "path": "doe_association_screen.json",
+      "summary": "设计校正 vs 边际关联；不进入任何窗口",
+      "metrics": {}
+    },
+    {
+      "id": "doe_consistency",
+      "title": "本体一致性校验（advisory）",
+      "tags": [
+        "本体",
+        "一致性",
+        "方向",
+        "矛盾"
+      ],
+      "path": "doe_ontology_consistency.json",
+      "summary": "预期方向 vs 实测效应；矛盾只作 advisory",
+      "metrics": {}
+    },
+    {
+      "id": "sentinel_alert",
+      "title": "异常筛查告警（SPC / 漂移投影 / 变点 / 稳健 z）",
+      "tags": [
+        "异常",
+        "告警",
+        "漂移",
+        "冻结",
+        "SPC",
+        "变点",
+        "温度"
+      ],
+      "path": "sentinel_alert.json",
+      "summary": "Z4 温度漂移投影与交接班张力台阶",
+      "metrics": {
+        "projection": [
+          {
+            "factor": "tdo_ratio",
+            "current": 3.000041906158358,
+            "window": [
+              2.9,
+              3.1
+            ],
+            "slope_per_hour": -4.8563112678702566e-05,
+            "hours_to_edge": 2060.0390016233805,
+            "level": "info"
+          },
+          {
+            "factor": "tdo_z4_temp",
+            "current": 204.7057731847507,
+            "window": [
+              198.0,
+              203.0
+            ],
+            "slope_per_hour": 0.8960884735236085,
+            "hours_to_edge": 0.0,
+            "level": "critical"
+          },
+          {
+            "factor": "mdo_speed",
+            "current": 320.03826617888564,
+            "window": [
+              310.0,
+              327.5
+            ],
+            "slope_per_hour": 0.020462107290479994,
+            "hours_to_edge": 364.66106423877176,
+            "level": "info"
+          }
+        ]
+      }
+    },
+    {
+      "id": "stability_report",
+      "title": "波动/稳定性报告（评分 + 证据链）",
+      "tags": [
+        "波动",
+        "稳定性",
+        "稳定性评分",
+        "评分",
+        "等级",
+        "Cpk",
+        "漂移"
+      ],
+      "path": "stability_report.json",
+      "summary": "综合评分与逐参数证据",
+      "metrics": {
+        "score": 53.9,
+        "grade": "C"
+      }
+    },
+    {
+      "id": "stability_html",
+      "title": "稳定性 HTML 落地页",
+      "tags": [
+        "报告",
+        "HTML",
+        "可视化",
+        "波动",
+        "稳定性"
+      ],
+      "path": "line_stability_report.html",
+      "summary": "可给企业全员阅读的中文报告",
+      "metrics": {}
+    },
+    {
+      "id": "doe_html",
+      "title": "DOE HTML 分析报告（含本体/joint/next design）",
+      "tags": [
+        "报告",
+        "HTML",
+        "可视化",
+        "DOE",
+        "联合设定点"
+      ],
+      "path": "doe_report.html",
+      "summary": "确定性渲染，§11 含本体 brief 与联合设定点",
+      "metrics": {}
+    },
+    {
+      "id": "hetero_contract",
+      "title": "异构特征契约（剖面/备注）",
+      "tags": [
+        "异构",
+        "剖面",
+        "特征",
+        "E-1H",
+        "多源"
+      ],
+      "path": "hetero_column_contract.json",
+      "summary": "每列公式/物理依据/证据等级/覆盖率",
+      "metrics": {}
+    }
+  ],
+  "path_base": "evidence/"
+}

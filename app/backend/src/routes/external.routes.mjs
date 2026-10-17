@@ -83,6 +83,14 @@ router.post('/v1/analyze', async (req, res) => {
       sceneName: body.sceneName,
       harness,
       analysisIntent: intent,
+      // DOE ontology-first policy (contracts §7.3). Omitted fields fall back to
+      // mode=auto/data_stage=collected; `off` is refused unless the dev override
+      // is explicitly set (an external caller can never silently skip the gate).
+      ontologyMode: body.ontologyMode,
+      ontologyScene: body.ontologyScene,
+      ontologySource: body.ontologySource,
+      ontologyDataStage: body.ontologyDataStage,
+      ontologyDevOverride: body.ontologyDevOverride,
       reportLanguage: body.reportLanguage || 'zh',
       userQuestion: body.question || '',
       maxTurns: body.maxTurns,

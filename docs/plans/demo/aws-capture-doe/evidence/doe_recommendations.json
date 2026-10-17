@@ -1,0 +1,1266 @@
+{
+  "contract_version": "1.1",
+  "audience": "downstream_agent",
+  "analysis_mode": "designed",
+  "operating_windows": [
+    {
+      "id": "OW-001",
+      "priority": 1,
+      "factor": "tdo_ratio",
+      "factor_unit": "-",
+      "response": "gauge_mean",
+      "range": [
+        2.9,
+        3.1
+      ],
+      "shape": "connected",
+      "expected_effect": {
+        "delta": -3.31452,
+        "direction_semantics": "因子 tdo_ratio 每增加 1 个原始单位，响应 gauge_mean 变化约 -3.31452（编码主效应 -0.331452/半极差 0.1）",
+        "ci95": null,
+        "unit": "um",
+        "mean_ci95": [
+          50.3723,
+          50.626043
+        ],
+        "pi95": [
+          50.197668,
+          50.800674
+        ],
+        "pi95_method": "ŷ ± t_{0.975,df_resid} · sqrt((1 + x0'(X'X)⁻¹x0) · MSE)",
+        "effect_ci95": [
+          -4.18283,
+          -2.44621
+        ],
+        "unit_status": "valid",
+        "response_unit": "um",
+        "tolerance_interval_95_95": [
+          50.100542,
+          50.8978
+        ]
+      },
+      "confidence": "high",
+      "fdr_q": 2.7947261788028343e-05,
+      "sample_size": 22,
+      "evidence_refs": [
+        "effect_table.json#gauge_mean.tdo_ratio.main"
+      ],
+      "extrapolation": true,
+      "confirmation_needed": false,
+      "notes": null,
+      "window_role": "marginal_diagnostic",
+      "in_design_hull": true,
+      "constraints_applied": [
+        {
+          "factor": "linear:tdo_ratio+tdo_z4_temp",
+          "type": "linear",
+          "min": null,
+          "max": 235.0,
+          "hard": true,
+          "source": "ontology"
+        }
+      ],
+      "constraint_violations": 0,
+      "predicted_at_center": {
+        "mean": 50.499171,
+        "mean_ci95": [
+          50.3723,
+          50.626043
+        ],
+        "pi95": [
+          50.197668,
+          50.800674
+        ],
+        "ti95_95": [
+          50.100542,
+          50.8978
+        ]
+      },
+      "actionable_blockers": [],
+      "actionable": true
+    },
+    {
+      "id": "OW-002",
+      "priority": 2,
+      "factor": "tdo_z4_temp",
+      "factor_unit": "°C",
+      "response": "gauge_mean",
+      "range": [
+        198.0,
+        203.0
+      ],
+      "shape": "connected",
+      "expected_effect": {
+        "delta": 0.301116,
+        "direction_semantics": "因子 tdo_z4_temp 每增加 1 个原始单位，响应 gauge_mean 变化约 0.301116（编码主效应 1.204465/半极差 4.0）",
+        "ci95": null,
+        "unit": "um",
+        "mean_ci95": [
+          50.099279,
+          50.40222
+        ],
+        "pi95": [
+          49.938098,
+          50.563401
+        ],
+        "pi95_method": "ŷ ± t_{0.975,df_resid} · sqrt((1 + x0'(X'X)⁻¹x0) · MSE)",
+        "effect_ci95": [
+          0.278635,
+          0.323597
+        ],
+        "unit_status": "valid",
+        "response_unit": "um",
+        "tolerance_interval_95_95": [
+          49.852121,
+          50.649379
+        ]
+      },
+      "confidence": "high",
+      "fdr_q": 2.4999426334368125e-09,
+      "sample_size": 22,
+      "evidence_refs": [
+        "effect_table.json#gauge_mean.tdo_z4_temp.main"
+      ],
+      "extrapolation": false,
+      "confirmation_needed": false,
+      "notes": null,
+      "window_role": "marginal_diagnostic",
+      "in_design_hull": true,
+      "constraints_applied": [
+        {
+          "factor": "tdo_z4_temp",
+          "type": "box",
+          "min": 195.0,
+          "max": 205.0,
+          "hard": true,
+          "source": "ontology"
+        },
+        {
+          "factor": "linear:tdo_ratio+tdo_z4_temp",
+          "type": "linear",
+          "min": null,
+          "max": 235.0,
+          "hard": true,
+          "source": "ontology"
+        }
+      ],
+      "constraint_violations": 0,
+      "predicted_at_center": {
+        "mean": 50.25075,
+        "mean_ci95": [
+          50.099279,
+          50.40222
+        ],
+        "pi95": [
+          49.938098,
+          50.563401
+        ],
+        "ti95_95": [
+          49.852121,
+          50.649379
+        ]
+      },
+      "actionable_blockers": [],
+      "actionable": true
+    },
+    {
+      "id": "OW-003",
+      "priority": 3,
+      "factor": "mdo_speed",
+      "factor_unit": "m/min",
+      "response": "gauge_mean",
+      "range": [
+        310.0,
+        327.5
+      ],
+      "shape": "connected",
+      "expected_effect": {
+        "delta": -0.089284,
+        "direction_semantics": "因子 mdo_speed 每增加 1 个原始单位，响应 gauge_mean 变化约 -0.089284（编码主效应 -0.892839/半极差 10.0）",
+        "ci95": null,
+        "unit": "um",
+        "mean_ci95": [
+          49.895755,
+          50.201254
+        ],
+        "pi95": [
+          49.735232,
+          50.361778
+        ],
+        "pi95_method": "ŷ ± t_{0.975,df_resid} · sqrt((1 + x0'(X'X)⁻¹x0) · MSE)",
+        "effect_ci95": [
+          -0.097789,
+          -0.080779
+        ],
+        "unit_status": "valid",
+        "response_unit": "um",
+        "tolerance_interval_95_95": [
+          49.649876,
+          50.447134
+        ]
+      },
+      "confidence": "high",
+      "fdr_q": 1.09304984773007e-08,
+      "sample_size": 22,
+      "evidence_refs": [
+        "effect_table.json#gauge_mean.mdo_speed.main"
+      ],
+      "extrapolation": true,
+      "confirmation_needed": false,
+      "notes": null,
+      "window_role": "marginal_diagnostic",
+      "in_design_hull": true,
+      "constraints_applied": [],
+      "constraint_violations": 0,
+      "predicted_at_center": {
+        "mean": 50.048505,
+        "mean_ci95": [
+          49.895755,
+          50.201254
+        ],
+        "pi95": [
+          49.735232,
+          50.361778
+        ],
+        "ti95_95": [
+          49.649876,
+          50.447134
+        ]
+      },
+      "actionable_blockers": [],
+      "actionable": true
+    }
+  ],
+  "current_baseline": {
+    "point": {
+      "tdo_ratio": 3.1,
+      "tdo_z4_temp": 196.0,
+      "mdo_speed": 330.0
+    },
+    "distance_to_window": {
+      "OW-001": 0.0,
+      "OW-002": 2.0,
+      "OW-003": 2.5
+    },
+    "move_instruction": "优先处理 OW-001：将 tdo_ratio 调整至 [2.9, 3.1]（当前已在窗内）",
+    "source": {
+      "tdo_ratio": "current_setpoint",
+      "tdo_z4_temp": "current_setpoint",
+      "mdo_speed": "current_setpoint"
+    }
+  },
+  "setpoints": [
+    {
+      "factor": "MULTI",
+      "value": 0.0,
+      "expected_response": {
+        "kind": "joint_setpoint",
+        "setpoint_id": "JS-001",
+        "raw": {
+          "tdo_z4_temp": 200.0,
+          "mdo_speed": 317.5,
+          "tdo_ratio": 3.075
+        },
+        "D": 0.861011,
+        "responses_satisfied": [
+          "thickness_um",
+          "haze_pct",
+          "tensile_mpa",
+          "gauge_mean"
+        ],
+        "selection_scale": "desirability",
+        "predicted": {
+          "thickness_um": {
+            "mean": 49.963828,
+            "mean_ci95": [
+              49.716584,
+              50.211073
+            ],
+            "pi95": [
+              49.452213,
+              50.475444
+            ],
+            "d": 0.981914,
+            "unit_status": "valid"
+          },
+          "haze_pct": {
+            "mean": 2.063767,
+            "mean_ci95": [
+              1.989259,
+              2.138275
+            ],
+            "pi95": [
+              1.90959,
+              2.217944
+            ],
+            "d": 1.0,
+            "unit_status": "valid"
+          },
+          "tensile_mpa": {
+            "mean": 188.670888,
+            "mean_ci95": [
+              186.574453,
+              190.767322
+            ],
+            "pi95": [
+              184.332802,
+              193.008974
+            ],
+            "d": 0.843812,
+            "unit_status": "valid"
+          },
+          "gauge_mean": {
+            "mean": 50.131293,
+            "mean_ci95": [
+              49.980316,
+              50.282271
+            ],
+            "pi95": [
+              49.818881,
+              50.443706
+            ],
+            "d": 0.934353,
+            "unit_status": "valid"
+          },
+          "HX-PROF-PROFILES-EDGE-L-DEV": {
+            "mean": 0.04744,
+            "mean_ci95": [
+              0.041883,
+              0.052996
+            ],
+            "pi95": [
+              0.035942,
+              0.058938
+            ],
+            "d": 0.491932,
+            "unit_status": "valid"
+          }
+        }
+      },
+      "confidence": "medium"
+    },
+    {
+      "factor": "tdo_z4_temp",
+      "value": 200.0,
+      "expected_response": {
+        "kind": "joint_setpoint",
+        "setpoint_id": "JS-001",
+        "responses_satisfied": [
+          "thickness_um",
+          "haze_pct",
+          "tensile_mpa",
+          "gauge_mean"
+        ],
+        "desirability": 0.861011,
+        "selection_scale": "desirability",
+        "predicted": {
+          "thickness_um": {
+            "mean": 49.963828,
+            "mean_ci95": [
+              49.716584,
+              50.211073
+            ],
+            "pi95": [
+              49.452213,
+              50.475444
+            ],
+            "d": 0.981914,
+            "unit_status": "valid"
+          },
+          "haze_pct": {
+            "mean": 2.063767,
+            "mean_ci95": [
+              1.989259,
+              2.138275
+            ],
+            "pi95": [
+              1.90959,
+              2.217944
+            ],
+            "d": 1.0,
+            "unit_status": "valid"
+          },
+          "tensile_mpa": {
+            "mean": 188.670888,
+            "mean_ci95": [
+              186.574453,
+              190.767322
+            ],
+            "pi95": [
+              184.332802,
+              193.008974
+            ],
+            "d": 0.843812,
+            "unit_status": "valid"
+          },
+          "gauge_mean": {
+            "mean": 50.131293,
+            "mean_ci95": [
+              49.980316,
+              50.282271
+            ],
+            "pi95": [
+              49.818881,
+              50.443706
+            ],
+            "d": 0.934353,
+            "unit_status": "valid"
+          },
+          "HX-PROF-PROFILES-EDGE-L-DEV": {
+            "mean": 0.04744,
+            "mean_ci95": [
+              0.041883,
+              0.052996
+            ],
+            "pi95": [
+              0.035942,
+              0.058938
+            ],
+            "d": 0.491932,
+            "unit_status": "valid"
+          }
+        }
+      },
+      "confidence": "medium"
+    },
+    {
+      "factor": "mdo_speed",
+      "value": 317.5,
+      "expected_response": {
+        "kind": "joint_setpoint",
+        "setpoint_id": "JS-001",
+        "responses_satisfied": [
+          "thickness_um",
+          "haze_pct",
+          "tensile_mpa",
+          "gauge_mean"
+        ],
+        "desirability": 0.861011,
+        "selection_scale": "desirability",
+        "predicted": {
+          "thickness_um": {
+            "mean": 49.963828,
+            "mean_ci95": [
+              49.716584,
+              50.211073
+            ],
+            "pi95": [
+              49.452213,
+              50.475444
+            ],
+            "d": 0.981914,
+            "unit_status": "valid"
+          },
+          "haze_pct": {
+            "mean": 2.063767,
+            "mean_ci95": [
+              1.989259,
+              2.138275
+            ],
+            "pi95": [
+              1.90959,
+              2.217944
+            ],
+            "d": 1.0,
+            "unit_status": "valid"
+          },
+          "tensile_mpa": {
+            "mean": 188.670888,
+            "mean_ci95": [
+              186.574453,
+              190.767322
+            ],
+            "pi95": [
+              184.332802,
+              193.008974
+            ],
+            "d": 0.843812,
+            "unit_status": "valid"
+          },
+          "gauge_mean": {
+            "mean": 50.131293,
+            "mean_ci95": [
+              49.980316,
+              50.282271
+            ],
+            "pi95": [
+              49.818881,
+              50.443706
+            ],
+            "d": 0.934353,
+            "unit_status": "valid"
+          },
+          "HX-PROF-PROFILES-EDGE-L-DEV": {
+            "mean": 0.04744,
+            "mean_ci95": [
+              0.041883,
+              0.052996
+            ],
+            "pi95": [
+              0.035942,
+              0.058938
+            ],
+            "d": 0.491932,
+            "unit_status": "valid"
+          }
+        }
+      },
+      "confidence": "medium"
+    },
+    {
+      "factor": "tdo_ratio",
+      "value": 3.075,
+      "expected_response": {
+        "kind": "joint_setpoint",
+        "setpoint_id": "JS-001",
+        "responses_satisfied": [
+          "thickness_um",
+          "haze_pct",
+          "tensile_mpa",
+          "gauge_mean"
+        ],
+        "desirability": 0.861011,
+        "selection_scale": "desirability",
+        "predicted": {
+          "thickness_um": {
+            "mean": 49.963828,
+            "mean_ci95": [
+              49.716584,
+              50.211073
+            ],
+            "pi95": [
+              49.452213,
+              50.475444
+            ],
+            "d": 0.981914,
+            "unit_status": "valid"
+          },
+          "haze_pct": {
+            "mean": 2.063767,
+            "mean_ci95": [
+              1.989259,
+              2.138275
+            ],
+            "pi95": [
+              1.90959,
+              2.217944
+            ],
+            "d": 1.0,
+            "unit_status": "valid"
+          },
+          "tensile_mpa": {
+            "mean": 188.670888,
+            "mean_ci95": [
+              186.574453,
+              190.767322
+            ],
+            "pi95": [
+              184.332802,
+              193.008974
+            ],
+            "d": 0.843812,
+            "unit_status": "valid"
+          },
+          "gauge_mean": {
+            "mean": 50.131293,
+            "mean_ci95": [
+              49.980316,
+              50.282271
+            ],
+            "pi95": [
+              49.818881,
+              50.443706
+            ],
+            "d": 0.934353,
+            "unit_status": "valid"
+          },
+          "HX-PROF-PROFILES-EDGE-L-DEV": {
+            "mean": 0.04744,
+            "mean_ci95": [
+              0.041883,
+              0.052996
+            ],
+            "pi95": [
+              0.035942,
+              0.058938
+            ],
+            "d": 0.491932,
+            "unit_status": "valid"
+          }
+        }
+      },
+      "confidence": "medium"
+    }
+  ],
+  "interactions": [
+    {
+      "pair": [
+        "tdo_z4_temp",
+        "mdo_speed"
+      ],
+      "nature": "交互显著（q=0.00044420590568106577, partial η²=0.809599），thickness_um 的因子效应随另一因子水平变化",
+      "q_value_bh": 0.00044420590568106577
+    },
+    {
+      "pair": [
+        "tdo_z4_temp",
+        "mdo_speed"
+      ],
+      "nature": "交互显著（q=2.7947261788028343e-05, partial η²=0.886407），gauge_mean 的因子效应随另一因子水平变化",
+      "q_value_bh": 2.7947261788028343e-05
+    }
+  ],
+  "conflicts": [],
+  "response_specs": {
+    "thickness_um": {
+      "lsl": 48.0,
+      "usl": 52.0,
+      "target": 50.0,
+      "goal": "target",
+      "current": 49.000841
+    },
+    "haze_pct": {
+      "lsl": null,
+      "usl": 2.2,
+      "target": null,
+      "goal": "minimize",
+      "current": 2.05125
+    },
+    "tensile_mpa": {
+      "lsl": 170.0,
+      "usl": null,
+      "target": null,
+      "goal": "maximize",
+      "current": 183.4665
+    },
+    "gauge_mean": {
+      "lsl": 48.0,
+      "usl": 52.0,
+      "target": 50.0,
+      "goal": "target",
+      "current": 49.16878
+    },
+    "HX-PROF-PROFILES-EDGE-L-DEV": {
+      "lsl": null,
+      "usl": null,
+      "target": null,
+      "goal": "minimize",
+      "current": 0.048272
+    }
+  },
+  "confirmations": [],
+  "watchlist": [
+    {
+      "code": "STATIONARY_POINT_WARNING",
+      "message": "响应 haze_pct: 驻点为鞍点或落在设计域外 — 仅作警告，优化请在盒约束内进行 (W3/W5)",
+      "response": "haze_pct"
+    },
+    {
+      "code": "STATIONARY_POINT_WARNING",
+      "message": "响应 tensile_mpa: 驻点为鞍点或落在设计域外 — 仅作警告，优化请在盒约束内进行 (W3/W5)",
+      "response": "tensile_mpa"
+    },
+    {
+      "code": "STATIONARY_POINT_WARNING",
+      "message": "响应 HX-PROF-PROFILES-EDGE-L-DEV: 驻点为鞍点或落在设计域外 — 仅作警告，优化请在盒约束内进行 (W3/W5)",
+      "response": "HX-PROF-PROFILES-EDGE-L-DEV"
+    }
+  ],
+  "constraints": [
+    {
+      "factor": "tdo_z4_temp",
+      "type": "box",
+      "min": 195.0,
+      "max": 205.0,
+      "hard": true,
+      "source": "ontology"
+    },
+    {
+      "factor": "linear:tdo_ratio+tdo_z4_temp",
+      "type": "linear",
+      "min": null,
+      "max": 235.0,
+      "hard": true,
+      "source": "ontology"
+    }
+  ],
+  "applicability_domain": {
+    "n_rows": 22,
+    "time_span": null,
+    "regime": "designed region",
+    "factor_observed_ranges": {
+      "tdo_ratio": {
+        "min": 2.9,
+        "max": 3.1
+      },
+      "tdo_z4_temp": {
+        "min": 196.0,
+        "max": 204.0
+      },
+      "mdo_speed": {
+        "min": 310.0,
+        "max": 330.0
+      }
+    }
+  },
+  "invalidation_conditions": [
+    "任一因子越出 applicability_domain.factor_observed_ranges 的 ±20%",
+    "stability_report 变点检测触发新 regime（漂移/换产）",
+    "确认试验结果与 expected_effect 的 CI95 不相交"
+  ],
+  "usage_rules": [
+    "窗口外推端点（extrapolation=true）需工艺确认后方可执行",
+    "多响应窗口冲突以 conflicts[].chosen 为准"
+  ],
+  "provenance": {
+    "input_sha256": "f7d8a46a528e4501067d1df6c0646a0a089b229ea5b8471f51c7e4d165767667",
+    "script_version": "1.1.0",
+    "seed": null,
+    "authored_by": "script"
+  },
+  "joint_windows": [
+    {
+      "id": "JW-001",
+      "responses": [
+        "thickness_um",
+        "haze_pct",
+        "tensile_mpa",
+        "gauge_mean",
+        "HX-PROF-PROFILES-EDGE-L-DEV"
+      ],
+      "factors": {
+        "tdo_z4_temp": [
+          196.0,
+          203.0
+        ],
+        "mdo_speed": [
+          310.0,
+          330.0
+        ],
+        "tdo_ratio": [
+          2.9,
+          3.1
+        ]
+      },
+      "feasible": true,
+      "constraint_violations": 0,
+      "predicted": {
+        "thickness_um": {
+          "mean": 49.963828,
+          "mean_ci95": [
+            49.716584,
+            50.211073
+          ],
+          "pi95": [
+            49.452213,
+            50.475444
+          ],
+          "d": 0.981914,
+          "unit_status": "valid"
+        },
+        "haze_pct": {
+          "mean": 2.063767,
+          "mean_ci95": [
+            1.989259,
+            2.138275
+          ],
+          "pi95": [
+            1.90959,
+            2.217944
+          ],
+          "d": 1.0,
+          "unit_status": "valid"
+        },
+        "tensile_mpa": {
+          "mean": 188.670888,
+          "mean_ci95": [
+            186.574453,
+            190.767322
+          ],
+          "pi95": [
+            184.332802,
+            193.008974
+          ],
+          "d": 0.843812,
+          "unit_status": "valid"
+        },
+        "gauge_mean": {
+          "mean": 50.131293,
+          "mean_ci95": [
+            49.980316,
+            50.282271
+          ],
+          "pi95": [
+            49.818881,
+            50.443706
+          ],
+          "d": 0.934353,
+          "unit_status": "valid"
+        },
+        "HX-PROF-PROFILES-EDGE-L-DEV": {
+          "mean": 0.04744,
+          "mean_ci95": [
+            0.041883,
+            0.052996
+          ],
+          "pi95": [
+            0.035942,
+            0.058938
+          ],
+          "d": 0.491932,
+          "unit_status": "valid"
+        }
+      },
+      "desirability": 0.861011,
+      "method": "grid_search",
+      "evidence_level": "L3",
+      "responses_satisfied": [
+        "thickness_um",
+        "haze_pct",
+        "tensile_mpa",
+        "gauge_mean"
+      ],
+      "hard_constraint_violations": 0,
+      "constraint_slack": {
+        "tdo_ratio": 4.25,
+        "tdo_z4_temp": 4.25
+      },
+      "confidence": "medium",
+      "window_ids": [
+        "OW-001",
+        "OW-002",
+        "OW-003"
+      ],
+      "unit_status": "valid",
+      "actionable": true,
+      "blockers": [],
+      "selection_scale": "desirability"
+    }
+  ],
+  "joint_setpoints": [
+    {
+      "id": "JS-001",
+      "method": "grid_search",
+      "factors": {
+        "tdo_z4_temp": 200.0,
+        "mdo_speed": 317.5,
+        "tdo_ratio": 3.075
+      },
+      "predicted": {
+        "thickness_um": {
+          "mean": 49.963828,
+          "mean_ci95": [
+            49.716584,
+            50.211073
+          ],
+          "pi95": [
+            49.452213,
+            50.475444
+          ],
+          "d": 0.981914,
+          "unit_status": "valid"
+        },
+        "haze_pct": {
+          "mean": 2.063767,
+          "mean_ci95": [
+            1.989259,
+            2.138275
+          ],
+          "pi95": [
+            1.90959,
+            2.217944
+          ],
+          "d": 1.0,
+          "unit_status": "valid"
+        },
+        "tensile_mpa": {
+          "mean": 188.670888,
+          "mean_ci95": [
+            186.574453,
+            190.767322
+          ],
+          "pi95": [
+            184.332802,
+            193.008974
+          ],
+          "d": 0.843812,
+          "unit_status": "valid"
+        },
+        "gauge_mean": {
+          "mean": 50.131293,
+          "mean_ci95": [
+            49.980316,
+            50.282271
+          ],
+          "pi95": [
+            49.818881,
+            50.443706
+          ],
+          "d": 0.934353,
+          "unit_status": "valid"
+        },
+        "HX-PROF-PROFILES-EDGE-L-DEV": {
+          "mean": 0.04744,
+          "mean_ci95": [
+            0.041883,
+            0.052996
+          ],
+          "pi95": [
+            0.035942,
+            0.058938
+          ],
+          "d": 0.491932,
+          "unit_status": "valid"
+        }
+      },
+      "responses_satisfied": [
+        "thickness_um",
+        "haze_pct",
+        "tensile_mpa",
+        "gauge_mean"
+      ],
+      "feasible": true,
+      "hard_constraint_violations": 0,
+      "constraint_slack": {
+        "tdo_ratio": 4.25,
+        "tdo_z4_temp": 4.25
+      },
+      "desirability": 0.861011,
+      "joint_coverage": 0.75,
+      "evidence_level": "L3",
+      "confidence": "medium",
+      "window_ids": [
+        "OW-001",
+        "OW-002",
+        "OW-003"
+      ],
+      "unit_status": "valid",
+      "actionable": true,
+      "blockers": [],
+      "responses": [
+        "thickness_um",
+        "haze_pct",
+        "tensile_mpa",
+        "gauge_mean",
+        "HX-PROF-PROFILES-EDGE-L-DEV"
+      ],
+      "selection_scale": "desirability"
+    }
+  ],
+  "units": {
+    "factors": {
+      "mdo_speed": {
+        "canonical": "m/min",
+        "display": "m/min",
+        "unit_status": "valid",
+        "source": "analysis_context.factors[].unit"
+      },
+      "tdo_ratio": {
+        "canonical": "-",
+        "display": "-",
+        "unit_status": "valid",
+        "source": "analysis_context.factors[].unit"
+      },
+      "tdo_z4_temp": {
+        "canonical": "degC",
+        "display": "°C",
+        "unit_status": "valid",
+        "source": "analysis_context.factors[].unit"
+      }
+    },
+    "responses": {
+      "HX-PROF-PROFILES-EDGE-L-DEV": {
+        "canonical": "um",
+        "display": "um",
+        "unit_status": "valid",
+        "source": "analysis_context.responses[].unit"
+      },
+      "gauge_mean": {
+        "canonical": "um",
+        "display": "um",
+        "unit_status": "valid",
+        "source": "analysis_context.responses[].unit"
+      },
+      "haze_pct": {
+        "canonical": "%",
+        "display": "%",
+        "unit_status": "valid",
+        "source": "analysis_context.responses[].unit"
+      },
+      "tensile_mpa": {
+        "canonical": "MPa",
+        "display": "MPa",
+        "unit_status": "valid",
+        "source": "analysis_context.responses[].unit"
+      },
+      "thickness_um": {
+        "canonical": "um",
+        "display": "um",
+        "unit_status": "valid",
+        "source": "analysis_context.responses[].unit"
+      }
+    },
+    "conflicts": []
+  },
+  "design_region": {
+    "type": "rsm_ccd",
+    "hull": "box",
+    "coded_bounds": {
+      "tdo_z4_temp": {
+        "min": 196.0,
+        "max": 204.0,
+        "coded_min": -1.0,
+        "coded_max": 1.0
+      },
+      "mdo_speed": {
+        "min": 310.0,
+        "max": 330.0,
+        "coded_min": -1.0,
+        "coded_max": 1.0
+      },
+      "tdo_ratio": {
+        "min": 2.9,
+        "max": 3.1,
+        "coded_min": -1.0,
+        "coded_max": 1.0
+      }
+    },
+    "axial_alpha": 1.0,
+    "max_leverage": 0.835979,
+    "mean_leverage": 0.590909,
+    "leverage_threshold": 1.181818,
+    "n_exceed": 0,
+    "extrapolation_risk": "low",
+    "evaluated_points": 729,
+    "design_hull_confidence": "medium",
+    "factor_order": [
+      "tdo_z4_temp",
+      "mdo_speed",
+      "tdo_ratio"
+    ],
+    "n_design_rows": 22,
+    "note": "CCD detected but no cube-corner level — box hull | declared design_hull='ccd_star' vs data-derived 'box' — data-derived hull wins"
+  },
+  "grid_plan": {
+    "n_active": 3,
+    "top_k": 8,
+    "grid_n": 9,
+    "n_grid_points": 729,
+    "approach": "grid",
+    "max_grid_points": 200000,
+    "deferred_factors": [],
+    "truncated": false,
+    "n_grid_factors": 3
+  },
+  "factor_response_matrix": [
+    {
+      "factor": "mdo_speed",
+      "response": "HX-PROF-PROFILES-EDGE-L-DEV",
+      "window_id": null,
+      "no_window_reason": "DESIGN_NOT_INFORMATIVE",
+      "delta": -0.001447,
+      "effect_size": 0.923991,
+      "direction": "-",
+      "fdr_q": 1.3520577802854519e-05,
+      "evidence_level": "L3",
+      "confidence": "high"
+    },
+    {
+      "factor": "mdo_speed",
+      "response": "gauge_mean",
+      "window_id": "OW-003",
+      "no_window_reason": null,
+      "delta": -0.089284,
+      "effect_size": 0.984291,
+      "direction": "-",
+      "fdr_q": 1.09304984773007e-08,
+      "evidence_level": "L3",
+      "confidence": "high"
+    },
+    {
+      "factor": "mdo_speed",
+      "response": "haze_pct",
+      "window_id": null,
+      "no_window_reason": "DESIGN_NOT_INFORMATIVE",
+      "delta": -0.011079,
+      "effect_size": 0.798439,
+      "direction": "-",
+      "fdr_q": 0.0011543058985414027,
+      "evidence_level": "L3",
+      "confidence": "high"
+    },
+    {
+      "factor": "mdo_speed",
+      "response": "tensile_mpa",
+      "window_id": null,
+      "no_window_reason": "DESIGN_NOT_INFORMATIVE",
+      "delta": -0.343155,
+      "effect_size": 0.827595,
+      "direction": "-",
+      "fdr_q": 0.0005633536158328703,
+      "evidence_level": "L3",
+      "confidence": "high"
+    },
+    {
+      "factor": "mdo_speed",
+      "response": "thickness_um",
+      "window_id": null,
+      "no_window_reason": "DESIGN_NOT_INFORMATIVE",
+      "delta": -0.093749,
+      "effect_size": 0.96263,
+      "direction": "-",
+      "fdr_q": 5.448420391317273e-07,
+      "evidence_level": "L3",
+      "confidence": "high"
+    },
+    {
+      "factor": "tdo_ratio",
+      "response": "HX-PROF-PROFILES-EDGE-L-DEV",
+      "window_id": null,
+      "no_window_reason": "NO_SIGNIFICANT_FACTOR",
+      "delta": -0.0144,
+      "effect_size": 0.103446,
+      "direction": "-",
+      "fdr_q": 0.6236777501932906,
+      "evidence_level": "L3",
+      "confidence": "low"
+    },
+    {
+      "factor": "tdo_ratio",
+      "response": "gauge_mean",
+      "window_id": "OW-001",
+      "no_window_reason": null,
+      "delta": -3.31452,
+      "effect_size": 0.8923,
+      "direction": "-",
+      "fdr_q": 2.7947261788028343e-05,
+      "evidence_level": "L3",
+      "confidence": "high"
+    },
+    {
+      "factor": "tdo_ratio",
+      "response": "haze_pct",
+      "window_id": null,
+      "no_window_reason": "NO_SIGNIFICANT_FACTOR",
+      "delta": 0.42767,
+      "effect_size": 0.361573,
+      "direction": "+",
+      "fdr_q": 0.18467842270902526,
+      "evidence_level": "L3",
+      "confidence": "low"
+    },
+    {
+      "factor": "tdo_ratio",
+      "response": "tensile_mpa",
+      "window_id": null,
+      "no_window_reason": "DESIGN_NOT_INFORMATIVE",
+      "delta": 25.53285,
+      "effect_size": 0.718297,
+      "direction": "+",
+      "fdr_q": 0.0036181148833366815,
+      "evidence_level": "L3",
+      "confidence": "high"
+    },
+    {
+      "factor": "tdo_ratio",
+      "response": "thickness_um",
+      "window_id": null,
+      "no_window_reason": "DESIGN_NOT_INFORMATIVE",
+      "delta": -3.59744,
+      "effect_size": 0.784447,
+      "direction": "-",
+      "fdr_q": 0.0006288870845154959,
+      "evidence_level": "L3",
+      "confidence": "high"
+    },
+    {
+      "factor": "tdo_z4_temp",
+      "response": "HX-PROF-PROFILES-EDGE-L-DEV",
+      "window_id": null,
+      "no_window_reason": "DESIGN_NOT_INFORMATIVE",
+      "delta": 0.005891,
+      "effect_size": 0.96647,
+      "direction": "+",
+      "fdr_q": 6.678309781246097e-07,
+      "evidence_level": "L3",
+      "confidence": "high"
+    },
+    {
+      "factor": "tdo_z4_temp",
+      "response": "gauge_mean",
+      "window_id": "OW-002",
+      "no_window_reason": null,
+      "delta": 0.301116,
+      "effect_size": 0.990292,
+      "direction": "+",
+      "fdr_q": 2.4999426334368125e-09,
+      "evidence_level": "L3",
+      "confidence": "high"
+    },
+    {
+      "factor": "tdo_z4_temp",
+      "response": "haze_pct",
+      "window_id": null,
+      "no_window_reason": "DESIGN_NOT_INFORMATIVE",
+      "delta": 0.040796,
+      "effect_size": 0.884905,
+      "direction": "+",
+      "fdr_q": 0.00017801733890432663,
+      "evidence_level": "L3",
+      "confidence": "high"
+    },
+    {
+      "factor": "tdo_z4_temp",
+      "response": "tensile_mpa",
+      "window_id": null,
+      "no_window_reason": "DESIGN_NOT_INFORMATIVE",
+      "delta": 1.319324,
+      "effect_size": 0.910366,
+      "direction": "+",
+      "fdr_q": 5.7131547405691474e-05,
+      "evidence_level": "L3",
+      "confidence": "high"
+    },
+    {
+      "factor": "tdo_z4_temp",
+      "response": "thickness_um",
+      "window_id": null,
+      "no_window_reason": "DESIGN_NOT_INFORMATIVE",
+      "delta": 0.312774,
+      "effect_size": 0.976213,
+      "direction": "+",
+      "fdr_q": 1.4188844730148323e-07,
+      "evidence_level": "L3",
+      "confidence": "high"
+    }
+  ],
+  "actionable_summary": {
+    "n_actionable": 4,
+    "n_blocked": 0,
+    "blocked": []
+  },
+  "interval_disclosure": {
+    "pi_method": "ŷ ± t_{0.975,df_resid} · sqrt((1 + x0'(X'X)⁻¹x0) · MSE)",
+    "ci_method": "ŷ ± t_{0.975,df_resid} · sqrt(x0'(X'X)⁻¹x0 · MSE)（均值响应，不是预测区间）",
+    "effect_ci_method": "β̂ ± t_{0.975,df_resid} · sqrt(diag((X'X)⁻¹) · MSE)",
+    "tolerance_method": "ŷ ± k·s, k = sqrt(ν(1+1/n)·z²_{(1+p)/2} / χ²_{ν,α}), p=0.95, α=0.05, ν=df_resid, s=sqrt(MSE)",
+    "note": "四类区间互不替代：ci95/mean_ci95=均值响应 95% CI（既有 ci95 语义，本版未改写）；pi95=单个未来观测预测区间（含 1 +，同点宽度必大于均值 CI）；pi95 不是合格率/通过率/收率，禁止据此宣称达标；tolerance_interval_95_95=95% 总体 @95% 置信容差区间。joint_coverage 为多响应联合覆盖的 Bonferroni 名义值 1-0.05*m。联合选优标度：desirability（禁止跨单位比较 raw delta，DS-04）。",
+    "joint_coverage": 0.75,
+    "coverage_check": {
+      "n": 2000,
+      "pi_point_coverage": 0.95
+    }
+  },
+  "association_screen_ref": {
+    "path": "02_analysis/association_screen.json",
+    "sha256": "7869bd492360faf6a51ff41764403cec7d305887087ec50a8ccc56eb1aca54e2",
+    "n_pairs": 45,
+    "causal_claim": "none"
+  },
+  "next_design_ref": {
+    "path": "conclusions/next_design.json",
+    "sha256": "6b23e73a80251bcc6eccbd4fa433d22debe70f30c41fcd028c278ce2ad9390ed",
+    "recommended_action": "none",
+    "primary_action_id": "ND-01"
+  }
+}

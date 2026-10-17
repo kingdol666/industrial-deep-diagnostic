@@ -1,0 +1,470 @@
+{
+  "contract_version": "1.0",
+  "artifact": "ontology_brief",
+  "scene_key": "bopet-lineA-12um-tdo",
+  "profile": "doe",
+  "data_stage": "collected",
+  "ontology_version": 1,
+  "ontology_sha256": "sha256:2d4002a825c7d22a8aa66710c5d876e5cd7942d2f0c8ea4726e7dae839dd5236",
+  "context_fp": "sha256:5145e3a39ae4c103403cf13bd0646a9c9bc7138780497244cbb9a8336f003a19",
+  "scene": {
+    "name": "bopet-lineA-12um-tdo",
+    "process_type": "bopet-lineA",
+    "production_goal": "在厚度 50±2 µm、雾度 ≤2.2% 的约束下提高拉伸强度并稳定厚度：给出可执行的联合设定点与下一轮设计",
+    "objective": "在厚度 50±2 µm、雾度 ≤2.2% 的约束下提高拉伸强度并稳定厚度：给出可执行的联合设定点与下一轮设计",
+    "equipment": [],
+    "stages": [],
+    "design_type": "rsm_ccd",
+    "design_region": {
+      "factorial_bounds": {
+        "tdo_z4_temp": [
+          196.0,
+          204.0
+        ],
+        "mdo_speed": [
+          310.0,
+          330.0
+        ],
+        "tdo_ratio": [
+          2.9,
+          3.1
+        ]
+      },
+      "axial_alpha": 1.0,
+      "design_hull": "ccd_star"
+    },
+    "experiment_id": "doe-aws-bopet-ccd-20261017",
+    "line_id": "bopet-lineA",
+    "product_id": "BOPET-12um",
+    "recipe_id": "RCP-12A"
+  },
+  "factors": [
+    {
+      "name": "tdo_z4_temp",
+      "col": "tdo_z4_temp",
+      "type": "numeric",
+      "unit": "°C",
+      "expected_sign": "+",
+      "physical_meaning": "TDO 第4区加热温度：提高取向与结晶，厚度上升、雾度上升",
+      "ontology_signal": "tdo_z4_temp",
+      "confidence": "INFERRED",
+      "mapping_status": "matched",
+      "mapping_reason": "factor 'tdo_z4_temp' bound to ontology signal 'tdo_z4_temp'",
+      "role": "control",
+      "min": 196.0,
+      "max": 204.0,
+      "levels": null,
+      "expected_data_behavior": "先验声明：196.0~204.0 °C 区间内可设定；方向预期 +",
+      "observed_data_behavior": null,
+      "governing_law": null
+    },
+    {
+      "name": "mdo_speed",
+      "col": "mdo_speed",
+      "type": "numeric",
+      "unit": "m/min",
+      "expected_sign": "-",
+      "physical_meaning": "MDO 车速：提高纵向拉伸，厚度下降",
+      "ontology_signal": "mdo_speed",
+      "confidence": "INFERRED",
+      "mapping_status": "matched",
+      "mapping_reason": "factor 'mdo_speed' bound to ontology signal 'mdo_speed'",
+      "role": "control",
+      "min": 310.0,
+      "max": 330.0,
+      "levels": null,
+      "expected_data_behavior": "先验声明：310.0~330.0 m/min 区间内可设定；方向预期 -",
+      "observed_data_behavior": null,
+      "governing_law": null
+    },
+    {
+      "name": "tdo_ratio",
+      "col": "tdo_ratio",
+      "type": "numeric",
+      "unit": "-",
+      "expected_sign": "-",
+      "physical_meaning": "TDO 横向拉伸比：提高横向取向，厚度略降",
+      "ontology_signal": "tdo_ratio",
+      "confidence": "INFERRED",
+      "mapping_status": "matched",
+      "mapping_reason": "factor 'tdo_ratio' bound to ontology signal 'tdo_ratio'",
+      "role": "control",
+      "min": 2.9,
+      "max": 3.1,
+      "levels": null,
+      "expected_data_behavior": "先验声明：2.9~3.1 - 区间内可设定；方向预期 -",
+      "observed_data_behavior": null,
+      "governing_law": null
+    }
+  ],
+  "responses": [
+    {
+      "name": "thickness_um",
+      "col": "thickness_um",
+      "type": null,
+      "unit": "um",
+      "expected_sign": null,
+      "physical_meaning": "thickness_um（由分析上下文声明；未提供独立物理机理描述）",
+      "ontology_signal": "thickness_um",
+      "confidence": "INFERRED",
+      "mapping_status": "matched",
+      "mapping_reason": "response 'thickness_um' bound to ontology signal 'thickness_um'",
+      "role": null,
+      "min": null,
+      "max": null,
+      "levels": null,
+      "expected_data_behavior": null,
+      "observed_data_behavior": null,
+      "governing_law": null,
+      "goal": "target",
+      "lsl": 48.0,
+      "usl": 52.0,
+      "target": 50.0,
+      "weight": 1.0
+    },
+    {
+      "name": "haze_pct",
+      "col": "haze_pct",
+      "type": null,
+      "unit": "%",
+      "expected_sign": null,
+      "physical_meaning": "haze_pct（由分析上下文声明；未提供独立物理机理描述）",
+      "ontology_signal": "haze_pct",
+      "confidence": "INFERRED",
+      "mapping_status": "matched",
+      "mapping_reason": "response 'haze_pct' bound to ontology signal 'haze_pct'",
+      "role": null,
+      "min": null,
+      "max": null,
+      "levels": null,
+      "expected_data_behavior": null,
+      "observed_data_behavior": null,
+      "governing_law": null,
+      "goal": "minimize",
+      "lsl": null,
+      "usl": 2.2,
+      "target": null,
+      "weight": 0.8
+    },
+    {
+      "name": "tensile_mpa",
+      "col": "tensile_mpa",
+      "type": null,
+      "unit": "MPa",
+      "expected_sign": null,
+      "physical_meaning": "tensile_mpa（由分析上下文声明；未提供独立物理机理描述）",
+      "ontology_signal": "tensile_mpa",
+      "confidence": "INFERRED",
+      "mapping_status": "matched",
+      "mapping_reason": "response 'tensile_mpa' bound to ontology signal 'tensile_mpa'",
+      "role": null,
+      "min": null,
+      "max": null,
+      "levels": null,
+      "expected_data_behavior": null,
+      "observed_data_behavior": null,
+      "governing_law": null,
+      "goal": "maximize",
+      "lsl": 170.0,
+      "usl": null,
+      "target": null,
+      "weight": 0.6
+    },
+    {
+      "name": "gauge_mean",
+      "col": "gauge_mean",
+      "type": null,
+      "unit": "um",
+      "expected_sign": null,
+      "physical_meaning": "gauge_mean（由分析上下文声明；未提供独立物理机理描述）",
+      "ontology_signal": "gauge_mean",
+      "confidence": "INFERRED",
+      "mapping_status": "matched",
+      "mapping_reason": "response 'gauge_mean' bound to ontology signal 'gauge_mean'",
+      "role": null,
+      "min": null,
+      "max": null,
+      "levels": null,
+      "expected_data_behavior": null,
+      "observed_data_behavior": null,
+      "governing_law": null,
+      "goal": "target",
+      "lsl": 48.0,
+      "usl": 52.0,
+      "target": 50.0,
+      "weight": 0.5
+    },
+    {
+      "name": "edge_dev",
+      "col": "HX-PROF-PROFILES-EDGE-L-DEV",
+      "type": null,
+      "unit": "um",
+      "expected_sign": null,
+      "physical_meaning": "HX-PROF-PROFILES-EDGE-L-DEV（由分析上下文声明；未提供独立物理机理描述）",
+      "ontology_signal": "edge_dev",
+      "confidence": "INFERRED",
+      "mapping_status": "matched",
+      "mapping_reason": "response 'HX-PROF-PROFILES-EDGE-L-DEV' bound to ontology signal 'edge_dev'",
+      "role": null,
+      "min": null,
+      "max": null,
+      "levels": null,
+      "expected_data_behavior": null,
+      "observed_data_behavior": null,
+      "governing_law": null,
+      "goal": "minimize",
+      "lsl": null,
+      "usl": null,
+      "target": null,
+      "weight": 0.5
+    }
+  ],
+  "relationships": [
+    {
+      "from": "tdo_z4_temp",
+      "to": "thickness_um",
+      "relation": "causal",
+      "mechanism": "TDO 第4区加热温度：提高取向与结晶，厚度上升、雾度上升 对 thickness_um 的先验影响（方向声明 +；机理来自用户/上下文声明，尚未实测）",
+      "confidence": "moderate",
+      "evidence_level": "physics_prior",
+      "expected_sign": "+",
+      "predicted_functional_form": "unknown"
+    },
+    {
+      "from": "tdo_z4_temp",
+      "to": "haze_pct",
+      "relation": "causal",
+      "mechanism": "TDO 第4区加热温度：提高取向与结晶，厚度上升、雾度上升 对 haze_pct 的先验影响（方向声明 +；机理来自用户/上下文声明，尚未实测）",
+      "confidence": "moderate",
+      "evidence_level": "physics_prior",
+      "expected_sign": "+",
+      "predicted_functional_form": "unknown"
+    },
+    {
+      "from": "tdo_z4_temp",
+      "to": "tensile_mpa",
+      "relation": "causal",
+      "mechanism": "TDO 第4区加热温度：提高取向与结晶，厚度上升、雾度上升 对 tensile_mpa 的先验影响（方向声明 +；机理来自用户/上下文声明，尚未实测）",
+      "confidence": "moderate",
+      "evidence_level": "physics_prior",
+      "expected_sign": "+",
+      "predicted_functional_form": "unknown"
+    },
+    {
+      "from": "tdo_z4_temp",
+      "to": "gauge_mean",
+      "relation": "causal",
+      "mechanism": "TDO 第4区加热温度：提高取向与结晶，厚度上升、雾度上升 对 gauge_mean 的先验影响（方向声明 +；机理来自用户/上下文声明，尚未实测）",
+      "confidence": "moderate",
+      "evidence_level": "physics_prior",
+      "expected_sign": "+",
+      "predicted_functional_form": "unknown"
+    },
+    {
+      "from": "tdo_z4_temp",
+      "to": "HX-PROF-PROFILES-EDGE-L-DEV",
+      "relation": "causal",
+      "mechanism": "TDO 第4区加热温度：提高取向与结晶，厚度上升、雾度上升 对 HX-PROF-PROFILES-EDGE-L-DEV 的先验影响（方向声明 +；机理来自用户/上下文声明，尚未实测）",
+      "confidence": "moderate",
+      "evidence_level": "physics_prior",
+      "expected_sign": "+",
+      "predicted_functional_form": "unknown"
+    },
+    {
+      "from": "mdo_speed",
+      "to": "thickness_um",
+      "relation": "causal",
+      "mechanism": "MDO 车速：提高纵向拉伸，厚度下降 对 thickness_um 的先验影响（方向声明 -；机理来自用户/上下文声明，尚未实测）",
+      "confidence": "moderate",
+      "evidence_level": "physics_prior",
+      "expected_sign": "-",
+      "predicted_functional_form": "unknown"
+    },
+    {
+      "from": "mdo_speed",
+      "to": "haze_pct",
+      "relation": "causal",
+      "mechanism": "MDO 车速：提高纵向拉伸，厚度下降 对 haze_pct 的先验影响（方向声明 -；机理来自用户/上下文声明，尚未实测）",
+      "confidence": "moderate",
+      "evidence_level": "physics_prior",
+      "expected_sign": "-",
+      "predicted_functional_form": "unknown"
+    },
+    {
+      "from": "mdo_speed",
+      "to": "tensile_mpa",
+      "relation": "causal",
+      "mechanism": "MDO 车速：提高纵向拉伸，厚度下降 对 tensile_mpa 的先验影响（方向声明 -；机理来自用户/上下文声明，尚未实测）",
+      "confidence": "moderate",
+      "evidence_level": "physics_prior",
+      "expected_sign": "-",
+      "predicted_functional_form": "unknown"
+    },
+    {
+      "from": "mdo_speed",
+      "to": "gauge_mean",
+      "relation": "causal",
+      "mechanism": "MDO 车速：提高纵向拉伸，厚度下降 对 gauge_mean 的先验影响（方向声明 -；机理来自用户/上下文声明，尚未实测）",
+      "confidence": "moderate",
+      "evidence_level": "physics_prior",
+      "expected_sign": "-",
+      "predicted_functional_form": "unknown"
+    },
+    {
+      "from": "mdo_speed",
+      "to": "HX-PROF-PROFILES-EDGE-L-DEV",
+      "relation": "causal",
+      "mechanism": "MDO 车速：提高纵向拉伸，厚度下降 对 HX-PROF-PROFILES-EDGE-L-DEV 的先验影响（方向声明 -；机理来自用户/上下文声明，尚未实测）",
+      "confidence": "moderate",
+      "evidence_level": "physics_prior",
+      "expected_sign": "-",
+      "predicted_functional_form": "unknown"
+    },
+    {
+      "from": "tdo_ratio",
+      "to": "thickness_um",
+      "relation": "causal",
+      "mechanism": "TDO 横向拉伸比：提高横向取向，厚度略降 对 thickness_um 的先验影响（方向声明 -；机理来自用户/上下文声明，尚未实测）",
+      "confidence": "moderate",
+      "evidence_level": "physics_prior",
+      "expected_sign": "-",
+      "predicted_functional_form": "unknown"
+    },
+    {
+      "from": "tdo_ratio",
+      "to": "haze_pct",
+      "relation": "causal",
+      "mechanism": "TDO 横向拉伸比：提高横向取向，厚度略降 对 haze_pct 的先验影响（方向声明 -；机理来自用户/上下文声明，尚未实测）",
+      "confidence": "moderate",
+      "evidence_level": "physics_prior",
+      "expected_sign": "-",
+      "predicted_functional_form": "unknown"
+    },
+    {
+      "from": "tdo_ratio",
+      "to": "tensile_mpa",
+      "relation": "causal",
+      "mechanism": "TDO 横向拉伸比：提高横向取向，厚度略降 对 tensile_mpa 的先验影响（方向声明 -；机理来自用户/上下文声明，尚未实测）",
+      "confidence": "moderate",
+      "evidence_level": "physics_prior",
+      "expected_sign": "-",
+      "predicted_functional_form": "unknown"
+    },
+    {
+      "from": "tdo_ratio",
+      "to": "gauge_mean",
+      "relation": "causal",
+      "mechanism": "TDO 横向拉伸比：提高横向取向，厚度略降 对 gauge_mean 的先验影响（方向声明 -；机理来自用户/上下文声明，尚未实测）",
+      "confidence": "moderate",
+      "evidence_level": "physics_prior",
+      "expected_sign": "-",
+      "predicted_functional_form": "unknown"
+    },
+    {
+      "from": "tdo_ratio",
+      "to": "HX-PROF-PROFILES-EDGE-L-DEV",
+      "relation": "causal",
+      "mechanism": "TDO 横向拉伸比：提高横向取向，厚度略降 对 HX-PROF-PROFILES-EDGE-L-DEV 的先验影响（方向声明 -；机理来自用户/上下文声明，尚未实测）",
+      "confidence": "moderate",
+      "evidence_level": "physics_prior",
+      "expected_sign": "-",
+      "predicted_functional_form": "unknown"
+    }
+  ],
+  "confounders": [
+    {
+      "variable": "ambient_temp",
+      "why": "declared as covariate in analysis_context (may co-move with factors and responses)",
+      "controlled": false
+    }
+  ],
+  "limitations": [
+    "先验本体：关系方向来自上下文声明与物理先验，未经实测数据验证"
+  ],
+  "column_mapping": {
+    "matched": [
+      {
+        "kind": "factor",
+        "col": "tdo_z4_temp",
+        "name": "tdo_z4_temp",
+        "status": "matched",
+        "reason": "factor 'tdo_z4_temp' bound to ontology signal 'tdo_z4_temp'"
+      },
+      {
+        "kind": "factor",
+        "col": "mdo_speed",
+        "name": "mdo_speed",
+        "status": "matched",
+        "reason": "factor 'mdo_speed' bound to ontology signal 'mdo_speed'"
+      },
+      {
+        "kind": "factor",
+        "col": "tdo_ratio",
+        "name": "tdo_ratio",
+        "status": "matched",
+        "reason": "factor 'tdo_ratio' bound to ontology signal 'tdo_ratio'"
+      },
+      {
+        "kind": "response",
+        "col": "thickness_um",
+        "name": "thickness_um",
+        "status": "matched",
+        "reason": "response 'thickness_um' bound to ontology signal 'thickness_um'"
+      },
+      {
+        "kind": "response",
+        "col": "haze_pct",
+        "name": "haze_pct",
+        "status": "matched",
+        "reason": "response 'haze_pct' bound to ontology signal 'haze_pct'"
+      },
+      {
+        "kind": "response",
+        "col": "tensile_mpa",
+        "name": "tensile_mpa",
+        "status": "matched",
+        "reason": "response 'tensile_mpa' bound to ontology signal 'tensile_mpa'"
+      },
+      {
+        "kind": "response",
+        "col": "gauge_mean",
+        "name": "gauge_mean",
+        "status": "matched",
+        "reason": "response 'gauge_mean' bound to ontology signal 'gauge_mean'"
+      },
+      {
+        "kind": "response",
+        "col": "HX-PROF-PROFILES-EDGE-L-DEV",
+        "name": "edge_dev",
+        "status": "matched",
+        "reason": "response 'HX-PROF-PROFILES-EDGE-L-DEV' bound to ontology signal 'edge_dev'"
+      }
+    ],
+    "inferred": [],
+    "unmatched": []
+  },
+  "coverage": {
+    "n_factors_matched": 3,
+    "n_responses_matched": 5,
+    "n_factors_covered": 3,
+    "n_responses_covered": 5,
+    "n_factors_declared": 3,
+    "n_responses_declared": 5,
+    "n_unmatched": 0,
+    "ratio": 1.0,
+    "matched_ratio": 1.0
+  },
+  "provenance": {
+    "build_mode": "prior_knowledge",
+    "build_seconds": 0.067,
+    "rag_used": false,
+    "web_used": false,
+    "physics_prior_used": true,
+    "engine": "industrial-ontology-builder",
+    "store_version": 1,
+    "store_profile": "doe",
+    "source_note": "reused store asset bopet-lineA-12um-tdo/v1/ontology.json",
+    "lookup_status": "exact",
+    "seed": null
+  }
+}

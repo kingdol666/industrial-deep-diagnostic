@@ -6,6 +6,7 @@ import assert from 'node:assert/strict';
 
 const {
   ANALYSIS_INTENTS, resolveAnalysisIntent, buildIntentDirective, buildPrompt,
+  buildOntologyDirective,
 } = await import('../src/engine/claude-client.mjs');
 
 describe('resolveAnalysisIntent', () => {
@@ -75,5 +76,47 @@ describe('prompt composition stays intent-safe', () => {
     const withIntent = base + buildIntentDirective('stability-report', 'line1');
     assert.match(withIntent, /D:\/data\/line1/);
     assert.ok(withIntent.startsWith(base));
+  });
+});
+
+describe('DOE ontology-first directive', () => {
+  const doeOntology = {
+    profile: 'doe', mode: 'auto', data_stage: 'collected',
+    scene_key: 'bopet-lineA-12um-tdo', version: 3, source: null,
+    reason: 'doe-analysis intent — ontology-first policy',
+  };
+
+  test('profile=doe routes to the DOE directive, not the diagnosis one', () => {
+    const text = buildOntologyDirective(doeOntology);
+    assert.match(text, /Ontology Directive \(DOE profile\)/);
+    assert.match(text, /ONTOLOGY_PROFILE: doe/);
+    assert.match(text, /ONTOLOGY_DATA_STAGE: collected/);
+    assert.match(text, /ONTOLOGY_SCENE: bopet-lineA-12um-tdo/);
+  });
+
+  test('the directive orders prepare → brief → plan → analyzer (hard gate)', () => {
+    const text = buildOntologyDirective(doeOntology);
+    const prepare = text.indexOf('doe_ontology_prepare.py');
+    const readBrief = text.indexOf('Then READ 01_ontology/ontology_brief.json');
+    const plan = text.indexOf('write 01_profile/analysis_plan.md');
+    const gate = text.indexOf('HARD GATE');
+    assert.ok(prepare > 0 && readBrief > prepare && plan > readBrief,
+      `order broken: prepare=${prepare} brief=${readBrief} plan=${plan}`);
+    assert.ok(gate > 0);
+    assert.match(text, /industrial-doe-orchestrator/);
+    assert.match(text, /reuses on an exact hit/);
+  });
+
+  test('design_only forbids statistics instead of inventing response behaviour', () => {
+    const text = buildOntologyDirective({ ...doeOntology, data_stage: 'design_only' });
+    assert.match(text, /DATA_STAGE=design_only/);
+    assert.match(text, /never invent response behaviour/);
+    assert.match(text, /DESIGN_ONLY_NO_RESPONSE/);
+  });
+
+  test('a diagnosis profile never leaks the DOE gate', () => {
+    const text = buildOntologyDirective({ mode: 'auto', scene_key: 's', reason: 'r' });
+    assert.doesNotMatch(text, /doe_ontology_prepare/);
+    assert.doesNotMatch(text, /DOE profile/);
   });
 });

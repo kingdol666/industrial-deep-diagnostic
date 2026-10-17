@@ -1,0 +1,3890 @@
+{
+  "contract_version": "line-stability-report/1.0",
+  "report_id": "LSR-1792242680-08mq29",
+  "generated_at": "2026-10-17T13:11:20Z",
+  "status": "ok",
+  "line": {
+    "line_id": "bopet-lineA",
+    "product": "BOPET-12um"
+  },
+  "period": {
+    "start": "2026-10-16 08:00:00",
+    "end": "2026-10-16 13:59:45",
+    "requested": {
+      "start": null,
+      "end": null
+    }
+  },
+  "data": {
+    "path": "D:\\codes\\myskills\\idd-doe-impl\\workspace\\aws-capture-e2e\\line_wide.csv",
+    "sha256": "sha256:a9012810d55f7ff7b5e25535004ff4855705af8dfff20032c4c2e50ed73a1dd8",
+    "time_col": "ts_iso",
+    "group_col": null,
+    "group_used": null,
+    "parameter_cols": [
+      "thickness_gauge",
+      "haze_gauge",
+      "tdo_z4_temp",
+      "mdo_speed",
+      "tdo_ratio",
+      "chiller_pressure",
+      "ambient_temp",
+      "line_tension"
+    ],
+    "inspection_cols": [
+      "thickness_gauge",
+      "haze_gauge"
+    ],
+    "ignored_cols": [],
+    "sampled": false,
+    "stride": 1,
+    "n_rows_raw": 1440,
+    "n_rows_used": 1440,
+    "time_span_seconds": 21585.0,
+    "sampling_interval_median_seconds": 15.0,
+    "missing_rate": 0.0,
+    "coverage_ratio": 1.0,
+    "time_invariant_channels": {
+      "count": 0,
+      "total": 8,
+      "share": 0.0,
+      "examples": []
+    }
+  },
+  "condition": {
+    "ontology": {
+      "mode": "ontology",
+      "path": "D:\\codes\\myskills\\idd-doe-impl\\workspace\\aws-capture-e2e\\doe\\01_ontology\\ontology.json",
+      "source": "explicit",
+      "reason": null
+    },
+    "scene": {
+      "name": "bopet-lineA-12um-tdo",
+      "process_type": "bopet-lineA",
+      "production_goal": "在厚度 50±2 µm、雾度 ≤2.2% 的约束下提高拉伸强度并稳定厚度：给出可执行的联合设定点与下一轮设计",
+      "equipment": [],
+      "stages": []
+    },
+    "columns": {
+      "tdo_z4_temp": {
+        "assigned_by": "ontology",
+        "label": "tdo_z4_temp",
+        "unit": "°C",
+        "role": "parameter",
+        "spec": {
+          "lsl": 196.0,
+          "usl": 204.0,
+          "target": null,
+          "source": "ontology"
+        },
+        "normal_range": [
+          196.0,
+          204.0
+        ],
+        "stage": null,
+        "equipment": null,
+        "governing_law": null,
+        "physical_meaning": "TDO 第4区加热温度：提高取向与结晶，厚度上升、雾度上升",
+        "group": "control_variables"
+      },
+      "mdo_speed": {
+        "assigned_by": "ontology",
+        "label": "mdo_speed",
+        "unit": "m/min",
+        "role": "parameter",
+        "spec": {
+          "lsl": 310.0,
+          "usl": 330.0,
+          "target": null,
+          "source": "ontology"
+        },
+        "normal_range": [
+          310.0,
+          330.0
+        ],
+        "stage": null,
+        "equipment": null,
+        "governing_law": null,
+        "physical_meaning": "MDO 车速：提高纵向拉伸，厚度下降",
+        "group": "control_variables"
+      },
+      "tdo_ratio": {
+        "assigned_by": "ontology",
+        "label": "tdo_ratio",
+        "unit": "-",
+        "role": "parameter",
+        "spec": {
+          "lsl": 2.9,
+          "usl": 3.1,
+          "target": null,
+          "source": "ontology"
+        },
+        "normal_range": [
+          2.9,
+          3.1
+        ],
+        "stage": null,
+        "equipment": null,
+        "governing_law": null,
+        "physical_meaning": "TDO 横向拉伸比：提高横向取向，厚度略降",
+        "group": "control_variables"
+      },
+      "thickness_gauge": {
+        "assigned_by": "user",
+        "label": "thickness_gauge",
+        "unit": null,
+        "role": "inspection",
+        "spec": {
+          "lsl": 48.0,
+          "usl": 52.0,
+          "target": 50.0,
+          "source": "user"
+        },
+        "normal_range": null,
+        "stage": null,
+        "equipment": null,
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null
+      },
+      "haze_gauge": {
+        "assigned_by": "user",
+        "label": "haze_gauge",
+        "unit": null,
+        "role": "inspection",
+        "spec": {
+          "usl": 2.2,
+          "source": "user"
+        },
+        "normal_range": null,
+        "stage": null,
+        "equipment": null,
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null
+      },
+      "chiller_pressure": {
+        "assigned_by": "auto",
+        "label": "chiller_pressure",
+        "unit": null,
+        "role": "parameter",
+        "spec": null,
+        "normal_range": null,
+        "stage": null,
+        "equipment": null,
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null
+      },
+      "ambient_temp": {
+        "assigned_by": "ontology",
+        "label": "ambient_temp",
+        "unit": null,
+        "role": "parameter",
+        "spec": null,
+        "normal_range": null,
+        "stage": null,
+        "equipment": null,
+        "governing_law": null,
+        "physical_meaning": "ambient_temp（分析上下文声明的协变量；可能同时影响因子与响应）",
+        "group": "process_parameters"
+      },
+      "line_tension": {
+        "assigned_by": "auto",
+        "label": "line_tension",
+        "unit": null,
+        "role": "parameter",
+        "spec": null,
+        "normal_range": null,
+        "stage": null,
+        "equipment": null,
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null
+      }
+    },
+    "relationships": [
+      {
+        "from": "tdo_z4_temp",
+        "to": "thickness_um",
+        "type": "causal",
+        "strength": "moderate",
+        "mechanism": "TDO 第4区加热温度：提高取向与结晶，厚度上升、雾度上升 对 thickness_um 的先验影响（方向声明 +；机理来自用户/上下文声明，尚未实测）",
+        "governing_equation": null
+      },
+      {
+        "from": "tdo_z4_temp",
+        "to": "haze_pct",
+        "type": "causal",
+        "strength": "moderate",
+        "mechanism": "TDO 第4区加热温度：提高取向与结晶，厚度上升、雾度上升 对 haze_pct 的先验影响（方向声明 +；机理来自用户/上下文声明，尚未实测）",
+        "governing_equation": null
+      },
+      {
+        "from": "tdo_z4_temp",
+        "to": "tensile_mpa",
+        "type": "causal",
+        "strength": "moderate",
+        "mechanism": "TDO 第4区加热温度：提高取向与结晶，厚度上升、雾度上升 对 tensile_mpa 的先验影响（方向声明 +；机理来自用户/上下文声明，尚未实测）",
+        "governing_equation": null
+      },
+      {
+        "from": "tdo_z4_temp",
+        "to": "gauge_mean",
+        "type": "causal",
+        "strength": "moderate",
+        "mechanism": "TDO 第4区加热温度：提高取向与结晶，厚度上升、雾度上升 对 gauge_mean 的先验影响（方向声明 +；机理来自用户/上下文声明，尚未实测）",
+        "governing_equation": null
+      },
+      {
+        "from": "tdo_z4_temp",
+        "to": "HX-PROF-PROFILES-EDGE-L-DEV",
+        "type": "causal",
+        "strength": "moderate",
+        "mechanism": "TDO 第4区加热温度：提高取向与结晶，厚度上升、雾度上升 对 HX-PROF-PROFILES-EDGE-L-DEV 的先验影响（方向声明 +；机理来自用户/上下文声明，尚未实测）",
+        "governing_equation": null
+      },
+      {
+        "from": "mdo_speed",
+        "to": "thickness_um",
+        "type": "causal",
+        "strength": "moderate",
+        "mechanism": "MDO 车速：提高纵向拉伸，厚度下降 对 thickness_um 的先验影响（方向声明 -；机理来自用户/上下文声明，尚未实测）",
+        "governing_equation": null
+      },
+      {
+        "from": "mdo_speed",
+        "to": "haze_pct",
+        "type": "causal",
+        "strength": "moderate",
+        "mechanism": "MDO 车速：提高纵向拉伸，厚度下降 对 haze_pct 的先验影响（方向声明 -；机理来自用户/上下文声明，尚未实测）",
+        "governing_equation": null
+      },
+      {
+        "from": "mdo_speed",
+        "to": "tensile_mpa",
+        "type": "causal",
+        "strength": "moderate",
+        "mechanism": "MDO 车速：提高纵向拉伸，厚度下降 对 tensile_mpa 的先验影响（方向声明 -；机理来自用户/上下文声明，尚未实测）",
+        "governing_equation": null
+      },
+      {
+        "from": "mdo_speed",
+        "to": "gauge_mean",
+        "type": "causal",
+        "strength": "moderate",
+        "mechanism": "MDO 车速：提高纵向拉伸，厚度下降 对 gauge_mean 的先验影响（方向声明 -；机理来自用户/上下文声明，尚未实测）",
+        "governing_equation": null
+      },
+      {
+        "from": "mdo_speed",
+        "to": "HX-PROF-PROFILES-EDGE-L-DEV",
+        "type": "causal",
+        "strength": "moderate",
+        "mechanism": "MDO 车速：提高纵向拉伸，厚度下降 对 HX-PROF-PROFILES-EDGE-L-DEV 的先验影响（方向声明 -；机理来自用户/上下文声明，尚未实测）",
+        "governing_equation": null
+      },
+      {
+        "from": "tdo_ratio",
+        "to": "thickness_um",
+        "type": "causal",
+        "strength": "moderate",
+        "mechanism": "TDO 横向拉伸比：提高横向取向，厚度略降 对 thickness_um 的先验影响（方向声明 -；机理来自用户/上下文声明，尚未实测）",
+        "governing_equation": null
+      },
+      {
+        "from": "tdo_ratio",
+        "to": "haze_pct",
+        "type": "causal",
+        "strength": "moderate",
+        "mechanism": "TDO 横向拉伸比：提高横向取向，厚度略降 对 haze_pct 的先验影响（方向声明 -；机理来自用户/上下文声明，尚未实测）",
+        "governing_equation": null
+      },
+      {
+        "from": "tdo_ratio",
+        "to": "tensile_mpa",
+        "type": "causal",
+        "strength": "moderate",
+        "mechanism": "TDO 横向拉伸比：提高横向取向，厚度略降 对 tensile_mpa 的先验影响（方向声明 -；机理来自用户/上下文声明，尚未实测）",
+        "governing_equation": null
+      },
+      {
+        "from": "tdo_ratio",
+        "to": "gauge_mean",
+        "type": "causal",
+        "strength": "moderate",
+        "mechanism": "TDO 横向拉伸比：提高横向取向，厚度略降 对 gauge_mean 的先验影响（方向声明 -；机理来自用户/上下文声明，尚未实测）",
+        "governing_equation": null
+      },
+      {
+        "from": "tdo_ratio",
+        "to": "HX-PROF-PROFILES-EDGE-L-DEV",
+        "type": "causal",
+        "strength": "moderate",
+        "mechanism": "TDO 横向拉伸比：提高横向取向，厚度略降 对 HX-PROF-PROFILES-EDGE-L-DEV 的先验影响（方向声明 -；机理来自用户/上下文声明，尚未实测）",
+        "governing_equation": null
+      }
+    ],
+    "regimes": {
+      "available": true,
+      "method": "fast",
+      "change_points": [],
+      "regimes": [
+        {
+          "start": 0,
+          "end": 1439,
+          "label": "steady",
+          "n_rows": 1440
+        }
+      ],
+      "abnormal_ratio": 0.0
+    }
+  },
+  "parameters": [
+    {
+      "name": "thickness_gauge",
+      "role": "inspection",
+      "condition": {
+        "label": "thickness_gauge",
+        "unit": null,
+        "assigned_by": "user",
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null,
+        "stage": null,
+        "equipment": null
+      },
+      "n": 1440,
+      "row_range": [
+        0,
+        1439
+      ],
+      "data_source": "raw",
+      "mu": 49.249782,
+      "median": 49.247698,
+      "sigma": 0.438952,
+      "sigma_within_mr": 0.054517,
+      "cv": 0.00891,
+      "min": 48.372293,
+      "max": 50.229052,
+      "spec": {
+        "lsl": 48.0,
+        "usl": 52.0,
+        "target": 50.0,
+        "source": "user"
+      },
+      "capability": {
+        "cp": 12.22861,
+        "cpk": 7.641547,
+        "pp": 1.518771,
+        "ppk": 0.949066
+      },
+      "nelson": {
+        "NELSON_R2": {
+          "n_episodes": 13,
+          "indices": [
+            8,
+            561,
+            578,
+            592,
+            626,
+            665,
+            770,
+            780,
+            801,
+            831,
+            853,
+            885,
+            1161
+          ]
+        },
+        "NELSON_R3": {
+          "n_episodes": 21,
+          "indices": [
+            10,
+            29,
+            200,
+            215,
+            393,
+            464,
+            587,
+            633,
+            655,
+            660,
+            775,
+            987,
+            1025,
+            1057,
+            1064,
+            1206,
+            1244,
+            1307,
+            1332,
+            1403,
+            1408
+          ]
+        },
+        "NELSON_R1": {
+          "n_episodes": 63,
+          "indices": [
+            435,
+            441,
+            463,
+            470,
+            478,
+            481,
+            492,
+            504,
+            529,
+            537,
+            547,
+            557,
+            561,
+            565,
+            571,
+            577,
+            579,
+            590,
+            599,
+            602,
+            606,
+            609,
+            626,
+            629,
+            642,
+            646,
+            660,
+            673,
+            677,
+            693,
+            738,
+            779,
+            790,
+            792,
+            802,
+            815,
+            828,
+            831,
+            847,
+            851,
+            857,
+            860,
+            873,
+            885,
+            887,
+            896,
+            902,
+            909,
+            912,
+            914,
+            917,
+            928,
+            936,
+            949,
+            954,
+            957,
+            959,
+            963,
+            970,
+            977,
+            987,
+            1151,
+            1439
+          ]
+        },
+        "NELSON_R5": {
+          "n_episodes": 25,
+          "indices": [
+            465,
+            540,
+            548,
+            567,
+            580,
+            593,
+            612,
+            631,
+            648,
+            656,
+            668,
+            679,
+            697,
+            739,
+            780,
+            792,
+            804,
+            816,
+            839,
+            858,
+            875,
+            881,
+            929,
+            960,
+            1439
+          ]
+        },
+        "NELSON_R6": {
+          "n_episodes": 17,
+          "indices": [
+            549,
+            567,
+            581,
+            595,
+            612,
+            632,
+            652,
+            669,
+            680,
+            697,
+            713,
+            780,
+            798,
+            804,
+            821,
+            841,
+            1439
+          ]
+        }
+      },
+      "n_violation_points": 139,
+      "drift": {
+        "slope_per_second": -6.9e-05,
+        "per_day_relative": 0.121462,
+        "mk_p": 0.0,
+        "significant": true
+      },
+      "baseline_ref": {
+        "baseline_median": 50.0055265,
+        "baseline_mad": 0.04570450000000292,
+        "baseline_cv": 0.00136246108079843,
+        "robust_z": -7.5436,
+        "deviation": "high",
+        "derived": true
+      },
+      "score": 42,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -8,
+        "cv_penalty": 0,
+        "capability_penalty": 0,
+        "drift_penalty": -25,
+        "baseline_penalty": -25,
+        "total": 42
+      }
+    },
+    {
+      "name": "haze_gauge",
+      "role": "inspection",
+      "condition": {
+        "label": "haze_gauge",
+        "unit": null,
+        "assigned_by": "user",
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null,
+        "stage": null,
+        "equipment": null
+      },
+      "n": 1440,
+      "row_range": [
+        0,
+        1439
+      ],
+      "data_source": "raw",
+      "mu": 2.090145,
+      "median": 2.087699,
+      "sigma": 0.067892,
+      "sigma_within_mr": 0.026986,
+      "cv": 0.032471,
+      "min": 1.890574,
+      "max": 2.282224,
+      "spec": {
+        "lsl": null,
+        "usl": 2.2,
+        "target": null,
+        "source": "user"
+      },
+      "capability": {
+        "cp": null,
+        "cpk": 1.35696,
+        "pp": null,
+        "ppk": 0.539361
+      },
+      "nelson": {
+        "NELSON_R1": {
+          "n_episodes": 133,
+          "indices": [
+            5,
+            9,
+            12,
+            18,
+            20,
+            25,
+            46,
+            49,
+            53,
+            63,
+            70,
+            72,
+            85,
+            90,
+            95,
+            99,
+            101,
+            104,
+            108,
+            117,
+            129,
+            134,
+            142,
+            145,
+            151,
+            156,
+            158,
+            162,
+            186,
+            190,
+            195,
+            216,
+            223,
+            229,
+            234,
+            239,
+            254,
+            265,
+            267,
+            277,
+            279,
+            282,
+            288,
+            300,
+            304,
+            319,
+            323,
+            347,
+            349,
+            375,
+            404,
+            410,
+            427,
+            431,
+            434,
+            448,
+            454,
+            462,
+            468,
+            472,
+            513,
+            525,
+            599,
+            601,
+            665,
+            736,
+            758,
+            778,
+            849,
+            876,
+            909,
+            920,
+            940,
+            942,
+            968,
+            985,
+            1017,
+            1029,
+            1032,
+            1038,
+            1045,
+            1056,
+            1059,
+            1061,
+            1085,
+            1091,
+            1096,
+            1105,
+            1107,
+            1112,
+            1122,
+            1125,
+            1132,
+            1154,
+            1156,
+            1158,
+            1162,
+            1167,
+            1183,
+            1190,
+            1193,
+            1198,
+            1214,
+            1224,
+            1232,
+            1234,
+            1239,
+            1241,
+            1276,
+            1281,
+            1284,
+            1286,
+            1298,
+            1304,
+            1307,
+            1312,
+            1315,
+            1329,
+            1336,
+            1348,
+            1356,
+            1360,
+            1367,
+            1372,
+            1374,
+            1394,
+            1401,
+            1407,
+            1410,
+            1422,
+            1431,
+            1435,
+            1439
+          ]
+        },
+        "NELSON_R2": {
+          "n_episodes": 32,
+          "indices": [
+            8,
+            59,
+            147,
+            255,
+            271,
+            303,
+            325,
+            347,
+            379,
+            407,
+            453,
+            498,
+            615,
+            690,
+            762,
+            782,
+            832,
+            918,
+            944,
+            968,
+            1009,
+            1030,
+            1049,
+            1061,
+            1072,
+            1090,
+            1153,
+            1200,
+            1210,
+            1231,
+            1276,
+            1326
+          ]
+        },
+        "NELSON_R5": {
+          "n_episodes": 75,
+          "indices": [
+            27,
+            55,
+            66,
+            73,
+            105,
+            118,
+            135,
+            148,
+            164,
+            169,
+            177,
+            201,
+            231,
+            237,
+            244,
+            257,
+            283,
+            292,
+            305,
+            309,
+            327,
+            342,
+            352,
+            383,
+            411,
+            429,
+            435,
+            474,
+            486,
+            514,
+            527,
+            556,
+            600,
+            603,
+            613,
+            642,
+            645,
+            760,
+            770,
+            781,
+            858,
+            878,
+            921,
+            928,
+            946,
+            964,
+            970,
+            993,
+            1020,
+            1024,
+            1034,
+            1039,
+            1047,
+            1063,
+            1072,
+            1080,
+            1093,
+            1099,
+            1132,
+            1150,
+            1169,
+            1175,
+            1191,
+            1199,
+            1215,
+            1235,
+            1248,
+            1252,
+            1279,
+            1310,
+            1316,
+            1321,
+            1402,
+            1408,
+            1439
+          ]
+        },
+        "NELSON_R6": {
+          "n_episodes": 56,
+          "indices": [
+            28,
+            105,
+            137,
+            163,
+            171,
+            202,
+            209,
+            245,
+            259,
+            294,
+            306,
+            335,
+            353,
+            362,
+            384,
+            396,
+            413,
+            426,
+            437,
+            475,
+            499,
+            519,
+            542,
+            606,
+            615,
+            630,
+            667,
+            762,
+            772,
+            783,
+            788,
+            803,
+            821,
+            832,
+            861,
+            879,
+            905,
+            921,
+            931,
+            947,
+            973,
+            1038,
+            1049,
+            1062,
+            1081,
+            1135,
+            1143,
+            1191,
+            1200,
+            1219,
+            1255,
+            1261,
+            1320,
+            1402,
+            1411,
+            1439
+          ]
+        },
+        "NELSON_R3": {
+          "n_episodes": 16,
+          "indices": [
+            37,
+            250,
+            258,
+            299,
+            326,
+            366,
+            394,
+            438,
+            538,
+            649,
+            758,
+            1020,
+            1068,
+            1147,
+            1170,
+            1191
+          ]
+        }
+      },
+      "n_violation_points": 312,
+      "drift": {
+        "slope_per_second": 9e-06,
+        "per_day_relative": 0.359889,
+        "mk_p": 0.0,
+        "significant": true
+      },
+      "baseline_ref": {
+        "baseline_median": 1.9997824999999998,
+        "baseline_mad": 0.023847500000000244,
+        "baseline_cv": 0.017452474488199813,
+        "robust_z": 1.6772,
+        "deviation": "none",
+        "derived": true
+      },
+      "score": 42,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -17,
+        "cv_penalty": -12,
+        "capability_penalty": -4,
+        "drift_penalty": -25,
+        "baseline_penalty": 0,
+        "total": 42
+      }
+    },
+    {
+      "name": "tdo_z4_temp",
+      "role": "parameter",
+      "condition": {
+        "label": "tdo_z4_temp",
+        "unit": "°C",
+        "assigned_by": "ontology",
+        "governing_law": null,
+        "physical_meaning": "TDO 第4区加热温度：提高取向与结晶，厚度上升、雾度上升",
+        "group": "control_variables",
+        "stage": null,
+        "equipment": null
+      },
+      "n": 1440,
+      "row_range": [
+        0,
+        1439
+      ],
+      "data_source": "raw",
+      "mu": 202.696829,
+      "median": 202.663675,
+      "sigma": 1.561123,
+      "sigma_within_mr": 0.085791,
+      "cv": 0.007699,
+      "min": 199.755992,
+      "max": 205.578379,
+      "spec": {
+        "lsl": 196.0,
+        "usl": 204.0,
+        "target": null,
+        "source": "ontology"
+      },
+      "capability": {
+        "cp": 15.541637,
+        "cpk": 5.063352,
+        "pp": 0.854086,
+        "ppk": 0.278255
+      },
+      "nelson": {
+        "NELSON_R2": {
+          "n_episodes": 4,
+          "indices": [
+            8,
+            626,
+            697,
+            761
+          ]
+        },
+        "NELSON_R3": {
+          "n_episodes": 14,
+          "indices": [
+            88,
+            107,
+            209,
+            247,
+            309,
+            343,
+            393,
+            513,
+            543,
+            570,
+            760,
+            948,
+            989,
+            1336
+          ]
+        },
+        "NELSON_R1": {
+          "n_episodes": 23,
+          "indices": [
+            598,
+            604,
+            606,
+            614,
+            620,
+            624,
+            641,
+            644,
+            652,
+            659,
+            690,
+            729,
+            743,
+            747,
+            761,
+            769,
+            784,
+            801,
+            808,
+            815,
+            819,
+            831,
+            1439
+          ]
+        },
+        "NELSON_R5": {
+          "n_episodes": 15,
+          "indices": [
+            616,
+            655,
+            663,
+            668,
+            673,
+            693,
+            700,
+            722,
+            730,
+            735,
+            745,
+            767,
+            821,
+            832,
+            1439
+          ]
+        },
+        "NELSON_R6": {
+          "n_episodes": 8,
+          "indices": [
+            617,
+            673,
+            699,
+            708,
+            717,
+            724,
+            735,
+            1439
+          ]
+        }
+      },
+      "n_violation_points": 64,
+      "drift": {
+        "slope_per_second": 0.00025,
+        "per_day_relative": 0.106395,
+        "mk_p": 0.0,
+        "significant": true
+      },
+      "baseline_ref": {
+        "baseline_median": 200.0111015,
+        "baseline_mad": 0.08012800000000198,
+        "baseline_cv": 0.0005951769114919416,
+        "robust_z": 15.0608,
+        "deviation": "high",
+        "derived": true
+      },
+      "score": 46,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -4,
+        "cv_penalty": 0,
+        "capability_penalty": 0,
+        "drift_penalty": -25,
+        "baseline_penalty": -25,
+        "total": 46
+      }
+    },
+    {
+      "name": "mdo_speed",
+      "role": "parameter",
+      "condition": {
+        "label": "mdo_speed",
+        "unit": "m/min",
+        "assigned_by": "ontology",
+        "governing_law": null,
+        "physical_meaning": "MDO 车速：提高纵向拉伸，厚度下降",
+        "group": "control_variables",
+        "stage": null,
+        "equipment": null
+      },
+      "n": 1440,
+      "row_range": [
+        0,
+        1439
+      ],
+      "data_source": "raw",
+      "mu": 319.992503,
+      "median": 319.992784,
+      "sigma": 0.39364,
+      "sigma_within_mr": 0.265669,
+      "cv": 0.00123,
+      "min": 318.708301,
+      "max": 321.271242,
+      "spec": {
+        "lsl": 310.0,
+        "usl": 330.0,
+        "target": null,
+        "source": "ontology"
+      },
+      "capability": {
+        "cp": 12.546953,
+        "cpk": 12.537547,
+        "pp": 8.467968,
+        "ppk": 8.46162
+      },
+      "nelson": {
+        "NELSON_R1": {
+          "n_episodes": 41,
+          "indices": [
+            78,
+            120,
+            127,
+            133,
+            257,
+            352,
+            379,
+            437,
+            498,
+            551,
+            578,
+            617,
+            638,
+            657,
+            663,
+            679,
+            745,
+            755,
+            796,
+            798,
+            806,
+            820,
+            846,
+            894,
+            905,
+            939,
+            994,
+            1045,
+            1052,
+            1106,
+            1153,
+            1226,
+            1233,
+            1238,
+            1242,
+            1282,
+            1290,
+            1335,
+            1397,
+            1405,
+            1417
+          ]
+        },
+        "NELSON_R5": {
+          "n_episodes": 65,
+          "indices": [
+            79,
+            108,
+            113,
+            129,
+            135,
+            146,
+            162,
+            174,
+            228,
+            260,
+            290,
+            354,
+            387,
+            397,
+            492,
+            497,
+            556,
+            562,
+            578,
+            618,
+            661,
+            670,
+            679,
+            707,
+            725,
+            746,
+            758,
+            784,
+            800,
+            808,
+            822,
+            825,
+            841,
+            848,
+            885,
+            896,
+            906,
+            1038,
+            1048,
+            1055,
+            1069,
+            1082,
+            1103,
+            1142,
+            1155,
+            1188,
+            1199,
+            1205,
+            1216,
+            1227,
+            1235,
+            1244,
+            1256,
+            1276,
+            1284,
+            1291,
+            1297,
+            1306,
+            1324,
+            1328,
+            1337,
+            1346,
+            1399,
+            1407,
+            1418
+          ]
+        },
+        "NELSON_R6": {
+          "n_episodes": 50,
+          "indices": [
+            80,
+            115,
+            153,
+            180,
+            190,
+            228,
+            263,
+            292,
+            355,
+            380,
+            436,
+            443,
+            465,
+            496,
+            555,
+            561,
+            578,
+            586,
+            596,
+            619,
+            663,
+            680,
+            716,
+            746,
+            770,
+            787,
+            800,
+            813,
+            850,
+            888,
+            906,
+            976,
+            997,
+            1015,
+            1020,
+            1040,
+            1056,
+            1072,
+            1092,
+            1155,
+            1192,
+            1206,
+            1226,
+            1244,
+            1285,
+            1329,
+            1349,
+            1400,
+            1410,
+            1418
+          ]
+        },
+        "NELSON_R2": {
+          "n_episodes": 19,
+          "indices": [
+            81,
+            109,
+            263,
+            293,
+            351,
+            370,
+            596,
+            762,
+            800,
+            897,
+            1024,
+            1049,
+            1070,
+            1102,
+            1205,
+            1216,
+            1240,
+            1349,
+            1412
+          ]
+        },
+        "NELSON_R3": {
+          "n_episodes": 15,
+          "indices": [
+            184,
+            316,
+            427,
+            491,
+            588,
+            615,
+            789,
+            811,
+            1098,
+            1192,
+            1223,
+            1295,
+            1353,
+            1362,
+            1381
+          ]
+        }
+      },
+      "n_violation_points": 190,
+      "drift": {
+        "slope_per_second": 7e-06,
+        "per_day_relative": 0.001917,
+        "mk_p": 3.6e-05,
+        "significant": true
+      },
+      "baseline_ref": {
+        "baseline_median": 319.98011099999997,
+        "baseline_mad": 0.22525000000001683,
+        "baseline_cv": 0.0010363408235023175,
+        "robust_z": 0.0256,
+        "deviation": "none",
+        "derived": true
+      },
+      "score": 83,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -11,
+        "cv_penalty": 0,
+        "capability_penalty": 0,
+        "drift_penalty": -6,
+        "baseline_penalty": 0,
+        "total": 83
+      }
+    },
+    {
+      "name": "tdo_ratio",
+      "role": "parameter",
+      "condition": {
+        "label": "tdo_ratio",
+        "unit": "-",
+        "assigned_by": "ontology",
+        "governing_law": null,
+        "physical_meaning": "TDO 横向拉伸比：提高横向取向，厚度略降",
+        "group": "control_variables",
+        "stage": null,
+        "equipment": null
+      },
+      "n": 1440,
+      "row_range": [
+        0,
+        1439
+      ],
+      "data_source": "raw",
+      "mu": 3.000078,
+      "median": 3.000093,
+      "sigma": 0.001999,
+      "sigma_within_mr": 0.001331,
+      "cv": 0.000666,
+      "min": 2.994102,
+      "max": 3.005904,
+      "spec": {
+        "lsl": 2.9,
+        "usl": 3.1,
+        "target": null,
+        "source": "ontology"
+      },
+      "capability": {
+        "cp": 25.035432,
+        "cpk": 25.015874,
+        "pp": 16.675189,
+        "ppk": 16.662162
+      },
+      "nelson": {
+        "NELSON_R5": {
+          "n_episodes": 61,
+          "indices": [
+            26,
+            69,
+            121,
+            125,
+            148,
+            210,
+            229,
+            241,
+            257,
+            286,
+            295,
+            331,
+            355,
+            359,
+            391,
+            398,
+            406,
+            460,
+            488,
+            500,
+            508,
+            516,
+            527,
+            535,
+            620,
+            640,
+            660,
+            671,
+            682,
+            693,
+            702,
+            760,
+            764,
+            774,
+            826,
+            836,
+            859,
+            872,
+            879,
+            894,
+            909,
+            959,
+            976,
+            1011,
+            1038,
+            1046,
+            1065,
+            1126,
+            1177,
+            1189,
+            1213,
+            1219,
+            1239,
+            1276,
+            1299,
+            1336,
+            1370,
+            1386,
+            1394,
+            1417,
+            1425
+          ]
+        },
+        "NELSON_R1": {
+          "n_episodes": 59,
+          "indices": [
+            38,
+            47,
+            72,
+            88,
+            119,
+            123,
+            147,
+            199,
+            206,
+            209,
+            222,
+            243,
+            256,
+            284,
+            294,
+            321,
+            324,
+            329,
+            353,
+            406,
+            453,
+            495,
+            500,
+            506,
+            514,
+            626,
+            658,
+            670,
+            699,
+            701,
+            710,
+            730,
+            763,
+            857,
+            878,
+            956,
+            964,
+            981,
+            1004,
+            1028,
+            1036,
+            1044,
+            1046,
+            1063,
+            1086,
+            1125,
+            1175,
+            1218,
+            1238,
+            1265,
+            1275,
+            1299,
+            1303,
+            1329,
+            1367,
+            1369,
+            1385,
+            1393,
+            1416
+          ]
+        },
+        "NELSON_R2": {
+          "n_episodes": 23,
+          "indices": [
+            40,
+            98,
+            245,
+            287,
+            324,
+            360,
+            506,
+            539,
+            703,
+            716,
+            762,
+            782,
+            818,
+            898,
+            938,
+            960,
+            1015,
+            1059,
+            1143,
+            1175,
+            1369,
+            1390,
+            1416
+          ]
+        },
+        "NELSON_R6": {
+          "n_episodes": 59,
+          "indices": [
+            51,
+            71,
+            84,
+            99,
+            123,
+            129,
+            138,
+            149,
+            164,
+            188,
+            214,
+            234,
+            249,
+            296,
+            332,
+            348,
+            364,
+            392,
+            403,
+            513,
+            531,
+            608,
+            645,
+            671,
+            683,
+            693,
+            703,
+            713,
+            763,
+            802,
+            816,
+            864,
+            874,
+            897,
+            909,
+            934,
+            941,
+            961,
+            976,
+            1003,
+            1013,
+            1040,
+            1047,
+            1060,
+            1084,
+            1097,
+            1109,
+            1141,
+            1219,
+            1242,
+            1269,
+            1276,
+            1285,
+            1307,
+            1340,
+            1371,
+            1390,
+            1395,
+            1426
+          ]
+        },
+        "NELSON_R3": {
+          "n_episodes": 14,
+          "indices": [
+            162,
+            320,
+            332,
+            353,
+            534,
+            557,
+            574,
+            699,
+            825,
+            956,
+            969,
+            1041,
+            1216,
+            1393
+          ]
+        }
+      },
+      "n_violation_points": 216,
+      "drift": {
+        "slope_per_second": -0.0,
+        "per_day_relative": 0.000482,
+        "mk_p": null,
+        "significant": false,
+        "mk_skipped": "相对漂移低于 0.1%/天 门槛，Mann-Kendall 检验未执行"
+      },
+      "baseline_ref": {
+        "baseline_median": 3.0000535,
+        "baseline_mad": 0.0010569999999998636,
+        "baseline_cv": 0.000500717876915049,
+        "robust_z": 0.017,
+        "deviation": "none",
+        "derived": true
+      },
+      "score": 88,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -12,
+        "cv_penalty": 0,
+        "capability_penalty": 0,
+        "drift_penalty": 0,
+        "baseline_penalty": 0,
+        "total": 88
+      }
+    },
+    {
+      "name": "chiller_pressure",
+      "role": "parameter",
+      "condition": {
+        "label": "chiller_pressure",
+        "unit": null,
+        "assigned_by": "auto",
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null,
+        "stage": null,
+        "equipment": null
+      },
+      "n": 1440,
+      "row_range": [
+        0,
+        1439
+      ],
+      "data_source": "raw",
+      "mu": 3.025208,
+      "median": 3.024233,
+      "sigma": 0.019455,
+      "sigma_within_mr": 0.006172,
+      "cv": 0.006429,
+      "min": 2.978007,
+      "max": 3.066683,
+      "spec": {
+        "lsl": null,
+        "usl": null,
+        "target": null,
+        "source": null
+      },
+      "capability": {
+        "cp": null,
+        "cpk": null,
+        "pp": null,
+        "ppk": null
+      },
+      "nelson": {
+        "NELSON_R2": {
+          "n_episodes": 40,
+          "indices": [
+            8,
+            33,
+            132,
+            171,
+            187,
+            201,
+            237,
+            256,
+            273,
+            331,
+            347,
+            405,
+            421,
+            473,
+            485,
+            539,
+            554,
+            575,
+            584,
+            739,
+            782,
+            820,
+            923,
+            941,
+            977,
+            996,
+            1012,
+            1031,
+            1068,
+            1108,
+            1131,
+            1151,
+            1164,
+            1189,
+            1231,
+            1266,
+            1289,
+            1329,
+            1353,
+            1399
+          ]
+        },
+        "NELSON_R1": {
+          "n_episodes": 151,
+          "indices": [
+            10,
+            14,
+            21,
+            29,
+            36,
+            46,
+            48,
+            52,
+            61,
+            67,
+            69,
+            77,
+            81,
+            83,
+            88,
+            92,
+            95,
+            102,
+            118,
+            134,
+            138,
+            150,
+            160,
+            165,
+            174,
+            181,
+            191,
+            196,
+            204,
+            209,
+            216,
+            218,
+            225,
+            233,
+            244,
+            251,
+            256,
+            262,
+            267,
+            271,
+            277,
+            280,
+            292,
+            302,
+            314,
+            320,
+            334,
+            343,
+            361,
+            364,
+            366,
+            370,
+            385,
+            398,
+            404,
+            410,
+            417,
+            420,
+            425,
+            429,
+            436,
+            442,
+            446,
+            448,
+            473,
+            482,
+            485,
+            492,
+            496,
+            500,
+            502,
+            513,
+            532,
+            539,
+            553,
+            555,
+            557,
+            571,
+            573,
+            719,
+            780,
+            795,
+            801,
+            819,
+            821,
+            862,
+            877,
+            879,
+            921,
+            926,
+            930,
+            940,
+            946,
+            950,
+            955,
+            995,
+            1010,
+            1025,
+            1031,
+            1037,
+            1039,
+            1047,
+            1057,
+            1062,
+            1067,
+            1075,
+            1079,
+            1102,
+            1108,
+            1116,
+            1125,
+            1148,
+            1152,
+            1160,
+            1176,
+            1183,
+            1191,
+            1218,
+            1227,
+            1238,
+            1250,
+            1253,
+            1259,
+            1264,
+            1267,
+            1271,
+            1277,
+            1285,
+            1289,
+            1298,
+            1305,
+            1308,
+            1318,
+            1327,
+            1329,
+            1333,
+            1348,
+            1357,
+            1360,
+            1366,
+            1371,
+            1373,
+            1375,
+            1382,
+            1387,
+            1393,
+            1405,
+            1414,
+            1422,
+            1425,
+            1439
+          ]
+        },
+        "NELSON_R3": {
+          "n_episodes": 21,
+          "indices": [
+            24,
+            58,
+            74,
+            116,
+            144,
+            159,
+            338,
+            350,
+            409,
+            417,
+            516,
+            571,
+            733,
+            818,
+            944,
+            998,
+            1020,
+            1047,
+            1119,
+            1218,
+            1316
+          ]
+        },
+        "NELSON_R5": {
+          "n_episodes": 87,
+          "indices": [
+            30,
+            71,
+            84,
+            119,
+            152,
+            162,
+            175,
+            198,
+            219,
+            227,
+            245,
+            264,
+            281,
+            296,
+            322,
+            335,
+            345,
+            352,
+            362,
+            368,
+            379,
+            386,
+            390,
+            399,
+            407,
+            418,
+            423,
+            431,
+            452,
+            462,
+            483,
+            487,
+            496,
+            515,
+            529,
+            533,
+            541,
+            562,
+            574,
+            720,
+            724,
+            738,
+            748,
+            766,
+            782,
+            796,
+            803,
+            823,
+            863,
+            880,
+            921,
+            932,
+            951,
+            956,
+            972,
+            997,
+            1003,
+            1012,
+            1025,
+            1032,
+            1040,
+            1049,
+            1055,
+            1069,
+            1081,
+            1109,
+            1118,
+            1127,
+            1154,
+            1165,
+            1178,
+            1184,
+            1192,
+            1228,
+            1240,
+            1268,
+            1290,
+            1301,
+            1311,
+            1319,
+            1334,
+            1367,
+            1388,
+            1395,
+            1415,
+            1427,
+            1439
+          ]
+        },
+        "NELSON_R6": {
+          "n_episodes": 61,
+          "indices": [
+            71,
+            121,
+            153,
+            177,
+            221,
+            247,
+            264,
+            324,
+            336,
+            345,
+            362,
+            379,
+            385,
+            409,
+            431,
+            463,
+            483,
+            516,
+            533,
+            541,
+            562,
+            576,
+            720,
+            738,
+            744,
+            749,
+            768,
+            784,
+            797,
+            823,
+            835,
+            850,
+            861,
+            865,
+            880,
+            890,
+            927,
+            933,
+            957,
+            965,
+            979,
+            997,
+            1004,
+            1033,
+            1040,
+            1054,
+            1070,
+            1081,
+            1119,
+            1130,
+            1163,
+            1192,
+            1243,
+            1255,
+            1269,
+            1311,
+            1321,
+            1336,
+            1395,
+            1428,
+            1439
+          ]
+        }
+      },
+      "n_violation_points": 360,
+      "drift": {
+        "slope_per_second": 2e-06,
+        "per_day_relative": 0.053782,
+        "mk_p": 0.0,
+        "significant": true
+      },
+      "baseline_ref": {
+        "baseline_median": 2.9995244999999997,
+        "baseline_mad": 0.006761000000000017,
+        "baseline_cv": 0.003233608416196522,
+        "robust_z": 1.6626,
+        "deviation": "none",
+        "derived": true
+      },
+      "score": 55,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -20,
+        "cv_penalty": 0,
+        "capability_penalty": 0,
+        "drift_penalty": -25,
+        "baseline_penalty": 0,
+        "total": 55
+      }
+    },
+    {
+      "name": "ambient_temp",
+      "role": "parameter",
+      "condition": {
+        "label": "ambient_temp",
+        "unit": null,
+        "assigned_by": "ontology",
+        "governing_law": null,
+        "physical_meaning": "ambient_temp（分析上下文声明的协变量；可能同时影响因子与响应）",
+        "group": "process_parameters",
+        "stage": null,
+        "equipment": null
+      },
+      "n": 1440,
+      "row_range": [
+        0,
+        1439
+      ],
+      "data_source": "raw",
+      "mu": 24.597758,
+      "median": 24.143701,
+      "sigma": 0.751158,
+      "sigma_within_mr": 0.102896,
+      "cv": 0.030527,
+      "min": 23.509959,
+      "max": 25.944284,
+      "spec": {
+        "lsl": null,
+        "usl": null,
+        "target": null,
+        "source": null
+      },
+      "capability": {
+        "cp": null,
+        "cpk": null,
+        "pp": null,
+        "ppk": null
+      },
+      "nelson": {
+        "NELSON_R1": {
+          "n_episodes": 72,
+          "indices": [
+            4,
+            6,
+            11,
+            13,
+            15,
+            26,
+            34,
+            46,
+            52,
+            66,
+            78,
+            86,
+            106,
+            119,
+            123,
+            130,
+            133,
+            145,
+            149,
+            158,
+            176,
+            199,
+            208,
+            213,
+            233,
+            240,
+            245,
+            272,
+            275,
+            298,
+            319,
+            326,
+            335,
+            337,
+            341,
+            350,
+            360,
+            388,
+            407,
+            432,
+            434,
+            465,
+            488,
+            531,
+            541,
+            544,
+            556,
+            582,
+            615,
+            619,
+            627,
+            644,
+            668,
+            682,
+            687,
+            692,
+            696,
+            718,
+            725,
+            734,
+            736,
+            747,
+            762,
+            764,
+            773,
+            777,
+            799,
+            805,
+            815,
+            823,
+            827,
+            1439
+          ]
+        },
+        "NELSON_R5": {
+          "n_episodes": 68,
+          "indices": [
+            7,
+            16,
+            27,
+            54,
+            68,
+            73,
+            80,
+            86,
+            96,
+            107,
+            120,
+            124,
+            138,
+            153,
+            168,
+            179,
+            200,
+            218,
+            237,
+            241,
+            246,
+            276,
+            292,
+            300,
+            313,
+            337,
+            342,
+            353,
+            363,
+            385,
+            397,
+            408,
+            412,
+            420,
+            435,
+            446,
+            458,
+            467,
+            490,
+            514,
+            534,
+            547,
+            558,
+            562,
+            584,
+            590,
+            621,
+            627,
+            646,
+            661,
+            672,
+            688,
+            700,
+            711,
+            719,
+            726,
+            741,
+            749,
+            768,
+            778,
+            795,
+            800,
+            807,
+            825,
+            837,
+            849,
+            864,
+            1439
+          ]
+        },
+        "NELSON_R2": {
+          "n_episodes": 37,
+          "indices": [
+            10,
+            47,
+            68,
+            78,
+            91,
+            123,
+            180,
+            200,
+            215,
+            236,
+            270,
+            293,
+            317,
+            333,
+            364,
+            375,
+            391,
+            435,
+            446,
+            470,
+            489,
+            518,
+            530,
+            545,
+            581,
+            594,
+            618,
+            632,
+            649,
+            666,
+            689,
+            712,
+            741,
+            798,
+            817,
+            837,
+            872
+          ]
+        },
+        "NELSON_R6": {
+          "n_episodes": 57,
+          "indices": [
+            20,
+            26,
+            36,
+            54,
+            68,
+            80,
+            94,
+            109,
+            137,
+            153,
+            170,
+            181,
+            203,
+            219,
+            251,
+            261,
+            276,
+            293,
+            303,
+            322,
+            342,
+            353,
+            365,
+            379,
+            389,
+            399,
+            421,
+            436,
+            442,
+            458,
+            469,
+            491,
+            516,
+            535,
+            548,
+            559,
+            572,
+            585,
+            593,
+            622,
+            631,
+            646,
+            673,
+            688,
+            701,
+            713,
+            725,
+            749,
+            769,
+            779,
+            795,
+            801,
+            825,
+            843,
+            852,
+            864,
+            1439
+          ]
+        },
+        "NELSON_R3": {
+          "n_episodes": 14,
+          "indices": [
+            106,
+            176,
+            295,
+            365,
+            597,
+            644,
+            827,
+            1094,
+            1112,
+            1137,
+            1222,
+            1238,
+            1284,
+            1304
+          ]
+        }
+      },
+      "n_violation_points": 248,
+      "drift": {
+        "slope_per_second": 8.8e-05,
+        "per_day_relative": 0.316509,
+        "mk_p": 0.0,
+        "significant": true
+      },
+      "baseline_ref": {
+        "baseline_median": 23.999167,
+        "baseline_mad": 0.07703300000000013,
+        "baseline_cv": 0.005052390747518707,
+        "robust_z": 0.8536,
+        "deviation": "none",
+        "derived": true
+      },
+      "score": 49,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -14,
+        "cv_penalty": -12,
+        "capability_penalty": 0,
+        "drift_penalty": -25,
+        "baseline_penalty": 0,
+        "total": 49
+      }
+    },
+    {
+      "name": "line_tension",
+      "role": "parameter",
+      "condition": {
+        "label": "line_tension",
+        "unit": null,
+        "assigned_by": "auto",
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null,
+        "stage": null,
+        "equipment": null
+      },
+      "n": 1440,
+      "row_range": [
+        0,
+        1439
+      ],
+      "data_source": "raw",
+      "mu": 123.208048,
+      "median": 120.702103,
+      "sigma": 4.04351,
+      "sigma_within_mr": 0.551304,
+      "cv": 0.032807,
+      "min": 117.160596,
+      "max": 130.786558,
+      "spec": {
+        "lsl": null,
+        "usl": null,
+        "target": null,
+        "source": null
+      },
+      "capability": {
+        "cp": null,
+        "cpk": null,
+        "pp": null,
+        "ppk": null
+      },
+      "nelson": {
+        "NELSON_R1": {
+          "n_episodes": 71,
+          "indices": [
+            3,
+            8,
+            11,
+            26,
+            45,
+            97,
+            99,
+            110,
+            131,
+            141,
+            151,
+            169,
+            171,
+            177,
+            182,
+            186,
+            189,
+            231,
+            234,
+            247,
+            257,
+            287,
+            293,
+            301,
+            306,
+            308,
+            316,
+            320,
+            352,
+            358,
+            363,
+            391,
+            403,
+            414,
+            426,
+            442,
+            451,
+            453,
+            457,
+            464,
+            469,
+            474,
+            477,
+            480,
+            482,
+            493,
+            533,
+            539,
+            569,
+            583,
+            598,
+            602,
+            606,
+            608,
+            640,
+            645,
+            657,
+            661,
+            666,
+            678,
+            689,
+            694,
+            731,
+            761,
+            772,
+            791,
+            797,
+            810,
+            815,
+            860,
+            1439
+          ]
+        },
+        "NELSON_R2": {
+          "n_episodes": 32,
+          "indices": [
+            8,
+            68,
+            96,
+            112,
+            132,
+            146,
+            170,
+            193,
+            236,
+            264,
+            307,
+            320,
+            348,
+            373,
+            389,
+            408,
+            454,
+            476,
+            510,
+            536,
+            574,
+            586,
+            621,
+            662,
+            694,
+            737,
+            766,
+            786,
+            799,
+            815,
+            853,
+            872
+          ]
+        },
+        "NELSON_R5": {
+          "n_episodes": 68,
+          "indices": [
+            13,
+            21,
+            28,
+            47,
+            51,
+            69,
+            74,
+            102,
+            112,
+            133,
+            144,
+            152,
+            164,
+            173,
+            178,
+            184,
+            195,
+            203,
+            209,
+            236,
+            251,
+            258,
+            266,
+            288,
+            295,
+            309,
+            317,
+            322,
+            353,
+            364,
+            370,
+            375,
+            379,
+            399,
+            405,
+            416,
+            427,
+            443,
+            460,
+            475,
+            483,
+            494,
+            509,
+            534,
+            540,
+            570,
+            585,
+            604,
+            610,
+            618,
+            630,
+            649,
+            669,
+            682,
+            695,
+            712,
+            733,
+            746,
+            762,
+            773,
+            793,
+            801,
+            818,
+            825,
+            835,
+            849,
+            861,
+            1439
+          ]
+        },
+        "NELSON_R3": {
+          "n_episodes": 12,
+          "indices": [
+            15,
+            108,
+            114,
+            212,
+            275,
+            837,
+            945,
+            1148,
+            1297,
+            1349,
+            1381,
+            1416
+          ]
+        },
+        "NELSON_R6": {
+          "n_episodes": 49,
+          "indices": [
+            22,
+            28,
+            42,
+            86,
+            102,
+            113,
+            135,
+            154,
+            184,
+            196,
+            205,
+            226,
+            237,
+            266,
+            296,
+            309,
+            325,
+            354,
+            380,
+            385,
+            392,
+            406,
+            418,
+            429,
+            465,
+            483,
+            500,
+            512,
+            542,
+            559,
+            575,
+            611,
+            621,
+            632,
+            648,
+            684,
+            695,
+            703,
+            740,
+            764,
+            775,
+            783,
+            803,
+            819,
+            826,
+            836,
+            852,
+            863,
+            1439
+          ]
+        }
+      },
+      "n_violation_points": 232,
+      "drift": {
+        "slope_per_second": 0.000472,
+        "per_day_relative": 0.337764,
+        "mk_p": 0.0,
+        "significant": true
+      },
+      "baseline_ref": {
+        "baseline_median": 119.9959255,
+        "baseline_mad": 0.4144989999999993,
+        "baseline_cv": 0.005141200707077288,
+        "robust_z": 0.7751,
+        "deviation": "none",
+        "derived": true
+      },
+      "score": 50,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -13,
+        "cv_penalty": -12,
+        "capability_penalty": 0,
+        "drift_penalty": -25,
+        "baseline_penalty": 0,
+        "total": 50
+      }
+    }
+  ],
+  "correlations": {
+    "max_lag": 10,
+    "pairs": [
+      {
+        "pearson": -0.979004,
+        "spearman": -0.9806,
+        "best_abs_r": 0.980831,
+        "best_lag_rows": 2,
+        "leader": "thickness_gauge",
+        "pearson_at_best": -0.979282,
+        "spearman_at_best": -0.980831,
+        "a": "thickness_gauge",
+        "b": "tdo_z4_temp",
+        "n": 1440
+      },
+      {
+        "pearson": 0.793688,
+        "spearman": 0.801586,
+        "best_abs_r": 0.805445,
+        "best_lag_rows": 9,
+        "leader": "haze_gauge",
+        "pearson_at_best": 0.797648,
+        "spearman_at_best": 0.805445,
+        "a": "haze_gauge",
+        "b": "tdo_z4_temp",
+        "n": 1440
+      },
+      {
+        "pearson": -0.786066,
+        "spearman": -0.79547,
+        "best_abs_r": 0.800405,
+        "best_lag_rows": 6,
+        "leader": "haze_gauge",
+        "pearson_at_best": -0.789667,
+        "spearman_at_best": -0.800405,
+        "a": "thickness_gauge",
+        "b": "haze_gauge",
+        "n": 1440
+      },
+      {
+        "pearson": 0.961741,
+        "spearman": 0.725174,
+        "best_abs_r": 0.745429,
+        "best_lag_rows": 8,
+        "leader": "line_tension",
+        "pearson_at_best": 0.956181,
+        "spearman_at_best": 0.745429,
+        "a": "ambient_temp",
+        "b": "line_tension",
+        "n": 1440
+      },
+      {
+        "pearson": 0.831405,
+        "spearman": 0.725475,
+        "best_abs_r": 0.730308,
+        "best_lag_rows": 8,
+        "leader": "tdo_z4_temp",
+        "pearson_at_best": 0.834087,
+        "spearman_at_best": 0.730308,
+        "a": "tdo_z4_temp",
+        "b": "ambient_temp",
+        "n": 1440
+      },
+      {
+        "pearson": -0.813985,
+        "spearman": -0.715429,
+        "best_abs_r": 0.724702,
+        "best_lag_rows": 5,
+        "leader": "thickness_gauge",
+        "pearson_at_best": -0.818734,
+        "spearman_at_best": -0.724702,
+        "a": "thickness_gauge",
+        "b": "line_tension",
+        "n": 1440
+      },
+      {
+        "pearson": 0.830895,
+        "spearman": 0.720146,
+        "best_abs_r": 0.7234,
+        "best_lag_rows": 3,
+        "leader": "tdo_z4_temp",
+        "pearson_at_best": 0.832208,
+        "spearman_at_best": 0.7234,
+        "a": "tdo_z4_temp",
+        "b": "line_tension",
+        "n": 1440
+      },
+      {
+        "pearson": -0.814705,
+        "spearman": -0.717984,
+        "best_abs_r": 0.722391,
+        "best_lag_rows": 10,
+        "leader": "thickness_gauge",
+        "pearson_at_best": -0.817275,
+        "spearman_at_best": -0.722391,
+        "a": "thickness_gauge",
+        "b": "ambient_temp",
+        "n": 1440
+      },
+      {
+        "pearson": 0.599833,
+        "spearman": 0.65768,
+        "best_abs_r": 0.65768,
+        "best_lag_rows": 0,
+        "leader": null,
+        "pearson_at_best": 0.599833,
+        "spearman_at_best": 0.65768,
+        "a": "tdo_z4_temp",
+        "b": "chiller_pressure",
+        "n": 1440
+      },
+      {
+        "pearson": -0.591912,
+        "spearman": -0.647335,
+        "best_abs_r": 0.652331,
+        "best_lag_rows": 5,
+        "leader": "chiller_pressure",
+        "pearson_at_best": -0.593972,
+        "spearman_at_best": -0.652331,
+        "a": "thickness_gauge",
+        "b": "chiller_pressure",
+        "n": 1440
+      }
+    ],
+    "contributions": [
+      {
+        "driver": "tdo_z4_temp",
+        "target": "thickness_gauge",
+        "abs_r": 0.9806,
+        "best_lag_rows": 0,
+        "share": 0.314622
+      },
+      {
+        "driver": "haze_gauge",
+        "target": "thickness_gauge",
+        "abs_r": 0.800405,
+        "best_lag_rows": 6,
+        "share": 0.209616
+      },
+      {
+        "driver": "ambient_temp",
+        "target": "thickness_gauge",
+        "abs_r": 0.718813,
+        "best_lag_rows": 1,
+        "share": 0.169059
+      },
+      {
+        "driver": "line_tension",
+        "target": "thickness_gauge",
+        "abs_r": 0.715429,
+        "best_lag_rows": 0,
+        "share": 0.167471
+      },
+      {
+        "driver": "chiller_pressure",
+        "target": "thickness_gauge",
+        "abs_r": 0.652331,
+        "best_lag_rows": 5,
+        "share": 0.139233
+      },
+      {
+        "driver": "tdo_z4_temp",
+        "target": "haze_gauge",
+        "abs_r": 0.802517,
+        "best_lag_rows": 1,
+        "share": 0.278911
+      },
+      {
+        "driver": "thickness_gauge",
+        "target": "haze_gauge",
+        "abs_r": 0.795571,
+        "best_lag_rows": 2,
+        "share": 0.274103
+      },
+      {
+        "driver": "line_tension",
+        "target": "haze_gauge",
+        "abs_r": 0.605069,
+        "best_lag_rows": 10,
+        "share": 0.15855
+      },
+      {
+        "driver": "ambient_temp",
+        "target": "haze_gauge",
+        "abs_r": 0.60267,
+        "best_lag_rows": 5,
+        "share": 0.157295
+      },
+      {
+        "driver": "chiller_pressure",
+        "target": "haze_gauge",
+        "abs_r": 0.550288,
+        "best_lag_rows": 8,
+        "share": 0.13114
+      }
+    ]
+  },
+  "integrations": {
+    "sentinel_baseline": {
+      "used": true,
+      "path": "D:\\codes\\myskills\\idd-doe-impl\\workspace\\aws-capture-e2e\\sentinel\\watch_baseline.json"
+    },
+    "tuning_memory": {
+      "used": false
+    },
+    "doe_analyzer": {
+      "used": true,
+      "reason": null,
+      "operating_windows": [
+        {
+          "parameter": "tdo_ratio",
+          "low": 2.9,
+          "high": 3.1,
+          "confidence": "high",
+          "window_id": "OW-001",
+          "response": "gauge_mean",
+          "window_role": "marginal_diagnostic",
+          "actionable": true
+        },
+        {
+          "parameter": "tdo_z4_temp",
+          "low": 198.0,
+          "high": 203.0,
+          "confidence": "high",
+          "window_id": "OW-002",
+          "response": "gauge_mean",
+          "window_role": "marginal_diagnostic",
+          "actionable": true
+        },
+        {
+          "parameter": "mdo_speed",
+          "low": 310.0,
+          "high": 327.5,
+          "confidence": "high",
+          "window_id": "OW-003",
+          "response": "gauge_mean",
+          "window_role": "marginal_diagnostic",
+          "actionable": true
+        }
+      ],
+      "violations": [],
+      "confirmations": [],
+      "joint_setpoints": [
+        {
+          "id": "JS-001",
+          "method": "grid_search",
+          "factors": {
+            "tdo_z4_temp": 200.0,
+            "mdo_speed": 317.5,
+            "tdo_ratio": 3.075
+          },
+          "predicted": {
+            "thickness_um": {
+              "mean": 49.963828,
+              "mean_ci95": [
+                49.716584,
+                50.211073
+              ],
+              "pi95": [
+                49.452213,
+                50.475444
+              ],
+              "d": 0.981914,
+              "unit_status": "valid"
+            },
+            "haze_pct": {
+              "mean": 2.063767,
+              "mean_ci95": [
+                1.989259,
+                2.138275
+              ],
+              "pi95": [
+                1.90959,
+                2.217944
+              ],
+              "d": 1.0,
+              "unit_status": "valid"
+            },
+            "tensile_mpa": {
+              "mean": 188.670888,
+              "mean_ci95": [
+                186.574453,
+                190.767322
+              ],
+              "pi95": [
+                184.332802,
+                193.008974
+              ],
+              "d": 0.843812,
+              "unit_status": "valid"
+            },
+            "gauge_mean": {
+              "mean": 50.131293,
+              "mean_ci95": [
+                49.980316,
+                50.282271
+              ],
+              "pi95": [
+                49.818881,
+                50.443706
+              ],
+              "d": 0.934353,
+              "unit_status": "valid"
+            },
+            "HX-PROF-PROFILES-EDGE-L-DEV": {
+              "mean": 0.04744,
+              "mean_ci95": [
+                0.041883,
+                0.052996
+              ],
+              "pi95": [
+                0.035942,
+                0.058938
+              ],
+              "d": 0.491932,
+              "unit_status": "valid"
+            }
+          },
+          "responses_satisfied": [
+            "thickness_um",
+            "haze_pct",
+            "tensile_mpa",
+            "gauge_mean"
+          ],
+          "feasible": true,
+          "hard_constraint_violations": 0,
+          "constraint_slack": {
+            "tdo_ratio": 4.25,
+            "tdo_z4_temp": 4.25
+          },
+          "desirability": 0.861011,
+          "joint_coverage": 0.75,
+          "evidence_level": "L3",
+          "confidence": "medium",
+          "window_ids": [
+            "OW-001",
+            "OW-002",
+            "OW-003"
+          ],
+          "unit_status": "valid",
+          "actionable": true,
+          "blockers": [],
+          "responses": [
+            "thickness_um",
+            "haze_pct",
+            "tensile_mpa",
+            "gauge_mean",
+            "HX-PROF-PROFILES-EDGE-L-DEV"
+          ],
+          "selection_scale": "desirability"
+        }
+      ],
+      "correlation_report": null
+    }
+  },
+  "degradations": [],
+  "limitations": {
+    "data_source": "raw (this skill never cleans or imputes; every number is recomputable from the raw table)",
+    "sampling": {
+      "n_rows_analyzed": 1440,
+      "sampled": false,
+      "stride": 1,
+      "note": null
+    },
+    "missing_rate": 0.0,
+    "sampling_interval_seconds": 15.0,
+    "spec_coverage": {
+      "user": [
+        "thickness_gauge",
+        "haze_gauge"
+      ],
+      "ontology": [
+        "tdo_z4_temp",
+        "mdo_speed",
+        "tdo_ratio"
+      ],
+      "none": [
+        "chiller_pressure",
+        "ambient_temp",
+        "line_tension"
+      ]
+    },
+    "model_assumptions": [
+      "lag-compensated Spearman window 0–10 rows (lead/lag beyond this window is invisible)",
+      "whole-period scoring assumes one dominant operating condition; use the regime table for segmented reading",
+      "Cpk treats within-sigma as MR̄/1.128 moving-range estimate"
+    ],
+    "confounders": [
+      {
+        "variable": "ambient_temp",
+        "why": "declared as covariate in analysis_context (may co-move with factors and responses)",
+        "controlled": false
+      }
+    ],
+    "derived_fields": [
+      "baseline_ref.robust_z",
+      "correlations.contributions.share",
+      "correlations.pairs.best_abs_r"
+    ]
+  },
+  "subject": {
+    "noun": "产线",
+    "display": "bopet-lineA-12um-tdo",
+    "source": "ontology.scene"
+  },
+  "provenance": {
+    "input_sha256": "sha256:a9012810d55f7ff7b5e25535004ff4855705af8dfff20032c4c2e50ed73a1dd8",
+    "script_version": "1.0.0",
+    "authored_by": "lstcore/stability_analyzer.py",
+    "zero_llm": true,
+    "spc_source": "sentinelcore",
+    "regime_method": "fast",
+    "ontology_source": "explicit",
+    "weights_source": "role_weights",
+    "python": "3.12.13",
+    "numpy": "2.5.2",
+    "pandas": "3.0.5",
+    "methods": [
+      "sentinelcore_nelson_episodes",
+      "mrbar_sigma_1.128",
+      "cpk_within_ppk_overall",
+      "theil_sen_mk_drift",
+      "lagged_spearman_max10",
+      "contribution_r2_share",
+      "regime_segmentation_c3",
+      "ontology_first_condition",
+      "weighted_penalty_score_v1",
+      "data_truth_limitations"
+    ]
+  },
+  "findings": [
+    {
+      "finding_id": "F001",
+      "severity": "high",
+      "category": "spc",
+      "title": "thickness_gauge 检出 SPC 违规",
+      "detail": "共 139 个判异剧集命中（每百点 9.7 个，规则：NELSON_R1/NELSON_R2/NELSON_R3/NELSON_R5/NELSON_R6），控制限为中心值49.2477±3σ_within（σ=0.0545）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 139,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 9.65,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 0.054517,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "thickness_gauge"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F002",
+      "severity": "high",
+      "category": "spc",
+      "title": "haze_gauge 检出 SPC 违规",
+      "detail": "共 312 个判异剧集命中（每百点 21.7 个，规则：NELSON_R1/NELSON_R2/NELSON_R3/NELSON_R5/NELSON_R6），控制限为中心值2.0877±3σ_within（σ=0.027）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 312,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 21.67,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 0.026986,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "haze_gauge"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F003",
+      "severity": "high",
+      "category": "spc",
+      "title": "tdo_z4_temp 检出 SPC 违规",
+      "detail": "共 64 个判异剧集命中（每百点 4.4 个，规则：NELSON_R1/NELSON_R2/NELSON_R3/NELSON_R5/NELSON_R6），控制限为中心值202.6637 °C±3σ_within（σ=0.0858）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 64,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 4.44,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 0.085791,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "tdo_z4_temp"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F004",
+      "severity": "high",
+      "category": "spc",
+      "title": "mdo_speed 检出 SPC 违规",
+      "detail": "共 190 个判异剧集命中（每百点 13.2 个，规则：NELSON_R1/NELSON_R2/NELSON_R3/NELSON_R5/NELSON_R6），控制限为中心值319.9928 m/min±3σ_within（σ=0.2657）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 190,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 13.19,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 0.265669,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "mdo_speed"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F005",
+      "severity": "high",
+      "category": "spc",
+      "title": "tdo_ratio 检出 SPC 违规",
+      "detail": "共 216 个判异剧集命中（每百点 15.0 个，规则：NELSON_R1/NELSON_R2/NELSON_R3/NELSON_R5/NELSON_R6），控制限为中心值3.0001 -±3σ_within（σ=0.0013）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 216,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 15.0,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 0.001331,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "tdo_ratio"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F006",
+      "severity": "high",
+      "category": "spc",
+      "title": "chiller_pressure 检出 SPC 违规",
+      "detail": "共 360 个判异剧集命中（每百点 25.0 个，规则：NELSON_R1/NELSON_R2/NELSON_R3/NELSON_R5/NELSON_R6），控制限为中心值3.0242±3σ_within（σ=0.0062）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 360,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 25.0,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 0.006172,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "chiller_pressure"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F007",
+      "severity": "high",
+      "category": "spc",
+      "title": "ambient_temp 检出 SPC 违规",
+      "detail": "共 248 个判异剧集命中（每百点 17.2 个，规则：NELSON_R1/NELSON_R2/NELSON_R3/NELSON_R5/NELSON_R6），控制限为中心值24.1437±3σ_within（σ=0.1029）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 248,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 17.22,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 0.102896,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "ambient_temp"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F008",
+      "severity": "high",
+      "category": "spc",
+      "title": "line_tension 检出 SPC 违规",
+      "detail": "共 232 个判异剧集命中（每百点 16.1 个，规则：NELSON_R1/NELSON_R2/NELSON_R3/NELSON_R5/NELSON_R6），控制限为中心值120.7021±3σ_within（σ=0.5513）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 232,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 16.11,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 0.551304,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "line_tension"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F009",
+      "severity": "high",
+      "category": "drift",
+      "title": "thickness_gauge 存在显著漂移",
+      "detail": "Theil–Sen 斜率显著（Mann–Kendall p=0.0，且相对漂移≥0.1%/天才计入），相对漂移约 12.146%/天，方向对应斜率 -0.0001/秒。",
+      "evidence": [
+        {
+          "metric": "mk_p",
+          "value": 0.0,
+          "source": "lstcore",
+          "threshold": "<0.01 且 >=0.1%/天"
+        },
+        {
+          "metric": "per_day_relative",
+          "value": 0.121462,
+          "source": "lstcore",
+          "threshold": "<0.001 ok; >=0.01 high"
+        },
+        {
+          "metric": "slope_per_second",
+          "value": -6.9e-05,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "thickness_gauge"
+      ],
+      "confidence": 80
+    },
+    {
+      "finding_id": "F010",
+      "severity": "high",
+      "category": "drift",
+      "title": "haze_gauge 存在显著漂移",
+      "detail": "Theil–Sen 斜率显著（Mann–Kendall p=0.0，且相对漂移≥0.1%/天才计入），相对漂移约 35.989%/天，方向对应斜率 0/秒。",
+      "evidence": [
+        {
+          "metric": "mk_p",
+          "value": 0.0,
+          "source": "lstcore",
+          "threshold": "<0.01 且 >=0.1%/天"
+        },
+        {
+          "metric": "per_day_relative",
+          "value": 0.359889,
+          "source": "lstcore",
+          "threshold": "<0.001 ok; >=0.01 high"
+        },
+        {
+          "metric": "slope_per_second",
+          "value": 9e-06,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "haze_gauge"
+      ],
+      "confidence": 80
+    },
+    {
+      "finding_id": "F011",
+      "severity": "high",
+      "category": "drift",
+      "title": "tdo_z4_temp 存在显著漂移",
+      "detail": "Theil–Sen 斜率显著（Mann–Kendall p=0.0，且相对漂移≥0.1%/天才计入），相对漂移约 10.639%/天，方向对应斜率 0.0003/秒。",
+      "evidence": [
+        {
+          "metric": "mk_p",
+          "value": 0.0,
+          "source": "lstcore",
+          "threshold": "<0.01 且 >=0.1%/天"
+        },
+        {
+          "metric": "per_day_relative",
+          "value": 0.106395,
+          "source": "lstcore",
+          "threshold": "<0.001 ok; >=0.01 high"
+        },
+        {
+          "metric": "slope_per_second",
+          "value": 0.00025,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "tdo_z4_temp"
+      ],
+      "confidence": 80
+    },
+    {
+      "finding_id": "F012",
+      "severity": "high",
+      "category": "drift",
+      "title": "chiller_pressure 存在显著漂移",
+      "detail": "Theil–Sen 斜率显著（Mann–Kendall p=0.0，且相对漂移≥0.1%/天才计入），相对漂移约 5.378%/天，方向对应斜率 0/秒。",
+      "evidence": [
+        {
+          "metric": "mk_p",
+          "value": 0.0,
+          "source": "lstcore",
+          "threshold": "<0.01 且 >=0.1%/天"
+        },
+        {
+          "metric": "per_day_relative",
+          "value": 0.053782,
+          "source": "lstcore",
+          "threshold": "<0.001 ok; >=0.01 high"
+        },
+        {
+          "metric": "slope_per_second",
+          "value": 2e-06,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "chiller_pressure"
+      ],
+      "confidence": 80
+    },
+    {
+      "finding_id": "F013",
+      "severity": "high",
+      "category": "drift",
+      "title": "ambient_temp 存在显著漂移",
+      "detail": "Theil–Sen 斜率显著（Mann–Kendall p=0.0，且相对漂移≥0.1%/天才计入），相对漂移约 31.651%/天，方向对应斜率 0.0001/秒。",
+      "evidence": [
+        {
+          "metric": "mk_p",
+          "value": 0.0,
+          "source": "lstcore",
+          "threshold": "<0.01 且 >=0.1%/天"
+        },
+        {
+          "metric": "per_day_relative",
+          "value": 0.316509,
+          "source": "lstcore",
+          "threshold": "<0.001 ok; >=0.01 high"
+        },
+        {
+          "metric": "slope_per_second",
+          "value": 8.8e-05,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "ambient_temp"
+      ],
+      "confidence": 80
+    },
+    {
+      "finding_id": "F014",
+      "severity": "high",
+      "category": "drift",
+      "title": "line_tension 存在显著漂移",
+      "detail": "Theil–Sen 斜率显著（Mann–Kendall p=0.0，且相对漂移≥0.1%/天才计入），相对漂移约 33.776%/天，方向对应斜率 0.0005/秒。",
+      "evidence": [
+        {
+          "metric": "mk_p",
+          "value": 0.0,
+          "source": "lstcore",
+          "threshold": "<0.01 且 >=0.1%/天"
+        },
+        {
+          "metric": "per_day_relative",
+          "value": 0.337764,
+          "source": "lstcore",
+          "threshold": "<0.001 ok; >=0.01 high"
+        },
+        {
+          "metric": "slope_per_second",
+          "value": 0.000472,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "line_tension"
+      ],
+      "confidence": 80
+    },
+    {
+      "finding_id": "F015",
+      "severity": "high",
+      "category": "baseline_deviation",
+      "title": "thickness_gauge 偏离历史基线",
+      "detail": "时段中位数相对 sentinel 基线的稳健 z=-7.5436（基线中位 50.0055），超出 ±3.5 参考带。",
+      "evidence": [
+        {
+          "metric": "robust_z",
+          "value": -7.5436,
+          "source": "lstcore",
+          "threshold": "|z|<=3.5",
+          "derived": true
+        },
+        {
+          "metric": "baseline_median",
+          "value": 50.0055265,
+          "source": "sentinel baseline"
+        }
+      ],
+      "affected": [
+        "thickness_gauge"
+      ],
+      "confidence": 75
+    },
+    {
+      "finding_id": "F016",
+      "severity": "high",
+      "category": "baseline_deviation",
+      "title": "tdo_z4_temp 偏离历史基线",
+      "detail": "时段中位数相对 sentinel 基线的稳健 z=15.0608（基线中位 200.0111），超出 ±3.5 参考带。",
+      "evidence": [
+        {
+          "metric": "robust_z",
+          "value": 15.0608,
+          "source": "lstcore",
+          "threshold": "|z|<=3.5",
+          "derived": true
+        },
+        {
+          "metric": "baseline_median",
+          "value": 200.0111015,
+          "source": "sentinel baseline"
+        }
+      ],
+      "affected": [
+        "tdo_z4_temp"
+      ],
+      "confidence": 75
+    },
+    {
+      "finding_id": "F017",
+      "severity": "warn",
+      "category": "drift",
+      "title": "mdo_speed 存在显著漂移",
+      "detail": "Theil–Sen 斜率显著（Mann–Kendall p=3.6e-05，且相对漂移≥0.1%/天才计入），相对漂移约 0.192%/天，方向对应斜率 0/秒。",
+      "evidence": [
+        {
+          "metric": "mk_p",
+          "value": 3.6e-05,
+          "source": "lstcore",
+          "threshold": "<0.01 且 >=0.1%/天"
+        },
+        {
+          "metric": "per_day_relative",
+          "value": 0.001917,
+          "source": "lstcore",
+          "threshold": "<0.001 ok; >=0.01 high"
+        },
+        {
+          "metric": "slope_per_second",
+          "value": 7e-06,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "mdo_speed"
+      ],
+      "confidence": 80
+    },
+    {
+      "finding_id": "F018",
+      "severity": "info",
+      "category": "driver",
+      "title": "强相关对：thickness_gauge ↔ tdo_z4_temp [MECHANISM_UNKNOWN]",
+      "detail": "滞后补偿后最强 |Spearman|=0.9808（thickness_gauge 领先 2 行）；零滞后 Pearson=-0.979。本体未提供物理机制支持——仅是统计共变，不可作因果线索使用。置信度 45（统计证据充分度 × 机制支持度）。",
+      "evidence": [
+        {
+          "metric": "best_abs_r",
+          "value": 0.980831,
+          "source": "lstcore",
+          "threshold": ">=0.7",
+          "derived": true
+        },
+        {
+          "metric": "best_lag_rows",
+          "value": 2,
+          "source": "lstcore"
+        },
+        {
+          "metric": "mechanism_level",
+          "value": "unknown",
+          "source": "ontology"
+        }
+      ],
+      "affected": [
+        "thickness_gauge",
+        "tdo_z4_temp"
+      ],
+      "confidence": 45,
+      "mechanism": {
+        "level": "unknown",
+        "mechanism": null,
+        "governing_equation": null
+      }
+    },
+    {
+      "finding_id": "F019",
+      "severity": "info",
+      "category": "driver",
+      "title": "强相关对：haze_gauge ↔ tdo_z4_temp [MECHANISM_UNKNOWN]",
+      "detail": "滞后补偿后最强 |Spearman|=0.8054（haze_gauge 领先 9 行）；零滞后 Pearson=0.7937。本体未提供物理机制支持——仅是统计共变，不可作因果线索使用。置信度 45（统计证据充分度 × 机制支持度）。",
+      "evidence": [
+        {
+          "metric": "best_abs_r",
+          "value": 0.805445,
+          "source": "lstcore",
+          "threshold": ">=0.7",
+          "derived": true
+        },
+        {
+          "metric": "best_lag_rows",
+          "value": 9,
+          "source": "lstcore"
+        },
+        {
+          "metric": "mechanism_level",
+          "value": "unknown",
+          "source": "ontology"
+        }
+      ],
+      "affected": [
+        "haze_gauge",
+        "tdo_z4_temp"
+      ],
+      "confidence": 45,
+      "mechanism": {
+        "level": "unknown",
+        "mechanism": null,
+        "governing_equation": null
+      }
+    },
+    {
+      "finding_id": "F020",
+      "severity": "info",
+      "category": "driver",
+      "title": "强相关对：thickness_gauge ↔ haze_gauge [MECHANISM_UNKNOWN]",
+      "detail": "滞后补偿后最强 |Spearman|=0.8004（haze_gauge 领先 6 行）；零滞后 Pearson=-0.7861。本体未提供物理机制支持——仅是统计共变，不可作因果线索使用。置信度 45（统计证据充分度 × 机制支持度）。",
+      "evidence": [
+        {
+          "metric": "best_abs_r",
+          "value": 0.800405,
+          "source": "lstcore",
+          "threshold": ">=0.7",
+          "derived": true
+        },
+        {
+          "metric": "best_lag_rows",
+          "value": 6,
+          "source": "lstcore"
+        },
+        {
+          "metric": "mechanism_level",
+          "value": "unknown",
+          "source": "ontology"
+        }
+      ],
+      "affected": [
+        "thickness_gauge",
+        "haze_gauge"
+      ],
+      "confidence": 45,
+      "mechanism": {
+        "level": "unknown",
+        "mechanism": null,
+        "governing_equation": null
+      }
+    }
+  ],
+  "conclusion": {
+    "score": 53.9,
+    "grade": "C",
+    "grade_key": "fluctuating",
+    "label": "波动",
+    "statement": "该产线在本时段总体运行波动（53.9 分，C 级）：评估 8 个参数，检出 1761 个 SPC 违规剧集、7 项显著漂移；最需关注：thickness_gauge、haze_gauge、tdo_z4_temp。",
+    "n_parameters_assessed": 8,
+    "n_findings": 20,
+    "findings_by_severity": {
+      "info": 3,
+      "warn": 1,
+      "high": 16,
+      "critical": 0
+    }
+  }
+}

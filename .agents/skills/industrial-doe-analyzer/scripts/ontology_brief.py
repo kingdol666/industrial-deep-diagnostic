@@ -221,6 +221,30 @@ def _relationship_entry(rel):
     }
 
 
+def _dedupe_confounders(ontology, ctx):
+    """One entry per confounder: the ontology row wins, context-only covariates
+    are appended. The prior builder already materialises declared covariates,
+    so a blind concatenation double-listed every one of them."""
+    out, seen = [], set()
+    for c in ontology.get("confounders") or []:
+        if not isinstance(c, dict):
+            continue
+        var = c.get("variable")
+        if not var or var in seen:
+            continue
+        out.append({"variable": var, "why": c.get("why"),
+                    "controlled": c.get("controlled")})
+        seen.add(var)
+    for var in ctx.get("covariates") or []:
+        if var in seen:
+            continue
+        out.append({"variable": var,
+                    "why": "listed in analysis_context.covariates (measured, not controlled)",
+                    "controlled": False})
+        seen.add(var)
+    return out
+
+
 # ------------------------------------------------------------------- builder
 
 def build_brief(ontology, ctx, *, context_fp=None):
@@ -335,13 +359,7 @@ def build_brief(ontology, ctx, *, context_fp=None):
         "responses": responses,
         "relationships": [_relationship_entry(r) for r in (ontology.get("relationships") or [])
                           if isinstance(r, dict)],
-        "confounders": [
-            {"variable": c.get("variable"), "why": c.get("why"), "controlled": c.get("controlled")}
-            for c in (ontology.get("confounders") or []) if isinstance(c, dict)
-        ] + [
-            {"variable": c, "why": "listed in analysis_context.covariates", "controlled": False}
-            for c in (ctx.get("covariates") or [])
-        ],
+        "confounders": _dedupe_confounders(ontology, ctx),
         "limitations": limitations,
         "column_mapping": {"matched": matched, "inferred": inferred, "unmatched": unmatched},
         "coverage": {

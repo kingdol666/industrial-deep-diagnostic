@@ -157,7 +157,7 @@ def _merge_attribution(path: str) -> dict:
 
 def _merge_doe(doe_run_dir: str, params: list[dict]) -> dict:
     out = {"used": False, "reason": None, "operating_windows": [], "violations": [],
-           "confirmations": [], "correlation_report": None}
+           "confirmations": [], "joint_setpoints": [], "correlation_report": None}
     rec_path = os.path.join(doe_run_dir, "conclusions", "recommendations.json")
     corr_path = os.path.join(doe_run_dir, "02_analysis", "correlation_report.json")
     if not os.path.isfile(rec_path):
@@ -167,18 +167,31 @@ def _merge_doe(doe_run_dir: str, params: list[dict]) -> dict:
         rec = json.load(f)
     medians = {p["name"]: p["median"] for p in params}
     out["used"] = True
+    # v1.1 windows: factor + range + window_role/actionable; legacy v1.0 used
+    # parameter + low/high. Accept both — a contract upgrade must not silently
+    # turn every window into a null and every violation into "none".
     for w in (rec.get("operating_windows") or []):
-        entry = {"parameter": w.get("parameter") or w.get("name"),
-                 "low": w.get("low"), "high": w.get("high"),
-                 "confidence": w.get("confidence")}
+        rng = w.get("range") if isinstance(w.get("range"), list) else None
+        low = rng[0] if rng and len(rng) == 2 else w.get("low")
+        high = rng[1] if rng and len(rng) == 2 else w.get("high")
+        entry = {"parameter": w.get("factor") or w.get("parameter") or w.get("name"),
+                 "low": low, "high": high,
+                 "confidence": w.get("confidence"),
+                 "window_id": w.get("id"),
+                 "response": w.get("response"),
+                 "window_role": w.get("window_role"),
+                 "actionable": w.get("actionable")}
         out["operating_windows"].append(entry)
         med = medians.get(entry["parameter"])
         if med is not None and entry["low"] is not None and entry["high"] is not None \
                 and not (entry["low"] <= med <= entry["high"]):
             out["violations"].append({**entry, "median": med, "derived": True})
+    out["joint_setpoints"] = [j for j in (rec.get("joint_setpoints") or [])
+                              if isinstance(j, dict)][:5]
     for c in (rec.get("confirmations") or [])[:10]:
         out["confirmations"].append({
-            "parameter": c.get("parameter"), "note": c.get("note") or c.get("status")})
+            "parameter": c.get("parameter") or c.get("factor"),
+            "note": c.get("note") or c.get("text") or c.get("status")})
     if os.path.isfile(corr_path):
         try:
             with open(corr_path, encoding="utf-8") as f:

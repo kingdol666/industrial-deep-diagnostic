@@ -1192,11 +1192,23 @@ class ReportBuilder:
 
         joint = self.recs.get("joint_setpoints") or []
         if joint:
+            units = ((self.recs.get("units") or {}).get("factors") or {})
+
+            def setpoint_text(j):
+                out = []
+                for k, v in (j.get("factors") or {}).items():
+                    u = ((units.get(k) or {}).get("display")
+                         or (units.get(k) or {}).get("canonical") or "")
+                    out.append(f"{k}={fmt(v)}" + (f" {u}" if u and u != "-" else ""))
+                return "；".join(out) or "—"
+
             head = "".join(f"<th>{esc(h)}</th>" for h in
-                           ("id", "可行", "可执行", "阻断原因", "已满足响应"))
+                           ("id", "联合设定值", "D", "可行", "可执行", "阻断原因", "已满足响应"))
             body = "".join(
                 "<tr>"
                 f'<td class="mono">{esc(str(j.get("id") or ""))}</td>'
+                f'<td class="mono">{esc(setpoint_text(j))}</td>'
+                f'<td class="num">{fmt(j.get("desirability"), 3)}</td>'
                 f'<td>{"是" if j.get("feasible") else "否"}</td>'
                 f'<td>{"是" if j.get("actionable") else "否"}</td>'
                 f'<td>{esc("、".join(j.get("blockers") or []) or "—")}</td>'
@@ -1205,7 +1217,18 @@ class ReportBuilder:
             parts.append(
                 "<h3>联合推荐点（joint_setpoints）</h3>"
                 f'<div class="table-wrap"><table class="stat-table"><thead><tr>{head}</tr></thead>'
-                f"<tbody>{body}</tbody></table></div>"
+                f"<tbody>{body}</tbody></table></div>")
+            pred_lines = []
+            for j in joint[:4]:
+                for r, p in (j.get("predicted") or {}).items():
+                    pi = p.get("pi95") or []
+                    pred_lines.append(
+                        f"<li><b>{esc(str(j.get('id')))} / {esc(r)}</b>：预测均值 {fmt(p.get('mean'))}"
+                        + (f"，PI95 [{fmt(pi[0])}, {fmt(pi[1])}]" if len(pi) == 2 else "")
+                        + f"，满意度 d={fmt(p.get('d'), 3)}</li>")
+            if pred_lines:
+                parts.append(f'<ul class="notes">{"".join(pred_lines)}</ul>')
+            parts.append(
                 '<p class="note">逐因子 <code>operating_windows</code> 仅作诊断；执行依据是 '
                 "<code>joint_setpoints</code>，且只有在单位有效、无硬约束违例、全部带规格响应均满足时 "
                 "<code>actionable=true</code>。</p>")

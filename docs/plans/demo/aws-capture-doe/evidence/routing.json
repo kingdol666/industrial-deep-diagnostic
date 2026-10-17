@@ -1,0 +1,124 @@
+{
+  "passed": 20,
+  "total": 20,
+  "checks": [
+    {
+      "id": "idd.resolve.deep-diagnosis",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "idd.resolve.stability-report",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "idd.resolve.quick-screen",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "idd.resolve.doe-analysis",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "idd.resolve.experience-mining",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "idd.resolve.optimizer-campaign",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "idd.unknown.rejected",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "idd.default.empty_directive",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "idd.directive.stability-report",
+      "ok": true,
+      "detail": "directive does not bind the skill"
+    },
+    {
+      "id": "idd.directive.quick-screen",
+      "ok": true,
+      "detail": "directive does not bind the skill"
+    },
+    {
+      "id": "idd.directive.doe-analysis",
+      "ok": true,
+      "detail": "directive does not bind the skill"
+    },
+    {
+      "id": "idd.directive.experience-mining",
+      "ok": true,
+      "detail": "directive does not bind the skill"
+    },
+    {
+      "id": "idd.directive.optimizer-campaign",
+      "ok": true,
+      "detail": "directive does not bind the skill"
+    },
+    {
+      "id": "idd.doe.directive_names_orchestrator",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "idd.doe.ontology_first_gate",
+      "ok": true,
+      "detail": "order prepare=850 brief=937 plan=983"
+    },
+    {
+      "id": "idd.doe.design_only_refused",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "idd.quick_screen.html_step",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "aws.skill_alignment",
+      "ok": true,
+      "detail": "5/5 skills differ"
+    },
+    {
+      "id": "aws.intent_resolution",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "aws.doe_question_template",
+      "ok": true,
+      "detail": "bopet-lineA 产线该时窗DOE 试验数据分析:识别因子与响应,给出因子效应、显著性判断与最优工况组合建议;若数据不含多因子试验结构,请在报告中明确说明数据局限"
+    }
+  ],
+  "warnings": [
+    {
+      "id": "aws.diag_run_question_override",
+      "severity": "P0-platform",
+      "detail": "diag_run fills a deep-diagnosis question when question is absent; the per-intent template is unreachable on that path. IDD still binds the run through the intent directive, but the business question is wrong."
+    }
+  ],
+  "aws": {
+    "root": "D:/codes/ABO/AgentWorkShop",
+    "catalog": [
+      "deep-diagnosis",
+      "stability-report",
+      "quick-screen",
+      "doe-analysis",
+      "experience-mining",
+      "optimizer-campaign"
+    ]
+  }
+}

@@ -596,15 +596,26 @@ def assemble(mode, windows, interactions, confirmations, watchlist, setpoints,
                     "factor": f, "response": loser["response"], "threshold": None})
                 loser["notes"] = (loser["notes"] or "") + " [冲突未采纳，仅供参照]"
 
-    # baseline (current working point): factor medians
+    # baseline (current working point): the recipe in force when the trial
+    # started (`current_setpoint`) wins; factor medians are only the fallback
+    # for factors the platform did not pin (a designed run's median is its
+    # centre, which is NOT the pre-trial working point).
     factor_cols = [w["factor"] for w in rec["operating_windows"]]
-    point = {}
+    pinned = ctx.get("current_setpoint") if isinstance(ctx.get("current_setpoint"), dict) else {}
+    point, baseline_sources = {}, {}
     for f in dict.fromkeys(factor_cols):
+        v = _num_or_none(pinned.get(f))
+        if v is not None:
+            point[f] = round(v, 6)
+            baseline_sources[f] = "current_setpoint"
+            continue
         if f in df.columns:
             v = pd.to_numeric(df[f], errors="coerce").dropna()
             if len(v):
                 point[f] = round(float(v.median()), 6)
+                baseline_sources[f] = "factor_median"
     rec["current_baseline"]["point"] = point
+    rec["current_baseline"]["source"] = baseline_sources
     dist = {}
     for w in rec["operating_windows"]:
         v = point.get(w["factor"])
@@ -759,8 +770,20 @@ def normalize_constraints(ctx, brief=None):
             if not coeffs:
                 continue
             factor = "linear:" + "+".join(sorted(coeffs))
+            # Contract §4.2 spells a one-sided linear limit as {coefficients, rhs};
+            # the evaluator works on [min, max] of the weighted sum. Translate rhs
+            # (default orientation "sum <= rhs") instead of silently dropping it.
+            lo = _num_or_none(c.get("min"))
+            hi = _num_or_none(c.get("max"))
+            rhs = _num_or_none(c.get("rhs"))
+            if rhs is not None:
+                op = str(c.get("op") or c.get("relation") or "<=").strip()
+                if op in (">=", ">", "min"):
+                    lo = rhs if lo is None else lo
+                else:
+                    hi = rhs if hi is None else hi
             out.append({"factor": factor, "factors": sorted(coeffs), "type": "linear",
-                        "min": _num_or_none(c.get("min")), "max": _num_or_none(c.get("max")),
+                        "min": lo, "max": hi,
                         "hard": hard, "coeffs": coeffs,
                         "source": str(c.get("source") or origin),
                         "reason": c.get("reason")})

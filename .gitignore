@@ -14,6 +14,7 @@ data/*.db*
 # Diagnostic runs & bridge runs (generated artifacts, large files)
 workspace/diagnostic-runs/
 workspace/bridge-runs/
+workspace/aws-capture-e2e/
 workspace/*.csv
 workspace/*.png
 workspace/*.py

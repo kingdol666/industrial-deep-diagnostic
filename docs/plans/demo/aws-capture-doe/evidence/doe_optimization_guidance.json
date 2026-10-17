@@ -1,0 +1,245 @@
+{
+  "contract_version": "1.0",
+  "schema_version": "1.0",
+  "generated_at": "2026-10-17T13:11:16.188854+00:00",
+  "run_id": "doe",
+  "experiment_id": "doe-aws-bopet-ccd-20261017",
+  "ontology_basis": {
+    "profile": "doe",
+    "scene_key": "bopet-lineA-12um-tdo",
+    "version": 1,
+    "sha256": "sha256:2d4002a825c7d22a8aa66710c5d876e5cd7942d2f0c8ea4726e7dae839dd5236",
+    "reused": false,
+    "brief_ref": "01_ontology/ontology_brief.json"
+  },
+  "objective": "在厚度 50±2 µm、雾度 ≤2.2% 的约束下提高拉伸强度并稳定厚度：给出可执行的联合设定点与下一轮设计",
+  "recipe_patch": [
+    {
+      "factor": "mdo_speed",
+      "from": 330.0,
+      "to": 317.5,
+      "unit": "m/min",
+      "platform_ref": {
+        "recipe_param": "MDO_SPEED",
+        "node_id": "mdo_speed",
+        "plc_tag": "DB10.DBD4",
+        "unit_conversion": 1.0,
+        "rounding": 0.1
+      },
+      "hard_limits": {
+        "min": 300.0,
+        "max": 340.0,
+        "reason": "设备安全限（本体资产）"
+      },
+      "within_limits": true,
+      "actionable": true,
+      "actionable_blockers": [],
+      "source": "joint_setpoints[JS-001]",
+      "window_ids": [
+        "OW-001",
+        "OW-002",
+        "OW-003"
+      ],
+      "value_analysis_units": 317.5,
+      "unit_conversion_notes": [],
+      "limit_violations": [],
+      "unit_status": "valid"
+    },
+    {
+      "factor": "tdo_ratio",
+      "from": 3.1,
+      "to": 3.08,
+      "unit": "-",
+      "platform_ref": {
+        "recipe_param": "TDO_RATIO",
+        "node_id": "tdo_ratio",
+        "plc_tag": "DB10.DBD8",
+        "unit_conversion": 1.0,
+        "rounding": 0.01
+      },
+      "hard_limits": {
+        "min": 2.7,
+        "max": 3.3,
+        "reason": "设备安全限（本体资产）"
+      },
+      "within_limits": true,
+      "actionable": true,
+      "actionable_blockers": [],
+      "source": "joint_setpoints[JS-001]",
+      "window_ids": [
+        "OW-001",
+        "OW-002",
+        "OW-003"
+      ],
+      "value_analysis_units": 3.075,
+      "unit_conversion_notes": [],
+      "limit_violations": [],
+      "unit_status": "valid"
+    },
+    {
+      "factor": "tdo_z4_temp",
+      "from": 196.0,
+      "to": 200.0,
+      "unit": "°C",
+      "platform_ref": {
+        "recipe_param": "TDO_Z4_TEMP",
+        "node_id": "tdo_z4_temp",
+        "plc_tag": "DB10.DBD0",
+        "unit_conversion": 1.0,
+        "rounding": 0.1
+      },
+      "hard_limits": {
+        "min": 195.0,
+        "max": 205.0,
+        "reason": "设备安全限（本体资产）"
+      },
+      "within_limits": true,
+      "actionable": true,
+      "actionable_blockers": [],
+      "source": "joint_setpoints[JS-001]",
+      "window_ids": [
+        "OW-001",
+        "OW-002",
+        "OW-003"
+      ],
+      "value_analysis_units": 200.0,
+      "unit_conversion_notes": [],
+      "limit_violations": [],
+      "unit_status": "valid"
+    }
+  ],
+  "node_setpoints": [
+    {
+      "node_id": "haze_gauge",
+      "metric": "haze_pct",
+      "value": 2.063767,
+      "unit": "%",
+      "aggregation": "steady_mean",
+      "value_source": "joint_setpoints[].predicted.mean",
+      "response_goal": "minimize",
+      "spec_limits": {
+        "lsl": null,
+        "usl": 2.2,
+        "target": null
+      }
+    },
+    {
+      "node_id": "thickness_gauge",
+      "metric": "thickness_um",
+      "value": 49.963828,
+      "unit": "um",
+      "aggregation": "steady_mean",
+      "value_source": "joint_setpoints[].predicted.mean",
+      "response_goal": "target",
+      "spec_limits": {
+        "lsl": 48.0,
+        "usl": 52.0,
+        "target": 50.0
+      }
+    }
+  ],
+  "constraints": [
+    {
+      "factor": "tdo_z4_temp",
+      "type": "box",
+      "min": 195.0,
+      "max": 205.0,
+      "hard": true,
+      "source": "ontology"
+    }
+  ],
+  "next_design": {
+    "ref": "conclusions/next_design.json",
+    "primary_action_id": "ND-01",
+    "recommended_action": "none",
+    "n_runs": 0
+  },
+  "lineage": {
+    "parent_run_id": null,
+    "round": null,
+    "campaign_id": "camp-aws-bopet-1"
+  },
+  "provenance": {
+    "authored_by": "script",
+    "script_version": "1.0",
+    "recommended_point_source": "joint_setpoints[JS-001]",
+    "actionable": true,
+    "actionable_blockers": [],
+    "inputs": [
+      {
+        "key": "analysis_context",
+        "path": "00_input/analysis_context.json",
+        "sha256": "aadd17f6624014f62c5435f976ba67eb8926cdb1c3854a90e7fb43b40c13780e",
+        "bytes": 9788
+      },
+      {
+        "key": "data_profile",
+        "path": "01_profile/data_profile.json",
+        "sha256": "2f250628a1b192d2cf68dbe59d3f0acdb50a86f29afc101a27452df14cb7e4ec",
+        "bytes": 5756
+      },
+      {
+        "key": "doe_context",
+        "path": "00_input/doe_context.json",
+        "sha256": "9da2224400d0ed1eef7a4bab10a911b77aa1c90ff0458a84f8d0bcd0ad24782c",
+        "bytes": 6712
+      },
+      {
+        "key": "next_design",
+        "path": "conclusions/next_design.json",
+        "sha256": "6b23e73a80251bcc6eccbd4fa433d22debe70f30c41fcd028c278ce2ad9390ed",
+        "bytes": 2469
+      },
+      {
+        "key": "ontology_brief",
+        "path": "01_ontology/ontology_brief.json",
+        "sha256": "699cb910a3125137a910ff728b1f1a209e8c6179f7a3e0b1c3fc776eac63313e",
+        "bytes": 16816
+      },
+      {
+        "key": "recommendations",
+        "path": "conclusions/recommendations.json",
+        "sha256": "a3393466b910d97d8858abf58dfe52ad563006370f5ea3f5eb2fb37944e81796",
+        "bytes": 33179
+      },
+      {
+        "key": "run_manifest",
+        "path": "run_manifest.json",
+        "sha256": "967af10c12e0438ee57477eb62e6f9b3d088952e0464855b89040869366b5cef",
+        "bytes": 199
+      }
+    ],
+    "notes": [
+      "响应 HX-PROF-PROFILES-EDGE-L-DEV 缺少 platform_metric_ref.node_id：已从 node_setpoints 移除（OD-11）",
+      "响应 gauge_mean 缺少 platform_metric_ref.node_id：已从 node_setpoints 移除（OD-11）",
+      "响应 tensile_mpa 缺少 platform_metric_ref.node_id：已从 node_setpoints 移除（OD-11）"
+    ]
+  },
+  "platform_ref_missing": [
+    {
+      "kind": "node_setpoint",
+      "metric": "HX-PROF-PROFILES-EDGE-L-DEV",
+      "value": 0.04744,
+      "unit": "um",
+      "reason": "platform_ref_missing",
+      "platform_ref": null
+    },
+    {
+      "kind": "node_setpoint",
+      "metric": "gauge_mean",
+      "value": 50.131293,
+      "unit": "um",
+      "reason": "platform_ref_missing",
+      "platform_ref": null
+    },
+    {
+      "kind": "node_setpoint",
+      "metric": "tensile_mpa",
+      "value": 188.670888,
+      "unit": "MPa",
+      "reason": "platform_ref_missing",
+      "platform_ref": null
+    }
+  ],
+  "value_semantics": "recipe_patch.to 已应用 platform_ref.unit_conversion 与 rounding（平台单位）；value_analysis_units 为分析单位原值；within_limits 依据 platform_ref.hard_limits 计算"
+}

@@ -1,0 +1,241 @@
+{
+  "schema": "aw.daq-export/1",
+  "export_id": "daqexp-doerun-014",
+  "created_at": "2026-10-17T09:09:00.000Z",
+  "title": "DOE dp-10 run doerun-014",
+  "note": "CCD point dp-10 block B2",
+  "window": {
+    "from_ms": 1792227900000,
+    "to_ms": 1792228130000,
+    "from": "2026-10-17T09:05:00.000Z",
+    "to": "2026-10-17T09:08:50.000Z"
+  },
+  "lines": [
+    {
+      "lineId": "bopet-lineA",
+      "lineName": "BOPET 一号线",
+      "runId": "doerun-014",
+      "productId": "BOPET-12um",
+      "productName": "12 µm 电容膜",
+      "recipeId": "RCP-12A",
+      "recipeName": "12um 标准配方",
+      "recipeVersion": 3
+    }
+  ],
+  "nodes": [
+    {
+      "id": "tdo_z4_temp",
+      "name": "TDO Z4 温度",
+      "unit": "°C",
+      "line_id": "bopet-lineA",
+      "range": {
+        "min": 180.0,
+        "max": 220.0
+      },
+      "warn": {
+        "low": null,
+        "high": null
+      },
+      "interval_ms": 10000,
+      "decimals": 0.1,
+      "semantics": "TDO Z4 温度（°C）",
+      "file": "nodes/tdo_z4_temp.csv",
+      "rows": 24,
+      "value_range_observed": {
+        "min": 203.9141,
+        "max": 204.1025
+      },
+      "state_summary": {
+        "ok": 24
+      }
+    },
+    {
+      "id": "mdo_speed",
+      "name": "MDO 车速",
+      "unit": "m/min",
+      "line_id": "bopet-lineA",
+      "range": {
+        "min": 280.0,
+        "max": 360.0
+      },
+      "warn": {
+        "low": null,
+        "high": null
+      },
+      "interval_ms": 10000,
+      "decimals": 0.1,
+      "semantics": "MDO 车速（m/min）",
+      "file": "nodes/mdo_speed.csv",
+      "rows": 24,
+      "value_range_observed": {
+        "min": 319.6413,
+        "max": 320.5243
+      },
+      "state_summary": {
+        "ok": 24
+      }
+    },
+    {
+      "id": "tdo_ratio",
+      "name": "TDO 拉伸比",
+      "unit": "-",
+      "line_id": "bopet-lineA",
+      "range": {
+        "min": 2.6,
+        "max": 3.4
+      },
+      "warn": {
+        "low": null,
+        "high": null
+      },
+      "interval_ms": 10000,
+      "decimals": 0.001,
+      "semantics": "TDO 拉伸比（-）",
+      "file": "nodes/tdo_ratio.csv",
+      "rows": 24,
+      "value_range_observed": {
+        "min": 2.998,
+        "max": 3.0022
+      },
+      "state_summary": {
+        "ok": 24
+      }
+    },
+    {
+      "id": "thickness_gauge",
+      "name": "在线测厚",
+      "unit": "um",
+      "line_id": "bopet-lineA",
+      "range": {
+        "min": 40.0,
+        "max": 60.0
+      },
+      "warn": {
+        "low": null,
+        "high": null
+      },
+      "interval_ms": 10000,
+      "decimals": 0.001,
+      "semantics": "在线测厚（um）",
+      "file": "nodes/thickness_gauge.csv",
+      "rows": 24,
+      "value_range_observed": {
+        "min": 50.2123,
+        "max": 50.5036
+      },
+      "state_summary": {
+        "ok": 24
+      }
+    },
+    {
+      "id": "haze_gauge",
+      "name": "在线雾度",
+      "unit": "%",
+      "line_id": "bopet-lineA",
+      "range": {
+        "min": 0.0,
+        "max": 10.0
+      },
+      "warn": {
+        "low": null,
+        "high": null
+      },
+      "interval_ms": 10000,
+      "decimals": 0.001,
+      "semantics": "在线雾度（%）",
+      "file": "nodes/haze_gauge.csv",
+      "rows": 24,
+      "value_range_observed": {
+        "min": 2.2055,
+        "max": 2.2842
+      },
+      "state_summary": {
+        "ok": 24
+      }
+    },
+    {
+      "id": "chiller_pressure",
+      "name": "冷冻水压力",
+      "unit": "bar",
+      "line_id": "bopet-lineA",
+      "range": {
+        "min": 0.0,
+        "max": 8.0
+      },
+      "warn": {
+        "low": null,
+        "high": null
+      },
+      "interval_ms": 10000,
+      "decimals": 0.001,
+      "semantics": "冷冻水压力（bar）",
+      "file": "nodes/chiller_pressure.csv",
+      "rows": 24,
+      "value_range_observed": {
+        "min": 3.0203,
+        "max": 3.0437
+      },
+      "state_summary": {
+        "ok": 24
+      }
+    },
+    {
+      "id": "ambient_temp",
+      "name": "环境温度",
+      "unit": "°C",
+      "line_id": "bopet-lineA",
+      "range": {
+        "min": 0.0,
+        "max": 45.0
+      },
+      "warn": {
+        "low": null,
+        "high": null
+      },
+      "interval_ms": 10000,
+      "decimals": 0.01,
+      "semantics": "环境温度（°C）",
+      "file": "nodes/ambient_temp.csv",
+      "rows": 24,
+      "value_range_observed": {
+        "min": 23.5652,
+        "max": 23.7777
+      },
+      "state_summary": {
+        "ok": 24
+      }
+    },
+    {
+      "id": "line_tension",
+      "name": "收卷张力",
+      "unit": "N",
+      "line_id": "bopet-lineA",
+      "range": {
+        "min": 0.0,
+        "max": 300.0
+      },
+      "warn": {
+        "low": null,
+        "high": null
+      },
+      "interval_ms": 10000,
+      "decimals": 0.01,
+      "semantics": "收卷张力（N）",
+      "file": "nodes/line_tension.csv",
+      "rows": 24,
+      "value_range_observed": {
+        "min": 125.9816,
+        "max": 126.8073
+      },
+      "state_summary": {
+        "ok": 24
+      }
+    }
+  ],
+  "totals": {
+    "files": 8,
+    "rows": 192
+  },
+  "truncated_nodes": [],
+  "usage": "nodes/ 下每标量节点一份全量原始时序 CSV(ts_iso,ts_ms,value,state;无降采样)"
+}

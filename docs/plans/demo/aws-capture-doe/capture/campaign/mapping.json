@@ -1,0 +1,222 @@
+{
+  "contract_version": "1.0",
+  "experiment_id": "doe-aws-bopet-ccd-20261017",
+  "campaign_id": "camp-aws-bopet-1",
+  "round_no": 1,
+  "line_id": "bopet-lineA",
+  "product_id": "BOPET-12um",
+  "recipe_id": "RCP-12A",
+  "objective": "在厚度 50±2 µm、雾度 ≤2.2% 的约束下提高拉伸强度并稳定厚度：给出可执行的联合设定点与下一轮设计",
+  "design_type_declared": "rsm_ccd",
+  "trial_design_file": "trial_design.csv",
+  "qc_file": "qc_measurements.csv",
+  "features_file": "hetero_features.csv",
+  "runs_dir": "runs",
+  "aggregation": {
+    "method": "steady_mean",
+    "warmup_trim": 0.2,
+    "state_filter": [
+      "ok"
+    ],
+    "min_rows": 8
+  },
+  "factors": [
+    {
+      "name": "tdo_z4_temp",
+      "col": "tdo_z4_temp",
+      "type": "numeric",
+      "unit": "°C",
+      "min": 196.0,
+      "max": 204.0,
+      "role": "control",
+      "expected_sign": "+",
+      "physical_meaning": "TDO 第4区加热温度：提高取向与结晶，厚度上升、雾度上升",
+      "platform_ref": {
+        "recipe_param": "TDO_Z4_TEMP",
+        "node_id": "tdo_z4_temp",
+        "plc_tag": "DB10.DBD0",
+        "unit": "°C",
+        "unit_conversion": 1.0,
+        "rounding": 0.1,
+        "hard_limits": {
+          "min": 195.0,
+          "max": 205.0,
+          "reason": "设备安全限（本体资产）"
+        }
+      }
+    },
+    {
+      "name": "mdo_speed",
+      "col": "mdo_speed",
+      "type": "numeric",
+      "unit": "m/min",
+      "min": 310.0,
+      "max": 330.0,
+      "role": "control",
+      "expected_sign": "-",
+      "physical_meaning": "MDO 车速：提高纵向拉伸，厚度下降",
+      "platform_ref": {
+        "recipe_param": "MDO_SPEED",
+        "node_id": "mdo_speed",
+        "plc_tag": "DB10.DBD4",
+        "unit": "m/min",
+        "unit_conversion": 1.0,
+        "rounding": 0.1,
+        "hard_limits": {
+          "min": 300.0,
+          "max": 340.0,
+          "reason": "设备安全限（本体资产）"
+        }
+      }
+    },
+    {
+      "name": "tdo_ratio",
+      "col": "tdo_ratio",
+      "type": "numeric",
+      "unit": "-",
+      "min": 2.9,
+      "max": 3.1,
+      "role": "control",
+      "expected_sign": "-",
+      "physical_meaning": "TDO 横向拉伸比：提高横向取向，厚度略降",
+      "platform_ref": {
+        "recipe_param": "TDO_RATIO",
+        "node_id": "tdo_ratio",
+        "plc_tag": "DB10.DBD8",
+        "unit": "-",
+        "unit_conversion": 1.0,
+        "rounding": 0.01,
+        "hard_limits": {
+          "min": 2.7,
+          "max": 3.3,
+          "reason": "设备安全限（本体资产）"
+        }
+      }
+    }
+  ],
+  "responses": [
+    {
+      "name": "thickness_um",
+      "col": "thickness_um",
+      "unit": "um",
+      "goal": "target",
+      "lsl": 48.0,
+      "usl": 52.0,
+      "target": 50.0,
+      "weight": 1.0,
+      "platform_metric_ref": {
+        "node_id": "thickness_gauge",
+        "aggregation": "steady_mean"
+      }
+    },
+    {
+      "name": "haze_pct",
+      "col": "haze_pct",
+      "unit": "%",
+      "goal": "minimize",
+      "lsl": null,
+      "usl": 2.2,
+      "target": null,
+      "weight": 0.8,
+      "platform_metric_ref": {
+        "node_id": "haze_gauge",
+        "aggregation": "steady_mean"
+      }
+    },
+    {
+      "name": "tensile_mpa",
+      "col": "tensile_mpa",
+      "unit": "MPa",
+      "goal": "maximize",
+      "lsl": 170.0,
+      "usl": null,
+      "target": null,
+      "weight": 0.6,
+      "platform_metric_ref": null
+    },
+    {
+      "name": "gauge_mean",
+      "col": "gauge_mean",
+      "source": "node",
+      "node": "thickness_gauge",
+      "unit": "um",
+      "goal": "target",
+      "lsl": 48.0,
+      "usl": 52.0,
+      "target": 50.0,
+      "weight": 0.5
+    },
+    {
+      "name": "edge_dev",
+      "col": "HX-PROF-PROFILES-EDGE-L-DEV",
+      "source": "qc",
+      "unit": "um",
+      "goal": "minimize",
+      "weight": 0.5
+    }
+  ],
+  "covariates": [
+    {
+      "name": "ambient_temp",
+      "col": "ambient_temp",
+      "source": "node",
+      "node": "ambient_temp",
+      "unit": "°C"
+    }
+  ],
+  "blocks": [
+    "block"
+  ],
+  "constraints": [
+    {
+      "factor": "tdo_z4_temp",
+      "type": "box",
+      "min": 195.0,
+      "max": 205.0,
+      "hard": true,
+      "reason": "TDO 加热区安全限",
+      "source": "ontology"
+    },
+    {
+      "type": "linear",
+      "coefficients": {
+        "tdo_z4_temp": 1.0,
+        "tdo_ratio": 10.0
+      },
+      "rhs": 235.0,
+      "hard": true,
+      "reason": "总热负荷与横向拉伸上限",
+      "source": "ontology"
+    }
+  ],
+  "current_setpoint": {
+    "tdo_z4_temp": 196.0,
+    "mdo_speed": 330.0,
+    "tdo_ratio": 3.1
+  },
+  "baseline_source": "platform_recipe",
+  "design_region": {
+    "factorial_bounds": {
+      "tdo_z4_temp": [
+        196.0,
+        204.0
+      ],
+      "mdo_speed": [
+        310.0,
+        330.0
+      ],
+      "tdo_ratio": [
+        2.9,
+        3.1
+      ]
+    },
+    "axial_alpha": 1.0,
+    "design_hull": "ccd_star"
+  },
+  "ontology": {
+    "profile": "doe",
+    "mode": "auto",
+    "scene_key": "bopet-lineA-12um-tdo",
+    "data_stage": "collected"
+  }
+}

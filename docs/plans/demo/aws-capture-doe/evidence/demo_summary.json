@@ -1,0 +1,86 @@
+{
+  "contract_version": "1.0",
+  "capture": "docs/plans/demo/aws-capture-doe/capture",
+  "hetero_source": "e1h",
+  "ontology": {
+    "first": "built",
+    "second": "reused"
+  },
+  "doe": {
+    "joint_setpoint": {
+      "tdo_z4_temp": 200.0,
+      "mdo_speed": 317.5,
+      "tdo_ratio": 3.075
+    },
+    "desirability": 0.861011,
+    "patches": {
+      "mdo_speed": {
+        "from": 330.0,
+        "to": 317.5
+      },
+      "tdo_ratio": {
+        "from": 3.1,
+        "to": 3.08
+      },
+      "tdo_z4_temp": {
+        "from": 196.0,
+        "to": 200.0
+      }
+    },
+    "evidence_grade": "A"
+  },
+  "anomaly": {
+    "alerts": 224,
+    "spc_triggered": 199,
+    "projection": [
+      {
+        "factor": "tdo_ratio",
+        "current": 3.000041906158358,
+        "window": [
+          2.9,
+          3.1
+        ],
+        "slope_per_hour": -4.8563112678702566e-05,
+        "hours_to_edge": 2060.0390016233805,
+        "level": "info"
+      },
+      {
+        "factor": "tdo_z4_temp",
+        "current": 204.7057731847507,
+        "window": [
+          198.0,
+          203.0
+        ],
+        "slope_per_hour": 0.8960884735236085,
+        "hours_to_edge": 0.0,
+        "level": "critical"
+      },
+      {
+        "factor": "mdo_speed",
+        "current": 320.03826617888564,
+        "window": [
+          310.0,
+          327.5
+        ],
+        "slope_per_hour": 0.020462107290479994,
+        "hours_to_edge": 364.66106423877176,
+        "level": "info"
+      }
+    ]
+  },
+  "fluctuation": {
+    "score": 53.9,
+    "grade": "C",
+    "findings": 20
+  },
+  "retrieval": {
+    "entries": 12
+  },
+  "routing": {
+    "passed": 20,
+    "total": 20,
+    "warnings": [
+      "aws.diag_run_question_override"
+    ]
+  }
+}

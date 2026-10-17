@@ -231,9 +231,11 @@ def generate(report: dict) -> list[dict]:
 
     doe = report.get("integrations", {}).get("doe_analyzer") or {}
     for w in (doe.get("violations") or [])[:3]:
+        role = w.get("window_role") or "legacy_window"
+        joint = "；可执行联合点见 doe_analyzer.joint_setpoints" if doe.get("joint_setpoints") else ""
         _f(out, "warn", "window", f"{w['parameter']} 超出推荐操作窗",
            f"时段中位 {_fmt(w['median'])} 在推荐窗 [{_fmt(w.get('low'))}, {_fmt(w.get('high'))}] 之外"
-           f"（来源 doe-analyzer recommendations）。",
+           f"（来源 doe-analyzer recommendations；window_role={role}{joint}）。",
            [_ev("median", w["median"], f"[{w.get('low')}, {w.get('high')}]",
                 "doe-analyzer recommendations.json", derived=True)],
            affected=[w["parameter"]], confidence=75 + spen)

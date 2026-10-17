@@ -80,13 +80,18 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["factor"],
+        "anyOf": [
+          { "required": ["factor"] },
+          { "required": ["type", "coefficients", "rhs"] }
+        ],
         "properties": {
           "factor": { "type": "string" },
           "type": { "enum": ["box", "linear", "safety"] },
           "min": { "type": ["number", "null"] },
           "max": { "type": ["number", "null"] },
           "coeff": { "type": ["object", "null"] },
+          "coefficients": { "type": ["object", "null"] },
+          "rhs": { "type": ["number", "null"] },
           "hard": { "type": "boolean" },
           "reason": { "type": ["string", "null"] },
           "source": { "type": ["string", "null"] }

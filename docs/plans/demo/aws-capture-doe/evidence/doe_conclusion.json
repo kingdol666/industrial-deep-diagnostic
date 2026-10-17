@@ -1,0 +1,146 @@
+{
+  "generated_at": "2026-10-17T13:11:16.182846+00:00",
+  "analysis_mode": "designed",
+  "design_type": "rsm_ccd",
+  "evidence_grade": "A",
+  "grade_checklist": {
+    "randomization_ok": true,
+    "pure_error_df_gt0": true,
+    "resolution_ok": true,
+    "balanced": null,
+    "model_adequacy_ok": true,
+    "anti_spurious_ok": null,
+    "overridden_by": null
+  },
+  "authored_by": "script",
+  "key_findings": [
+    {
+      "id": "KF-001",
+      "statement": "因子/项 tdo_z4_temp 对响应 thickness_um 存在正向效应：编码系数 1.251097，q(BH)=1.4188844730148323e-07，partial η²=0.976213",
+      "evidence_refs": [
+        "effect_table.json#thickness_um.tdo_z4_temp"
+      ],
+      "confidence": "high",
+      "fdr_q": 1.4188844730148323e-07
+    },
+    {
+      "id": "KF-002",
+      "statement": "因子/项 mdo_speed 对响应 thickness_um 存在负向效应：编码系数 -0.937492，q(BH)=5.448420391317273e-07，partial η²=0.96263",
+      "evidence_refs": [
+        "effect_table.json#thickness_um.mdo_speed"
+      ],
+      "confidence": "high",
+      "fdr_q": 5.448420391317273e-07
+    },
+    {
+      "id": "KF-003",
+      "statement": "因子/项 tdo_z4_temp 对响应 haze_pct 存在正向效应：编码系数 0.163186，q(BH)=0.00017801733890432663，partial η²=0.884905",
+      "evidence_refs": [
+        "effect_table.json#haze_pct.tdo_z4_temp"
+      ],
+      "confidence": "high",
+      "fdr_q": 0.00017801733890432663
+    },
+    {
+      "id": "KF-004",
+      "statement": "因子/项 mdo_speed 对响应 haze_pct 存在负向效应：编码系数 -0.110789，q(BH)=0.0011543058985414027，partial η²=0.798439",
+      "evidence_refs": [
+        "effect_table.json#haze_pct.mdo_speed"
+      ],
+      "confidence": "high",
+      "fdr_q": 0.0011543058985414027
+    },
+    {
+      "id": "KF-005",
+      "statement": "因子/项 tdo_z4_temp 对响应 tensile_mpa 存在正向效应：编码系数 5.277296，q(BH)=5.7131547405691474e-05，partial η²=0.910366",
+      "evidence_refs": [
+        "effect_table.json#tensile_mpa.tdo_z4_temp"
+      ],
+      "confidence": "high",
+      "fdr_q": 5.7131547405691474e-05
+    },
+    {
+      "id": "KF-006",
+      "statement": "因子/项 mdo_speed 对响应 tensile_mpa 存在负向效应：编码系数 -3.431554，q(BH)=0.0005633536158328703，partial η²=0.827595",
+      "evidence_refs": [
+        "effect_table.json#tensile_mpa.mdo_speed"
+      ],
+      "confidence": "high",
+      "fdr_q": 0.0005633536158328703
+    }
+  ],
+  "limitations": [
+    "响应 thickness_um 的最大 Cook's D=1.19619 超过 4/n 截断 — 个别试验点对系数影响过大，删除该点可能改变结论",
+    "响应 haze_pct 的最大 Cook's D=0.540893 超过 4/n 截断 — 个别试验点对系数影响过大，删除该点可能改变结论",
+    "响应 tensile_mpa 的最大 Cook's D=0.791939 超过 4/n 截断 — 个别试验点对系数影响过大，删除该点可能改变结论",
+    "响应 gauge_mean 的最大 Cook's D=0.726338 超过 4/n 截断 — 个别试验点对系数影响过大，删除该点可能改变结论",
+    "响应 HX-PROF-PROFILES-EDGE-L-DEV 的最大 Cook's D=0.265983 超过 4/n 截断 — 个别试验点对系数影响过大，删除该点可能改变结论"
+  ],
+  "figure_index": [
+    {
+      "file": "pareto_thickness_um.png",
+      "title": "Pareto of standardized effects — thickness_um"
+    },
+    {
+      "file": "residuals_thickness_um.png",
+      "title": "Residual diagnostics — thickness_um"
+    },
+    {
+      "file": "pareto_haze_pct.png",
+      "title": "Pareto of standardized effects — haze_pct"
+    },
+    {
+      "file": "residuals_haze_pct.png",
+      "title": "Residual diagnostics — haze_pct"
+    },
+    {
+      "file": "pareto_tensile_mpa.png",
+      "title": "Pareto of standardized effects — tensile_mpa"
+    },
+    {
+      "file": "residuals_tensile_mpa.png",
+      "title": "Residual diagnostics — tensile_mpa"
+    },
+    {
+      "file": "main_effects_thickness_um.png",
+      "title": "Main effects — thickness_um"
+    },
+    {
+      "file": "contour_thickness_um.png",
+      "title": "Predicted response contour — thickness_um (top-Pareto pair tdo_z4_temp x mdo_speed)"
+    }
+  ],
+  "recommendations_ref": "conclusions/recommendations.json",
+  "downstream_usage_card": {
+    "contract_version": "1.1",
+    "n_windows": 3,
+    "n_confirmations": 0,
+    "n_watchlist": 3,
+    "usage_rules": [
+      "窗口外推端点（extrapolation=true）需工艺确认后方可执行",
+      "多响应窗口冲突以 conflicts[].chosen 为准"
+    ],
+    "n_joint_setpoints": 1,
+    "n_actionable": 4,
+    "n_blocked": 0,
+    "factor_response_coverage": {
+      "cells": 15,
+      "with_window": 3,
+      "with_reason": 12,
+      "zero_silent": true
+    },
+    "contract_status": {
+      "contract_version": "1.1",
+      "evidence_grade_independent": true,
+      "n_windows": 3,
+      "n_windows_with_pi": 3,
+      "n_windows_with_pi_gt_ci": 3,
+      "n_joint_setpoints": 1,
+      "n_actionable": 4,
+      "matrix_zero_silent_cells": true,
+      "interval_disclosure_present": true,
+      "units_disclosed": true,
+      "design_region_disclosed": true
+    }
+  }
+}

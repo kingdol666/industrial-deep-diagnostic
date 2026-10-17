@@ -90,6 +90,7 @@
       "required": ["point"],
       "properties": {
         "point": { "type": "object", "additionalProperties": { "type": ["number", "string", "null"] } },
+        "source": { "type": "object" },
         "distance_to_window": { "type": "object" },
         "move_instruction": { "type": ["string", "null"] }
       }

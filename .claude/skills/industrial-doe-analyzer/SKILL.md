@@ -25,6 +25,12 @@ User may override via `analysis_context.json` (`mode_override`) — **override c
 |------|-------------|
 | `00_input/<data file>` | CSV/Excel/Parquet/Feather/JSON/TSV data table |
 | `00_input/analysis_context.json` | *(optional, schema-validated)* objective, responses with spec limits/goals, factors, blocks, covariates, time/group/run-order columns, constraints. If absent, Phase 0 auto-infers it with `assigned_by: "auto"` on every inferred field |
+| `00_input/doe_context.json` + `run_table.csv` | platform-authored run-level trial table; convert with `doe_context_adapter.py` |
+| AgentWorkShop capture | `manifest.json` + `nodes/<id>.csv` per run; convert with `aws_capture.py build` (or `pivot` for sentinel/stability) |
+
+Full format reference (table rules, run table, context fields, capture layout, QC/profiles/notes, failure codes):
+**`references/data-formats.md`**. Platform handoff (intents, ontology params, artifact retrieval,
+AgentWorkShop bridge gap): **`references/platform-integration.md`**.
 
 ### Outputs (contracts v1.1; gate = `scripts/quality_gate.mjs`)
 
