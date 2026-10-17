@@ -1,0 +1,18 @@
+{
+  "id": "paper_observational",
+  "industry": "造纸",
+  "kind": "observational",
+  "design": "observational",
+  "n_rows": 600,
+  "effects": [],
+  "null": [],
+  "expected_correlations": {
+    "basis_weight": [
+      "stock_flow",
+      "filler_flow"
+    ],
+    "moisture_pct": [
+      "steam_pressure"
+    ]
+  }
+}

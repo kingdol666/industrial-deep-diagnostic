@@ -1,0 +1,83 @@
+{
+  "contract_version": "1.0",
+  "experiment_id": "gen-design_only",
+  "line_id": "lab-design-only",
+  "product_id": "lab-design-only",
+  "objective": "实验室设计：识别关键因子并给出可执行的操作条件",
+  "design_type_declared": "full_factorial",
+  "data_stage": "design_only",
+  "data_file": "run_table.csv",
+  "factors": [
+    {
+      "name": "ph",
+      "col": "ph",
+      "type": "numeric",
+      "unit": "-",
+      "role": "control",
+      "expected_sign": "+",
+      "physical_meaning": "ph",
+      "platform_ref": null,
+      "min": 6.0,
+      "max": 8.0
+    },
+    {
+      "name": "temp",
+      "col": "temp",
+      "type": "numeric",
+      "unit": "°C",
+      "role": "control",
+      "expected_sign": "+",
+      "physical_meaning": "temp",
+      "platform_ref": null,
+      "min": 20.0,
+      "max": 40.0
+    }
+  ],
+  "responses": [
+    {
+      "name": "yield_pct",
+      "col": "yield_pct",
+      "unit": "%",
+      "goal": "maximize",
+      "lsl": 50,
+      "usl": null,
+      "target": null,
+      "weight": 1.0
+    }
+  ],
+  "blocks": [],
+  "covariates": [],
+  "constraints": [],
+  "replicates_col": "replicate_group",
+  "run_order_col": "run_order",
+  "group_col": "run_id",
+  "time_col": null,
+  "current_setpoint": {
+    "ph": 7,
+    "temp": 30
+  },
+  "baseline_source": "dataset_median",
+  "design_region": {
+    "factorial_bounds": {
+      "ph": [
+        6,
+        8
+      ],
+      "temp": [
+        20,
+        40
+      ]
+    },
+    "design_hull": "full_cube"
+  },
+  "ontology": {
+    "profile": "doe",
+    "mode": "auto",
+    "scene_key": "lab-design-only",
+    "data_stage": "design_only"
+  },
+  "provenance": {
+    "platform": "generality-corpus",
+    "created_by": "generate_cases.py"
+  }
+}

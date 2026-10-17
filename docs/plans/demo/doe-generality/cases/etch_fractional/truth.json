@@ -1,0 +1,44 @@
+{
+  "id": "etch_fractional",
+  "industry": "半导体刻蚀",
+  "kind": "designed",
+  "design": [
+    "fractional_factorial",
+    "orthogonal_array"
+  ],
+  "n_rows": 12,
+  "effects": [
+    [
+      "etch_depth_nm",
+      "rf_power",
+      "+"
+    ],
+    [
+      "selectivity",
+      "rf_power",
+      "+"
+    ]
+  ],
+  "null": [],
+  "models": {
+    "etch_depth_nm": {
+      "intercept": 500,
+      "terms": {
+        "rf_power": 55,
+        "pressure": -30,
+        "gas_flow": 22,
+        "gap": -15
+      },
+      "noise": 4
+    },
+    "selectivity": {
+      "intercept": 10,
+      "terms": {
+        "rf_power": 1.2,
+        "pressure": -0.8,
+        "gap": 0.4
+      },
+      "noise": 0.12
+    }
+  }
+}

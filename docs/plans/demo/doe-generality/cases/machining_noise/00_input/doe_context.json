@@ -1,0 +1,112 @@
+{
+  "contract_version": "1.0",
+  "experiment_id": "gen-machining_noise",
+  "line_id": "cnc-mill-noise",
+  "product_id": "cnc-mill-noise",
+  "objective": "机加工：识别关键因子并给出可执行的操作条件",
+  "design_type_declared": "full_factorial",
+  "data_stage": "collected",
+  "data_file": "run_table.csv",
+  "factors": [
+    {
+      "name": "spindle_rpm",
+      "col": "spindle_rpm",
+      "type": "numeric",
+      "unit": "rpm",
+      "role": "control",
+      "expected_sign": "-",
+      "physical_meaning": "spindle_rpm",
+      "platform_ref": null,
+      "min": 1000.0,
+      "max": 2000.0
+    },
+    {
+      "name": "feed_mm",
+      "col": "feed_mm",
+      "type": "numeric",
+      "unit": "mm/rev",
+      "role": "control",
+      "expected_sign": "+",
+      "physical_meaning": "feed_mm",
+      "platform_ref": null,
+      "min": 0.1,
+      "max": 0.3
+    },
+    {
+      "name": "depth_mm",
+      "col": "depth_mm",
+      "type": "numeric",
+      "unit": "mm",
+      "role": "control",
+      "expected_sign": "+",
+      "physical_meaning": "depth_mm",
+      "platform_ref": null,
+      "min": 0.5,
+      "max": 1.5
+    }
+  ],
+  "responses": [
+    {
+      "name": "roughness_ra",
+      "col": "roughness_ra",
+      "unit": "um",
+      "goal": "minimize",
+      "lsl": null,
+      "usl": 1.8,
+      "target": null,
+      "weight": 1.0
+    },
+    {
+      "name": "roundness_um",
+      "col": "roundness_um",
+      "unit": "um",
+      "goal": "minimize",
+      "lsl": null,
+      "usl": 8,
+      "target": null,
+      "weight": 1.0
+    }
+  ],
+  "blocks": [],
+  "covariates": [
+    "coolant_flow"
+  ],
+  "constraints": [],
+  "replicates_col": "replicate_group",
+  "run_order_col": "run_order",
+  "group_col": "run_id",
+  "time_col": null,
+  "current_setpoint": {
+    "spindle_rpm": 1500,
+    "feed_mm": 0.2,
+    "depth_mm": 1.0
+  },
+  "baseline_source": "dataset_median",
+  "design_region": {
+    "factorial_bounds": {
+      "spindle_rpm": [
+        1000,
+        2000
+      ],
+      "feed_mm": [
+        0.1,
+        0.3
+      ],
+      "depth_mm": [
+        0.5,
+        1.5
+      ]
+    },
+    "design_hull": "full_cube"
+  },
+  "ontology": {
+    "profile": "doe",
+    "mode": "auto",
+    "scene_key": "cnc-mill-noise",
+    "data_stage": "collected"
+  },
+  "provenance": {
+    "platform": "generality-corpus",
+    "created_by": "generate_cases.py"
+  }
+}

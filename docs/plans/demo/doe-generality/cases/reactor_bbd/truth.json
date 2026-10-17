@@ -1,0 +1,53 @@
+{
+  "id": "reactor_bbd",
+  "industry": "化工反应",
+  "kind": "designed",
+  "design": "rsm_bbd",
+  "n_rows": 15,
+  "effects": [
+    [
+      "yield_pct",
+      "react_temp",
+      "+"
+    ],
+    [
+      "impurity_pct",
+      "ph",
+      "+"
+    ]
+  ],
+  "null": [],
+  "models": {
+    "yield_pct": {
+      "intercept": 88,
+      "terms": {
+        "react_temp": 3.0,
+        "ph": -2.0,
+        "catalyst": 1.0,
+        "react_temp^2": -2.5,
+        "ph^2": -1.5,
+        "react_temp:ph": 1.2
+      },
+      "noise": 0.5
+    },
+    "impurity_pct": {
+      "intercept": 0.25,
+      "terms": {
+        "react_temp": -0.08,
+        "ph": 0.06,
+        "catalyst": -0.03,
+        "react_temp^2": 0.05
+      },
+      "noise": 0.015
+    },
+    "viscosity_cp": {
+      "intercept": 12,
+      "terms": {
+        "react_temp": 0.8,
+        "ph": 0.5,
+        "catalyst": -0.3
+      },
+      "noise": 0.12
+    }
+  }
+}

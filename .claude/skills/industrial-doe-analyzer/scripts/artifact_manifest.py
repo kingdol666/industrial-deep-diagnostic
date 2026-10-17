@@ -98,7 +98,10 @@ def _expected_kinds(run_dir: Path) -> set[str]:
         expected |= set(_DESIGNED_EXPECTED)
     if gate_on:
         expected |= set(_ONTOLOGY_EXPECTED) | set(_PLAN_EXPECTED)
-        if (run_dir / "01_ontology" / "ontology_brief.json").is_file():
+        # Consistency/feedback are designed-mode artifacts (contract §3.5: only
+        # causal/physical relationships with an estimable effect are checked).
+        # An observational run must not be reported as "missing" them.
+        if mode == "designed" and (run_dir / "01_ontology" / "ontology_brief.json").is_file():
             expected |= set(_FEEDBACK_EXPECTED)
     return expected - _NEVER_EXPECTED
 

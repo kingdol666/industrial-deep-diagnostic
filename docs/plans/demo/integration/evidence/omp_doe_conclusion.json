@@ -1,0 +1,117 @@
+{
+  "generated_at": "2026-10-17T13:45:30.678105+00:00",
+  "analysis_mode": "designed",
+  "design_type": "rsm_ccd",
+  "evidence_grade": "A",
+  "grade_checklist": {
+    "randomization_ok": true,
+    "pure_error_df_gt0": true,
+    "resolution_ok": true,
+    "balanced": null,
+    "model_adequacy_ok": true,
+    "anti_spurious_ok": null,
+    "overridden_by": null
+  },
+  "authored_by": "script",
+  "key_findings": [
+    {
+      "id": "KF-001",
+      "statement": "因子/项 aust_temp 对响应 hardness_hrc 存在正向效应：编码系数 1.569972，q(BH)=2.4116656607673023e-08，partial η²=0.995094",
+      "evidence_refs": [
+        "effect_table.json#hardness_hrc.aust_temp"
+      ],
+      "confidence": "high",
+      "fdr_q": 2.4116656607673023e-08
+    },
+    {
+      "id": "KF-002",
+      "statement": "因子/项 hold_min 对响应 hardness_hrc 存在正向效应：编码系数 0.722871，q(BH)=2.0553600437983076e-06，partial η²=0.978742",
+      "evidence_refs": [
+        "effect_table.json#hardness_hrc.hold_min"
+      ],
+      "confidence": "high",
+      "fdr_q": 2.0553600437983076e-06
+    },
+    {
+      "id": "KF-003",
+      "statement": "因子/项 aust_temp 对响应 distortion_mm 存在正向效应：编码系数 0.029105，q(BH)=4.9129252915003685e-08，partial η²=0.993989",
+      "evidence_refs": [
+        "effect_table.json#distortion_mm.aust_temp"
+      ],
+      "confidence": "high",
+      "fdr_q": 4.9129252915003685e-08
+    },
+    {
+      "id": "KF-004",
+      "statement": "因子/项 hold_min 对响应 distortion_mm 存在正向效应：编码系数 0.018844，q(BH)=3.9639689826036236e-07，partial η²=0.986704",
+      "evidence_refs": [
+        "effect_table.json#distortion_mm.hold_min"
+      ],
+      "confidence": "high",
+      "fdr_q": 3.9639689826036236e-07
+    }
+  ],
+  "limitations": [
+    "响应 hardness_hrc 的最大 Cook's D=0.82038 超过 4/n 截断 — 个别试验点对系数影响过大，删除该点可能改变结论",
+    "响应 distortion_mm 的最大 Cook's D=1.276162 超过 4/n 截断 — 个别试验点对系数影响过大，删除该点可能改变结论"
+  ],
+  "figure_index": [
+    {
+      "file": "pareto_hardness_hrc.png",
+      "title": "Pareto of standardized effects — hardness_hrc"
+    },
+    {
+      "file": "residuals_hardness_hrc.png",
+      "title": "Residual diagnostics — hardness_hrc"
+    },
+    {
+      "file": "pareto_distortion_mm.png",
+      "title": "Pareto of standardized effects — distortion_mm"
+    },
+    {
+      "file": "residuals_distortion_mm.png",
+      "title": "Residual diagnostics — distortion_mm"
+    },
+    {
+      "file": "main_effects_hardness_hrc.png",
+      "title": "Main effects — hardness_hrc"
+    },
+    {
+      "file": "contour_hardness_hrc.png",
+      "title": "Predicted response contour — hardness_hrc (top-Pareto pair aust_temp x hold_min)"
+    }
+  ],
+  "recommendations_ref": "conclusions/recommendations.json",
+  "downstream_usage_card": {
+    "contract_version": "1.1",
+    "n_windows": 3,
+    "n_confirmations": 0,
+    "n_watchlist": 2,
+    "usage_rules": [
+      "窗口外推端点（extrapolation=true）需工艺确认后方可执行",
+      "多响应窗口冲突以 conflicts[].chosen 为准"
+    ],
+    "n_joint_setpoints": 1,
+    "n_actionable": 4,
+    "n_blocked": 0,
+    "factor_response_coverage": {
+      "cells": 6,
+      "with_window": 3,
+      "with_reason": 3,
+      "zero_silent": true
+    },
+    "contract_status": {
+      "contract_version": "1.1",
+      "evidence_grade_independent": true,
+      "n_windows": 3,
+      "n_windows_with_pi": 3,
+      "n_windows_with_pi_gt_ci": 3,
+      "n_joint_setpoints": 1,
+      "n_actionable": 4,
+      "matrix_zero_silent_cells": true,
+      "interval_disclosure_present": true,
+      "units_disclosed": true,
+      "design_region_disclosed": true
+    }
+  }
+}

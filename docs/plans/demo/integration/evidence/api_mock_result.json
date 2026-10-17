@@ -1,0 +1,83 @@
+{
+  "success": true,
+  "data": {
+    "task_id": "TASK-MVCFN5RP-306Z",
+    "run_id": "11995a0a",
+    "status": "completed",
+    "finished_at": "2026-10-17 13:28:51",
+    "result": {
+      "summary": "Conclusion",
+      "verdict": "ENDORSED",
+      "score": 96,
+      "report_md": "# 工业深度诊断报告（Mock 引擎剧本）— api-mock-doe\n\n> 本报告由 mock 进程内引擎生成，用于验证平台与引擎之间的集成契约（非真实诊断结论）。\n\n## Pipeline Summary\n\n- Step 0: Setup ✅\n- Step 1: Inspect ✅\n- Step 2: Context (ontology) ✅\n- Step 3: Process analysis ✅\n- Step 4: Diagnosis (competing hypotheses) ✅\n- Step 5: Judge / Pre-audit ✅\n- Step 6: Report ✅\n- Step 7: Final audit ✅\n\n## Conclusion\n\n- Type: DETERMINED (mock)\n- Confidence: 90 (mock)\n\nJudge Score: 96/100 (ENDORSED)\n",
+      "files": {
+        "workspace_path": "workspace\\diagnostic-runs\\1792243731481_api_mock_doe",
+        "report_md_path": "D:\\codes\\myskills\\idd-doe-impl\\workspace\\diagnostic-runs\\1792243731481_api_mock_doe\\report.md",
+        "report_md_url": "/api/files/workspace/report/1792243731481_api_mock_doe",
+        "html": []
+      },
+      "artifacts": {
+        "contract_version": "1.1",
+        "schema_version": "1.1",
+        "run_dir": "D:\\codes\\myskills\\idd-doe-impl\\workspace\\diagnostic-runs\\1792243731481_api_mock_doe",
+        "artifacts": [],
+        "missing": [
+          {
+            "kind": "ontology",
+            "reason": "expected artifact absent: 01_ontology/ontology.json"
+          },
+          {
+            "kind": "ontology_brief",
+            "reason": "expected artifact absent: 01_ontology/ontology_brief.json"
+          },
+          {
+            "kind": "ontology_coverage",
+            "reason": "expected artifact absent: 01_ontology/ontology_coverage.json"
+          },
+          {
+            "kind": "ontology_feedback",
+            "reason": "expected artifact absent: 01_ontology/ontology_feedback.json"
+          },
+          {
+            "kind": "ontology_consistency",
+            "reason": "expected artifact absent: 02_analysis/ontology_consistency.json"
+          },
+          {
+            "kind": "data_profile",
+            "reason": "expected artifact absent: 01_profile/data_profile.json"
+          },
+          {
+            "kind": "effect_table",
+            "reason": "expected artifact absent: 02_analysis/effect_table.json"
+          },
+          {
+            "kind": "model",
+            "reason": "expected artifact absent: 02_analysis/model.json"
+          },
+          {
+            "kind": "association_screen",
+            "reason": "expected artifact absent: 02_analysis/association_screen.json"
+          },
+          {
+            "kind": "doe_conclusion",
+            "reason": "expected artifact absent: conclusions/doe_conclusion.json"
+          },
+          {
+            "kind": "recommendations",
+            "reason": "expected artifact absent: conclusions/recommendations.json"
+          },
+          {
+            "kind": "next_design",
+            "reason": "expected artifact absent: conclusions/next_design.json"
+          },
+          {
+            "kind": "optimization_guidance",
+            "reason": "expected artifact absent: conclusions/optimization_guidance.json"
+          }
+        ],
+        "source": "probe"
+      }
+    },
+    "error": null
+  }
+}

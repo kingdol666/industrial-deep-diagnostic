@@ -1,0 +1,137 @@
+{
+  "contract_version": "1.0",
+  "experiment_id": "gen-food_l9_oa",
+  "line_id": "sauce-kettle-l9",
+  "product_id": "sauce-kettle-l9",
+  "objective": "食品调味：识别关键因子并给出可执行的操作条件",
+  "design_type_declared": "orthogonal_array",
+  "data_stage": "collected",
+  "data_file": "run_table.csv",
+  "factors": [
+    {
+      "name": "sugar",
+      "col": "sugar",
+      "type": "numeric",
+      "unit": "g/100g",
+      "role": "control",
+      "expected_sign": "+",
+      "physical_meaning": "sugar",
+      "platform_ref": null,
+      "min": 5.0,
+      "max": 15.0
+    },
+    {
+      "name": "acid",
+      "col": "acid",
+      "type": "numeric",
+      "unit": "g/100g",
+      "role": "control",
+      "expected_sign": "-",
+      "physical_meaning": "acid",
+      "platform_ref": null,
+      "min": 0.5,
+      "max": 1.5
+    },
+    {
+      "name": "cook_temp",
+      "col": "cook_temp",
+      "type": "numeric",
+      "unit": "°C",
+      "role": "control",
+      "expected_sign": "+",
+      "physical_meaning": "cook_temp",
+      "platform_ref": null,
+      "min": 60.0,
+      "max": 90.0
+    },
+    {
+      "name": "cook_min",
+      "col": "cook_min",
+      "type": "numeric",
+      "unit": "min",
+      "role": "control",
+      "expected_sign": "+",
+      "physical_meaning": "cook_min",
+      "platform_ref": null,
+      "min": 10.0,
+      "max": 30.0
+    }
+  ],
+  "responses": [
+    {
+      "name": "taste_score",
+      "col": "taste_score",
+      "unit": "pt",
+      "goal": "maximize",
+      "lsl": 65,
+      "usl": null,
+      "target": null,
+      "weight": 1.0
+    },
+    {
+      "name": "texture_score",
+      "col": "texture_score",
+      "unit": "pt",
+      "goal": "target",
+      "lsl": 60,
+      "usl": 80,
+      "target": 70,
+      "weight": 1.0
+    },
+    {
+      "name": "color_score",
+      "col": "color_score",
+      "unit": "pt",
+      "goal": "target",
+      "lsl": 55,
+      "usl": 85,
+      "target": 70,
+      "weight": 1.0
+    }
+  ],
+  "blocks": [],
+  "covariates": [],
+  "constraints": [],
+  "replicates_col": null,
+  "run_order_col": "run_order",
+  "group_col": "run_id",
+  "time_col": null,
+  "current_setpoint": {
+    "sugar": 10,
+    "acid": 1.0,
+    "cook_temp": 75,
+    "cook_min": 20
+  },
+  "baseline_source": "dataset_median",
+  "design_region": {
+    "factorial_bounds": {
+      "sugar": [
+        5,
+        15
+      ],
+      "acid": [
+        0.5,
+        1.5
+      ],
+      "cook_temp": [
+        60,
+        90
+      ],
+      "cook_min": [
+        10,
+        30
+      ]
+    },
+    "design_hull": "full_cube"
+  },
+  "ontology": {
+    "profile": "doe",
+    "mode": "auto",
+    "scene_key": "sauce-kettle-l9",
+    "data_stage": "collected"
+  },
+  "provenance": {
+    "platform": "generality-corpus",
+    "created_by": "generate_cases.py"
+  }
+}

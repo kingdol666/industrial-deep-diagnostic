@@ -1,0 +1,103 @@
+{
+  "contract_version": "1.0",
+  "experiment_id": "gen-plastics_units",
+  "line_id": "cast-film-die-units",
+  "product_id": "cast-film-die-units",
+  "objective": "塑料薄膜：识别关键因子并给出可执行的操作条件",
+  "design_type_declared": "rsm_ccd",
+  "data_stage": "collected",
+  "data_file": "run_table.csv",
+  "factors": [
+    {
+      "name": "die_temp",
+      "col": "die_temp",
+      "type": "numeric",
+      "unit": "°C",
+      "role": "control",
+      "expected_sign": "+",
+      "physical_meaning": "die_temp",
+      "platform_ref": {
+        "recipe_param": "DIE_TEMP",
+        "node_id": "die_temp",
+        "unit": "C",
+        "unit_conversion": 1.0,
+        "rounding": 0.1,
+        "hard_limits": {
+          "min": 195,
+          "max": 245
+        }
+      },
+      "min": 200.0,
+      "max": 240.0
+    },
+    {
+      "name": "screw_rpm",
+      "col": "screw_rpm",
+      "type": "numeric",
+      "unit": "rpm",
+      "role": "control",
+      "expected_sign": "-",
+      "physical_meaning": "screw_rpm",
+      "platform_ref": null,
+      "min": 50.0,
+      "max": 100.0
+    }
+  ],
+  "responses": [
+    {
+      "name": "thickness_um",
+      "col": "thickness_um",
+      "unit": "um",
+      "goal": "target",
+      "lsl": 190,
+      "usl": 210,
+      "target": 200,
+      "weight": 1.0
+    },
+    {
+      "name": "haze_pct",
+      "col": "haze_pct",
+      "unit": "%",
+      "goal": "minimize",
+      "lsl": null,
+      "usl": null,
+      "target": null,
+      "weight": 1.0
+    }
+  ],
+  "blocks": [],
+  "covariates": [],
+  "constraints": [],
+  "replicates_col": "replicate_group",
+  "run_order_col": "run_order",
+  "group_col": "run_id",
+  "time_col": null,
+  "current_setpoint": {
+    "die_temp": 220,
+    "screw_rpm": 75
+  },
+  "baseline_source": "platform_recipe",
+  "design_region": {
+    "factorial_bounds": {
+      "die_temp": [
+        200,
+        240
+      ],
+      "screw_rpm": [
+        50,
+        100
+      ]
+    },
+    "design_hull": "ccd_star"
+  },
+  "ontology": {
+    "profile": "doe",
+    "mode": "auto",
+    "scene_key": "cast-film-die-units",
+    "data_stage": "collected"
+  },
+  "provenance": {
+    "platform": "generality-corpus",
+    "created_by": "generate_cases.py"
+  }
+}

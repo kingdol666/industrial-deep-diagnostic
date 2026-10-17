@@ -1,0 +1,44 @@
+{
+  "id": "heat_treat_ccd",
+  "industry": "热处理",
+  "kind": "designed",
+  "design": "rsm_ccd",
+  "n_rows": 18,
+  "effects": [
+    [
+      "hardness_hrc",
+      "aust_temp",
+      "+"
+    ],
+    [
+      "distortion_mm",
+      "aust_temp",
+      "+"
+    ]
+  ],
+  "null": [],
+  "models": {
+    "hardness_hrc": {
+      "intercept": 58,
+      "terms": {
+        "aust_temp": 1.6,
+        "hold_min": 0.8,
+        "carbon": -0.5,
+        "aust_temp^2": -1.2,
+        "hold_min^2": -0.7,
+        "aust_temp:hold_min": 0.4
+      },
+      "noise": 0.18
+    },
+    "distortion_mm": {
+      "intercept": 0.1,
+      "terms": {
+        "aust_temp": 0.03,
+        "hold_min": 0.02,
+        "carbon": -0.01,
+        "aust_temp^2": 0.01
+      },
+      "noise": 0.004
+    }
+  }
+}

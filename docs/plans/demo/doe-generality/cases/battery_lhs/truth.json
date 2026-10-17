@@ -1,0 +1,37 @@
+{
+  "id": "battery_lhs",
+  "industry": "电池材料",
+  "kind": "designed",
+  "design": "latin_hypercube",
+  "n_rows": 20,
+  "effects": [
+    [
+      "capacity_mah",
+      "ni_ratio",
+      "+"
+    ]
+  ],
+  "null": [],
+  "models": {
+    "capacity_mah": {
+      "intercept": 180,
+      "terms": {
+        "ni_ratio": 8,
+        "coating_um": -5,
+        "sinter_temp": 4,
+        "sinter_h": -3,
+        "press_mpa": 2
+      },
+      "noise": 1.2
+    },
+    "resistance_ohm": {
+      "intercept": 30,
+      "terms": {
+        "ni_ratio": -3,
+        "coating_um": 2,
+        "sinter_temp": -1.5
+      },
+      "noise": 0.8
+    }
+  }
+}

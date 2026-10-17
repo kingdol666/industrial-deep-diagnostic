@@ -1,0 +1,226 @@
+{
+  "contract_version": "1.0",
+  "experiment_id": "gen-panel_high_throughput",
+  "line_id": "panel-line5-ht",
+  "product_id": "panel-line5-ht",
+  "objective": "显示面板：识别关键因子并给出可执行的操作条件",
+  "design_type_declared": "fractional_factorial",
+  "data_stage": "collected",
+  "data_file": "run_table.csv",
+  "factors": [
+    {
+      "name": "temp",
+      "col": "temp",
+      "type": "numeric",
+      "unit": "°C",
+      "role": "control",
+      "expected_sign": "+",
+      "physical_meaning": "temp",
+      "platform_ref": null,
+      "min": 200.0,
+      "max": 240.0
+    },
+    {
+      "name": "pressure",
+      "col": "pressure",
+      "type": "numeric",
+      "unit": "Torr",
+      "role": "control",
+      "expected_sign": "-",
+      "physical_meaning": "pressure",
+      "platform_ref": null,
+      "min": 1.0,
+      "max": 5.0
+    },
+    {
+      "name": "flow",
+      "col": "flow",
+      "type": "numeric",
+      "unit": "sccm",
+      "role": "control",
+      "expected_sign": "+",
+      "physical_meaning": "flow",
+      "platform_ref": null,
+      "min": 10.0,
+      "max": 30.0
+    },
+    {
+      "name": "gap",
+      "col": "gap",
+      "type": "numeric",
+      "unit": "mm",
+      "role": "control",
+      "expected_sign": "-",
+      "physical_meaning": "gap",
+      "platform_ref": null,
+      "min": 2.0,
+      "max": 6.0
+    },
+    {
+      "name": "speed",
+      "col": "speed",
+      "type": "numeric",
+      "unit": "mm/s",
+      "role": "control",
+      "expected_sign": "+",
+      "physical_meaning": "speed",
+      "platform_ref": null,
+      "min": 5.0,
+      "max": 15.0
+    }
+  ],
+  "responses": [
+    {
+      "name": "luminance",
+      "col": "luminance",
+      "unit": "cd/m2",
+      "goal": "maximize",
+      "lsl": 400,
+      "usl": null,
+      "target": null,
+      "weight": 1.0
+    },
+    {
+      "name": "uniformity",
+      "col": "uniformity",
+      "unit": "%",
+      "goal": "maximize",
+      "lsl": 90,
+      "usl": null,
+      "target": null,
+      "weight": 1.0
+    },
+    {
+      "name": "contrast",
+      "col": "contrast",
+      "unit": "-",
+      "goal": "maximize",
+      "lsl": 1000,
+      "usl": null,
+      "target": null,
+      "weight": 1.0
+    },
+    {
+      "name": "color_shift",
+      "col": "color_shift",
+      "unit": "dE",
+      "goal": "minimize",
+      "lsl": null,
+      "usl": 2.0,
+      "target": null,
+      "weight": 1.0
+    },
+    {
+      "name": "power_w",
+      "col": "power_w",
+      "unit": "W",
+      "goal": "minimize",
+      "lsl": null,
+      "usl": 8,
+      "target": null,
+      "weight": 1.0
+    },
+    {
+      "name": "lifetime_h",
+      "col": "lifetime_h",
+      "unit": "h",
+      "goal": "maximize",
+      "lsl": 30000,
+      "usl": null,
+      "target": null,
+      "weight": 1.0
+    },
+    {
+      "name": "defect_ppm",
+      "col": "defect_ppm",
+      "unit": "ppm",
+      "goal": "minimize",
+      "lsl": null,
+      "usl": 50,
+      "target": null,
+      "weight": 1.0
+    },
+    {
+      "name": "stress_mpa",
+      "col": "stress_mpa",
+      "unit": "MPa",
+      "goal": "minimize",
+      "lsl": null,
+      "usl": 120,
+      "target": null,
+      "weight": 1.0
+    },
+    {
+      "name": "thickness_nm",
+      "col": "thickness_nm",
+      "unit": "nm",
+      "goal": "target",
+      "lsl": 95,
+      "usl": 105,
+      "target": 100,
+      "weight": 1.0
+    },
+    {
+      "name": "haze_pct",
+      "col": "haze_pct",
+      "unit": "%",
+      "goal": "minimize",
+      "lsl": null,
+      "usl": 1.0,
+      "target": null,
+      "weight": 1.0
+    }
+  ],
+  "blocks": [],
+  "covariates": [
+    "cleanroom_rh"
+  ],
+  "constraints": [],
+  "replicates_col": "replicate_group",
+  "run_order_col": "run_order",
+  "group_col": "run_id",
+  "time_col": null,
+  "current_setpoint": {
+    "temp": 220,
+    "pressure": 3,
+    "flow": 20,
+    "gap": 4,
+    "speed": 10
+  },
+  "baseline_source": "dataset_median",
+  "design_region": {
+    "factorial_bounds": {
+      "temp": [
+        200,
+        240
+      ],
+      "pressure": [
+        1,
+        5
+      ],
+      "flow": [
+        10,
+        30
+      ],
+      "gap": [
+        2,
+        6
+      ],
+      "speed": [
+        5,
+        15
+      ]
+    },
+    "design_hull": "full_cube"
+  },
+  "ontology": {
+    "profile": "doe",
+    "mode": "auto",
+    "scene_key": "panel-line5-ht",
+    "data_stage": "collected"
+  },
+  "provenance": {
+    "platform": "generality-corpus",
+    "created_by": "generate_cases.py"
+  }
+}

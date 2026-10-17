@@ -1,0 +1,31 @@
+{
+  "health": 200,
+  "no_token_list": 401,
+  "unknown_intent": [
+    400,
+    "ANALYSIS_INTENT_UNKNOWN"
+  ],
+  "unknown_harness": [
+    400,
+    "HARNESS_UNKNOWN"
+  ],
+  "outside_path": [
+    404,
+    "DATA_NOT_FOUND"
+  ],
+  "internal_task_create": [
+    200,
+    "4fd15214"
+  ],
+  "internal_task_status": [
+    200,
+    "completed",
+    96
+  ],
+  "internal_task_artifacts": 0,
+  "external_result": [
+    200,
+    "completed",
+    true
+  ]
+}

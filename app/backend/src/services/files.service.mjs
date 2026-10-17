@@ -209,20 +209,45 @@ export async function deleteDataFolder(name) {
   return true;
 }
 
-// Read a file (for preview) — returns content text with optional binary mode
+// Read a file (for preview) — returns content text with optional binary mode.
+// Containment is decided on REAL paths (a symlink/junction cannot escape), and
+// hidden files / the system database are never user-facing data: the JWT secret
+// lives at data/.auth-jwt-secret, so a prefix check alone would leak it.
 export async function readDataFile(filePath) {
   const absPath = join(PROJECT_ROOT, filePath);
-  if (!absPath.startsWith(DATA_DIR) && !absPath.startsWith(join(PROJECT_ROOT, 'workspace'))) {
-    const err = new Error('Access denied');
-    err.status = 403;
-    throw err;
-  }
   if (!existsSync(absPath)) {
     const err = new Error('File not found');
     err.status = 404;
     throw err;
   }
-  const content = await readFile(absPath, 'utf-8');
+  const [absReal, dataReal, wsReal] = await Promise.all([
+    realpath(absPath).catch(() => null),
+    realpath(DATA_DIR).catch(() => null),
+    realpath(join(PROJECT_ROOT, 'workspace')).catch(() => null),
+  ]);
+  if (!absReal) {
+    const err = new Error('File not found');
+    err.status = 404;
+    throw err;
+  }
+  const inside = (root) => Boolean(root) && (absReal === root || absReal.startsWith(root + sep));
+  if (!inside(dataReal) && !inside(wsReal)) {
+    const err = new Error('Access denied');
+    err.status = 403;
+    throw err;
+  }
+  const rel = inside(dataReal) ? relative(dataReal, absReal) : relative(wsReal, absReal);
+  if (rel.split(sep).some((seg) => seg.startsWith('.'))) {
+    const err = new Error('Access denied');
+    err.status = 403;
+    throw err;
+  }
+  if (isSystemDatabaseFile(basename(absReal))) {
+    const err = new Error('Access denied');
+    err.status = 403;
+    throw err;
+  }
+  const content = await readFile(absReal, 'utf-8');
   const preview = content.slice(0, dataConfig.file_preview_max_chars);
   return { path: filePath, content: preview, size: content.length, fullContent: content };
 }

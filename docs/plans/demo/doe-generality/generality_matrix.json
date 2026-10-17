@@ -1,0 +1,974 @@
+{
+  "contract_version": "1.0",
+  "cases": [
+    {
+      "id": "battery_lhs",
+      "industry": "电池材料",
+      "kind": "designed",
+      "expected_design": "latin_hypercube",
+      "detected_design": "latin_hypercube",
+      "n_rows": 20,
+      "ontology": "collected",
+      "gate": true,
+      "error": null,
+      "refused": null,
+      "checks": [
+        {
+          "case": "battery_lhs",
+          "check": "adapter",
+          "ok": true,
+          "detail": "rc=0"
+        },
+        {
+          "case": "battery_lhs",
+          "check": "ontology",
+          "ok": true,
+          "detail": "built"
+        },
+        {
+          "case": "battery_lhs",
+          "check": "coverage",
+          "ok": true,
+          "detail": "{'n_factors_matched': 5, 'n_responses_matched': 2, 'n_factors_covered': 5, 'n_responses_covered': 2, 'n_factors_declared': 5, 'n_responses_declared': 2, 'n_unmatched': 0, 'ratio': 1.0, 'matched_ratio': 1.0}"
+        },
+        {
+          "case": "battery_lhs",
+          "check": "analyze",
+          "ok": true,
+          "detail": "rc=0 "
+        },
+        {
+          "case": "battery_lhs",
+          "check": "gate",
+          "ok": true,
+          "detail": "[GATE] 25/25 checks passed — ALL PASS"
+        },
+        {
+          "case": "battery_lhs",
+          "check": "design_type",
+          "ok": true,
+          "detail": "latin_hypercube not in ['latin_hypercube']"
+        },
+        {
+          "case": "battery_lhs",
+          "check": "mode",
+          "ok": true,
+          "detail": "designed"
+        },
+        {
+          "case": "battery_lhs",
+          "check": "manifest",
+          "ok": true,
+          "detail": "[]"
+        },
+        {
+          "case": "battery_lhs",
+          "check": "report",
+          "ok": true,
+          "detail": "158441B"
+        },
+        {
+          "case": "battery_lhs",
+          "check": "effect.capacity_mah.ni_ratio",
+          "ok": true,
+          "detail": "coef=7.673334 q=0.024300498465936078"
+        }
+      ]
+    },
+    {
+      "id": "coating_conflict",
+      "industry": "涂布",
+      "kind": "designed",
+      "expected_design": "full_factorial",
+      "detected_design": "full_factorial",
+      "n_rows": 11,
+      "ontology": "collected",
+      "gate": true,
+      "error": null,
+      "refused": null,
+      "checks": [
+        {
+          "case": "coating_conflict",
+          "check": "adapter",
+          "ok": true,
+          "detail": "rc=0"
+        },
+        {
+          "case": "coating_conflict",
+          "check": "ontology",
+          "ok": true,
+          "detail": "built"
+        },
+        {
+          "case": "coating_conflict",
+          "check": "coverage",
+          "ok": true,
+          "detail": "{'n_factors_matched': 2, 'n_responses_matched': 2, 'n_factors_covered': 2, 'n_responses_covered': 2, 'n_factors_declared': 2, 'n_responses_declared': 2, 'n_unmatched': 0, 'ratio': 1.0, 'matched_ratio': 1.0}"
+        },
+        {
+          "case": "coating_conflict",
+          "check": "analyze",
+          "ok": true,
+          "detail": "rc=0 "
+        },
+        {
+          "case": "coating_conflict",
+          "check": "gate",
+          "ok": true,
+          "detail": "[GATE] 25/25 checks passed — ALL PASS"
+        },
+        {
+          "case": "coating_conflict",
+          "check": "design_type",
+          "ok": true,
+          "detail": "full_factorial not in ['full_factorial']"
+        },
+        {
+          "case": "coating_conflict",
+          "check": "mode",
+          "ok": true,
+          "detail": "designed"
+        },
+        {
+          "case": "coating_conflict",
+          "check": "manifest",
+          "ok": true,
+          "detail": "[]"
+        },
+        {
+          "case": "coating_conflict",
+          "check": "report",
+          "ok": true,
+          "detail": "137966B"
+        },
+        {
+          "case": "coating_conflict",
+          "check": "effect.gloss_gu.oven_temp",
+          "ok": true,
+          "detail": "coef=5.73298 q=1.5366555156791819e-06"
+        },
+        {
+          "case": "coating_conflict",
+          "check": "effect.orange_peel.oven_temp",
+          "ok": true,
+          "detail": "coef=4.174252 q=3.992791084976264e-06"
+        },
+        {
+          "case": "coating_conflict",
+          "check": "joint",
+          "ok": true,
+          "detail": "no joint setpoint"
+        }
+      ]
+    },
+    {
+      "id": "design_only",
+      "industry": "实验室设计",
+      "kind": "design_only",
+      "expected_design": "full_factorial",
+      "detected_design": null,
+      "n_rows": 6,
+      "ontology": "design_only",
+      "gate": null,
+      "error": null,
+      "refused": true,
+      "checks": [
+        {
+          "case": "design_only",
+          "check": "adapter",
+          "ok": true,
+          "detail": "rc=0"
+        },
+        {
+          "case": "design_only",
+          "check": "ontology",
+          "ok": true,
+          "detail": "built"
+        },
+        {
+          "case": "design_only",
+          "check": "coverage",
+          "ok": true,
+          "detail": "{'n_factors_matched': 2, 'n_responses_matched': 1, 'n_factors_covered': 2, 'n_responses_covered': 1, 'n_factors_declared': 2, 'n_responses_declared': 1, 'n_unmatched': 0, 'ratio': 1.0, 'matched_ratio': 1.0}"
+        },
+        {
+          "case": "design_only",
+          "check": "design_only_refused",
+          "ok": true,
+          "detail": "rc=DESIGN_ONLY_NO_RESPONSE: data_stage=design_only and no declared response has a measured cell — only the ontology/profile/build subcommands may run; collect response measurements before executing statistics expected a refusal"
+        },
+        {
+          "case": "design_only",
+          "check": "design_only_stage",
+          "ok": true,
+          "detail": "design_only"
+        }
+      ]
+    },
+    {
+      "id": "etch_fractional",
+      "industry": "半导体刻蚀",
+      "kind": "designed",
+      "expected_design": [
+        "fractional_factorial",
+        "orthogonal_array"
+      ],
+      "detected_design": "orthogonal_array",
+      "n_rows": 12,
+      "ontology": "collected",
+      "gate": true,
+      "error": null,
+      "refused": null,
+      "checks": [
+        {
+          "case": "etch_fractional",
+          "check": "adapter",
+          "ok": true,
+          "detail": "rc=0"
+        },
+        {
+          "case": "etch_fractional",
+          "check": "ontology",
+          "ok": true,
+          "detail": "built"
+        },
+        {
+          "case": "etch_fractional",
+          "check": "coverage",
+          "ok": true,
+          "detail": "{'n_factors_matched': 4, 'n_responses_matched': 2, 'n_factors_covered': 4, 'n_responses_covered': 2, 'n_factors_declared': 4, 'n_responses_declared': 2, 'n_unmatched': 0, 'ratio': 1.0, 'matched_ratio': 1.0}"
+        },
+        {
+          "case": "etch_fractional",
+          "check": "analyze",
+          "ok": true,
+          "detail": "rc=0 "
+        },
+        {
+          "case": "etch_fractional",
+          "check": "gate",
+          "ok": true,
+          "detail": "[GATE] 25/25 checks passed — ALL PASS"
+        },
+        {
+          "case": "etch_fractional",
+          "check": "design_type",
+          "ok": true,
+          "detail": "orthogonal_array not in ['fractional_factorial', 'orthogonal_array']"
+        },
+        {
+          "case": "etch_fractional",
+          "check": "mode",
+          "ok": true,
+          "detail": "designed"
+        },
+        {
+          "case": "etch_fractional",
+          "check": "manifest",
+          "ok": true,
+          "detail": "[]"
+        },
+        {
+          "case": "etch_fractional",
+          "check": "report",
+          "ok": true,
+          "detail": "151210B"
+        },
+        {
+          "case": "etch_fractional",
+          "check": "effect.etch_depth_nm.rf_power",
+          "ok": true,
+          "detail": "coef=54.784905 q=0.004971947002206578"
+        },
+        {
+          "case": "etch_fractional",
+          "check": "effect.selectivity.rf_power",
+          "ok": true,
+          "detail": "coef=1.179281 q=0.017390451216126795"
+        }
+      ]
+    },
+    {
+      "id": "food_l9_oa",
+      "industry": "食品调味",
+      "kind": "designed",
+      "expected_design": "orthogonal_array",
+      "detected_design": "orthogonal_array",
+      "n_rows": 9,
+      "ontology": "collected",
+      "gate": true,
+      "error": null,
+      "refused": null,
+      "checks": [
+        {
+          "case": "food_l9_oa",
+          "check": "adapter",
+          "ok": true,
+          "detail": "rc=0"
+        },
+        {
+          "case": "food_l9_oa",
+          "check": "ontology",
+          "ok": true,
+          "detail": "built"
+        },
+        {
+          "case": "food_l9_oa",
+          "check": "coverage",
+          "ok": true,
+          "detail": "{'n_factors_matched': 4, 'n_responses_matched': 3, 'n_factors_covered': 4, 'n_responses_covered': 3, 'n_factors_declared': 4, 'n_responses_declared': 3, 'n_unmatched': 0, 'ratio': 1.0, 'matched_ratio': 1.0}"
+        },
+        {
+          "case": "food_l9_oa",
+          "check": "analyze",
+          "ok": true,
+          "detail": "rc=0 "
+        },
+        {
+          "case": "food_l9_oa",
+          "check": "gate",
+          "ok": true,
+          "detail": "[GATE] 25/25 checks passed — ALL PASS"
+        },
+        {
+          "case": "food_l9_oa",
+          "check": "design_type",
+          "ok": true,
+          "detail": "orthogonal_array not in ['orthogonal_array']"
+        },
+        {
+          "case": "food_l9_oa",
+          "check": "mode",
+          "ok": true,
+          "detail": "designed"
+        },
+        {
+          "case": "food_l9_oa",
+          "check": "manifest",
+          "ok": true,
+          "detail": "[]"
+        },
+        {
+          "case": "food_l9_oa",
+          "check": "report",
+          "ok": true,
+          "detail": "157844B"
+        },
+        {
+          "case": "food_l9_oa",
+          "check": "effect.taste_score.sugar",
+          "ok": true,
+          "detail": "coef=7.587219 q=0.041198939070616496"
+        }
+      ]
+    },
+    {
+      "id": "heat_treat_ccd",
+      "industry": "热处理",
+      "kind": "designed",
+      "expected_design": "rsm_ccd",
+      "detected_design": "rsm_ccd",
+      "n_rows": 18,
+      "ontology": "collected",
+      "gate": true,
+      "error": null,
+      "refused": null,
+      "checks": [
+        {
+          "case": "heat_treat_ccd",
+          "check": "adapter",
+          "ok": true,
+          "detail": "rc=0"
+        },
+        {
+          "case": "heat_treat_ccd",
+          "check": "ontology",
+          "ok": true,
+          "detail": "built"
+        },
+        {
+          "case": "heat_treat_ccd",
+          "check": "coverage",
+          "ok": true,
+          "detail": "{'n_factors_matched': 3, 'n_responses_matched': 2, 'n_factors_covered': 3, 'n_responses_covered': 2, 'n_factors_declared': 3, 'n_responses_declared': 2, 'n_unmatched': 0, 'ratio': 1.0, 'matched_ratio': 1.0}"
+        },
+        {
+          "case": "heat_treat_ccd",
+          "check": "analyze",
+          "ok": true,
+          "detail": "rc=0 "
+        },
+        {
+          "case": "heat_treat_ccd",
+          "check": "gate",
+          "ok": true,
+          "detail": "[GATE] 25/25 checks passed — ALL PASS"
+        },
+        {
+          "case": "heat_treat_ccd",
+          "check": "design_type",
+          "ok": true,
+          "detail": "rsm_ccd not in ['rsm_ccd']"
+        },
+        {
+          "case": "heat_treat_ccd",
+          "check": "mode",
+          "ok": true,
+          "detail": "designed"
+        },
+        {
+          "case": "heat_treat_ccd",
+          "check": "manifest",
+          "ok": true,
+          "detail": "[]"
+        },
+        {
+          "case": "heat_treat_ccd",
+          "check": "report",
+          "ok": true,
+          "detail": "148626B"
+        },
+        {
+          "case": "heat_treat_ccd",
+          "check": "effect.hardness_hrc.aust_temp",
+          "ok": true,
+          "detail": "coef=1.569972 q=2.4116656607673023e-08"
+        },
+        {
+          "case": "heat_treat_ccd",
+          "check": "effect.distortion_mm.aust_temp",
+          "ok": true,
+          "detail": "coef=0.029105 q=4.9129252915003685e-08"
+        }
+      ]
+    },
+    {
+      "id": "injection_full_factorial",
+      "industry": "注塑成型",
+      "kind": "designed",
+      "expected_design": "full_factorial",
+      "detected_design": "full_factorial",
+      "n_rows": 18,
+      "ontology": "collected",
+      "gate": true,
+      "error": null,
+      "refused": null,
+      "checks": [
+        {
+          "case": "injection_full_factorial",
+          "check": "adapter",
+          "ok": true,
+          "detail": "rc=0"
+        },
+        {
+          "case": "injection_full_factorial",
+          "check": "ontology",
+          "ok": true,
+          "detail": "built"
+        },
+        {
+          "case": "injection_full_factorial",
+          "check": "coverage",
+          "ok": true,
+          "detail": "{'n_factors_matched': 4, 'n_responses_matched': 3, 'n_factors_covered': 4, 'n_responses_covered': 3, 'n_factors_declared': 4, 'n_responses_declared': 3, 'n_unmatched': 0, 'ratio': 1.0, 'matched_ratio': 1.0}"
+        },
+        {
+          "case": "injection_full_factorial",
+          "check": "analyze",
+          "ok": true,
+          "detail": "rc=0 "
+        },
+        {
+          "case": "injection_full_factorial",
+          "check": "gate",
+          "ok": true,
+          "detail": "[GATE] 25/25 checks passed — ALL PASS"
+        },
+        {
+          "case": "injection_full_factorial",
+          "check": "design_type",
+          "ok": true,
+          "detail": "full_factorial not in ['full_factorial']"
+        },
+        {
+          "case": "injection_full_factorial",
+          "check": "mode",
+          "ok": true,
+          "detail": "designed"
+        },
+        {
+          "case": "injection_full_factorial",
+          "check": "manifest",
+          "ok": true,
+          "detail": "[]"
+        },
+        {
+          "case": "injection_full_factorial",
+          "check": "report",
+          "ok": true,
+          "detail": "194915B"
+        },
+        {
+          "case": "injection_full_factorial",
+          "check": "effect.weight_g.melt_temp",
+          "ok": true,
+          "detail": "coef=3.015563 q=2.2200246647728023e-05"
+        },
+        {
+          "case": "injection_full_factorial",
+          "check": "effect.weight_g.material",
+          "ok": true,
+          "detail": "coef=-1.213702 q=6.388577802675125e-05"
+        },
+        {
+          "case": "injection_full_factorial",
+          "check": "effect.warpage_mm.cooling_s",
+          "ok": true,
+          "detail": "coef=0.286953 q=5.18176989555594e-06"
+        },
+        {
+          "case": "injection_full_factorial",
+          "check": "effect.cycle_s.cooling_s",
+          "ok": true,
+          "detail": "coef=-1.173364 q=9.507008372723418e-07"
+        }
+      ]
+    },
+    {
+      "id": "machining_noise",
+      "industry": "机加工",
+      "kind": "designed",
+      "expected_design": "full_factorial",
+      "detected_design": "full_factorial",
+      "n_rows": 11,
+      "ontology": "collected",
+      "gate": true,
+      "error": null,
+      "refused": null,
+      "checks": [
+        {
+          "case": "machining_noise",
+          "check": "adapter",
+          "ok": true,
+          "detail": "rc=0"
+        },
+        {
+          "case": "machining_noise",
+          "check": "ontology",
+          "ok": true,
+          "detail": "built"
+        },
+        {
+          "case": "machining_noise",
+          "check": "coverage",
+          "ok": true,
+          "detail": "{'n_factors_matched': 3, 'n_responses_matched': 2, 'n_factors_covered': 3, 'n_responses_covered': 2, 'n_factors_declared': 3, 'n_responses_declared': 2, 'n_unmatched': 0, 'ratio': 1.0, 'matched_ratio': 1.0}"
+        },
+        {
+          "case": "machining_noise",
+          "check": "analyze",
+          "ok": true,
+          "detail": "rc=0 "
+        },
+        {
+          "case": "machining_noise",
+          "check": "gate",
+          "ok": true,
+          "detail": "[GATE] 25/25 checks passed — ALL PASS"
+        },
+        {
+          "case": "machining_noise",
+          "check": "design_type",
+          "ok": true,
+          "detail": "full_factorial not in ['full_factorial']"
+        },
+        {
+          "case": "machining_noise",
+          "check": "mode",
+          "ok": true,
+          "detail": "designed"
+        },
+        {
+          "case": "machining_noise",
+          "check": "manifest",
+          "ok": true,
+          "detail": "[]"
+        },
+        {
+          "case": "machining_noise",
+          "check": "report",
+          "ok": true,
+          "detail": "144797B"
+        },
+        {
+          "case": "machining_noise",
+          "check": "effect.roughness_ra.feed_mm",
+          "ok": true,
+          "detail": "coef=0.383241 q=0.009595950987013787"
+        },
+        {
+          "case": "machining_noise",
+          "check": "null.roundness_um.feed_mm",
+          "ok": true,
+          "detail": "q=[0.13062044932628994, 0.07480140850386338]"
+        },
+        {
+          "case": "machining_noise",
+          "check": "null.roundness_um.spindle_rpm",
+          "ok": true,
+          "detail": "q=[0.10493135401803927, 0.13062044932628994, 0.34526276945839335, 0.10493135401803927]"
+        }
+      ]
+    },
+    {
+      "id": "panel_high_throughput",
+      "industry": "显示面板",
+      "kind": "designed",
+      "expected_design": [
+        "fractional_factorial",
+        "orthogonal_array"
+      ],
+      "detected_design": "orthogonal_array",
+      "n_rows": 20,
+      "ontology": "collected",
+      "gate": true,
+      "error": null,
+      "refused": null,
+      "checks": [
+        {
+          "case": "panel_high_throughput",
+          "check": "adapter",
+          "ok": true,
+          "detail": "rc=0"
+        },
+        {
+          "case": "panel_high_throughput",
+          "check": "ontology",
+          "ok": true,
+          "detail": "built"
+        },
+        {
+          "case": "panel_high_throughput",
+          "check": "coverage",
+          "ok": true,
+          "detail": "{'n_factors_matched': 5, 'n_responses_matched': 10, 'n_factors_covered': 5, 'n_responses_covered': 10, 'n_factors_declared': 5, 'n_responses_declared': 10, 'n_unmatched': 0, 'ratio': 1.0, 'matched_ratio': 1.0}"
+        },
+        {
+          "case": "panel_high_throughput",
+          "check": "analyze",
+          "ok": true,
+          "detail": "rc=0 "
+        },
+        {
+          "case": "panel_high_throughput",
+          "check": "gate",
+          "ok": true,
+          "detail": "[GATE] 25/25 checks passed — ALL PASS"
+        },
+        {
+          "case": "panel_high_throughput",
+          "check": "design_type",
+          "ok": true,
+          "detail": "orthogonal_array not in ['fractional_factorial', 'orthogonal_array']"
+        },
+        {
+          "case": "panel_high_throughput",
+          "check": "mode",
+          "ok": true,
+          "detail": "designed"
+        },
+        {
+          "case": "panel_high_throughput",
+          "check": "manifest",
+          "ok": true,
+          "detail": "[]"
+        },
+        {
+          "case": "panel_high_throughput",
+          "check": "report",
+          "ok": true,
+          "detail": "528151B"
+        },
+        {
+          "case": "panel_high_throughput",
+          "check": "effect.luminance.temp",
+          "ok": true,
+          "detail": "coef=60.215495 q=0.00506655183664662"
+        },
+        {
+          "case": "panel_high_throughput",
+          "check": "effect.color_shift.temp",
+          "ok": true,
+          "detail": "coef=0.364815 q=0.008560934355438426"
+        },
+        {
+          "case": "panel_high_throughput",
+          "check": "effect.lifetime_h.temp",
+          "ok": true,
+          "detail": "coef=-5924.024943 q=0.0020677386542196537"
+        }
+      ]
+    },
+    {
+      "id": "paper_observational",
+      "industry": "造纸",
+      "kind": "observational",
+      "expected_design": "observational",
+      "detected_design": "observational",
+      "n_rows": 600,
+      "ontology": "collected",
+      "gate": true,
+      "error": null,
+      "refused": null,
+      "checks": [
+        {
+          "case": "paper_observational",
+          "check": "adapter",
+          "ok": true,
+          "detail": "rc=0"
+        },
+        {
+          "case": "paper_observational",
+          "check": "ontology",
+          "ok": true,
+          "detail": "built"
+        },
+        {
+          "case": "paper_observational",
+          "check": "coverage",
+          "ok": true,
+          "detail": "{'n_factors_matched': 2, 'n_responses_matched': 2, 'n_factors_covered': 2, 'n_responses_covered': 2, 'n_factors_declared': 2, 'n_responses_declared': 2, 'n_unmatched': 0, 'ratio': 1.0, 'matched_ratio': 1.0}"
+        },
+        {
+          "case": "paper_observational",
+          "check": "analyze",
+          "ok": true,
+          "detail": "rc=0 "
+        },
+        {
+          "case": "paper_observational",
+          "check": "gate",
+          "ok": true,
+          "detail": "[GATE] 25/25 checks passed — ALL PASS"
+        },
+        {
+          "case": "paper_observational",
+          "check": "design_type",
+          "ok": true,
+          "detail": "observational not in ['observational']"
+        },
+        {
+          "case": "paper_observational",
+          "check": "mode",
+          "ok": true,
+          "detail": "observational"
+        },
+        {
+          "case": "paper_observational",
+          "check": "manifest",
+          "ok": true,
+          "detail": "[]"
+        },
+        {
+          "case": "paper_observational",
+          "check": "report",
+          "ok": true,
+          "detail": "87574B"
+        },
+        {
+          "case": "paper_observational",
+          "check": "correlation",
+          "ok": true,
+          "detail": "correlation_report missing"
+        },
+        {
+          "case": "paper_observational",
+          "check": "evidence_grade",
+          "ok": true,
+          "detail": "B"
+        },
+        {
+          "case": "paper_observational",
+          "check": "confirmation_needed",
+          "ok": true,
+          "detail": "4 windows"
+        }
+      ]
+    },
+    {
+      "id": "plastics_units",
+      "industry": "塑料薄膜",
+      "kind": "designed",
+      "expected_design": "rsm_ccd",
+      "detected_design": "rsm_ccd",
+      "n_rows": 11,
+      "ontology": "collected",
+      "gate": true,
+      "error": null,
+      "refused": null,
+      "checks": [
+        {
+          "case": "plastics_units",
+          "check": "adapter",
+          "ok": true,
+          "detail": "rc=0"
+        },
+        {
+          "case": "plastics_units",
+          "check": "ontology",
+          "ok": true,
+          "detail": "built"
+        },
+        {
+          "case": "plastics_units",
+          "check": "coverage",
+          "ok": true,
+          "detail": "{'n_factors_matched': 2, 'n_responses_matched': 2, 'n_factors_covered': 2, 'n_responses_covered': 2, 'n_factors_declared': 2, 'n_responses_declared': 2, 'n_unmatched': 0, 'ratio': 1.0, 'matched_ratio': 1.0}"
+        },
+        {
+          "case": "plastics_units",
+          "check": "analyze",
+          "ok": true,
+          "detail": "rc=0 "
+        },
+        {
+          "case": "plastics_units",
+          "check": "gate",
+          "ok": true,
+          "detail": "[GATE] 25/25 checks passed — ALL PASS"
+        },
+        {
+          "case": "plastics_units",
+          "check": "design_type",
+          "ok": true,
+          "detail": "rsm_ccd not in ['rsm_ccd']"
+        },
+        {
+          "case": "plastics_units",
+          "check": "mode",
+          "ok": true,
+          "detail": "designed"
+        },
+        {
+          "case": "plastics_units",
+          "check": "manifest",
+          "ok": true,
+          "detail": "[]"
+        },
+        {
+          "case": "plastics_units",
+          "check": "report",
+          "ok": true,
+          "detail": "105399B"
+        },
+        {
+          "case": "plastics_units",
+          "check": "effect.thickness_um.die_temp",
+          "ok": true,
+          "detail": "coef=5.320439 q=6.3505545617531e-05"
+        },
+        {
+          "case": "plastics_units",
+          "check": "unit_conflict",
+          "ok": true,
+          "detail": "[{'factor_or_response': 'die_temp', 'from': '°C', 'to': 'C', 'reason': 'factor.unit != platform_ref.unit'}]"
+        },
+        {
+          "case": "plastics_units",
+          "check": "platform_ref_missing",
+          "ok": true,
+          "detail": "['screw_rpm', None, None]"
+        },
+        {
+          "case": "plastics_units",
+          "check": "patch_excludes_missing",
+          "ok": true,
+          "detail": "['die_temp']"
+        }
+      ]
+    },
+    {
+      "id": "reactor_bbd",
+      "industry": "化工反应",
+      "kind": "designed",
+      "expected_design": "rsm_bbd",
+      "detected_design": "rsm_bbd",
+      "n_rows": 15,
+      "ontology": "collected",
+      "gate": true,
+      "error": null,
+      "refused": null,
+      "checks": [
+        {
+          "case": "reactor_bbd",
+          "check": "adapter",
+          "ok": true,
+          "detail": "rc=0"
+        },
+        {
+          "case": "reactor_bbd",
+          "check": "ontology",
+          "ok": true,
+          "detail": "built"
+        },
+        {
+          "case": "reactor_bbd",
+          "check": "coverage",
+          "ok": true,
+          "detail": "{'n_factors_matched': 3, 'n_responses_matched': 3, 'n_factors_covered': 3, 'n_responses_covered': 3, 'n_factors_declared': 3, 'n_responses_declared': 3, 'n_unmatched': 0, 'ratio': 1.0, 'matched_ratio': 1.0}"
+        },
+        {
+          "case": "reactor_bbd",
+          "check": "analyze",
+          "ok": true,
+          "detail": "rc=0 "
+        },
+        {
+          "case": "reactor_bbd",
+          "check": "gate",
+          "ok": true,
+          "detail": "[GATE] 25/25 checks passed — ALL PASS"
+        },
+        {
+          "case": "reactor_bbd",
+          "check": "design_type",
+          "ok": true,
+          "detail": "rsm_bbd not in ['rsm_bbd']"
+        },
+        {
+          "case": "reactor_bbd",
+          "check": "mode",
+          "ok": true,
+          "detail": "designed"
+        },
+        {
+          "case": "reactor_bbd",
+          "check": "manifest",
+          "ok": true,
+          "detail": "[]"
+        },
+        {
+          "case": "reactor_bbd",
+          "check": "report",
+          "ok": true,
+          "detail": "189980B"
+        },
+        {
+          "case": "reactor_bbd",
+          "check": "effect.yield_pct.react_temp",
+          "ok": true,
+          "detail": "coef=2.882859 q=0.0024636483385581647"
+        },
+        {
+          "case": "reactor_bbd",
+          "check": "effect.impurity_pct.ph",
+          "ok": true,
+          "detail": "coef=0.062041 q=0.005475135211005614"
+        }
+      ]
+    }
+  ],
+  "total_checks": 132,
+  "passed_checks": 132,
+  "failed": []
+}

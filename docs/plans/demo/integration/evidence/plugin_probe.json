@@ -1,0 +1,34 @@
+{
+  "base": "http://127.0.0.1:3211",
+  "data_path": "workspace/doe-generality/heat_treat_ccd/00_input/run_table.csv",
+  "checks": {
+    "diag_tools": [
+      "diag_run",
+      "diag_status"
+    ],
+    "diag_plugin_loaded": true,
+    "diag_run_text": "已发起「DOE 试验分析」异步分析任务 task_id=bc863b53(离线数据 )。IDD 在后台以对应 skill 协议执行,Channel 无需等待——可继续其他任务;完成后平台会自动把结果回执到你的信箱并唤醒你(空闲时也可用 diag_status(run_id=bc863b53) 主动查询;完成后按指引调 kb_agent 把报告入库知识库)。注入的分析问题:offline-data 产线该时窗数据深度根因诊断",
+    "run_id": "bc863b53",
+    "diag_status_text": "run_id=bc863b53\nname=offline-data_diag_bc863b53\n产线=offline-data\n意图=doe-analysis(DOE 试验分析)\n状态=completed\n来源=agent\n窗口=2026-10-17T12:41:56.456Z ~ 2026-10-17T13:41:56.456Z\n问题=offline-data 产线该时窗数据深度根因诊断\n评分=96\n结论=ENDORSED\n总结=Conclusion\nreport_md_path=D:\\codes\\myskills\\idd-doe-impl\\workspace\\diagnostic-runs\\1792244516521_offline_data_diag\\report.md\n\n✅ 分析完成,报告已就绪。入库知识库请调用 rag-bridge 的 kb_agent 工具:\n  mode=async, prompt=「请把这份分析报告入库到 aw-industrial 知识库:读取文件 D:\\codes\\myskills\\idd-doe-impl\\workspace\\diagnostic-runs\\1792244516521_offline_data_diag\\report.md 的全文内容并入库(写盘+索引),完成后报告 doc_path 与分块数。标签:分析、DOE 试验分析。」\n提交后频道无需等待,空闲时用 kb_agent_status(task_id) 查询入库结果。",
+    "id_history": true,
+    "stored_intent": "doe-analysis",
+    "stored_question": "offline-data 产线该时窗数据深度根因诊断",
+    "question_is_doe": false,
+    "question_is_deep_diagnosis": true,
+    "closedloop_tools": [
+      "sentinel_screen",
+      "sentinel_watch",
+      "sentinel_status",
+      "sentinel_baseline",
+      "experience_log",
+      "experience_recommend",
+      "experience_feedback",
+      "optimizer_campaign",
+      "optimizer_round",
+      "optimizer_state"
+    ],
+    "closedloop_plugin_loaded": true,
+    "sentinel_screen_text": "sentinel_screen 失败: 404",
+    "sentinel_screen_failed": true
+  }
+}

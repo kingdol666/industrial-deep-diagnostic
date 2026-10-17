@@ -1,0 +1,122 @@
+{
+  "contract_version": "1.0",
+  "experiment_id": "gen-heat_treat_ccd",
+  "line_id": "heat-treat-furnace3-4140",
+  "product_id": "heat-treat-furnace3-4140",
+  "objective": "热处理：识别关键因子并给出可执行的操作条件",
+  "design_type_declared": "rsm_ccd",
+  "data_stage": "collected",
+  "data_file": "run_table.csv",
+  "factors": [
+    {
+      "name": "aust_temp",
+      "col": "aust_temp",
+      "type": "numeric",
+      "unit": "°C",
+      "role": "control",
+      "expected_sign": "+",
+      "physical_meaning": "aust_temp",
+      "platform_ref": null,
+      "min": 840.0,
+      "max": 880.0
+    },
+    {
+      "name": "hold_min",
+      "col": "hold_min",
+      "type": "numeric",
+      "unit": "min",
+      "role": "control",
+      "expected_sign": "+",
+      "physical_meaning": "hold_min",
+      "platform_ref": null,
+      "min": 30.0,
+      "max": 60.0
+    },
+    {
+      "name": "carbon",
+      "col": "carbon",
+      "type": "numeric",
+      "unit": "%",
+      "role": "control",
+      "expected_sign": "-",
+      "physical_meaning": "carbon",
+      "platform_ref": null,
+      "min": 0.4,
+      "max": 0.6
+    }
+  ],
+  "responses": [
+    {
+      "name": "hardness_hrc",
+      "col": "hardness_hrc",
+      "unit": "HRC",
+      "goal": "target",
+      "lsl": 56,
+      "usl": 60,
+      "target": 58,
+      "weight": 1.0
+    },
+    {
+      "name": "distortion_mm",
+      "col": "distortion_mm",
+      "unit": "mm",
+      "goal": "minimize",
+      "lsl": null,
+      "usl": 0.15,
+      "target": null,
+      "weight": 1.0
+    }
+  ],
+  "blocks": [],
+  "covariates": [
+    "quench_temp"
+  ],
+  "constraints": [
+    {
+      "factor": "aust_temp",
+      "type": "box",
+      "min": 835,
+      "max": 885,
+      "hard": true,
+      "reason": "炉膛安全限",
+      "source": "ontology"
+    }
+  ],
+  "replicates_col": "replicate_group",
+  "run_order_col": "run_order",
+  "group_col": "run_id",
+  "time_col": null,
+  "current_setpoint": {
+    "aust_temp": 860,
+    "hold_min": 45,
+    "carbon": 0.5
+  },
+  "baseline_source": "dataset_median",
+  "design_region": {
+    "factorial_bounds": {
+      "aust_temp": [
+        840,
+        880
+      ],
+      "hold_min": [
+        30,
+        60
+      ],
+      "carbon": [
+        0.4,
+        0.6
+      ]
+    },
+    "design_hull": "ccd_star"
+  },
+  "ontology": {
+    "profile": "doe",
+    "mode": "auto",
+    "scene_key": "heat-treat-furnace3-4140",
+    "data_stage": "collected"
+  },
+  "provenance": {
+    "platform": "generality-corpus",
+    "created_by": "generate_cases.py"
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "id": "plastics_units",
+  "industry": "塑料薄膜",
+  "kind": "designed",
+  "design": "rsm_ccd",
+  "n_rows": 11,
+  "effects": [
+    [
+      "thickness_um",
+      "die_temp",
+      "+"
+    ]
+  ],
+  "null": [],
+  "models": {
+    "thickness_um": {
+      "intercept": 200,
+      "terms": {
+        "die_temp": 5.0,
+        "screw_rpm": -3.0,
+        "die_temp^2": -2.0
+      },
+      "noise": 0.6
+    },
+    "haze_pct": {
+      "intercept": 1.5,
+      "terms": {
+        "die_temp": 0.1,
+        "screw_rpm": -0.05
+      },
+      "noise": 0.04
+    }
+  }
+}

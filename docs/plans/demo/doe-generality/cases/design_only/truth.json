@@ -1,0 +1,19 @@
+{
+  "id": "design_only",
+  "industry": "实验室设计",
+  "kind": "design_only",
+  "design": "full_factorial",
+  "n_rows": 6,
+  "effects": [],
+  "null": [],
+  "models": {
+    "yield_pct": {
+      "intercept": 60,
+      "terms": {
+        "ph": 5,
+        "temp": 4
+      },
+      "noise": 1
+    }
+  }
+}

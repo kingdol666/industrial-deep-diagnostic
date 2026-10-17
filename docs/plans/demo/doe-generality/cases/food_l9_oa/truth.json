@@ -1,0 +1,44 @@
+{
+  "id": "food_l9_oa",
+  "industry": "食品调味",
+  "kind": "designed",
+  "design": "orthogonal_array",
+  "n_rows": 9,
+  "effects": [
+    [
+      "taste_score",
+      "sugar",
+      "+"
+    ]
+  ],
+  "null": [],
+  "models": {
+    "taste_score": {
+      "intercept": 72,
+      "terms": {
+        "sugar": 8.0,
+        "acid": -4.0,
+        "cook_temp": 3.0,
+        "cook_min": 2.0
+      },
+      "noise": 0.6
+    },
+    "texture_score": {
+      "intercept": 70,
+      "terms": {
+        "sugar": -1.0,
+        "cook_temp": 2.5,
+        "cook_min": 3.0
+      },
+      "noise": 1.0
+    },
+    "color_score": {
+      "intercept": 70,
+      "terms": {
+        "cook_temp": -2.0,
+        "cook_min": -1.5
+      },
+      "noise": 1.0
+    }
+  }
+}

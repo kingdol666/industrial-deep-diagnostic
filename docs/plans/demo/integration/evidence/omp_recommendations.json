@@ -1,0 +1,835 @@
+{
+  "contract_version": "1.1",
+  "audience": "downstream_agent",
+  "analysis_mode": "designed",
+  "operating_windows": [
+    {
+      "id": "OW-001",
+      "priority": 1,
+      "factor": "carbon",
+      "factor_unit": "%",
+      "response": "distortion_mm",
+      "range": [
+        0.4,
+        0.6
+      ],
+      "shape": "connected",
+      "expected_effect": {
+        "delta": -0.0913,
+        "direction_semantics": "因子 carbon 每增加 1 个原始单位，响应 distortion_mm 变化约 -0.0913（编码主效应 -0.00913/半极差 0.1）",
+        "ci95": null,
+        "unit": "mm",
+        "mean_ci95": [
+          0.127733,
+          0.136402
+        ],
+        "pi95": [
+          0.124519,
+          0.139616
+        ],
+        "pi95_method": "ŷ ± t_{0.975,df_resid} · sqrt((1 + x0'(X'X)⁻¹x0) · MSE)",
+        "effect_ci95": [
+          -0.11197,
+          -0.07063
+        ],
+        "unit_status": "valid",
+        "response_unit": "mm",
+        "tolerance_interval_95_95": [
+          0.12261,
+          0.141525
+        ]
+      },
+      "confidence": "high",
+      "fdr_q": 5.3538397971283865e-05,
+      "sample_size": 18,
+      "evidence_refs": [
+        "effect_table.json#distortion_mm.carbon.main"
+      ],
+      "extrapolation": true,
+      "confirmation_needed": false,
+      "notes": null,
+      "window_role": "marginal_diagnostic",
+      "in_design_hull": true,
+      "constraints_applied": [],
+      "constraint_violations": 0,
+      "predicted_at_center": {
+        "mean": 0.132068,
+        "mean_ci95": [
+          0.127733,
+          0.136402
+        ],
+        "pi95": [
+          0.124519,
+          0.139616
+        ],
+        "ti95_95": [
+          0.12261,
+          0.141525
+        ]
+      },
+      "actionable_blockers": [],
+      "actionable": true
+    },
+    {
+      "id": "OW-002",
+      "priority": 2,
+      "factor": "aust_temp",
+      "factor_unit": "°C",
+      "response": "hardness_hrc",
+      "range": [
+        850.0,
+        880.0
+      ],
+      "shape": "connected",
+      "expected_effect": {
+        "delta": 0.078499,
+        "direction_semantics": "因子 aust_temp 每增加 1 个原始单位，响应 hardness_hrc 变化约 0.078499（编码主效应 1.569972/半极差 20.0）",
+        "ci95": null,
+        "unit": "HRC",
+        "mean_ci95": [
+          57.878966,
+          58.18594
+        ],
+        "pi95": [
+          57.694607,
+          58.370299
+        ],
+        "pi95_method": "ŷ ± t_{0.975,df_resid} · sqrt((1 + x0'(X'X)⁻¹x0) · MSE)",
+        "effect_ci95": [
+          0.073572,
+          0.083425
+        ],
+        "unit_status": "valid",
+        "response_unit": "HRC",
+        "tolerance_interval_95_95": [
+          57.571845,
+          58.493061
+        ]
+      },
+      "confidence": "high",
+      "fdr_q": 2.4116656607673023e-08,
+      "sample_size": 18,
+      "evidence_refs": [
+        "effect_table.json#hardness_hrc.aust_temp.main"
+      ],
+      "extrapolation": true,
+      "confirmation_needed": false,
+      "notes": null,
+      "window_role": "marginal_diagnostic",
+      "in_design_hull": true,
+      "constraints_applied": [
+        {
+          "factor": "aust_temp",
+          "type": "box",
+          "min": 835.0,
+          "max": 885.0,
+          "hard": true,
+          "source": "ontology"
+        }
+      ],
+      "constraint_violations": 0,
+      "predicted_at_center": {
+        "mean": 58.032453,
+        "mean_ci95": [
+          57.878966,
+          58.18594
+        ],
+        "pi95": [
+          57.694607,
+          58.370299
+        ],
+        "ti95_95": [
+          57.571845,
+          58.493061
+        ]
+      },
+      "actionable_blockers": [],
+      "actionable": true
+    },
+    {
+      "id": "OW-003",
+      "priority": 3,
+      "factor": "hold_min",
+      "factor_unit": "min",
+      "response": "distortion_mm",
+      "range": [
+        33.75,
+        60.0
+      ],
+      "shape": "connected",
+      "expected_effect": {
+        "delta": 0.001256,
+        "direction_semantics": "因子 hold_min 每增加 1 个原始单位，响应 distortion_mm 变化约 0.001256（编码主效应 0.018844/半极差 15.0）",
+        "ci95": null,
+        "unit": "mm",
+        "mean_ci95": [
+          0.144184,
+          0.153664
+        ],
+        "pi95": [
+          0.141136,
+          0.156712
+        ],
+        "pi95_method": "ŷ ± t_{0.975,df_resid} · sqrt((1 + x0'(X'X)⁻¹x0) · MSE)",
+        "effect_ci95": [
+          0.001126,
+          0.001387
+        ],
+        "unit_status": "valid",
+        "response_unit": "mm",
+        "tolerance_interval_95_95": [
+          0.139467,
+          0.158381
+        ]
+      },
+      "confidence": "high",
+      "fdr_q": 3.9639689826036236e-07,
+      "sample_size": 18,
+      "evidence_refs": [
+        "effect_table.json#distortion_mm.hold_min.main"
+      ],
+      "extrapolation": true,
+      "confirmation_needed": false,
+      "notes": null,
+      "window_role": "marginal_diagnostic",
+      "in_design_hull": true,
+      "constraints_applied": [],
+      "constraint_violations": 0,
+      "predicted_at_center": {
+        "mean": 0.148924,
+        "mean_ci95": [
+          0.144184,
+          0.153664
+        ],
+        "pi95": [
+          0.141136,
+          0.156712
+        ],
+        "ti95_95": [
+          0.139467,
+          0.158381
+        ]
+      },
+      "actionable_blockers": [],
+      "actionable": true
+    }
+  ],
+  "current_baseline": {
+    "point": {
+      "carbon": 0.5,
+      "aust_temp": 860.0,
+      "hold_min": 45.0
+    },
+    "distance_to_window": {
+      "OW-001": 0.0,
+      "OW-002": 0.0,
+      "OW-003": 0.0
+    },
+    "move_instruction": "优先处理 OW-001：将 carbon 调整至 [0.4, 0.6]（当前已在窗内）",
+    "source": {
+      "carbon": "current_setpoint",
+      "aust_temp": "current_setpoint",
+      "hold_min": "current_setpoint"
+    }
+  },
+  "setpoints": [
+    {
+      "factor": "MULTI",
+      "value": 0.0,
+      "expected_response": {
+        "kind": "joint_setpoint",
+        "setpoint_id": "JS-001",
+        "raw": {
+          "aust_temp": 859.384219,
+          "hold_min": 44.787304,
+          "carbon": 0.5008
+        },
+        "D": 1.0,
+        "responses_satisfied": [
+          "hardness_hrc",
+          "distortion_mm"
+        ],
+        "selection_scale": "desirability",
+        "predicted": {
+          "hardness_hrc": {
+            "mean": 57.999999,
+            "mean_ci95": [
+              57.857728,
+              58.14227
+            ],
+            "pi95": [
+              57.667098,
+              58.332899
+            ],
+            "d": 0.999999,
+            "unit_status": "valid"
+          },
+          "distortion_mm": {
+            "mean": 0.097615,
+            "mean_ci95": [
+              0.094694,
+              0.100536
+            ],
+            "pi95": [
+              0.09078,
+              0.10445
+            ],
+            "d": 1.0,
+            "unit_status": "valid"
+          }
+        }
+      },
+      "confidence": "medium"
+    },
+    {
+      "factor": "aust_temp",
+      "value": 859.384219,
+      "expected_response": {
+        "kind": "joint_setpoint",
+        "setpoint_id": "JS-001",
+        "responses_satisfied": [
+          "hardness_hrc",
+          "distortion_mm"
+        ],
+        "desirability": 1.0,
+        "selection_scale": "desirability",
+        "predicted": {
+          "hardness_hrc": {
+            "mean": 57.999999,
+            "mean_ci95": [
+              57.857728,
+              58.14227
+            ],
+            "pi95": [
+              57.667098,
+              58.332899
+            ],
+            "d": 0.999999,
+            "unit_status": "valid"
+          },
+          "distortion_mm": {
+            "mean": 0.097615,
+            "mean_ci95": [
+              0.094694,
+              0.100536
+            ],
+            "pi95": [
+              0.09078,
+              0.10445
+            ],
+            "d": 1.0,
+            "unit_status": "valid"
+          }
+        }
+      },
+      "confidence": "medium"
+    },
+    {
+      "factor": "hold_min",
+      "value": 44.787304,
+      "expected_response": {
+        "kind": "joint_setpoint",
+        "setpoint_id": "JS-001",
+        "responses_satisfied": [
+          "hardness_hrc",
+          "distortion_mm"
+        ],
+        "desirability": 1.0,
+        "selection_scale": "desirability",
+        "predicted": {
+          "hardness_hrc": {
+            "mean": 57.999999,
+            "mean_ci95": [
+              57.857728,
+              58.14227
+            ],
+            "pi95": [
+              57.667098,
+              58.332899
+            ],
+            "d": 0.999999,
+            "unit_status": "valid"
+          },
+          "distortion_mm": {
+            "mean": 0.097615,
+            "mean_ci95": [
+              0.094694,
+              0.100536
+            ],
+            "pi95": [
+              0.09078,
+              0.10445
+            ],
+            "d": 1.0,
+            "unit_status": "valid"
+          }
+        }
+      },
+      "confidence": "medium"
+    },
+    {
+      "factor": "carbon",
+      "value": 0.5008,
+      "expected_response": {
+        "kind": "joint_setpoint",
+        "setpoint_id": "JS-001",
+        "responses_satisfied": [
+          "hardness_hrc",
+          "distortion_mm"
+        ],
+        "desirability": 1.0,
+        "selection_scale": "desirability",
+        "predicted": {
+          "hardness_hrc": {
+            "mean": 57.999999,
+            "mean_ci95": [
+              57.857728,
+              58.14227
+            ],
+            "pi95": [
+              57.667098,
+              58.332899
+            ],
+            "d": 0.999999,
+            "unit_status": "valid"
+          },
+          "distortion_mm": {
+            "mean": 0.097615,
+            "mean_ci95": [
+              0.094694,
+              0.100536
+            ],
+            "pi95": [
+              0.09078,
+              0.10445
+            ],
+            "d": 1.0,
+            "unit_status": "valid"
+          }
+        }
+      },
+      "confidence": "medium"
+    }
+  ],
+  "interactions": [
+    {
+      "pair": [
+        "aust_temp",
+        "hold_min"
+      ],
+      "nature": "交互显著（q=1.7158077789626138e-05, partial η²=0.952625），hardness_hrc 的因子效应随另一因子水平变化",
+      "q_value_bh": 1.7158077789626138e-05
+    },
+    {
+      "pair": [
+        "hold_min",
+        "carbon"
+      ],
+      "nature": "交互显著（q=0.04191725564460549, partial η²=0.498482），hardness_hrc 的因子效应随另一因子水平变化",
+      "q_value_bh": 0.04191725564460549
+    }
+  ],
+  "conflicts": [],
+  "response_specs": {
+    "hardness_hrc": {
+      "lsl": 56,
+      "usl": 60,
+      "target": 58,
+      "goal": "target",
+      "current": 56.897346
+    },
+    "distortion_mm": {
+      "lsl": null,
+      "usl": 0.15,
+      "target": null,
+      "goal": "minimize",
+      "current": 0.105631
+    }
+  },
+  "confirmations": [],
+  "watchlist": [
+    {
+      "code": "STATIONARY_POINT_WARNING",
+      "message": "响应 hardness_hrc: 驻点为鞍点或落在设计域外 — 仅作警告，优化请在盒约束内进行 (W3/W5)",
+      "response": "hardness_hrc"
+    },
+    {
+      "code": "STATIONARY_POINT_WARNING",
+      "message": "响应 distortion_mm: 驻点为鞍点或落在设计域外 — 仅作警告，优化请在盒约束内进行 (W3/W5)",
+      "response": "distortion_mm"
+    }
+  ],
+  "constraints": [
+    {
+      "factor": "aust_temp",
+      "type": "box",
+      "min": 835.0,
+      "max": 885.0,
+      "hard": true,
+      "source": "ontology"
+    }
+  ],
+  "applicability_domain": {
+    "n_rows": 18,
+    "time_span": null,
+    "regime": "designed region",
+    "factor_observed_ranges": {
+      "carbon": {
+        "min": 0.4,
+        "max": 0.6
+      },
+      "aust_temp": {
+        "min": 840.0,
+        "max": 880.0
+      },
+      "hold_min": {
+        "min": 30.0,
+        "max": 60.0
+      }
+    }
+  },
+  "invalidation_conditions": [
+    "任一因子越出 applicability_domain.factor_observed_ranges 的 ±20%",
+    "stability_report 变点检测触发新 regime（漂移/换产）",
+    "确认试验结果与 expected_effect 的 CI95 不相交"
+  ],
+  "usage_rules": [
+    "窗口外推端点（extrapolation=true）需工艺确认后方可执行",
+    "多响应窗口冲突以 conflicts[].chosen 为准"
+  ],
+  "provenance": {
+    "input_sha256": "2f6d594fbf479d93c5ce3930d605ae3556a9bc81a4c0eba6fee5d1a8a33826a9",
+    "script_version": "1.1.0",
+    "seed": null,
+    "authored_by": "script"
+  },
+  "joint_windows": [
+    {
+      "id": "JW-001",
+      "responses": [
+        "hardness_hrc",
+        "distortion_mm"
+      ],
+      "factors": {
+        "aust_temp": [
+          845.0,
+          880.0
+        ],
+        "hold_min": [
+          30.0,
+          60.0
+        ],
+        "carbon": [
+          0.4,
+          0.6
+        ]
+      },
+      "feasible": true,
+      "constraint_violations": 0,
+      "predicted": {
+        "hardness_hrc": {
+          "mean": 57.999999,
+          "mean_ci95": [
+            57.857728,
+            58.14227
+          ],
+          "pi95": [
+            57.667098,
+            58.332899
+          ],
+          "d": 0.999999,
+          "unit_status": "valid"
+        },
+        "distortion_mm": {
+          "mean": 0.097615,
+          "mean_ci95": [
+            0.094694,
+            0.100536
+          ],
+          "pi95": [
+            0.09078,
+            0.10445
+          ],
+          "d": 1.0,
+          "unit_status": "valid"
+        }
+      },
+      "desirability": 1.0,
+      "method": "constraint_projection",
+      "evidence_level": "L3",
+      "responses_satisfied": [
+        "hardness_hrc",
+        "distortion_mm"
+      ],
+      "hard_constraint_violations": 0,
+      "constraint_slack": {
+        "aust_temp": 24.384219
+      },
+      "confidence": "medium",
+      "window_ids": [
+        "OW-001",
+        "OW-002",
+        "OW-003"
+      ],
+      "unit_status": "valid",
+      "actionable": true,
+      "blockers": [],
+      "selection_scale": "desirability"
+    }
+  ],
+  "joint_setpoints": [
+    {
+      "id": "JS-001",
+      "method": "constraint_projection",
+      "factors": {
+        "aust_temp": 859.384219,
+        "hold_min": 44.787304,
+        "carbon": 0.5008
+      },
+      "predicted": {
+        "hardness_hrc": {
+          "mean": 57.999999,
+          "mean_ci95": [
+            57.857728,
+            58.14227
+          ],
+          "pi95": [
+            57.667098,
+            58.332899
+          ],
+          "d": 0.999999,
+          "unit_status": "valid"
+        },
+        "distortion_mm": {
+          "mean": 0.097615,
+          "mean_ci95": [
+            0.094694,
+            0.100536
+          ],
+          "pi95": [
+            0.09078,
+            0.10445
+          ],
+          "d": 1.0,
+          "unit_status": "valid"
+        }
+      },
+      "responses_satisfied": [
+        "hardness_hrc",
+        "distortion_mm"
+      ],
+      "feasible": true,
+      "hard_constraint_violations": 0,
+      "constraint_slack": {
+        "aust_temp": 24.384219
+      },
+      "desirability": 1.0,
+      "joint_coverage": 0.9,
+      "evidence_level": "L3",
+      "confidence": "medium",
+      "window_ids": [
+        "OW-001",
+        "OW-002",
+        "OW-003"
+      ],
+      "unit_status": "valid",
+      "actionable": true,
+      "blockers": [],
+      "responses": [
+        "hardness_hrc",
+        "distortion_mm"
+      ],
+      "selection_scale": "desirability"
+    }
+  ],
+  "units": {
+    "factors": {
+      "aust_temp": {
+        "canonical": "degC",
+        "display": "°C",
+        "unit_status": "valid",
+        "source": "analysis_context.factors[].unit"
+      },
+      "carbon": {
+        "canonical": "%",
+        "display": "%",
+        "unit_status": "valid",
+        "source": "analysis_context.factors[].unit"
+      },
+      "hold_min": {
+        "canonical": "min",
+        "display": "min",
+        "unit_status": "valid",
+        "source": "analysis_context.factors[].unit"
+      }
+    },
+    "responses": {
+      "distortion_mm": {
+        "canonical": "mm",
+        "display": "mm",
+        "unit_status": "valid",
+        "source": "analysis_context.responses[].unit"
+      },
+      "hardness_hrc": {
+        "canonical": "HRC",
+        "display": "HRC",
+        "unit_status": "valid",
+        "source": "analysis_context.responses[].unit"
+      }
+    },
+    "conflicts": []
+  },
+  "design_region": {
+    "type": "rsm_ccd",
+    "hull": "box",
+    "coded_bounds": {
+      "aust_temp": {
+        "min": 840.0,
+        "max": 880.0,
+        "coded_min": -1.0,
+        "coded_max": 1.0
+      },
+      "hold_min": {
+        "min": 30.0,
+        "max": 60.0,
+        "coded_min": -1.0,
+        "coded_max": 1.0
+      },
+      "carbon": {
+        "min": 0.4,
+        "max": 0.6,
+        "coded_min": -1.0,
+        "coded_max": 1.0
+      }
+    },
+    "axial_alpha": null,
+    "max_leverage": 0.831888,
+    "mean_leverage": 0.611111,
+    "leverage_threshold": 1.222222,
+    "n_exceed": 0,
+    "extrapolation_risk": "low",
+    "evaluated_points": 729,
+    "design_hull_confidence": "medium",
+    "factor_order": [
+      "aust_temp",
+      "hold_min",
+      "carbon"
+    ],
+    "n_design_rows": 18,
+    "note": "CCD detected but no cube-corner level — box hull | declared design_hull='ccd_star' vs data-derived 'box' — data-derived hull wins"
+  },
+  "grid_plan": {
+    "n_active": 3,
+    "top_k": 8,
+    "grid_n": 9,
+    "n_grid_points": 729,
+    "approach": "grid",
+    "max_grid_points": 200000,
+    "deferred_factors": [],
+    "truncated": false,
+    "n_grid_factors": 3
+  },
+  "factor_response_matrix": [
+    {
+      "factor": "aust_temp",
+      "response": "distortion_mm",
+      "window_id": null,
+      "no_window_reason": "DESIGN_NOT_INFORMATIVE",
+      "delta": 0.001455,
+      "effect_size": 0.993989,
+      "direction": "+",
+      "fdr_q": 4.9129252915003685e-08,
+      "evidence_level": "L3",
+      "confidence": "high"
+    },
+    {
+      "factor": "aust_temp",
+      "response": "hardness_hrc",
+      "window_id": "OW-002",
+      "no_window_reason": null,
+      "delta": 0.078499,
+      "effect_size": 0.995094,
+      "direction": "+",
+      "fdr_q": 2.4116656607673023e-08,
+      "evidence_level": "L3",
+      "confidence": "high"
+    },
+    {
+      "factor": "carbon",
+      "response": "distortion_mm",
+      "window_id": "OW-001",
+      "no_window_reason": null,
+      "delta": -0.0913,
+      "effect_size": 0.939688,
+      "direction": "-",
+      "fdr_q": 5.3538397971283865e-05,
+      "evidence_level": "L3",
+      "confidence": "high"
+    },
+    {
+      "factor": "carbon",
+      "response": "hardness_hrc",
+      "window_id": null,
+      "no_window_reason": "DESIGN_NOT_INFORMATIVE",
+      "delta": -4.07556,
+      "effect_size": 0.929023,
+      "direction": "-",
+      "fdr_q": 5.3202101757316545e-05,
+      "evidence_level": "L3",
+      "confidence": "high"
+    },
+    {
+      "factor": "hold_min",
+      "response": "distortion_mm",
+      "window_id": "OW-003",
+      "no_window_reason": null,
+      "delta": 0.001256,
+      "effect_size": 0.986704,
+      "direction": "+",
+      "fdr_q": 3.9639689826036236e-07,
+      "evidence_level": "L3",
+      "confidence": "high"
+    },
+    {
+      "factor": "hold_min",
+      "response": "hardness_hrc",
+      "window_id": null,
+      "no_window_reason": "DESIGN_NOT_INFORMATIVE",
+      "delta": 0.048191,
+      "effect_size": 0.978742,
+      "direction": "+",
+      "fdr_q": 2.0553600437983076e-06,
+      "evidence_level": "L3",
+      "confidence": "high"
+    }
+  ],
+  "actionable_summary": {
+    "n_actionable": 4,
+    "n_blocked": 0,
+    "blocked": []
+  },
+  "interval_disclosure": {
+    "pi_method": "ŷ ± t_{0.975,df_resid} · sqrt((1 + x0'(X'X)⁻¹x0) · MSE)",
+    "ci_method": "ŷ ± t_{0.975,df_resid} · sqrt(x0'(X'X)⁻¹x0 · MSE)（均值响应，不是预测区间）",
+    "effect_ci_method": "β̂ ± t_{0.975,df_resid} · sqrt(diag((X'X)⁻¹) · MSE)",
+    "tolerance_method": "ŷ ± k·s, k = sqrt(ν(1+1/n)·z²_{(1+p)/2} / χ²_{ν,α}), p=0.95, α=0.05, ν=df_resid, s=sqrt(MSE)",
+    "note": "四类区间互不替代：ci95/mean_ci95=均值响应 95% CI（既有 ci95 语义，本版未改写）；pi95=单个未来观测预测区间（含 1 +，同点宽度必大于均值 CI）；pi95 不是合格率/通过率/收率，禁止据此宣称达标；tolerance_interval_95_95=95% 总体 @95% 置信容差区间。joint_coverage 为多响应联合覆盖的 Bonferroni 名义值 1-0.05*m。联合选优标度：desirability（禁止跨单位比较 raw delta，DS-04）。",
+    "joint_coverage": 0.9,
+    "coverage_check": {
+      "n": 2000,
+      "pi_point_coverage": 0.95
+    }
+  },
+  "association_screen_ref": {
+    "path": "02_analysis/association_screen.json",
+    "sha256": "fe8c96d4711cdbc8413520afd0dc168cf0f5ec0ba04293134f81eaf64b0cdb26",
+    "n_pairs": 20,
+    "causal_claim": "none"
+  },
+  "next_design_ref": {
+    "path": "conclusions/next_design.json",
+    "sha256": "783c7e9d242f5075b15045ee111628a3187d9cc8ed95bcfd322883dab67822d7",
+    "recommended_action": "space_filling",
+    "primary_action_id": "ND-01"
+  }
+}

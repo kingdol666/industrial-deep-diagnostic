@@ -1,0 +1,86 @@
+{
+  "contract_version": "1.0",
+  "experiment_id": "gen-paper_observational",
+  "line_id": "paper-machine-observational",
+  "product_id": "paper-machine-observational",
+  "objective": "造纸：识别关键因子并给出可执行的操作条件",
+  "design_type_declared": "observational",
+  "data_stage": "collected",
+  "data_file": "run_table.csv",
+  "factors": [
+    {
+      "name": "stock_flow",
+      "col": "stock_flow",
+      "type": "numeric",
+      "unit": "L/min",
+      "role": "control",
+      "expected_sign": "+",
+      "physical_meaning": "stock_flow",
+      "platform_ref": null,
+      "min": 88.6071,
+      "max": 111.538
+    },
+    {
+      "name": "machine_speed",
+      "col": "machine_speed",
+      "type": "numeric",
+      "unit": "m/min",
+      "role": "control",
+      "expected_sign": "-",
+      "physical_meaning": "machine_speed",
+      "platform_ref": null,
+      "min": 716.2151,
+      "max": 783.5333
+    }
+  ],
+  "responses": [
+    {
+      "name": "basis_weight",
+      "col": "basis_weight",
+      "unit": "g/m2",
+      "goal": "target",
+      "lsl": 78,
+      "usl": 82,
+      "target": 80,
+      "weight": 1.0
+    },
+    {
+      "name": "moisture_pct",
+      "col": "moisture_pct",
+      "unit": "%",
+      "goal": "target",
+      "lsl": 4.5,
+      "usl": 5.5,
+      "target": 5.0,
+      "weight": 1.0
+    }
+  ],
+  "blocks": [],
+  "covariates": [
+    "steam_pressure",
+    "filler_flow",
+    "ambient_rh"
+  ],
+  "constraints": [],
+  "replicates_col": null,
+  "run_order_col": "run_order",
+  "group_col": "run_id",
+  "time_col": "timestamp",
+  "current_setpoint": {
+    "stock_flow": 100,
+    "machine_speed": 750
+  },
+  "baseline_source": "dataset_median",
+  "design_region": null,
+  "ontology": {
+    "profile": "doe",
+    "mode": "auto",
+    "scene_key": "paper-machine-observational",
+    "data_stage": "collected"
+  },
+  "provenance": {
+    "platform": "generality-corpus",
+    "created_by": "generate_cases.py"
+  },
+  "mode_override": "observational"
+}

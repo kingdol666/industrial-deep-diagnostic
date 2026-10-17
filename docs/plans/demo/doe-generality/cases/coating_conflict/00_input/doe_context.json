@@ -1,0 +1,95 @@
+{
+  "contract_version": "1.0",
+  "experiment_id": "gen-coating_conflict",
+  "line_id": "coating-line1-gloss",
+  "product_id": "coating-line1-gloss",
+  "objective": "涂布：识别关键因子并给出可执行的操作条件",
+  "design_type_declared": "full_factorial",
+  "data_stage": "collected",
+  "data_file": "run_table.csv",
+  "factors": [
+    {
+      "name": "oven_temp",
+      "col": "oven_temp",
+      "type": "numeric",
+      "unit": "°C",
+      "role": "control",
+      "expected_sign": "+",
+      "physical_meaning": "oven_temp",
+      "platform_ref": null,
+      "min": 120.0,
+      "max": 160.0
+    },
+    {
+      "name": "line_speed",
+      "col": "line_speed",
+      "type": "numeric",
+      "unit": "m/min",
+      "role": "control",
+      "expected_sign": "-",
+      "physical_meaning": "line_speed",
+      "platform_ref": null,
+      "min": 20.0,
+      "max": 40.0
+    }
+  ],
+  "responses": [
+    {
+      "name": "gloss_gu",
+      "col": "gloss_gu",
+      "unit": "GU",
+      "goal": "maximize",
+      "lsl": 80,
+      "usl": null,
+      "target": null,
+      "weight": 1.0
+    },
+    {
+      "name": "orange_peel",
+      "col": "orange_peel",
+      "unit": "OI",
+      "goal": "minimize",
+      "lsl": null,
+      "usl": 30,
+      "target": null,
+      "weight": 1.0
+    }
+  ],
+  "blocks": [],
+  "covariates": [
+    "ambient_temp"
+  ],
+  "constraints": [],
+  "replicates_col": "replicate_group",
+  "run_order_col": "run_order",
+  "group_col": "run_id",
+  "time_col": null,
+  "current_setpoint": {
+    "oven_temp": 140,
+    "line_speed": 30
+  },
+  "baseline_source": "dataset_median",
+  "design_region": {
+    "factorial_bounds": {
+      "oven_temp": [
+        120,
+        160
+      ],
+      "line_speed": [
+        20,
+        40
+      ]
+    },
+    "design_hull": "full_cube"
+  },
+  "ontology": {
+    "profile": "doe",
+    "mode": "auto",
+    "scene_key": "coating-line1-gloss",
+    "data_stage": "collected"
+  },
+  "provenance": {
+    "platform": "generality-corpus",
+    "created_by": "generate_cases.py"
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "id": "coating_conflict",
+  "industry": "涂布",
+  "kind": "designed",
+  "design": "full_factorial",
+  "n_rows": 11,
+  "effects": [
+    [
+      "gloss_gu",
+      "oven_temp",
+      "+"
+    ],
+    [
+      "orange_peel",
+      "oven_temp",
+      "+"
+    ]
+  ],
+  "null": [],
+  "models": {
+    "gloss_gu": {
+      "intercept": 85,
+      "terms": {
+        "oven_temp": 6.0,
+        "line_speed": -3.0
+      },
+      "noise": 0.5
+    },
+    "orange_peel": {
+      "intercept": 25,
+      "terms": {
+        "oven_temp": 4.0,
+        "line_speed": 1.5
+      },
+      "noise": 0.45
+    }
+  }
+}

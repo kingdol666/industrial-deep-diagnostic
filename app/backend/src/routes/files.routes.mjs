@@ -2,7 +2,7 @@
 
 import { Router } from 'express';
 import multer from 'multer';
-import { join, basename } from 'path';
+import { join, basename, resolve, relative, isAbsolute, sep } from 'path';
 import { existsSync } from 'fs';
 import { config, PROJECT_ROOT, data as dataConfig } from '../../../../config/loader.mjs';
 import {
@@ -45,17 +45,12 @@ router.get('/data', async (req, res) => {
 // List files in a subfolder
 router.get('/data/:folder', async (req, res) => {
   try {
-    const folderPath = join(DATA_DIR, req.params.folder);
-    if (!folderPath.startsWith(DATA_DIR)) {
-      return res.status(400).json({ success: false, error: 'Invalid path' });
-    }
-    if (!existsSync(folderPath)) {
-      return res.status(404).json({ success: false, error: 'Folder not found' });
-    }
-    const entries = await listDataDir(folderPath);
+    // listDataFolder resolves real paths and rejects traversal / non-folders;
+    // a join()+startsWith() prefix check is not containment (data-evil would pass).
+    const entries = await listDataFolder(req.params.folder);
     res.json({ success: true, data: entries });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    res.status(err.status || 500).json({ success: false, error: err.message });
   }
 });
 
@@ -88,9 +83,13 @@ router.delete('/data/folder/:name', async (req, res) => {
 // Upload files to a folder
 router.post('/data/upload', upload.array('files', dataConfig.upload.max_files), async (req, res) => {
   try {
-    const folder = req.body.folder || req.query.folder || '';
-    const targetDir = folder ? join(DATA_DIR, folder) : DATA_DIR;
-    if (!targetDir.startsWith(DATA_DIR)) {
+    const folder = String(req.body.folder || req.query.folder || '');
+    // Real containment: resolve() normalises "..", then relative() decides
+    // whether the result is still inside DATA_DIR. startsWith() would let a
+    // sibling whose name shares the prefix through.
+    const targetDir = folder ? resolve(DATA_DIR, folder) : DATA_DIR;
+    const relDir = relative(DATA_DIR, targetDir);
+    if (relDir === '..' || relDir.startsWith(`..${sep}`) || isAbsolute(relDir)) {
       return res.status(400).json({ success: false, error: 'Invalid path' });
     }
     if (!existsSync(targetDir)) {
@@ -100,18 +99,22 @@ router.post('/data/upload', upload.array('files', dataConfig.upload.max_files), 
 
     const uploaded = [];
     for (const file of req.files || []) {
-      // Uploading resolves an arbitrary name — a file named like the system
-      // database would overwrite the live DB, so refuse it up front.
-      if (isSystemDatabaseFile(file.originalname)) {
+      // The multipart filename is client-controlled: keep only its basename so
+      // a crafted "../../x" cannot escape targetDir, and keep the live DB safe.
+      const name = basename(String(file.originalname || ''));
+      if (!name || name === '.' || name === '..') {
+        return res.status(400).json({ success: false, error: 'Invalid file name' });
+      }
+      if (isSystemDatabaseFile(name)) {
         return res.status(400).json({ success: false, error: 'System database file cannot be uploaded' });
       }
-      const destPath = join(targetDir, file.originalname);
+      const destPath = join(targetDir, name);
       const { rename } = await import('fs/promises');
       await rename(file.path, destPath);
       uploaded.push({
-        name: file.originalname,
+        name,
         size: file.size,
-        path: folder ? `data/${folder}/${file.originalname}` : `data/${file.originalname}`,
+        path: folder ? `data/${folder}/${name}` : `data/${name}`,
       });
     }
     res.json({ success: true, data: uploaded });

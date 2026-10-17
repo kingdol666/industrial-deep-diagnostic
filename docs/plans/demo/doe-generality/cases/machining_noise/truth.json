@@ -1,0 +1,40 @@
+{
+  "id": "machining_noise",
+  "industry": "机加工",
+  "kind": "designed",
+  "design": "full_factorial",
+  "n_rows": 11,
+  "effects": [
+    [
+      "roughness_ra",
+      "feed_mm",
+      "+"
+    ]
+  ],
+  "null": [
+    [
+      "roundness_um",
+      "feed_mm"
+    ],
+    [
+      "roundness_um",
+      "spindle_rpm"
+    ]
+  ],
+  "models": {
+    "roughness_ra": {
+      "intercept": 1.2,
+      "terms": {
+        "feed_mm": 0.4,
+        "spindle_rpm": -0.15,
+        "depth_mm": 0.12
+      },
+      "noise": 0.035
+    },
+    "roundness_um": {
+      "intercept": 5.0,
+      "terms": {},
+      "noise": 0.45
+    }
+  }
+}

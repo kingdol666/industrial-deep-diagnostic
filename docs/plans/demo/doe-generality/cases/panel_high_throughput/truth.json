@@ -1,0 +1,110 @@
+{
+  "id": "panel_high_throughput",
+  "industry": "显示面板",
+  "kind": "designed",
+  "design": [
+    "fractional_factorial",
+    "orthogonal_array"
+  ],
+  "n_rows": 20,
+  "effects": [
+    [
+      "luminance",
+      "temp",
+      "+"
+    ],
+    [
+      "color_shift",
+      "temp",
+      "+"
+    ],
+    [
+      "lifetime_h",
+      "temp",
+      "-"
+    ]
+  ],
+  "null": [],
+  "models": {
+    "luminance": {
+      "intercept": 450,
+      "terms": {
+        "temp": 60,
+        "flow": 20
+      },
+      "noise": 3
+    },
+    "uniformity": {
+      "intercept": 94,
+      "terms": {
+        "gap": -1.5,
+        "pressure": 1.0
+      },
+      "noise": 0.4
+    },
+    "contrast": {
+      "intercept": 1200,
+      "terms": {
+        "temp": 90,
+        "speed": 40
+      },
+      "noise": 20
+    },
+    "color_shift": {
+      "intercept": 1.2,
+      "terms": {
+        "temp": 0.35,
+        "gap": 0.15
+      },
+      "noise": 0.03
+    },
+    "power_w": {
+      "intercept": 6.0,
+      "terms": {
+        "temp": 0.8,
+        "flow": -0.4
+      },
+      "noise": 0.12
+    },
+    "lifetime_h": {
+      "intercept": 35000,
+      "terms": {
+        "temp": -6000,
+        "pressure": 1500
+      },
+      "noise": 300
+    },
+    "defect_ppm": {
+      "intercept": 25,
+      "terms": {
+        "pressure": 8,
+        "flow": -4
+      },
+      "noise": 1.5
+    },
+    "stress_mpa": {
+      "intercept": 90,
+      "terms": {
+        "gap": 8,
+        "speed": -4
+      },
+      "noise": 2.0
+    },
+    "thickness_nm": {
+      "intercept": 100,
+      "terms": {
+        "flow": 3.0,
+        "speed": -1.5
+      },
+      "noise": 0.8
+    },
+    "haze_pct": {
+      "intercept": 0.55,
+      "terms": {
+        "temp": 0.06,
+        "flow": -0.03
+      },
+      "noise": 0.02
+    }
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "id": "injection_full_factorial",
+  "industry": "注塑成型",
+  "kind": "designed",
+  "design": "full_factorial",
+  "n_rows": 18,
+  "effects": [
+    [
+      "weight_g",
+      "melt_temp",
+      "+"
+    ],
+    [
+      "weight_g",
+      "material",
+      "*"
+    ],
+    [
+      "warpage_mm",
+      "cooling_s",
+      "+"
+    ],
+    [
+      "cycle_s",
+      "cooling_s",
+      "-"
+    ]
+  ],
+  "null": [],
+  "models": {
+    "weight_g": {
+      "intercept": 100,
+      "terms": {
+        "melt_temp": 3.0,
+        "pressure": -2.2,
+        "cooling_s": -1.6,
+        "material": 2.5,
+        "melt_temp:pressure": 1.5
+      },
+      "noise": 0.18
+    },
+    "warpage_mm": {
+      "intercept": 0.45,
+      "terms": {
+        "melt_temp": -0.18,
+        "pressure": 0.06,
+        "cooling_s": 0.28,
+        "material": -0.1
+      },
+      "noise": 0.025
+    },
+    "cycle_s": {
+      "intercept": 15,
+      "terms": {
+        "melt_temp": 0.3,
+        "pressure": 0.6,
+        "cooling_s": -1.2
+      },
+      "noise": 0.12
+    }
+  }
+}

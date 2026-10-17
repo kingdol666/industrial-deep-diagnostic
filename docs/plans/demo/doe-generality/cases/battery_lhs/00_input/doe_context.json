@@ -1,0 +1,146 @@
+{
+  "contract_version": "1.0",
+  "experiment_id": "gen-battery_lhs",
+  "line_id": "cathode-lhs-5f",
+  "product_id": "cathode-lhs-5f",
+  "objective": "电池材料：识别关键因子并给出可执行的操作条件",
+  "design_type_declared": "latin_hypercube",
+  "data_stage": "collected",
+  "data_file": "run_table.csv",
+  "factors": [
+    {
+      "name": "ni_ratio",
+      "col": "ni_ratio",
+      "type": "numeric",
+      "unit": "-",
+      "role": "control",
+      "expected_sign": "+",
+      "physical_meaning": "ni_ratio",
+      "platform_ref": null,
+      "min": 0.51,
+      "max": 0.89
+    },
+    {
+      "name": "coating_um",
+      "col": "coating_um",
+      "type": "numeric",
+      "unit": "um",
+      "role": "control",
+      "expected_sign": "-",
+      "physical_meaning": "coating_um",
+      "platform_ref": null,
+      "min": 10.5,
+      "max": 29.5
+    },
+    {
+      "name": "sinter_temp",
+      "col": "sinter_temp",
+      "type": "numeric",
+      "unit": "°C",
+      "role": "control",
+      "expected_sign": "+",
+      "physical_meaning": "sinter_temp",
+      "platform_ref": null,
+      "min": 702.5,
+      "max": 797.5
+    },
+    {
+      "name": "sinter_h",
+      "col": "sinter_h",
+      "type": "numeric",
+      "unit": "h",
+      "role": "control",
+      "expected_sign": "+",
+      "physical_meaning": "sinter_h",
+      "platform_ref": null,
+      "min": 2.1,
+      "max": 5.9
+    },
+    {
+      "name": "press_mpa",
+      "col": "press_mpa",
+      "type": "numeric",
+      "unit": "MPa",
+      "role": "control",
+      "expected_sign": "-",
+      "physical_meaning": "press_mpa",
+      "platform_ref": null,
+      "min": 5.25,
+      "max": 14.75
+    }
+  ],
+  "responses": [
+    {
+      "name": "capacity_mah",
+      "col": "capacity_mah",
+      "unit": "mAh/g",
+      "goal": "maximize",
+      "lsl": 150,
+      "usl": null,
+      "target": null,
+      "weight": 1.0
+    },
+    {
+      "name": "resistance_ohm",
+      "col": "resistance_ohm",
+      "unit": "ohm",
+      "goal": "minimize",
+      "lsl": null,
+      "usl": 40,
+      "target": null,
+      "weight": 1.0
+    }
+  ],
+  "blocks": [],
+  "covariates": [
+    "humidity"
+  ],
+  "constraints": [],
+  "replicates_col": null,
+  "run_order_col": "run_order",
+  "group_col": "run_id",
+  "time_col": null,
+  "current_setpoint": {
+    "ni_ratio": 0.7,
+    "coating_um": 20,
+    "sinter_temp": 750,
+    "sinter_h": 4,
+    "press_mpa": 10
+  },
+  "baseline_source": "dataset_median",
+  "design_region": {
+    "factorial_bounds": {
+      "ni_ratio": [
+        0.5,
+        0.9
+      ],
+      "coating_um": [
+        10,
+        30
+      ],
+      "sinter_temp": [
+        700,
+        800
+      ],
+      "sinter_h": [
+        2,
+        6
+      ],
+      "press_mpa": [
+        5,
+        15
+      ]
+    },
+    "design_hull": "lhs_hull"
+  },
+  "ontology": {
+    "profile": "doe",
+    "mode": "auto",
+    "scene_key": "cathode-lhs-5f",
+    "data_stage": "collected"
+  },
+  "provenance": {
+    "platform": "generality-corpus",
+    "created_by": "generate_cases.py"
+  }
+}

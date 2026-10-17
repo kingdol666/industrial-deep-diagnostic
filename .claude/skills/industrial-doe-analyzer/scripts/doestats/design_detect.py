@@ -376,7 +376,11 @@ def detect_design(df, factor_cols, time_col=None):
         for c in num_for_centers:
             is_center &= (np.abs(sub[c].to_numpy(dtype=float) - mids[c]) / rngs[c]) <= 0.02
         n_center = int(is_center.sum())
-        if n_center >= 2 and (len(sub) - n_center) >= max(6, 2 * k):
+        # A 2^2 factorial augmented with centre rows has only 4 non-centre rows;
+        # requiring 6 made every 2-factor factorial+centre design fall through to
+        # observational. The stripped table still has to be a real factorial grid
+        # (>= 2^k, at least 4), so the retry itself remains conservative.
+        if n_center >= 2 and (len(sub) - n_center) >= max(4, 2 * k):
             sub2 = sub.loc[~is_center]
             levels2 = {c: sorted(sub2[c].unique(), key=str) for c in cols}
             design2 = dict(design)

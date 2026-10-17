@@ -1,0 +1,134 @@
+{
+  "contract_version": "1.0",
+  "experiment_id": "gen-reactor_bbd",
+  "line_id": "reactor-r12-esterification",
+  "product_id": "reactor-r12-esterification",
+  "objective": "化工反应：识别关键因子并给出可执行的操作条件",
+  "design_type_declared": "rsm_bbd",
+  "data_stage": "collected",
+  "data_file": "run_table.csv",
+  "factors": [
+    {
+      "name": "react_temp",
+      "col": "react_temp",
+      "type": "numeric",
+      "unit": "°C",
+      "role": "control",
+      "expected_sign": "+",
+      "physical_meaning": "react_temp",
+      "platform_ref": null,
+      "min": 60.0,
+      "max": 80.0
+    },
+    {
+      "name": "ph",
+      "col": "ph",
+      "type": "numeric",
+      "unit": "-",
+      "role": "control",
+      "expected_sign": "-",
+      "physical_meaning": "ph",
+      "platform_ref": null,
+      "min": 6.5,
+      "max": 7.5
+    },
+    {
+      "name": "catalyst",
+      "col": "catalyst",
+      "type": "numeric",
+      "unit": "wt%",
+      "role": "control",
+      "expected_sign": "+",
+      "physical_meaning": "catalyst",
+      "platform_ref": null,
+      "min": 1.0,
+      "max": 3.0
+    }
+  ],
+  "responses": [
+    {
+      "name": "yield_pct",
+      "col": "yield_pct",
+      "unit": "%",
+      "goal": "maximize",
+      "lsl": 80,
+      "usl": null,
+      "target": null,
+      "weight": 1.0
+    },
+    {
+      "name": "impurity_pct",
+      "col": "impurity_pct",
+      "unit": "%",
+      "goal": "minimize",
+      "lsl": null,
+      "usl": 0.5,
+      "target": null,
+      "weight": 1.0
+    },
+    {
+      "name": "viscosity_cp",
+      "col": "viscosity_cp",
+      "unit": "cP",
+      "goal": "target",
+      "lsl": 11,
+      "usl": 13,
+      "target": 12,
+      "weight": 1.0
+    }
+  ],
+  "blocks": [],
+  "covariates": [
+    "coolant_temp"
+  ],
+  "constraints": [
+    {
+      "type": "linear",
+      "coefficients": {
+        "react_temp": 1.0,
+        "catalyst": 5.0
+      },
+      "rhs": 90.0,
+      "hard": true,
+      "reason": "总热负荷",
+      "source": "ontology"
+    }
+  ],
+  "replicates_col": "replicate_group",
+  "run_order_col": "run_order",
+  "group_col": "run_id",
+  "time_col": null,
+  "current_setpoint": {
+    "react_temp": 70,
+    "ph": 7.0,
+    "catalyst": 2.0
+  },
+  "baseline_source": "dataset_median",
+  "design_region": {
+    "factorial_bounds": {
+      "react_temp": [
+        60,
+        80
+      ],
+      "ph": [
+        6.5,
+        7.5
+      ],
+      "catalyst": [
+        1.0,
+        3.0
+      ]
+    },
+    "design_hull": "bbd_hull"
+  },
+  "ontology": {
+    "profile": "doe",
+    "mode": "auto",
+    "scene_key": "reactor-r12-esterification",
+    "data_stage": "collected"
+  },
+  "provenance": {
+    "platform": "generality-corpus",
+    "created_by": "generate_cases.py"
+  }
+}
