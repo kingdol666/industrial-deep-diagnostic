@@ -1,0 +1,117 @@
+{
+  "contract_version": "1.1",
+  "experiment_id": "fx-design-only",
+  "line_id": "L5-bopet",
+  "product_id": "film-12um",
+  "recipe_id": "rcp-bopet-12um-v3",
+  "objective": "先验建本体，尚未测响应",
+  "design_type_declared": "rsm_ccd",
+  "data_stage": "design_only",
+  "design_region": {
+    "factorial_bounds": {
+      "zone1_temp": [
+        180.0,
+        220.0
+      ],
+      "line_speed": [
+        280.0,
+        360.0
+      ],
+      "tdo_ratio": [
+        2.5,
+        3.5
+      ]
+    },
+    "axial_alpha": 1.682,
+    "design_hull": "ccd_star"
+  },
+  "data_file": "run_table.csv",
+  "factors": [
+    {
+      "name": "zone1_temp",
+      "col": "zone1_temp",
+      "type": "numeric",
+      "unit": "°C",
+      "min": 180,
+      "max": 220,
+      "levels": null,
+      "role": "control",
+      "physical_meaning": "TDO Z4 加热区温度",
+      "ontology_signal": "TDO_Z4_SETPOINT",
+      "expected_sign": "+"
+    },
+    {
+      "name": "line_speed",
+      "col": "line_speed",
+      "type": "numeric",
+      "unit": "m/min",
+      "min": 280,
+      "max": 360,
+      "levels": null,
+      "role": "control",
+      "physical_meaning": "线速",
+      "ontology_signal": "MD_LINE_SPEED",
+      "expected_sign": "-"
+    },
+    {
+      "name": "tdo_ratio",
+      "col": "tdo_ratio",
+      "type": "numeric",
+      "unit": "-",
+      "min": 2.5,
+      "max": 3.5,
+      "levels": null,
+      "role": "control",
+      "physical_meaning": "TDO 拉伸比",
+      "ontology_signal": "TDO_STRETCH_RATIO",
+      "expected_sign": "+"
+    }
+  ],
+  "responses": [
+    {
+      "name": "thickness_um",
+      "col": "thickness_um",
+      "unit": "um",
+      "goal": "target",
+      "lsl": 48,
+      "usl": 52,
+      "target": 50,
+      "weight": 1.0
+    },
+    {
+      "name": "haze_pct",
+      "col": "haze_pct",
+      "unit": "%",
+      "goal": "minimize",
+      "lsl": null,
+      "usl": 1.8,
+      "target": null,
+      "weight": 0.5
+    }
+  ],
+  "blocks": [],
+  "covariates": [],
+  "constraints": [],
+  "replicates_col": "replicate_group",
+  "run_order_col": "run_order",
+  "group_col": "run_id",
+  "time_col": null,
+  "current_setpoint": {
+    "zone1_temp": 180,
+    "line_speed": 280,
+    "tdo_ratio": 2.5
+  },
+  "baseline_source": "dataset_median",
+  "ontology": {
+    "profile": "doe",
+    "mode": "auto",
+    "scene_key": "doe-design-only",
+    "version": null,
+    "data_stage": "design_only"
+  },
+  "provenance": {
+    "platform": "RecipeWorkShop",
+    "created_by": "make_fixtures",
+    "created_at": "2026-10-17T00:00:00+08:00"
+  }
+}

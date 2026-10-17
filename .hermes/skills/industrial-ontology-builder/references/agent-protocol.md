@@ -13,9 +13,13 @@ You are **Professor Wang** — former Deputy Chief Engineer at Sinopec, with 25 
 - `DATA_PATH`, `RUN_DIR`, `SKILL_PATH`, `SHARED_PATH`
 - `REFERENCE_DIR`, `PROCESS_DESCRIPTION`, `USER_OBJECTIVE`, `INTERACTION_MODE`
 - `ONTOLOGY_MODE` (injected at runtime: `reuse|extend|full`, default `full`), `ONTOLOGY_SOURCE` (absolute path to the store asset)
+- `PROFILE` (`diagnosis` default | `doe`), `DATA_STAGE` (`collected` default | `design_only`)
+- `CONTEXT_PATH` (default `RUN_DIR/00_input/analysis_context.json`), `DOE_CONTEXT_PATH` (default `RUN_DIR/00_input/doe_context.json`)
 
 ---
 → Gate: `DATA_PATH` exists? No → error JSON, stop.
+  **Exception — `PROFILE=doe` + `DATA_STAGE=design_only`**: `DATA_PATH` may be empty/absent.
+  The gate then becomes: `CONTEXT_PATH` or `DOE_CONTEXT_PATH` readable? No → error JSON, stop.
 
 ## Phase -1: Ontology Mode Dispatch (deterministic, ≤30s)
 
@@ -48,6 +52,28 @@ Every mode finishes with: `node "$SHARED_PATH/scripts/ontology_store.mjs" publis
 
 → For detailed extraction fields: read `resources/execution_reference.md#phase-0`
 
+**`PROFILE=doe` variant (runs the same phase, different sources):**
+
+- [ ] Read `CONTEXT_PATH` (default `00_input/analysis_context.json`) — the authoritative column list; also read `DOE_CONTEXT_PATH` when present
+- [ ] Extract: `factors[].col/type/unit/min/max/levels/role/expected_sign/physical_meaning/ontology_signal`, `responses[].col/unit/goal/lsl/usl/target/weight/ontology_signal`, `constraints[]`, `blocks`, `covariates`, `design_type_declared`, `design_region`, `current_setpoint`, `objective`, `ontology{profile,mode,scene_key,data_stage,version}`
+- [ ] `DATA_STAGE=design_only`: **do not open the data file** (there may be none). Declarations + `PROCESS_DESCRIPTION`/`REFERENCE_DIR` + RAG + web + first principles are the only admissible evidence. Never write a measured value/range/direction that no declaration, document or governing equation supports
+- [ ] `DATA_STAGE=collected`: probe the run table as usual (sampling strategy unchanged) — response columns may contain empty cells (unmeasured/failed runs); count and disclose them, never impute
+
+## Phase 0D: DOE Entity Materialisation (`PROFILE=doe` only)
+
+- [ ] Factors → `signals.control_variables[]`: `{name, column, unit, role:"control", control_type:"setpoint", normal_range:[min,max], setpoint, expected_sign, physical_meaning, physical_meaning_confidence, knowledge_source}`
+- [ ] Responses → `signals.inspection_signals[]`: `{name, column, unit, role:"target", target, tolerance, physical_meaning, physical_meaning_confidence, knowledge_source}`; `target`/`tolerance` derived from `target`/`lsl`/`usl` when declared (tolerance = (usl−lsl)/2), never invented
+- [ ] Covariates → `signals.process_parameters[]` with `role:"confounder"`; blocks/run_id → `signals.metadata_columns[]` (`role:"batch_id"`)
+- [ ] `observed_data_behavior`: `design_only` → `"NOT_APPLICABLE"` for **every** factor/response; `collected` → the real observed behaviour (or `null` + reason when not measurable)
+- [ ] `behavior_match`: `"UNVERIFIED"` unless actual data was compared (`collected` only)
+- [ ] Relationships (factor → response): emit `type:"causal"|"physical"` **only** when a direction is declared (`expected_sign`) or a named mechanism/governing law applies; set `mechanism`, `inferred: true`, `expected_sign`, `predicted_functional_form`, `data_direction_validated:"untested"` (`design_only`). A factor with no declared/derivable direction produces **no** relationship — do not invent one
+- [ ] `doe` block: `{profile:"doe", scene_key, data_stage, design_type, design_region, constraints, objectives, factors[], responses[], limitations[]}` — factor/response entries carry `confidence` ∈ `KNOWN|INFERRED|UNKNOWN`
+- [ ] `provenance` block (mandatory): `{engine:"industrial-ontology-builder", profile, build_mode, data_stage, rag_used, web_used, physics_prior_used, source}` — `rag_used`/`web_used` must reflect what actually ran (a store reuse reports `false`)
+- [ ] `limitations[]`: at minimum the design_only prior status, unverified directions, missing units/specs, unmeasured responses
+- [ ] Coverage self-check (OD-09): every declared factor/response appears exactly once in the ontology (no silent drops); a declaration that cannot be materialised still gets an entry plus a `limitations` note
+
+→ For the DOE ontology shape: `$SKILL_PATH/schemas/ontology_schema.json` (`doe` block + `expected_sign`).
+
 ## Phase 1: Search Reference Directory
 
 - [ ] If `REFERENCE_DIR` provided: recursively search for relevant documents
@@ -75,9 +101,11 @@ Every mode finishes with: `node "$SHARED_PATH/scripts/ontology_store.mjs" publis
 
 - [ ] **R1 Semantic Comprehension**: Extract physics principles, domain constraints, failure modes, confounders
 - [ ] **R2 Knowledge-Data Alignment (STAGE 1 PRE-CHECKS)**: For EVERY RAG claim, run basic validation against raw data; record claim_validations + validation_queue. Mark `untestable` claims for Stage 2
+      — `DATA_STAGE=design_only`: there is no response data, so R2 validates the **declaration/principle** only (unit consistency, range plausibility, sign vs governing equation) and marks every data-dependent claim `untestable`. Never upgrade an untestable claim into a behaviour statement
 - [ ] **R3 Physics Principle Extraction**: Conservation laws, constitutive relations, scaling laws, threshold physics
 - [ ] **R4 Gap-Aware Integration**: Identify unmatched parameters, unexplained relationships, domain distance
 - [ ] Write all to: `rag_deep_understanding.json`
+      — `PROFILE=doe` also writes the DOE-relevant subset into `01_ontology/ontology.json` (`doe.limitations`, relationship `mechanism`), since the DOE brief is derived from the ontology alone
 → For detailed R1-R4 protocols + JSON schemas: `resources/execution_reference.md#phase-3-2`
 
 ### 3.3: Load ALL RAG Output Files
@@ -112,18 +140,33 @@ Behavior depends on `INTERACTION_MODE`:
 - [ ] If RAG used: write `RUN_DIR/01_ontology/rag_deep_understanding.json`
 - [ ] Append pipeline events: agent_start + agent_complete
 
+**`PROFILE=doe` completion (P1-3/P1-4 hand-off):**
+
+- [ ] `ontology.json` carries the `doe` block + `provenance` block (Phase 0D) and stays ≥1KB (CP-2)
+- [ ] CP-2: `node "$SHARED_PATH/scripts/validate.mjs" "$SKILL_PATH/schemas/ontology_schema.json" "$RUN_DIR/01_ontology/ontology.json"` (0 errors)
+- [ ] Publish with the semantic identity so the next run can exact-reuse:
+      `node "$SHARED_PATH/scripts/ontology_store.mjs" publish --run-dir "$RUN_DIR" --scene <scene_key> --profile doe --build-mode <prior_knowledge|extend|full|reuse> --data-stage <design_only|collected> --context-fp "<sha256:…>"`
+      (the `context_fp` comes from `doe_ontology_prepare.py`, or from
+      `node "$SHARED_PATH/scripts/ontology_store.mjs" context-fp --context "$CONTEXT_PATH"`)
+- [ ] Regenerate the brief/coverage from the finished ontology (they are deterministic projections, never hand-written):
+      `uv run --project .claude/shared/scripts python .claude/skills/industrial-doe-analyzer/scripts/doe_ontology_prepare.py --run-dir "$RUN_DIR"`
+      (it adopts the ontology you just wrote, rebuilds `01_ontology/ontology_brief.json` + `.md` + `ontology_coverage.json`)
+- [ ] `01_ontology/ontology_brief.json` exists — the DOE analyzer's Phase 0 gate blocks without it
+
 ## Output Verification
 
 - [ ] `node "$SHARED_PATH/scripts/validate.mjs" "$SHARED_PATH/schemas/ontology_schema.json" "$RUN_DIR/01_ontology/ontology.json"`
+- [ ] `PROFILE=doe`: every declared factor/response appears in the ontology (0 silent drops) and every `observed_data_behavior` in `design_only` is `NOT_APPLICABLE`
 
 ## Failure Recovery
 
 | Scenario | Recovery |
-|------|------|
+|------|----------|
 | RAG engine unavailable (localhost:8764) | Continue — use `resources/parameter_to_physics.json` + web search |
 | ontology.json missing or <1KB | Restart context-builder |
 | Schema validation fails | Restart context-builder |
-| No output at all | Main agent builds a minimal valid ontology from `parameter_to_physics.json` |
+| No output at all | Main agent builds a minimal valid ontology from `parameter_to_physics.json` (`PROFILE=doe` + `design_only`: run `doe_ontology_prepare.py` — it builds a schema-valid prior ontology deterministically) |
+| `design_only` and a declaration has no unit/spec | Materialise the entity with `unit: null` and record the gap in `doe.limitations`; never drop it and never invent a unit |
 
 ## On-Demand References
 

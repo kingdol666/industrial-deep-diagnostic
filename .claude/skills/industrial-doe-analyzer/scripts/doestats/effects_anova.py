@@ -16,6 +16,14 @@ Everything here is numpy/scipy-only and reproducible. Key conventions:
 
 Blocks and covariates are modeled as factor_info entries flagged `is_block` /
 `is_covariate`: they enter the model (occupy df) but never produce windows.
+
+v1.1 additive layer (contract §6, all optional / additive): per-row `effect_ci95`
+(beta +- t_{0.975,df_resid} * se(beta)), `std_effect` (coefficient / sd(response),
+unit-free and comparable ACROSS responses) and `term_unit`; `unit`/`unit_source`
+on factor_info; the unit normaliser + source chain (`resolve_units`,
+`unit_declaration_status`); the table-level `interval_semantics` /
+`response_units` block (`table_v11_metadata`); and the vectorised
+`predict_many` used by the v1.1 grid (bit-identical to `predict_raw`).
 """
 
 import itertools
@@ -33,11 +41,17 @@ ALIAS_ATOL = 1e-9
 
 # ---------------------------------------------------------------- factor coding
 
-def build_factor_info(df, columns_spec, max_levels=12):
+def build_factor_info(df, columns_spec, max_levels=12, units=None):
     """Per-factor coding metadata.
 
-    columns_spec: list of {col, type?, is_block?, is_covariate?}
+    columns_spec: list of {col, type?, is_block?, is_covariate?, unit?}
+    units (optional, additive): {col: unit} fallback lookup used when the column
+    spec carries no `unit` — the caller passes the resolved unit chain
+    (`factors[].unit` -> ontology brief -> `analysis_context.units...`). The
+    resolved value is carried as `unit` / `unit_source`; when nothing is
+    declared the unit stays None (contract §6: never a fake fallback string).
     """
+    units = units or {}
     infos = []
     for spec in columns_spec:
         col = spec["col"]
@@ -47,9 +61,14 @@ def build_factor_info(df, columns_spec, max_levels=12):
         raw = df[col]
         if ftype is None:
             ftype = "categorical" if raw.dropna().nunique() <= max_levels else "numeric"
+        unit = spec.get("unit")
+        unit_source = "factor_spec" if unit else None
+        if not unit and units.get(col):
+            unit, unit_source = units[col], "context"
         info = {"col": col, "type": ftype,
                 "is_block": bool(spec.get("is_block")),
-                "is_covariate": bool(spec.get("is_covariate"))}
+                "is_covariate": bool(spec.get("is_covariate")),
+                "unit": unit, "unit_source": unit_source}
         if ftype == "numeric":
             vals = pd.to_numeric(raw, errors="coerce")
             lo, hi = float(vals.min()), float(vals.max())
@@ -301,6 +320,11 @@ def fit_design(df, response, factor_info, terms, base_df, base_specs):
 
     X_use = Xa[:, 1:] if Xa.shape[1] > 1 else np.zeros((n, 0))
     mse = rss / df_resid if df_resid > 0 else None
+    # v1.1 (P2-1/P2-5): response SD for the unit-free standardised effect and the
+    # two-sided t quantile for the effect CI beta +- t_{0.975,df} * se(beta).
+    sd_y = float(np.std(y, ddof=1)) if n > 1 else None
+    t_crit = float(sps.t.ppf(0.975, df_resid)) if df_resid > 0 else None
+    unit_of = {i["col"]: i.get("unit") for i in factor_info}
 
     # --- C4 pure error / lack-of-fit ---
     df_pe, ss_pe, df_lof, ss_lof, f_lof, p_lof = _pure_error(X_use, y, rss, df_resid)
@@ -338,6 +362,15 @@ def fit_design(df, response, factor_info, terms, base_df, base_specs):
             "df": int(df_t), "ss_extra_ss": _r(ss), "n": int(n),
             "estimable": True, "reason_code": None,
             "alias_chain": _term_level_alias(tname, kept.alias_map.get(tname, [])),
+            # --- v1.1 (contract §6): effect CI + unit-free standardised effect ---
+            "effect_ci95": ([_r(coef_val - t_crit * se_val),
+                             _r(coef_val + t_crit * se_val)]
+                            if (coef_val is not None and se_val is not None
+                                and t_crit is not None) else None),
+            "std_effect": (_r(coef_val / sd_y)
+                           if (coef_val is not None and sd_y not in (None, 0))
+                           else None),
+            "term_unit": term_unit_label(tinfo, unit_of),
         }
         if df_t > 0 and mse and mse > 0 and df_resid > 0:
             f_stat = (ss / df_t) / mse
@@ -359,6 +392,7 @@ def fit_design(df, response, factor_info, terms, base_df, base_specs):
             "std_err": None, "df": None, "ss_extra_ss": None, "n": int(n),
             "estimable": False, "reason_code": "pooled",
             "alias_chain": _term_level_alias(tname, kept.alias_map.get(tname, [])),
+            "effect_ci95": None, "std_effect": None, "term_unit": None,
         })
 
     # BH within family (C5)
@@ -700,3 +734,296 @@ def mde_coded(sigma, n, df, alpha=0.05, power=0.8):
 
 def _r(v):
     return round(float(v), 6) if v is not None else None
+
+
+# ==================================================================== v1.1 (P2-1/P2-5)
+# Additive only: nothing below is consumed by the legacy entry points.
+
+# Frozen interval-method labels (contract §5.2 / §6). `pi95_method` MUST name the
+# "1 +" form so the G9 interval-semantics gate can prove the PI is not a CI.
+PI95_METHOD = "ŷ ± t_{0.975,df_resid} · sqrt((1 + x0'(X'X)⁻¹x0) · MSE)"
+MEAN_CI95_METHOD = "ŷ ± t_{0.975,df_resid} · sqrt(x0'(X'X)⁻¹x0 · MSE)"
+EFFECT_CI95_METHOD = "β̂ ± t_{0.975,df_resid} · sqrt(diag((X'X)⁻¹) · MSE)"
+TOLERANCE_METHOD = ("ŷ ± k·s, k = sqrt(ν(1+1/n)·z²_{(1+p)/2} / χ²_{ν,α}), "
+                    "p=0.95, α=0.05, ν=df_resid, s=sqrt(MSE)")
+INTERVAL_SEMANTICS_V11 = (
+    "四类区间互不替代（effect_table.json v1.1）："
+    "① 效应 CI effect_ci95（每行）= " + EFFECT_CI95_METHOD + "（编码尺度，跨响应比较用 std_effect）；"
+    "② 均值 CI mean_ci95（= 既有 ci95 语义）= " + MEAN_CI95_METHOD + "；"
+    "③ 预测区间 pi95 = " + PI95_METHOD + "（覆盖单个未来观测；宽度必大于同点均值 CI；"
+    "禁止当作合格率/通过率）；"
+    "④ 容差区间 tolerance_interval_95_95 = " + TOLERANCE_METHOD + "（覆盖 95% 总体 @95% 置信）。")
+
+
+def term_unit_label(term, unit_of):
+    """What ONE unit of the reported coefficient refers to (contract §6).
+
+    Numeric factors are coded to [-1, 1] by half-range (C1), so a main-effect
+    coefficient is a "response-unit per coded unit = one half-range of raw
+    factor units" slope. Emitted as "<factor_unit>/coded" when the factor's
+    physical unit is known, plain "coded" otherwise — never a fake fallback.
+    """
+    factors = term.get("factors") or []
+    if len(factors) == 1 and term.get("kind") in ("main", "block", "covariate"):
+        u = unit_of.get(factors[0])
+        return f"{u}/coded" if u else "coded"
+    return "coded"
+
+
+# ---- unit normalisation (P2-5 / DS-06) ----
+
+_UNIT_LENGTH = {"m": "m", "cm": "cm", "mm": "mm",
+                "um": "um", "µm": "um", "μm": "um", "nm": "nm"}
+_UNIT_TEMPERATURE = {"c": "degC", "°c": "degC", "℃": "degC", "degc": "degC",
+                     "deg c": "degC", "celsius": "degC",
+                     "k": "K", "°k": "K", "kelvin": "K",
+                     "f": "degF", "°f": "degF", "℉": "degF", "degf": "degF",
+                     "deg f": "degF", "fahrenheit": "degF"}
+
+
+def normalize_unit(unit):
+    """Declared unit string -> (family, canonical) or None.
+
+    Families: length (m/cm/mm/um/µm/nm) and temperature (°C/K/°F). Anything else
+    returns None — foreign units ("MPa", "%") are compared verbatim and never
+    silently converted. `mm` vs `µm` therefore reads as the SAME family with
+    DIFFERENT canonical scale, which unit_declaration_status reports as a
+    conflict (DS-06 negative case), not as an implicit conversion.
+    """
+    if unit is None:
+        return None
+    s = str(unit).strip().lower()
+    if not s:
+        return None
+    if s in _UNIT_LENGTH:
+        return ("length", _UNIT_LENGTH[s])
+    if s in _UNIT_TEMPERATURE:
+        return ("temperature", _UNIT_TEMPERATURE[s])
+    return None
+
+
+def unit_declaration_status(sources, subject=None):
+    """Merge unit declarations from several sources into one status (P2-5).
+
+    sources: ordered [(source_name, unit_string|None)] — precedence order
+    (contract §6: `factors[].unit` -> ontology brief -> `units.factors[].canonical`).
+
+    Rules (documented, DS-06):
+    - nothing declared                     -> unit_status "missing", canonical None;
+    - every declaration identical          -> "valid" ("um" and "µm" are the same
+      normalised unit and are NOT a conflict);
+    - same family, different scale         -> "conflict" (mm vs µm);
+    - different families                   -> "conflict" (°C vs K, mm vs K);
+    - un-normalisable strings that differ  -> "conflict" (foreign unit mismatch);
+    - un-normalisable vs normalisable      -> "conflict".
+    The highest-precedence declaration wins `canonical`/`display`/`source`.
+    """
+    declared = [(name, u) for name, u in sources
+                if u is not None and str(u).strip() != ""]
+    out = {"canonical": None, "display": None, "unit_status": "missing",
+           "source": None, "conflicts": [], "sources": []}
+    if not declared:
+        return out
+    base_name, base_unit = declared[0]
+    base_norm = normalize_unit(base_unit)
+    out["display"] = str(base_unit)
+    out["canonical"] = base_norm[1] if base_norm else str(base_unit)
+    out["source"] = base_name
+    out["sources"] = [{"source": n, "unit": u} for n, u in declared]
+    conflicts = []
+    for name, u in declared[1:]:
+        if str(u).strip() == str(base_unit).strip():
+            continue
+        n = normalize_unit(u)
+        if base_norm is not None and n is not None:
+            reason = ("unit_family_mismatch" if base_norm[0] != n[0]
+                      else "unit_scale_mismatch")
+            if base_norm[0] == n[0] and base_norm[1] == n[1]:
+                continue  # e.g. "um" vs "µm" — same normalised unit
+        else:
+            reason = "unit_string_mismatch"
+        conflicts.append({
+            "factor_or_response": subject,
+            "from": str(base_unit), "to": str(u), "reason": reason,
+            "sources": [base_name, name],
+            "message": (f"单位冲突：{base_name} 声明 “{base_unit}” 与 {name} 声明 "
+                        f"“{u}” 不兼容（{reason}）"),
+        })
+    out["conflicts"] = conflicts
+    if conflicts:
+        out["unit_status"] = "conflict"
+        out["canonical"] = None
+    else:
+        out["unit_status"] = "valid"
+    return out
+
+
+def _unit_from_map(units_map, key):
+    """Read a unit out of `{key: unit}` or `{key: {canonical: unit}}` shapes."""
+    if not isinstance(units_map, dict):
+        return None
+    entry = units_map.get(key)
+    if entry is None:
+        return None
+    if isinstance(entry, dict):
+        return entry.get("canonical") or entry.get("unit") or entry.get("display")
+    return entry
+
+
+def resolve_units(ctx, brief, columns, kind="factors"):
+    """Resolved unit status per column. kind in {"factors", "responses"}.
+
+    Source chain (contract §6): `<ctx[kind]>[col].unit` -> `brief.<kind>[col].unit`
+    -> `analysis_context.units.<kind>[col].canonical`. Missing everywhere =>
+    canonical None + unit_status "missing" (explicit; no fake fallback string).
+    """
+    ctx_specs = {}
+    for entry in ctx.get(kind, []) or []:
+        if not isinstance(entry, dict):
+            continue
+        key = entry.get("col") or entry.get("name")
+        if key:
+            ctx_specs[key] = entry
+    brief_specs = {}
+    for entry in (brief or {}).get(kind, []) or []:
+        if not isinstance(entry, dict):
+            continue
+        key = entry.get("col") or entry.get("name") or entry.get("term")
+        if key:
+            brief_specs[key] = entry
+    ctx_units = (ctx.get("units") or {}).get(kind)
+    out = {}
+    for col in sorted(columns):
+        sources = [
+            (f"analysis_context.{kind}[].unit",
+             (ctx_specs.get(col) or {}).get("unit")),
+            (f"ontology_brief.{kind}[].unit",
+             (brief_specs.get(col) or {}).get("unit")),
+            (f"analysis_context.units.{kind}[].canonical",
+             _unit_from_map(ctx_units, col)),
+        ]
+        out[col] = unit_declaration_status(sources, subject=col)
+    return out
+
+
+def build_units_block(ctx, brief, factor_cols, response_cols):
+    """`recommendations.units` (contract §5.1): per factor/response canonical unit,
+    its status and the winning source, plus every detected conflict."""
+    factors = resolve_units(ctx, brief, factor_cols, "factors")
+    responses = resolve_units(ctx, brief, response_cols, "responses")
+    conflicts = []
+    for col in sorted(factors):
+        conflicts.extend(factors[col]["conflicts"])
+    for col in sorted(responses):
+        conflicts.extend(responses[col]["conflicts"])
+    # The context adapter records platform-side mismatches (analysis column in mm
+    # while the recipe parameter is in um). Those never reach resolve_units, which
+    # only sees the declaration/ontology/brief chain, so merge them here and
+    # propagate the status onto the affected entry (contract §5.1, DS-06).
+    declared = (ctx or {}).get("units") or {}
+    extra = [c for c in (declared.get("conflicts") or []) if isinstance(c, dict)]
+    for c in extra:
+        if c not in conflicts:
+            conflicts.append(c)
+    conflicted = {c.get("factor_or_response") for c in extra
+                  if c.get("factor_or_response")}
+    for col in sorted(conflicted):
+        if col in factors:
+            factors[col]["unit_status"] = "conflict"
+        if col in responses:
+            responses[col]["unit_status"] = "conflict"
+    return {
+        "factors": {c: {k: factors[c][k]
+                        for k in ("canonical", "display", "unit_status", "source")}
+                    for c in factors},
+        "responses": {c: {k: responses[c][k]
+                          for k in ("canonical", "display", "unit_status", "source")}
+                      for c in responses},
+        "conflicts": conflicts,
+    }
+
+
+def table_v11_metadata(units_block):
+    """effect_table.json v1.1 table-level additions (contract §6).
+
+    `interval_semantics` = human-readable description of all four interval types;
+    `response_units` = {response: canonical unit | "missing"}.
+    """
+    return {
+        "interval_semantics": INTERVAL_SEMANTICS_V11,
+        "response_units": {r: (u.get("canonical") or "missing")
+                           for r, u in sorted((units_block.get("responses") or {}).items())},
+    }
+
+
+# ---- vectorised prediction (grid performance, RG-05) ----
+
+def coded_design_matrix(model, raws):
+    """(m, p) coded term-column matrix (no intercept) for a list of raw dicts.
+
+    Column order is exactly `model["colnames"]`; accumulation downstream mirrors
+    `_make_predictor` term by term so `predict_many` agrees with `predict_raw`
+    bit-for-bit. Rows with any missing/None/NaN input come back NaN.
+    """
+    base_specs = model["base_specs"]
+    finfo = {i["col"]: i for i in model["factor_info"]}
+    m = len(raws)
+    base = {}
+    for name, spec in base_specs.items():
+        info = finfo[spec["factor"]]
+        vals = np.full(m, np.nan)
+        for i, raw in enumerate(raws):
+            v = raw.get(info["col"])
+            if spec["kind"] == "numeric_main":
+                if v is None or (isinstance(v, float) and np.isnan(v)):
+                    continue
+                vals[i] = (float(v) - info["mean"]) / info["half_range"]
+            else:
+                if v is None:
+                    continue
+                sv = str(v)
+                vals[i] = (1.0 if sv == str(spec["level"])
+                           else (-1.0 if sv == str(info["levels"][-1]) else 0.0))
+        base[name] = vals
+    spec_by_name = {s["name"]: s for _, specs in model["kept_specs"] for s in specs}
+    cols = []
+    for cname in model["colnames"]:
+        spec = spec_by_name.get(cname)
+        if spec is None:
+            cols.append(np.full(m, np.nan))
+            continue
+        if spec["fn"] == "identity":
+            cols.append(base[spec["inputs"][0]].copy())
+        elif spec["fn"] == "square":
+            cols.append(base[spec["inputs"][0]] ** 2)
+        else:
+            cols.append(base[spec["inputs"][0]] * base[spec["inputs"][1]])
+    return np.column_stack(cols) if cols else np.zeros((m, 0))
+
+
+def predict_many(model, raws):
+    """Vectorised `predict_raw` / `se_predict_raw`. Returns (yhat, se_mean).
+
+    Both arrays are (m,) with NaN for rows whose inputs are incomplete or whose
+    SE is not available (no xtx_inv / zero MSE) — the same conditions under which
+    the scalar closures return None.
+    """
+    X = coded_design_matrix(model, raws)
+    m = X.shape[0]
+    bad = ~np.isfinite(X).all(axis=1)
+    Xf = np.where(np.isfinite(X), X, 0.0)
+    beta = model["beta"]
+    yhat = np.full(m, float(beta[0]))
+    for j in range(len(model["colnames"])):
+        yhat = yhat + float(beta[j + 1]) * Xf[:, j]
+    yhat[bad] = np.nan
+    se = np.full(m, np.nan)
+    xtx_inv = model.get("xtx_inv")
+    mse = model.get("mse")
+    if xtx_inv is not None and mse not in (None, 0) and len(model["colnames"]):
+        Xa = np.column_stack([np.ones(m), Xf])
+        var = np.einsum("ij,jk,ik->i", Xa, xtx_inv, Xa) * float(mse)
+        se = np.sqrt(np.maximum(var, 0.0))
+        se[bad] = np.nan
+    return yhat, se
+

@@ -198,11 +198,16 @@ Schema：`analysis_context.schema.json`（skill 内同名文件为投影）。
 ## 9. 新模块接口签名（冻结）
 
 ```python
-# .claude/skills/industrial-doe-analyzer/scripts/doe_ontology_prepare.py
+# scripts/doe_ontology_prepare.py
 prepare(run_dir, *, data=None, context=None, mode="auto", scene_key=None,
         store_dir=None, seed=None) -> dict
 #   -> {action:"reused"|"extended"|"built"|"skipped", ontology_path, brief_json, brief_md,
 #       coverage_path, version, context_fp, scene_key, data_stage, elapsed_ms, rag_used, web_used}
+enforce_gate(run_dir, ctx) -> None      # P1-5/P1-6 Phase 0 门禁（analyze.py 调用）
+#   键缺失或 ctx["ontology"]["mode"] in (None,"off") -> 直接返回（门禁关闭）
+#   mode != off 且缺 brief  -> SystemExit("ONTOLOGY_BRIEF_REQUIRED: ...")
+#   mode != off 且缺 analysis_plan.md -> SystemExit("ANALYSIS_PLAN_REQUIRED: ...")
+#   data_stage == design_only 且响应全空（统计子命令下）-> SystemExit("DESIGN_ONLY_NO_RESPONSE: ...")
 # CLI: --run-dir --data --context [--mode] [--scene] [--store-dir] [--json]
 
 # scripts/ontology_brief.py
@@ -245,12 +250,22 @@ build(run_dir) -> dict                                        # §8.3
 `doestats/windows.py` 增量（签名冻结，供 analyze.py 接线）：
 
 ```python
-designed_windows(models, effect_table, profile, ctx, df, *, brief=None, seed=None) -> dict
-#   返回 dict（不再是 5-tuple）: {windows, interactions, confirmations, watchlist, setpoints,
-#                                 joint_windows, joint_setpoints, factor_response_matrix, grid_plan, units}
+# 既有（行为/签名不变，保持 136 断言绿）：
+designed_windows(models, effect_table, profile, ctx, df) -> 5-tuple
+observational_windows(stability, profile, ctx, df, correlation=None) -> tuple
+
+# 新增 v1.1 入口（返回完整 dict，供 analyze.py 接线）：
+designed_windows_v11(models, effect_table, profile, ctx, df, *, brief=None, seed=None) -> dict
+#   {windows, interactions, confirmations, watchlist, setpoints,
+#    joint_windows, joint_setpoints, factor_response_matrix, grid_plan, units,
+#    design_region, interval_disclosure, actionable_summary, association_screen_ref, next_design_ref}
+observational_windows_v11(stability, profile, ctx, df, correlation=None, *, brief=None, seed=None) -> dict
+#   同键集合（无 designed 专属键时置 null / []）
 windows_seed_export(recs: dict) -> dict   # optimizer-loop 兼容视图（见 §10）
 ```
-> 为兼容既有调用方，保留旧签名 `designed_windows_legacy(...) -> 5-tuple`；analyze.py 改调新签名。
+> **铁律**：`designed_windows` / `observational_windows` 的既有返回值与数值语义**一字不改**
+> （既有 136 断言直接消费它们）。所有 v1.1 行为只出现在 `*_v11` 入口里；共用内部实现可以重构，
+> 但必须证明既有入口输出逐字段不变。
 
 ## 10. optimizer-loop 兼容（P3-4）
 

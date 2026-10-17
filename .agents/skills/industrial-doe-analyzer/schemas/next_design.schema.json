@@ -1,0 +1,93 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "next_design.schema.json",
+  "title": "next_design — confirmation / augmentation proposal (P3-3, contract §8.2 / DS-11)",
+  "type": "object",
+  "required": ["contract_version", "recommended_action", "rationale",
+               "primary_action_id", "actions"],
+  "properties": {
+    "contract_version": { "const": "1.0" },
+    "generated_at": { "type": "string" },
+    "recommended_action": {
+      "enum": ["fold_over", "augment_star", "augment_axial", "space_filling",
+               "confirm_replicate", "none"]
+    },
+    "rationale": { "type": "string" },
+    "primary_action_id": { "type": "string" },
+    "actions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "action", "settings", "n_runs", "block_policy",
+                     "replicate_policy", "expected_information", "constraints_ok",
+                     "source_evidence"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^ND-[0-9]{2}$" },
+          "action": {
+            "enum": ["fold_over", "augment_star", "augment_axial", "space_filling",
+                     "confirm_replicate", "none"]
+          },
+          "settings": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["factor"],
+              "properties": {
+                "factor": { "type": "string" },
+                "value": { "type": ["number", "string", "null"] },
+                "low": { "type": ["number", "null"] },
+                "high": { "type": ["number", "null"] }
+              }
+            }
+          },
+          "star_values": {
+            "type": "object",
+            "additionalProperties": { "type": "array", "items": { "type": "number" } }
+          },
+          "n_runs": { "type": ["integer", "null"], "minimum": 0 },
+          "block_policy": { "type": "string" },
+          "replicate_policy": { "type": "string" },
+          "expected_information": {
+            "type": "object",
+            "properties": {
+              "d_efficiency": { "type": ["number", "null"] },
+              "alias_break": { "type": ["array", "null"], "items": { "type": "string" } },
+              "power_at_2mde": { "type": ["number", "null"] },
+              "coverage_gain": { "type": ["object", "null", "number"] }
+            }
+          },
+          "constraints_ok": { "type": "boolean" },
+          "constraint_violations": { "type": "array", "items": { "type": "object" } },
+          "source_evidence": { "type": "array", "items": { "type": "string" } },
+          "design_points": {
+            "description": "concrete executable setpoints (additive); fold_over inherits the parent run table",
+            "type": ["array", "string", "null"]
+          },
+          "primary": { "type": "boolean" }
+        }
+      }
+    },
+    "skipped_actions": {
+      "type": "array",
+      "description": "candidates dropped for hard-constraint violations or unbuildable geometry (never silent)",
+      "items": { "type": "object", "required": ["action", "skipped_reason"] }
+    },
+    "design_type": { "type": ["string", "null"] },
+    "design_mode": { "type": ["string", "null"] },
+    "resolution": { "type": ["integer", "null"] },
+    "randomization": {
+      "type": "object",
+      "properties": {
+        "non_randomized": { "type": ["boolean", "null"] },
+        "evidence": { "type": "string" }
+      }
+    },
+    "curvature_evidence": { "type": "array", "items": { "type": "object" } },
+    "has_quadratic_terms": { "type": "boolean" },
+    "design_region_bounds": { "type": "object" },
+    "hard_constraints": { "type": "object" },
+    "seed": { "type": ["integer", "null"] },
+    "provenance": { "type": "object" }
+  }
+}

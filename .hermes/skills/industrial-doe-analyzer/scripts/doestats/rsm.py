@@ -104,8 +104,51 @@ def combined_desirability(y_by_response, specs, grid_lo_hi):
     return float(np.exp(num / den)), ds
 
 
-def refine_optimum(predict_fns, specs, factor_info, active, fixed_raw, grid_lo_hi):
-    """L-BFGS-B refine of the desirability optimum inside the coded box (W2)."""
+def coded_linear_ineqs(records):
+    """Build SLSQP inequality callables from linear constraint records (CODED units).
+
+    record: {"coeffs": {factor: coefficient}, "min": number|None, "max": number|None}
+    Every coefficient refers to the ALREADY-CODED factor coordinate
+    (x_coded = (x_raw - mean) / half_range), i.e. the caller converts raw
+    coefficients by multiplying with the half-range (linear maps stay linear).
+    Returns callables f(x) >= 0 for each finite bound, in record order.
+    """
+    fns = []
+    for rec in records or []:
+        coeffs = rec.get("coeffs") or {}
+        names = list(coeffs)
+
+        def make(cf, lo, hi):
+            def f(x):
+                s = float(sum(cf[n] * x[i] for i, n in enumerate(names) if i < len(x)))
+                vals = []
+                if lo is not None:
+                    vals.append(s - lo)
+                if hi is not None:
+                    vals.append(hi - s)
+                return min(vals) if vals else 0.0
+            return f
+        fns.append(make(dict(coeffs), rec.get("min"), rec.get("max")))
+    return fns
+
+
+def refine_optimum(predict_fns, specs, factor_info, active, fixed_raw, grid_lo_hi,
+                   bounds=None, constraints=None, starts=None):
+    """Refine the desirability optimum.
+
+    Legacy behaviour (bounds=None, constraints=None, starts=None): single
+    L-BFGS-B start from the coded origin inside the full coded box [-1, 1]^k —
+    byte-identical to the pre-v1.1 implementation.
+
+    v1.1 optional additions (P2-4); defaults preserve the legacy path exactly:
+    - `bounds`: {factor: (lo, hi)} coded per-factor box (from hard box/safety
+      constraints and the design region).
+    - `constraints`: list of SLSQP-form callables f(x_coded) >= 0 (see
+      `coded_linear_ineqs`) — when non-empty the solver switches to SLSQP so
+      linear constraints are enforced natively instead of via a penalty.
+    - `starts`: explicit coded starting points, tried in order (deterministic
+      multi-start); the best desirability wins.
+    """
     infos = {i["col"]: i for i in factor_info}
     names = list(active)
 
@@ -122,13 +165,57 @@ def refine_optimum(predict_fns, specs, factor_info, active, fixed_raw, grid_lo_h
         D, _ = combined_desirability(y_by, specs, grid_lo_hi)
         return -D
 
-    x0 = np.zeros(len(names))
-    res = sps_opt.minimize(neg_D, x0, method="L-BFGS-B",
-                           bounds=[(-1.0, 1.0)] * len(names))
-    best = {"coded": {f: round(float(v), 6) for f, v in zip(names, res.x)},
-            "D": round(float(-res.fun), 6)}
+    constrained = bool(constraints) or bounds is not None or bool(starts)
+    if not constrained:
+        # ---- legacy path (unchanged) ----
+        x0 = np.zeros(len(names))
+        res = sps_opt.minimize(neg_D, x0, method="L-BFGS-B",
+                               bounds=[(-1.0, 1.0)] * len(names))
+        res_x = res.x
+        best_D = -res.fun
+    else:
+        cb = []
+        for f in names:
+            lo, hi = (bounds or {}).get(f, (-1.0, 1.0))
+            lo = max(-1.0, float(lo))
+            hi = min(1.0, float(hi))
+            if not hi >= lo:
+                lo, hi = min(lo, hi), max(lo, hi)
+            cb.append((lo, hi))
+        x0s = [np.clip(np.asarray(x, dtype=float), [b[0] for b in cb],
+                       [b[1] for b in cb])
+               for x in (starts or [])]
+        x0s.append(np.array([(lo + hi) / 2.0 for lo, hi in cb]))
+        seen, uniq = set(), []
+        for x in x0s:
+            key = tuple(np.round(x, 9).tolist())
+            if key not in seen:
+                seen.add(key)
+                uniq.append(x)
+        method = "SLSQP" if constraints else "L-BFGS-B"
+        best_x, best_D = None, None
+        for x0 in uniq:
+            try:
+                if constraints:
+                    res = sps_opt.minimize(
+                        neg_D, x0, method="SLSQP", bounds=cb,
+                        constraints=[{"type": "ineq", "fun": f} for f in constraints],
+                        options={"maxiter": 200, "ftol": 1e-10})
+                else:
+                    res = sps_opt.minimize(neg_D, x0, method="L-BFGS-B", bounds=cb)
+            except Exception:
+                continue
+            D = -float(res.fun)
+            if res.success and np.isfinite(D) and (best_D is None or D > best_D):
+                best_x, best_D = np.asarray(res.x, dtype=float), D
+        if best_x is None:
+            best_x = uniq[0]
+            best_D = -float(neg_D(best_x))
+        res_x = best_x
+    best = {"coded": {f: round(float(v), 6) for f, v in zip(names, res_x)},
+            "D": round(float(best_D), 6)}
     raw = dict(fixed_raw)
-    for f, v in zip(names, res.x):
+    for f, v in zip(names, res_x):
         raw[f] = infos[f]["mean"] + float(v) * infos[f]["half_range"]
     best["raw"] = {f: round(float(v), 6) for f, v in raw.items()}
     return best

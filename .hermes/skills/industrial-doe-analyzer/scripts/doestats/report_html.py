@@ -47,6 +47,9 @@ ARTIFACTS = [
     "03_figures/plot_manifest.json",
     "conclusions/doe_conclusion.json",
     "conclusions/recommendations.json",
+    # v1.1 (optional): ontology + next design, rendered by §11 when present
+    "01_ontology/ontology_brief.json",
+    "conclusions/next_design.json",
 ]
 REQUIRED_BY_MODE = {
     "designed": ["00_input/analysis_context.json", "01_profile/data_profile.json",
@@ -1150,6 +1153,82 @@ class ReportBuilder:
         self.add_section("sec-10", "§10", "局限与确认实验", body)
 
     # ---------------- 附录
+    def sec_11(self):
+        """§11 本体依据与下一轮设计 (AR-02).
+
+        Adds the three v1.1 artifacts the statistical sections cannot show: the
+        ontology brief the analysis was scoped against, the joint setpoints that
+        carry executability, and the proposed next design. Every block degrades to
+        an explicit disclosure when the artifact is absent.
+        """
+        brief = self.art.get("01_ontology/ontology_brief.json") or {}
+        nxt = self.art.get("conclusions/next_design.json") or {}
+        parts = []
+
+        if brief:
+            cov = brief.get("coverage") or {}
+            rows = [
+                ("场景 (scene_key)", esc(str(brief.get("scene_key") or "—"))),
+                ("本体 profile / 版本",
+                 f"{esc(str(brief.get('profile') or '—'))} / v{esc(str(brief.get('ontology_version') or '—'))}"),
+                ("映射覆盖",
+                 f"因子 {esc(str(cov.get('n_factors_matched', '—')))}/{esc(str(cov.get('n_factors_declared', '—')))}，"
+                 f"响应 {esc(str(cov.get('n_responses_matched', '—')))}/{esc(str(cov.get('n_responses_declared', '—')))}，"
+                 f"未匹配 {esc(str(cov.get('n_unmatched', '—')))}"),
+                ("本体 sha256", f'<span class="mono">{esc(str(brief.get("ontology_sha256") or "—")[:16])}…</span>'),
+            ]
+            lims = "".join(f"<li>{esc(x)}</li>" for x in (brief.get("limitations") or []))
+            parts.append(
+                '<h3>本体依据（ontology_brief.json）</h3>'
+                '<div class="table-wrap"><table class="stat-table"><tbody>'
+                + "".join(f'<tr><th>{k}</th><td>{v}</td></tr>' for k, v in rows)
+                + "</tbody></table></div>"
+                + (f'<ul class="notes">{lims}</ul>' if lims else ""))
+        else:
+            parts.append("<p>本轮未启用本体阶段（<code>analysis_context.ontology.mode = off</code>），"
+                         "本报告的结论仅基于统计证据，无本体一致性核对。</p>")
+
+        joint = self.recs.get("joint_setpoints") or []
+        if joint:
+            head = "".join(f"<th>{esc(h)}</th>" for h in
+                           ("id", "可行", "可执行", "阻断原因", "已满足响应"))
+            body = "".join(
+                "<tr>"
+                f'<td class="mono">{esc(str(j.get("id") or ""))}</td>'
+                f'<td>{"是" if j.get("feasible") else "否"}</td>'
+                f'<td>{"是" if j.get("actionable") else "否"}</td>'
+                f'<td>{esc("、".join(j.get("blockers") or []) or "—")}</td>'
+                f'<td>{esc("、".join(j.get("responses_satisfied") or []) or "—")}</td>'
+                "</tr>" for j in joint[:4])
+            parts.append(
+                "<h3>联合推荐点（joint_setpoints）</h3>"
+                f'<div class="table-wrap"><table class="stat-table"><thead><tr>{head}</tr></thead>'
+                f"<tbody>{body}</tbody></table></div>"
+                '<p class="note">逐因子 <code>operating_windows</code> 仅作诊断；执行依据是 '
+                "<code>joint_setpoints</code>，且只有在单位有效、无硬约束违例、全部带规格响应均满足时 "
+                "<code>actionable=true</code>。</p>")
+
+        actions = nxt.get("actions") or []
+        if actions:
+            head = "".join(f"<th>{esc(h)}</th>" for h in ("id", "动作", "运行数", "约束内"))
+            body = "".join(
+                "<tr>"
+                f'<td class="mono">{esc(str(a.get("id") or ""))}</td>'
+                f'<td>{esc(str(a.get("action") or ""))}</td>'
+                f'<td class="num">{esc(str(a.get("n_runs") or ""))}</td>'
+                f'<td>{"是" if a.get("constraints_ok") else "否"}</td>'
+                "</tr>" for a in actions[:5])
+            parts.append(
+                "<h3>下一轮设计（next_design.json）</h3>"
+                f"<p>推荐动作：<b>{esc(str(nxt.get('recommended_action') or '—'))}</b> — "
+                f"{esc(str(nxt.get('rationale') or ''))}</p>"
+                f'<div class="table-wrap"><table class="stat-table"><thead><tr>{head}</tr></thead>'
+                f"<tbody>{body}</tbody></table></div>")
+
+        if not brief and not joint and not actions:
+            parts.append("<p>无可用内容。</p>")
+        self.add_section("sec-11", "§11", "本体依据与下一轮设计", "".join(parts))
+
     def sec_appendix(self):
         gen_map = {}
         for rel, art in self.art.items():
@@ -1235,6 +1314,7 @@ class ReportBuilder:
         self.sec_8()
         self.sec_9()
         self.sec_10()
+        self.sec_11()
         self.sec_appendix()
 
         payload = {"mode": self.mode, "charts": self.charts}

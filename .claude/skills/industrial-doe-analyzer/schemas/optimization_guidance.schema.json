@@ -1,0 +1,115 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "optimization_guidance.schema.json",
+  "title": "optimization_guidance — platform handoff (P3-5, contract §8.3 / OD-11 / XR-03)",
+  "type": "object",
+  "required": ["contract_version", "schema_version", "run_id", "experiment_id",
+               "ontology_basis", "objective", "recipe_patch", "node_setpoints",
+               "constraints", "next_design", "lineage", "provenance"],
+  "properties": {
+    "contract_version": { "const": "1.0" },
+    "schema_version": { "type": "string" },
+    "generated_at": { "type": "string" },
+    "run_id": { "type": "string" },
+    "experiment_id": { "type": ["string", "null"] },
+    "ontology_basis": {
+      "type": "object",
+      "required": ["profile", "scene_key", "version", "sha256", "reused", "brief_ref"],
+      "properties": {
+        "profile": { "type": ["string", "null"] },
+        "scene_key": { "type": ["string", "null"] },
+        "version": { "type": ["string", "null"] },
+        "sha256": { "type": ["string", "null"] },
+        "reused": { "type": ["boolean", "null"] },
+        "brief_ref": { "type": ["string", "null"] }
+      }
+    },
+    "objective": { "type": ["string", "null"] },
+    "recipe_patch": {
+      "type": "array",
+      "description": "only factors WITH a usable platform_ref (OD-11); values already converted+rounded",
+      "items": {
+        "type": "object",
+        "required": ["factor", "from", "to", "unit", "platform_ref", "hard_limits",
+                     "within_limits"],
+        "properties": {
+          "factor": { "type": "string" },
+          "from": { "type": ["number", "null"] },
+          "to": { "type": ["number", "null"] },
+          "unit": { "type": ["string", "null"] },
+          "platform_ref": {
+            "type": "object",
+            "required": ["recipe_param", "node_id", "plc_tag", "unit_conversion", "rounding"],
+            "properties": {
+              "recipe_param": { "type": ["string", "null"] },
+              "node_id": { "type": ["string", "null"] },
+              "plc_tag": { "type": ["string", "null"] },
+              "unit_conversion": { "type": ["number", "object", "null"] },
+              "rounding": { "type": ["number", "object", "null"] }
+            }
+          },
+          "hard_limits": { "type": ["object", "null"] },
+          "within_limits": { "type": ["boolean", "null"] },
+          "actionable": { "type": "boolean" },
+          "actionable_blockers": { "type": "array", "items": { "type": "string" } },
+          "source": { "type": ["string", "null"] },
+          "value_analysis_units": { "type": ["number", "null"] },
+          "limit_violations": { "type": "array", "items": { "type": "object" } },
+          "unit_status": { "enum": ["valid", "missing", "conflict"] }
+        }
+      }
+    },
+    "node_setpoints": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["node_id", "metric", "value", "unit", "aggregation"],
+        "properties": {
+          "node_id": { "type": "string" },
+          "metric": { "type": "string" },
+          "value": { "type": ["number", "null"] },
+          "unit": { "type": ["string", "null"] },
+          "aggregation": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "constraints": { "type": "array", "items": { "type": "object" } },
+    "next_design": {
+      "type": "object",
+      "required": ["ref", "primary_action_id", "n_runs"],
+      "properties": {
+        "ref": { "type": ["string", "null"] },
+        "primary_action_id": { "type": ["string", "null"] },
+        "recommended_action": { "type": ["string", "null"] },
+        "n_runs": { "type": ["integer", "null"] }
+      }
+    },
+    "lineage": {
+      "type": "object",
+      "required": ["parent_run_id", "round", "campaign_id"],
+      "properties": {
+        "parent_run_id": { "type": ["string", "null"] },
+        "round": { "type": ["integer", "null"] },
+        "campaign_id": { "type": ["string", "null"] }
+      }
+    },
+    "provenance": { "type": "object" },
+    "platform_ref_missing": {
+      "type": "array",
+      "description": "factors/metrics removed from the handoff for a missing platform_ref (OD-11 marker)",
+      "items": {
+        "type": "object",
+        "required": ["kind", "reason"],
+        "properties": {
+          "kind": { "enum": ["recipe_patch", "node_setpoint"] },
+          "factor": { "type": "string" },
+          "metric": { "type": "string" },
+          "value": { "type": ["number", "null"] },
+          "unit": { "type": ["string", "null"] },
+          "reason": { "type": "string" }
+        }
+      }
+    },
+    "value_semantics": { "type": "string" }
+  }
+}

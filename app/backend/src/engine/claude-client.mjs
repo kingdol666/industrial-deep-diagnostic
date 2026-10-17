@@ -63,6 +63,9 @@ Runtime-critical rules:
 // ── Ontology directive — appended to the user prompt for both engines ──
 export function buildOntologyDirective(ontology) {
   if (!ontology || typeof ontology !== 'object') return '';
+  // P1-6: the DOE intent carries profile="doe" and gets its own directive. The
+  // diagnosis rendering below stays byte-identical for every other run.
+  if (ontology.profile === 'doe') return buildDoeOntologyDirective(ontology);
   const mode = ontology.mode || 'full';
   const lines = ['', '## Ontology Directive', '', `- ONTOLOGY_MODE: ${mode}`];
   if (ontology.source) lines.push(`- ONTOLOGY_SOURCE (store asset, absolute path): ${ontology.source}`);
@@ -77,6 +80,34 @@ export function buildOntologyDirective(ontology) {
   }
   lines.push(`Execute Phase -1 of the ontology-builder protocol exactly according to this mode. CP-2 validation is mandatory in every mode; after it passes, publish the ontology to the store:`);
   lines.push(`node .claude/shared/scripts/ontology_store.mjs publish --run-dir "<RUN_DIR>"${ontology.scene_key ? ` --scene ${ontology.scene_key}` : ''} --build-mode ${mode}`);
+  return lines.join('\n') + '\n';
+}
+
+// ── Ontology directive, DOE profile (P1-6) ──────────────────────────────
+// A DOE run is ontology-first and gated: the deterministic ontology stage runs
+// before any statistics, and the agent must read the brief before analyzing.
+// `mode` uses the DOE namespace {auto, full, reuse, extend} — `off` is refused
+// in production (dev override only), so the ontology can never be silently
+// blanked out of a DOE run the way it was before this fix.
+export function buildDoeOntologyDirective(ontology) {
+  const mode = ontology.mode || 'auto';
+  const dataStage = ontology.data_stage || 'collected';
+  const lines = ['', '## Ontology Directive (DOE profile)', '',
+    `- ONTOLOGY_PROFILE: doe`,
+    `- ONTOLOGY_MODE: ${mode}`,
+    `- ONTOLOGY_DATA_STAGE: ${dataStage}`];
+  if (ontology.scene_key) lines.push(`- ONTOLOGY_SCENE: ${ontology.scene_key} (store v${ontology.version ?? '?'})`);
+  if (ontology.source) lines.push(`- ONTOLOGY_SOURCE (store asset, absolute path): ${ontology.source}`);
+  lines.push(`- Reason: ${ontology.reason || 'n/a'}`);
+  lines.push(`This run executes the thin DOE orchestration contract `.concat(
+    '.claude/skills/industrial-doe-orchestrator/SKILL.md — prepare → brief → analyzer → consistency → next_design — in that order. The ontology stage is a HARD GATE: statistics must not start before it finishes.'));
+  lines.push(`Run the deterministic ontology stage first (it computes the context fingerprint, looks the store up by profile=doe + scene_key + context_fp, reuses on an exact hit, extends on a changed context, otherwise builds — and writes 01_ontology/ontology.json + ontology_brief.json/.md + ontology_coverage.json):`);
+  lines.push(`uv run --project .claude/shared/scripts python .claude/skills/industrial-doe-analyzer/scripts/doe_ontology_prepare.py --run-dir "<RUN_DIR>" --mode ${mode}${ontology.scene_key ? ` --scene ${ontology.scene_key}` : ''}`);
+  lines.push(`Then READ 01_ontology/ontology_brief.json and write 01_profile/analysis_plan.md (scene / factors / responses / units / expected directions / confounders / limitations) — the analyzer refuses to run without both (ONTOLOGY_BRIEF_REQUIRED / ANALYSIS_PLAN_REQUIRED).`);
+  if (dataStage === 'design_only') {
+    lines.push(`DATA_STAGE=design_only: responses are not measured yet. Only the ontology/profile/build stages may run — never invent response behaviour or run statistics (DESIGN_ONLY_NO_RESPONSE).`);
+  }
+  lines.push('Ontology assets are published with profile=doe + context_fp so the next run of the same scene/context reuses them in ≤60s with zero RAG/web calls.');
   return lines.join('\n') + '\n';
 }
 

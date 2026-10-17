@@ -1,0 +1,20 @@
+{
+  "script": "mc_pi_coverage.py",
+  "seed": 20261017,
+  "n_replications": 2000,
+  "n_points": 6000,
+  "sigma": 1.0,
+  "design": "2^3 full factorial x2 replicates",
+  "pi_point_coverage": 0.95,
+  "mean_ci_new_obs_coverage": 0.569333,
+  "pi_wider_than_ci": 1.0,
+  "acceptance": {
+    "pi_point_coverage_band": [
+      0.935,
+      0.965
+    ],
+    "mean_ci_new_obs_coverage_max": 0.9,
+    "pi_wider_than_ci": 1.0
+  },
+  "note": "pi_point_coverage is the point coverage of the 95% PREDICTION interval for a single future observation (must be ~0.95). mean_ci_new_obs_coverage is the same measurement for the mean response CI (the legacy ci95 semantics) and must sit well below 0.95 — the mean CI is not a prediction bound."
+}

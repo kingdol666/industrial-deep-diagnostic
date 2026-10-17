@@ -1,0 +1,25 @@
+{
+  "fixture": "design_only",
+  "design_type": "rsm_ccd",
+  "n_runs": 17,
+  "factors": [
+    "zone1_temp",
+    "line_speed",
+    "tdo_ratio"
+  ],
+  "responses": [
+    "thickness_um",
+    "haze_pct"
+  ],
+  "responses_measured": false,
+  "expected": {
+    "data_stage": "design_only",
+    "observed_data_behavior": "NOT_APPLICABLE",
+    "statistics_allowed": false,
+    "blocked_code": "DESIGN_ONLY_NO_RESPONSE"
+  },
+  "generation": {
+    "alpha": 1.682,
+    "criteria": "CCD k=3, 8 cube + 6 axial + 3 center"
+  }
+}

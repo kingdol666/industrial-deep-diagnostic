@@ -10,6 +10,30 @@ uv run --project "$SHARED_PATH/scripts" python "$SKILL_PATH/scripts/analyze.py" 
 
 ## Phase 0 — Context & Manifest
 
+0. **Scope the run against the ontology FIRST (DOE v1.1, hard gate).**
+   If `00_input/doe_context.json` exists, materialise the canonical context:
+   ```bash
+   uv run --project "$SHARED_PATH/scripts" python "$SKILL_PATH/scripts/doe_context_adapter.py" \
+     --run-dir "$RUN_DIR" [--context <doe_context.json>] [--data <run_table.csv>]
+   ```
+   It rejects `MISSING_COLUMN` / `DUPLICATE_RUN_ID` / `MISSING_RUN_TABLE` / `NO_RUN_TABLE`
+   explicitly — never "fix" that by pointing at another file. It writes
+   `00_input/analysis_context.json` with `provenance.assigned_by` per field.
+   Then, whenever `analysis_context.ontology.mode != "off"`:
+   ```bash
+   uv run --project "$SHARED_PATH/scripts" python "$SKILL_PATH/scripts/doe_ontology_prepare.py" \
+     --run-dir "$RUN_DIR" --mode auto
+   ```
+   `auto` = store lookup by `profile=doe` + `scene_key` + `context_fp` → reuse /
+   extend / build. It writes `01_ontology/{ontology.json,ontology_brief.json,
+   ontology_brief.md,ontology_coverage.json}`.
+   **Read `01_ontology/ontology_brief.md` and write `01_profile/analysis_plan.md`**
+   (scene / factors / responses / units / expected directions / confounders /
+   limitations / analysis mode). Without it `profile` exits
+   `ANALYSIS_PLAN_REQUIRED`; without the brief it exits `ONTOLOGY_BRIEF_REQUIRED`.
+   `data_stage=design_only` (response columns empty) allows only
+   `ontology` / `profile` / `build`; statistics exit `DESIGN_ONLY_NO_RESPONSE`.
+
 1. `RUN_DIR/run_manifest.json` — created automatically by `analyze.py profile`.
 2. `RUN_DIR/00_input/analysis_context.json` — read if present (user-authored);
    otherwise it is auto-inferred on first `profile` run with every inferred field
@@ -47,10 +71,24 @@ uv run --project "$SHARED_PATH/scripts" python "$SKILL_PATH/scripts/analyze.py" 
 uv run --project "$SHARED_PATH/scripts" python "$SKILL_PATH/scripts/analyze.py" run --run-dir "$RUN_DIR"
 ```
 
-- designed → `effect_table.json` + `model.json` (+ RSM stationary points)
+- designed → `effect_table.json` (v1.1: `effect_ci95`, `std_effect`, `term_unit`,
+  `interval_semantics`, `response_units`) + `model.json` (+ RSM stationary points,
+  design hull, leverage)
 - observational → `correlation_report.json` + `stability_report.json`
-- both → figures + `plot_manifest.json` + baseline `doe_conclusion.json` /
-  `recommendations.json` (`authored_by: "script"`)
+- both → figures + `plot_manifest.json` + `doe_conclusion.json` /
+  `recommendations.json` (contract v1.1: `units`, `design_region`, `joint_windows`,
+  `joint_setpoints`, `factor_response_matrix`, `grid_plan`, `interval_disclosure`,
+  `actionable_summary`, `*_ref`), plus `02_analysis/association_screen.json`,
+  `conclusions/next_design.json`, `conclusions/optimization_guidance.json`, and
+  `artifact_manifest.json` (the artifact registry both APIs read).
+- **Four interval types are distinct**: `mean_ci95` (mean response), `pi95` (a single
+  future observation — always wider), `effect_ci95` (the coefficient), and
+  `tolerance_interval_95_95`. Never present `pi95` as a pass/yield rate.
+- **Marginal windows are diagnostic only.** `operating_windows[].window_role` is
+  always `marginal_diagnostic`; executability is carried by `joint_setpoints[]`
+  (`actionable` + `blockers`). Units missing or conflicting, a hard-constraint
+  violation, extrapolation outside the design hull, or an unsatisfied spec-bearing
+  response all set `actionable=false` — the window is kept, execution is blocked.
 - Read every artifact. Script warnings (`reason_code`, caveats, drift flags)
   are load-bearing — carry them into the report, never delete them.
 
@@ -85,7 +123,14 @@ node "$SKILL_PATH/scripts/quality_gate.mjs" "$RUN_DIR" \
 - G1 effect rows complete (p/q or reason_code) · G2 |r|≥0.3 all carry anti-spurious
   verdicts · G3 windows in observed domain · G4 observational windows require
   confirmation · G5 figures pass ink gate · G6 all artifacts schema-valid +
-  strict key check · G7 report.html (final gate run, after Phase 6 rendering).
+  strict key check · G7 report.html · **G8** association pairs never enter a window
+  (and the screen ref sha256 matches disk) · **G9** four-interval semantics
+  (`pi95` strictly wider than `mean_ci95`; `pi95_method` names the `1 +` term; no
+  pass-rate PI) · **G10** every `actionable` joint setpoint has zero hard-constraint
+  violations, valid units, and is inside the design region · **G11**
+  `factor_response_matrix` covers every factor × response with a window or a reason.
+- **G8–G11 report `n/a` when the artifact they inspect is absent** — absence is not
+  a failure (a legacy run without `association_screen.json` still passes).
 - On FAIL: locate the failing check item, then branch:
   - (a) **Script artifact** FAIL → re-run the corresponding script step (never
     hand-edit JSON numbers); the only fix for this class.

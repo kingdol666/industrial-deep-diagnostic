@@ -38,8 +38,11 @@ SHARED_SCRIPTS = REPO_ROOT / ".claude" / "shared" / "scripts"
 sys.path.insert(0, str(SCRIPT_DIR))
 
 from doestats import VERSION  # noqa: E402
+from doestats import association_screen as assoc_mod  # noqa: E402
 from doestats import correlation as corr_mod  # noqa: E402
+from doestats import design_build as design_build_mod  # noqa: E402
 from doestats import design_detect  # noqa: E402
+from doestats import design_next as design_next_mod  # noqa: E402
 from doestats import effects_anova  # noqa: E402
 from doestats import figures as figs_mod  # noqa: E402
 from doestats import rsm as rsm_mod  # noqa: E402
@@ -47,6 +50,10 @@ from doestats import stability as stab_mod  # noqa: E402
 from doestats import windows as wins_mod  # noqa: E402
 from doestats._stats_util import sha256_file  # noqa: E402
 from conclusion_template import build as build_conclusion  # noqa: E402
+import artifact_manifest  # noqa: E402
+import doe_ontology_prepare  # noqa: E402
+import ontology_consistency  # noqa: E402
+import optimization_guidance  # noqa: E402
 
 RESPONSE_HINTS = re.compile(
     r"(^(y|y\d|quality|target|result|yield|response)$)|"
@@ -61,6 +68,17 @@ TIME_HINTS = re.compile(
 TIME_PARSE_SAMPLE = 200
 TIME_PARSE_MIN_RATE = 0.8
 DATA_SUFFIXES = (".csv", ".xlsx", ".xls", ".parquet", ".feather", ".json", ".tsv")
+
+# P0-4: 00_input holds descriptors alongside the run table. None of these is data.
+AUX_INPUT_NAMES = {"doe_context.json", "analysis_context.json", "analysis_context.merged.json"}
+
+
+def is_aux_input_name(name):
+    low = name.lower()
+    return (name in AUX_INPUT_NAMES
+            or low.endswith("_manifest.json")
+            or low.startswith("readme")
+            or low.startswith("."))
 
 
 def now():
@@ -251,12 +269,22 @@ def _run_manifest(run_dir):
 
 
 def _find_data(run_dir, data_path):
+    """Resolve the run table (P0-4). An explicitly declared path always wins; without
+    one, scan 00_input skipping subdirectories (exclusions/) and aux files — a context
+    or manifest file must never be picked up as the data table (contracts §3)."""
     run_dir_v = _contained(run_dir)
     if data_path:
-        return _contained(data_path, run_dir_v)
+        p = _contained(data_path, run_dir_v)
+        if not p.is_file():
+            raise FileNotFoundError(f"declared data file not found: {p}")
+        return p
     in_dir = run_dir_v / "00_input"
     for p in sorted(in_dir.iterdir()):
-        if p.suffix.lower() in DATA_SUFFIXES and p.name != "analysis_context.json":
+        if not p.is_file():
+            continue
+        if is_aux_input_name(p.name):
+            continue
+        if p.suffix.lower() in DATA_SUFFIXES:
             return _contained(p, run_dir_v)
     raise FileNotFoundError(f"no data file under {in_dir}")
 
@@ -284,6 +312,10 @@ def cmd_profile(run_dir, data_path=None, context_path=None):
     else:
         ctx = _default_context(run_dir_v, data_file, df)
         _write_json(ctx_path, ctx)
+
+    # P1-5: hard Phase-0 gate. No-op unless analysis_context.ontology.mode != "off",
+    # which is what keeps every pre-ontology fixture (F1-F12) unchanged.
+    doe_ontology_prepare.enforce_gate(run_dir_v, ctx, subcommand="profile")
 
     factor_cols = [f["col"] for f in ctx.get("factors", []) if f["col"] in df.columns]
     response_cols = [r["col"] for r in ctx.get("responses", []) if r["col"] in df.columns]
@@ -415,6 +447,22 @@ def cmd_profile(run_dir, data_path=None, context_path=None):
 
 # ------------------------------------------------------------------ run
 
+def _load_brief(run_dir):
+    """ontology_brief.json when the ontology stage ran (mode != off), else None."""
+    p = Path(run_dir) / "01_ontology" / "ontology_brief.json"
+    if not p.is_file():
+        return None
+    try:
+        return json.loads(p.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+
+
+def _design_only_declared(ctx):
+    return (ctx.get("data_stage") == "design_only"
+            or ((ctx.get("ontology") or {}).get("data_stage") == "design_only"))
+
+
 def cmd_run(run_dir):
     run_dir_v = _contained(run_dir)
     ctx_path = run_dir_v / "00_input" / "analysis_context.json"
@@ -427,16 +475,73 @@ def cmd_run(run_dir):
     fig_dir = run_dir_v / "03_figures"
     fig_dir.mkdir(parents=True, exist_ok=True)
 
+    # P1-5 hard gate (no-op unless ontology.mode != "off"); the design-only guard
+    # only fires when statistics are actually requested.
+    doe_ontology_prepare.enforce_gate(run_dir_v, ctx, subcommand="run")
+    if _design_only_declared(ctx):
+        doe_ontology_prepare.enforce_gate(run_dir_v, ctx, subcommand="statistics")
+
+    brief = _load_brief(run_dir_v)
+    # The v1.1 window entry points stamp provenance from the context; these
+    # underscore keys are in-memory only and never written back to 00_input.
+    ctx["_input_sha256"] = sha
+    ctx["_script_version"] = VERSION
+
     if mode == "designed":
-        artifacts = _run_designed(run_dir_v, ctx, profile, df, fig_dir)
+        artifacts = _run_designed(run_dir_v, ctx, profile, df, fig_dir, brief=brief)
     else:
         artifacts = _run_observational(run_dir_v, ctx, profile, df, fig_dir)
 
-    recommendations = wins_mod.assemble(
-        mode, artifacts["windows"], artifacts["interactions"],
-        artifacts["confirmations"], artifacts["watchlist"], artifacts.get("setpoints", []),
-        ctx, df, profile, artifacts.get("stability"), sha, VERSION,
-        ctx.get("seed"))
+    # --- P3-1 association screen, written before recommendations so the ref can
+    # carry the real sha256 (G8 recomputes it from disk).
+    screen_payload = assoc_mod.screen(df, artifacts.get("factor_info"), ctx, profile,
+                                      profile["roles"]["responses"])
+    screen_path = run_dir_v / "02_analysis" / "association_screen.json"
+    _write_json(screen_path, screen_payload)
+    screen_ref = {
+        "path": "02_analysis/association_screen.json",
+        "sha256": sha256_file(screen_path),
+        "n_pairs": len(screen_payload.get("pairs") or []),
+        "causal_claim": screen_payload.get("causal_claim") or "none",
+    }
+
+    # --- v1.1 recommendations (P2-1..P2-9): marginal windows + joint setpoints
+    if mode == "designed":
+        recs_full = wins_mod.designed_windows_v11(
+            artifacts["models"], artifacts["effect_table"], profile, ctx, df,
+            brief=brief, seed=ctx.get("seed"))
+    else:
+        recs_full = wins_mod.observational_windows_v11(
+            artifacts["stability"], profile, ctx, df,
+            correlation=artifacts["correlation"], brief=brief, seed=ctx.get("seed"))
+    recommendations = wins_mod.recommendations_payload(recs_full)
+    recommendations["association_screen_ref"] = screen_ref
+
+    # --- P1-8 ontology consistency: advisory only; a failure never breaks a run.
+    if brief is not None and artifacts.get("effect_table") is not None:
+        try:
+            cons = ontology_consistency.check(artifacts["effect_table"], ctx, brief)
+            ontology_consistency.write_consistency(run_dir_v, cons)
+            ontology_consistency.write_feedback(run_dir_v, {
+                "ontology_version": brief.get("ontology_version"),
+                "ontology_sha256": brief.get("ontology_sha256"),
+            }, cons)
+        except (ValueError, KeyError, TypeError, OSError) as exc:
+            print(f"[ontology-consistency] skipped: {exc}", file=sys.stderr)
+
+    # --- P3-3 next design; its sha256 becomes the recommendations.next_design_ref
+    next_payload = design_next_mod.propose(
+        profile, artifacts.get("effect_table"), artifacts.get("models_json"),
+        recommendations, ctx, seed=ctx.get("seed"))
+    next_path = run_dir_v / "conclusions" / "next_design.json"
+    _write_json(next_path, next_payload)
+    recommendations["next_design_ref"] = {
+        "path": "conclusions/next_design.json",
+        "sha256": sha256_file(next_path),
+        "recommended_action": next_payload.get("recommended_action"),
+        "primary_action_id": next_payload.get("primary_action_id"),
+    }
+
     _write_json(run_dir_v / "conclusions" / "recommendations.json", recommendations)
 
     plot_manifest = {"generated_at": now(), "mode": mode,
@@ -456,11 +561,26 @@ def cmd_run(run_dir):
                                   models=artifacts.get("models_json"))
     _write_json(run_dir_v / "conclusions" / "doe_conclusion.json", conclusion)
 
+    # --- P3-5 platform handoff, built from the finalized artifacts on disk.
+    try:
+        guidance = optimization_guidance.build(run_dir_v)
+        _write_json(run_dir_v / "conclusions" / "optimization_guidance.json", guidance)
+    except (ValueError, KeyError, TypeError, OSError) as exc:
+        print(f"[guidance] skipped: {exc}", file=sys.stderr)
+
+    # --- AR-01: the manifest is the single source the tasks/external APIs read.
+    manifest = artifact_manifest.write_manifest(
+        run_dir_v, analysis_intent=ctx.get("analysis_intent"))
+    manifest_payload = _read_json(manifest)
+
     print(f"[run] mode={mode} windows={len(recommendations['operating_windows'])} "
+          f"joint_setpoints={len(recommendations.get('joint_setpoints') or [])} "
           f"confirmations={len(recommendations['confirmations'])} "
           f"plots={len(artifacts['plots'])}")
     print(f"[contract] v{recommendations['contract_version']} | "
           f"grade={conclusion['evidence_grade']} | authored_by=script")
+    print(f"[manifest] artifacts={len(manifest_payload['artifacts'])} "
+          f"missing={len(manifest_payload['missing'])}")
     print("[downstream-usage-card] " + json.dumps(
         conclusion["downstream_usage_card"], ensure_ascii=False))
     return 0
@@ -495,16 +615,22 @@ def _apply_alias_downgrade(fam, design):
             fam["tests"][i]["q_value_bh"] = q
 
 
-def _run_designed(run_dir, ctx, profile, df, fig_dir):
+def _run_designed(run_dir, ctx, profile, df, fig_dir, brief=None):
     design = profile["design"]
     factor_types = {f["col"]: f.get("type") for f in ctx.get("factors", [])}
-    columns_spec = [{"col": f["col"], "type": factor_types.get(f["col"])}
+    columns_spec = [{"col": f["col"], "type": factor_types.get(f["col"]),
+                     "unit": f.get("unit")}
                     for f in ctx.get("factors", []) if f["col"] in df.columns]
     for b in profile["roles"]["blocks"]:
         columns_spec.append({"col": b, "type": None, "is_block": True})
     for c in profile["roles"]["covariates"]:
         columns_spec.append({"col": c, "type": "numeric", "is_covariate": True})
-    factor_info = effects_anova.build_factor_info(df, columns_spec)
+    declared_factor_cols = [f["col"] for f in ctx.get("factors", []) if f["col"] in df.columns]
+    units_block = effects_anova.build_units_block(
+        ctx, brief, declared_factor_cols, profile["roles"]["responses"])
+    unit_fallback = {c: (u or {}).get("canonical")
+                     for c, u in (units_block.get("factors") or {}).items()}
+    factor_info = effects_anova.build_factor_info(df, columns_spec, units=unit_fallback)
     base_specs = effects_anova.base_column_specs(factor_info)
     base_df = effects_anova.code_base_columns(df, base_specs)
 
@@ -611,6 +737,7 @@ def _run_designed(run_dir, ctx, profile, df, fig_dir):
                 1 for f in families for t in f["tests"] if not t.get("estimable")),
         },
     }
+    effect_table.update(effects_anova.table_v11_metadata(units_block))
     _write_json(run_dir / "02_analysis" / "effect_table.json", effect_table)
 
     from scipy import stats as sps
@@ -642,13 +769,10 @@ def _run_designed(run_dir, ctx, profile, df, fig_dir):
         })
     _write_json(run_dir / "02_analysis" / "model.json", model_out)
 
-    windows, interactions, confirmations, watchlist, setpoints = \
-        wins_mod.designed_windows(models, effect_table, profile, ctx, df)
     plots = figs_mod.designed_figures(models, effect_table, profile, fig_dir, df)
     return {"effect_table": effect_table, "models": models, "models_json": model_out,
-            "windows": windows, "interactions": interactions,
-            "confirmations": confirmations, "watchlist": watchlist,
-            "setpoints": setpoints, "plots": plots, "stability": None}
+            "factor_info": factor_info, "units": units_block,
+            "plots": plots, "stability": None}
 
 
 def _run_observational(run_dir, ctx, profile, df, fig_dir):
@@ -656,14 +780,9 @@ def _run_observational(run_dir, ctx, profile, df, fig_dir):
     _write_json(run_dir / "02_analysis" / "correlation_report.json", correlation)
     stability = stab_mod.analyze_stability(df, run_dir, ctx, IDP_SCRIPTS)
     _write_json(run_dir / "02_analysis" / "stability_report.json", stability)
-    windows, interactions, confirmations, watchlist, setpoints = \
-        wins_mod.observational_windows(stability, profile, ctx, df,
-                                       correlation=correlation)
     plots = figs_mod.observational_figures(correlation, stability, df, fig_dir)
     return {"correlation": correlation, "stability": stability,
-            "windows": windows, "interactions": interactions,
-            "confirmations": confirmations, "watchlist": watchlist,
-            "setpoints": setpoints, "plots": plots}
+            "plots": plots}
 
 
 # ------------------------------------------------------------------ report
@@ -677,25 +796,67 @@ def cmd_report(run_dir):
     return 0
 
 
+def cmd_build(run_dir, spec_path):
+    """P3-2: generate an initial design from a spec file (DS-12).
+
+    Writes 01_profile/design_build.json plus 01_profile/design_table.csv. It never
+    touches 00_input/, so a generated design can never be mistaken for measured
+    data by the discovery scan.
+    """
+    from doestats import design_build as db_mod
+    run_dir_v = _contained(run_dir)
+    spec = _read_json(_contained(spec_path))
+    seed = spec.get("seed")
+    payload = db_mod.build_design(spec, seed=seed)
+    _write_json(run_dir_v / "01_profile" / "design_build.json", payload)
+    rows = payload.get("run_table") or []
+    if rows:
+        cols = list(rows[0].keys())
+        lines = [",".join(cols)]
+        for r in rows:
+            lines.append(",".join("" if r.get(c) is None else str(r.get(c)) for c in cols))
+        (run_dir_v / "01_profile").mkdir(parents=True, exist_ok=True)
+        (run_dir_v / "01_profile" / "design_table.csv").write_text(
+            "\n".join(lines) + "\n", encoding="utf-8")
+    rt = (payload.get("properties") or {}).get("roundtrip") or {}
+    print(f"[build] design={payload.get('design_type')} runs={len(rows)} "
+          f"detected={rt.get('detected_type') or rt.get('detected')} "
+          f"seed={payload.get('seed')}")
+    return 0
+
+
 def _r(v):
     return round(float(v), 6) if v is not None else None
 
 
 def main():
     ap = argparse.ArgumentParser(description="industrial-doe-analyzer deterministic core")
-    ap.add_argument("subcommand", choices=["profile", "run", "report", "all"])
+    ap.add_argument("subcommand", choices=["profile", "run", "report", "all", "build", "manifest"])
     ap.add_argument("--run-dir", required=True)
     ap.add_argument("--data", default=None)
     ap.add_argument("--context", default=None)
+    ap.add_argument("--spec", default=None, help="design_build spec JSON (subcommand=build)")
     args = ap.parse_args()
     run_dir = Path(args.run_dir).resolve()
     try:
+        if args.subcommand == "build":
+            if not args.spec:
+                print("ERROR: build requires --spec <spec.json>", file=sys.stderr)
+                sys.exit(2)
+            cmd_build(run_dir, args.spec)
+            sys.exit(0)
+        if args.subcommand == "manifest":
+            artifact_manifest.write_manifest(run_dir)
+            sys.exit(0)
         if args.subcommand in ("profile", "all"):
             cmd_profile(run_dir, args.data, args.context)
         if args.subcommand in ("run", "all"):
             cmd_run(run_dir)
         if args.subcommand in ("report", "all"):
             cmd_report(run_dir)
+            # The report is an artifact too: refresh the manifest after it exists
+            # so report.html is registered with its sha256 (AR-01).
+            artifact_manifest.write_manifest(run_dir)
         sys.exit(0)
     except SystemExit:
         raise

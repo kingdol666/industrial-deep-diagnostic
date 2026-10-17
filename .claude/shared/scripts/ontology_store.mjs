@@ -18,10 +18,33 @@ import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 export const PROJECT_ROOT = resolve(__dirname, '..', '..', '..');
-export const STORE_DIR = join(PROJECT_ROOT, 'data', 'ontology_store');
+// Ontology-first Phase 1 (DOE): the store root is overridable via
+// ONTOLOGY_STORE_DIR so `doe_ontology_prepare.py --store-dir <dir>` (and tests)
+// can run against an isolated store without touching the project default.
+// Unset → byte-identical legacy behaviour.
+export const STORE_DIR = process.env.ONTOLOGY_STORE_DIR
+  ? resolve(process.env.ONTOLOGY_STORE_DIR)
+  : join(PROJECT_ROOT, 'data', 'ontology_store');
 export const INDEX_PATH = join(STORE_DIR, 'index.json');
 export const STORE_INDEX_VERSION = 1;
 const MAX_VERSIONS_PER_SCENE = 10;
+
+// Ontology profiles (P1-2): `diagnosis` is the legacy diagnosis pipeline
+// profile; `doe` is the designed-experiment profile. Legacy index entries
+// without a `profile` field are read as `diagnosis` — never re-written.
+export const DEFAULT_PROFILE = 'diagnosis';
+export const KNOWN_PROFILES = ['diagnosis', 'doe'];
+
+/** Read an index entry's profile (legacy entries default to diagnosis). */
+export function entryProfile(entry) {
+  const p = entry && typeof entry.profile === 'string' ? entry.profile.trim() : '';
+  return p || DEFAULT_PROFILE;
+}
+
+function normalizeProfile(profile) {
+  const p = typeof profile === 'string' ? profile.trim() : '';
+  return p || DEFAULT_PROFILE;
+}
 
 // CP-2 判据所用的唯一 schema（skill 协议 / 快路径 / 管理 API 三者必须同源）
 export const ONTOLOGY_SCHEMA_PATH = join(
@@ -146,6 +169,82 @@ function fingerprintFile(abs) {
   return { schema_fp, content_fp, columns, row_sampled: sample.length, file_size: size };
 }
 
+// ────────────────────────── DOE context 指纹 ──────────────────────────
+
+/**
+ * `context_fp` (P1-2 / contracts §9) — the semantic identity of a DOE analysis
+ * context: sorted factor columns + declared ranges + units + response columns
+ * + specs (lsl/usl/target/goal) + design type.
+ *
+ * Determinism contract: no dict-iteration-order dependence (every line set is
+ * sorted), no wall clock, and the canonical number formatter below is mirrored
+ * 1:1 by `canonical_number_token()` / `_context_fp()` in doe_ontology_prepare.py
+ * so the Python and JS sides produce the SAME fingerprint for the same context.
+ * A cross-language equality test pins this (tests/test_ontology_phase1.py).
+ */
+export const CONTEXT_FP_VERSION = 'doe-context-v1';
+const CONTEXT_FP_ABS_CUTOFF = 1e15; // beyond this, toFixed()/f-string diverge
+
+/** Canonical decimal token for ranges/specs ('' for absent, never 'null'). */
+export function canonicalNumberToken(value) {
+  if (value === null || value === undefined || value === '') return '';
+  if (typeof value === 'boolean') return String(value);
+  const n = Number(value);
+  if (!Number.isFinite(n)) return String(value);
+  if (Math.abs(n) >= CONTEXT_FP_ABS_CUTOFF) return String(n);
+  let s = n.toFixed(9);
+  if (s.indexOf('.') >= 0) s = s.replace(/0+$/, '').replace(/\.$/, '');
+  if (s === '' || s === '-0') s = '0';
+  return s;
+}
+
+function levelsToken(levels) {
+  if (levels === null || levels === undefined || levels === '') return '';
+  if (Array.isArray(levels)) return levels.map((v) => String(v)).join(',');
+  return String(levels);
+}
+
+/**
+ * Compute the stable DOE context fingerprint.
+ * @param {object} ctx analysis_context-shaped object (factors/responses/design type)
+ * @returns {string} `sha256:<hex>`
+ */
+export function computeContextFingerprint(ctx) {
+  const factors = Array.isArray(ctx?.factors) ? ctx.factors : [];
+  const responses = Array.isArray(ctx?.responses) ? ctx.responses : [];
+  const factorLines = factors
+    .map((f) => [
+      'F',
+      f?.col ?? f?.name ?? '',
+      f?.type ?? '',
+      f?.unit ?? '',
+      canonicalNumberToken(f?.min),
+      canonicalNumberToken(f?.max),
+      levelsToken(f?.levels),
+    ].join('|'))
+    .sort();
+  const responseLines = responses
+    .map((r) => [
+      'R',
+      r?.col ?? r?.name ?? '',
+      r?.unit ?? '',
+      r?.goal ?? '',
+      canonicalNumberToken(r?.lsl),
+      canonicalNumberToken(r?.usl),
+      canonicalNumberToken(r?.target),
+    ].join('|'))
+    .sort();
+  const designType = ctx?.design_type_declared ?? ctx?.design_type
+    ?? ctx?.design_region?.design_hull ?? '';
+  const payload = [
+    `v=${CONTEXT_FP_VERSION}`,
+    `D|${designType === null || designType === undefined ? '' : String(designType)}`,
+    ...factorLines,
+    ...responseLines,
+  ].join('\n');
+  return 'sha256:' + createHash('sha256').update(payload, 'utf-8').digest('hex');
+}
+
 // ────────────────────────── 注册表 ──────────────────────────
 
 export function readIndex() {
@@ -172,14 +271,84 @@ export function listStore() {
 
 /**
  * 查找可复用本体。
+ *
+ * P1-2 additions (all additive — the legacy diagnosis call keeps its exact
+ * behaviour when no `profile`/`contextFp` is passed):
+ *   - `profile` (default null → `diagnosis`): entries are matched only inside
+ *     the same profile — a diagnosis lookup can never return a DOE asset and
+ *     vice versa (OD-08).
+ *   - `scene` + `profile` + `contextFp`: semantic DOE lookup. `profile+scene+
+ *     context_fp` equal → `exact`; same scene with a different `context_fp` →
+ *     `extend` (the scene_only path); otherwise `miss`. The data-schema
+ *     fingerprint is not required in that mode, so a design-only run (no run
+ *     table yet) can still hit.
  * @returns {{match:'exact'|'extend'|'miss', scene_key?, version?, ontology_path?, provenance_path?, reason?}}
  */
-export function findMatch(dataPath, { scene } = {}) {
-  const fp = computeFingerprint(dataPath);
+export function findMatch(dataPath, { scene, profile = null, contextFp = null } = {}) {
+  const wantProfile = normalizeProfile(profile);
+  const wantContextFp = typeof contextFp === 'string' && contextFp.trim() !== '' ? contextFp : null;
+  // Semantic (DOE) mode: profile-scoped lookup by context fingerprint, with no
+  // dependence on a data file existing yet.
+  const semantic = wantProfile !== DEFAULT_PROFILE && wantContextFp !== null;
+  const hasDataPath = typeof dataPath === 'string' && dataPath.trim() !== '';
+  if (!hasDataPath && !semantic) {
+    throw new Error('findMatch requires either a dataPath or profile+contextFp');
+  }
+  const fp = hasDataPath ? computeFingerprint(dataPath) : null;
   const idx = readIndex();
-  const candidates = idx.entries
-    .filter(e => e.schema_fp === fp.schema_fp && e.quality !== 'deprecated')
-    .filter(e => !scene || e.scene_key === scene)
+  const scoped = idx.entries
+    .filter((e) => e.quality !== 'deprecated')
+    .filter((e) => entryProfile(e) === wantProfile);
+  const sceneScoped = scene ? scoped.filter((e) => e.scene_key === scene) : scoped;
+
+  if (semantic) {
+    const candidates = sceneScoped
+      .filter((e) => (e.context_fp || null) === wantContextFp)
+      .sort((a, b) => b.version - a.version);
+    if (candidates.length > 0) {
+      const best = candidates[0];
+      return {
+        match: 'exact',
+        profile: wantProfile,
+        scene_key: best.scene_key,
+        version: best.version,
+        context_fp: wantContextFp,
+        ontology_path: join(STORE_DIR, best.path),
+        provenance_path: join(STORE_DIR, dirname(best.path), 'provenance.json'),
+        quality: best.quality,
+        reuse_count: best.reuse_count || 0,
+        content_match: fp ? best.content_fp === fp.content_fp : true,
+        schema_fp: fp?.schema_fp ?? null,
+        reason: 'profile+scene+context_fp match',
+      };
+    }
+    if (sceneScoped.length > 0) {
+      const best = sceneScoped.sort((a, b) => b.version - a.version)[0];
+      return {
+        match: 'extend',
+        profile: wantProfile,
+        scene_key: best.scene_key,
+        version: best.version,
+        context_fp: wantContextFp,
+        stored_context_fp: best.context_fp || null,
+        ontology_path: join(STORE_DIR, best.path),
+        provenance_path: join(STORE_DIR, dirname(best.path), 'provenance.json'),
+        schema_fp: fp?.schema_fp ?? null,
+        reason: 'scene exists but context_fp differs — extend the stored ontology '
+          + '(new columns / ranges / units / specs); exact reuse is not allowed',
+      };
+    }
+    return {
+      match: 'miss',
+      profile: wantProfile,
+      context_fp: wantContextFp,
+      schema_fp: fp?.schema_fp ?? null,
+      reason: 'no compatible ontology in store',
+    };
+  }
+
+  const candidates = sceneScoped
+    .filter((e) => e.schema_fp === fp.schema_fp)
     .sort((a, b) => b.version - a.version);
   if (candidates.length > 0) {
     const best = candidates[0];
@@ -199,9 +368,9 @@ export function findMatch(dataPath, { scene } = {}) {
   }
   // schema 未命中 → 若同 scene 存在近似 schema（列集合有交集），建议 extend
   if (scene) {
-    const sceneEntries = idx.entries.filter(e => e.scene_key === scene && e.quality !== 'deprecated');
+    const sceneEntries = sceneScoped;
     if (sceneEntries.length > 0) {
-      const best = sceneEntries.sort((a, b) => b.version - a.version)[0];
+      const best = sceneEntries.slice().sort((a, b) => b.version - a.version)[0];
       return {
         match: 'extend',
         scene_key: best.scene_key,
@@ -216,6 +385,9 @@ export function findMatch(dataPath, { scene } = {}) {
   return { match: 'miss', schema_fp: fp.schema_fp, reason: 'no compatible ontology in store' };
 }
 
+// Version namespace = scene (NOT scene+profile): `scene/vN` paths must stay
+// globally unique per scene or a diagnosis publish could overwrite a DOE
+// version's directory. Profile only discriminates dedupe + lookups.
 function nextVersion(idx, sceneKey) {
   const max = idx.entries
     .filter(e => e.scene_key === sceneKey)
@@ -228,8 +400,8 @@ function pruneVersions(idx, sceneKey) {
   const entries = idx.entries
     .filter(e => e.scene_key === sceneKey)
     .sort((a, b) => b.version - a.version);
-  const live = entries.filter(e => keep.has(e.quality));
-  const removable = entries.filter(e => !keep.has(e.quality)).slice(MAX_VERSIONS_PER_SCENE);
+  const live = entries.filter((e) => keep.has(e.quality));
+  const removable = entries.filter((e) => !keep.has(e.quality)).slice(MAX_VERSIONS_PER_SCENE);
   for (const e of removable) {
     try {
       const dir = join(STORE_DIR, e.scene_key, `v${e.version}`);
@@ -328,6 +500,11 @@ function contentHashOf(content) {
  * dedup：同 scene 下内容哈希完全一致 → 复用既有版本并返回 `deduped: true`
  * （在线编辑器保存未改动的草稿时不会产生噪声版本）。
  *
+ * P1-2 additions (additive): `profile` / `contextFp` / `dataStage` land on the
+ * index entry; dedupe is scoped to the same profile (a DOE ontology can never
+ * collapse onto a diagnosis entry), and a deduped legacy entry backfills the
+ * new fields so it stays findable by the semantic lookup.
+ *
  * @returns {{scene_key, version, path, deduped?, summary}}
  */
 export function addVersion({
@@ -345,11 +522,16 @@ export function addVersion({
   dataFile = null,
   runDir = null,
   updatedAt = null,
+  profile = DEFAULT_PROFILE,
+  contextFp = null,
+  dataStage = null,
 }) {
   const key = String(sceneKey || '').trim();
   if (!key || !/^[A-Za-z0-9._-]+$/.test(key)) {
     throw new Error(`invalid scene_key: ${JSON.stringify(sceneKey)} (allowed: A-Za-z0-9._-)`);
   }
+  const wantProfile = normalizeProfile(profile);
+  const wantContextFp = typeof contextFp === 'string' && contextFp.trim() !== '' ? contextFp.trim() : null;
   const { content, parsed } = normalizeOntologyInput(ontology);
   if (Buffer.byteLength(content, 'utf-8') < ONTOLOGY_MIN_BYTES) {
     throw new Error(`ontology too small (${Buffer.byteLength(content, 'utf-8')}B < ${ONTOLOGY_MIN_BYTES}B CP-2 floor)`);
@@ -359,6 +541,7 @@ export function addVersion({
   const hash = contentHashOf(content);
   const deduped = idx.entries.find((e) => {
     if (e.scene_key !== key) return false;
+    if (entryProfile(e) !== wantProfile) return false;
     try {
       const p = join(STORE_DIR, e.path);
       return existsSync(p) && contentHashOf(readFileSync(p, 'utf-8')) === hash;
@@ -368,6 +551,7 @@ export function addVersion({
     // 指纹回填：旧条目可能在 dataFile 缺失时代入库（schema_fp=null），dedupe
     // 复用版本时若本次带 dataFile 则就地补算——否则该条目永远无法被
     // fast-reuse 命中（2026-10-13 fieldtest 实测）。
+    let backfilled = false;
     if (!deduped.schema_fp && dataFile) {
       try {
         const fp = computeFingerprint(dataFile);
@@ -375,12 +559,22 @@ export function addVersion({
         deduped.content_fp = fp.content_fp;
         deduped.fingerprinted_from = resolve(dataFile);
         deduped.fingerprinted_at = new Date().toISOString();
-        writeIndex(idx);
+        backfilled = true;
       } catch { /* 指纹算不出就保持 null：publish 照常去重，reuse 继续 miss */ }
     }
+    // P1-2 同样的回填契约：缺失 profile/context_fp 的旧条目按诊断缺省读取，
+    // 一旦本次携带 DOE 语义指纹就补写 —— 否则该场景永远无法被 exact 命中。
+    if (wantProfile !== DEFAULT_PROFILE && wantContextFp && (deduped.context_fp || null) !== wantContextFp) {
+      if (!deduped.profile) { deduped.profile = wantProfile; backfilled = true; }
+      if (!deduped.context_fp) { deduped.context_fp = wantContextFp; backfilled = true; }
+      if (dataStage && !deduped.data_stage) { deduped.data_stage = dataStage; backfilled = true; }
+      deduped.scene_key = deduped.scene_key || key;
+    }
+    if (backfilled) writeIndex(idx);
     return {
       scene_key: key, version: deduped.version, path: join(STORE_DIR, deduped.path),
       deduped: true, schema_fp: deduped.schema_fp || null,
+      profile: entryProfile(deduped), context_fp: deduped.context_fp || null,
       summary: deduped.summary || summarizeOntology(parsed),
     };
   }
@@ -402,6 +596,9 @@ export function addVersion({
   const now = updatedAt || new Date().toISOString();
   const entry = {
     scene_key: key,
+    profile: wantProfile,
+    context_fp: wantContextFp,
+    data_stage: dataStage || null,
     version,
     schema_fp: inheritFrom?.schema_fp ?? null,
     content_fp: inheritFrom?.content_fp ?? null,
@@ -434,6 +631,9 @@ export function addVersion({
 
   writeFileSync(join(absDir, 'provenance.json'), JSON.stringify({
     scene_key: key,
+    profile: wantProfile,
+    context_fp: wantContextFp,
+    data_stage: dataStage || null,
     version,
     parent_version: parentVersion,
     origin,
@@ -450,16 +650,24 @@ export function addVersion({
   idx.entries.push(entry);
   pruneVersions(idx, key);
   writeIndex(idx);
-  return { scene_key: key, version, path: absOntologyPath, summary: entry.summary };
+  return {
+    scene_key: key, version, path: absOntologyPath, summary: entry.summary,
+    profile: wantProfile, context_fp: wantContextFp,
+  };
 }
 
 /**
  * 将 run 目录中通过 CP-2 的 ontology.json 发布入 store。
  * 委托 addVersion（唯一写入口）；指纹候选链：显式 dataFile > run_config.data_path
  * > input_manifest > 00_input 目录首个 csv/tsv。
+ * P1-2: `profile`/`contextFp`/`dataStage` are forwarded to addVersion so a DOE
+ * publish lands on the same index entry shape the semantic lookup reads.
  * @returns {{scene_key, version, path, schema_fp}}
  */
-export function publish({ runDir, scene, buildMode = 'full', quality = 'unvalidated', dataFile }) {
+export function publish({
+  runDir, scene, buildMode = 'full', quality = 'unvalidated', dataFile,
+  profile = DEFAULT_PROFILE, contextFp = null, dataStage = null,
+}) {
   const absRunDir = resolve(runDir);
   const ontologyPath = join(absRunDir, '01_ontology', 'ontology.json');
   if (!existsSync(ontologyPath)) throw new Error(`ontology.json not found under ${absRunDir}`);
@@ -539,12 +747,17 @@ export function publish({ runDir, scene, buildMode = 'full', quality = 'unvalida
     // schema_fp=null、fast-reuse 永不命中（2026-10-13 fieldtest 实测）。
     dataFile: fps[0]?.fingerprinted_from || dataFile || null,
     runDir: absRunDir,
+    profile,
+    contextFp,
+    dataStage,
   });
   return {
     scene_key: result.scene_key,
     version: result.version,
     path: result.path,
     schema_fp: fps[0]?.schema_fp ?? null,
+    profile: result.profile,
+    context_fp: result.context_fp ?? null,
     ...(result.deduped ? { deduped: true } : {}),
   };
 }
@@ -757,12 +970,21 @@ export function validateOntology(payload, { schemaPath = ONTOLOGY_SCHEMA_PATH } 
 /**
  * 复用推荐：给定数据路径/场景，返回 find 结果 + 该场景全部候选版本（供前端"选择复用版本"）。
  * 无数据路径时退化为「按场景列出全部资产」。
+ *
+ * P1-2: accepts `profile`/`contextFp`. When a lookup is actually possible
+ * (dataPath given, or profile+scene+contextFp given) the result carries
+ * `status` ∈ `exact` | `scene_only` | `miss` mapped from findMatch
+ * (exact→exact, extend→scene_only, miss→miss); a pure listing returns
+ * `status: null`. `candidates` stays unfiltered unless `profile` is given, so
+ * the existing ontology management page keeps listing every scene.
  */
-export function recommendReuse({ dataPath, scene } = {}) {
+export function recommendReuse({ dataPath, scene, profile = null, contextFp = null } = {}) {
+  const wantProfile = profile ? normalizeProfile(profile) : null;
   const idx = readIndex();
   const byScene = new Map();
   for (const e of idx.entries) {
     if (scene && e.scene_key !== scene) continue;
+    if (wantProfile && entryProfile(e) !== wantProfile) continue;
     if (!byScene.has(e.scene_key)) byScene.set(e.scene_key, []);
     byScene.get(e.scene_key).push(e);
   }
@@ -771,6 +993,9 @@ export function recommendReuse({ dataPath, scene } = {}) {
     const latest = entries[0];
     return {
       scene_key,
+      profile: entryProfile(latest),
+      context_fp: latest.context_fp || null,
+      data_stage: latest.data_stage || null,
       latest_version: latest.version,
       versions: entries.length,
       quality: latest.quality,
@@ -783,14 +1008,24 @@ export function recommendReuse({ dataPath, scene } = {}) {
     };
   }).sort((a, b) => (b.updated_at || '').localeCompare(a.updated_at || ''));
 
-  if (!dataPath) {
-    return { mode: 'list', match: null, candidates, fingerprint: null, recommended_scene: candidates[0]?.scene_key || null };
+  const hasSemanticLookup = !!scene && !!wantProfile && typeof contextFp === 'string' && contextFp.trim() !== '';
+  if (!dataPath && !hasSemanticLookup) {
+    return {
+      mode: 'list', status: null, match: null, candidates, fingerprint: null,
+      recommended_scene: candidates[0]?.scene_key || null,
+    };
   }
-  const found = findMatch(dataPath, { scene: scene || undefined });
+  const found = findMatch(dataPath === undefined ? null : dataPath, {
+    scene: scene || undefined,
+    profile: wantProfile || undefined,
+    contextFp: contextFp || undefined,
+  });
+  const status = found.match === 'exact' ? 'exact' : (found.match === 'extend' ? 'scene_only' : 'miss');
   return {
     mode: 'fingerprint',
+    status,
     match: found,
-    fingerprint: { schema_fp: found.schema_fp, key_columns: null },
+    fingerprint: { schema_fp: found.schema_fp ?? null, key_columns: null },
     candidates,
     recommended_scene: found.scene_key || null,
   };
@@ -897,8 +1132,41 @@ function cli() {
         break;
       }
       case 'find': {
-        const result = findMatch(args[0], { scene: arg('scene') });
+        // Semantic (DOE) lookups carry no data file at all → accept --data and
+        // tolerate the data path appearing after flags.
+        const valueFlags = new Set(['scene', 'profile', 'context-fp', 'data']);
+        const positional = [];
+        for (let i = 0; i < args.length; i++) {
+          const token = args[i];
+          if (token.startsWith('--')) {
+            if (!token.includes('=') && valueFlags.has(token.slice(2))) i++;
+            continue;
+          }
+          positional.push(token);
+        }
+        const findTarget = positional[0] ?? arg('data') ?? null;
+        const result = findMatch(findTarget, {
+          scene: arg('scene'),
+          profile: arg('profile'),
+          contextFp: arg('context-fp'),
+        });
         console.log(JSON.stringify(result, null, 2));
+        break;
+      }
+      case 'context-fp': {
+        // Semantic DOE fingerprint of an analysis_context-shaped JSON file
+        // (mirrored 1:1 by doe_ontology_prepare._context_fp). Options:
+        //   --context <analysis_context.json> | --context-json '<json>'
+        const ctxPath = arg('context');
+        const ctxJson = arg('context-json');
+        let ctx;
+        if (ctxPath) ctx = JSON.parse(readFileSync(resolve(ctxPath), 'utf-8'));
+        else if (ctxJson) ctx = JSON.parse(ctxJson);
+        else throw new Error('context-fp requires --context <file> or --context-json <json>');
+        console.log(JSON.stringify({
+          context_fp: computeContextFingerprint(ctx),
+          version: CONTEXT_FP_VERSION,
+        }, null, 2));
         break;
       }
       case 'publish': {
@@ -910,6 +1178,9 @@ function cli() {
           // CLI 侧此前丢弃 dataFile —— publish() 支持但永远收不到，导致
           // run_config.data_path 也未填时 schema_fp 恒为 null，fast-reuse 永不命中。
           dataFile: arg('data-file'),
+          profile: arg('profile'),
+          contextFp: arg('context-fp'),
+          dataStage: arg('data-stage'),
         });
         console.log(JSON.stringify(result, null, 2));
         break;
@@ -969,7 +1240,12 @@ function cli() {
         break;
       }
       case 'recommend': {
-        console.log(JSON.stringify(recommendReuse({ dataPath: arg('data'), scene: arg('scene') }), null, 2));
+        console.log(JSON.stringify(recommendReuse({
+          dataPath: arg('data'),
+          scene: arg('scene'),
+          profile: arg('profile'),
+          contextFp: arg('context-fp'),
+        }), null, 2));
         break;
       }
       case 'remove': {
@@ -998,8 +1274,9 @@ function cli() {
         console.error('Usage: ontology_store.mjs <cmd> [args]');
         console.error('  -- 管线协议 --');
         console.error('  fingerprint <data.csv>');
-        console.error('  find <data.csv> [--scene <key>]');
-        console.error('  publish --run-dir <RUN_DIR> [--scene <key>] [--build-mode full|extend] [--quality unvalidated|endorsed]');
+        console.error('  find <data.csv> [--scene <key>] [--profile diagnosis|doe] [--context-fp <sha256:…>]');
+        console.error('  context-fp --context <analysis_context.json>    DOE 语义指纹（与 doe_ontology_prepare 同源）');
+        console.error('  publish --run-dir <RUN_DIR> [--scene <key>] [--build-mode full|extend|reuse|prior_knowledge] [--quality unvalidated|endorsed] [--profile diagnosis|doe] [--context-fp <sha256:…>] [--data-stage design_only|collected]');
         console.error('  reuse --source <ontology.json> --run-dir <RUN_DIR>');
         console.error('  fast-reuse --data <data.csv> --run-dir <RUN_DIR> [--scene <key>] [--schema <schema.json>]');
         console.error('  -- 资产管理（前端本体管理页同源） --');
@@ -1007,7 +1284,7 @@ function cli() {
         console.error('  show <scene> --version <N>                            读取单个资产');
         console.error('  save --scene <key> --file <edited.json> [--base-version N] [--title T] [--tags a,b] [--notes S]');
         console.error('  validate <path> | --file <path> [--schema <schema.json>]');
-        console.error('  recommend [--data <data.csv>] [--scene <key>]');
+        console.error('  recommend [--data <data.csv>] [--scene <key>] [--profile diagnosis|doe] [--context-fp <sha256:…>]');
         console.error('  remove <scene> [--version <N>]                        删版本或整场景');
         console.error('  deprecate <scene_key> --version <N>');
         console.error('  stats');

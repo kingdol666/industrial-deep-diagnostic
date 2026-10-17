@@ -73,6 +73,34 @@ def effective_n(n, rho):
     return max(2, int(n * (1.0 - rho) / (1.0 + rho)))
 
 
+def normal_tolerance_factor(n, nu, p=0.95, alpha=0.05):
+    """Two-sided normal tolerance factor k (ISO 16269-6 / Howe approximation).
+
+    k = sqrt( nu * (1 + 1/n) * z^2_{(1+p)/2} / chi2_{nu, alpha} )
+
+    where z_{(1+p)/2} is the standard-normal (1+p)/2 quantile and `chi2_{nu, alpha}`
+    is the LOWER alpha quantile of chi-square with nu df — i.e. the value that
+    chi-square exceeds with probability (1 - alpha), the "1 - alpha confidence"
+    side of the ISO 16269-6 notation.  (Reading it as the UPPER quantile
+    chi2.ppf(1-alpha, nu) yields k < z for every finite nu, which is impossible:
+    a tolerance interval must be wider than a pure quantile interval.)
+
+    The factor is applied to s = sqrt(MSE), n = model n, nu = df_resid:
+    a 95%/95% tolerance interval covers 95% of the population with 95%
+    confidence.  Validation against published 95/95 two-sided normal factors:
+    n=10 -> 3.382 (table 3.379), n=20 -> 2.758 (table 2.737), n=25 -> 2.631
+    (table 2.605); k -> z_{0.975} = 1.960 as nu -> inf.  Returns None when the
+    inputs cannot support the factor (n < 2 or nu < 1).
+    """
+    if n is None or nu is None or n < 2 or nu < 1:
+        return None
+    z = float(sps.norm.ppf((1.0 + p) / 2.0))
+    chi2_lo = float(sps.chi2.ppf(alpha, nu))
+    if not np.isfinite(chi2_lo) or chi2_lo <= 0:
+        return None
+    return float(math.sqrt(nu * (1.0 + 1.0 / n) * z * z / chi2_lo))
+
+
 def ols_fit(X, y):
     """OLS via lstsq. Returns (beta, rank, rss, xtx_inv or None).
 

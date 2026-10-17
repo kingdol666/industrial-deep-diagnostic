@@ -1,0 +1,57 @@
+{
+  "n_replications": 1000,
+  "seed": 20261017,
+  "design": "2^4 full factorial, single replicate (16 runs)",
+  "noise_sigma": 0.5,
+  "mde_coded": 0.872531,
+  "two_mde_threshold": 1.745062,
+  "planted_effects": {
+    "A": 2.6,
+    "B": -2.2,
+    "C": 0.0,
+    "D": 0.0,
+    "A:B": 1.8,
+    "A:C": 0.0,
+    "A:D": 0.0,
+    "B:C": 0.0,
+    "B:D": -1.6,
+    "C:D": 0.0
+  },
+  "active_effects": [
+    "A",
+    "B",
+    "A:B"
+  ],
+  "null_effects": [
+    "C",
+    "D",
+    "A:C",
+    "A:D",
+    "B:C",
+    "C:D"
+  ],
+  "sign_recovery": {
+    "A": 1.0,
+    "B": 1.0,
+    "A:B": 1.0
+  },
+  "power": {
+    "A": 1.0,
+    "B": 1.0,
+    "A:B": 1.0
+  },
+  "min_sign_recovery": 1.0,
+  "min_power": 1.0,
+  "fwer_bh_q05": 0.102,
+  "fwer_bonferroni": 0.016,
+  "thresholds": {
+    "sign_recovery_min": 0.99,
+    "power_min": 0.8,
+    "fwer_max": 0.1
+  },
+  "pass": {
+    "sign_recovery": true,
+    "power": true,
+    "fwer": true
+  }
+}

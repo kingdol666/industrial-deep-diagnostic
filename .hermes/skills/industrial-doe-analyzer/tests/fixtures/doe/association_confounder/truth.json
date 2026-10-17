@@ -1,0 +1,25 @@
+{
+  "fixture": "association_confounder",
+  "design_type": "full_factorial",
+  "n_runs": 32,
+  "factors": [
+    "a_level",
+    "b_level",
+    "c_level"
+  ],
+  "responses": [
+    "yield_kg"
+  ],
+  "generation": {
+    "model": "y = 4.0*a + 2.0*b + eps (sigma=0.3)",
+    "confounder": "ambient_temp = 25 + 2.0*a + noise(0.05)",
+    "confounder_is_declared": false
+  },
+  "expected": {
+    "confounder": "ambient_temp",
+    "marginal_abs_r_min": 0.5,
+    "adjusted_effect_materially_smaller": true,
+    "causal_claim": "none",
+    "must_not_appear_as_window_factor": true
+  }
+}

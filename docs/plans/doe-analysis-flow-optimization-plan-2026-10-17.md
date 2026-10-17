@@ -1,6 +1,7 @@
 # Plan: DOE 数据分析流程优化（本体优先 · 可执行闭环）
 
-- **Status**: `approved (executing)`（2026-10-17 用户指令批准；Phase 0 已完成，见 `doe-baseline-2026-10-17.md`）
+- **Status**: `executed`（IDD Phase 0–5 已交付并通过验收，2026-10-17；Phase 6 平台侧未执行）
+  - 执行摘要：`evidence/doe-2026-10-17/summary.md`；验收回填：`doe-traceability.md`
 - **Date**: 2026-10-17
 - **Repo**: `D:\codes\myskills\industrial-deep-diagnostic`（IDD）
   - **执行工作树**: `D:\codes\myskills\idd-doe-impl`（分支 `feat/doe-ontology-first`，自 `1ff3d6c`；主工作树 421 条并行变更未被触碰）

@@ -1096,6 +1096,330 @@ def case_conc_rules():
            c5["evidence_grade"])
 
 
+# ------------------------------------------------------- acceptance (F13-F18)
+# Phase 5 acceptance cases. Fixtures live under fixtures/doe/<name>/ with a
+# sibling truth.json. Every case copies the committed inputs into a scratch
+# `_run/` directory so the fixtures themselves stay pristine inputs.
+
+DOE_FIXTURES = FIXTURES / "doe"
+if str(SCRIPTS) not in sys.path:
+    sys.path.insert(0, str(SCRIPTS))
+
+
+def read_truth(name):
+    return json.loads((DOE_FIXTURES / name / "truth.json").read_text(encoding="utf-8"))
+
+
+def prepare_doe(name):
+    import shutil
+    src = DOE_FIXTURES / name / "run" / "00_input"
+    dst = DOE_FIXTURES / name / "_run"
+    shutil.rmtree(dst, ignore_errors=True)
+    (dst / "00_input").mkdir(parents=True)
+    for p in sorted(src.iterdir()):
+        if p.is_file():
+            shutil.copy(p, dst / "00_input" / p.name)
+    return dst
+
+
+def run_adapter(run_dir):
+    import doe_context_adapter
+    return doe_context_adapter.main(["--run-dir", str(run_dir)])
+
+
+def run_analyze_sub(sub, run_dir):
+    return subprocess.run([sys.executable, str(ANALYZE), sub, "--run-dir", str(run_dir)],
+                          capture_output=True, text=True, timeout=600, shell=False)
+
+
+def _strip_ts(obj):
+    """Drop volatile timestamps before comparing two runs (RG-03)."""
+    if isinstance(obj, dict):
+        return {k: _strip_ts(v) for k, v in obj.items() if k != "generated_at"}
+    if isinstance(obj, list):
+        return [_strip_ts(v) for v in obj]
+    return obj
+
+
+def case_f13_design_only():
+    """OD-03/OD-04/OD-05/OD-09: design-only prior ontology + hard gate order."""
+    from doe_ontology_prepare import prepare
+    d = prepare_doe("design_only")
+    rc = run_adapter(d)
+    record("F13.adapter_exit0", rc == 0, f"rc={rc}")
+    ctx = read(d, "00_input/analysis_context.json")
+    record("F13.stage_design_only", ctx.get("data_stage") == "design_only",
+           str(ctx.get("data_stage")))
+
+    r0 = run_analyze_sub("profile", d)
+    out0 = r0.stdout + r0.stderr
+    record("F13.brief_required", r0.returncode != 0 and "ONTOLOGY_BRIEF_REQUIRED" in out0,
+           out0[-200:])
+
+    res = prepare(d, mode="auto", store_dir=str(d / ".store"))
+    record("F13.prepare_built", res.get("action") in ("built", "extended"),
+           str(res.get("action")))
+    brief = read(d, "01_ontology/ontology_brief.json")
+    record("F13.brief_fields",
+           {"scene_key", "profile", "factors", "responses", "coverage",
+            "column_mapping", "limitations"} <= set(brief), str(sorted(brief))[:220])
+    record("F13.brief_profile_doe", brief.get("profile") == "doe", str(brief.get("profile")))
+    ont = read(d, "01_ontology/ontology.json")
+    record("F13.obs_behavior_na",
+           "NOT_APPLICABLE" in json.dumps(ont, ensure_ascii=False),
+           "no observed_data_behavior=NOT_APPLICABLE in ontology.json")
+    cov = brief.get("coverage") or {}
+    record("F13.coverage_complete",
+           cov.get("n_unmatched") == 0 and float(cov.get("ratio") or 0) == 1.0, str(cov))
+
+    r1 = run_analyze_sub("profile", d)
+    out1 = r1.stdout + r1.stderr
+    record("F13.plan_required", r1.returncode != 0 and "ANALYSIS_PLAN_REQUIRED" in out1,
+           out1[-200:])
+
+    (d / "01_profile").mkdir(parents=True, exist_ok=True)
+    (d / "01_profile" / "analysis_plan.md").write_text(
+        "# Analysis plan\n\n"
+        "场景: design_only 先验本体验证\n"
+        "因子/响应/单位/预期方向/混杂/局限: 见 01_ontology/ontology_brief.md\n"
+        "分析模式: design_only（不执行统计）\n", encoding="utf-8")
+    r2 = run_analyze_sub("profile", d)
+    record("F13.profile_with_plan", r2.returncode == 0,
+           (r2.stdout + r2.stderr)[-200:])
+
+    r3 = run_analyze_sub("all", d)
+    out3 = r3.stdout + r3.stderr
+    record("F13.stats_blocked", r3.returncode != 0 and "DESIGN_ONLY_NO_RESPONSE" in out3,
+           out3[-200:])
+
+
+def case_f14_constraints():
+    """DS-05/DS-08: constraints bind, hard violations are zero, fixture is binding."""
+    d = prepare_doe("ccd_constraints")
+    truth = read_truth("ccd_constraints")
+    record("F14.adapter_exit0", run_adapter(d) == 0)
+    r = run_analyze(d)
+    record("F14.analyze_exit0", r.returncode == 0, (r.stdout + r.stderr)[-300:])
+    if r.returncode != 0:
+        return
+    rec = read(d, "conclusions/recommendations.json")
+    wins = rec.get("operating_windows") or []
+    record("F14.window_present", len(wins) >= 1, f"n={len(wins)}")
+    applied = [c for w in wins for c in (w.get("constraints_applied") or [])]
+    record("F14.constraints_applied",
+           any(c.get("factor") == "temp" and c.get("hard") for c in applied),
+           json.dumps(applied, ensure_ascii=False)[:220])
+    record("F14.hard_zero_violations",
+           all(int(w.get("constraint_violations") or 0) == 0 for w in wins),
+           json.dumps([w.get("constraint_violations") for w in wins]))
+    js = rec.get("joint_setpoints") or []
+    record("F14.joint_present", bool(js), "no joint setpoint emitted")
+    if js:
+        j = js[0]
+        bound = (truth.get("binding_constraint") or {}).get("max")
+        temp = (j.get("factors") or {}).get("temp")
+        record("F14.joint_within_bound",
+               temp is not None and bound is not None and float(temp) <= float(bound) + 1e-6,
+               f"temp={temp} bound={bound}")
+        record("F14.joint_hard_zero",
+               int(j.get("hard_constraint_violations") or 0) == 0,
+               str(j.get("hard_constraint_violations")))
+    u = truth["unconstrained_optimum_raw"]["temp"]
+    b = truth["binding_constraint"]["max"]
+    record("F14.fixture_is_binding", u > b, f"unconstrained={u} bound={b}")
+    gate = run_gate(d)
+    record("F14.gate_exit0", gate.returncode == 0, gate.stdout[-300:])
+
+
+def case_f15_multi_response():
+    """DS-03/DS-04/DS-08: full matrix, marginal role, spec-feasible joint point."""
+    d = prepare_doe("bbd_multi_response")
+    truth = read_truth("bbd_multi_response")
+    record("F15.adapter_exit0", run_adapter(d) == 0)
+    r = run_analyze(d)
+    record("F15.analyze_exit0", r.returncode == 0, (r.stdout + r.stderr)[-300:])
+    if r.returncode != 0:
+        return
+    rec = read(d, "conclusions/recommendations.json")
+    n_f, n_r = len(truth["factors"]), len(truth["responses"])
+    matrix = rec.get("factor_response_matrix") or []
+    record("F15.matrix_complete", len(matrix) == n_f * n_r,
+           f"{len(matrix)} cells vs {n_f}x{n_r}")
+    record("F15.matrix_zero_silent",
+           all((c.get("window_id") or c.get("no_window_reason")) for c in matrix),
+           "a cell has neither window_id nor no_window_reason")
+    wins = rec.get("operating_windows") or []
+    record("F15.role_marginal",
+           all(w.get("window_role") == "marginal_diagnostic" for w in wins),
+           str([w.get("window_role") for w in wins]))
+    js = rec.get("joint_setpoints") or []
+    record("F15.joint_present", bool(js), "no joint setpoint")
+    if js:
+        j = js[0]
+        specs = rec.get("response_specs") or {}
+        preds = j.get("predicted") or {}
+        bad = []
+        for resp, spec in specs.items():
+            mean = (preds.get(resp) or {}).get("mean")
+            if mean is None:
+                continue
+            if spec.get("lsl") is not None and mean < float(spec["lsl"]):
+                bad.append(f"{resp} {mean} < lsl {spec['lsl']}")
+            if spec.get("usl") is not None and mean > float(spec["usl"]):
+                bad.append(f"{resp} {mean} > usl {spec['usl']}")
+        record("F15.joint_spec_satisfied", not bad, "; ".join(bad))
+        record("F15.joint_actionable_implies_spec",
+               (j.get("actionable") is not True) or not bad,
+               f"actionable={j.get('actionable')} violations={bad}")
+        record("F15.joint_hard_zero",
+               int(j.get("hard_constraint_violations") or 0) == 0,
+               str(j.get("hard_constraint_violations")))
+        record("F15.selection_scale_disclosed",
+               j.get("selection_scale") in ("desirability", "std_effect"),
+               str(j.get("selection_scale")))
+    opt = truth["per_response_optimum_coded"]
+    record("F15.fixture_conflicts",
+           opt["thickness_um"]["a_ratio"] * opt["haze_pct"]["a_ratio"] < 0,
+           str(opt))
+    gate = run_gate(d)
+    record("F15.gate_exit0", gate.returncode == 0, gate.stdout[-300:])
+
+
+def case_f16_units():
+    """DS-06: unit status blocks actionability without deleting the window."""
+    d = prepare_doe("units_conflict")
+    record("F16.adapter_exit0", run_adapter(d) == 0)
+    r = run_analyze(d)
+    record("F16.analyze_exit0", r.returncode == 0, (r.stdout + r.stderr)[-300:])
+    if r.returncode != 0:
+        return
+    rec = read(d, "conclusions/recommendations.json")
+    confl = (rec.get("units") or {}).get("conflicts") or []
+    record("F16.conflict_recorded", len(confl) >= 1,
+           json.dumps(confl, ensure_ascii=False)[:200])
+    wins = rec.get("operating_windows") or []
+    record("F16.window_kept", len(wins) >= 1, f"n={len(wins)}")
+    if wins:
+        w = wins[0]
+        record("F16.window_blocked",
+               w.get("actionable") is False and "unit_conflict" in (w.get("actionable_blockers") or []),
+               f"actionable={w.get('actionable')} blockers={w.get('actionable_blockers')}")
+    js = rec.get("joint_setpoints") or []
+    if js:
+        record("F16.joint_blocked", js[0].get("actionable") is False,
+               f"actionable={js[0].get('actionable')}")
+
+    # units-missing negative: F3 declares no units anywhere (case_f3 ran before us)
+    f3 = FIXTURES / "F3" / "run" / "conclusions" / "recommendations.json"
+    if f3.is_file():
+        r3 = json.loads(f3.read_text(encoding="utf-8"))
+        w3 = (r3.get("operating_windows") or [{}])[0]
+        record("F16.missing_units_block",
+               w3.get("actionable") is False and "unit_missing" in (w3.get("actionable_blockers") or []),
+               f"actionable={w3.get('actionable')} blockers={w3.get('actionable_blockers')}")
+
+
+def case_f18_association():
+    """DS-10: the screen is advisory-only and never launders into a window."""
+    d = prepare_doe("association_confounder")
+    truth = read_truth("association_confounder")
+    record("F18.adapter_exit0", run_adapter(d) == 0)
+    r = run_analyze(d)
+    record("F18.analyze_exit0", r.returncode == 0, (r.stdout + r.stderr)[-300:])
+    if r.returncode != 0:
+        return
+    screen = read(d, "02_analysis/association_screen.json")
+    rec = read(d, "conclusions/recommendations.json")
+    record("F18.causal_claim_none", screen.get("causal_claim") == "none",
+           str(screen.get("causal_claim")))
+    pairs = {p.get("factor"): p for p in (screen.get("pairs") or [])}
+    conf = truth["expected"]["confounder"]
+    p = pairs.get(conf)
+    record("F18.confounder_present", p is not None, str(sorted(pairs))[:220])
+    if p:
+        marg = p.get("marginal") or {}
+        adj = p.get("design_adjusted") or {}
+        record("F18.marginal_strong",
+               abs(float(marg.get("r") or 0)) >= truth["expected"]["marginal_abs_r_min"],
+               json.dumps(marg, ensure_ascii=False)[:200])
+        ap = adj.get("p")
+        record("F18.adjusted_null", ap is None or float(ap) > 0.05,
+               json.dumps(adj, ensure_ascii=False)[:200])
+        record("F18.not_designed_kind", p.get("kind") != "designed_factor",
+               str(p.get("kind")))
+    record("F18.not_a_window_factor",
+           all(w.get("factor") != conf for w in (rec.get("operating_windows") or [])))
+    for w in rec.get("operating_windows") or []:
+        refs = json.dumps(w.get("evidence_refs") or [])
+        record("F18.no_screen_evidence_ref", "association_screen" not in refs, refs[:120])
+        break
+    gate = run_gate(d)
+    record("F18.gate_exit0", gate.returncode == 0, gate.stdout[-300:])
+
+
+def case_artifacts():
+    """AR-01: the manifest is the single artifact registry, sha256-verified."""
+    d = prepare_doe("ccd_constraints")
+    record("artifacts.adapter_exit0", run_adapter(d) == 0)
+    r = run_analyze(d)
+    record("artifacts.analyze_exit0", r.returncode == 0, (r.stdout + r.stderr)[-300:])
+    if r.returncode != 0:
+        return
+    man = read(d, "artifact_manifest.json")
+    kinds = {a.get("kind") for a in (man.get("artifacts") or [])}
+    expected = {"data_profile", "effect_table", "model", "association_screen",
+                "doe_conclusion", "recommendations", "next_design",
+                "optimization_guidance", "report"}
+    record("artifacts.manifest_kinds", expected <= kinds,
+           f"missing: {sorted(expected - kinds)}")
+    record("artifacts.missing_empty", not man.get("missing"),
+           json.dumps(man.get("missing"), ensure_ascii=False)[:220])
+    import hashlib
+    bad = []
+    for a in man.get("artifacts") or []:
+        p = d / a["path"]
+        if not p.is_file() or hashlib.sha256(p.read_bytes()).hexdigest() != a.get("sha256"):
+            bad.append(a.get("kind"))
+    record("artifacts.sha256_matches", not bad, f"mismatch: {bad}")
+    rec = read(d, "conclusions/recommendations.json")
+    ref = rec.get("association_screen_ref") or {}
+    ok_ref = False
+    if ref.get("path"):
+        p = d / ref["path"]
+        ok_ref = p.is_file() and hashlib.sha256(p.read_bytes()).hexdigest() == ref.get("sha256")
+    record("artifacts.screen_ref_sha", ok_ref, json.dumps(ref)[:160])
+    nd = read(d, "conclusions/next_design.json")
+    record("artifacts.next_design_fields",
+           {"recommended_action", "actions", "primary_action_id"} <= set(nd),
+           str(sorted(nd))[:200])
+    g = read(d, "conclusions/optimization_guidance.json")
+    record("artifacts.guidance_fields",
+           {"contract_version", "recipe_patch", "node_setpoints", "ontology_basis",
+            "lineage"} <= set(g), str(sorted(g))[:220])
+
+
+def case_det_v11():
+    """RG-03: the same input twice produces identical numbers (timestamps aside)."""
+    d = prepare_doe("ccd_constraints")
+    record("det.adapter_exit0", run_adapter(d) == 0)
+    r1 = run_analyze(d)
+    record("det.run1_exit0", r1.returncode == 0, (r1.stdout + r1.stderr)[-200:])
+    if r1.returncode != 0:
+        return
+    rec1 = _strip_ts(read(d, "conclusions/recommendations.json"))
+    et1 = _strip_ts(read(d, "02_analysis/effect_table.json"))
+    r2 = run_analyze(d)
+    record("det.run2_exit0", r2.returncode == 0, (r2.stdout + r2.stderr)[-200:])
+    if r2.returncode != 0:
+        return
+    rec2 = _strip_ts(read(d, "conclusions/recommendations.json"))
+    et2 = _strip_ts(read(d, "02_analysis/effect_table.json"))
+    record("det.recommendations_identical", rec1 == rec2,
+           "recommendations differ between two runs on identical input")
+    record("det.effect_table_identical", et1 == et2,
+           "effect_table differs between two runs on identical input")
+
+
 def clean_fixture_artifacts(keep=False):
     """Remove generated run artifacts (figures/analysis outputs) so the repo
     keeps only the tiny inputs. `--keep` preserves everything for debugging."""
@@ -1103,10 +1427,18 @@ def clean_fixture_artifacts(keep=False):
         return
     import shutil
     for run in FIXTURES.glob("*/run"):
-        for sub in ("01_profile", "02_analysis", "03_figures", "conclusions"):
+        for sub in ("01_profile", "02_analysis", "03_figures", "conclusions",
+                    "01_ontology", ".store"):
             shutil.rmtree(run / sub, ignore_errors=True)
-        (run / "run_manifest.json").unlink(missing_ok=True)
-        (run / "report.html").unlink(missing_ok=True)
+        # NOTE: analysis_context.json is a COMMITTED INPUT of F1-F12 — never delete
+        # it here. Only the doe/ fixtures generate theirs (adapter output).
+        for name in ("run_manifest.json", "report.html", "artifact_manifest.json"):
+            (run / name).unlink(missing_ok=True)
+    for run in FIXTURES.glob("doe/*/run"):
+        (run / "00_input" / "analysis_context.json").unlink(missing_ok=True)
+    # Scratch dirs the acceptance cases copy the committed fixtures into.
+    for scratch in FIXTURES.glob("doe/*/_run"):
+        shutil.rmtree(scratch, ignore_errors=True)
 
 
 CASES = {"F1": case_f1, "F2": case_f2, "F3": case_f3,
@@ -1115,7 +1447,11 @@ CASES = {"F1": case_f1, "F2": case_f2, "F3": case_f3,
          "F12": case_f12,
          "tamper": case_tamper, "conflict": case_conflict,
          "report-D": case_report_designed, "report-O": case_report_observational,
-         "trend-block": case_trend_block, "conc-rules": case_conc_rules}
+         "trend-block": case_trend_block, "conc-rules": case_conc_rules,
+         "F13": case_f13_design_only, "F14": case_f14_constraints,
+         "F15": case_f15_multi_response, "F16": case_f16_units,
+         "F18": case_f18_association, "artifacts": case_artifacts,
+         "det-v11": case_det_v11}
 
 
 def main():

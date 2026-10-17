@@ -77,6 +77,50 @@ def _grade(checklist, mode):
     return "B"
 
 
+def _matrix_card(rec):
+    """factor x response coverage summary for the downstream usage card (v1.1)."""
+    matrix = rec.get("factor_response_matrix") or []
+    if not matrix:
+        return {"cells": 0, "with_window": 0, "with_reason": 0, "zero_silent": True}
+    with_window = sum(1 for c in matrix if c.get("window_id"))
+    with_reason = sum(1 for c in matrix if c.get("no_window_reason"))
+    return {"cells": len(matrix), "with_window": with_window,
+            "with_reason": with_reason,
+            "zero_silent": with_window + with_reason == len(matrix)}
+
+
+def contract_status(rec):
+    """v1.1 contract-conformance block — computed INDEPENDENTLY of the evidence grade.
+
+    P2-8 requires the contract grade and the evidence grade to be separate
+    concerns: a run can be statistically strong (grade A) while its v1.1 contract
+    disclosure is incomplete, and vice versa. Nothing here feeds `evidence_grade`
+    or `grade_checklist`.
+    """
+    wins = rec.get("operating_windows") or []
+    with_pi = [w for w in wins
+               if ((w.get("expected_effect") or {}).get("pi95") is not None)]
+    pi_gt_ci = 0
+    for w in with_pi:
+        ee = w["expected_effect"]
+        ci, pi = ee.get("mean_ci95"), ee.get("pi95")
+        if ci and pi and (pi[1] - pi[0]) > (ci[1] - ci[0]):
+            pi_gt_ci += 1
+    return {
+        "contract_version": rec.get("contract_version"),
+        "evidence_grade_independent": True,
+        "n_windows": len(wins),
+        "n_windows_with_pi": len(with_pi),
+        "n_windows_with_pi_gt_ci": pi_gt_ci,
+        "n_joint_setpoints": len(rec.get("joint_setpoints") or []),
+        "n_actionable": (rec.get("actionable_summary") or {}).get("n_actionable"),
+        "matrix_zero_silent_cells": _matrix_card(rec)["zero_silent"],
+        "interval_disclosure_present": bool(rec.get("interval_disclosure")),
+        "units_disclosed": bool(rec.get("units")),
+        "design_region_disclosed": bool(rec.get("design_region")),
+    }
+
+
 def build(profile, effect_table, correlation, stability, recommendations,
           plot_manifest, models=None):
     design = profile.get("design") or {}
@@ -165,6 +209,7 @@ def build(profile, effect_table, correlation, stability, recommendations,
             limitations.append(c.get("message"))
 
     rec = recommendations or {}
+    is_v11 = rec.get("contract_version") == "1.1"
     card = {
         "contract_version": rec.get("contract_version"),
         "n_windows": len(rec.get("operating_windows", [])),
@@ -172,6 +217,19 @@ def build(profile, effect_table, correlation, stability, recommendations,
         "n_watchlist": len(rec.get("watchlist", [])),
         "usage_rules": rec.get("usage_rules", []),
     }
+    if is_v11:
+        # v1.1 additive only — a v1.0 payload keeps the legacy card byte-identical
+        card.update({
+            "n_joint_setpoints": len(rec.get("joint_setpoints") or []),
+            "n_actionable": (rec.get("actionable_summary") or {}).get("n_actionable"),
+            "n_blocked": (rec.get("actionable_summary") or {}).get("n_blocked"),
+            "factor_response_coverage": _matrix_card(rec),
+            # P2-8 "contract_status independent": the v1.1 contract-conformance
+            # block sits INSIDE the existing card (quality_gate G6 whitelists
+            # doe_conclusion top-level keys strictly — CONC_KEYS must not grow)
+            # and never feeds evidence_grade / grade_checklist.
+            "contract_status": contract_status(rec),
+        })
     return {
         "generated_at": _now(),
         "analysis_mode": mode,

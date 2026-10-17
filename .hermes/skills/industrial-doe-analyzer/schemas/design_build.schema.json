@@ -1,0 +1,151 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "design_build.schema.json",
+  "title": "design_build — deterministic initial design construction (P3-2, contract §9)",
+  "type": "object",
+  "required": ["contract_version", "design_type", "seed", "run_table", "coded",
+               "properties", "randomization", "notes"],
+  "properties": {
+    "contract_version": { "const": "1.0" },
+    "design_type": {
+      "enum": ["full_factorial", "fractional_factorial", "rsm_ccd", "rsm_bbd",
+               "orthogonal_array", "latin_hypercube", "d_optimal"]
+    },
+    "seed": { "type": ["integer", "null"] },
+    "factors": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "required": ["name", "type", "levels"],
+        "properties": {
+          "name": { "type": "string" },
+          "type": { "enum": ["numeric", "categorical"] },
+          "levels": { "type": "array", "minItems": 2 },
+          "low": { "type": ["number", "null"] },
+          "high": { "type": ["number", "null"] },
+          "unit": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "run_table": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "required": ["run_id", "design_point_id", "run_order", "block"],
+        "properties": {
+          "run_id": { "type": "string" },
+          "design_point_id": { "type": "string" },
+          "replicate_group": { "type": ["string", "null"] },
+          "replicate_kind": { "enum": ["repeat", "replicate", "center", null] },
+          "run_order": { "type": "integer", "minimum": 1 },
+          "block": { "type": ["string", "integer", "null"] }
+        },
+        "additionalProperties": true
+      }
+    },
+    "coded": {
+      "type": "array",
+      "minItems": 2,
+      "items": { "type": "object", "additionalProperties": true }
+    },
+    "properties": {
+      "type": "object",
+      "required": ["resolution", "defining_relation", "alias_chains", "vif", "power",
+                   "mde", "d_efficiency", "n_runs", "roundtrip"],
+      "properties": {
+        "resolution": { "type": ["integer", "null"] },
+        "defining_relation": { "type": "array", "items": { "type": "string" } },
+        "generators": { "type": "array", "items": { "type": "string" } },
+        "alias_chains": {
+          "type": "object",
+          "additionalProperties": { "type": "array", "items": { "type": "string" } }
+        },
+        "vif": { "type": "object", "additionalProperties": { "type": ["number", "null"] } },
+        "power": {
+          "type": "object",
+          "properties": {
+            "at_2mde": { "$ref": "#/definitions/power_block" },
+            "at_2_sigma": { "$ref": "#/definitions/power_block" },
+            "at_requested": { "$ref": "#/definitions/power_block" },
+            "note": { "type": ["string", "null"] }
+          }
+        },
+        "mde": {
+          "type": "object",
+          "required": ["value"],
+          "properties": {
+            "value": { "type": ["number", "null"],
+                       "description": "coded-contrast MDE in sigma units (effects_anova.mde_coded)" },
+            "sigma": { "type": ["number", "null"] },
+            "alpha": { "type": "number" },
+            "power_target": { "type": "number" },
+            "n": { "type": "integer" },
+            "df_resid": { "type": "integer" },
+            "method": { "type": "string" },
+            "by_term": { "type": "object", "additionalProperties": { "type": ["number", "null"] } },
+            "note": { "type": ["string", "null"] }
+          }
+        },
+        "d_efficiency": { "$ref": "#/definitions/d_efficiency" },
+        "n_runs": { "type": "integer", "minimum": 2 },
+        "n_distinct_combos": { "type": "integer", "minimum": 1 },
+        "n_params": { "type": "integer", "minimum": 1 },
+        "df_resid": { "type": "integer" },
+        "model": { "enum": ["linear", "quadratic"] },
+        "model_terms": { "type": "array", "items": { "type": "string" } },
+        "strength": { "type": ["integer", "null"] },
+        "min_distance": { "type": ["number", "null"] },
+        "roundtrip": {
+          "type": "object",
+          "required": ["declared", "detected_type", "match"],
+          "properties": {
+            "declared": { "type": "string" },
+            "expected_detected_types": { "type": "array", "items": { "type": "string" } },
+            "detected_type": { "type": ["string", "null"] },
+            "detected_mode": { "type": ["string", "null"] },
+            "match": { "type": ["boolean", "null"] },
+            "detector_error": { "type": ["string", "null"] },
+            "gap": { "type": ["string", "null"] },
+            "note": { "type": ["string", "null"] }
+          }
+        }
+      }
+    },
+    "randomization": {
+      "type": "object",
+      "required": ["randomized", "seed", "block_policy"],
+      "properties": {
+        "randomized": { "type": "boolean" },
+        "seed": { "type": ["integer", "null"] },
+        "block_policy": { "type": "string" }
+      }
+    },
+    "notes": { "type": "array", "items": { "type": "string" } }
+  },
+  "definitions": {
+    "power_block": {
+      "type": "object",
+      "required": ["by_term"],
+      "properties": {
+        "delta_coded_contrast": { "type": ["number", "null"] },
+        "by_term": { "type": "object", "additionalProperties": { "type": ["number", "null"] } },
+        "min": { "type": ["number", "null"] },
+        "mean": { "type": ["number", "null"] }
+      }
+    },
+    "d_efficiency": {
+      "type": "object",
+      "required": ["value"],
+      "properties": {
+        "value": { "type": ["number", "null"] },
+        "det": { "type": ["number", "null"] },
+        "optimal_det": { "type": ["number", "null"] },
+        "ratio": { "type": ["number", "null"] },
+        "theorem_attainable": { "type": ["boolean", "null"] },
+        "note": { "type": ["string", "null"] }
+      }
+    }
+  }
+}

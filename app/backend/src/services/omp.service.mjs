@@ -134,6 +134,16 @@ function artifactInventory(runDir) {
     ['optimizer.md', 'optimizer'],
     ['diagnostic-report.html', 'html'],
     ['evidence_closure_report.json', 'evidence_closure'],
+    // DOE analyzer run artifacts (same contract paths the manifest publishes)
+    ['01_ontology/ontology_brief.json', 'ontology_brief'],
+    ['01_profile/data_profile.json', 'data_profile'],
+    ['02_analysis/effect_table.json', 'effect_table'],
+    ['02_analysis/model.json', 'model'],
+    ['02_analysis/association_screen.json', 'association_screen'],
+    ['conclusions/doe_conclusion.json', 'doe_conclusion'],
+    ['conclusions/recommendations.json', 'recommendations'],
+    ['conclusions/next_design.json', 'next_design'],
+    ['conclusions/optimization_guidance.json', 'optimization_guidance'],
   ];
   for (const [rel, key] of KEYS) {
     const p = join(runDir, rel);
@@ -224,6 +234,19 @@ export function getOmpArtifact(name, kind) {
     validate_report: '02_processed/validate_report.json',
     visual_analysis: '03_figures/visual_analysis.json',
     ontology: '01_ontology/ontology.json',
+    // DOE analyzer artifacts (docs/plans/contracts/artifact_manifest.schema.json)
+    ontology_brief: '01_ontology/ontology_brief.json',
+    ontology_coverage: '01_ontology/ontology_coverage.json',
+    data_profile: '01_profile/data_profile.json',
+    analysis_plan: '01_profile/analysis_plan.md',
+    effect_table: '02_analysis/effect_table.json',
+    model: '02_analysis/model.json',
+    association_screen: '02_analysis/association_screen.json',
+    doe_conclusion: 'conclusions/doe_conclusion.json',
+    recommendations: 'conclusions/recommendations.json',
+    next_design: 'conclusions/next_design.json',
+    optimization_guidance: 'conclusions/optimization_guidance.json',
+    report_html: 'report.html',
     preflight: '05_review/optimizer_preflight.md',
     evidence_closure: 'evidence_closure_report.json',
   };

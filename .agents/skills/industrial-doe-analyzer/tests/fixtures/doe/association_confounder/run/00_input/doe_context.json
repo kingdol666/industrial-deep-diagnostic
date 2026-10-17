@@ -1,0 +1,97 @@
+{
+  "contract_version": "1.1",
+  "experiment_id": "fx-association-confounder",
+  "line_id": "L5-bopet",
+  "product_id": "film-12um",
+  "recipe_id": "rcp-bopet-12um-v3",
+  "objective": "工艺窗口优化",
+  "design_type_declared": "full_factorial",
+  "data_stage": "collected",
+  "design_region": {
+    "factorial_bounds": {
+      "a_level": [
+        5.0,
+        15.0
+      ],
+      "b_level": [
+        40.0,
+        60.0
+      ],
+      "c_level": [
+        180.0,
+        220.0
+      ]
+    },
+    "design_hull": "box"
+  },
+  "data_file": "run_table.csv",
+  "factors": [
+    {
+      "name": "a_level",
+      "col": "a_level",
+      "type": "numeric",
+      "unit": "-",
+      "min": 5,
+      "max": 15,
+      "levels": null,
+      "role": "control"
+    },
+    {
+      "name": "b_level",
+      "col": "b_level",
+      "type": "numeric",
+      "unit": "kg",
+      "min": 40,
+      "max": 60,
+      "levels": null,
+      "role": "control"
+    },
+    {
+      "name": "c_level",
+      "col": "c_level",
+      "type": "numeric",
+      "unit": "rpm",
+      "min": 180,
+      "max": 220,
+      "levels": null,
+      "role": "control"
+    }
+  ],
+  "responses": [
+    {
+      "name": "yield_kg",
+      "col": "yield_kg",
+      "unit": "kg",
+      "goal": "maximize",
+      "lsl": null,
+      "usl": null,
+      "target": null,
+      "weight": 1.0
+    }
+  ],
+  "blocks": [],
+  "covariates": [],
+  "constraints": [],
+  "replicates_col": "replicate_group",
+  "run_order_col": "run_order",
+  "group_col": "run_id",
+  "time_col": null,
+  "current_setpoint": {
+    "a_level": 5,
+    "b_level": 40,
+    "c_level": 180
+  },
+  "baseline_source": "dataset_median",
+  "ontology": {
+    "profile": "doe",
+    "mode": "off",
+    "scene_key": null,
+    "version": null,
+    "data_stage": "collected"
+  },
+  "provenance": {
+    "platform": "RecipeWorkShop",
+    "created_by": "make_fixtures",
+    "created_at": "2026-10-17T00:00:00+08:00"
+  }
+}

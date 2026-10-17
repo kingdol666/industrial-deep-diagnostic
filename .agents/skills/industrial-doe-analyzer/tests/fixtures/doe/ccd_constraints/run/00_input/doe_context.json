@@ -1,0 +1,109 @@
+{
+  "contract_version": "1.1",
+  "experiment_id": "fx-ccd-constraints",
+  "line_id": "L5-bopet",
+  "product_id": "film-12um",
+  "recipe_id": "rcp-bopet-12um-v3",
+  "objective": "在硬约束内最大化纯度",
+  "design_type_declared": "rsm_ccd",
+  "data_stage": "collected",
+  "design_region": {
+    "factorial_bounds": {
+      "temp": [
+        180.0,
+        220.0
+      ],
+      "pressure": [
+        4.5,
+        5.5
+      ],
+      "flow": [
+        90.0,
+        110.0
+      ]
+    },
+    "axial_alpha": 1.682,
+    "design_hull": "ccd_star"
+  },
+  "data_file": "run_table.csv",
+  "factors": [
+    {
+      "name": "temp",
+      "col": "temp",
+      "type": "numeric",
+      "unit": "°C",
+      "min": 180,
+      "max": 220,
+      "levels": null,
+      "role": "control",
+      "expected_sign": "+"
+    },
+    {
+      "name": "pressure",
+      "col": "pressure",
+      "type": "numeric",
+      "unit": "bar",
+      "min": 4.5,
+      "max": 5.5,
+      "levels": null,
+      "role": "control"
+    },
+    {
+      "name": "flow",
+      "col": "flow",
+      "type": "numeric",
+      "unit": "L/min",
+      "min": 90,
+      "max": 110,
+      "levels": null,
+      "role": "control"
+    }
+  ],
+  "responses": [
+    {
+      "name": "purity",
+      "col": "purity",
+      "unit": "%",
+      "goal": "maximize",
+      "lsl": 50.0,
+      "usl": null,
+      "target": null,
+      "weight": 1.0
+    }
+  ],
+  "blocks": [],
+  "covariates": [],
+  "constraints": [
+    {
+      "factor": "temp",
+      "type": "box",
+      "min": 180.0,
+      "max": 220.0,
+      "hard": true,
+      "reason": "安全与膜面限",
+      "source": "ontology"
+    }
+  ],
+  "replicates_col": "replicate_group",
+  "run_order_col": "run_order",
+  "group_col": "run_id",
+  "time_col": null,
+  "current_setpoint": {
+    "temp": 180,
+    "pressure": 4.5,
+    "flow": 90
+  },
+  "baseline_source": "dataset_median",
+  "ontology": {
+    "profile": "doe",
+    "mode": "off",
+    "scene_key": null,
+    "version": null,
+    "data_stage": "collected"
+  },
+  "provenance": {
+    "platform": "RecipeWorkShop",
+    "created_by": "make_fixtures",
+    "created_at": "2026-10-17T00:00:00+08:00"
+  }
+}

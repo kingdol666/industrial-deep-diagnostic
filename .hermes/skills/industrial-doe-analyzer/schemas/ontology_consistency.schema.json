@@ -1,0 +1,58 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "ontology_consistency.schema.json",
+  "title": "DOE ontology consistency check result (contracts §4 附, §7.2)",
+  "description": "02_analysis/ontology_consistency.json — the full per-pair ledger behind ontology_feedback.json. Advisory only: `advisory_only` is always true and no statistical artifact is modified by this check.",
+  "type": "object",
+  "required": ["contract_version", "artifact", "checked", "matched", "not_estimable",
+               "contradictions", "advisory_only", "pairs"],
+  "properties": {
+    "contract_version": { "type": "string" },
+    "artifact": { "const": "ontology_consistency" },
+    "profile": { "const": "doe" },
+    "scene_key": { "type": ["string", "null"] },
+    "context_fp": { "type": ["string", "null"] },
+    "ontology_version": { "type": ["string", "integer", "null"] },
+    "ontology_sha256": { "type": ["string", "null"] },
+    "effect_table_sha256": { "type": ["string", "null"] },
+    "checked": { "type": "integer", "minimum": 0 },
+    "matched": { "type": "integer", "minimum": 0 },
+    "not_estimable": { "type": "integer", "minimum": 0 },
+    "contradictions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["factor", "response", "expected_sign", "observed_sign", "severity", "note"],
+        "properties": {
+          "factor": { "type": "string" },
+          "response": { "type": "string" },
+          "expected_sign": { "enum": ["positive", "negative"] },
+          "observed_sign": { "enum": ["positive", "negative", "zero"] },
+          "severity": { "enum": ["advisory", "blocking"] },
+          "note": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "advisory_only": { "const": true },
+    "pairs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["factor", "response", "relation", "verdict", "reason"],
+        "properties": {
+          "factor": { "type": "string" },
+          "response": { "type": "string" },
+          "relation": { "type": ["string", "null"] },
+          "expected_sign": { "enum": ["positive", "negative", null] },
+          "observed_sign": { "enum": ["positive", "negative", "zero", null] },
+          "coefficient": { "type": ["number", "null"] },
+          "estimable": { "type": ["boolean", "null"] },
+          "evidence_level": { "type": ["string", "null"] },
+          "verdict": { "enum": ["matched", "contradicted", "not_estimable"] },
+          "reason": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "generated_at": { "type": "string" }
+  }
+}

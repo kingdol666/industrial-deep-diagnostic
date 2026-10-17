@@ -1,0 +1,168 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "ontology_brief.schema.json",
+  "title": "DOE ontology brief (Agent understanding contract, contracts §7.1)",
+  "description": "01_ontology/ontology_brief.json — the scene + data-model contract the DOE analysis agent MUST read before writing 01_profile/analysis_plan.md. Field-level authority: docs/plans/contracts/README.md §7.1.",
+  "type": "object",
+  "required": [
+    "contract_version", "scene_key", "profile", "data_stage", "ontology_version",
+    "ontology_sha256", "context_fp", "factors", "responses", "relationships",
+    "confounders", "limitations", "column_mapping", "coverage", "provenance"
+  ],
+  "properties": {
+    "contract_version": { "type": "string" },
+    "artifact": { "const": "ontology_brief" },
+    "scene_key": { "type": "string" },
+    "profile": { "const": "doe" },
+    "data_stage": { "enum": ["design_only", "collected"] },
+    "ontology_version": { "type": ["string", "integer", "null"] },
+    "ontology_sha256": { "type": ["string", "null"] },
+    "context_fp": { "type": ["string", "null"] },
+    "scene": {
+      "type": "object",
+      "properties": {
+        "name": { "type": ["string", "null"] },
+        "process_type": { "type": ["string", "null"] },
+        "production_goal": { "type": ["string", "null"] },
+        "objective": { "type": ["string", "null"] },
+        "equipment": { "type": "array" },
+        "stages": { "type": "array" },
+        "design_type": { "type": ["string", "null"] },
+        "design_region": { "type": ["object", "null"] },
+        "experiment_id": { "type": ["string", "null"] },
+        "line_id": { "type": ["string", "null"] },
+        "product_id": { "type": ["string", "null"] },
+        "recipe_id": { "type": ["string", "null"] }
+      }
+    },
+    "factors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "col", "type", "unit", "expected_sign", "physical_meaning",
+                     "ontology_signal", "confidence", "mapping_status"],
+        "properties": {
+          "name": { "type": ["string", "null"] },
+          "col": { "type": "string" },
+          "type": { "type": ["string", "null"] },
+          "unit": { "type": ["string", "null"] },
+          "expected_sign": { "type": ["string", "null"] },
+          "physical_meaning": { "type": ["string", "null"] },
+          "ontology_signal": { "type": ["string", "null"] },
+          "confidence": { "enum": ["KNOWN", "INFERRED", "UNKNOWN"] },
+          "mapping_status": { "enum": ["matched", "inferred", "unmatched"] },
+          "mapping_reason": { "type": "string" },
+          "role": { "type": ["string", "null"] },
+          "min": { "type": ["number", "null"] },
+          "max": { "type": ["number", "null"] },
+          "levels": { "type": ["array", "null"] },
+          "expected_data_behavior": { "type": ["string", "null"] },
+          "observed_data_behavior": { "type": ["string", "null"] },
+          "governing_law": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "responses": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "col", "unit", "goal", "lsl", "usl", "target",
+                     "ontology_signal", "confidence", "mapping_status"],
+        "properties": {
+          "name": { "type": ["string", "null"] },
+          "col": { "type": "string" },
+          "unit": { "type": ["string", "null"] },
+          "goal": { "type": ["string", "null"] },
+          "lsl": { "type": ["number", "null"] },
+          "usl": { "type": ["number", "null"] },
+          "target": { "type": ["number", "null"] },
+          "weight": { "type": ["number", "null"] },
+          "ontology_signal": { "type": ["string", "null"] },
+          "confidence": { "enum": ["KNOWN", "INFERRED", "UNKNOWN"] },
+          "mapping_status": { "enum": ["matched", "inferred", "unmatched"] },
+          "mapping_reason": { "type": "string" }
+        }
+      }
+    },
+    "relationships": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["from", "to", "relation", "mechanism", "confidence", "evidence_level"],
+        "properties": {
+          "from": { "type": "string" },
+          "to": { "type": "string" },
+          "relation": { "enum": ["causal", "physical", "correlative", "control", null] },
+          "mechanism": { "type": ["string", "null"] },
+          "confidence": { "type": ["string", "null"] },
+          "evidence_level": { "type": ["string", "null"] },
+          "expected_sign": { "type": ["string", "null"] },
+          "predicted_functional_form": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "confounders": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "variable": { "type": ["string", "null"] },
+          "why": { "type": ["string", "null"] },
+          "controlled": { "type": ["boolean", "null"] }
+        }
+      }
+    },
+    "limitations": { "type": "array", "items": { "type": "string" } },
+    "column_mapping": {
+      "type": "object",
+      "required": ["matched", "inferred", "unmatched"],
+      "description": "OD-09 zero-silent coverage: every declared factor/response appears exactly once, inferred/unmatched always carry a reason.",
+      "properties": {
+        "matched": { "type": "array", "items": { "$ref": "#/definitions/mapping_row" } },
+        "inferred": { "type": "array", "items": { "$ref": "#/definitions/mapping_row" } },
+        "unmatched": { "type": "array", "items": { "$ref": "#/definitions/mapping_row" } }
+      }
+    },
+    "coverage": {
+      "type": "object",
+      "required": ["n_factors_matched", "n_responses_matched", "ratio"],
+      "description": "ratio = (matched + inferred) / declared — 1.0 means no factor/response was silently dropped.",
+      "properties": {
+        "n_factors_matched": { "type": "integer", "minimum": 0 },
+        "n_responses_matched": { "type": "integer", "minimum": 0 },
+        "n_factors_covered": { "type": "integer", "minimum": 0 },
+        "n_responses_covered": { "type": "integer", "minimum": 0 },
+        "n_factors_declared": { "type": "integer", "minimum": 0 },
+        "n_responses_declared": { "type": "integer", "minimum": 0 },
+        "n_unmatched": { "type": "integer", "minimum": 0 },
+        "ratio": { "type": "number", "minimum": 0, "maximum": 1 },
+        "matched_ratio": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "required": ["build_mode", "build_seconds", "rag_used", "web_used", "physics_prior_used"],
+      "properties": {
+        "build_mode": { "type": "string" },
+        "build_seconds": { "type": "number", "minimum": 0 },
+        "rag_used": { "type": "boolean" },
+        "web_used": { "type": "boolean" },
+        "physics_prior_used": { "type": "boolean" },
+        "engine": { "type": "string" }
+      }
+    }
+  },
+  "definitions": {
+    "mapping_row": {
+      "type": "object",
+      "required": ["kind", "col", "status", "reason"],
+      "properties": {
+        "kind": { "enum": ["factor", "response"] },
+        "col": { "type": ["string", "null"] },
+        "name": { "type": ["string", "null"] },
+        "status": { "enum": ["matched", "inferred", "unmatched"] },
+        "reason": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

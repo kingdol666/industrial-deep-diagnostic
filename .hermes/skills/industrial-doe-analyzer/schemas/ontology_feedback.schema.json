@@ -1,0 +1,50 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "ontology_feedback.schema.json",
+  "title": "DOE ontology consistency feedback (contracts §7.2)",
+  "description": "01_ontology/ontology_feedback.json — ADVISORY consistency ledger: expected direction (ontology) vs observed direction (deterministic effect table). Never rewrites a statistical conclusion; contradictions feed the report and the watchlist only.",
+  "type": "object",
+  "required": ["contract_version", "ontology_version", "ontology_sha256",
+               "checked", "matched", "not_estimable", "contradictions", "checked_at"],
+  "properties": {
+    "contract_version": { "type": "string" },
+    "artifact": { "const": "ontology_feedback" },
+    "ontology_version": { "type": ["string", "integer", "null"] },
+    "ontology_sha256": { "type": ["string", "null"] },
+    "scene_key": { "type": ["string", "null"] },
+    "profile": { "const": "doe" },
+    "context_fp": { "type": ["string", "null"] },
+    "checked": { "type": "integer", "minimum": 0, "description": "relationships whose expected sign was normalisable and whose effect was estimable" },
+    "matched": { "type": "integer", "minimum": 0 },
+    "not_estimable": { "type": "integer", "minimum": 0, "description": "causal/physical relationships that could not be judged (reason in not_estimable_detail)" },
+    "not_estimable_detail": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["factor", "response", "reason"],
+        "properties": {
+          "factor": { "type": "string" },
+          "response": { "type": "string" },
+          "reason": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "contradictions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["factor", "response", "expected_sign", "observed_sign", "severity", "note"],
+        "properties": {
+          "factor": { "type": "string" },
+          "response": { "type": "string" },
+          "expected_sign": { "enum": ["positive", "negative"] },
+          "observed_sign": { "enum": ["positive", "negative", "zero"] },
+          "severity": { "enum": ["advisory", "blocking"] },
+          "note": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "advisory_only": { "const": true },
+    "checked_at": { "type": "string" }
+  }
+}

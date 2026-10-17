@@ -1,0 +1,87 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "ontology_coverage.schema.json",
+  "title": "DOE ontology column-mapping coverage (contracts §4 #3, OD-09)",
+  "description": "01_ontology/ontology_coverage.json — the column-mapping ledger of the ontology stage. Every declared factor/response is matched, inferred (with reason) or unmatched (with reason); zero silent entries.",
+  "type": "object",
+  "required": ["contract_version", "artifact", "scene_key", "profile", "data_stage",
+               "context_fp", "factors", "responses", "column_mapping", "coverage"],
+  "properties": {
+    "contract_version": { "type": "string" },
+    "artifact": { "const": "ontology_coverage" },
+    "scene_key": { "type": "string" },
+    "profile": { "const": "doe" },
+    "data_stage": { "enum": ["design_only", "collected"] },
+    "context_fp": { "type": ["string", "null"] },
+    "ontology_version": { "type": ["string", "integer", "null"] },
+    "ontology_sha256": { "type": ["string", "null"] },
+    "generated_by": { "type": "string" },
+    "factors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["col", "status", "reason"],
+        "properties": {
+          "col": { "type": ["string", "null"] },
+          "name": { "type": ["string", "null"] },
+          "status": { "enum": ["matched", "inferred", "unmatched"] },
+          "reason": { "type": "string", "minLength": 1 },
+          "unit": { "type": ["string", "null"] },
+          "ontology_signal": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "responses": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["col", "status", "reason"],
+        "properties": {
+          "col": { "type": ["string", "null"] },
+          "name": { "type": ["string", "null"] },
+          "status": { "enum": ["matched", "inferred", "unmatched"] },
+          "reason": { "type": "string", "minLength": 1 },
+          "unit": { "type": ["string", "null"] },
+          "ontology_signal": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "column_mapping": {
+      "type": "object",
+      "required": ["matched", "inferred", "unmatched"],
+      "properties": {
+        "matched": { "type": "array", "items": { "$ref": "#/definitions/mapping_row" } },
+        "inferred": { "type": "array", "items": { "$ref": "#/definitions/mapping_row" } },
+        "unmatched": { "type": "array", "items": { "$ref": "#/definitions/mapping_row" } }
+      }
+    },
+    "coverage": {
+      "type": "object",
+      "required": ["n_factors_matched", "n_responses_matched", "ratio"],
+      "properties": {
+        "n_factors_matched": { "type": "integer", "minimum": 0 },
+        "n_responses_matched": { "type": "integer", "minimum": 0 },
+        "n_factors_covered": { "type": "integer", "minimum": 0 },
+        "n_responses_covered": { "type": "integer", "minimum": 0 },
+        "n_factors_declared": { "type": "integer", "minimum": 0 },
+        "n_responses_declared": { "type": "integer", "minimum": 0 },
+        "n_unmatched": { "type": "integer", "minimum": 0 },
+        "ratio": { "type": "number", "minimum": 0, "maximum": 1 },
+        "matched_ratio": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    }
+  },
+  "definitions": {
+    "mapping_row": {
+      "type": "object",
+      "required": ["kind", "col", "status", "reason"],
+      "properties": {
+        "kind": { "enum": ["factor", "response"] },
+        "col": { "type": ["string", "null"] },
+        "name": { "type": ["string", "null"] },
+        "status": { "enum": ["matched", "inferred", "unmatched"] },
+        "reason": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

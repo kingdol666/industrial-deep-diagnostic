@@ -1,12 +1,12 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "Downstream agent contract v1.0 (operating windows & tuning recommendations)",
+  "title": "Downstream agent contract v1.0/v1.1 (operating windows & tuning recommendations)",
   "type": "object",
   "required": ["contract_version", "audience", "operating_windows", "current_baseline",
                "response_specs", "confirmations", "applicability_domain",
                "invalidation_conditions", "usage_rules", "provenance"],
   "properties": {
-    "contract_version": { "const": "1.0" },
+    "contract_version": { "enum": ["1.0", "1.1"] },
     "audience": { "const": "downstream_agent" },
     "analysis_mode": { "enum": ["designed", "observational"] },
     "operating_windows": {
@@ -30,7 +30,14 @@
               "delta": { "type": ["number", "null"] },
               "direction_semantics": { "type": "string" },
               "ci95": { "type": ["array", "null"], "items": { "type": "number" }, "maxItems": 2 },
-              "unit": { "type": ["string", "null"] }
+              "unit": { "type": ["string", "null"] },
+              "mean_ci95": { "type": ["array", "null"], "items": { "type": "number" }, "maxItems": 2 },
+              "pi95": { "type": ["array", "null"], "items": { "type": "number" }, "maxItems": 2 },
+              "pi95_method": { "type": ["string", "null"] },
+              "effect_ci95": { "type": ["array", "null"], "items": { "type": "number" }, "maxItems": 2 },
+              "tolerance_interval_95_95": { "type": ["array", "null"], "items": { "type": "number" }, "maxItems": 2 },
+              "unit_status": { "enum": ["valid", "missing", "conflict", null] },
+              "response_unit": { "type": ["string", "null"] }
             }
           },
           "confidence": { "enum": ["high", "medium", "low"] },
@@ -39,10 +46,45 @@
           "evidence_refs": { "type": "array", "items": { "type": "string" } },
           "extrapolation": { "type": "boolean" },
           "confirmation_needed": { "type": "boolean" },
-          "notes": { "type": ["string", "null"] }
+          "notes": { "type": ["string", "null"] },
+          "window_role": { "enum": ["marginal_diagnostic", null] },
+          "actionable": { "type": ["boolean", "null"] },
+          "actionable_blockers": {
+            "type": "array",
+            "items": { "enum": ["unit_missing", "unit_conflict", "constraint_infeasible",
+                                "extrapolation", "design_hull_low_confidence",
+                                "trend_confounded", "non_randomized_confirmation_pending",
+                                "no_prediction_interval"] }
+          },
+          "in_design_hull": { "type": ["boolean", "null"] },
+          "constraints_applied": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "factor": { "type": "string" },
+                "type": { "type": "string" },
+                "min": { "type": ["number", "null"] },
+                "max": { "type": ["number", "null"] },
+                "hard": { "type": ["boolean", "null"] },
+                "source": { "type": ["string", "null"] }
+              }
+            }
+          },
+          "constraint_violations": { "type": ["integer", "null"], "minimum": 0 },
+          "predicted_at_center": {
+            "type": ["object", "null"],
+            "properties": {
+              "mean": { "type": ["number", "null"] },
+              "mean_ci95": { "type": ["array", "null"], "items": { "type": "number" } },
+              "pi95": { "type": ["array", "null"], "items": { "type": "number" } },
+              "ti95_95": { "type": ["array", "null"], "items": { "type": "number" } }
+            }
+          }
         }
       }
     },
+    "windows": { "type": ["array", "null"] },
     "current_baseline": {
       "type": "object",
       "required": ["point"],
@@ -63,6 +105,199 @@
           "expected_response": { "type": "object" },
           "confidence": { "enum": ["high", "medium", "low"] }
         }
+      }
+    },
+    "joint_windows": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "responses", "factors", "feasible", "constraint_violations",
+                     "predicted", "desirability", "method", "evidence_level"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^JW-\\d{3}$" },
+          "responses": { "type": "array", "items": { "type": "string" } },
+          "factors": { "type": "object" },
+          "feasible": { "type": "boolean" },
+          "constraint_violations": { "type": "integer", "minimum": 0 },
+          "hard_constraint_violations": { "type": ["integer", "null"], "minimum": 0 },
+          "predicted": { "type": "object" },
+          "desirability": { "type": ["number", "null"] },
+          "method": { "enum": ["desirability_lbfgsb", "grid_search", "constraint_projection"] },
+          "evidence_level": { "type": ["string", "null"] },
+          "responses_satisfied": { "type": "array", "items": { "type": "string" } },
+          "constraint_slack": { "type": "object" },
+          "confidence": { "enum": ["high", "medium", "low", null] },
+          "window_ids": { "type": "array", "items": { "type": "string" } },
+          "unit_status": { "enum": ["valid", "missing", "conflict", null] },
+          "actionable": { "type": ["boolean", "null"] },
+          "blockers": { "type": "array", "items": { "type": "string" } },
+          "selection_scale": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "joint_setpoints": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "method", "factors", "predicted", "responses_satisfied",
+                     "feasible", "hard_constraint_violations", "constraint_slack",
+                     "desirability", "joint_coverage", "evidence_level", "confidence",
+                     "window_ids", "unit_status", "actionable", "blockers"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^JS-\\d{3}$" },
+          "method": { "enum": ["desirability_lbfgsb", "grid_search", "constraint_projection"] },
+          "factors": { "type": "object", "additionalProperties": { "type": ["number", "string", "null"] } },
+          "predicted": { "type": "object" },
+          "responses_satisfied": { "type": "array", "items": { "type": "string" } },
+          "feasible": { "type": "boolean" },
+          "hard_constraint_violations": { "type": "integer", "minimum": 0 },
+          "constraint_slack": { "type": "object" },
+          "desirability": { "type": ["number", "null"] },
+          "joint_coverage": { "type": ["number", "null"] },
+          "evidence_level": { "type": ["string", "null"] },
+          "confidence": { "enum": ["high", "medium", "low", null] },
+          "window_ids": { "type": "array", "items": { "type": "string" } },
+          "unit_status": { "enum": ["valid", "missing", "conflict", null] },
+          "actionable": { "type": ["boolean", "null"] },
+          "blockers": { "type": "array", "items": { "type": "string" } },
+          "responses": { "type": "array", "items": { "type": "string" } },
+          "selection_scale": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "factor_response_matrix": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["factor", "response", "window_id", "no_window_reason"],
+        "properties": {
+          "factor": { "type": "string" },
+          "response": { "type": "string" },
+          "window_id": { "type": ["string", "null"] },
+          "no_window_reason": {
+            "enum": [null, "NO_SIGNIFICANT_FACTOR", "GRID_EMPTY", "NO_FEASIBLE_POINT",
+                     "DISCONNECTED_WINDOW", "DIRECTION_ONLY", "CONSTRAINTS_INFEASIBLE",
+                     "UNIT_MISSING", "UNIT_CONFLICT", "EXTRAPOLATION_ONLY",
+                     "HULL_UNSUPPORTED", "NOT_ESTIMABLE", "TREND_CONFOUNDED_NO_WINDOW",
+                     "DESIGN_NOT_INFORMATIVE", "RESPONSE_ALL_MISSING"]
+          },
+          "delta": { "type": ["number", "null"] },
+          "effect_size": { "type": ["number", "null"] },
+          "direction": {
+            "type": ["string", "null"],
+            "description": "Sign of the coded main-effect coefficient. The emitter writes \"+\"/\"-\"; the contract does not fix the vocabulary, so any sign word (e.g. increase/decrease) is accepted."
+          },
+          "fdr_q": { "type": ["number", "null"] },
+          "evidence_level": { "type": ["string", "null"] },
+          "confidence": { "enum": ["high", "medium", "low", null] }
+        }
+      }
+    },
+    "actionable_summary": {
+      "type": ["object", "null"],
+      "required": ["n_actionable", "n_blocked", "blocked"],
+      "properties": {
+        "n_actionable": { "type": "integer", "minimum": 0 },
+        "n_blocked": { "type": "integer", "minimum": 0 },
+        "blocked": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "window_id": { "type": ["string", "null"] },
+              "setpoint_id": { "type": ["string", "null"] },
+              "reasons": { "type": "array", "items": { "type": "string" } }
+            }
+          }
+        }
+      }
+    },
+    "interval_disclosure": {
+      "type": ["object", "null"],
+      "properties": {
+        "pi_method": { "type": ["string", "null"] },
+        "ci_method": { "type": ["string", "null"] },
+        "effect_ci_method": { "type": ["string", "null"] },
+        "tolerance_method": { "type": ["string", "null"] },
+        "note": { "type": ["string", "null"] },
+        "joint_coverage": { "type": ["number", "null"] },
+        "coverage_check": {
+          "type": ["object", "null"],
+          "properties": {
+            "n": { "type": ["integer", "null"] },
+            "pi_point_coverage": { "type": ["number", "null"] }
+          }
+        }
+      }
+    },
+    "units": {
+      "type": ["object", "null"],
+      "properties": {
+        "factors": { "type": "object" },
+        "responses": { "type": "object" },
+        "conflicts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "factor_or_response": { "type": ["string", "null"] },
+              "from": { "type": ["string", "null"] },
+              "to": { "type": ["string", "null"] },
+              "reason": { "type": ["string", "null"] }
+            }
+          }
+        }
+      }
+    },
+    "design_region": {
+      "type": ["object", "null"],
+      "properties": {
+        "type": { "type": ["string", "null"] },
+        "hull": { "enum": ["box", "ccd_star", "convex_hull", "unbounded", null] },
+        "coded_bounds": { "type": "object" },
+        "axial_alpha": { "type": ["number", "null"] },
+        "max_leverage": { "type": ["number", "null"] },
+        "mean_leverage": { "type": ["number", "null"] },
+        "leverage_threshold": { "type": ["number", "null"] },
+        "n_exceed": { "type": ["integer", "null"] },
+        "extrapolation_risk": { "enum": ["low", "medium", "high", null] },
+        "evaluated_points": { "type": ["integer", "null"], "minimum": 0 },
+        "design_hull_confidence": { "enum": ["high", "medium", "low", null] },
+        "factor_order": { "type": "array", "items": { "type": "string" } },
+        "n_design_rows": { "type": ["integer", "null"] },
+        "note": { "type": ["string", "null"] }
+      }
+    },
+    "grid_plan": {
+      "type": ["object", "null"],
+      "properties": {
+        "n_active": { "type": ["integer", "null"], "minimum": 0 },
+        "top_k": { "type": ["integer", "null"], "minimum": 1 },
+        "grid_n": { "type": ["integer", "null"], "minimum": 2 },
+        "n_grid_points": { "type": ["integer", "null"], "minimum": 0 },
+        "approach": { "enum": ["grid", "continuous_optimization", null] },
+        "max_grid_points": { "type": ["integer", "null"] },
+        "deferred_factors": { "type": "array", "items": { "type": "string" } },
+        "truncated": { "type": ["boolean", "null"] },
+        "n_grid_factors": { "type": ["integer", "null"], "minimum": 0 }
+      }
+    },
+    "association_screen_ref": {
+      "type": ["object", "null"],
+      "properties": {
+        "path": { "type": "string" },
+        "sha256": { "type": ["string", "null"] },
+        "n_pairs": { "type": ["integer", "null"] },
+        "causal_claim": { "enum": ["none", null] }
+      }
+    },
+    "next_design_ref": {
+      "type": ["object", "null"],
+      "properties": {
+        "path": { "type": "string" },
+        "sha256": { "type": ["string", "null"] },
+        "recommended_action": { "type": ["string", "null"] },
+        "primary_action_id": { "type": ["string", "null"] }
       }
     },
     "interactions": {
@@ -137,9 +372,11 @@
         "type": "object",
         "required": ["factor"],
         "properties": {
-          "factor": { "type": "string" },
+          "factor": { "type": ["string", "null"] },
+          "type": { "type": ["string", "null"] },
           "min": { "type": ["number", "null"] },
           "max": { "type": ["number", "null"] },
+          "hard": { "type": ["boolean", "null"] },
           "source": { "type": ["string", "null"] }
         }
       }

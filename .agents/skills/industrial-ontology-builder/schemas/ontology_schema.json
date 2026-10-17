@@ -118,6 +118,79 @@
           }
         }
       }
+    },
+    "doe": {
+      "type": "object",
+      "description": "P1-1 DOE profile block (profile=doe only; optional and ignored by the diagnosis profile). Carries the designed-experiment identity and the factor/response declarations the DOE ontology_brief is projected from. All behaviour fields remain prior-only in data_stage=design_only.",
+      "properties": {
+        "profile": {"type": "string", "enum": ["doe"]},
+        "scene_key": {"type": ["string", "null"]},
+        "data_stage": {"type": "string", "enum": ["design_only", "collected"]},
+        "design_type": {"type": ["string", "null"]},
+        "design_region": {"type": ["object", "null"]},
+        "constraints": {"type": "array"},
+        "objectives": {"type": "array", "items": {"type": "string"}},
+        "ontology_version": {"type": ["string", "integer", "null"]},
+        "factors": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "col": {"type": "string"},
+              "name": {"type": ["string", "null"]},
+              "expected_sign": {"type": ["string", "null"]},
+              "physical_meaning": {"type": ["string", "null"]},
+              "ontology_signal": {"type": ["string", "null"]},
+              "unit": {"type": ["string", "null"]},
+              "min": {"type": ["number", "null"]},
+              "max": {"type": ["number", "null"]},
+              "levels": {"type": ["array", "null"]},
+              "confidence": {"type": "string", "enum": ["KNOWN", "INFERRED", "UNKNOWN"]}
+            }
+          }
+        },
+        "responses": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "col": {"type": "string"},
+              "name": {"type": ["string", "null"]},
+              "unit": {"type": ["string", "null"]},
+              "goal": {"type": ["string", "null"]},
+              "lsl": {"type": ["number", "null"]},
+              "usl": {"type": ["number", "null"]},
+              "target": {"type": ["number", "null"]},
+              "ontology_signal": {"type": ["string", "null"]},
+              "confidence": {"type": "string", "enum": ["KNOWN", "INFERRED", "UNKNOWN"]}
+            }
+          }
+        },
+        "limitations": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "description": "P1-1 build provenance (read by the deterministic DOE stage). rag_used/web_used must state what actually ran.",
+      "properties": {
+        "engine": {"type": "string"},
+        "profile": {"type": "string"},
+        "build_mode": {"type": "string"},
+        "data_stage": {"type": ["string", "null"]},
+        "rag_used": {"type": "boolean"},
+        "web_used": {"type": "boolean"},
+        "physics_prior_used": {"type": "boolean"},
+        "source": {"type": "string"},
+        "context_fp_version": {"type": "string"},
+        "ontology_version": {"type": ["string", "integer", "null"]},
+        "build_seconds": {"type": "number"},
+        "built_from_run": {"type": ["string", "null"]}
+      }
+    },
+    "limitations": {
+      "type": "array",
+      "description": "P1-1 top-level limitation ledger (mirrors doe.limitations when present)",
+      "items": {"type": "string"}
     }
   },
   "definitions": {
@@ -127,7 +200,7 @@
       "properties": {
         "name": {"type": "string"},
         "column": {"type": "string"},
-        "unit": {"type": "string"},
+        "unit": {"type": ["string", "null"]},
         "role": {
           "type": "string",
           "enum": ["target", "predictor", "confounder", "control", "metadata"]
@@ -139,6 +212,10 @@
         },
         "auto_inferred": {"type": "boolean"},
         "inference_basis": {"type": "string"},
+        "expected_sign": {
+          "type": ["string", "null"],
+          "description": "P1-1 DOE: declared/derived direction of this factor's effect on a response ('+'/'-' or prose). Never guessed — absent when no declaration or mechanism supports it."
+        },
         "control_type": {
           "type": "string",
           "enum": ["setpoint", "measurement", "output"]
@@ -156,15 +233,15 @@
         "equipment_ref": {"type": "string"},
         "stage_ref": {"type": "string"},
         "governing_law": {
-          "type": "string",
+          "type": ["string", "null"],
           "description": "v6.3 DIAGNOSTIC ENRICHMENT: Governing equation/law (e.g. Arrhenius, Bernoulli). Populated by context-builder. Consumed by data-processor Phase 0.4 and diagnostician Phase 1.5."
         },
         "expected_data_behavior": {
-          "type": "string",
+          "type": ["string", "null"],
           "description": "v6.3 DIAGNOSTIC ENRICHMENT: Qualitative description of normal behavior expected from physics"
         },
         "observed_data_behavior": {
-          "type": "string",
+          "type": ["string", "null"],
           "description": "v6.3 DIAGNOSTIC ENRICHMENT: Actual behavior observed in the data"
         },
         "behavior_match": {
@@ -188,7 +265,7 @@
       "properties": {
         "name": {"type": "string"},
         "column": {"type": "string"},
-        "unit": {"type": "string"},
+        "unit": {"type": ["string", "null"]},
         "role": {"type": "string", "const": "control"},
         "physical_meaning": {"type": "string"},
         "physical_meaning_confidence": {
@@ -197,14 +274,16 @@
         },
         "auto_inferred": {"type": "boolean"},
         "inference_basis": {"type": "string"},
+        "expected_sign": {"type": ["string", "null"],
+          "description": "P1-1 DOE: declared/derived direction of this factor's effect on a response ('+'/'-' or prose). Never guessed — absent when no declaration or mechanism supports it."},
         "control_type": {"type": "string", "enum": ["setpoint", "measurement", "output"]},
         "setpoint": {"type": ["number", "null"]},
         "controlled_by": {"type": "string"},
         "equipment_ref": {"type": "string"},
         "stage_ref": {"type": "string"},
-        "governing_law": {"type": "string"},
-        "expected_data_behavior": {"type": "string"},
-        "observed_data_behavior": {"type": "string"},
+        "governing_law": {"type": ["string", "null"]},
+        "expected_data_behavior": {"type": ["string", "null"]},
+        "observed_data_behavior": {"type": ["string", "null"]},
         "behavior_match": {"type": "string", "enum": ["CONSISTENT", "CONTRADICTED", "UNVERIFIED"]},
         "discrepancy_signal": {"type": "string"},
         "knowledge_source": {"type": "string", "enum": ["rag_retrieval", "reference_doc", "web_research", "auto_inferred", "user_provided"]}

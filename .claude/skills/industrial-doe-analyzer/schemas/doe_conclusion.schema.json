@@ -48,6 +48,23 @@
       }
     },
     "recommendations_ref": { "type": "string" },
+    "contract_status": {
+      "type": ["object", "null"],
+      "description": "v1.1 (P2-8): contract-conformance block, computed INDEPENDENTLY of evidence_grade. Emitted for a v1.1 payload INSIDE downstream_usage_card (the gate whitelists conclusion top-level keys strictly); schema-optional here for completeness.",
+      "properties": {
+        "contract_version": { "type": ["string", "null"] },
+        "evidence_grade_independent": { "type": ["boolean", "null"] },
+        "n_windows": { "type": ["integer", "null"] },
+        "n_windows_with_pi": { "type": ["integer", "null"] },
+        "n_windows_with_pi_gt_ci": { "type": ["integer", "null"] },
+        "n_joint_setpoints": { "type": ["integer", "null"] },
+        "n_actionable": { "type": ["integer", "null"] },
+        "matrix_zero_silent_cells": { "type": ["boolean", "null"] },
+        "interval_disclosure_present": { "type": ["boolean", "null"] },
+        "units_disclosed": { "type": ["boolean", "null"] },
+        "design_region_disclosed": { "type": ["boolean", "null"] }
+      }
+    },
     "downstream_usage_card": {
       "type": "object",
       "properties": {
@@ -55,7 +72,12 @@
         "n_windows": { "type": "integer" },
         "n_confirmations": { "type": "integer" },
         "n_watchlist": { "type": "integer" },
-        "usage_rules": { "type": "array", "items": { "type": "string" } }
+        "usage_rules": { "type": "array", "items": { "type": "string" } },
+        "n_joint_setpoints": { "type": ["integer", "null"] },
+        "n_actionable": { "type": ["integer", "null"] },
+        "n_blocked": { "type": ["integer", "null"] },
+        "factor_response_coverage": { "type": ["object", "null"] },
+        "contract_status": { "type": ["object", "null"] }
       }
     }
   }

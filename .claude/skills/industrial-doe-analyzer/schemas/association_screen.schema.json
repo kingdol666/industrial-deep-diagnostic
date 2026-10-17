@@ -1,0 +1,98 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "association_screen.schema.json",
+  "title": "association_screen — design-adjusted association screen (P3-1, contract §8.1 / DS-10)",
+  "type": "object",
+  "required": ["contract_version", "causal_claim", "n_rows", "n_pairs",
+               "design_adjusted", "pairs"],
+  "properties": {
+    "contract_version": { "const": "1.0" },
+    "generated_at": { "type": "string" },
+    "causal_claim": {
+      "const": "none",
+      "description": "red line: this artifact never makes a causal claim"
+    },
+    "n_rows": { "type": "integer", "minimum": 0 },
+    "n_pairs": { "type": "integer", "minimum": 0 },
+    "design_adjusted": {
+      "type": "boolean",
+      "description": "true when at least one pair carries a design-adjusted estimate"
+    },
+    "alpha": { "type": "number" },
+    "responses": { "type": "array", "items": { "type": "string" } },
+    "design_columns": { "type": "array", "items": { "type": "string" } },
+    "model_columns": { "type": "array", "items": { "type": "string" } },
+    "adjustment_method": { "type": "string" },
+    "window_emission": { "type": "string" },
+    "n_confounded_pairs": { "type": "integer", "minimum": 0 },
+    "excluded": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["column", "reason"],
+        "properties": {
+          "column": { "type": "string" },
+          "reason": { "type": "string" },
+          "note": { "type": "string" }
+        }
+      }
+    },
+    "pairs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["factor", "response", "kind", "marginal", "design_adjusted",
+                     "verdict", "note"],
+        "properties": {
+          "factor": { "type": "string" },
+          "response": { "type": "string" },
+          "kind": {
+            "enum": ["designed_factor", "non_factor", "held_constant", "unmodeled"]
+          },
+          "marginal": {
+            "type": ["object", "null"],
+            "required": ["r", "p", "n", "method"],
+            "properties": {
+              "r": { "type": ["number", "null"] },
+              "p": { "type": ["number", "null"] },
+              "n": { "type": "integer", "minimum": 0 },
+              "method": { "type": "string" }
+            }
+          },
+          "design_adjusted": {
+            "type": ["object", "null"],
+            "required": ["coef", "p", "n", "method", "strata"],
+            "properties": {
+              "coef": { "type": ["number", "null"] },
+              "p": { "type": ["number", "null"] },
+              "n": { "type": "integer", "minimum": 0 },
+              "method": { "type": "string" },
+              "strata": { "type": "array", "items": { "type": "string" } },
+              "std_err": { "type": ["number", "null"] },
+              "t": { "type": ["number", "null"] },
+              "df": { "type": ["integer", "null"] }
+            }
+          },
+          "verdict": {
+            "enum": ["design_adjusted", "marginal", "held_constant", "unmodeled"]
+          },
+          "note": { "type": "string" },
+          "confounded": {
+            "type": "boolean",
+            "description": "marginal strong + design-adjusted null (F18 confounder case)"
+          },
+          "marginal_significant": { "type": "boolean" },
+          "adjusted_significant": { "type": "boolean" },
+          "evidence_level": { "enum": ["L3", "L4"] },
+          "model_term_status": {
+            "type": "object",
+            "properties": {
+              "estimated": { "type": "boolean" },
+              "reason_code": { "type": ["string", "null"] }
+            }
+          }
+        }
+      }
+    }
+  }
+}

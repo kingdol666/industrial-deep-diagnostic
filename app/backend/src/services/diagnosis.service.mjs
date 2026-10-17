@@ -29,6 +29,7 @@ import { dshClient, hermesClient, qwenClient } from '../engine/acp-client.mjs';
 import { hasHarness } from '../harness/registry.mjs';
 import * as harnessOptionsModule from '../harness/engine-options.mjs';
 import { assertHarnessUsable } from '../harness/availability.mjs';
+import { buildArtifactManifest, resolveRunDir } from './artifact-manifest.service.mjs';
 import { defaultHarnessChain } from '../harness/engines.mjs';
 
 // ── Engine dispatch: route execution by the run's harness ──
@@ -222,6 +223,46 @@ function resolveOntologyDirective({ ontologyMode, ontologyScene, ontologySource,
   }
 }
 
+// Resolve the DOE ontology policy for a `doe-analysis` run (Phase 1 P1-6).
+// Before this fix the DOE intent blanked the ontology entirely, so the
+// ontology-first flow (prepare → brief → analyzer) could never run. A DOE run
+// now ALWAYS carries a directive with profile="doe", and `off` is refused in
+// production — only an explicit dev override may disable the ontology stage.
+// `mode` uses the DOE namespace {auto, full, reuse, extend} (contracts §7.3);
+// `data_stage` is design_only|collected. The store lookup itself happens in the
+// deterministic stage (doe_ontology_prepare.py) at run time, so `hit` stays
+// "pending" — nothing is claimed that has not happened yet.
+const DOE_ONTOLOGY_MODES = ['auto', 'full', 'reuse', 'extend'];
+function resolveDoeOntologyDirective({ ontologyMode, ontologyScene, ontologyDataStage, ontologyDevOverride } = {}) {
+  const requested = typeof ontologyMode === 'string' ? ontologyMode.trim() : '';
+  const devOverride = ontologyDevOverride === true || ontologyDevOverride === 'true';
+  const dataStage = ['design_only', 'collected'].includes(ontologyDataStage)
+    ? ontologyDataStage
+    : 'collected';
+  const sceneKey = typeof ontologyScene === 'string' && ontologyScene.trim() ? ontologyScene.trim() : null;
+
+  if (requested === 'off') {
+    if (devOverride) {
+      return {
+        profile: 'doe', mode: 'off', scene_key: sceneKey, data_stage: dataStage,
+        source: null, hit: 'skipped', dev_override: true,
+        reason: 'ontology stage disabled by explicit dev override (ontologyDevOverride=true)',
+      };
+    }
+    return {
+      profile: 'doe', mode: 'auto', scene_key: sceneKey, data_stage: dataStage,
+      source: null, hit: 'pending', refused_off: true,
+      reason: 'ontology mode "off" is refused for the DOE intent (production hard gate) — running auto',
+    };
+  }
+  const mode = DOE_ONTOLOGY_MODES.includes(requested) ? requested : 'auto';
+  return {
+    profile: 'doe', mode, scene_key: sceneKey, data_stage: dataStage,
+    source: null, hit: 'pending',
+    reason: 'doe-analysis intent — ontology-first policy (prepare → brief → analyzer)',
+  };
+}
+
 // Create a new diagnosis run (DB + engine state)
 export function createDiagnosisRun(params) {
   const { dataPath, folderPath, dataPaths, userQuestion, sceneName, maxTurns, timeoutMinutes, reportLanguage,
@@ -261,7 +302,8 @@ export function createDiagnosisRun(params) {
     ? resolveEnhancementPolicy(params.enhancement, userQuestion)
     : { policy: 'off', intentHit: false, matched: [] };
 
-  // Ontology asset policy — Phase A of optimization plan v4
+  // Ontology asset policy — Phase A of optimization plan v4 (deep-diagnosis);
+  // a `doe-analysis` run gets the DOE-profile directive instead (P1-6).
   const ontology = isDefaultIntent
     ? resolveOntologyDirective({
         ontologyMode: params.ontologyMode,
@@ -269,7 +311,14 @@ export function createDiagnosisRun(params) {
         ontologySource: params.ontologySource,
         dataPath, folderPath, dataPaths,
       })
-    : null;
+    : (analysisIntent === 'doe-analysis'
+        ? resolveDoeOntologyDirective({
+            ontologyMode: params.ontologyMode,
+            ontologyScene: params.ontologyScene,
+            ontologyDataStage: params.ontologyDataStage,
+            ontologyDevOverride: params.ontologyDevOverride,
+          })
+        : null);
 
   let mode, dataPathForDb, scene, dataFolder;
 
@@ -301,6 +350,13 @@ export function createDiagnosisRun(params) {
     const err = new Error('One of dataPath, folderPath, or dataPaths is required');
     err.status = 400;
     throw err;
+  }
+
+  // DOE ontology directive: when no scene_key was supplied explicitly, fall back
+  // to the run's scene name (deterministic and already sanitized by the store).
+  if (ontology && ontology.profile === 'doe' && !ontology.scene_key) {
+    ontology.scene_key = scene;
+    ontology.reason = `${ontology.reason || ''}; scene_key defaulted to the run scene name`.trim();
   }
 
   const runId = uuid().slice(0, diagConfig.run_id_length);
@@ -418,6 +474,9 @@ export function getDiagTaskView(taskId) {
       verdict: run.judge_verdict ?? null,
       score: run.score ?? null,
       report_md_path: reportAbs,
+      // AR-01: the artifact manifest rides on the SAME result view that both the
+      // tasks API and /api/external/v1 return, so the two surfaces cannot drift.
+      artifacts: buildArtifactManifest(resolveRunDir(PROJECT_ROOT, run.workspace_path)),
     };
   }
   if (taskStatus === 'failed') {
@@ -839,7 +898,9 @@ async function executeDiagnosis(runId, run, isRetry = false) {
       reportLanguage: run.report_language || diagConfig.default_language,
       followUpMessage,
       sessionId,
-      ontology: runIntent === 'deep-diagnosis' ? (meta.ontology || null) : null,
+      ontology: (runIntent === 'deep-diagnosis' || runIntent === 'doe-analysis')
+        ? (meta.ontology || null)
+        : null,
       enhancement: runIntent === 'deep-diagnosis' ? (meta.enhancement || null) : null,
       analysisIntent: runIntent,
       // Forward ONLY an explicitly selected model — run.model is display data

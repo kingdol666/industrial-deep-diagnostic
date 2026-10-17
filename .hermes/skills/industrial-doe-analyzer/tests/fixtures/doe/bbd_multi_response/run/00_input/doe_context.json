@@ -1,0 +1,108 @@
+{
+  "contract_version": "1.1",
+  "experiment_id": "fx-bbd-multi",
+  "line_id": "L5-bopet",
+  "product_id": "film-12um",
+  "recipe_id": "rcp-bopet-12um-v3",
+  "objective": "同时满足厚度目标与雾度上限",
+  "design_type_declared": "rsm_bbd",
+  "data_stage": "collected",
+  "design_region": {
+    "factorial_bounds": {
+      "a_ratio": [
+        0.8,
+        1.2
+      ],
+      "b_temp": [
+        90.0,
+        110.0
+      ],
+      "c_speed": [
+        45.0,
+        55.0
+      ]
+    },
+    "design_hull": "convex_hull"
+  },
+  "data_file": "run_table.csv",
+  "factors": [
+    {
+      "name": "a_ratio",
+      "col": "a_ratio",
+      "type": "numeric",
+      "unit": "-",
+      "min": 0.8,
+      "max": 1.2,
+      "levels": null,
+      "role": "control",
+      "expected_sign": "+"
+    },
+    {
+      "name": "b_temp",
+      "col": "b_temp",
+      "type": "numeric",
+      "unit": "°C",
+      "min": 90,
+      "max": 110,
+      "levels": null,
+      "role": "control"
+    },
+    {
+      "name": "c_speed",
+      "col": "c_speed",
+      "type": "numeric",
+      "unit": "m/min",
+      "min": 45,
+      "max": 55,
+      "levels": null,
+      "role": "control"
+    }
+  ],
+  "responses": [
+    {
+      "name": "thickness_um",
+      "col": "thickness_um",
+      "unit": "um",
+      "goal": "target",
+      "lsl": 48,
+      "usl": 52,
+      "target": 50,
+      "weight": 1.0
+    },
+    {
+      "name": "haze_pct",
+      "col": "haze_pct",
+      "unit": "%",
+      "goal": "minimize",
+      "lsl": null,
+      "usl": 1.8,
+      "target": null,
+      "weight": 0.5
+    }
+  ],
+  "blocks": [],
+  "covariates": [],
+  "constraints": [],
+  "replicates_col": "replicate_group",
+  "run_order_col": "run_order",
+  "group_col": "run_id",
+  "time_col": null,
+  "current_setpoint": {
+    "a_ratio": 0.8,
+    "b_temp": 90,
+    "c_speed": 45
+  },
+  "baseline_source": "dataset_median",
+  "ontology": {
+    "profile": "doe",
+    "mode": "off",
+    "scene_key": null,
+    "version": null,
+    "data_stage": "collected"
+  },
+  "provenance": {
+    "platform": "RecipeWorkShop",
+    "created_by": "make_fixtures",
+    "created_at": "2026-10-17T00:00:00+08:00"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "fixture": "units_conflict",
+  "design_type": "rsm_ccd",
+  "n_runs": 11,
+  "factors": [
+    "film_width",
+    "line_speed"
+  ],
+  "responses": [
+    "width_um"
+  ],
+  "conflict": {
+    "factor": "film_width",
+    "analysis_unit": "mm",
+    "platform_unit": "µm",
+    "unit_conversion": 1000.0
+  },
+  "expected": {
+    "unit_status": "conflict",
+    "actionable": false,
+    "blocker": "unit_conflict",
+    "units_conflicts_min": 1
+  }
+}

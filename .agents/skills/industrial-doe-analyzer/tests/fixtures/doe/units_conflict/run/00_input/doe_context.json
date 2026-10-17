@@ -1,0 +1,95 @@
+{
+  "contract_version": "1.1",
+  "experiment_id": "fx-units-conflict",
+  "line_id": "L5-bopet",
+  "product_id": "film-12um",
+  "recipe_id": "rcp-bopet-12um-v3",
+  "objective": "工艺窗口优化",
+  "design_type_declared": "rsm_ccd",
+  "data_stage": "collected",
+  "design_region": {
+    "factorial_bounds": {
+      "film_width": [
+        950.0,
+        1050.0
+      ],
+      "line_speed": [
+        280.0,
+        360.0
+      ]
+    },
+    "axial_alpha": 1.41,
+    "design_hull": "ccd_star"
+  },
+  "data_file": "run_table.csv",
+  "factors": [
+    {
+      "name": "film_width",
+      "col": "film_width",
+      "type": "numeric",
+      "unit": "mm",
+      "min": 950,
+      "max": 1050,
+      "levels": null,
+      "role": "control",
+      "platform_ref": {
+        "recipe_param": "film_width",
+        "node_id": "dw-mdo-01",
+        "plc_tag": "FILM_WIDTH_SP",
+        "unit": "µm",
+        "unit_conversion": 1000.0,
+        "rounding": 1.0,
+        "hard_limits": {
+          "min": 960,
+          "max": 1040
+        }
+      }
+    },
+    {
+      "name": "line_speed",
+      "col": "line_speed",
+      "type": "numeric",
+      "unit": "m/min",
+      "min": 280,
+      "max": 360,
+      "levels": null,
+      "role": "control"
+    }
+  ],
+  "responses": [
+    {
+      "name": "width_um",
+      "col": "width_um",
+      "unit": "um",
+      "goal": "target",
+      "lsl": 48,
+      "usl": 52,
+      "target": 50,
+      "weight": 1.0
+    }
+  ],
+  "blocks": [],
+  "covariates": [],
+  "constraints": [],
+  "replicates_col": "replicate_group",
+  "run_order_col": "run_order",
+  "group_col": "run_id",
+  "time_col": null,
+  "current_setpoint": {
+    "film_width": 950,
+    "line_speed": 280
+  },
+  "baseline_source": "dataset_median",
+  "ontology": {
+    "profile": "doe",
+    "mode": "off",
+    "scene_key": null,
+    "version": null,
+    "data_stage": "collected"
+  },
+  "provenance": {
+    "platform": "RecipeWorkShop",
+    "created_by": "make_fixtures",
+    "created_at": "2026-10-17T00:00:00+08:00"
+  }
+}

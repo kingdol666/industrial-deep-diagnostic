@@ -26,20 +26,31 @@ User may override via `analysis_context.json` (`mode_override`) — **override c
 | `00_input/<data file>` | CSV/Excel/Parquet/Feather/JSON/TSV data table |
 | `00_input/analysis_context.json` | *(optional, schema-validated)* objective, responses with spec limits/goals, factors, blocks, covariates, time/group/run-order columns, constraints. If absent, Phase 0 auto-infers it with `assigned_by: "auto"` on every inferred field |
 
-### Outputs (9 schemas cover both modes; a single run produces 7 per mode — designed has no correlation/stability, observational has no effect_table/model; gate = `scripts/quality_gate.mjs`)
+### Outputs (contracts v1.1; gate = `scripts/quality_gate.mjs`)
 
 | File | Gate |
 |------|:----:|
 | `run_manifest.json` | created by Phase 0 (required by append-pipeline-event.mjs) |
-| `01_profile/data_profile.json` | columns/roles/design detection (resolution + alias chains)/quality/caveats |
-| `02_analysis/effect_table.json` | designed: effects, extra-SS ANOVA, η², BH q, Pareto rank, MDE |
-| `02_analysis/model.json` | designed: coded coefficients, R²/adj-R²/Q², lack-of-fit, saturation/pooling disclosure |
+| `artifact_manifest.json` | G-src: artifact registry (kind/path/sha256/schema_version + explicit `missing[]`) — the single source the tasks and external APIs read |
+| `01_ontology/{ontology,ontology_brief,ontology_coverage}.json` | ontology stage only (`analysis_context.ontology.mode != off`); `ontology_brief.md` is the Agent's scene contract |
+| `01_profile/data_profile.json` | columns/roles/design detection (resolution + alias chains + hull/leverage)/quality/caveats |
+| `01_profile/analysis_plan.md` | Agent-authored scene understanding; required whenever the ontology gate is armed |
+| `02_analysis/effect_table.json` | designed: effects + `effect_ci95`/`std_effect`/`term_unit`, extra-SS ANOVA, η², BH q, MDE, `interval_semantics` |
+| `02_analysis/model.json` | designed: coded coefficients, R²/adj-R²/Q², lack-of-fit, design hull + leverage, saturation/pooling disclosure |
+| `02_analysis/association_screen.json` | both modes: design-adjusted vs marginal screen, `causal_claim:"none"`, never feeds a window (G8) |
+| `02_analysis/ontology_consistency.json` | designed, brief present: advisory sign/mechanism consistency |
 | `02_analysis/correlation_report.json` | observational: validated pairs (r, lag, anti-spurious verdicts, ΔR² contribution) |
-| `02_analysis/stability_report.json` | capability (honest Cp/Cpk vs Pp/Ppk labels), steady segments, change points, drift flags |
+| `02_analysis/stability_report.json` | observational: capability (honest Cp/Cpk vs Pp/Ppk labels), steady segments, change points, drift flags |
 | `03_figures/plot_manifest.json` | per-figure ink-gate results |
 | `conclusions/doe_conclusion.json` | master conclusion, evidence grade A/A−/B, limitations, `authored_by` |
-| `conclusions/recommendations.json` | **downstream contract v1.0** — operating windows, conflicts resolution, confirmations, applicability domain, invalidation conditions |
-| `report.html` | G7: interactive analysis report deterministically rendered by `analyze.py report` from the run's artifact JSONs (agent never hand-edits it) |
+| `conclusions/recommendations.json` | **downstream contract v1.1** — marginal windows (`window_role=marginal_diagnostic`), `joint_windows`/`joint_setpoints` (the only executable carrier), `factor_response_matrix`, `units`, `design_region`, `grid_plan`, four interval types, conflicts, confirmations, applicability domain |
+| `conclusions/next_design.json` | fold-over / augment / space-filling / confirm, executable settings inside hard constraints |
+| `conclusions/optimization_guidance.json` | platform handoff: `recipe_patch` / `node_setpoints` with mandatory `platform_ref`, lineage |
+| `report.html` | G7: interactive analysis report deterministically rendered by `analyze.py report` (agent never hand-edits it); §11 renders the ontology brief, joint setpoints and next design |
+
+### Subcommands
+
+`profile` · `run` · `report` · `all` · `build` (design generation from a spec JSON, DS-12) · `manifest` (rebuild `artifact_manifest.json`).
 
 ## Pipeline Event Logging
 
@@ -92,9 +103,18 @@ Key constraints:
 SKILL_PATH="<path-to-.claude/skills/industrial-doe-analyzer>"
 SHARED_PATH="<path-to-.claude/shared>"
 
-# G1-G7: per-mode artifacts schema-valid + strict key check + report.html gate
+# G1-G11: per-mode artifacts schema-valid + strict key check + report.html +
+# association/interval/joint/coverage semantics (G8-G11 are n/a when their
+# artifact is absent — absence never fails)
 node "$SKILL_PATH/scripts/quality_gate.mjs" "$RUN_DIR" \
   --skill-path "$SKILL_PATH" --shared-path "$SHARED_PATH"
+
+# Full suite: 136 legacy assertions + the Phase 5 acceptance cases
+uv run --project "$SHARED_PATH/scripts" python "$SKILL_PATH/tests/run_tests.py" all
+# Evidence probes (write tests/results/*.json)
+uv run --project "$SHARED_PATH/scripts" python "$SKILL_PATH/tests/mc_pi_coverage.py"
+uv run --project "$SHARED_PATH/scripts" python "$SKILL_PATH/tests/mc_effect_recovery.py" --reps 1000
+uv run --project "$SHARED_PATH/scripts" python "$SKILL_PATH/tests/perf_probe.py"
 ```
 
 ## Failure Recovery

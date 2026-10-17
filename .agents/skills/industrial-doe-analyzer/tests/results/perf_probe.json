@@ -1,0 +1,41 @@
+{
+  "budgets": {
+    "100x8x3": 60.0,
+    "1000x10x3": 120.0,
+    "8_active_windows": 60.0
+  },
+  "memory_cap_mb": 2048.0,
+  "runs": {
+    "100x8x3": {
+      "seconds": 11.664,
+      "peak_mb": 72.8,
+      "n_rows": 100,
+      "n_factors": 8,
+      "n_responses": 3,
+      "budget_seconds": 60.0
+    },
+    "1000x10x3": {
+      "seconds": 13.05,
+      "peak_mb": 18.4,
+      "n_rows": 1000,
+      "n_factors": 10,
+      "n_responses": 3,
+      "budget_seconds": 120.0
+    },
+    "8_active_windows": {
+      "seconds": 8.797,
+      "peak_mb": 100.3,
+      "n_active": 8,
+      "grid_n": 4,
+      "approach": "grid",
+      "budget_seconds": 60.0
+    }
+  },
+  "pass": {
+    "100x8x3": true,
+    "1000x10x3": true,
+    "8_active_windows": true
+  },
+  "failures": [],
+  "machine": "AMD Ryzen 7 9700X 8-Core / 31.1 GB RAM / Windows 10.0.26200 x64"
+}

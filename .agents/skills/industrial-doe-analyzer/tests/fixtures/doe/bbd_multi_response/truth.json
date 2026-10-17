@@ -1,0 +1,42 @@
+{
+  "fixture": "bbd_multi_response",
+  "design_type": "rsm_bbd",
+  "n_runs": 15,
+  "factors": [
+    "a_ratio",
+    "b_temp",
+    "c_speed"
+  ],
+  "responses": [
+    "thickness_um",
+    "haze_pct"
+  ],
+  "generation": {
+    "noise_sigma": {
+      "thickness_um": 0.12,
+      "haze_pct": 0.03
+    },
+    "thickness": "50 - 1.2*(za-0.8)^2 - 1.0*zb^2 - 0.8*zc^2",
+    "haze": "1.35 + 0.5*(za+0.8)^2 + 0.2*zb^2 + 0.15*zc^2"
+  },
+  "per_response_optimum_coded": {
+    "thickness_um": {
+      "a_ratio": 0.8
+    },
+    "haze_pct": {
+      "a_ratio": -0.8
+    }
+  },
+  "conflict": {
+    "factor": "a_ratio",
+    "kind": "opposing optimum along the same factor",
+    "thickness_wants": "+0.8",
+    "haze_wants": "-0.8"
+  },
+  "jointly_feasible": true,
+  "expected": {
+    "matrix_cells": 6,
+    "window_role": "marginal_diagnostic",
+    "responses_satisfied_min": 2
+  }
+}

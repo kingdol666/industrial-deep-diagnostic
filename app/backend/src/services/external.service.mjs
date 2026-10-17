@@ -173,6 +173,8 @@ export async function refreshTask(taskId) {
       score: built.result?.score ?? null,
       report_md: built.result?.report_md ?? null,
       files: built.files ?? null,
+      // Same artifact manifest object the tasks view carries (AR-01 同源).
+      artifacts: built.result?.artifacts ?? null,
     };
     if (built.result?.error) e.error = built.result.error;
   } else {

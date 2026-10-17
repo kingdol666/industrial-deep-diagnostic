@@ -104,7 +104,29 @@
           "intercept": { "type": ["number", "null"] }
         }
       },
-      "stationary_point": { "type": ["object", "null"] }
+      "stationary_point": { "type": ["object", "null"] },
+      "design_hull": {
+        "type": ["object", "null"],
+        "description": "v1.1 (contract §6): design-region hull of the analysed run set. Mirrors recommendations.design_region (hull/coded_bounds/max_leverage/leverage_threshold).",
+        "properties": {
+          "hull": { "enum": ["box", "ccd_star", "convex_hull", "unbounded", null] },
+          "coded_bounds": { "type": "object" },
+          "axial_alpha": { "type": ["number", "null"] },
+          "max_leverage": { "type": ["number", "null"] },
+          "leverage_threshold": { "type": ["number", "null"] },
+          "design_hull_confidence": { "enum": ["high", "medium", "low", null] }
+        }
+      },
+      "leverage": {
+        "type": ["object", "null"],
+        "description": "v1.1: hat-matrix leverage h_i = x_i'(X'X)^-1 x_i over the fitted rows; classic 2p/n threshold.",
+        "properties": {
+          "max": { "type": ["number", "null"] },
+          "mean": { "type": ["number", "null"] },
+          "threshold": { "type": ["number", "null"] },
+          "n_exceed": { "type": ["integer", "null"] }
+        }
+      }
     }
   }
 }
