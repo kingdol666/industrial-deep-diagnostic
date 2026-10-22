@@ -93,13 +93,17 @@ export function parseOmpSessionId(marker) {
 }
 
 // ── Spawn an OMP RPC process ──
-function spawnOmpRpc({ sessionDir, resume = false, label = 'omp' }) {
+// timeoutMinutes (per-run, minutes) wins over ompConfig().timeout_minutes;
+// 0/undefined keeps the config default. The service layer forwards the run's
+// requested budget so a long pipeline is not silently killed at the default.
+function spawnOmpRpc({ sessionDir, resume = false, label = 'omp', timeoutMinutes = 0 }) {
   const binary = resolveOmpBinary();
   const args = ['--mode=rpc', '-p'];
 
   if (ompConfig().auto_approve !== false) args.push('--auto-approve');
   if (ompConfig().thinking && ompConfig().thinking !== 'auto') args.push(`--thinking=${ompConfig().thinking}`);
-  if (ompConfig().timeout_minutes) args.push(`--max-time=${Math.round(ompConfig().timeout_minutes * 60)}`);
+  const maxTimeMinutes = Number(timeoutMinutes) > 0 ? Number(timeoutMinutes) : ompConfig().timeout_minutes;
+  if (maxTimeMinutes) args.push(`--max-time=${Math.round(maxTimeMinutes * 60)}`);
   args.push(`--session-dir=${sessionDir}`);
   if (resume) args.push('-c');
 
@@ -317,6 +321,7 @@ export function startDiagnosis({
   reportLanguage, followUpMessage, sessionId = null,
   ontology = null, enhancement = null,
   analysisIntent = 'deep-diagnosis',
+  preprocessingMode = null,
 }) {
   const lang = reportLanguage || config.diagnosis.default_language;
   const ompSession = parseOmpSessionId(sessionId);
@@ -325,7 +330,7 @@ export function startDiagnosis({
   const { dataPaths, promptTarget } = resolveAnalysisTarget(isResume ? { mode: 'resume' } : analysisTarget);
 
   const sessionDir = runSessionDir(runId);
-  const { proc } = spawnOmpRpc({ sessionDir, resume: isResume, label: `omp-diagnosis:${runId}` });
+  const { proc } = spawnOmpRpc({ sessionDir, resume: isResume, label: `omp-diagnosis:${runId}`, timeoutMinutes });
   const query = createOmpQuery(proc, { runKey: runId, maxTurns, label: `omp-diagnosis:${runId}` });
 
   let prompt;
@@ -354,7 +359,7 @@ export function startDiagnosis({
 
 ${skillRef}
 
-${buildPrompt(sceneName, userQuestion, promptTarget, lang, followUpMessage)}${buildIntentDirective(analysisIntent, sceneName)}${buildOntologyDirective(ontology)}${buildEnhancementDirective(enhancement)}`;
+${buildPrompt(sceneName, userQuestion, promptTarget, lang, followUpMessage)}${buildIntentDirective(analysisIntent, sceneName, { preprocessingMode })}${buildOntologyDirective(ontology)}${buildEnhancementDirective(enhancement)}`;
   }
 
   query.sendPrompt(prompt).catch(err => {

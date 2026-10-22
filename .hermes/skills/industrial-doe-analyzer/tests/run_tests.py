@@ -32,8 +32,10 @@ Cases:
 
 import itertools
 import json
+import shutil
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 import numpy as np
@@ -44,7 +46,13 @@ SKILL = HERE.parent
 SCRIPTS = SKILL / "scripts"
 REPO = SKILL.parents[2]
 SHARED = REPO / ".claude" / "shared"
-FIXTURES = (HERE / "fixtures").resolve()
+# The suite writes run artifacts and adapter outputs next to its fixtures.
+# Run against a private copy so the committed fixtures stay pristine. Keep the
+# copy inside the repo — path-containment guards reject system temp dirs.
+_SOURCE_FIXTURES = (HERE / "fixtures").resolve()
+FIXTURES = Path(tempfile.mkdtemp(prefix=".tmp-fixtures-", dir=HERE)).resolve()
+if _SOURCE_FIXTURES.is_dir():
+    shutil.copytree(_SOURCE_FIXTURES, FIXTURES, dirs_exist_ok=True)
 
 ANALYZE = SCRIPTS / "analyze.py"
 GATE = SCRIPTS / "quality_gate.mjs"
@@ -1459,13 +1467,19 @@ def main():
     keep = "--keep" in sys.argv
     todo = list(CASES) if selector not in CASES and selector != "all" else (
         list(CASES) if selector == "all" else [selector])
-    for name in todo:
-        CASES[name]()
-    clean_fixture_artifacts(keep=keep)
-    failed = [r for r in RESULTS if not r[1]]
-    print(f"\n[TESTS] {len(RESULTS) - len(failed)}/{len(RESULTS)} passed"
-          + (f" — FAILED: {[r[0] for r in failed]}" if failed else " — ALL GREEN"))
-    sys.exit(1 if failed else 0)
+    try:
+        for name in todo:
+            CASES[name]()
+        clean_fixture_artifacts(keep=keep)
+        failed = [r for r in RESULTS if not r[1]]
+        print(f"\n[TESTS] {len(RESULTS) - len(failed)}/{len(RESULTS)} passed"
+              + (f" — FAILED: {[r[0] for r in failed]}" if failed else " — ALL GREEN"))
+        sys.exit(1 if failed else 0)
+    finally:
+        if not keep:
+            shutil.rmtree(FIXTURES, ignore_errors=True)
+        else:
+            print(f"[keep] fixture copy retained at {FIXTURES}")
 
 
 if __name__ == "__main__":

@@ -98,6 +98,56 @@ describe('buildArtifactManifest', () => {
     assert.equal(m.source, 'absent');
     assert.deepEqual(m.artifacts, []);
   });
+
+  test('intents with no inventory get an explicit not-applicable manifest (no false missing)', () => {
+    const dir = makeRun({ omit: ['effect_table', 'recommendations'] });
+    try {
+      const m = buildArtifactManifest(dir, { analysisIntent: 'experience-mining' });
+      assert.equal(m.applicable, false);
+      assert.equal(m.source, 'not-applicable');
+      assert.equal(m.analysis_intent, 'experience-mining');
+      assert.deepEqual(m.artifacts, []);
+      assert.deepEqual(m.missing, []);
+    } finally { rmSync(dir, { recursive: true, force: true }); }
+  });
+
+  test('specialist inventories (plan v2 Phase C2): stability and sentinel artifacts are indexed', () => {
+    const dir = makeRun();
+    try {
+      // A stability run dir: the specialist products live under line_report/.
+      mkdirSync(join(dir, 'line_report'), { recursive: true });
+      writeFileSync(join(dir, 'line_report', 'stability_report.json'), JSON.stringify({ contract_version: 'line-stability-report/1.0' }));
+      writeFileSync(join(dir, 'line_report', 'line_stability_report.html'), '<html>zh</html>');
+      writeFileSync(join(dir, 'line_report', 'line_stability_report.md'), '# 报告');
+      const st = buildArtifactManifest(dir, { analysisIntent: 'stability-report' });
+      assert.equal(st.applicable, true);
+      assert.ok(st.artifacts.some((a) => a.kind === 'stability_report'));
+      assert.ok(st.artifacts.some((a) => a.kind === 'stability_html'));
+      assert.ok(st.artifacts.some((a) => a.kind === 'stability_md'));
+      assert.ok(!st.missing.some((x) => x.kind === 'stability_report'));
+
+      // A sentinel run dir: alert.json + two reports under sentinel/.
+      mkdirSync(join(dir, 'sentinel'), { recursive: true });
+      writeFileSync(join(dir, 'sentinel', 'alert.json'), JSON.stringify({ contract_version: 'sentinel-alert/1.0' }));
+      writeFileSync(join(dir, 'sentinel', 'watch_report.md'), '# 巡检');
+      writeFileSync(join(dir, 'sentinel', 'quick_screen_report.html'), '<html>zh</html>');
+      const sn = buildArtifactManifest(dir, { analysisIntent: 'quick-screen' });
+      assert.equal(sn.applicable, true);
+      assert.ok(sn.artifacts.some((a) => a.kind === 'alert'));
+      assert.ok(sn.artifacts.some((a) => a.kind === 'watch_report'));
+      assert.ok(sn.artifacts.some((a) => a.kind === 'quick_screen_html'));
+      assert.deepEqual(sn.missing.filter((x) => ['alert', 'watch_report', 'quick_screen_html'].includes(x.kind)), []);
+    } finally { rmSync(dir, { recursive: true, force: true }); }
+  });
+
+  test('doe-analysis keeps the DOE inventory and missing semantics', () => {
+    const dir = makeRun({ omit: ['effect_table'] });
+    try {
+      const m = buildArtifactManifest(dir, { analysisIntent: 'doe-analysis' });
+      assert.equal(m.applicable, true);
+      assert.ok(m.missing.some((x) => x.kind === 'effect_table'));
+    } finally { rmSync(dir, { recursive: true, force: true }); }
+  });
 });
 
 describe('resolveRunDir', () => {

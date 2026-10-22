@@ -1,0 +1,6011 @@
+{
+ "validations": [
+  {
+   "parameter": "F_PS002@PV1_mean",
+   "target": "total_defects",
+   "pearson_r": -0.1532,
+   "spearman_rho": -0.201,
+   "p_value": 0.01404,
+   "detrended_r": 0.023,
+   "detrended_p_value": 0.7824,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.189,
+     "PG31DS": -0.279,
+     "PG32B": -0.109,
+     "PG32D": 0.126,
+     "PG32DS": 0.753,
+     "PG32M": -0.157
+    },
+    "direction_reversals": 2
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.023,
+   "significance": "significant",
+   "evidence_grade": "MODERATE",
+   "warnings": [],
+   "family": "F_PS_feed",
+   "fdr_q": 0.0253,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "F_PS003@PV1_mean",
+   "target": "total_defects",
+   "pearson_r": -0.1175,
+   "spearman_rho": 0.157,
+   "p_value": 0.05628,
+   "detrended_r": -0.032,
+   "detrended_p_value": 0.6989,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.218,
+     "PG31DS": -0.228,
+     "PG32B": 0.225,
+     "PG32D": 0.806,
+     "PG32DS": 0.644,
+     "PG32M": -0.327
+    },
+    "direction_reversals": 2
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.02,
+   "significance": "marginal",
+   "evidence_grade": "NONE",
+   "warnings": [],
+   "family": "F_PS_feed",
+   "fdr_q": 0.0745,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "F_PS005@PV1_mean",
+   "target": "total_defects",
+   "pearson_r": 0.2422,
+   "spearman_rho": -0.206,
+   "p_value": 0.01178,
+   "detrended_r": 0.016,
+   "detrended_p_value": 0.8433,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.418,
+     "PG31DS": 0.083,
+     "PG32B": -0.012,
+     "PG32D": -0.821,
+     "PG32DS": -0.644,
+     "PG32M": -0.132
+    },
+    "direction_reversals": 2
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.024,
+   "significance": "significant",
+   "evidence_grade": "MODERATE",
+   "warnings": [
+    "Pearson(0.24) 与 Spearman(-0.21) 分歧 >0.3：重尾/极值主导，采用 Spearman"
+   ],
+   "family": "F_PS_feed",
+   "fdr_q": 0.0229,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "F_PS006@PV1_mean",
+   "target": "total_defects",
+   "pearson_r": 0.0058,
+   "spearman_rho": 0.229,
+   "p_value": 0.005051,
+   "detrended_r": -0.005,
+   "detrended_p_value": 0.9542,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.09,
+     "PG31DS": -0.086,
+     "PG32B": -0.274,
+     "PG32D": 0.509,
+     "PG32DS": -0.544,
+     "PG32M": -0.149
+    },
+    "direction_reversals": 4
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.021,
+   "significance": "significant",
+   "evidence_grade": "MODERATE",
+   "warnings": [
+    "分层内 4/6 个牌号方向与合并相反"
+   ],
+   "family": "F_PS_feed",
+   "fdr_q": 0.0108,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH001@PV_mean",
+   "target": "total_defects",
+   "pearson_r": 0.1971,
+   "spearman_rho": -0.175,
+   "p_value": 0.03301,
+   "detrended_r": 0.167,
+   "detrended_p_value": 0.04132,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.459,
+     "PG31DS": 0.034,
+     "PG32B": -0.778,
+     "PG32D": -0.135,
+     "PG32DS": 0.046,
+     "PG32M": 0.088
+    },
+    "direction_reversals": 4
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.023,
+   "significance": "significant",
+   "evidence_grade": "MODERATE",
+   "warnings": [
+    "Pearson(0.20) 与 Spearman(-0.17) 分歧 >0.3：重尾/极值主导，采用 Spearman",
+    "分层内 4/6 个牌号方向与合并相反"
+   ],
+   "family": "MD_TH_preheat",
+   "fdr_q": 0.0479,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH002@PV_mean",
+   "target": "total_defects",
+   "pearson_r": 0.2072,
+   "spearman_rho": -0.273,
+   "p_value": 0.0007705,
+   "detrended_r": -0.009,
+   "detrended_p_value": 0.9176,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.301,
+     "PG31DS": -0.02,
+     "PG32B": 0.705,
+     "PG32D": -0.65,
+     "PG32DS": -0.301,
+     "PG32M": 0.314
+    },
+    "direction_reversals": 3
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.025,
+   "significance": "significant",
+   "evidence_grade": "MODERATE",
+   "warnings": [
+    "Pearson(0.21) 与 Spearman(-0.27) 分歧 >0.3：重尾/极值主导，采用 Spearman",
+    "分层内 3/6 个牌号方向与合并相反"
+   ],
+   "family": "MD_TH_preheat",
+   "fdr_q": 0.002,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH003@PV_mean",
+   "target": "total_defects",
+   "pearson_r": 0.1987,
+   "spearman_rho": -0.047,
+   "p_value": 0.568,
+   "detrended_r": 0.176,
+   "detrended_p_value": 0.03223,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.156,
+     "PG31DS": -0.028,
+     "PG32B": 0.438,
+     "PG32D": -0.326,
+     "PG32DS": 0.251,
+     "PG32M": 0.179
+    },
+    "direction_reversals": 4
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.02,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [
+    "分层内 4/6 个牌号方向与合并相反"
+   ],
+   "family": "MD_TH_preheat",
+   "fdr_q": 0.5944,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH004@PV_mean",
+   "target": "total_defects",
+   "pearson_r": 0.1751,
+   "spearman_rho": -0.158,
+   "p_value": 0.05474,
+   "detrended_r": 0.162,
+   "detrended_p_value": 0.04811,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.468,
+     "PG31DS": -0.063,
+     "PG32B": 0.298,
+     "PG32D": -0.491,
+     "PG32DS": 0.209,
+     "PG32M": 0.041
+    },
+    "direction_reversals": 4
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.021,
+   "significance": "marginal",
+   "evidence_grade": "NONE",
+   "warnings": [
+    "Pearson(0.18) 与 Spearman(-0.16) 分歧 >0.3：重尾/极值主导，采用 Spearman",
+    "分层内 4/6 个牌号方向与合并相反"
+   ],
+   "family": "MD_TH_preheat",
+   "fdr_q": 0.0745,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH005@PV_mean",
+   "target": "total_defects",
+   "pearson_r": 0.1953,
+   "spearman_rho": -0.066,
+   "p_value": 0.4246,
+   "detrended_r": 0.1,
+   "detrended_p_value": 0.225,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.304,
+     "PG31DS": -0.035,
+     "PG32B": 0.097,
+     "PG32D": -0.241,
+     "PG32DS": 0.1,
+     "PG32M": 0.215
+    },
+    "direction_reversals": 4
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.021,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [
+    "分层内 4/6 个牌号方向与合并相反"
+   ],
+   "family": "MD_TH_preheat",
+   "fdr_q": 0.466,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH006@PV_mean",
+   "target": "total_defects",
+   "pearson_r": 0.2002,
+   "spearman_rho": 0.133,
+   "p_value": 0.1059,
+   "detrended_r": 0.096,
+   "detrended_p_value": 0.2425,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.386,
+     "PG31DS": 0.118,
+     "PG32B": 0.535,
+     "PG32D": -0.269,
+     "PG32DS": 0.042,
+     "PG32M": 0.182
+    },
+    "direction_reversals": 1
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.022,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [],
+   "family": "MD_TH_stretch",
+   "fdr_q": 0.1324,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH007@PV_mean",
+   "target": "total_defects",
+   "pearson_r": 0.1938,
+   "spearman_rho": 0.177,
+   "p_value": 0.0306,
+   "detrended_r": 0.022,
+   "detrended_p_value": 0.7877,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.36,
+     "PG31DS": -0.077,
+     "PG32B": -0.024,
+     "PG32D": -0.259,
+     "PG32DS": -0.234,
+     "PG32M": 0.374
+    },
+    "direction_reversals": 4
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.023,
+   "significance": "significant",
+   "evidence_grade": "MODERATE",
+   "warnings": [
+    "分层内 4/6 个牌号方向与合并相反"
+   ],
+   "family": "MD_TH_stretch",
+   "fdr_q": 0.0459,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH008@PV_mean",
+   "target": "total_defects",
+   "pearson_r": 0.1838,
+   "spearman_rho": 0.19,
+   "p_value": 0.02015,
+   "detrended_r": 0.033,
+   "detrended_p_value": 0.6851,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.391,
+     "PG31DS": 0.098,
+     "PG32B": 0.353,
+     "PG32D": -0.297,
+     "PG32DS": -0.164,
+     "PG32M": 0.261
+    },
+    "direction_reversals": 2
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.023,
+   "significance": "significant",
+   "evidence_grade": "MODERATE",
+   "warnings": [],
+   "family": "MD_TH_stretch",
+   "fdr_q": 0.0324,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH009@PV_mean",
+   "target": "total_defects",
+   "pearson_r": 0.1947,
+   "spearman_rho": -0.191,
+   "p_value": 0.01988,
+   "detrended_r": -0.027,
+   "detrended_p_value": 0.7417,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.011,
+     "PG31DS": -0.257,
+     "PG32B": -0.078,
+     "PG32D": -0.452,
+     "PG32DS": 0.349,
+     "PG32M": 0.267
+    },
+    "direction_reversals": 3
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.022,
+   "significance": "significant",
+   "evidence_grade": "MODERATE",
+   "warnings": [
+    "Pearson(0.19) 与 Spearman(-0.19) 分歧 >0.3：重尾/极值主导，采用 Spearman",
+    "分层内 3/6 个牌号方向与合并相反",
+    "关联可由共同时间趋势解释（控制时间后 |rho|<0.2）"
+   ],
+   "family": "MD_TH_stretch",
+   "fdr_q": 0.0324,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH010@PV_mean",
+   "target": "total_defects",
+   "pearson_r": 0.1866,
+   "spearman_rho": -0.183,
+   "p_value": 0.02529,
+   "detrended_r": 0.079,
+   "detrended_p_value": 0.3371,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.017,
+     "PG31DS": -0.162,
+     "PG32B": 0.14,
+     "PG32D": -0.326,
+     "PG32DS": -0.025,
+     "PG32M": 0.25
+    },
+    "direction_reversals": 2
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.021,
+   "significance": "significant",
+   "evidence_grade": "MODERATE",
+   "warnings": [
+    "Pearson(0.19) 与 Spearman(-0.18) 分歧 >0.3：重尾/极值主导，采用 Spearman",
+    "关联可由共同时间趋势解释（控制时间后 |rho|<0.2）"
+   ],
+   "family": "MD_TH_stretch",
+   "fdr_q": 0.0392,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH011@PV_mean",
+   "target": "total_defects",
+   "pearson_r": 0.1816,
+   "spearman_rho": -0.196,
+   "p_value": 0.01646,
+   "detrended_r": 0.096,
+   "detrended_p_value": 0.2419,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.11,
+     "PG31DS": -0.024,
+     "PG32B": -0.036,
+     "PG32D": -0.338,
+     "PG32DS": 0.251,
+     "PG32M": 0.58
+    },
+    "direction_reversals": 3
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.021,
+   "significance": "significant",
+   "evidence_grade": "MODERATE",
+   "warnings": [
+    "Pearson(0.18) 与 Spearman(-0.20) 分歧 >0.3：重尾/极值主导，采用 Spearman",
+    "分层内 3/6 个牌号方向与合并相反"
+   ],
+   "family": "MD_TH_stretch",
+   "fdr_q": 0.0285,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH012@PV_mean",
+   "target": "total_defects",
+   "pearson_r": -0.2407,
+   "spearman_rho": -0.337,
+   "p_value": 2.681e-05,
+   "detrended_r": -0.162,
+   "detrended_p_value": 0.04792,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.314,
+     "PG31DS": -0.134,
+     "PG32B": -0.158,
+     "PG32D": -0.309,
+     "PG32DS": 0.059,
+     "PG32M": 0.036
+    },
+    "direction_reversals": 2
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.026,
+   "significance": "significant",
+   "evidence_grade": "MODERATE",
+   "warnings": [
+    "关联可由共同时间趋势解释（控制时间后 |rho|<0.2）"
+   ],
+   "family": "MD_TH_cooling",
+   "fdr_q": 0.0002,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH013@PV_mean",
+   "target": "total_defects",
+   "pearson_r": -0.2247,
+   "spearman_rho": -0.094,
+   "p_value": 0.2548,
+   "detrended_r": -0.032,
+   "detrended_p_value": 0.6985,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.277,
+     "PG31DS": 0.063,
+     "PG32B": -0.055,
+     "PG32D": 0.424,
+     "PG32DS": 0.059,
+     "PG32M": -0.039
+    },
+    "direction_reversals": 3
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.021,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [
+    "分层内 3/6 个牌号方向与合并相反"
+   ],
+   "family": "MD_TH_cooling",
+   "fdr_q": 0.2922,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH014@PV_mean",
+   "target": "total_defects",
+   "pearson_r": -0.2246,
+   "spearman_rho": -0.103,
+   "p_value": 0.2101,
+   "detrended_r": -0.078,
+   "detrended_p_value": 0.3447,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.259,
+     "PG31DS": 0.001,
+     "PG32B": -0.335,
+     "PG32D": 0.318,
+     "PG32DS": 0.31,
+     "PG32M": -0.231
+    },
+    "direction_reversals": 3
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.021,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [
+    "分层内 3/6 个牌号方向与合并相反"
+   ],
+   "family": "MD_TH_cooling",
+   "fdr_q": 0.2488,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH015@PV_mean",
+   "target": "total_defects",
+   "pearson_r": -0.2241,
+   "spearman_rho": -0.007,
+   "p_value": 0.9296,
+   "detrended_r": 0.035,
+   "detrended_p_value": 0.6744,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.232,
+     "PG31DS": 0.112,
+     "PG32B": 0.304,
+     "PG32D": 0.424,
+     "PG32DS": -0.092,
+     "PG32M": -0.176
+    },
+    "direction_reversals": 3
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.019,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [
+    "分层内 3/6 个牌号方向与合并相反"
+   ],
+   "family": "MD_TH_cooling",
+   "fdr_q": 0.9296,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH016@PV_mean",
+   "target": "total_defects",
+   "pearson_r": -0.2352,
+   "spearman_rho": 0.214,
+   "p_value": 0.008935,
+   "detrended_r": 0.095,
+   "detrended_p_value": 0.2489,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.126,
+     "PG31DS": 0.04,
+     "PG32B": -0.012,
+     "PG32D": 0.712,
+     "PG32DS": 0.536,
+     "PG32M": -0.41
+    },
+    "direction_reversals": 3
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.023,
+   "significance": "significant",
+   "evidence_grade": "MODERATE",
+   "warnings": [
+    "Pearson(-0.24) 与 Spearman(0.21) 分歧 >0.3：重尾/极值主导，采用 Spearman",
+    "分层内 3/6 个牌号方向与合并相反"
+   ],
+   "family": "MD_TH_cooling",
+   "fdr_q": 0.0183,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH017@PV_mean",
+   "target": "total_defects",
+   "pearson_r": -0.2358,
+   "spearman_rho": 0.307,
+   "p_value": 0.0001429,
+   "detrended_r": -0.01,
+   "detrended_p_value": 0.9018,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.086,
+     "PG31DS": 0.086,
+     "PG32B": 0.377,
+     "PG32D": 0.7,
+     "PG32DS": -0.402,
+     "PG32M": -0.242
+    },
+    "direction_reversals": 2
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.025,
+   "significance": "significant",
+   "evidence_grade": "MODERATE",
+   "warnings": [
+    "Pearson(-0.24) 与 Spearman(0.31) 分歧 >0.3：重尾/极值主导，采用 Spearman",
+    "关联可由共同时间趋势解释（控制时间后 |rho|<0.2）"
+   ],
+   "family": "MD_TH_cooling",
+   "fdr_q": 0.0005,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH018@PV_mean",
+   "target": "total_defects",
+   "pearson_r": -0.2358,
+   "spearman_rho": 0.317,
+   "p_value": 8.065e-05,
+   "detrended_r": 0.068,
+   "detrended_p_value": 0.4123,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.163,
+     "PG31DS": 0.055,
+     "PG32B": 0.322,
+     "PG32D": 0.732,
+     "PG32DS": 0.452,
+     "PG32M": -0.297
+    },
+    "direction_reversals": 1
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.025,
+   "significance": "significant",
+   "evidence_grade": "MODERATE",
+   "warnings": [
+    "Pearson(-0.24) 与 Spearman(0.32) 分歧 >0.3：重尾/极值主导，采用 Spearman",
+    "关联可由共同时间趋势解释（控制时间后 |rho|<0.2）"
+   ],
+   "family": "MD_TH_cooling",
+   "fdr_q": 0.0003,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C00@PV1_mean",
+   "target": "total_defects",
+   "pearson_r": 0.0186,
+   "spearman_rho": 0.319,
+   "p_value": 7.324e-05,
+   "detrended_r": -0.062,
+   "detrended_p_value": 0.4558,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.154,
+     "PG31DS": 0.013,
+     "PG32B": 0.541,
+     "PG32D": 0.853,
+     "PG32DS": 0.234,
+     "PG32M": -0.091
+    },
+    "direction_reversals": 2
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.022,
+   "significance": "significant",
+   "evidence_grade": "MODERATE",
+   "warnings": [
+    "Pearson(0.02) 与 Spearman(0.32) 分歧 >0.3：重尾/极值主导，采用 Spearman"
+   ],
+   "family": "W1C_stable_setpoint",
+   "fdr_q": 0.0003,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C01@PV1_mean",
+   "target": "total_defects",
+   "pearson_r": 0.0294,
+   "spearman_rho": -0.264,
+   "p_value": 0.001135,
+   "detrended_r": -0.01,
+   "detrended_p_value": 0.9011,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.08,
+     "PG31DS": 0.043,
+     "PG32B": -0.34,
+     "PG32D": -0.921,
+     "PG32DS": 0.452,
+     "PG32M": 0.443
+    },
+    "direction_reversals": 3
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.025,
+   "significance": "significant",
+   "evidence_grade": "MODERATE",
+   "warnings": [
+    "分层内 3/6 个牌号方向与合并相反"
+   ],
+   "family": "W1C_stable_setpoint",
+   "fdr_q": 0.0026,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C8D@PV1_mean",
+   "target": "total_defects",
+   "pearson_r": 0.0714,
+   "spearman_rho": -0.32,
+   "p_value": 6.787e-05,
+   "detrended_r": -0.118,
+   "detrended_p_value": 0.1517,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.359,
+     "PG31DS": -0.111,
+     "PG32B": -0.529,
+     "PG32D": -0.647,
+     "PG32DS": -0.586,
+     "PG32M": 0.116
+    },
+    "direction_reversals": 2
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.027,
+   "significance": "significant",
+   "evidence_grade": "MODERATE",
+   "warnings": [
+    "Pearson(0.07) 与 Spearman(-0.32) 分歧 >0.3：重尾/极值主导，采用 Spearman",
+    "关联可由共同时间趋势解释（控制时间后 |rho|<0.2）"
+   ],
+   "family": "W1C_stable_setpoint",
+   "fdr_q": 0.0003,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C40@PV1_mean",
+   "target": "total_defects",
+   "pearson_r": 0.075,
+   "spearman_rho": -0.339,
+   "p_value": 2.279e-05,
+   "detrended_r": -0.158,
+   "detrended_p_value": 0.05383,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.069,
+     "PG31DS": -0.039,
+     "PG32B": 0.146,
+     "PG32D": -0.617,
+     "PG32DS": -0.025,
+     "PG32M": 0.239
+    },
+    "direction_reversals": 2
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.027,
+   "significance": "significant",
+   "evidence_grade": "MODERATE",
+   "warnings": [
+    "Pearson(0.08) 与 Spearman(-0.34) 分歧 >0.3：重尾/极值主导，采用 Spearman",
+    "关联可由共同时间趋势解释（控制时间后 |rho|<0.2）"
+   ],
+   "family": "W1C_absolute_process",
+   "fdr_q": 0.0001,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C4B@PV1_mean",
+   "target": "total_defects",
+   "pearson_r": 0.0725,
+   "spearman_rho": -0.329,
+   "p_value": 4.243e-05,
+   "detrended_r": -0.112,
+   "detrended_p_value": 0.1739,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.091,
+     "PG31DS": -0.052,
+     "PG32B": 0.332,
+     "PG32D": -0.64,
+     "PG32DS": -0.569,
+     "PG32M": -0.05
+    },
+    "direction_reversals": 1
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.026,
+   "significance": "significant",
+   "evidence_grade": "MODERATE",
+   "warnings": [
+    "Pearson(0.07) 与 Spearman(-0.33) 分歧 >0.3：重尾/极值主导，采用 Spearman",
+    "关联可由共同时间趋势解释（控制时间后 |rho|<0.2）"
+   ],
+   "family": "W1C_absolute_process",
+   "fdr_q": 0.0002,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C84@PV1_mean",
+   "target": "total_defects",
+   "pearson_r": 0.0759,
+   "spearman_rho": 0.341,
+   "p_value": 2.083e-05,
+   "detrended_r": 0.254,
+   "detrended_p_value": 0.001806,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.05,
+     "PG31DS": 0.173,
+     "PG32B": 0.815,
+     "PG32D": 0.529,
+     "PG32DS": -0.042,
+     "PG32M": -0.116
+    },
+    "direction_reversals": 2
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.024,
+   "significance": "significant",
+   "evidence_grade": "STRONG",
+   "warnings": [],
+   "family": "W1C_absolute_process",
+   "fdr_q": 0.0001,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C87@PV1_mean",
+   "target": "total_defects",
+   "pearson_r": -0.0975,
+   "spearman_rho": 0.205,
+   "p_value": 0.01222,
+   "detrended_r": -0.038,
+   "detrended_p_value": 0.6424,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.006,
+     "PG31DS": -0.114,
+     "PG32B": -0.419,
+     "PG32D": 0.682,
+     "PG32DS": -0.293,
+     "PG32M": -0.454
+    },
+    "direction_reversals": 5
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.021,
+   "significance": "significant",
+   "evidence_grade": "MODERATE",
+   "warnings": [
+    "Pearson(-0.10) 与 Spearman(0.20) 分歧 >0.3：重尾/极值主导，采用 Spearman",
+    "分层内 5/6 个牌号方向与合并相反"
+   ],
+   "family": "W1C_absolute_process",
+   "fdr_q": 0.0229,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C8A@PV1_mean",
+   "target": "total_defects",
+   "pearson_r": -0.1098,
+   "spearman_rho": 0.406,
+   "p_value": 2.85e-07,
+   "detrended_r": 0.075,
+   "detrended_p_value": 0.3645,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.204,
+     "PG31DS": 0.129,
+     "PG32B": 0.043,
+     "PG32D": 0.762,
+     "PG32DS": 0.259,
+     "PG32M": -0.278
+    },
+    "direction_reversals": 2
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.024,
+   "significance": "significant",
+   "evidence_grade": "MODERATE",
+   "warnings": [
+    "Pearson(-0.11) 与 Spearman(0.41) 分歧 >0.3：重尾/极值主导，采用 Spearman",
+    "关联可由共同时间趋势解释（控制时间后 |rho|<0.2）"
+   ],
+   "family": "W1C_absolute_process",
+   "fdr_q": 0.0,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C8B@PV1_mean",
+   "target": "total_defects",
+   "pearson_r": -0.056,
+   "spearman_rho": 0.346,
+   "p_value": 1.541e-05,
+   "detrended_r": 0.191,
+   "detrended_p_value": 0.01939,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.197,
+     "PG31DS": 0.262,
+     "PG32B": 0.438,
+     "PG32D": 0.709,
+     "PG32DS": 0.72,
+     "PG32M": -0.105
+    },
+    "direction_reversals": 2
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.025,
+   "significance": "significant",
+   "evidence_grade": "MODERATE",
+   "warnings": [
+    "Pearson(-0.06) 与 Spearman(0.35) 分歧 >0.3：重尾/极值主导，采用 Spearman",
+    "关联可由共同时间趋势解释（控制时间后 |rho|<0.2）"
+   ],
+   "family": "W1C_absolute_process",
+   "fdr_q": 0.0001,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C80@PV1_mean",
+   "target": "total_defects",
+   "pearson_r": -0.0498,
+   "spearman_rho": 0.295,
+   "p_value": 0.0002622,
+   "detrended_r": 0.01,
+   "detrended_p_value": 0.8999,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.34,
+     "PG31DS": 0.114,
+     "PG32B": -0.091,
+     "PG32D": 0.662,
+     "PG32DS": 0.259,
+     "PG32M": 0.327
+    },
+    "direction_reversals": 2
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.019,
+   "significance": "significant",
+   "evidence_grade": "MODERATE",
+   "warnings": [
+    "Pearson(-0.05) 与 Spearman(0.29) 分歧 >0.3：重尾/极值主导，采用 Spearman"
+   ],
+   "family": "W1C_actuator_mixed",
+   "fdr_q": 0.0008,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C81@PV1_mean",
+   "target": "total_defects",
+   "pearson_r": -0.0741,
+   "spearman_rho": -0.386,
+   "p_value": 1.135e-06,
+   "detrended_r": -0.031,
+   "detrended_p_value": 0.71,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.344,
+     "PG31DS": -0.09,
+     "PG32B": -0.559,
+     "PG32D": -0.576,
+     "PG32DS": -0.159,
+     "PG32M": -0.165
+    },
+    "direction_reversals": 0
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.026,
+   "significance": "significant",
+   "evidence_grade": "MODERATE",
+   "warnings": [
+    "Pearson(-0.07) 与 Spearman(-0.39) 分歧 >0.3：重尾/极值主导，采用 Spearman",
+    "关联可由共同时间趋势解释（控制时间后 |rho|<0.2）"
+   ],
+   "family": "W1C_actuator_mixed",
+   "fdr_q": 0.0,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C82@PV1_mean",
+   "target": "total_defects",
+   "pearson_r": -0.0309,
+   "spearman_rho": 0.27,
+   "p_value": 0.0008557,
+   "detrended_r": 0.031,
+   "detrended_p_value": 0.7119,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.247,
+     "PG31DS": 0.14,
+     "PG32B": 0.498,
+     "PG32D": 0.624,
+     "PG32DS": 0.527,
+     "PG32M": 0.028
+    },
+    "direction_reversals": 1
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.022,
+   "significance": "significant",
+   "evidence_grade": "MODERATE",
+   "warnings": [
+    "Pearson(-0.03) 与 Spearman(0.27) 分歧 >0.3：重尾/极值主导，采用 Spearman"
+   ],
+   "family": "W1C_actuator_mixed",
+   "fdr_q": 0.0021,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C88@PV1_mean",
+   "target": "total_defects",
+   "pearson_r": -0.1179,
+   "spearman_rho": 0.351,
+   "p_value": 1.154e-05,
+   "detrended_r": -0.015,
+   "detrended_p_value": 0.8604,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.01,
+     "PG31DS": -0.072,
+     "PG32B": -0.243,
+     "PG32D": 0.609,
+     "PG32DS": 0.218,
+     "PG32M": -0.426
+    },
+    "direction_reversals": 3
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.027,
+   "significance": "significant",
+   "evidence_grade": "MODERATE",
+   "warnings": [
+    "Pearson(-0.12) 与 Spearman(0.35) 分歧 >0.3：重尾/极值主导，采用 Spearman",
+    "分层内 3/6 个牌号方向与合并相反",
+    "关联可由共同时间趋势解释（控制时间后 |rho|<0.2）"
+   ],
+   "family": "W1C_actuator_mixed",
+   "fdr_q": 0.0001,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C7C@PV1_mean",
+   "target": "total_defects",
+   "pearson_r": 0.0813,
+   "spearman_rho": -0.165,
+   "p_value": 0.0442,
+   "detrended_r": 0.171,
+   "detrended_p_value": 0.03746,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.51,
+     "PG31DS": 0.123,
+     "PG32B": -0.742,
+     "PG32D": -0.553,
+     "PG32DS": 0.619,
+     "PG32M": 0.369
+    },
+    "direction_reversals": 4
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.022,
+   "significance": "significant",
+   "evidence_grade": "WEAK",
+   "warnings": [
+    "分层内 4/6 个牌号方向与合并相反"
+   ],
+   "family": "W1C_deviation",
+   "fdr_q": 0.0622,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C7D@PV1_mean",
+   "target": "total_defects",
+   "pearson_r": -0.137,
+   "spearman_rho": 0.27,
+   "p_value": 0.0008797,
+   "detrended_r": -0.069,
+   "detrended_p_value": 0.4015,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.499,
+     "PG31DS": 0.113,
+     "PG32B": 0.535,
+     "PG32D": 0.447,
+     "PG32DS": 0.251,
+     "PG32M": 0.583
+    },
+    "direction_reversals": 1
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.025,
+   "significance": "significant",
+   "evidence_grade": "MODERATE",
+   "warnings": [
+    "Pearson(-0.14) 与 Spearman(0.27) 分歧 >0.3：重尾/极值主导，采用 Spearman"
+   ],
+   "family": "W1C_deviation",
+   "fdr_q": 0.0021,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C7E@PV1_mean",
+   "target": "total_defects",
+   "pearson_r": -0.0908,
+   "spearman_rho": 0.015,
+   "p_value": 0.8513,
+   "detrended_r": -0.022,
+   "detrended_p_value": 0.7925,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.357,
+     "PG31DS": 0.049,
+     "PG32B": 0.663,
+     "PG32D": -0.106,
+     "PG32DS": 0.703,
+     "PG32M": 0.47
+    },
+    "direction_reversals": 2
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.018,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [],
+   "family": "W1C_deviation",
+   "fdr_q": 0.8706,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C7F@PV1_mean",
+   "target": "total_defects",
+   "pearson_r": 0.047,
+   "spearman_rho": 0.143,
+   "p_value": 0.0816,
+   "detrended_r": -0.024,
+   "detrended_p_value": 0.7718,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.047,
+     "PG31DS": 0.042,
+     "PG32B": -0.31,
+     "PG32D": -0.644,
+     "PG32DS": -0.678,
+     "PG32M": -0.055
+    },
+    "direction_reversals": 5
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.02,
+   "significance": "marginal",
+   "evidence_grade": "NONE",
+   "warnings": [
+    "分层内 5/6 个牌号方向与合并相反"
+   ],
+   "family": "W1C_deviation",
+   "fdr_q": 0.1049,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C83@PV1_mean",
+   "target": "total_defects",
+   "pearson_r": 0.0264,
+   "spearman_rho": -0.309,
+   "p_value": 0.0001235,
+   "detrended_r": -0.128,
+   "detrended_p_value": 0.1186,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.042,
+     "PG31DS": -0.164,
+     "PG32B": -0.462,
+     "PG32D": -0.524,
+     "PG32DS": -0.519,
+     "PG32M": -0.385
+    },
+    "direction_reversals": 0
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.02,
+   "significance": "significant",
+   "evidence_grade": "MODERATE",
+   "warnings": [
+    "Pearson(0.03) 与 Spearman(-0.31) 分歧 >0.3：重尾/极值主导，采用 Spearman",
+    "关联可由共同时间趋势解释（控制时间后 |rho|<0.2）"
+   ],
+   "family": "W1C_deviation",
+   "fdr_q": 0.0004,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C85@PV1_mean",
+   "target": "total_defects",
+   "pearson_r": 0.106,
+   "spearman_rho": -0.275,
+   "p_value": 0.000678,
+   "detrended_r": -0.043,
+   "detrended_p_value": 0.6041,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.076,
+     "PG31DS": 0.006,
+     "PG32B": -0.322,
+     "PG32D": -0.709,
+     "PG32DS": -0.686,
+     "PG32M": 0.429
+    },
+    "direction_reversals": 2
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.025,
+   "significance": "significant",
+   "evidence_grade": "MODERATE",
+   "warnings": [
+    "Pearson(0.11) 与 Spearman(-0.28) 分歧 >0.3：重尾/极值主导，采用 Spearman",
+    "关联可由共同时间趋势解释（控制时间后 |rho|<0.2）"
+   ],
+   "family": "W1C_deviation",
+   "fdr_q": 0.0019,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C86@PV1_mean",
+   "target": "total_defects",
+   "pearson_r": 0.0969,
+   "spearman_rho": -0.364,
+   "p_value": 4.973e-06,
+   "detrended_r": -0.099,
+   "detrended_p_value": 0.2279,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.129,
+     "PG31DS": -0.094,
+     "PG32B": 0.188,
+     "PG32D": -0.665,
+     "PG32DS": 0.343,
+     "PG32M": 0.663
+    },
+    "direction_reversals": 3
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.022,
+   "significance": "significant",
+   "evidence_grade": "MODERATE",
+   "warnings": [
+    "Pearson(0.10) 与 Spearman(-0.36) 分歧 >0.3：重尾/极值主导，采用 Spearman",
+    "分层内 3/6 个牌号方向与合并相反",
+    "关联可由共同时间趋势解释（控制时间后 |rho|<0.2）"
+   ],
+   "family": "W1C_deviation",
+   "fdr_q": 0.0001,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C89@PV1_mean",
+   "target": "total_defects",
+   "pearson_r": -0.0332,
+   "spearman_rho": -0.126,
+   "p_value": 0.1264,
+   "detrended_r": 0.029,
+   "detrended_p_value": 0.728,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.555,
+     "PG31DS": -0.108,
+     "PG32B": -0.815,
+     "PG32D": 0.032,
+     "PG32DS": 0.0,
+     "PG32M": 0.187
+    },
+    "direction_reversals": 4
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.021,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [
+    "分层内 4/6 个牌号方向与合并相反"
+   ],
+   "family": "W1C_deviation",
+   "fdr_q": 0.1537,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C8C@PV1_mean",
+   "target": "total_defects",
+   "pearson_r": 0.0075,
+   "spearman_rho": 0.093,
+   "p_value": 0.2597,
+   "detrended_r": -0.016,
+   "detrended_p_value": 0.8422,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.126,
+     "PG31DS": -0.141,
+     "PG32B": 0.049,
+     "PG32D": 0.679,
+     "PG32DS": -0.201,
+     "PG32M": 0.415
+    },
+    "direction_reversals": 2
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.02,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [],
+   "family": "W1C_deviation",
+   "fdr_q": 0.2922,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "meters",
+   "target": "total_defects",
+   "pearson_r": 0.1702,
+   "spearman_rho": 0.053,
+   "p_value": 0.5206,
+   "detrended_r": 0.186,
+   "detrended_p_value": 0.02337,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.131,
+     "PG31DS": 0.446,
+     "PG32B": 0.351,
+     "PG32D": -0.382,
+     "PG32DS": 0.403,
+     "PG32M": 0.393
+    },
+    "direction_reversals": 1
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.019,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [],
+   "family": "exposure",
+   "fdr_q": 0.5578,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "F_PS002@PV1_mean",
+   "target": "oligomer",
+   "pearson_r": -0.058,
+   "spearman_rho": 0.041,
+   "p_value": 0.6153,
+   "detrended_r": 0.21,
+   "detrended_p_value": 0.01023,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.033,
+     "PG31DS": 0.081,
+     "PG32B": -0.122,
+     "PG32D": 0.034,
+     "PG32DS": 0.553,
+     "PG32M": 0.619
+    },
+    "direction_reversals": 1
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.018,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [],
+   "family": "F_PS_feed",
+   "fdr_q": 0.7691,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "F_PS003@PV1_mean",
+   "target": "oligomer",
+   "pearson_r": -0.1208,
+   "spearman_rho": 0.121,
+   "p_value": 0.1402,
+   "detrended_r": 0.049,
+   "detrended_p_value": 0.5532,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.024,
+     "PG31DS": -0.086,
+     "PG32B": 0.073,
+     "PG32D": 0.697,
+     "PG32DS": 0.485,
+     "PG32M": -0.283
+    },
+    "direction_reversals": 3
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.021,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [
+    "分层内 3/6 个牌号方向与合并相反"
+   ],
+   "family": "F_PS_feed",
+   "fdr_q": 0.2629,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "F_PS005@PV1_mean",
+   "target": "oligomer",
+   "pearson_r": 0.1675,
+   "spearman_rho": -0.13,
+   "p_value": 0.1143,
+   "detrended_r": -0.016,
+   "detrended_p_value": 0.8493,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.26,
+     "PG31DS": 0.186,
+     "PG32B": -0.316,
+     "PG32D": -0.652,
+     "PG32DS": -0.732,
+     "PG32M": -0.775
+    },
+    "direction_reversals": 2
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.023,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [],
+   "family": "F_PS_feed",
+   "fdr_q": 0.243,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "F_PS006@PV1_mean",
+   "target": "oligomer",
+   "pearson_r": -0.0225,
+   "spearman_rho": 0.049,
+   "p_value": 0.5558,
+   "detrended_r": -0.094,
+   "detrended_p_value": 0.2558,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.108,
+     "PG31DS": -0.144,
+     "PG32B": -0.511,
+     "PG32D": 0.456,
+     "PG32DS": -0.809,
+     "PG32M": -0.778
+    },
+    "direction_reversals": 5
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.019,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [
+    "分层内 5/6 个牌号方向与合并相反"
+   ],
+   "family": "F_PS_feed",
+   "fdr_q": 0.7356,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH001@PV_mean",
+   "target": "oligomer",
+   "pearson_r": 0.1983,
+   "spearman_rho": -0.043,
+   "p_value": 0.6023,
+   "detrended_r": 0.176,
+   "detrended_p_value": 0.03164,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.546,
+     "PG31DS": 0.009,
+     "PG32B": -0.644,
+     "PG32D": -0.168,
+     "PG32DS": 0.346,
+     "PG32M": 0.8
+    },
+    "direction_reversals": 4
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.021,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [
+    "分层内 4/6 个牌号方向与合并相反"
+   ],
+   "family": "MD_TH_preheat",
+   "fdr_q": 0.7691,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH002@PV_mean",
+   "target": "oligomer",
+   "pearson_r": 0.2137,
+   "spearman_rho": -0.144,
+   "p_value": 0.07897,
+   "detrended_r": 0.025,
+   "detrended_p_value": 0.7628,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.391,
+     "PG31DS": -0.207,
+     "PG32B": 0.766,
+     "PG32D": -0.544,
+     "PG32DS": 0.196,
+     "PG32M": 0.508
+    },
+    "direction_reversals": 4
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.022,
+   "significance": "marginal",
+   "evidence_grade": "NONE",
+   "warnings": [
+    "Pearson(0.21) 与 Spearman(-0.14) 分歧 >0.3：重尾/极值主导，采用 Spearman",
+    "分层内 4/6 个牌号方向与合并相反"
+   ],
+   "family": "MD_TH_preheat",
+   "fdr_q": 0.2015,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH003@PV_mean",
+   "target": "oligomer",
+   "pearson_r": 0.2273,
+   "spearman_rho": 0.092,
+   "p_value": 0.2642,
+   "detrended_r": 0.175,
+   "detrended_p_value": 0.03284,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.319,
+     "PG31DS": -0.147,
+     "PG32B": 0.261,
+     "PG32D": -0.41,
+     "PG32DS": 0.809,
+     "PG32M": 0.736
+    },
+    "direction_reversals": 2
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.019,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [],
+   "family": "MD_TH_preheat",
+   "fdr_q": 0.4403,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH004@PV_mean",
+   "target": "oligomer",
+   "pearson_r": 0.1888,
+   "spearman_rho": -0.021,
+   "p_value": 0.7964,
+   "detrended_r": 0.114,
+   "detrended_p_value": 0.165,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.554,
+     "PG31DS": -0.091,
+     "PG32B": 0.389,
+     "PG32D": -0.56,
+     "PG32DS": 0.009,
+     "PG32M": 0.747
+    },
+    "direction_reversals": 4
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.02,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [
+    "分层内 4/6 个牌号方向与合并相反"
+   ],
+   "family": "MD_TH_preheat",
+   "fdr_q": 0.841,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH005@PV_mean",
+   "target": "oligomer",
+   "pearson_r": 0.2162,
+   "spearman_rho": 0.06,
+   "p_value": 0.4661,
+   "detrended_r": 0.177,
+   "detrended_p_value": 0.03087,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.387,
+     "PG31DS": -0.074,
+     "PG32B": -0.049,
+     "PG32D": -0.279,
+     "PG32DS": 0.443,
+     "PG32M": 0.839
+    },
+    "direction_reversals": 3
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.019,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [
+    "分层内 3/6 个牌号方向与合并相反"
+   ],
+   "family": "MD_TH_preheat",
+   "fdr_q": 0.6555,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH006@PV_mean",
+   "target": "oligomer",
+   "pearson_r": 0.2034,
+   "spearman_rho": 0.204,
+   "p_value": 0.01279,
+   "detrended_r": 0.151,
+   "detrended_p_value": 0.06568,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.325,
+     "PG31DS": 0.108,
+     "PG32B": 0.237,
+     "PG32D": -0.32,
+     "PG32DS": -0.238,
+     "PG32M": 0.625
+    },
+    "direction_reversals": 2
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.022,
+   "significance": "significant",
+   "evidence_grade": "WEAK",
+   "warnings": [],
+   "family": "MD_TH_stretch",
+   "fdr_q": 0.1613,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH007@PV_mean",
+   "target": "oligomer",
+   "pearson_r": 0.2106,
+   "spearman_rho": 0.177,
+   "p_value": 0.03061,
+   "detrended_r": 0.082,
+   "detrended_p_value": 0.318,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.398,
+     "PG31DS": -0.106,
+     "PG32B": -0.109,
+     "PG32D": -0.262,
+     "PG32DS": -0.69,
+     "PG32M": 0.636
+    },
+    "direction_reversals": 4
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.023,
+   "significance": "significant",
+   "evidence_grade": "WEAK",
+   "warnings": [
+    "分层内 4/6 个牌号方向与合并相反"
+   ],
+   "family": "MD_TH_stretch",
+   "fdr_q": 0.1969,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH008@PV_mean",
+   "target": "oligomer",
+   "pearson_r": 0.2097,
+   "spearman_rho": 0.163,
+   "p_value": 0.04655,
+   "detrended_r": 0.084,
+   "detrended_p_value": 0.3106,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.489,
+     "PG31DS": -0.054,
+     "PG32B": 0.079,
+     "PG32D": -0.262,
+     "PG32DS": 0.496,
+     "PG32M": 0.556
+    },
+    "direction_reversals": 2
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.022,
+   "significance": "significant",
+   "evidence_grade": "WEAK",
+   "warnings": [],
+   "family": "MD_TH_stretch",
+   "fdr_q": 0.1969,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH009@PV_mean",
+   "target": "oligomer",
+   "pearson_r": 0.2055,
+   "spearman_rho": 0.026,
+   "p_value": 0.7563,
+   "detrended_r": 0.144,
+   "detrended_p_value": 0.07927,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.264,
+     "PG31DS": 0.037,
+     "PG32B": -0.273,
+     "PG32D": -0.442,
+     "PG32DS": 0.778,
+     "PG32M": 0.836
+    },
+    "direction_reversals": 2
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.019,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [],
+   "family": "MD_TH_stretch",
+   "fdr_q": 0.841,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH010@PV_mean",
+   "target": "oligomer",
+   "pearson_r": 0.1939,
+   "spearman_rho": -0.022,
+   "p_value": 0.7939,
+   "detrended_r": 0.079,
+   "detrended_p_value": 0.3355,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.163,
+     "PG31DS": -0.03,
+     "PG32B": 0.219,
+     "PG32D": -0.319,
+     "PG32DS": 0.502,
+     "PG32M": 0.817
+    },
+    "direction_reversals": 4
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.02,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [
+    "分层内 4/6 个牌号方向与合并相反"
+   ],
+   "family": "MD_TH_stretch",
+   "fdr_q": 0.841,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH011@PV_mean",
+   "target": "oligomer",
+   "pearson_r": 0.1817,
+   "spearman_rho": -0.021,
+   "p_value": 0.8036,
+   "detrended_r": 0.139,
+   "detrended_p_value": 0.09044,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.158,
+     "PG31DS": 0.165,
+     "PG32B": 0.073,
+     "PG32D": -0.453,
+     "PG32DS": 0.843,
+     "PG32M": 0.719
+    },
+    "direction_reversals": 5
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.019,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [
+    "分层内 5/6 个牌号方向与合并相反"
+   ],
+   "family": "MD_TH_stretch",
+   "fdr_q": 0.841,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH012@PV_mean",
+   "target": "oligomer",
+   "pearson_r": -0.1493,
+   "spearman_rho": -0.138,
+   "p_value": 0.09385,
+   "detrended_r": -0.054,
+   "detrended_p_value": 0.5114,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.367,
+     "PG31DS": 0.096,
+     "PG32B": 0.213,
+     "PG32D": -0.119,
+     "PG32DS": 0.468,
+     "PG32M": 0.489
+    },
+    "direction_reversals": 4
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.021,
+   "significance": "marginal",
+   "evidence_grade": "NONE",
+   "warnings": [
+    "分层内 4/6 个牌号方向与合并相反"
+   ],
+   "family": "MD_TH_cooling",
+   "fdr_q": 0.2112,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH013@PV_mean",
+   "target": "oligomer",
+   "pearson_r": -0.1494,
+   "spearman_rho": -0.031,
+   "p_value": 0.7068,
+   "detrended_r": 0.019,
+   "detrended_p_value": 0.8214,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.36,
+     "PG31DS": 0.079,
+     "PG32B": 0.122,
+     "PG32D": 0.262,
+     "PG32DS": -0.119,
+     "PG32M": 0.675
+    },
+    "direction_reversals": 4
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.019,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [
+    "分层内 4/6 个牌号方向与合并相反"
+   ],
+   "family": "MD_TH_cooling",
+   "fdr_q": 0.837,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH014@PV_mean",
+   "target": "oligomer",
+   "pearson_r": -0.1495,
+   "spearman_rho": -0.029,
+   "p_value": 0.7275,
+   "detrended_r": 0.05,
+   "detrended_p_value": 0.5425,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.269,
+     "PG31DS": 0.071,
+     "PG32B": -0.256,
+     "PG32D": 0.211,
+     "PG32DS": 0.698,
+     "PG32M": 0.486
+    },
+    "direction_reversals": 4
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.019,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [
+    "分层内 4/6 个牌号方向与合并相反"
+   ],
+   "family": "MD_TH_cooling",
+   "fdr_q": 0.8394,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH015@PV_mean",
+   "target": "oligomer",
+   "pearson_r": -0.1482,
+   "spearman_rho": -0.01,
+   "p_value": 0.9016,
+   "detrended_r": 0.052,
+   "detrended_p_value": 0.532,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.255,
+     "PG31DS": 0.046,
+     "PG32B": 0.249,
+     "PG32D": 0.248,
+     "PG32DS": 0.306,
+     "PG32M": 0.553
+    },
+    "direction_reversals": 5
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.019,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [
+    "分层内 5/6 个牌号方向与合并相反"
+   ],
+   "family": "MD_TH_cooling",
+   "fdr_q": 0.9016,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH016@PV_mean",
+   "target": "oligomer",
+   "pearson_r": -0.1403,
+   "spearman_rho": 0.061,
+   "p_value": 0.4628,
+   "detrended_r": 0.025,
+   "detrended_p_value": 0.7662,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.189,
+     "PG31DS": -0.156,
+     "PG32B": -0.079,
+     "PG32D": 0.425,
+     "PG32DS": 0.392,
+     "PG32M": 0.397
+    },
+    "direction_reversals": 3
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.019,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [
+    "分层内 3/6 个牌号方向与合并相反"
+   ],
+   "family": "MD_TH_cooling",
+   "fdr_q": 0.6555,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH017@PV_mean",
+   "target": "oligomer",
+   "pearson_r": -0.1416,
+   "spearman_rho": 0.109,
+   "p_value": 0.1865,
+   "detrended_r": -0.018,
+   "detrended_p_value": 0.8321,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.026,
+     "PG31DS": -0.127,
+     "PG32B": 0.225,
+     "PG32D": 0.498,
+     "PG32DS": -0.758,
+     "PG32M": 0.208
+    },
+    "direction_reversals": 2
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.019,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [],
+   "family": "MD_TH_cooling",
+   "fdr_q": 0.3356,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH018@PV_mean",
+   "target": "oligomer",
+   "pearson_r": -0.1417,
+   "spearman_rho": 0.157,
+   "p_value": 0.05651,
+   "detrended_r": 0.11,
+   "detrended_p_value": 0.1806,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.069,
+     "PG31DS": -0.076,
+     "PG32B": 0.097,
+     "PG32D": 0.526,
+     "PG32DS": 0.162,
+     "PG32M": 0.533
+    },
+    "direction_reversals": 1
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.02,
+   "significance": "marginal",
+   "evidence_grade": "NONE",
+   "warnings": [],
+   "family": "MD_TH_cooling",
+   "fdr_q": 0.2012,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C00@PV1_mean",
+   "target": "oligomer",
+   "pearson_r": 0.0341,
+   "spearman_rho": 0.172,
+   "p_value": 0.03602,
+   "detrended_r": 0.027,
+   "detrended_p_value": 0.7396,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.23,
+     "PG31DS": -0.098,
+     "PG32B": 0.353,
+     "PG32D": 0.731,
+     "PG32DS": -0.409,
+     "PG32M": 0.569
+    },
+    "direction_reversals": 3
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.018,
+   "significance": "significant",
+   "evidence_grade": "WEAK",
+   "warnings": [
+    "分层内 3/6 个牌号方向与合并相反"
+   ],
+   "family": "W1C_stable_setpoint",
+   "fdr_q": 0.1969,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C01@PV1_mean",
+   "target": "oligomer",
+   "pearson_r": 0.0461,
+   "spearman_rho": -0.17,
+   "p_value": 0.03799,
+   "detrended_r": -0.045,
+   "detrended_p_value": 0.5849,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.105,
+     "PG31DS": 0.134,
+     "PG32B": -0.237,
+     "PG32D": -0.755,
+     "PG32DS": 0.613,
+     "PG32M": 0.089
+    },
+    "direction_reversals": 3
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.023,
+   "significance": "significant",
+   "evidence_grade": "WEAK",
+   "warnings": [
+    "分层内 3/6 个牌号方向与合并相反"
+   ],
+   "family": "W1C_stable_setpoint",
+   "fdr_q": 0.1969,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C8D@PV1_mean",
+   "target": "oligomer",
+   "pearson_r": -0.0361,
+   "spearman_rho": -0.2,
+   "p_value": 0.01434,
+   "detrended_r": -0.175,
+   "detrended_p_value": 0.03242,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.118,
+     "PG31DS": -0.036,
+     "PG32B": -0.438,
+     "PG32D": -0.614,
+     "PG32DS": -0.332,
+     "PG32M": 0.108
+    },
+    "direction_reversals": 2
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.021,
+   "significance": "significant",
+   "evidence_grade": "WEAK",
+   "warnings": [
+    "关联可由共同时间趋势解释（控制时间后 |rho|<0.2）"
+   ],
+   "family": "W1C_stable_setpoint",
+   "fdr_q": 0.1613,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C40@PV1_mean",
+   "target": "oligomer",
+   "pearson_r": -0.0286,
+   "spearman_rho": -0.168,
+   "p_value": 0.04111,
+   "detrended_r": -0.134,
+   "detrended_p_value": 0.1022,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.136,
+     "PG31DS": 0.168,
+     "PG32B": 0.529,
+     "PG32D": -0.513,
+     "PG32DS": -0.026,
+     "PG32M": 0.283
+    },
+    "direction_reversals": 3
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.02,
+   "significance": "significant",
+   "evidence_grade": "WEAK",
+   "warnings": [
+    "分层内 3/6 个牌号方向与合并相反"
+   ],
+   "family": "W1C_absolute_process",
+   "fdr_q": 0.1969,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C4B@PV1_mean",
+   "target": "oligomer",
+   "pearson_r": -0.0303,
+   "spearman_rho": -0.162,
+   "p_value": 0.04812,
+   "detrended_r": -0.125,
+   "detrended_p_value": 0.1289,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.139,
+     "PG31DS": 0.239,
+     "PG32B": 0.402,
+     "PG32D": -0.523,
+     "PG32DS": -0.221,
+     "PG32M": 0.111
+    },
+    "direction_reversals": 3
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.02,
+   "significance": "significant",
+   "evidence_grade": "WEAK",
+   "warnings": [
+    "分层内 3/6 个牌号方向与合并相反"
+   ],
+   "family": "W1C_absolute_process",
+   "fdr_q": 0.1969,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C84@PV1_mean",
+   "target": "oligomer",
+   "pearson_r": 0.1465,
+   "spearman_rho": 0.151,
+   "p_value": 0.06598,
+   "detrended_r": 0.121,
+   "detrended_p_value": 0.141,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.085,
+     "PG31DS": -0.034,
+     "PG32B": 0.784,
+     "PG32D": 0.465,
+     "PG32DS": -0.06,
+     "PG32M": 0.492
+    },
+    "direction_reversals": 3
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.017,
+   "significance": "marginal",
+   "evidence_grade": "NONE",
+   "warnings": [
+    "分层内 3/6 个牌号方向与合并相反"
+   ],
+   "family": "W1C_absolute_process",
+   "fdr_q": 0.2012,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C87@PV1_mean",
+   "target": "oligomer",
+   "pearson_r": -0.0265,
+   "spearman_rho": 0.015,
+   "p_value": 0.8524,
+   "detrended_r": -0.11,
+   "detrended_p_value": 0.1817,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.014,
+     "PG31DS": -0.309,
+     "PG32B": -0.207,
+     "PG32D": 0.539,
+     "PG32DS": -0.672,
+     "PG32M": -0.567
+    },
+    "direction_reversals": 4
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.017,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [
+    "分层内 4/6 个牌号方向与合并相反"
+   ],
+   "family": "W1C_absolute_process",
+   "fdr_q": 0.8718,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C8A@PV1_mean",
+   "target": "oligomer",
+   "pearson_r": -0.0598,
+   "spearman_rho": 0.245,
+   "p_value": 0.002621,
+   "detrended_r": 0.196,
+   "detrended_p_value": 0.01653,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.109,
+     "PG31DS": 0.013,
+     "PG32B": 0.116,
+     "PG32D": 0.6,
+     "PG32DS": 0.826,
+     "PG32M": -0.667
+    },
+    "direction_reversals": 2
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.021,
+   "significance": "significant",
+   "evidence_grade": "WEAK",
+   "warnings": [
+    "Pearson(-0.06) 与 Spearman(0.24) 分歧 >0.3：重尾/极值主导，采用 Spearman",
+    "关联可由共同时间趋势解释（控制时间后 |rho|<0.2）"
+   ],
+   "family": "W1C_absolute_process",
+   "fdr_q": 0.1179,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C8B@PV1_mean",
+   "target": "oligomer",
+   "pearson_r": 0.0563,
+   "spearman_rho": 0.225,
+   "p_value": 0.005904,
+   "detrended_r": 0.202,
+   "detrended_p_value": 0.01351,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.143,
+     "PG31DS": 0.201,
+     "PG32B": 0.419,
+     "PG32D": 0.496,
+     "PG32DS": 0.672,
+     "PG32M": 0.178
+    },
+    "direction_reversals": 1
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.022,
+   "significance": "significant",
+   "evidence_grade": "WEAK",
+   "warnings": [],
+   "family": "W1C_absolute_process",
+   "fdr_q": 0.1328,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C80@PV1_mean",
+   "target": "oligomer",
+   "pearson_r": -0.0044,
+   "spearman_rho": 0.148,
+   "p_value": 0.07153,
+   "detrended_r": 0.016,
+   "detrended_p_value": 0.8491,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.303,
+     "PG31DS": 0.057,
+     "PG32B": -0.024,
+     "PG32D": 0.56,
+     "PG32DS": 0.826,
+     "PG32M": -0.231
+    },
+    "direction_reversals": 3
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.018,
+   "significance": "marginal",
+   "evidence_grade": "NONE",
+   "warnings": [
+    "分层内 3/6 个牌号方向与合并相反"
+   ],
+   "family": "W1C_actuator_mixed",
+   "fdr_q": 0.2012,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C81@PV1_mean",
+   "target": "oligomer",
+   "pearson_r": -0.0669,
+   "spearman_rho": -0.187,
+   "p_value": 0.02228,
+   "detrended_r": -0.016,
+   "detrended_p_value": 0.8496,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.296,
+     "PG31DS": 0.147,
+     "PG32B": -0.274,
+     "PG32D": -0.418,
+     "PG32DS": -0.349,
+     "PG32M": 0.578
+    },
+    "direction_reversals": 2
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.022,
+   "significance": "significant",
+   "evidence_grade": "WEAK",
+   "warnings": [],
+   "family": "W1C_actuator_mixed",
+   "fdr_q": 0.1969,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C82@PV1_mean",
+   "target": "oligomer",
+   "pearson_r": 0.0616,
+   "spearman_rho": 0.141,
+   "p_value": 0.08637,
+   "detrended_r": 0.024,
+   "detrended_p_value": 0.7727,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.008,
+     "PG31DS": -0.099,
+     "PG32B": 0.438,
+     "PG32D": 0.431,
+     "PG32DS": 0.604,
+     "PG32M": 0.836
+    },
+    "direction_reversals": 2
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.018,
+   "significance": "marginal",
+   "evidence_grade": "NONE",
+   "warnings": [],
+   "family": "W1C_actuator_mixed",
+   "fdr_q": 0.2046,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C88@PV1_mean",
+   "target": "oligomer",
+   "pearson_r": -0.1206,
+   "spearman_rho": 0.127,
+   "p_value": 0.1242,
+   "detrended_r": -0.071,
+   "detrended_p_value": 0.391,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.202,
+     "PG31DS": -0.371,
+     "PG32B": -0.201,
+     "PG32D": 0.513,
+     "PG32DS": -0.298,
+     "PG32M": -0.183
+    },
+    "direction_reversals": 5
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.022,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [
+    "分层内 5/6 个牌号方向与合并相反"
+   ],
+   "family": "W1C_actuator_mixed",
+   "fdr_q": 0.243,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C7C@PV1_mean",
+   "target": "oligomer",
+   "pearson_r": 0.0088,
+   "spearman_rho": -0.037,
+   "p_value": 0.6512,
+   "detrended_r": 0.121,
+   "detrended_p_value": 0.1414,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.392,
+     "PG31DS": 0.195,
+     "PG32B": -0.62,
+     "PG32D": -0.374,
+     "PG32DS": 0.213,
+     "PG32M": -0.194
+    },
+    "direction_reversals": 3
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.02,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [
+    "分层内 3/6 个牌号方向与合并相反"
+   ],
+   "family": "W1C_deviation",
+   "fdr_q": 0.792,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C7D@PV1_mean",
+   "target": "oligomer",
+   "pearson_r": -0.1283,
+   "spearman_rho": 0.107,
+   "p_value": 0.1939,
+   "detrended_r": -0.102,
+   "detrended_p_value": 0.2172,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.378,
+     "PG31DS": 0.049,
+     "PG32B": 0.395,
+     "PG32D": 0.36,
+     "PG32DS": -0.128,
+     "PG32M": 0.169
+    },
+    "direction_reversals": 2
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.022,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [],
+   "family": "W1C_deviation",
+   "fdr_q": 0.3356,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C7E@PV1_mean",
+   "target": "oligomer",
+   "pearson_r": -0.0447,
+   "spearman_rho": 0.051,
+   "p_value": 0.5346,
+   "detrended_r": 0.053,
+   "detrended_p_value": 0.5186,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.207,
+     "PG31DS": 0.172,
+     "PG32B": 0.827,
+     "PG32D": -0.19,
+     "PG32DS": 0.587,
+     "PG32M": -0.117
+    },
+    "direction_reversals": 3
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.019,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [
+    "分层内 3/6 个牌号方向与合并相反"
+   ],
+   "family": "W1C_deviation",
+   "fdr_q": 0.729,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C7F@PV1_mean",
+   "target": "oligomer",
+   "pearson_r": 0.0553,
+   "spearman_rho": 0.076,
+   "p_value": 0.3595,
+   "detrended_r": -0.102,
+   "detrended_p_value": 0.2178,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.313,
+     "PG31DS": -0.01,
+     "PG32B": -0.602,
+     "PG32D": -0.47,
+     "PG32DS": -0.204,
+     "PG32M": -0.803
+    },
+    "direction_reversals": 5
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.019,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [
+    "分层内 5/6 个牌号方向与合并相反"
+   ],
+   "family": "W1C_deviation",
+   "fdr_q": 0.5684,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C83@PV1_mean",
+   "target": "oligomer",
+   "pearson_r": 0.0194,
+   "spearman_rho": -0.144,
+   "p_value": 0.0806,
+   "detrended_r": -0.069,
+   "detrended_p_value": 0.4032,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.075,
+     "PG31DS": 0.029,
+     "PG32B": -0.681,
+     "PG32D": -0.565,
+     "PG32DS": -0.758,
+     "PG32M": 0.453
+    },
+    "direction_reversals": 2
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.017,
+   "significance": "marginal",
+   "evidence_grade": "NONE",
+   "warnings": [],
+   "family": "W1C_deviation",
+   "fdr_q": 0.2015,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C85@PV1_mean",
+   "target": "oligomer",
+   "pearson_r": 0.053,
+   "spearman_rho": -0.075,
+   "p_value": 0.3663,
+   "detrended_r": 0.035,
+   "detrended_p_value": 0.6734,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.175,
+     "PG31DS": 0.295,
+     "PG32B": -0.565,
+     "PG32D": -0.6,
+     "PG32DS": -0.775,
+     "PG32M": -0.203
+    },
+    "direction_reversals": 2
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.018,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [],
+   "family": "W1C_deviation",
+   "fdr_q": 0.5684,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C86@PV1_mean",
+   "target": "oligomer",
+   "pearson_r": 0.0264,
+   "spearman_rho": -0.15,
+   "p_value": 0.06752,
+   "detrended_r": -0.096,
+   "detrended_p_value": 0.2451,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.032,
+     "PG31DS": 0.134,
+     "PG32B": 0.0,
+     "PG32D": -0.585,
+     "PG32DS": 0.766,
+     "PG32M": 0.411
+    },
+    "direction_reversals": 4
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.02,
+   "significance": "marginal",
+   "evidence_grade": "NONE",
+   "warnings": [
+    "分层内 4/6 个牌号方向与合并相反"
+   ],
+   "family": "W1C_deviation",
+   "fdr_q": 0.2012,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C89@PV1_mean",
+   "target": "oligomer",
+   "pearson_r": -0.109,
+   "spearman_rho": -0.156,
+   "p_value": 0.05825,
+   "detrended_r": -0.128,
+   "detrended_p_value": 0.1211,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.151,
+     "PG31DS": -0.113,
+     "PG32B": -0.802,
+     "PG32D": -0.024,
+     "PG32DS": -0.221,
+     "PG32M": 0.461
+    },
+    "direction_reversals": 2
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.021,
+   "significance": "marginal",
+   "evidence_grade": "NONE",
+   "warnings": [],
+   "family": "W1C_deviation",
+   "fdr_q": 0.2012,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C8C@PV1_mean",
+   "target": "oligomer",
+   "pearson_r": 0.1061,
+   "spearman_rho": -0.07,
+   "p_value": 0.3929,
+   "detrended_r": -0.111,
+   "detrended_p_value": 0.1774,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.151,
+     "PG31DS": -0.355,
+     "PG32B": -0.176,
+     "PG32D": 0.545,
+     "PG32DS": -0.775,
+     "PG32M": 0.175
+    },
+    "direction_reversals": 3
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.019,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [
+    "分层内 3/6 个牌号方向与合并相反"
+   ],
+   "family": "W1C_deviation",
+   "fdr_q": 0.5894,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "meters",
+   "target": "oligomer",
+   "pearson_r": 0.0539,
+   "spearman_rho": 0.128,
+   "p_value": 0.119,
+   "detrended_r": 0.141,
+   "detrended_p_value": 0.08704,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.073,
+     "PG31DS": 0.387,
+     "PG32B": 0.488,
+     "PG32D": -0.363,
+     "PG32DS": 0.594,
+     "PG32M": 0.648
+    },
+    "direction_reversals": 1
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.02,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [],
+   "family": "exposure",
+   "fdr_q": 0.243,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "F_PS002@PV1_mean",
+   "target": "dust",
+   "pearson_r": -0.1696,
+   "spearman_rho": -0.156,
+   "p_value": 0.05671,
+   "detrended_r": -0.008,
+   "detrended_p_value": 0.9263,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.357,
+     "PG31DS": -0.138,
+     "PG32B": 0.061,
+     "PG32D": 0.182,
+     "PG32DS": 0.762,
+     "PG32M": -0.509
+    },
+    "direction_reversals": 3
+   },
+   "change_point_detected": false,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.022,
+   "significance": "marginal",
+   "evidence_grade": "NONE",
+   "warnings": [
+    "分层内 3/6 个牌号方向与合并相反"
+   ],
+   "family": "F_PS_feed",
+   "fdr_q": 0.6492,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "F_PS003@PV1_mean",
+   "target": "dust",
+   "pearson_r": -0.1428,
+   "spearman_rho": -0.057,
+   "p_value": 0.4874,
+   "detrended_r": 0.013,
+   "detrended_p_value": 0.8771,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.195,
+     "PG31DS": -0.115,
+     "PG32B": 0.274,
+     "PG32D": 0.487,
+     "PG32DS": 0.736,
+     "PG32M": -0.231
+    },
+    "direction_reversals": 4
+   },
+   "change_point_detected": false,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.021,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [
+    "分层内 4/6 个牌号方向与合并相反"
+   ],
+   "family": "F_PS_feed",
+   "fdr_q": 0.7383,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "F_PS005@PV1_mean",
+   "target": "dust",
+   "pearson_r": 0.1637,
+   "spearman_rho": 0.178,
+   "p_value": 0.02973,
+   "detrended_r": 0.088,
+   "detrended_p_value": 0.2854,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.457,
+     "PG31DS": 0.052,
+     "PG32B": 0.401,
+     "PG32D": -0.509,
+     "PG32DS": -0.686,
+     "PG32M": 0.303
+    },
+    "direction_reversals": 2
+   },
+   "change_point_detected": false,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.02,
+   "significance": "significant",
+   "evidence_grade": "WEAK",
+   "warnings": [],
+   "family": "F_PS_feed",
+   "fdr_q": 0.6492,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "F_PS006@PV1_mean",
+   "target": "dust",
+   "pearson_r": 0.0058,
+   "spearman_rho": 0.007,
+   "p_value": 0.9309,
+   "detrended_r": 0.03,
+   "detrended_p_value": 0.7163,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.138,
+     "PG31DS": -0.002,
+     "PG32B": 0.012,
+     "PG32D": 0.195,
+     "PG32DS": -0.711,
+     "PG32M": 0.256
+    },
+    "direction_reversals": 2
+   },
+   "change_point_detected": false,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.019,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [],
+   "family": "F_PS_feed",
+   "fdr_q": 0.9521,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH001@PV_mean",
+   "target": "dust",
+   "pearson_r": 0.1842,
+   "spearman_rho": 0.088,
+   "p_value": 0.2846,
+   "detrended_r": 0.09,
+   "detrended_p_value": 0.2746,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.367,
+     "PG31DS": -0.002,
+     "PG32B": -0.754,
+     "PG32D": -0.155,
+     "PG32DS": 0.248,
+     "PG32M": -0.414
+    },
+    "direction_reversals": 4
+   },
+   "change_point_detected": false,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.02,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [
+    "分层内 4/6 个牌号方向与合并相反"
+   ],
+   "family": "MD_TH_preheat",
+   "fdr_q": 0.6492,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH002@PV_mean",
+   "target": "dust",
+   "pearson_r": 0.1456,
+   "spearman_rho": 0.091,
+   "p_value": 0.2715,
+   "detrended_r": 0.03,
+   "detrended_p_value": 0.7141,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.18,
+     "PG31DS": -0.004,
+     "PG32B": 0.535,
+     "PG32D": -0.332,
+     "PG32DS": -0.418,
+     "PG32M": 0.036
+    },
+    "direction_reversals": 3
+   },
+   "change_point_detected": false,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.022,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [
+    "分层内 3/6 个牌号方向与合并相反"
+   ],
+   "family": "MD_TH_preheat",
+   "fdr_q": 0.6492,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH003@PV_mean",
+   "target": "dust",
+   "pearson_r": 0.1611,
+   "spearman_rho": 0.028,
+   "p_value": 0.7312,
+   "detrended_r": 0.046,
+   "detrended_p_value": 0.5803,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.147,
+     "PG31DS": -0.072,
+     "PG32B": 0.243,
+     "PG32D": -0.325,
+     "PG32DS": 0.176,
+     "PG32M": -0.198
+    },
+    "direction_reversals": 3
+   },
+   "change_point_detected": false,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.02,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [
+    "分层内 3/6 个牌号方向与合并相反"
+   ],
+   "family": "MD_TH_preheat",
+   "fdr_q": 0.9002,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH004@PV_mean",
+   "target": "dust",
+   "pearson_r": 0.1721,
+   "spearman_rho": 0.085,
+   "p_value": 0.3001,
+   "detrended_r": 0.117,
+   "detrended_p_value": 0.1559,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.386,
+     "PG31DS": -0.045,
+     "PG32B": 0.274,
+     "PG32D": -0.106,
+     "PG32DS": 0.226,
+     "PG32M": -0.359
+    },
+    "direction_reversals": 3
+   },
+   "change_point_detected": false,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.021,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [
+    "分层内 3/6 个牌号方向与合并相反"
+   ],
+   "family": "MD_TH_preheat",
+   "fdr_q": 0.6492,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH005@PV_mean",
+   "target": "dust",
+   "pearson_r": 0.168,
+   "spearman_rho": 0.024,
+   "p_value": 0.775,
+   "detrended_r": 0.0,
+   "detrended_p_value": 0.9961,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.147,
+     "PG31DS": -0.079,
+     "PG32B": 0.061,
+     "PG32D": -0.125,
+     "PG32DS": 0.059,
+     "PG32M": -0.231
+    },
+    "direction_reversals": 3
+   },
+   "change_point_detected": false,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.02,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [
+    "分层内 3/6 个牌号方向与合并相反"
+   ],
+   "family": "MD_TH_preheat",
+   "fdr_q": 0.9002,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH006@PV_mean",
+   "target": "dust",
+   "pearson_r": 0.204,
+   "spearman_rho": 0.113,
+   "p_value": 0.1692,
+   "detrended_r": 0.076,
+   "detrended_p_value": 0.3585,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.262,
+     "PG31DS": 0.158,
+     "PG32B": 0.547,
+     "PG32D": -0.152,
+     "PG32DS": 0.234,
+     "PG32M": -0.198
+    },
+    "direction_reversals": 2
+   },
+   "change_point_detected": false,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.021,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [],
+   "family": "MD_TH_stretch",
+   "fdr_q": 0.6492,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH007@PV_mean",
+   "target": "dust",
+   "pearson_r": 0.1843,
+   "spearman_rho": -0.003,
+   "p_value": 0.9715,
+   "detrended_r": -0.023,
+   "detrended_p_value": 0.7843,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.204,
+     "PG31DS": -0.009,
+     "PG32B": 0.067,
+     "PG32D": -0.283,
+     "PG32DS": -0.552,
+     "PG32M": 0.022
+    },
+    "direction_reversals": 3
+   },
+   "change_point_detected": false,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.02,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [
+    "分层内 3/6 个牌号方向与合并相反"
+   ],
+   "family": "MD_TH_stretch",
+   "fdr_q": 0.9715,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH008@PV_mean",
+   "target": "dust",
+   "pearson_r": 0.1708,
+   "spearman_rho": 0.112,
+   "p_value": 0.1756,
+   "detrended_r": 0.103,
+   "detrended_p_value": 0.2091,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.228,
+     "PG31DS": 0.258,
+     "PG32B": 0.438,
+     "PG32D": -0.193,
+     "PG32DS": 0.025,
+     "PG32M": -0.178
+    },
+    "direction_reversals": 2
+   },
+   "change_point_detected": false,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.021,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [],
+   "family": "MD_TH_stretch",
+   "fdr_q": 0.6492,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH009@PV_mean",
+   "target": "dust",
+   "pearson_r": 0.1843,
+   "spearman_rho": -0.081,
+   "p_value": 0.3268,
+   "detrended_r": -0.069,
+   "detrended_p_value": 0.401,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.133,
+     "PG31DS": -0.06,
+     "PG32B": 0.234,
+     "PG32D": -0.509,
+     "PG32DS": 0.479,
+     "PG32M": -0.175
+    },
+    "direction_reversals": 2
+   },
+   "change_point_detected": false,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.02,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [],
+   "family": "MD_TH_stretch",
+   "fdr_q": 0.6492,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH010@PV_mean",
+   "target": "dust",
+   "pearson_r": 0.1954,
+   "spearman_rho": -0.011,
+   "p_value": 0.8969,
+   "detrended_r": 0.044,
+   "detrended_p_value": 0.5934,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.055,
+     "PG31DS": -0.027,
+     "PG32B": -0.067,
+     "PG32D": -0.23,
+     "PG32DS": 0.377,
+     "PG32M": -0.145
+    },
+    "direction_reversals": 1
+   },
+   "change_point_detected": false,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.02,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [],
+   "family": "MD_TH_stretch",
+   "fdr_q": 0.9386,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH011@PV_mean",
+   "target": "dust",
+   "pearson_r": 0.182,
+   "spearman_rho": 0.013,
+   "p_value": 0.8749,
+   "detrended_r": 0.019,
+   "detrended_p_value": 0.8142,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.17,
+     "PG31DS": -0.034,
+     "PG32B": -0.213,
+     "PG32D": -0.21,
+     "PG32DS": 0.418,
+     "PG32M": 0.248
+    },
+    "direction_reversals": 3
+   },
+   "change_point_detected": false,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.019,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [
+    "分层内 3/6 个牌号方向与合并相反"
+   ],
+   "family": "MD_TH_stretch",
+   "fdr_q": 0.9386,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH012@PV_mean",
+   "target": "dust",
+   "pearson_r": -0.2352,
+   "spearman_rho": -0.117,
+   "p_value": 0.1555,
+   "detrended_r": -0.158,
+   "detrended_p_value": 0.05423,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.411,
+     "PG31DS": -0.065,
+     "PG32B": -0.517,
+     "PG32D": -0.003,
+     "PG32DS": 0.042,
+     "PG32M": -0.206
+    },
+    "direction_reversals": 1
+   },
+   "change_point_detected": false,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.023,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [
+    "关联可由共同时间趋势解释（控制时间后 |rho|<0.2）"
+   ],
+   "family": "MD_TH_cooling",
+   "fdr_q": 0.6492,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH013@PV_mean",
+   "target": "dust",
+   "pearson_r": -0.2174,
+   "spearman_rho": -0.073,
+   "p_value": 0.374,
+   "detrended_r": -0.107,
+   "detrended_p_value": 0.193,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.427,
+     "PG31DS": -0.02,
+     "PG32B": -0.45,
+     "PG32D": 0.338,
+     "PG32DS": 0.142,
+     "PG32M": -0.353
+    },
+    "direction_reversals": 2
+   },
+   "change_point_detected": false,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.022,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [],
+   "family": "MD_TH_cooling",
+   "fdr_q": 0.6492,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH014@PV_mean",
+   "target": "dust",
+   "pearson_r": -0.2169,
+   "spearman_rho": -0.072,
+   "p_value": 0.3809,
+   "detrended_r": -0.09,
+   "detrended_p_value": 0.2772,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.297,
+     "PG31DS": 0.032,
+     "PG32B": -0.491,
+     "PG32D": 0.263,
+     "PG32DS": 0.485,
+     "PG32M": -0.298
+    },
+    "direction_reversals": 3
+   },
+   "change_point_detected": false,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.022,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [
+    "分层内 3/6 个牌号方向与合并相反"
+   ],
+   "family": "MD_TH_cooling",
+   "fdr_q": 0.6492,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH015@PV_mean",
+   "target": "dust",
+   "pearson_r": -0.2177,
+   "spearman_rho": -0.037,
+   "p_value": 0.6555,
+   "detrended_r": -0.023,
+   "detrended_p_value": 0.7776,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.257,
+     "PG31DS": 0.077,
+     "PG32B": 0.03,
+     "PG32D": 0.348,
+     "PG32DS": 0.151,
+     "PG32M": -0.523
+    },
+    "direction_reversals": 4
+   },
+   "change_point_detected": false,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.02,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [
+    "分层内 4/6 个牌号方向与合并相反"
+   ],
+   "family": "MD_TH_cooling",
+   "fdr_q": 0.8963,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH016@PV_mean",
+   "target": "dust",
+   "pearson_r": -0.2343,
+   "spearman_rho": -0.126,
+   "p_value": 0.1246,
+   "detrended_r": -0.034,
+   "detrended_p_value": 0.6833,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.298,
+     "PG31DS": -0.158,
+     "PG32B": 0.249,
+     "PG32D": 0.412,
+     "PG32DS": 0.803,
+     "PG32M": -0.54
+    },
+    "direction_reversals": 3
+   },
+   "change_point_detected": false,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.021,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [
+    "分层内 3/6 个牌号方向与合并相反"
+   ],
+   "family": "MD_TH_cooling",
+   "fdr_q": 0.6492,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH017@PV_mean",
+   "target": "dust",
+   "pearson_r": -0.2339,
+   "spearman_rho": -0.085,
+   "p_value": 0.3031,
+   "detrended_r": -0.073,
+   "detrended_p_value": 0.3758,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.24,
+     "PG31DS": -0.017,
+     "PG32B": 0.62,
+     "PG32D": 0.461,
+     "PG32DS": -0.435,
+     "PG32M": -0.089
+    },
+    "direction_reversals": 2
+   },
+   "change_point_detected": false,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.019,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [],
+   "family": "MD_TH_cooling",
+   "fdr_q": 0.6492,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH018@PV_mean",
+   "target": "dust",
+   "pearson_r": -0.2338,
+   "spearman_rho": -0.096,
+   "p_value": 0.243,
+   "detrended_r": -0.056,
+   "detrended_p_value": 0.4943,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.137,
+     "PG31DS": -0.072,
+     "PG32B": 0.62,
+     "PG32D": 0.387,
+     "PG32DS": 0.653,
+     "PG32M": -0.551
+    },
+    "direction_reversals": 3
+   },
+   "change_point_detected": false,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.021,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [
+    "分层内 3/6 个牌号方向与合并相反"
+   ],
+   "family": "MD_TH_cooling",
+   "fdr_q": 0.6492,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C00@PV1_mean",
+   "target": "dust",
+   "pearson_r": 0.0067,
+   "spearman_rho": -0.079,
+   "p_value": 0.3359,
+   "detrended_r": -0.064,
+   "detrended_p_value": 0.435,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.103,
+     "PG31DS": -0.036,
+     "PG32B": 0.644,
+     "PG32D": 0.503,
+     "PG32DS": -0.042,
+     "PG32M": -0.478
+    },
+    "direction_reversals": 2
+   },
+   "change_point_detected": false,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.02,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [],
+   "family": "W1C_stable_setpoint",
+   "fdr_q": 0.6492,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C01@PV1_mean",
+   "target": "dust",
+   "pearson_r": 0.0472,
+   "spearman_rho": 0.103,
+   "p_value": 0.2092,
+   "detrended_r": 0.015,
+   "detrended_p_value": 0.8602,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.197,
+     "PG31DS": 0.064,
+     "PG32B": -0.474,
+     "PG32D": -0.539,
+     "PG32DS": 0.603,
+     "PG32M": 0.565
+    },
+    "direction_reversals": 3
+   },
+   "change_point_detected": false,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.022,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [
+    "分层内 3/6 个牌号方向与合并相反"
+   ],
+   "family": "W1C_stable_setpoint",
+   "fdr_q": 0.6492,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C8D@PV1_mean",
+   "target": "dust",
+   "pearson_r": 0.1694,
+   "spearman_rho": 0.087,
+   "p_value": 0.289,
+   "detrended_r": 0.027,
+   "detrended_p_value": 0.7401,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.515,
+     "PG31DS": -0.056,
+     "PG32B": -0.541,
+     "PG32D": -0.195,
+     "PG32DS": -0.82,
+     "PG32M": -0.122
+    },
+    "direction_reversals": 5
+   },
+   "change_point_detected": false,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.02,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [
+    "分层内 5/6 个牌号方向与合并相反"
+   ],
+   "family": "W1C_stable_setpoint",
+   "fdr_q": 0.6492,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C40@PV1_mean",
+   "target": "dust",
+   "pearson_r": 0.1655,
+   "spearman_rho": 0.121,
+   "p_value": 0.1414,
+   "detrended_r": -0.01,
+   "detrended_p_value": 0.9041,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.134,
+     "PG31DS": 0.087,
+     "PG32B": 0.018,
+     "PG32D": -0.306,
+     "PG32DS": -0.402,
+     "PG32M": -0.061
+    },
+    "direction_reversals": 3
+   },
+   "change_point_detected": false,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.021,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [
+    "分层内 3/6 个牌号方向与合并相反"
+   ],
+   "family": "W1C_absolute_process",
+   "fdr_q": 0.6492,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C4B@PV1_mean",
+   "target": "dust",
+   "pearson_r": 0.1632,
+   "spearman_rho": 0.093,
+   "p_value": 0.2614,
+   "detrended_r": -0.045,
+   "detrended_p_value": 0.5888,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.077,
+     "PG31DS": -0.024,
+     "PG32B": 0.354,
+     "PG32D": -0.343,
+     "PG32DS": -0.611,
+     "PG32M": -0.236
+    },
+    "direction_reversals": 4
+   },
+   "change_point_detected": false,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.02,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [
+    "分层内 4/6 个牌号方向与合并相反"
+   ],
+   "family": "W1C_absolute_process",
+   "fdr_q": 0.6492,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C84@PV1_mean",
+   "target": "dust",
+   "pearson_r": -0.1094,
+   "spearman_rho": -0.021,
+   "p_value": 0.8002,
+   "detrended_r": 0.16,
+   "detrended_p_value": 0.05131,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.024,
+     "PG31DS": 0.076,
+     "PG32B": 0.505,
+     "PG32D": 0.123,
+     "PG32DS": 0.092,
+     "PG32M": -0.317
+    },
+    "direction_reversals": 4
+   },
+   "change_point_detected": false,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.02,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [
+    "分层内 4/6 个牌号方向与合并相反",
+    "关联可由共同时间趋势解释（控制时间后 |rho|<0.2）"
+   ],
+   "family": "W1C_absolute_process",
+   "fdr_q": 0.9002,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C87@PV1_mean",
+   "target": "dust",
+   "pearson_r": -0.1269,
+   "spearman_rho": -0.086,
+   "p_value": 0.2965,
+   "detrended_r": -0.007,
+   "detrended_p_value": 0.9334,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.149,
+     "PG31DS": 0.033,
+     "PG32B": -0.456,
+     "PG32D": 0.306,
+     "PG32DS": -0.494,
+     "PG32M": -0.017
+    },
+    "direction_reversals": 2
+   },
+   "change_point_detected": false,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.021,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [],
+   "family": "W1C_absolute_process",
+   "fdr_q": 0.6492,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C8A@PV1_mean",
+   "target": "dust",
+   "pearson_r": -0.1254,
+   "spearman_rho": -0.023,
+   "p_value": 0.7804,
+   "detrended_r": 0.071,
+   "detrended_p_value": 0.3893,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.241,
+     "PG31DS": 0.124,
+     "PG32B": 0.061,
+     "PG32D": 0.453,
+     "PG32DS": 0.218,
+     "PG32M": 0.172
+    },
+    "direction_reversals": 5
+   },
+   "change_point_detected": false,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.02,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [
+    "分层内 5/6 个牌号方向与合并相反",
+    "关联可由共同时间趋势解释（控制时间后 |rho|<0.2）"
+   ],
+   "family": "W1C_absolute_process",
+   "fdr_q": 0.9002,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C8B@PV1_mean",
+   "target": "dust",
+   "pearson_r": -0.1208,
+   "spearman_rho": -0.071,
+   "p_value": 0.3895,
+   "detrended_r": 0.043,
+   "detrended_p_value": 0.6047,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.315,
+     "PG31DS": 0.08,
+     "PG32B": 0.389,
+     "PG32D": 0.342,
+     "PG32DS": 0.812,
+     "PG32M": -0.259
+    },
+    "direction_reversals": 4
+   },
+   "change_point_detected": false,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.019,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [
+    "分层内 4/6 个牌号方向与合并相反"
+   ],
+   "family": "W1C_absolute_process",
+   "fdr_q": 0.6492,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C80@PV1_mean",
+   "target": "dust",
+   "pearson_r": -0.0785,
+   "spearman_rho": -0.088,
+   "p_value": 0.2836,
+   "detrended_r": -0.006,
+   "detrended_p_value": 0.9456,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.402,
+     "PG31DS": 0.074,
+     "PG32B": -0.17,
+     "PG32D": 0.307,
+     "PG32DS": 0.218,
+     "PG32M": 0.281
+    },
+    "direction_reversals": 4
+   },
+   "change_point_detected": false,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.019,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [
+    "分层内 4/6 个牌号方向与合并相反"
+   ],
+   "family": "W1C_actuator_mixed",
+   "fdr_q": 0.6492,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C81@PV1_mean",
+   "target": "dust",
+   "pearson_r": -0.0381,
+   "spearman_rho": -0.057,
+   "p_value": 0.4922,
+   "detrended_r": -0.099,
+   "detrended_p_value": 0.2309,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.442,
+     "PG31DS": -0.127,
+     "PG32B": -0.602,
+     "PG32D": -0.273,
+     "PG32DS": -0.025,
+     "PG32M": -0.384
+    },
+    "direction_reversals": 0
+   },
+   "change_point_detected": false,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.017,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [
+    "关联可由共同时间趋势解释（控制时间后 |rho|<0.2）"
+   ],
+   "family": "W1C_actuator_mixed",
+   "fdr_q": 0.7383,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C82@PV1_mean",
+   "target": "dust",
+   "pearson_r": -0.1305,
+   "spearman_rho": -0.124,
+   "p_value": 0.1323,
+   "detrended_r": -0.04,
+   "detrended_p_value": 0.6275,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.383,
+     "PG31DS": 0.006,
+     "PG32B": 0.578,
+     "PG32D": 0.277,
+     "PG32DS": 0.728,
+     "PG32M": -0.495
+    },
+    "direction_reversals": 4
+   },
+   "change_point_detected": false,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.021,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [
+    "分层内 4/6 个牌号方向与合并相反"
+   ],
+   "family": "W1C_actuator_mixed",
+   "fdr_q": 0.6492,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C88@PV1_mean",
+   "target": "dust",
+   "pearson_r": -0.0912,
+   "spearman_rho": -0.037,
+   "p_value": 0.6573,
+   "detrended_r": -0.013,
+   "detrended_p_value": 0.8737,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.057,
+     "PG31DS": -0.08,
+     "PG32B": -0.024,
+     "PG32D": 0.39,
+     "PG32DS": 0.351,
+     "PG32M": -0.159
+    },
+    "direction_reversals": 3
+   },
+   "change_point_detected": false,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.02,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [
+    "分层内 3/6 个牌号方向与合并相反"
+   ],
+   "family": "W1C_actuator_mixed",
+   "fdr_q": 0.8963,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C7C@PV1_mean",
+   "target": "dust",
+   "pearson_r": 0.1178,
+   "spearman_rho": 0.134,
+   "p_value": 0.1041,
+   "detrended_r": 0.083,
+   "detrended_p_value": 0.3127,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.526,
+     "PG31DS": -0.063,
+     "PG32B": -0.736,
+     "PG32D": -0.404,
+     "PG32DS": 0.912,
+     "PG32M": 0.317
+    },
+    "direction_reversals": 3
+   },
+   "change_point_detected": false,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.022,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [
+    "分层内 3/6 个牌号方向与合并相反"
+   ],
+   "family": "W1C_deviation",
+   "fdr_q": 0.6492,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C7D@PV1_mean",
+   "target": "dust",
+   "pearson_r": -0.0814,
+   "spearman_rho": -0.047,
+   "p_value": 0.5657,
+   "detrended_r": 0.003,
+   "detrended_p_value": 0.9685,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.333,
+     "PG31DS": 0.192,
+     "PG32B": 0.413,
+     "PG32D": 0.124,
+     "PG32DS": 0.644,
+     "PG32M": 0.384
+    },
+    "direction_reversals": 5
+   },
+   "change_point_detected": false,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.017,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [
+    "分层内 5/6 个牌号方向与合并相反"
+   ],
+   "family": "W1C_deviation",
+   "fdr_q": 0.8212,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C7E@PV1_mean",
+   "target": "dust",
+   "pearson_r": -0.001,
+   "spearman_rho": -0.059,
+   "p_value": 0.477,
+   "detrended_r": 0.003,
+   "detrended_p_value": 0.97,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.495,
+     "PG31DS": 0.13,
+     "PG32B": 0.45,
+     "PG32D": -0.19,
+     "PG32DS": 0.745,
+     "PG32M": 0.49
+    },
+    "direction_reversals": 4
+   },
+   "change_point_detected": false,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.02,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [
+    "分层内 4/6 个牌号方向与合并相反"
+   ],
+   "family": "W1C_deviation",
+   "fdr_q": 0.7383,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C7F@PV1_mean",
+   "target": "dust",
+   "pearson_r": -0.0078,
+   "spearman_rho": 0.012,
+   "p_value": 0.8889,
+   "detrended_r": 0.028,
+   "detrended_p_value": 0.7361,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.051,
+     "PG31DS": 0.05,
+     "PG32B": 0.207,
+     "PG32D": -0.348,
+     "PG32DS": -0.669,
+     "PG32M": 0.381
+    },
+    "direction_reversals": 3
+   },
+   "change_point_detected": false,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.018,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [
+    "分层内 3/6 个牌号方向与合并相反"
+   ],
+   "family": "W1C_deviation",
+   "fdr_q": 0.9386,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C83@PV1_mean",
+   "target": "dust",
+   "pearson_r": 0.0506,
+   "spearman_rho": 0.026,
+   "p_value": 0.7515,
+   "detrended_r": -0.113,
+   "detrended_p_value": 0.1695,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.036,
+     "PG31DS": -0.192,
+     "PG32B": -0.237,
+     "PG32D": -0.142,
+     "PG32DS": -0.418,
+     "PG32M": -0.648
+    },
+    "direction_reversals": 6
+   },
+   "change_point_detected": false,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.018,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [
+    "分层内 6/6 个牌号方向与合并相反"
+   ],
+   "family": "W1C_deviation",
+   "fdr_q": 0.9002,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C85@PV1_mean",
+   "target": "dust",
+   "pearson_r": 0.1274,
+   "spearman_rho": 0.072,
+   "p_value": 0.3834,
+   "detrended_r": -0.092,
+   "detrended_p_value": 0.266,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.013,
+     "PG31DS": -0.051,
+     "PG32B": 0.049,
+     "PG32D": -0.362,
+     "PG32DS": -0.753,
+     "PG32M": 0.623
+    },
+    "direction_reversals": 4
+   },
+   "change_point_detected": false,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.02,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [
+    "分层内 4/6 个牌号方向与合并相反"
+   ],
+   "family": "W1C_deviation",
+   "fdr_q": 0.6492,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C86@PV1_mean",
+   "target": "dust",
+   "pearson_r": 0.1327,
+   "spearman_rho": 0.029,
+   "p_value": 0.7265,
+   "detrended_r": -0.1,
+   "detrended_p_value": 0.2261,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.049,
+     "PG31DS": -0.073,
+     "PG32B": 0.182,
+     "PG32D": -0.308,
+     "PG32DS": 0.577,
+     "PG32M": 0.198
+    },
+    "direction_reversals": 3
+   },
+   "change_point_detected": false,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.02,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [
+    "分层内 3/6 个牌号方向与合并相反",
+    "关联可由共同时间趋势解释（控制时间后 |rho|<0.2）"
+   ],
+   "family": "W1C_deviation",
+   "fdr_q": 0.9002,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C89@PV1_mean",
+   "target": "dust",
+   "pearson_r": 0.0517,
+   "spearman_rho": 0.033,
+   "p_value": 0.6862,
+   "detrended_r": 0.022,
+   "detrended_p_value": 0.7907,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.583,
+     "PG31DS": -0.125,
+     "PG32B": -0.62,
+     "PG32D": 0.041,
+     "PG32DS": 0.084,
+     "PG32M": -0.295
+    },
+    "direction_reversals": 3
+   },
+   "change_point_detected": false,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.019,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [
+    "分层内 3/6 个牌号方向与合并相反"
+   ],
+   "family": "W1C_deviation",
+   "fdr_q": 0.9002,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C8C@PV1_mean",
+   "target": "dust",
+   "pearson_r": -0.0884,
+   "spearman_rho": -0.11,
+   "p_value": 0.1835,
+   "detrended_r": -0.029,
+   "detrended_p_value": 0.7296,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.025,
+     "PG31DS": -0.046,
+     "PG32B": 0.255,
+     "PG32D": 0.373,
+     "PG32DS": -0.477,
+     "PG32M": 0.075
+    },
+    "direction_reversals": 3
+   },
+   "change_point_detected": false,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.018,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [
+    "分层内 3/6 个牌号方向与合并相反"
+   ],
+   "family": "W1C_deviation",
+   "fdr_q": 0.6492,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "meters",
+   "target": "dust",
+   "pearson_r": 0.1516,
+   "spearman_rho": 0.248,
+   "p_value": 0.002329,
+   "detrended_r": 0.083,
+   "detrended_p_value": 0.3158,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.256,
+     "PG31DS": 0.313,
+     "PG32B": 0.049,
+     "PG32D": 0.032,
+     "PG32DS": -0.21,
+     "PG32M": 0.078
+    },
+    "direction_reversals": 1
+   },
+   "change_point_detected": false,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.022,
+   "significance": "significant",
+   "evidence_grade": "WEAK",
+   "warnings": [],
+   "family": "exposure",
+   "fdr_q": 0.1048,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "F_PS002@PV1_mean",
+   "target": "other_defects_derived",
+   "pearson_r": -0.1113,
+   "spearman_rho": -0.264,
+   "p_value": 0.001148,
+   "detrended_r": -0.091,
+   "detrended_p_value": 0.2677,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.394,
+     "PG31DS": -0.303,
+     "PG32B": -0.213,
+     "PG32D": 0.085,
+     "PG32DS": -0.417,
+     "PG32M": -0.495
+    },
+    "direction_reversals": 1
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.023,
+   "significance": "significant",
+   "evidence_grade": "MODERATE",
+   "warnings": [
+    "关联可由共同时间趋势解释（控制时间后 |rho|<0.2）"
+   ],
+   "family": "F_PS_feed",
+   "fdr_q": 0.0018,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "F_PS003@PV1_mean",
+   "target": "other_defects_derived",
+   "pearson_r": -0.0702,
+   "spearman_rho": 0.219,
+   "p_value": 0.00741,
+   "detrended_r": -0.059,
+   "detrended_p_value": 0.4749,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.382,
+     "PG31DS": -0.164,
+     "PG32B": 0.134,
+     "PG32D": 0.741,
+     "PG32DS": -0.433,
+     "PG32M": -0.412
+    },
+    "direction_reversals": 3
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.019,
+   "significance": "significant",
+   "evidence_grade": "MODERATE",
+   "warnings": [
+    "分层内 3/6 个牌号方向与合并相反"
+   ],
+   "family": "F_PS_feed",
+   "fdr_q": 0.0104,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "F_PS005@PV1_mean",
+   "target": "other_defects_derived",
+   "pearson_r": 0.2049,
+   "spearman_rho": -0.297,
+   "p_value": 0.0002403,
+   "detrended_r": -0.005,
+   "detrended_p_value": 0.9485,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.408,
+     "PG31DS": 0.05,
+     "PG32B": -0.049,
+     "PG32D": -0.806,
+     "PG32DS": 0.433,
+     "PG32M": 0.176
+    },
+    "direction_reversals": 4
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.026,
+   "significance": "significant",
+   "evidence_grade": "MODERATE",
+   "warnings": [
+    "Pearson(0.20) 与 Spearman(-0.30) 分歧 >0.3：重尾/极值主导，采用 Spearman",
+    "分层内 4/6 个牌号方向与合并相反"
+   ],
+   "family": "F_PS_feed",
+   "fdr_q": 0.0005,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "F_PS006@PV1_mean",
+   "target": "other_defects_derived",
+   "pearson_r": 0.0078,
+   "spearman_rho": 0.319,
+   "p_value": 7.479e-05,
+   "detrended_r": 0.071,
+   "detrended_p_value": 0.3866,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.275,
+     "PG31DS": -0.084,
+     "PG32B": -0.134,
+     "PG32D": 0.453,
+     "PG32DS": 0.5,
+     "PG32M": 0.143
+    },
+    "direction_reversals": 2
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.023,
+   "significance": "significant",
+   "evidence_grade": "MODERATE",
+   "warnings": [
+    "Pearson(0.01) 与 Spearman(0.32) 分歧 >0.3：重尾/极值主导，采用 Spearman",
+    "关联可由共同时间趋势解释（控制时间后 |rho|<0.2）"
+   ],
+   "family": "F_PS_feed",
+   "fdr_q": 0.0002,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH001@PV_mean",
+   "target": "other_defects_derived",
+   "pearson_r": 0.1392,
+   "spearman_rho": -0.291,
+   "p_value": 0.0003252,
+   "detrended_r": 0.087,
+   "detrended_p_value": 0.2898,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.199,
+     "PG31DS": -0.022,
+     "PG32B": -0.383,
+     "PG32D": -0.165,
+     "PG32DS": -0.335,
+     "PG32M": -0.247
+    },
+    "direction_reversals": 1
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.022,
+   "significance": "significant",
+   "evidence_grade": "MODERATE",
+   "warnings": [
+    "Pearson(0.14) 与 Spearman(-0.29) 分歧 >0.3：重尾/极值主导，采用 Spearman"
+   ],
+   "family": "MD_TH_preheat",
+   "fdr_q": 0.0006,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH002@PV_mean",
+   "target": "other_defects_derived",
+   "pearson_r": 0.1637,
+   "spearman_rho": -0.365,
+   "p_value": 4.87e-06,
+   "detrended_r": -0.048,
+   "detrended_p_value": 0.564,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.165,
+     "PG31DS": -0.008,
+     "PG32B": 0.298,
+     "PG32D": -0.674,
+     "PG32DS": 0.1,
+     "PG32M": 0.22
+    },
+    "direction_reversals": 4
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.027,
+   "significance": "significant",
+   "evidence_grade": "MODERATE",
+   "warnings": [
+    "Pearson(0.16) 与 Spearman(-0.36) 分歧 >0.3：重尾/极值主导，采用 Spearman",
+    "分层内 4/6 个牌号方向与合并相反"
+   ],
+   "family": "MD_TH_preheat",
+   "fdr_q": 0.0,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH003@PV_mean",
+   "target": "other_defects_derived",
+   "pearson_r": 0.1458,
+   "spearman_rho": -0.119,
+   "p_value": 0.1496,
+   "detrended_r": 0.159,
+   "detrended_p_value": 0.0533,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.026,
+     "PG31DS": -0.025,
+     "PG32B": 0.383,
+     "PG32D": -0.297,
+     "PG32DS": -0.1,
+     "PG32M": -0.11
+    },
+    "direction_reversals": 1
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.02,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [],
+   "family": "MD_TH_preheat",
+   "fdr_q": 0.1642,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH004@PV_mean",
+   "target": "other_defects_derived",
+   "pearson_r": 0.1188,
+   "spearman_rho": -0.272,
+   "p_value": 0.0007757,
+   "detrended_r": 0.094,
+   "detrended_p_value": 0.2566,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.222,
+     "PG31DS": -0.113,
+     "PG32B": -0.024,
+     "PG32D": -0.435,
+     "PG32DS": -0.017,
+     "PG32M": -0.143
+    },
+    "direction_reversals": 1
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.019,
+   "significance": "significant",
+   "evidence_grade": "MODERATE",
+   "warnings": [
+    "Pearson(0.12) 与 Spearman(-0.27) 分歧 >0.3：重尾/极值主导，采用 Spearman"
+   ],
+   "family": "MD_TH_preheat",
+   "fdr_q": 0.0013,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH005@PV_mean",
+   "target": "other_defects_derived",
+   "pearson_r": 0.1407,
+   "spearman_rho": -0.141,
+   "p_value": 0.08623,
+   "detrended_r": 0.022,
+   "detrended_p_value": 0.7923,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.142,
+     "PG31DS": -0.026,
+     "PG32B": 0.255,
+     "PG32D": -0.232,
+     "PG32DS": 0.05,
+     "PG32M": -0.115
+    },
+    "direction_reversals": 3
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.021,
+   "significance": "marginal",
+   "evidence_grade": "NONE",
+   "warnings": [
+    "分层内 3/6 个牌号方向与合并相反"
+   ],
+   "family": "MD_TH_preheat",
+   "fdr_q": 0.1021,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH006@PV_mean",
+   "target": "other_defects_derived",
+   "pearson_r": 0.1347,
+   "spearman_rho": 0.077,
+   "p_value": 0.3503,
+   "detrended_r": 0.016,
+   "detrended_p_value": 0.8455,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.325,
+     "PG31DS": 0.108,
+     "PG32B": 0.413,
+     "PG32D": -0.249,
+     "PG32DS": -0.233,
+     "PG32M": 0.066
+    },
+    "direction_reversals": 2
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.02,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [],
+   "family": "MD_TH_stretch",
+   "fdr_q": 0.3753,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH007@PV_mean",
+   "target": "other_defects_derived",
+   "pearson_r": 0.1335,
+   "spearman_rho": 0.187,
+   "p_value": 0.0227,
+   "detrended_r": -0.007,
+   "detrended_p_value": 0.9366,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.22,
+     "PG31DS": -0.004,
+     "PG32B": 0.024,
+     "PG32D": -0.268,
+     "PG32DS": 0.567,
+     "PG32M": 0.253
+    },
+    "direction_reversals": 2
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.023,
+   "significance": "significant",
+   "evidence_grade": "MODERATE",
+   "warnings": [],
+   "family": "MD_TH_stretch",
+   "fdr_q": 0.03,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH008@PV_mean",
+   "target": "other_defects_derived",
+   "pearson_r": 0.1268,
+   "spearman_rho": 0.174,
+   "p_value": 0.0334,
+   "detrended_r": -0.034,
+   "detrended_p_value": 0.6791,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.208,
+     "PG31DS": 0.081,
+     "PG32B": 0.274,
+     "PG32D": -0.271,
+     "PG32DS": -0.268,
+     "PG32M": -0.011
+    },
+    "direction_reversals": 3
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.023,
+   "significance": "significant",
+   "evidence_grade": "MODERATE",
+   "warnings": [
+    "分层内 3/6 个牌号方向与合并相反"
+   ],
+   "family": "MD_TH_stretch",
+   "fdr_q": 0.0429,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH009@PV_mean",
+   "target": "other_defects_derived",
+   "pearson_r": 0.1352,
+   "spearman_rho": -0.239,
+   "p_value": 0.003324,
+   "detrended_r": -0.045,
+   "detrended_p_value": 0.5852,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.174,
+     "PG31DS": -0.294,
+     "PG32B": -0.156,
+     "PG32D": -0.397,
+     "PG32DS": -0.485,
+     "PG32M": -0.055
+    },
+    "direction_reversals": 0
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.023,
+   "significance": "significant",
+   "evidence_grade": "MODERATE",
+   "warnings": [
+    "Pearson(0.14) 与 Spearman(-0.24) 分歧 >0.3：重尾/极值主导，采用 Spearman",
+    "关联可由共同时间趋势解释（控制时间后 |rho|<0.2）"
+   ],
+   "family": "MD_TH_stretch",
+   "fdr_q": 0.0048,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH010@PV_mean",
+   "target": "other_defects_derived",
+   "pearson_r": 0.1231,
+   "spearman_rho": -0.254,
+   "p_value": 0.001745,
+   "detrended_r": 0.058,
+   "detrended_p_value": 0.4805,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.245,
+     "PG31DS": -0.222,
+     "PG32B": 0.097,
+     "PG32D": -0.294,
+     "PG32DS": -0.6,
+     "PG32M": 0.005
+    },
+    "direction_reversals": 2
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.023,
+   "significance": "significant",
+   "evidence_grade": "MODERATE",
+   "warnings": [
+    "Pearson(0.12) 与 Spearman(-0.25) 分歧 >0.3：重尾/极值主导，采用 Spearman",
+    "关联可由共同时间趋势解释（控制时间后 |rho|<0.2）"
+   ],
+   "family": "MD_TH_stretch",
+   "fdr_q": 0.0026,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH011@PV_mean",
+   "target": "other_defects_derived",
+   "pearson_r": 0.1237,
+   "spearman_rho": -0.266,
+   "p_value": 0.001039,
+   "detrended_r": 0.05,
+   "detrended_p_value": 0.5486,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.127,
+     "PG31DS": -0.098,
+     "PG32B": 0.122,
+     "PG32D": -0.218,
+     "PG32DS": -0.483,
+     "PG32M": 0.33
+    },
+    "direction_reversals": 2
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.022,
+   "significance": "significant",
+   "evidence_grade": "MODERATE",
+   "warnings": [
+    "Pearson(0.12) 与 Spearman(-0.27) 分歧 >0.3：重尾/极值主导，采用 Spearman"
+   ],
+   "family": "MD_TH_stretch",
+   "fdr_q": 0.0017,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH012@PV_mean",
+   "target": "other_defects_derived",
+   "pearson_r": -0.1788,
+   "spearman_rho": -0.385,
+   "p_value": 1.279e-06,
+   "detrended_r": -0.157,
+   "detrended_p_value": 0.05522,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.271,
+     "PG31DS": -0.222,
+     "PG32B": -0.122,
+     "PG32D": -0.332,
+     "PG32DS": -0.1,
+     "PG32M": -0.011
+    },
+    "direction_reversals": 0
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.028,
+   "significance": "significant",
+   "evidence_grade": "MODERATE",
+   "warnings": [
+    "关联可由共同时间趋势解释（控制时间后 |rho|<0.2）"
+   ],
+   "family": "MD_TH_cooling",
+   "fdr_q": 0.0,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH013@PV_mean",
+   "target": "other_defects_derived",
+   "pearson_r": -0.1663,
+   "spearman_rho": -0.12,
+   "p_value": 0.1446,
+   "detrended_r": -0.047,
+   "detrended_p_value": 0.5657,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.176,
+     "PG31DS": -0.001,
+     "PG32B": 0.213,
+     "PG32D": 0.465,
+     "PG32DS": -0.067,
+     "PG32M": -0.341
+    },
+    "direction_reversals": 2
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.021,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [],
+   "family": "MD_TH_cooling",
+   "fdr_q": 0.1642,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH014@PV_mean",
+   "target": "other_defects_derived",
+   "pearson_r": -0.1663,
+   "spearman_rho": -0.119,
+   "p_value": 0.1474,
+   "detrended_r": -0.108,
+   "detrended_p_value": 0.188,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.107,
+     "PG31DS": -0.052,
+     "PG32B": -0.11,
+     "PG32D": 0.335,
+     "PG32DS": -0.4,
+     "PG32M": -0.5
+    },
+    "direction_reversals": 1
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.021,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [],
+   "family": "MD_TH_cooling",
+   "fdr_q": 0.1642,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH015@PV_mean",
+   "target": "other_defects_derived",
+   "pearson_r": -0.1656,
+   "spearman_rho": -0.03,
+   "p_value": 0.7169,
+   "detrended_r": 0.008,
+   "detrended_p_value": 0.9186,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.229,
+     "PG31DS": 0.045,
+     "PG32B": 0.468,
+     "PG32D": 0.459,
+     "PG32DS": -0.167,
+     "PG32M": -0.462
+    },
+    "direction_reversals": 3
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.019,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [
+    "分层内 3/6 个牌号方向与合并相反"
+   ],
+   "family": "MD_TH_cooling",
+   "fdr_q": 0.7332,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH016@PV_mean",
+   "target": "other_defects_derived",
+   "pearson_r": -0.1737,
+   "spearman_rho": 0.262,
+   "p_value": 0.001257,
+   "detrended_r": 0.079,
+   "detrended_p_value": 0.3368,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.203,
+     "PG31DS": 0.061,
+     "PG32B": -0.207,
+     "PG32D": 0.709,
+     "PG32DS": -0.633,
+     "PG32M": -0.599
+    },
+    "direction_reversals": 4
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.024,
+   "significance": "significant",
+   "evidence_grade": "MODERATE",
+   "warnings": [
+    "Pearson(-0.17) 与 Spearman(0.26) 分歧 >0.3：重尾/极值主导，采用 Spearman",
+    "分层内 4/6 个牌号方向与合并相反"
+   ],
+   "family": "MD_TH_cooling",
+   "fdr_q": 0.002,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH017@PV_mean",
+   "target": "other_defects_derived",
+   "pearson_r": -0.1744,
+   "spearman_rho": 0.379,
+   "p_value": 1.821e-06,
+   "detrended_r": -0.05,
+   "detrended_p_value": 0.5432,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.008,
+     "PG31DS": 0.132,
+     "PG32B": 0.067,
+     "PG32D": 0.676,
+     "PG32DS": 0.233,
+     "PG32M": -0.203
+    },
+    "direction_reversals": 2
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.027,
+   "significance": "significant",
+   "evidence_grade": "MODERATE",
+   "warnings": [
+    "Pearson(-0.17) 与 Spearman(0.38) 分歧 >0.3：重尾/极值主导，采用 Spearman",
+    "关联可由共同时间趋势解释（控制时间后 |rho|<0.2）"
+   ],
+   "family": "MD_TH_cooling",
+   "fdr_q": 0.0,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "MD_TH018@PV_mean",
+   "target": "other_defects_derived",
+   "pearson_r": -0.1744,
+   "spearman_rho": 0.38,
+   "p_value": 1.699e-06,
+   "detrended_r": -0.013,
+   "detrended_p_value": 0.8773,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.117,
+     "PG31DS": 0.128,
+     "PG32B": -0.043,
+     "PG32D": 0.703,
+     "PG32DS": -0.4,
+     "PG32M": -0.67
+    },
+    "direction_reversals": 3
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.026,
+   "significance": "significant",
+   "evidence_grade": "MODERATE",
+   "warnings": [
+    "Pearson(-0.17) 与 Spearman(0.38) 分歧 >0.3：重尾/极值主导，采用 Spearman",
+    "分层内 3/6 个牌号方向与合并相反",
+    "关联可由共同时间趋势解释（控制时间后 |rho|<0.2）"
+   ],
+   "family": "MD_TH_cooling",
+   "fdr_q": 0.0,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C00@PV1_mean",
+   "target": "other_defects_derived",
+   "pearson_r": 0.0151,
+   "spearman_rho": 0.4,
+   "p_value": 4.457e-07,
+   "detrended_r": -0.101,
+   "detrended_p_value": 0.2218,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.003,
+     "PG31DS": 0.106,
+     "PG32B": 0.286,
+     "PG32D": 0.756,
+     "PG32DS": 0.267,
+     "PG32M": -0.132
+    },
+    "direction_reversals": 2
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.023,
+   "significance": "significant",
+   "evidence_grade": "MODERATE",
+   "warnings": [
+    "Pearson(0.02) 与 Spearman(0.40) 分歧 >0.3：重尾/极值主导，采用 Spearman",
+    "关联可由共同时间趋势解释（控制时间后 |rho|<0.2）"
+   ],
+   "family": "W1C_stable_setpoint",
+   "fdr_q": 0.0,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C01@PV1_mean",
+   "target": "other_defects_derived",
+   "pearson_r": 0.011,
+   "spearman_rho": -0.348,
+   "p_value": 1.384e-05,
+   "detrended_r": 0.009,
+   "detrended_p_value": 0.9152,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.097,
+     "PG31DS": 0.03,
+     "PG32B": -0.195,
+     "PG32D": -0.856,
+     "PG32DS": -0.233,
+     "PG32M": 0.555
+    },
+    "direction_reversals": 3
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.024,
+   "significance": "significant",
+   "evidence_grade": "MODERATE",
+   "warnings": [
+    "Pearson(0.01) 与 Spearman(-0.35) 分歧 >0.3：重尾/极值主导，采用 Spearman",
+    "分层内 3/6 个牌号方向与合并相反"
+   ],
+   "family": "W1C_stable_setpoint",
+   "fdr_q": 0.0,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C8D@PV1_mean",
+   "target": "other_defects_derived",
+   "pearson_r": 0.0265,
+   "spearman_rho": -0.37,
+   "p_value": 3.468e-06,
+   "detrended_r": -0.089,
+   "detrended_p_value": 0.2828,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.405,
+     "PG31DS": -0.177,
+     "PG32B": -0.267,
+     "PG32D": -0.509,
+     "PG32DS": 0.317,
+     "PG32M": 0.434
+    },
+    "direction_reversals": 3
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.028,
+   "significance": "significant",
+   "evidence_grade": "MODERATE",
+   "warnings": [
+    "Pearson(0.03) 与 Spearman(-0.37) 分歧 >0.3：重尾/极值主导，采用 Spearman",
+    "分层内 3/6 个牌号方向与合并相反",
+    "关联可由共同时间趋势解释（控制时间后 |rho|<0.2）"
+   ],
+   "family": "W1C_stable_setpoint",
+   "fdr_q": 0.0,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C40@PV1_mean",
+   "target": "other_defects_derived",
+   "pearson_r": 0.0313,
+   "spearman_rho": -0.445,
+   "p_value": 1.271e-08,
+   "detrended_r": -0.176,
+   "detrended_p_value": 0.03153,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.038,
+     "PG31DS": -0.173,
+     "PG32B": -0.116,
+     "PG32D": -0.575,
+     "PG32DS": 0.333,
+     "PG32M": 0.331
+    },
+    "direction_reversals": 3
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.029,
+   "significance": "significant",
+   "evidence_grade": "MODERATE",
+   "warnings": [
+    "Pearson(0.03) 与 Spearman(-0.45) 分歧 >0.3：重尾/极值主导，采用 Spearman",
+    "分层内 3/6 个牌号方向与合并相反",
+    "关联可由共同时间趋势解释（控制时间后 |rho|<0.2）"
+   ],
+   "family": "W1C_absolute_process",
+   "fdr_q": 0.0,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C4B@PV1_mean",
+   "target": "other_defects_derived",
+   "pearson_r": 0.0294,
+   "spearman_rho": -0.418,
+   "p_value": 1.113e-07,
+   "detrended_r": -0.08,
+   "detrended_p_value": 0.3346,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.004,
+     "PG31DS": -0.113,
+     "PG32B": 0.03,
+     "PG32D": -0.595,
+     "PG32DS": 0.217,
+     "PG32M": 0.187
+    },
+    "direction_reversals": 4
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.028,
+   "significance": "significant",
+   "evidence_grade": "MODERATE",
+   "warnings": [
+    "Pearson(0.03) 与 Spearman(-0.42) 分歧 >0.3：重尾/极值主导，采用 Spearman",
+    "分层内 4/6 个牌号方向与合并相反",
+    "关联可由共同时间趋势解释（控制时间后 |rho|<0.2）"
+   ],
+   "family": "W1C_absolute_process",
+   "fdr_q": 0.0,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C84@PV1_mean",
+   "target": "other_defects_derived",
+   "pearson_r": 0.1118,
+   "spearman_rho": 0.419,
+   "p_value": 1.065e-07,
+   "detrended_r": 0.262,
+   "detrended_p_value": 0.001268,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.049,
+     "PG31DS": 0.205,
+     "PG32B": 0.608,
+     "PG32D": 0.453,
+     "PG32DS": -0.15,
+     "PG32M": -0.412
+    },
+    "direction_reversals": 2
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.026,
+   "significance": "significant",
+   "evidence_grade": "STRONG",
+   "warnings": [
+    "Pearson(0.11) 与 Spearman(0.42) 分歧 >0.3：重尾/极值主导，采用 Spearman"
+   ],
+   "family": "W1C_absolute_process",
+   "fdr_q": 0.0,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C87@PV1_mean",
+   "target": "other_defects_derived",
+   "pearson_r": -0.0651,
+   "spearman_rho": 0.305,
+   "p_value": 0.0001553,
+   "detrended_r": 0.014,
+   "detrended_p_value": 0.8691,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.087,
+     "PG31DS": -0.044,
+     "PG32B": -0.28,
+     "PG32D": 0.594,
+     "PG32DS": 0.417,
+     "PG32M": -0.253
+    },
+    "direction_reversals": 3
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.02,
+   "significance": "significant",
+   "evidence_grade": "MODERATE",
+   "warnings": [
+    "Pearson(-0.07) 与 Spearman(0.30) 分歧 >0.3：重尾/极值主导，采用 Spearman",
+    "分层内 3/6 个牌号方向与合并相反",
+    "关联可由共同时间趋势解释（控制时间后 |rho|<0.2）"
+   ],
+   "family": "W1C_absolute_process",
+   "fdr_q": 0.0003,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C8A@PV1_mean",
+   "target": "other_defects_derived",
+   "pearson_r": -0.0758,
+   "spearman_rho": 0.498,
+   "p_value": 1.052e-10,
+   "detrended_r": 0.034,
+   "detrended_p_value": 0.684,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.18,
+     "PG31DS": 0.199,
+     "PG32B": -0.225,
+     "PG32D": 0.729,
+     "PG32DS": -0.167,
+     "PG32M": -0.165
+    },
+    "direction_reversals": 4
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.026,
+   "significance": "significant",
+   "evidence_grade": "MODERATE",
+   "warnings": [
+    "Pearson(-0.08) 与 Spearman(0.50) 分歧 >0.3：重尾/极值主导，采用 Spearman",
+    "分层内 4/6 个牌号方向与合并相反",
+    "关联可由共同时间趋势解释（控制时间后 |rho|<0.2）"
+   ],
+   "family": "W1C_absolute_process",
+   "fdr_q": 0.0,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C8B@PV1_mean",
+   "target": "other_defects_derived",
+   "pearson_r": -0.0291,
+   "spearman_rho": 0.402,
+   "p_value": 3.717e-07,
+   "detrended_r": 0.14,
+   "detrended_p_value": 0.08751,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.239,
+     "PG31DS": 0.266,
+     "PG32B": 0.152,
+     "PG32D": 0.682,
+     "PG32DS": -0.45,
+     "PG32M": -0.379
+    },
+    "direction_reversals": 3
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.028,
+   "significance": "significant",
+   "evidence_grade": "MODERATE",
+   "warnings": [
+    "Pearson(-0.03) 与 Spearman(0.40) 分歧 >0.3：重尾/极值主导，采用 Spearman",
+    "分层内 3/6 个牌号方向与合并相反",
+    "关联可由共同时间趋势解释（控制时间后 |rho|<0.2）"
+   ],
+   "family": "W1C_absolute_process",
+   "fdr_q": 0.0,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C80@PV1_mean",
+   "target": "other_defects_derived",
+   "pearson_r": -0.0294,
+   "spearman_rho": 0.4,
+   "p_value": 4.298e-07,
+   "detrended_r": 0.05,
+   "detrended_p_value": 0.5475,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.231,
+     "PG31DS": 0.16,
+     "PG32B": -0.109,
+     "PG32D": 0.612,
+     "PG32DS": -0.167,
+     "PG32M": 0.385
+    },
+    "direction_reversals": 3
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.021,
+   "significance": "significant",
+   "evidence_grade": "MODERATE",
+   "warnings": [
+    "Pearson(-0.03) 与 Spearman(0.40) 分歧 >0.3：重尾/极值主导，采用 Spearman",
+    "分层内 3/6 个牌号方向与合并相反",
+    "关联可由共同时间趋势解释（控制时间后 |rho|<0.2）"
+   ],
+   "family": "W1C_actuator_mixed",
+   "fdr_q": 0.0,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C81@PV1_mean",
+   "target": "other_defects_derived",
+   "pearson_r": -0.0651,
+   "spearman_rho": -0.465,
+   "p_value": 2.403e-09,
+   "detrended_r": 0.001,
+   "detrended_p_value": 0.994,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.196,
+     "PG31DS": -0.167,
+     "PG32B": -0.298,
+     "PG32D": -0.556,
+     "PG32DS": -0.083,
+     "PG32M": -0.489
+    },
+    "direction_reversals": 0
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.027,
+   "significance": "significant",
+   "evidence_grade": "MODERATE",
+   "warnings": [
+    "Pearson(-0.07) 与 Spearman(-0.47) 分歧 >0.3：重尾/极值主导，采用 Spearman",
+    "关联可由共同时间趋势解释（控制时间后 |rho|<0.2）"
+   ],
+   "family": "W1C_actuator_mixed",
+   "fdr_q": 0.0,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C82@PV1_mean",
+   "target": "other_defects_derived",
+   "pearson_r": 0.0038,
+   "spearman_rho": 0.363,
+   "p_value": 5.289e-06,
+   "detrended_r": 0.041,
+   "detrended_p_value": 0.6158,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.249,
+     "PG31DS": 0.201,
+     "PG32B": 0.134,
+     "PG32D": 0.6,
+     "PG32DS": -0.483,
+     "PG32M": -0.291
+    },
+    "direction_reversals": 3
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.024,
+   "significance": "significant",
+   "evidence_grade": "MODERATE",
+   "warnings": [
+    "Pearson(0.00) 与 Spearman(0.36) 分歧 >0.3：重尾/极值主导，采用 Spearman",
+    "分层内 3/6 个牌号方向与合并相反"
+   ],
+   "family": "W1C_actuator_mixed",
+   "fdr_q": 0.0,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C88@PV1_mean",
+   "target": "other_defects_derived",
+   "pearson_r": -0.09,
+   "spearman_rho": 0.448,
+   "p_value": 9.725e-09,
+   "detrended_r": -0.018,
+   "detrended_p_value": 0.825,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.272,
+     "PG31DS": -0.007,
+     "PG32B": -0.207,
+     "PG32D": 0.606,
+     "PG32DS": -0.033,
+     "PG32M": -0.462
+    },
+    "direction_reversals": 4
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.024,
+   "significance": "significant",
+   "evidence_grade": "MODERATE",
+   "warnings": [
+    "Pearson(-0.09) 与 Spearman(0.45) 分歧 >0.3：重尾/极值主导，采用 Spearman",
+    "分层内 4/6 个牌号方向与合并相反",
+    "关联可由共同时间趋势解释（控制时间后 |rho|<0.2）"
+   ],
+   "family": "W1C_actuator_mixed",
+   "fdr_q": 0.0,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C7C@PV1_mean",
+   "target": "other_defects_derived",
+   "pearson_r": 0.0517,
+   "spearman_rho": -0.285,
+   "p_value": 0.0004199,
+   "detrended_r": 0.115,
+   "detrended_p_value": 0.1644,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.431,
+     "PG31DS": 0.047,
+     "PG32B": -0.322,
+     "PG32D": -0.556,
+     "PG32DS": -0.65,
+     "PG32M": 0.44
+    },
+    "direction_reversals": 3
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.024,
+   "significance": "significant",
+   "evidence_grade": "MODERATE",
+   "warnings": [
+    "Pearson(0.05) 与 Spearman(-0.28) 分歧 >0.3：重尾/极值主导，采用 Spearman",
+    "分层内 3/6 个牌号方向与合并相反"
+   ],
+   "family": "W1C_deviation",
+   "fdr_q": 0.0008,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C7D@PV1_mean",
+   "target": "other_defects_derived",
+   "pearson_r": -0.1156,
+   "spearman_rho": 0.361,
+   "p_value": 6.018e-06,
+   "detrended_r": -0.056,
+   "detrended_p_value": 0.5014,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.547,
+     "PG31DS": 0.136,
+     "PG32B": 0.444,
+     "PG32D": 0.426,
+     "PG32DS": -0.517,
+     "PG32M": 0.687
+    },
+    "direction_reversals": 2
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.027,
+   "significance": "significant",
+   "evidence_grade": "MODERATE",
+   "warnings": [
+    "Pearson(-0.12) 与 Spearman(0.36) 分歧 >0.3：重尾/极值主导，采用 Spearman"
+   ],
+   "family": "W1C_deviation",
+   "fdr_q": 0.0,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C7E@PV1_mean",
+   "target": "other_defects_derived",
+   "pearson_r": -0.102,
+   "spearman_rho": 0.031,
+   "p_value": 0.7037,
+   "detrended_r": -0.045,
+   "detrended_p_value": 0.5862,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.504,
+     "PG31DS": 0.056,
+     "PG32B": 0.255,
+     "PG32D": -0.029,
+     "PG32DS": -0.383,
+     "PG32M": 0.33
+    },
+    "direction_reversals": 3
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.019,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [
+    "分层内 3/6 个牌号方向与合并相反"
+   ],
+   "family": "W1C_deviation",
+   "fdr_q": 0.7332,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C7F@PV1_mean",
+   "target": "other_defects_derived",
+   "pearson_r": 0.0515,
+   "spearman_rho": 0.209,
+   "p_value": 0.0104,
+   "detrended_r": 0.062,
+   "detrended_p_value": 0.4546,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.136,
+     "PG31DS": 0.064,
+     "PG32B": -0.304,
+     "PG32D": -0.532,
+     "PG32DS": 0.267,
+     "PG32M": 0.236
+    },
+    "direction_reversals": 3
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.022,
+   "significance": "significant",
+   "evidence_grade": "MODERATE",
+   "warnings": [
+    "分层内 3/6 个牌号方向与合并相反"
+   ],
+   "family": "W1C_deviation",
+   "fdr_q": 0.0142,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C83@PV1_mean",
+   "target": "other_defects_derived",
+   "pearson_r": 0.0099,
+   "spearman_rho": -0.404,
+   "p_value": 3.186e-07,
+   "detrended_r": -0.155,
+   "detrended_p_value": 0.0599,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.059,
+     "PG31DS": -0.244,
+     "PG32B": -0.097,
+     "PG32D": -0.459,
+     "PG32DS": 0.2,
+     "PG32M": -0.577
+    },
+    "direction_reversals": 1
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.019,
+   "significance": "significant",
+   "evidence_grade": "MODERATE",
+   "warnings": [
+    "Pearson(0.01) 与 Spearman(-0.40) 分歧 >0.3：重尾/极值主导，采用 Spearman",
+    "关联可由共同时间趋势解释（控制时间后 |rho|<0.2）"
+   ],
+   "family": "W1C_deviation",
+   "fdr_q": 0.0,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C85@PV1_mean",
+   "target": "other_defects_derived",
+   "pearson_r": 0.0715,
+   "spearman_rho": -0.382,
+   "p_value": 1.538e-06,
+   "detrended_r": -0.035,
+   "detrended_p_value": 0.6711,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.143,
+     "PG31DS": -0.062,
+     "PG32B": -0.152,
+     "PG32D": -0.626,
+     "PG32DS": 0.433,
+     "PG32M": 0.478
+    },
+    "direction_reversals": 2
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.027,
+   "significance": "significant",
+   "evidence_grade": "MODERATE",
+   "warnings": [
+    "Pearson(0.07) 与 Spearman(-0.38) 分歧 >0.3：重尾/极值主导，采用 Spearman",
+    "关联可由共同时间趋势解释（控制时间后 |rho|<0.2）"
+   ],
+   "family": "W1C_deviation",
+   "fdr_q": 0.0,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C86@PV1_mean",
+   "target": "other_defects_derived",
+   "pearson_r": 0.0622,
+   "spearman_rho": -0.465,
+   "p_value": 2.358e-09,
+   "detrended_r": -0.057,
+   "detrended_p_value": 0.4878,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": -0.211,
+     "PG31DS": -0.172,
+     "PG32B": 0.188,
+     "PG32D": -0.562,
+     "PG32DS": -0.533,
+     "PG32M": 0.5
+    },
+    "direction_reversals": 2
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.024,
+   "significance": "significant",
+   "evidence_grade": "MODERATE",
+   "warnings": [
+    "Pearson(0.06) 与 Spearman(-0.47) 分歧 >0.3：重尾/极值主导，采用 Spearman",
+    "关联可由共同时间趋势解释（控制时间后 |rho|<0.2）"
+   ],
+   "family": "W1C_deviation",
+   "fdr_q": 0.0,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C89@PV1_mean",
+   "target": "other_defects_derived",
+   "pearson_r": -0.0442,
+   "spearman_rho": -0.155,
+   "p_value": 0.05942,
+   "detrended_r": 0.053,
+   "detrended_p_value": 0.5198,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.754,
+     "PG31DS": -0.153,
+     "PG32B": -0.438,
+     "PG32D": 0.021,
+     "PG32DS": -0.033,
+     "PG32M": 0.176
+    },
+    "direction_reversals": 3
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.023,
+   "significance": "marginal",
+   "evidence_grade": "NONE",
+   "warnings": [
+    "分层内 3/6 个牌号方向与合并相反"
+   ],
+   "family": "W1C_deviation",
+   "fdr_q": 0.0723,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "W1C8C@PV1_mean",
+   "target": "other_defects_derived",
+   "pearson_r": 0.0278,
+   "spearman_rho": 0.17,
+   "p_value": 0.03851,
+   "detrended_r": 0.021,
+   "detrended_p_value": 0.8029,
+   "simpson_check": {
+    "safe": true,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.034,
+     "PG31DS": -0.064,
+     "PG32B": 0.164,
+     "PG32D": 0.626,
+     "PG32DS": 0.467,
+     "PG32M": 0.368
+    },
+    "direction_reversals": 1
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.023,
+   "significance": "significant",
+   "evidence_grade": "MODERATE",
+   "warnings": [
+    "关联可由共同时间趋势解释（控制时间后 |rho|<0.2）"
+   ],
+   "family": "W1C_deviation",
+   "fdr_q": 0.0481,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  },
+  {
+   "parameter": "meters",
+   "target": "other_defects_derived",
+   "pearson_r": 0.1389,
+   "spearman_rho": -0.003,
+   "p_value": 0.9679,
+   "detrended_r": 0.225,
+   "detrended_p_value": 0.005845,
+   "simpson_check": {
+    "safe": false,
+    "strata_count": 6,
+    "strata_correlations": {
+     "FP21": 0.214,
+     "PG31DS": 0.365,
+     "PG32B": 0.39,
+     "PG32D": -0.274,
+     "PG32DS": 0.385,
+     "PG32M": 0.171
+    },
+    "direction_reversals": 5
+   },
+   "change_point_detected": true,
+   "leave_one_out_stable": true,
+   "outlier_leverage": 0.02,
+   "significance": "not_significant",
+   "evidence_grade": "NONE",
+   "warnings": [
+    "分层内 5/6 个牌号方向与合并相反"
+   ],
+   "family": "exposure",
+   "fdr_q": 0.9679,
+   "notes": "detrended_r = partial Spearman controlling model FE + log(meters) + time rank"
+  }
+ ],
+ "summary": {
+  "total_pairs_analyzed": 180,
+  "significant_pairs": 81,
+  "simpson_safe_pairs": 78,
+  "detrended_robust_pairs": 5,
+  "leave_one_out_passed_pairs": 180,
+  "top_correlations": [
+   {
+    "parameter": "W1C8A@PV1_mean",
+    "target": "other_defects_derived",
+    "spearman_rho": 0.498,
+    "evidence_grade": "MODERATE"
+   },
+   {
+    "parameter": "W1C81@PV1_mean",
+    "target": "other_defects_derived",
+    "spearman_rho": -0.465,
+    "evidence_grade": "MODERATE"
+   },
+   {
+    "parameter": "W1C86@PV1_mean",
+    "target": "other_defects_derived",
+    "spearman_rho": -0.465,
+    "evidence_grade": "MODERATE"
+   },
+   {
+    "parameter": "W1C88@PV1_mean",
+    "target": "other_defects_derived",
+    "spearman_rho": 0.448,
+    "evidence_grade": "MODERATE"
+   },
+   {
+    "parameter": "W1C40@PV1_mean",
+    "target": "other_defects_derived",
+    "spearman_rho": -0.445,
+    "evidence_grade": "MODERATE"
+   },
+   {
+    "parameter": "W1C84@PV1_mean",
+    "target": "other_defects_derived",
+    "spearman_rho": 0.419,
+    "evidence_grade": "STRONG"
+   },
+   {
+    "parameter": "W1C4B@PV1_mean",
+    "target": "other_defects_derived",
+    "spearman_rho": -0.418,
+    "evidence_grade": "MODERATE"
+   },
+   {
+    "parameter": "W1C8A@PV1_mean",
+    "target": "total_defects",
+    "spearman_rho": 0.406,
+    "evidence_grade": "MODERATE"
+   },
+   {
+    "parameter": "W1C83@PV1_mean",
+    "target": "other_defects_derived",
+    "spearman_rho": -0.404,
+    "evidence_grade": "MODERATE"
+   },
+   {
+    "parameter": "W1C8B@PV1_mean",
+    "target": "other_defects_derived",
+    "spearman_rho": 0.402,
+    "evidence_grade": "MODERATE"
+   }
+  ]
+ },
+ "metadata": {
+  "generated_by": "data-processor",
+  "pipeline_phase": "Phase 2-3",
+  "data_source": "cleaned",
+  "sample_size": 149,
+  "anti_spurious_rules_applied": [
+   "v6.4 lag compensation",
+   "v6.5 steady-state cross-check",
+   "v6.6 batch integrity",
+   "v6.7 leave-one-out",
+   "BH-FDR per target",
+   "time-trend control",
+   "winsorized Spearman",
+   "model fixed-effects partial Spearman"
+  ],
+  "pipeline_raw_report": "02_processed/validate_report_pipeline_raw.json"
+ }
+}

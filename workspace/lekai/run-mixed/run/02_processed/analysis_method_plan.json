@@ -1,0 +1,77 @@
+{
+ "generated_at": "2026-10-22T00:23:11.543214",
+ "method_selection_policy": "methods follow hypotheses",
+ "hypotheses": [
+  {
+   "id": "H1",
+   "statement": "涂布/冷却通道族（W1C）漂移驱动总缺陷与未分类残差上升",
+   "methods": [
+    "family composite partial Spearman (control model+meters)",
+    "time-control partial (add t_index)",
+    "segment re-estimation pre/post change point",
+    "leave-one-out leverage"
+   ]
+  },
+  {
+   "id": "H2",
+   "statement": "F_PS005 供料回路压差累积（锯齿）+ 复位，是周期性污染源",
+   "methods": [
+    "Mann-Kendall/Spearman trend",
+    "Pettitt change point",
+    "segment medians",
+    "lagged CCF <=5 batches"
+   ]
+  },
+  {
+   "id": "H3",
+   "statement": "牌号配方差异（model）是主要分层混杂，甚至造成 Simpson 反转",
+   "methods": [
+    "Kruskal-Wallis per response",
+    "fixed-effect variance decomposition",
+    "within-model Spearman",
+    "stratified scatter"
+   ]
+  },
+  {
+   "id": "H4",
+   "statement": "缺陷计数主要由批次长度暴露决定，密度才是可比量",
+   "methods": [
+    "log-log regression with model FE",
+    "partial r of meters after model",
+    "density vs meters Spearman"
+   ]
+  },
+  {
+   "id": "H5",
+   "statement": "oligomer 由挤出段热历史决定，MD 温度只影响迁移，故模型内参数关联应很弱",
+   "methods": [
+    "pooled vs partial Spearman per family",
+    "FDR control",
+    "comparison with dust"
+   ]
+  },
+  {
+   "id": "H6",
+   "statement": "dust 多源且与过程参数弱关联，时间上无趋势",
+   "methods": [
+    "pooled/partial Spearman",
+    "time trend",
+    "change point"
+   ]
+  }
+ ],
+ "skipped": [
+  {
+   "method": "steady-state filtering as primary input",
+   "reason": "稳态标签按 76 列窗口方差判定，对 149 个批次的慢漂移线会误删漂移主体（101/149 判 steady）；实际用全 149 行做主分析，稳态子集仅作敏感性对照（中位 62 vs 51，方向一致）"
+  },
+  {
+   "method": "intra-batch analysis",
+   "reason": "数据为批级聚合，无批内轨迹"
+  },
+  {
+   "method": "Granger causality",
+   "reason": "149 点 + 不规则间隔 + 强共同趋势，Granger 会被趋势伪造"
+  }
+ ]
+}

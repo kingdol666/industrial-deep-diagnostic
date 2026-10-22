@@ -1,0 +1,76 @@
+{
+ "generated_by": "data-processor Phase 0 (independent of ontology semantics)",
+ "format": {
+  "original_file": "00_input/batches.csv",
+  "rows_raw": 149,
+  "cols_raw": 51,
+  "delimiter": ",",
+  "encoding": "utf-8",
+  "time_format": "YYYY-MM-DD HH:MM:SS"
+ },
+ "quality": {
+  "missing_cells": 1,
+  "duplicate_batch_ids": [
+   "H2652611"
+  ],
+  "duplicate_rows": [
+   34,
+   35
+  ],
+  "constant_columns": [],
+  "zero_inflated_targets": {
+   "total_defects": 0,
+   "oligomer": 6,
+   "dust": 1
+  }
+ },
+ "time": {
+  "gap_min_median": 70.0,
+  "gap_min_min": 11.0,
+  "gap_min_max": 1161.0,
+  "span_hours": 215.7,
+  "median_interval_seconds": 4200.0,
+  "max_lag_searched_steps": 5
+ },
+ "production_state": {
+  "method": "three-algorithm fusion (production_regime_detector)",
+  "n_steady": 101,
+  "n_all": 149,
+  "median_total_steady": 62.0,
+  "median_total_all": 51.0,
+  "median_per_km_steady": 25.92,
+  "median_per_km_all": 20.58,
+  "regime_distribution": {
+   "steady": 101,
+   "abnormal": 31,
+   "transition": 11,
+   "marginal": 6
+  }
+ },
+ "distribution_shape": {
+  "total_defects": {
+   "median": 51.0,
+   "mean": 204.79,
+   "skew": 7.83
+  },
+  "oligomer": {
+   "median": 8.0,
+   "mean": 29.09,
+   "skew": 7.44
+  },
+  "dust": {
+   "median": 11.0,
+   "mean": 39.54,
+   "skew": 12.05
+  },
+  "other_defects_derived": {
+   "median": 30.0,
+   "mean": 136.16,
+   "skew": 8.85
+  }
+ },
+ "recommended_transforms": {
+  "responses": "log1p + rank statistics",
+  "parameters": "z-score per family for composites"
+ }
+}

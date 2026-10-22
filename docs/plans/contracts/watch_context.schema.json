@@ -1,0 +1,42 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "watch_context.schema.json",
+  "title": "Watch context declaration (stability / sentinel profiles)",
+  "description": "Watch 家族（line-stability-report / sentinel）的声明式上下文契约。该声明的规范化形态是 watch-context-v1 语义指纹的输入（computeWatchContextFingerprint / ontology_prepare_common.compute_watch_context_fp，双侧 1:1 镜像并有跨语言对拍测试）。纪律：声明先验——单位/角色/声明边界进分析，永不参与分布估计；词典 typical_ranges 只是参考区间，永不入 normal_range/spec。",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "columns": {
+      "type": "array",
+      "description": "列声明清单；role 为 watch 语义角色（time/group/parameter/inspection/id/…自由文本），进指纹的是 col|role|unit|lsl|usl 五元组。",
+      "items": {
+        "type": "object",
+        "required": ["col"],
+        "additionalProperties": false,
+        "properties": {
+          "col": { "type": "string", "description": "数据表列名（规范化前原样参与指纹）" },
+          "role": { "type": "string", "description": "watch 语义角色：time | group | parameter | inspection | id | …" },
+          "unit": { "type": ["string", "null"], "description": "声明单位；缺省 → 产出侧必须标「单位未声明 (unit undeclared)」" },
+          "lsl": { "type": ["number", "null"], "description": "用户声明规格下限（进 normal_range 的唯一来源）" },
+          "usl": { "type": ["number", "null"], "description": "用户声明规格上限" }
+        }
+      }
+    },
+    "windows": {
+      "type": "array",
+      "description": "用户声明的操作窗口；进指纹的是 factor|lo|hi 三元组。经 build_baseline --ontology 落地时一律 window_source=\"ontology_declared\" + confirmation_needed=true（严重度封顶 ≤warn）。",
+      "items": {
+        "type": "object",
+        "required": ["factor", "lo", "hi"],
+        "additionalProperties": false,
+        "properties": {
+          "factor": { "type": "string" },
+          "lo": { "type": "number" },
+          "hi": { "type": "number" }
+        }
+      }
+    },
+    "scene_key": { "type": "string", "description": "可选：资产库场景键（否则按 --scene > 上下文 > run 目录名链推导）" },
+    "mode": { "type": "string", "enum": ["auto", "full", "reuse", "extend", "off"], "description": "本体制备模式（ctx.ontology.mode 的落点）" }
+  }
+}

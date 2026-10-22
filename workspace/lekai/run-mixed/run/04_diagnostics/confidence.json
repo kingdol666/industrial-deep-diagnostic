@@ -1,0 +1,293 @@
+{
+  "run_id": "202610211442552_run",
+  "diagnosis_time": "2026-10-22T08:30:00Z",
+  "confidence_breakdown": {
+    "H2": {
+      "hypothesis_id": "H2",
+      "confidence_score": 52,
+      "level": "MEDIUM",
+      "five_factor_breakdown": {
+        "statistical_strength": {
+          "score": 16,
+          "max": 25,
+          "note": "W1C84 是全表唯一通过 model+meters+time 三重控制的候选（total +0.254, p=0.0018；other +0.262, p=0.00127），族内共线结构支持 latent 状态（族内 |rho| 中位 0.714、PC1 40.7%）。但幅度仅 0.25（未达强关联 0.7 门槛），且主导牌号 PG31DS 内只有 +0.173 → 统计强度给 16/25 而非更高"
+        },
+        "physical_plausibility": {
+          "score": 12,
+          "max": 25,
+          "note": "方向与质量守恒一致（供料/线速偏差 → 涂层厚度 → 未标注类缺陷），且同工位通道共线可用「共用上游状态」解释。但 W1C 通道 unit=unknown（本体 INFERRED），无法把观测变化换算为厚度变化 → 量级校验 UNTESTED，扣满分的一半以上"
+        },
+        "temporal_evidence": {
+          "score": 8,
+          "max": 20,
+          "note": "仅有批尺度同窗关系：W1C8A 爬升（05-09→05-12）略早于缺陷高方差带形成（VLM 估 0.5-1 天、8-15 批），但 VLM 自评该先后为 LOW 置信度；变点处通道无阶跃（缺陷侧却阶跃）→ 时序不匹配是主要扣分项。数据已按 ts_start 排序（monotonic，无重复时间戳），故不存在排序伪影，可给中等分"
+        },
+        "absence_of_confounds": {
+          "score": 10,
+          "max": 20,
+          "note": "已排除的混杂：Simpson（未反转，4/6 同号）、LOO（|Δ|≤0.024）、极值（剔除 3 批后趋势仍存）、牌号（扣除后 total +0.244 仍有残余）。未排除的：W1C84 自身与时间共线 rho=+0.535（p=2e-12）→ 残余 0.254 仍可能含时间影子；44 列共线使「哪一列」不可辨识"
+        },
+        "symptom_completeness": {
+          "score": 6,
+          "max": 10,
+          "note": "可解释 other/total 的漂移部分，但不能解释 05-09 20:02 的阶跃（通道在该时刻无跳变），也不能解释 dust 的单批事件与 oligomer 的牌号依赖 → 三个症状里只覆盖一个，且只覆盖其慢变成分"
+        }
+      },
+      "evidence_gaps": [
+        "W1C00..W1C8D 的位号-量纲定标表（22 个通道 unit=unknown）",
+        "涂布段涂层厚度在线测点（当前不存在）",
+        "05-09 18:00-05-10 02:00 的涂布/冷却工位设备事件日志",
+        "批内（分钟级）数据以检验 1-15 min 尺度的领先关系"
+      ],
+      "assumptions": [
+        "假设 W1C_absolute_process 子族的 6 列共享同一上游状态（由族内 |rho| 中位 0.714 与同一 PCA 簇支撑）",
+        "假设涂布段状态与 other 类之间存在正向机制（方向由 4/6 牌号同号与质量守恒支撑，非直接观测）"
+      ],
+      "uncertainty_decomposition": {
+        "aleatory": "批级聚合把批内波动平均掉，且缺陷计数本身 CV=4.79 的重尾噪声在 149 点内不可压；单批计数噪声即可产生 ±30% 的段内波动",
+        "epistemic": "通道未定标 + 无涂层厚度测点 → 机制的定量环节完全缺失；这是可消除的知识缺口，补测后可把 phys 从 12 提到 20 以上",
+        "model": "用 Spearman 相关与线性偏相关描述非线性过程；用批级差分近似传函检验。差分检验对「批内响应」不敏感（若传函时间常数 <1 批，差分会把信号与噪声一起消掉）"
+      }
+    },
+    "H7": {
+      "hypothesis_id": "H7",
+      "confidence_score": 50,
+      "level": "MEDIUM",
+      "five_factor_breakdown": {
+        "statistical_strength": {
+          "score": 14,
+          "max": 25,
+          "note": "时间结构极强（Pettitt K=3472/3913, p≈0；变点前后中位 36→74；扣除牌号后 total +0.244 p=0.0027），且 PG31DS 内部复现（p=0.0052）。但这是「效应」的统计，不是「原因」的统计——触发源本身无任何数据，故不能给高"
+        },
+        "physical_plausibility": {
+          "score": 10,
+          "max": 25,
+          "note": "三个候选源（S1 熔体热历史、S6 张力、检测基线）各自都有第一性原理支持（Arrhenius / 张力-滑移判据 ΔT/T>±10% / 判级阈值），但无法指定其中之一，且没有任何一个能被量级校验 → 机制抽象成立、具体机制不明"
+        },
+        "temporal_evidence": {
+          "score": 11,
+          "max": 20,
+          "note": "时间先行性在批尺度上成立且是全数据最强的一项：阶跃点 05-09 20:02 早于 oligomer 的 index 83（5 批后），且阶跃在牌号内复现。扣分原因：批间隔 11-1161 min 不等距，5 批滞后对应 55 min-96.8 h 的浮动物理时长，无法把阶跃定位到更细的时间窗"
+        },
+        "absence_of_confounds": {
+          "score": 9,
+          "max": 20,
+          "note": "主要混杂是「变点与牌号构成剧变重合」（变点后 PG31DS 占 81.7%），已用牌号内检验部分剥离（p=0.0052），但变点前 PG31DS 仅 9 批，前段基线不可靠；另无法排除「检测仪判级基线变化」这一与「真实缺陷增加」完全同构的混杂"
+        },
+        "symptom_completeness": {
+          "score": 6,
+          "max": 10,
+          "note": "能解释 total/other 的阶跃（占中位 62.8% 的主体），但不能解释 oligomer 的牌号依赖与 dust 的单批事件——虽然这两者本身也被判为独立机制，故不构成强反驳，但降低了单一上游解释的完整度"
+        }
+      },
+      "evidence_gaps": [
+        "2026-05-09 18:00-05-10 02:00 的设备 HMI/维护/配方/标定事件日志",
+        "熔体温度、螺杆转速、特性黏度（S1）",
+        "收卷张力（S6）",
+        "在线缺陷仪的光源/镜头/判级阈值变更记录"
+      ],
+      "assumptions": [
+        "假设 05-09 20:02 对应一次真实的运行状态改变，而非数据记录/时间轴错误（已用 time_alignment 排除：149/149 时间戳可解析、排序后单调、无重复）",
+        "假设缺陷仪的判级口径在该时刻前后保持一致（无独立证据，属未验证假设）"
+      ],
+      "uncertainty_decomposition": {
+        "aleatory": "批级聚合 + 重尾计数（CV 4.79）使单批水平本身不可精确估计，阶跃幅度（中位 36→74）的置信区间宽",
+        "epistemic": "S1/S6/检测基线三个域全部无测点（本体 observed=false）→ 这是本数据最大的可消除缺口",
+        "model": "Pettitt 只检测均值/秩的单一变点，对「渐变加速」不敏感；若真实过程是漂移加速而非阶跃，本假设的时间结构会被误读"
+      }
+    },
+    "H1": {
+      "hypothesis_id": "H1",
+      "confidence_score": 22,
+      "level": "EXCLUDED",
+      "five_factor_breakdown": {
+        "statistical_strength": {"score": 7, "max": 25, "note": "名义相关 0.34-0.41（W1C84/W1C8A/W1C81），但三处判别检验全部归零：差分 +0.087（p=0.294）、段内 post +0.162（p=0.177）、段后横截面 +0.162（p=0.177）；W1C8A 在 other 上 Simpson 反转（2/6 同号）"},
+        "physical_plausibility": {"score": 8, "max": 25, "note": "机制骨架（质量守恒 → 涂层厚度 → 缺陷）成立，但通道 unit=unknown 使量级校验 UNTESTED；且「连续传函」要求批次级响应，这一点被数据直接否定"},
+        "temporal_evidence": {"score": 3, "max": 20, "note": "变点处通道无阶跃而缺陷阶跃（形状不匹配）；VLM 记录 05-10.5 缺陷爆发时 W1C8A 无对应峰"},
+        "absence_of_confounds": {"score": 2, "max": 20, "note": "W1C84 与时间 rho=+0.535、W1C8A +0.831；时间控制后 W1C8A 衰减 66%（判定 trend-confounded）→ 混杂未排除"},
+        "symptom_completeness": {"score": 2, "max": 10, "note": "无法解释缺陷侧的阶跃，也无法解释 dust 单批事件与 oligomer 的牌号依赖"}
+      },
+      "evidence_gaps": ["批内分钟级数据（唯一可能让传函版本复活的证据）"],
+      "assumptions": ["无（本条已被排除，仅保留用于复活条件登记）"],
+      "uncertainty_decomposition": {
+        "aleatory": "不适用（已排除）",
+        "epistemic": "若批内响应时间常数 <1 批，批级差分会把传函与噪声一起消掉 → 这是本条被排除的唯一残留风险",
+        "model": "差分检验对同批内同步变化的灵敏度为零"
+      }
+    },
+    "H3": {
+      "hypothesis_id": "H3",
+      "confidence_score": 25,
+      "level": "EXCLUDED",
+      "five_factor_breakdown": {
+        "statistical_strength": {"score": 10, "max": 25, "note": "牌号效应真实且显著（total H=35.22, p=2.44e-05；other H=46.29, p=2.09e-07；incremental R²=0.291/0.313），但只能解释 47% 的表观趋势（0.461→0.244）"},
+        "physical_plausibility": {"score": 8, "max": 25, "note": "配方决定设定值与缺陷基线（PG31DS 中位 66 vs PG32M 35）机制成立；但「构成变化」不是一种可干预的物理机制，只是统计分组"},
+        "temporal_evidence": {"score": 2, "max": 20, "note": "构成是逐步变化的，而缺陷是阶跃；牌号内检验（PG31DS p=0.0052、非 PG31DS 37→78）显示阶跃跨牌号成立"},
+        "absence_of_confounds": {"score": 3, "max": 20, "note": "本条本身就是混杂变量，故其作为主因的地位被自身定义否定"},
+        "symptom_completeness": {"score": 2, "max": 10, "note": "解释了基线差异，但解释不了同一牌号内 30→72 的抬升"}
+      },
+      "evidence_gaps": ["配方设定值表（用于把「牌号」换成可干预的工艺设定）"],
+      "assumptions": ["无（仅作为部分贡献者保留，不再作为主因假设）"],
+      "uncertainty_decomposition": {
+        "aleatory": "牌号内样本量不均（FP41 n=3、PG31DS n=67）使分层估计的方差差异很大",
+        "epistemic": "9 个牌号中 6 个 n≤10，牌号×时间的交互无法稳定估计",
+        "model": "用牌号中位残差化近似固定效应，未用混合模型（149 点不足以支持 9 个随机截距 + 时间斜率）"
+      }
+    },
+    "H4": {
+      "hypothesis_id": "H4",
+      "confidence_score": 19,
+      "level": "EXCLUDED",
+      "five_factor_breakdown": {
+        "statistical_strength": {"score": 3, "max": 25, "note": "对 total pooled −0.206、best lag 5 批 −0.312（符号与机制相反）；对 dust partial +0.083（p=0.313）、FDR q=0.649、差分 −0.019（p=0.818）"},
+        "physical_plausibility": {"score": 10, "max": 25, "note": "Darcy-Weisbach 滤饼增厚机制本身完全成立，且锯齿形态与之精确吻合（段内 +0.726/+0.967/+0.969、两次阶跃复位）——这是本条唯一的高分项"},
+        "temporal_evidence": {"score": 3, "max": 20, "note": "两次复位后缺陷密度变化 −23% 与 +9%（方向不一致）；dust 峰值早于第一次复位 43 h"},
+        "absence_of_confounds": {"score": 1, "max": 20, "note": "dust 由单批主导（top1 64.1%），任何 dust 关联都由一个点决定"},
+        "symptom_completeness": {"score": 2, "max": 10, "note": "若成立应产生周期性的 dust 波动，实测 dust 是单批脉冲而非周期"}
+      },
+      "evidence_gaps": ["换网/反吹的实际执行时间戳（用于确认两次阶跃的物理身份）", "过滤压差直接测点"],
+      "assumptions": ["假设 F_PS005 的形态确实对应过滤器压差（本体 physical_meaning_confidence=INFERRED，未获位号表确认）"],
+      "uncertainty_decomposition": {
+        "aleatory": "dust 的脉冲性质使「复位→dust」检验的统计功效极低（仅 2 次复位事件）",
+        "epistemic": "无位号表 → 甚至不能确认 F_PS005 是压差而非流量/液位；若为流量，机制链整体改写",
+        "model": "CCF 用批步长而非物理时间，5 批滞后对应 55 min-96.8 h → 可能错过真实的 1-3 h 响应"
+      }
+    },
+    "H5": {
+      "hypothesis_id": "H5",
+      "confidence_score": 7,
+      "level": "EXCLUDED",
+      "five_factor_breakdown": {
+        "statistical_strength": {"score": 2, "max": 25, "note": "预测「三类同步抬升」被份额数据直接否证：oligomer 0.150→0.145、dust 0.293→0.165、other 0.571→0.682"},
+        "physical_plausibility": {"score": 2, "max": 25, "note": "灵敏度漂移是可能的物理机制（光源衰减/镜头污染），但需要检测仪状态记录支持，本数据无"},
+        "temporal_evidence": {"score": 1, "max": 20, "note": "无任何检测仪状态时间轴可比对"},
+        "absence_of_confounds": {"score": 1, "max": 20, "note": "与「真实缺陷增加」在本数据中完全同构，无法分离"},
+        "symptom_completeness": {"score": 1, "max": 10, "note": "解释不了「只有 other 类上升」这一最主要症状，反而被其否证"}
+      },
+      "evidence_gaps": ["在线缺陷仪的光源强度、镜头清洁、判级阈值与自校准记录"],
+      "assumptions": ["无（已排除）"],
+      "uncertainty_decomposition": {
+        "aleatory": "不适用",
+        "epistemic": "若 05-09 之后确实做过检测仪标定，则本假设复活；这是唯一未被检验的替代解释",
+        "model": "份额检验假设分类口径不变；若分类口径本身改变，份额变化会被误读为真实构成变化"
+      }
+    },
+    "H6": {
+      "hypothesis_id": "H6",
+      "confidence_score": 11,
+      "level": "EXCLUDED",
+      "five_factor_breakdown": {
+        "statistical_strength": {"score": 3, "max": 25, "note": "剔除 3 个极端批次后 total~时间仍 +0.513（p<1e-4）、other +0.623、密度 +0.659；重复键剔除后 rho 变动 ≤0.011"},
+        "physical_plausibility": {"score": 3, "max": 25, "note": "「统计伪影」不是一种物理机制；本条为数据分析层的替代解释"},
+        "temporal_evidence": {"score": 2, "max": 20, "note": "重复键的两行隐含线速 39.38 vs 38.91 m/min（总体中位 34.6）证明其为两条真实子批，不构成时间污染"},
+        "absence_of_confounds": {"score": 2, "max": 20, "note": "本条自身即为混杂假设，已被 LOO（≤0.029）与敏感度（≤0.011）双重检验削弱"},
+        "symptom_completeness": {"score": 1, "max": 10, "note": "不能解释变点后的连续性抬升（变点后无同量级尖峰，VLM 已确认）"}
+      },
+      "evidence_gaps": ["MES 原始上报记录（用于最终闭合子批与重复键的区别）"],
+      "assumptions": ["无（已排除）"],
+      "uncertainty_decomposition": {
+        "aleatory": "不适用",
+        "epistemic": "若 MES 证明 H2652611 为同一批的两次上报且 meters 为累计值，则需重算全部批次级统计",
+        "model": "本次用隐含线速做判别，假设「ts_start 至下一批 ts_start ≈ 本批时长」，若批次之间有停机则该估计偏低"
+      }
+    },
+    "H8": {
+      "hypothesis_id": "H8",
+      "confidence_score": 18,
+      "level": "EXCLUDED",
+      "five_factor_breakdown": {
+        "statistical_strength": {"score": 6, "max": 25, "note": "名义 −0.337，但时间控制后 −0.157（p=0.054, explained_by_shared_trend）；差分 +0.077（p=0.354）；段内 pre −0.095/post +0.049"},
+        "physical_plausibility": {"score": 5, "max": 25, "note": "冷却区跨 Tg 影响取向冻结与平整度，机制存在；但 0.5°C 台阶对应 <1.5% 热流变化，与 2 倍缺陷抬升量级不符"},
+        "temporal_evidence": {"score": 2, "max": 20, "note": "两次台阶（05-07.1、05-08.3）与变点（05-09 20:02）不完全对齐；VLM 判 visually_independent"},
+        "absence_of_confounds": {"score": 3, "max": 20, "note": "与时间 rho=−0.474，属共同漂移的投影"},
+        "symptom_completeness": {"score": 2, "max": 10, "note": "不能解释 other 类的主导份额抬升，也不能解释 dust/oligomer"}
+      },
+      "evidence_gaps": ["MD 冷却区 PV-SP 偏差（当前只有 PV 均值）", "薄膜平整度/厚度测点"],
+      "assumptions": ["无（已排除）"],
+      "uncertainty_decomposition": {
+        "aleatory": "不适用",
+        "epistemic": "若冷却区实际温度与设定偏差 >3°C（本数据无 SP 无法验证），则量级校验结论需重做",
+        "model": "用 PV 均值代理实际膜面温度，忽略传热滞后"
+      }
+    },
+    "H9": {
+      "hypothesis_id": "H9",
+      "confidence_score": 5,
+      "level": "EXCLUDED",
+      "five_factor_breakdown": {
+        "statistical_strength": {"score": 2, "max": 25, "note": "oligomer 全部参数关联 FDR 后无一显著（最小 q=0.118）；扣除牌号后时间趋势 −0.003（p=0.972）"},
+        "physical_plausibility": {"score": 1, "max": 25, "note": "Arrhenius 量级差 1e19-1e20，MD 段生成贡献不可检出（本体 A5 已声明）"},
+        "temporal_evidence": {"score": 1, "max": 20, "note": "oligomer 的值点 index 83 由 PG31DS 集中投产解释，非工艺事件"},
+        "absence_of_confounds": {"score": 0, "max": 20, "note": "牌号（配方/挤出热历史）是唯一显著轴，本条为纯混杂"},
+        "symptom_completeness": {"score": 1, "max": 10, "note": "不能解释牌号间 3-25 倍的中位差异（组间差异 >> 任何组内时间变化）"}
+      },
+      "evidence_gaps": ["熔体温度、特性黏度、缩聚催化剂/牌号配方记录（S1）"],
+      "assumptions": ["无（已排除；S1 版本以 H9' 形式留在 revival_condition）"],
+      "uncertainty_decomposition": {
+        "aleatory": "oligomer 6 个批次为 0（左截断），秩统计功效受限",
+        "epistemic": "生成环节完全无测点 → 无法直接检验，只能靠 Arrhenius 量级排除 MD 版本",
+        "model": "用 rho 线性/单调近似，未考虑表面析出的过饱和阈值行为（可能呈阈值型而非线性）"
+      }
+    }
+  },
+  "overall_confidence": {
+    "score": 55,
+    "level": "MEDIUM",
+    "summary": "整体置信 55（上限 65）。分解：(a) 否定性结论置信高（85-90）——已测工艺参数中不存在满足四条件的批次级传函，这一点有三条独立检验（差分、段内分段、段后横截面）一致支持；(b) 肯定性归因置信中等（H2 52 / H7 50）——缺陷侧的状态切换与扣除牌号后的残余漂移都是稳健事实（Pettitt p≈0；牌号内 p=0.0052；残余 +0.244 p=0.0027），但触发源位于测点域外，两个候选域不可判别；(c) 分模式结论差异大：oligomer 35（NEEDS_DATA，机制在 S1 无测点）、dust 30（NEEDS_DATA，单批占 64.1%）。因此 diagnosis_type=COMPETING_SET（CS1），而非 DETERMINED。"
+  },
+  "per_defect_mode_confidence": {
+    "total_defects": {"score": 52, "conclusion_type": "COMPETING_SET", "error_margin": "±10（因变点前 n=78 中仅 4 个极值主导高阶矩，中位估计的 bootstrap CI 约 ±8%）"},
+    "other_defects_derived": {"score": 55, "conclusion_type": "COMPETING_SET", "error_margin": "±10（other 为派生值，误差随三个分量的舍入累积；但 149 行均满足 oligomer+dust≤total，无负值截断问题）"},
+    "oligomer": {"score": 35, "conclusion_type": "NEEDS_DATA", "error_margin": "±15（6 个零值造成左截断，牌号内样本量最小 3 批）"},
+    "dust": {"score": 30, "conclusion_type": "NEEDS_DATA", "error_margin": "±18（top1 占 64.1%，中位与均值相差 3.6 倍，任何集中趋势的估计都极不稳定）"}
+  },
+  "adjustment_log": [
+    {"hypothesis_id": "H2", "adjustment": 10, "reason": "W1C84 是唯一通过 model+meters+time 三重控制的候选（total +0.254, p=0.0018；other +0.262, p=0.00127）", "source": "02_processed/custom_analysis.json#robustness_time_control_top"},
+    {"hypothesis_id": "H2", "adjustment": -8, "reason": "差分相关归零（Δ +0.087, p=0.294；变点后 +0.193, p=0.106）→ 只能解释为共同上游的伴随量，不能是传函", "source": "本次判别计算（batch-to-batch Spearman）"},
+    {"hypothesis_id": "H2", "adjustment": -10, "reason": "W1C 通道 unit=unknown（本体 INFERRED），无 governing equation → 量级校验 UNTESTED，物理可信度腰斩", "source": "01_ontology/ontology.json#limitations"},
+    {"hypothesis_id": "H2", "adjustment": -5, "reason": "与 H7 不可判别，套用 INDISTINGUISHABLE 竞争集 65 上限并进一步扣减", "source": "discriminability_matrix H2/H7"},
+    {"hypothesis_id": "H2", "adjustment": 5, "reason": "结构性证据加分：W1C_absolute_process 族内 |rho| 中位 0.714、PC1 40.7% → 该族确有一个 latent 状态", "source": "02_processed/custom_analysis.json#collinearity"},
+    {"hypothesis_id": "H7", "adjustment": 12, "reason": "变点是全数据最强且最稳定的时间结构（Pettitt K=3472/3913, p≈0；PG31DS 内 MWU p=0.0052；非 PG31DS 37→78）", "source": "02_processed/custom_analysis.json#time_trends + 本次判别计算"},
+    {"hypothesis_id": "H7", "adjustment": -12, "reason": "触发源三个候选域全部无测点（本体 S1/S6 observed=false），机制只能陈述不能量化", "source": "01_ontology/ontology.json#stages"},
+    {"hypothesis_id": "H7", "adjustment": -5, "reason": "与 H2 不可判别 + 变点与牌号构成剧变重合（变点后 PG31DS 占 81.7%）", "source": "discriminability_matrix H2/H7 + 本次判别计算"},
+    {"hypothesis_id": "H1", "adjustment": -25, "reason": "三重判别检验全部归零（差分/段内/段后横截面），且 W1C8A 在 other 上 Simpson 反转", "source": "本次判别计算 + 02_processed/custom_analysis.json#segment_check_cp78"},
+    {"hypothesis_id": "H1", "adjustment": -15, "reason": "趋势混杂：W1C84 与时间 +0.535、W1C8A +0.831；时间控制后 W1C8A 衰减 66%（>50% 阈值）", "source": "02_processed/custom_analysis.json#robustness_time_control_top"},
+    {"hypothesis_id": "H3", "adjustment": -20, "reason": "扣除牌号后仍有 +0.244（p=0.0027），且牌号内（PG31DS p=0.0052、PG32D +0.785、PG32B +0.815）显著上行 → 构成只能解释约 47%", "source": "本次判别计算"},
+    {"hypothesis_id": "H4", "adjustment": -25, "reason": "符号与机制相反（lag=5 批 −0.312）+ 两次复位响应方向不一致（−23%/+9%）+ 对 dust 偏相关 +0.083（p=0.313）", "source": "02_processed/custom_analysis.json#C11_F_PS005_trend + #time_lag"},
+    {"hypothesis_id": "H4", "adjustment": -10, "reason": "dust 单批主导（top1 64.1%），任何 dust 关联都由一个点决定", "source": "02_processed/custom_analysis.json#response_profiles"},
+    {"hypothesis_id": "H5", "adjustment": -30, "reason": "三类份额不同步（oligomer 0.150→0.145、dust 0.293→0.165、other 0.571→0.682）→ 灵敏度漂移被直接否证", "source": "本次判别计算 + 03_figures/fig13_defect_composition.png"},
+    {"hypothesis_id": "H6", "adjustment": -20, "reason": "剔除 3 个极端批次后趋势仍 +0.513（p<1e-4）；重复键隐含线速 39.38 vs 38.91 m/min 证明为两条真实子批", "source": "本次判别计算 + 02_processed/batch_integrity.json"},
+    {"hypothesis_id": "H6", "adjustment": -5, "reason": "重复键敏感度 ≤0.011，不改变任何结论", "source": "02_processed/custom_analysis.json#duplicate_batch_sensitivity"},
+    {"hypothesis_id": "H8", "adjustment": -18, "reason": "时间控制后衰减至 −0.157（p=0.054, explained_by_shared_trend）+ 差分 +0.077（p=0.354）+ 0.5°C 台阶量级 <1.5% 热流", "source": "02_processed/custom_analysis.json#robustness_time_control_top + 本次判别计算"},
+    {"hypothesis_id": "H8", "adjustment": -8, "reason": "形态为设定台阶而非漂移，VLM 判 visually_independent", "source": "03_figures/visual_analysis.json#process_fluctuation_visual_findings"},
+    {"hypothesis_id": "H9", "adjustment": -35, "reason": "Arrhenius 量级差 1e19-1e20（本体 A5）+ oligomer 扣除牌号后 −0.003（p=0.972）+ FDR 后无参数显著（最小 q=0.118）", "source": "01_ontology/ontology.json#assumptions_for_downstream.A5 + 本次判别计算"},
+    {"hypothesis_id": "H9", "adjustment": -5, "reason": "牌号是 oligomer 唯一显著轴（Kruskal p=0.0035, eta2=0.107）→ MD 温度路径与数据不符", "source": "02_processed/custom_analysis.json#model_kruskal"}
+  ],
+  "confidence_ceilings_applied": [
+    {
+      "hypothesis_id": "H2",
+      "ceiling": 65,
+      "reason": "INDISTINGUISHABLE_COMPETING_SET"
+    },
+    {
+      "hypothesis_id": "H7",
+      "ceiling": 65,
+      "reason": "INDISTINGUISHABLE_COMPETING_SET"
+    },
+    {
+      "hypothesis_id": "H2",
+      "ceiling": 65,
+      "reason": "PRODUCT_SPECIFIC_ONLY"
+    },
+    {
+      "hypothesis_id": "H1",
+      "ceiling": 30,
+      "reason": "UNSORTED_DATA_LAG_CLAIMS"
+    }
+  ],
+  "confidence_notes": {
+    "H2_product_specific_ceiling_rationale": "W1C84 在 6 个可分层牌号内的相关为 +0.05/+0.173/+0.815/+0.529/−0.042/−0.116，效应高度集中在 PG32B/PG32D（n=10/16），主导牌号 PG31DS（n=67）仅 +0.173 → 按「不能只在少数牌号成立」的原则套用 PRODUCT_SPECIFIC_ONLY 上限 65（实际得分 52，未触及上限）",
+    "H1_unsorted_ceiling_rationale": "H1 的唯一复活路径是批内滞后证据，而本数据的批间隔为 11-1161 min、无批内采样 → 任何「通道领先缺陷」的滞后声明都在当前数据结构下不可验证，故套用 UNSORTED_DATA_LAG_CLAIMS 上限 30（实际得分 22）",
+    "overall_ceiling_reasoning": "CS1 为 INDISTINGUISHABLE 竞争集 → 整体上限 65；实际整体 55，差距来自两个残余不确定（通道未定标、触发域无测点），而非数据噪声"
+  }
+}

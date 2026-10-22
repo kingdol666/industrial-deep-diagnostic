@@ -9,6 +9,17 @@ Inputs
                        02_analysis/stability_report.json are copied into the
                        baseline FIELD BY FIELD (verbatim, diff-assertable —
                        AC A7). No value is recomputed from those files.
+  --ontology PATH      optional ontology.json (sentinel ontology stage); when
+                       --doe-run-dir is absent, every signal normal_range
+                       ([lo, hi], context-declared specs only) becomes an
+                       operating window tagged {"confirmation_needed": true,
+                       "window_source": "ontology_declared", "source_path": …}
+                       — the frozen projection cap keeps those alerts at warn
+                       (projection.py, untouched). The ontology is NEVER
+                       allowed to write store["indicators"]: the uncapped
+                       hard-critical spec channel is DOE-only. When both
+                       flags are given, the DOE artifacts win verbatim and the
+                       ontology is ignored (noted on stdout).
 
 Statistical store per group / parameter (steady rows only, regime-filtered):
   center (mean), sigma_within_mr (MRbar/1.128), sigma_overall, median, MAD,
@@ -209,6 +220,37 @@ def load_doe_artifacts(doe_run_dir):
     return recs, stab
 
 
+def load_ontology_windows(ontology_path):
+    """Declared windows from an ontology's signals.normal_range (schema [lo, hi]).
+
+    Declaration-only: every window carries confirmation_needed=true so the
+    projection severity stays capped at warn (frozen cap in projection.py).
+    normal_range is fed exclusively by user/context declarations (the prepare
+    stage never writes dictionary typical_ranges there). The ontology never
+    contributes to store["indicators"] — that channel stays DOE-only.
+    """
+    doc = _io.read_json(_io._contained(ontology_path))
+    signals = doc.get("signals") if isinstance(doc.get("signals"), dict) else {}
+    source = str(_io._contained(ontology_path))
+    windows = []
+    for kind in ("process_parameters", "inspection_signals", "control_variables"):
+        for sig in signals.get(kind) or []:
+            if not isinstance(sig, dict):
+                continue
+            col = sig.get("column") or sig.get("name")
+            rng = sig.get("normal_range")
+            if not col or not isinstance(rng, (list, tuple)) or len(rng) != 2:
+                continue
+            lo, hi = rng
+            if lo is None and hi is None:
+                continue
+            windows.append({"factor": str(col), "range": [lo, hi],
+                            "confirmation_needed": True,
+                            "window_source": "ontology_declared",
+                            "source_path": source})
+    return windows
+
+
 def apply_doe_artifacts(store, recs, stab):
     """Verbatim field-by-field copy (AC A7) — never recompute from these."""
     if recs is not None:
@@ -234,6 +276,10 @@ def main(argv=None):
     ap = argparse.ArgumentParser(description="industrial-sentinel baseline builder")
     ap.add_argument("--history-csv", required=True)
     ap.add_argument("--doe-run-dir", default=None)
+    ap.add_argument("--ontology", default=None,
+                    help="ontology.json path; without --doe-run-dir its declared "
+                         "normal_range windows become ontology_declared operating_windows "
+                         "(confirmation_needed=true, capped at warn; never store['indicators'])")
     ap.add_argument("--out", default=None)
     ap.add_argument("--time-col", default=None)
     ap.add_argument("--group-col", default=None)
@@ -262,12 +308,25 @@ def main(argv=None):
         return 2
 
     recs = stab = None
+    ontology_windows = []
     if args.doe_run_dir:
         try:
             recs, stab = load_doe_artifacts(args.doe_run_dir)
         except Exception as exc:  # noqa: BLE001
             print(f"[build_baseline] bad input: {exc}")
             return 2
+        if args.ontology:
+            print(f"[build_baseline] note: --doe-run-dir takes precedence (verbatim "
+                  f"AC A7 copy); --ontology {args.ontology} ignored for windows/indicators")
+    elif args.ontology:
+        try:
+            ontology_windows = load_ontology_windows(args.ontology)
+        except Exception as exc:  # noqa: BLE001
+            print(f"[build_baseline] bad input: cannot load ontology: {exc}")
+            return 2
+        if ontology_windows:
+            print(f"[build_baseline] registered {len(ontology_windows)} ontology_declared "
+                  f"operating windows from {args.ontology} (confirmation_needed=true)")
 
     groups = _io.split_groups(df, group_col)
     baseline_groups = {}
@@ -278,6 +337,8 @@ def main(argv=None):
         store = build_group_store(arrays, cols, time_hours)
         if args.doe_run_dir and recs is not None:
             apply_doe_artifacts(store, recs, stab)
+        elif ontology_windows:
+            store["operating_windows"] = copy.deepcopy(ontology_windows)
         store.pop("_debug_labels", None)
         floor = BASELINE_DEFAULTS["min_steady_rows_per_group"]
         if store["validity"]["n_steady_rows"] < floor:

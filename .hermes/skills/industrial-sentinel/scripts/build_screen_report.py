@@ -132,7 +132,49 @@ def _sparkline(vals: list[float | None], bad_idx: set[int], width: int = 560,
 
 
 def _esc(v) -> str:
-    return html.escape(str(v))
+    return html.escape("—" if v is None else str(v))
+
+
+def _ontology_section(ont) -> str:
+    """'本体理解' section from the alert's optional top-level ontology block.
+
+    Absent block -> empty string (backward compatible). Zero-JS: a plain unit
+    table plus honest window-source / rag_used lines; columns missing from the
+    units map read as 单位未声明 (declared-window alerts are capped at warn).
+    """
+    if not isinstance(ont, dict) or not ont:
+        return ""
+    units = ont.get("units") or {}
+    roles = ont.get("roles") or {}
+    unit_rows = "".join(
+        f"<tr><td>{_esc(col)}</td><td>{_esc(roles.get(col, '—'))}</td>"
+        f"<td class='num'>{_esc(unit)}</td></tr>"
+        for col, unit in sorted(units.items()))
+    unit_table = (
+        "<table><thead><tr><th>列</th><th>角色</th><th>单位（本体声明）</th></tr></thead>"
+        f"<tbody>{unit_rows}</tbody></table>"
+        "<p class='meta'>未列出的列 = 单位未声明（unit undeclared）。</p>"
+        if unit_rows else
+        "<p class='ok'>本体未声明任何单位——所有列一律视为“单位未声明”。</p>")
+    try:
+        n_windows = int(ont.get("declared_window_count") or 0)
+    except (TypeError, ValueError):
+        n_windows = 0
+    window_line = (
+        f"本体声明窗口 {n_windows} 个（window_source=ontology_declared，"
+        "未经 DOE 验证；越界/触界告警一律封顶 warn）。"
+        if n_windows else
+        "本体未声明操作窗口（C2 仅在基线含窗口时启用）。")
+    rag_used = bool(ont.get("rag_used"))
+    rag_line = (f"rag_used={str(rag_used).lower()}（如实标注；确定性制备路径为 false，"
+                "本数值取自本体 provenance）。")
+    return (
+        "<h2>本体理解</h2>"
+        f"<p class='meta'>场景：{_esc(ont.get('scene') or '—')} · "
+        f"来源：{_esc(ont.get('source_path') or '—')}</p>"
+        f"{unit_table}"
+        f"<p>{_esc(window_line)}</p>"
+        f"<p>{_esc(rag_line)}</p>")
 
 
 def build_html(alert: dict, series: dict[str, list[float | None]],
@@ -145,7 +187,7 @@ def build_html(alert: dict, series: dict[str, list[float | None]],
     rows_html = []
     seen_params: list[str] = []
     for a in alerts:
-        param = a.get("parameter", "?")
+        param = a.get("parameter") or a.get("indicator") or "?"
         if param not in seen_params:
             seen_params.append(param)
         sev = a.get("severity", "info")
@@ -181,6 +223,8 @@ def build_html(alert: dict, series: dict[str, list[float | None]],
     skipped_section = ("<h2>降级项（如实披露）</h2><ul>" + skip_lines + "</ul>") \
         if skip_lines else ""
 
+    ontology_section = _ontology_section(alert.get("ontology"))
+
     return f"""<!DOCTYPE html>
 <html lang="zh"><head><meta charset="utf-8">
 <title>产线快筛报告 — {_esc(alert.get('alert_id', ''))}</title>
@@ -213,6 +257,7 @@ color:#4a5568;font-size:12px}}
 <h2>告警清单</h2>
 {alerts_table}
 {spark_section}
+{ontology_section}
 {skipped_section}
 <footer>本报告由确定性脚本（build_screen_report.py）从 sentinel/alert.json 与监视窗数据生成，
 全部数值可在原始表中复算；仅描述"发生了什么"，不构成任何参数下发指令。</footer>

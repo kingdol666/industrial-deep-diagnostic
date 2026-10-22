@@ -9,7 +9,8 @@ import {
   getSessionContent, getRunRealtimeSnapshot, triggerEnhancement,
   assertRunHarnessUsable, getDiagTaskView,
 } from '../services/diagnosis.service.mjs';
-import { getChild, hasRun } from '../engine/diagnosis-engine.mjs';
+import { sessionMap } from '../services/session-integrity.service.mjs';
+import { stmts } from '../db/database.mjs';
 
 const router = Router();
 
@@ -32,7 +33,8 @@ router.post('/start', async (req, res) => {
       await validateDataPath(dataPath);
     }
 
-    const result = createDiagnosisRun(req.body);    res.json({ success: true, data: result });
+    const result = createDiagnosisRun({ ...req.body, userId: req.user?.id ?? null });
+    res.json({ success: true, data: result });
   } catch (err) {
     const status = err.status || 500;
     res.status(status).json({ success: false, error: err.message, code: err.code });
@@ -119,16 +121,15 @@ router.get('/stream/:runId', async (req, res) => {
 // Stop a running diagnosis
 router.post('/stop/:runId', (req, res) => {
   const { runId } = req.params;
-  const child = getChild(runId);
-
-  if (child && !child.killed) {
-    stopDiagnosis(runId);
-    res.json({ success: true, data: { runId, status: 'stopped' } });
-  } else if (hasRun(runId)) {
-    stopDiagnosis(runId);
-    res.json({ success: true, data: { runId, status: 'stopped' } });
-  } else {
-    res.status(404).json({ success: false, error: 'No active process for this run' });
+  try {
+    const result = stopDiagnosis(runId);
+    res.json({ success: true, data: result });
+  } catch (err) {
+    res.status(err.status || 500).json({
+      success: false,
+      code: err.code || 'DIAGNOSIS_STOP_ERROR',
+      error: err.message,
+    });
   }
 });
 
@@ -143,24 +144,43 @@ router.post('/execute/:runId', async (req, res) => {
   }
 });
 
-// Send a chat message to the running engine process
+// Send a chat message to the running engine process.
+// The run's harness is fixed at creation: this endpoint never accepts a harness
+// override, because resuming a session on a different engine would look up a
+// session id that engine never created (plan v2 B0.4).
 router.post('/chat/:runId', async (req, res) => {
   const { runId } = req.params;
-  const { message } = req.body;
+  const { message, maxTurns } = req.body;
 
   if (!message || typeof message !== 'string') {
     return res.status(400).json({ success: false, error: 'message is required' });
   }
 
-  const sent = await sendChatMessage(runId, message);
-  if (!sent) {
-    return res.status(404).json({
-      success: false,
-      error: 'Run not found or could not be resumed.',
-    });
+  try {
+    const sent = await sendChatMessage(runId, message, { maxTurns });
+    if (!sent) {
+      return res.status(404).json({
+        success: false,
+        error: 'Run not found or could not be resumed.',
+      });
+    }
+    res.json({ success: true, data: { runId, resumed: true } });
+  } catch (err) {
+    const status = err.status || 500;
+    res.status(status).json({ success: false, code: err.code || 'CHAT_ERROR', error: err.message });
   }
+});
 
-  res.json({ success: true, data: { runId, resumed: true } });
+// Session mapping audit (plan v2 B0.3): shows which harness session a run is
+// bound to, whether it is resumable, and whether a missing id can be reconciled.
+router.get('/session-map/:runId', (req, res) => {
+  try {
+    const run = stmts.getRunById.get(req.params.runId);
+    if (!run) return res.status(404).json({ success: false, error: 'Run not found' });
+    res.json({ success: true, data: sessionMap(run) });
+  } catch (err) {
+    res.status(err.status || 500).json({ success: false, code: err.code, error: err.message });
+  }
 });
 
 // Continue / retry a failed or stopped run
@@ -252,7 +272,7 @@ router.post('/tasks', async (req, res) => {
     } else if (dataPath) {
       await validateDataPath(dataPath);
     }
-    const created = createDiagnosisRun(req.body);
+    const created = createDiagnosisRun({ ...req.body, userId: req.user?.id ?? null });
     const taskId = created.runId ?? created.id ?? '';
     if (!taskId) {
       return res.status(500).json({ success: false, error: 'createDiagnosisRun 未返回 runId' });

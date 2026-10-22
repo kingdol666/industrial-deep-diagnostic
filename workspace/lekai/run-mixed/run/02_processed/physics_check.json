@@ -1,0 +1,854 @@
+{
+  "generated_at": "2026-10-22T00:15:39.490675",
+  "scenario": "BOPET 薄膜：铸片 → 纵拉(MD)预热/拉伸/冷却定型 → 涂布 → 收卷；文中“涂布”段归属按 W1C 通道族推断，未获设备清单确认",
+  "checks_summary": {
+    "quality_reset_analysis": "COMPLETED"
+  },
+  "physical_checks": {
+    "quality_reset_analysis": {
+      "reset_found": false,
+      "total_transitions_analyzed": 12,
+      "details": [
+        {
+          "transition_index": 78,
+          "transition_type": "unknown",
+          "from": "?",
+          "to": "?",
+          "quality_metric": "total_defects",
+          "declared_direction": null,
+          "mean_before": 46.5,
+          "mean_after": 86.95,
+          "effect_size_cohens_d": 0.637,
+          "reset_detected": false,
+          "reset_classification": "INCONCLUSIVE",
+          "interpretation": "Marginal quality change (d=0.6) — insufficient evidence for component-level or system-level determination",
+          "n_before": 20,
+          "n_after": 20
+        },
+        {
+          "transition_index": 78,
+          "transition_type": "unknown",
+          "from": "?",
+          "to": "?",
+          "quality_metric": "oligomer",
+          "declared_direction": null,
+          "mean_before": 14.1,
+          "mean_after": 17.2,
+          "effect_size_cohens_d": 0.083,
+          "reset_detected": false,
+          "reset_classification": "INCONCLUSIVE",
+          "interpretation": "Marginal quality change (d=0.1) — insufficient evidence for component-level or system-level determination",
+          "n_before": 20,
+          "n_after": 20
+        },
+        {
+          "transition_index": 78,
+          "transition_type": "unknown",
+          "from": "?",
+          "to": "?",
+          "quality_metric": "dust",
+          "declared_direction": null,
+          "mean_before": 9.15,
+          "mean_after": 15.8,
+          "effect_size_cohens_d": 0.551,
+          "reset_detected": false,
+          "reset_classification": "INCONCLUSIVE",
+          "interpretation": "Marginal quality change (d=0.6) — insufficient evidence for component-level or system-level determination",
+          "n_before": 20,
+          "n_after": 20
+        },
+        {
+          "transition_index": 83,
+          "transition_type": "unknown",
+          "from": "?",
+          "to": "?",
+          "quality_metric": "total_defects",
+          "declared_direction": null,
+          "mean_before": 43.7,
+          "mean_after": 91.95,
+          "effect_size_cohens_d": 0.894,
+          "reset_detected": false,
+          "reset_classification": "INCONCLUSIVE",
+          "interpretation": "Marginal quality change (d=0.9) — insufficient evidence for component-level or system-level determination",
+          "n_before": 20,
+          "n_after": 20
+        },
+        {
+          "transition_index": 83,
+          "transition_type": "unknown",
+          "from": "?",
+          "to": "?",
+          "quality_metric": "oligomer",
+          "declared_direction": null,
+          "mean_before": 4.8,
+          "mean_after": 19.85,
+          "effect_size_cohens_d": 0.631,
+          "reset_detected": false,
+          "reset_classification": "INCONCLUSIVE",
+          "interpretation": "Marginal quality change (d=0.6) — insufficient evidence for component-level or system-level determination",
+          "n_before": 20,
+          "n_after": 20
+        },
+        {
+          "transition_index": 83,
+          "transition_type": "unknown",
+          "from": "?",
+          "to": "?",
+          "quality_metric": "dust",
+          "declared_direction": null,
+          "mean_before": 9.4,
+          "mean_after": 15.45,
+          "effect_size_cohens_d": 0.517,
+          "reset_detected": false,
+          "reset_classification": "INCONCLUSIVE",
+          "interpretation": "Marginal quality change (d=0.5) — insufficient evidence for component-level or system-level determination",
+          "n_before": 20,
+          "n_after": 20
+        },
+        {
+          "transition_index": 78,
+          "transition_type": "unknown",
+          "from": "?",
+          "to": "?",
+          "quality_metric": "total_defects",
+          "declared_direction": null,
+          "mean_before": 46.5,
+          "mean_after": 86.95,
+          "effect_size_cohens_d": 0.637,
+          "reset_detected": false,
+          "reset_classification": "INCONCLUSIVE",
+          "interpretation": "Marginal quality change (d=0.6) — insufficient evidence for component-level or system-level determination",
+          "n_before": 20,
+          "n_after": 20
+        },
+        {
+          "transition_index": 78,
+          "transition_type": "unknown",
+          "from": "?",
+          "to": "?",
+          "quality_metric": "oligomer",
+          "declared_direction": null,
+          "mean_before": 14.1,
+          "mean_after": 17.2,
+          "effect_size_cohens_d": 0.083,
+          "reset_detected": false,
+          "reset_classification": "INCONCLUSIVE",
+          "interpretation": "Marginal quality change (d=0.1) — insufficient evidence for component-level or system-level determination",
+          "n_before": 20,
+          "n_after": 20
+        },
+        {
+          "transition_index": 78,
+          "transition_type": "unknown",
+          "from": "?",
+          "to": "?",
+          "quality_metric": "dust",
+          "declared_direction": null,
+          "mean_before": 9.15,
+          "mean_after": 15.8,
+          "effect_size_cohens_d": 0.551,
+          "reset_detected": false,
+          "reset_classification": "INCONCLUSIVE",
+          "interpretation": "Marginal quality change (d=0.6) — insufficient evidence for component-level or system-level determination",
+          "n_before": 20,
+          "n_after": 20
+        },
+        {
+          "transition_index": 26,
+          "transition_type": "unknown",
+          "from": "?",
+          "to": "?",
+          "quality_metric": "total_defects",
+          "declared_direction": null,
+          "mean_before": 62.7,
+          "mean_after": 723.35,
+          "effect_size_cohens_d": 0.412,
+          "reset_detected": false,
+          "reset_classification": "INCONCLUSIVE",
+          "interpretation": "Marginal quality change (d=0.4) — insufficient evidence for component-level or system-level determination",
+          "n_before": 20,
+          "n_after": 20
+        },
+        {
+          "transition_index": 26,
+          "transition_type": "unknown",
+          "from": "?",
+          "to": "?",
+          "quality_metric": "oligomer",
+          "declared_direction": null,
+          "mean_before": 35.65,
+          "mean_after": 62.3,
+          "effect_size_cohens_d": 0.136,
+          "reset_detected": false,
+          "reset_classification": "INCONCLUSIVE",
+          "interpretation": "Marginal quality change (d=0.1) — insufficient evidence for component-level or system-level determination",
+          "n_before": 20,
+          "n_after": 20
+        },
+        {
+          "transition_index": 26,
+          "transition_type": "unknown",
+          "from": "?",
+          "to": "?",
+          "quality_metric": "dust",
+          "declared_direction": null,
+          "mean_before": 11.75,
+          "mean_after": 205.1,
+          "effect_size_cohens_d": 0.325,
+          "reset_detected": false,
+          "reset_classification": "INCONCLUSIVE",
+          "interpretation": "Marginal quality change (d=0.3) — insufficient evidence for component-level or system-level determination",
+          "n_before": 20,
+          "n_after": 20
+        }
+      ],
+      "summary": "No definitive quality reset pattern detected"
+    },
+    "anomaly_onset_coincidence": [
+      {
+        "anomaly_interval": [
+          35,
+          35
+        ],
+        "target": "total_defects",
+        "parameter": "W1C8A@PV1_mean",
+        "effect_size": 2.242,
+        "mean_before": 26.9206,
+        "mean_during": 39.8221,
+        "parameter_changed_before_anomaly": true,
+        "parameter_change_timing": "PRECURSOR",
+        "classification": "POTENTIAL_CAUSE"
+      },
+      {
+        "anomaly_interval": [
+          35,
+          35
+        ],
+        "target": "total_defects",
+        "parameter": "W1C84@PV1_mean",
+        "effect_size": 3.419,
+        "mean_before": 17.8862,
+        "mean_during": 67.7906,
+        "parameter_changed_before_anomaly": true,
+        "parameter_change_timing": "PRECURSOR",
+        "classification": "POTENTIAL_CAUSE"
+      },
+      {
+        "anomaly_interval": [
+          35,
+          35
+        ],
+        "target": "total_defects",
+        "parameter": "MD_TH012@PV_mean",
+        "effect_size": -2.009,
+        "mean_before": 26.5297,
+        "mean_during": 26.4136,
+        "parameter_changed_before_anomaly": false,
+        "parameter_change_timing": "CONCURRENT",
+        "classification": "CONCURRENT_CHANGE"
+      },
+      {
+        "anomaly_interval": [
+          47,
+          47
+        ],
+        "target": "total_defects",
+        "parameter": "F_PS005@PV1_mean",
+        "effect_size": 4.75,
+        "mean_before": 11.456,
+        "mean_during": 11.5569,
+        "parameter_changed_before_anomaly": false,
+        "parameter_change_timing": "CONCURRENT",
+        "classification": "CONCURRENT_CHANGE"
+      },
+      {
+        "anomaly_interval": [
+          28,
+          28
+        ],
+        "target": "total_defects",
+        "parameter": "W1C84@PV1_mean",
+        "effect_size": -1.917,
+        "mean_before": 20.9839,
+        "mean_during": 6.0685,
+        "parameter_changed_before_anomaly": false,
+        "parameter_change_timing": "CONCURRENT",
+        "classification": "CONCURRENT_CHANGE"
+      },
+      {
+        "anomaly_interval": [
+          28,
+          28
+        ],
+        "target": "total_defects",
+        "parameter": "F_PS005@PV1_mean",
+        "effect_size": 2.821,
+        "mean_before": 9.6131,
+        "mean_during": 12.0832,
+        "parameter_changed_before_anomaly": true,
+        "parameter_change_timing": "PRECURSOR",
+        "classification": "POTENTIAL_CAUSE"
+      },
+      {
+        "anomaly_interval": [
+          28,
+          28
+        ],
+        "target": "total_defects",
+        "parameter": "MD_TH012@PV_mean",
+        "effect_size": -1.252,
+        "mean_before": 28.9522,
+        "mean_during": 26.5693,
+        "parameter_changed_before_anomaly": false,
+        "parameter_change_timing": "CONCURRENT",
+        "classification": "CONCURRENT_CHANGE"
+      },
+      {
+        "anomaly_interval": [
+          29,
+          29
+        ],
+        "target": "total_defects",
+        "parameter": "W1C84@PV1_mean",
+        "effect_size": -1.703,
+        "mean_before": 20.3794,
+        "mean_during": 6.3029,
+        "parameter_changed_before_anomaly": true,
+        "parameter_change_timing": "PRECURSOR",
+        "classification": "POTENTIAL_CAUSE"
+      },
+      {
+        "anomaly_interval": [
+          29,
+          29
+        ],
+        "target": "total_defects",
+        "parameter": "F_PS005@PV1_mean",
+        "effect_size": 2.128,
+        "mean_before": 9.9879,
+        "mean_during": 12.0479,
+        "parameter_changed_before_anomaly": false,
+        "parameter_change_timing": "CONCURRENT",
+        "classification": "CONCURRENT_CHANGE"
+      },
+      {
+        "anomaly_interval": [
+          29,
+          29
+        ],
+        "target": "total_defects",
+        "parameter": "MD_TH012@PV_mean",
+        "effect_size": -1.009,
+        "mean_before": 28.4551,
+        "mean_during": 26.5877,
+        "parameter_changed_before_anomaly": false,
+        "parameter_change_timing": "CONCURRENT",
+        "classification": "CONCURRENT_CHANGE"
+      },
+      {
+        "anomaly_interval": [
+          22,
+          22
+        ],
+        "target": "total_defects",
+        "parameter": "W1C8A@PV1_mean",
+        "effect_size": 4.584,
+        "mean_before": 20.9358,
+        "mean_during": 36.2393,
+        "parameter_changed_before_anomaly": true,
+        "parameter_change_timing": "PRECURSOR",
+        "classification": "POTENTIAL_CAUSE"
+      },
+      {
+        "anomaly_interval": [
+          22,
+          22
+        ],
+        "target": "total_defects",
+        "parameter": "W1C84@PV1_mean",
+        "effect_size": 13.89,
+        "mean_before": 13.219,
+        "mean_during": 35.9685,
+        "parameter_changed_before_anomaly": true,
+        "parameter_change_timing": "PRECURSOR",
+        "classification": "POTENTIAL_CAUSE"
+      },
+      {
+        "anomaly_interval": [
+          22,
+          22
+        ],
+        "target": "total_defects",
+        "parameter": "F_PS005@PV1_mean",
+        "effect_size": 4.02,
+        "mean_before": 8.7688,
+        "mean_during": 10.1298,
+        "parameter_changed_before_anomaly": false,
+        "parameter_change_timing": "CONCURRENT",
+        "classification": "CONCURRENT_CHANGE"
+      },
+      {
+        "anomaly_interval": [
+          22,
+          22
+        ],
+        "target": "total_defects",
+        "parameter": "MD_TH012@PV_mean",
+        "effect_size": -5.364,
+        "mean_before": 31.5216,
+        "mean_during": 31.3049,
+        "parameter_changed_before_anomaly": false,
+        "parameter_change_timing": "CONCURRENT",
+        "classification": "CONCURRENT_CHANGE"
+      },
+      {
+        "anomaly_interval": [
+          119,
+          119
+        ],
+        "target": "total_defects",
+        "parameter": "W1C8A@PV1_mean",
+        "effect_size": 2.366,
+        "mean_before": 70.9723,
+        "mean_during": 71.4503,
+        "parameter_changed_before_anomaly": true,
+        "parameter_change_timing": "PRECURSOR",
+        "classification": "POTENTIAL_CAUSE"
+      },
+      {
+        "anomaly_interval": [
+          119,
+          119
+        ],
+        "target": "total_defects",
+        "parameter": "F_PS005@PV1_mean",
+        "effect_size": 2.408,
+        "mean_before": 8.2533,
+        "mean_during": 8.3666,
+        "parameter_changed_before_anomaly": false,
+        "parameter_change_timing": "CONCURRENT",
+        "classification": "CONCURRENT_CHANGE"
+      },
+      {
+        "anomaly_interval": [
+          35,
+          35
+        ],
+        "target": "oligomer",
+        "parameter": "W1C8A@PV1_mean",
+        "effect_size": 2.242,
+        "mean_before": 26.9206,
+        "mean_during": 39.8221,
+        "parameter_changed_before_anomaly": true,
+        "parameter_change_timing": "PRECURSOR",
+        "classification": "POTENTIAL_CAUSE"
+      },
+      {
+        "anomaly_interval": [
+          35,
+          35
+        ],
+        "target": "oligomer",
+        "parameter": "W1C84@PV1_mean",
+        "effect_size": 3.419,
+        "mean_before": 17.8862,
+        "mean_during": 67.7906,
+        "parameter_changed_before_anomaly": true,
+        "parameter_change_timing": "PRECURSOR",
+        "classification": "POTENTIAL_CAUSE"
+      },
+      {
+        "anomaly_interval": [
+          35,
+          35
+        ],
+        "target": "oligomer",
+        "parameter": "MD_TH012@PV_mean",
+        "effect_size": -2.009,
+        "mean_before": 26.5297,
+        "mean_during": 26.4136,
+        "parameter_changed_before_anomaly": false,
+        "parameter_change_timing": "CONCURRENT",
+        "classification": "CONCURRENT_CHANGE"
+      },
+      {
+        "anomaly_interval": [
+          22,
+          22
+        ],
+        "target": "oligomer",
+        "parameter": "W1C8A@PV1_mean",
+        "effect_size": 4.584,
+        "mean_before": 20.9358,
+        "mean_during": 36.2393,
+        "parameter_changed_before_anomaly": true,
+        "parameter_change_timing": "PRECURSOR",
+        "classification": "POTENTIAL_CAUSE"
+      },
+      {
+        "anomaly_interval": [
+          22,
+          22
+        ],
+        "target": "oligomer",
+        "parameter": "W1C84@PV1_mean",
+        "effect_size": 13.89,
+        "mean_before": 13.219,
+        "mean_during": 35.9685,
+        "parameter_changed_before_anomaly": true,
+        "parameter_change_timing": "PRECURSOR",
+        "classification": "POTENTIAL_CAUSE"
+      },
+      {
+        "anomaly_interval": [
+          22,
+          22
+        ],
+        "target": "oligomer",
+        "parameter": "F_PS005@PV1_mean",
+        "effect_size": 4.02,
+        "mean_before": 8.7688,
+        "mean_during": 10.1298,
+        "parameter_changed_before_anomaly": false,
+        "parameter_change_timing": "CONCURRENT",
+        "classification": "CONCURRENT_CHANGE"
+      },
+      {
+        "anomaly_interval": [
+          22,
+          22
+        ],
+        "target": "oligomer",
+        "parameter": "MD_TH012@PV_mean",
+        "effect_size": -5.364,
+        "mean_before": 31.5216,
+        "mean_during": 31.3049,
+        "parameter_changed_before_anomaly": false,
+        "parameter_change_timing": "CONCURRENT",
+        "classification": "CONCURRENT_CHANGE"
+      },
+      {
+        "anomaly_interval": [
+          47,
+          47
+        ],
+        "target": "oligomer",
+        "parameter": "F_PS005@PV1_mean",
+        "effect_size": 4.75,
+        "mean_before": 11.456,
+        "mean_during": 11.5569,
+        "parameter_changed_before_anomaly": false,
+        "parameter_change_timing": "CONCURRENT",
+        "classification": "CONCURRENT_CHANGE"
+      },
+      {
+        "anomaly_interval": [
+          119,
+          119
+        ],
+        "target": "oligomer",
+        "parameter": "W1C8A@PV1_mean",
+        "effect_size": 2.366,
+        "mean_before": 70.9723,
+        "mean_during": 71.4503,
+        "parameter_changed_before_anomaly": true,
+        "parameter_change_timing": "PRECURSOR",
+        "classification": "POTENTIAL_CAUSE"
+      },
+      {
+        "anomaly_interval": [
+          119,
+          119
+        ],
+        "target": "oligomer",
+        "parameter": "F_PS005@PV1_mean",
+        "effect_size": 2.408,
+        "mean_before": 8.2533,
+        "mean_during": 8.3666,
+        "parameter_changed_before_anomaly": false,
+        "parameter_change_timing": "CONCURRENT",
+        "classification": "CONCURRENT_CHANGE"
+      },
+      {
+        "anomaly_interval": [
+          3,
+          3
+        ],
+        "target": "oligomer",
+        "parameter": "W1C8A@PV1_mean",
+        "effect_size": 3.101,
+        "mean_before": 39.5659,
+        "mean_during": 39.7977,
+        "parameter_changed_before_anomaly": true,
+        "parameter_change_timing": "PRECURSOR",
+        "classification": "POTENTIAL_CAUSE"
+      },
+      {
+        "anomaly_interval": [
+          3,
+          3
+        ],
+        "target": "oligomer",
+        "parameter": "W1C84@PV1_mean",
+        "effect_size": -1.446,
+        "mean_before": 13.8169,
+        "mean_during": 13.2544,
+        "parameter_changed_before_anomaly": true,
+        "parameter_change_timing": "PRECURSOR",
+        "classification": "POTENTIAL_CAUSE"
+      },
+      {
+        "anomaly_interval": [
+          3,
+          3
+        ],
+        "target": "oligomer",
+        "parameter": "F_PS005@PV1_mean",
+        "effect_size": -1.102,
+        "mean_before": 8.7054,
+        "mean_during": 8.6173,
+        "parameter_changed_before_anomaly": true,
+        "parameter_change_timing": "PRECURSOR",
+        "classification": "POTENTIAL_CAUSE"
+      },
+      {
+        "anomaly_interval": [
+          58,
+          58
+        ],
+        "target": "oligomer",
+        "parameter": "W1C8A@PV1_mean",
+        "effect_size": 86.277,
+        "mean_before": 34.7062,
+        "mean_during": 58.7218,
+        "parameter_changed_before_anomaly": false,
+        "parameter_change_timing": "CONCURRENT",
+        "classification": "CONCURRENT_CHANGE"
+      },
+      {
+        "anomaly_interval": [
+          58,
+          58
+        ],
+        "target": "oligomer",
+        "parameter": "W1C84@PV1_mean",
+        "effect_size": 63.391,
+        "mean_before": 6.4866,
+        "mean_during": 27.1777,
+        "parameter_changed_before_anomaly": false,
+        "parameter_change_timing": "CONCURRENT",
+        "classification": "CONCURRENT_CHANGE"
+      },
+      {
+        "anomaly_interval": [
+          58,
+          58
+        ],
+        "target": "oligomer",
+        "parameter": "F_PS005@PV1_mean",
+        "effect_size": -70.577,
+        "mean_before": 11.6071,
+        "mean_during": 8.8022,
+        "parameter_changed_before_anomaly": true,
+        "parameter_change_timing": "PRECURSOR",
+        "classification": "POTENTIAL_CAUSE"
+      },
+      {
+        "anomaly_interval": [
+          58,
+          58
+        ],
+        "target": "oligomer",
+        "parameter": "MD_TH012@PV_mean",
+        "effect_size": -16.269,
+        "mean_before": 31.4285,
+        "mean_during": 31.301,
+        "parameter_changed_before_anomaly": false,
+        "parameter_change_timing": "CONCURRENT",
+        "classification": "CONCURRENT_CHANGE"
+      },
+      {
+        "anomaly_interval": [
+          28,
+          28
+        ],
+        "target": "dust",
+        "parameter": "W1C84@PV1_mean",
+        "effect_size": -1.917,
+        "mean_before": 20.9839,
+        "mean_during": 6.0685,
+        "parameter_changed_before_anomaly": false,
+        "parameter_change_timing": "CONCURRENT",
+        "classification": "CONCURRENT_CHANGE"
+      },
+      {
+        "anomaly_interval": [
+          28,
+          28
+        ],
+        "target": "dust",
+        "parameter": "F_PS005@PV1_mean",
+        "effect_size": 2.821,
+        "mean_before": 9.6131,
+        "mean_during": 12.0832,
+        "parameter_changed_before_anomaly": true,
+        "parameter_change_timing": "PRECURSOR",
+        "classification": "POTENTIAL_CAUSE"
+      },
+      {
+        "anomaly_interval": [
+          28,
+          28
+        ],
+        "target": "dust",
+        "parameter": "MD_TH012@PV_mean",
+        "effect_size": -1.252,
+        "mean_before": 28.9522,
+        "mean_during": 26.5693,
+        "parameter_changed_before_anomaly": false,
+        "parameter_change_timing": "CONCURRENT",
+        "classification": "CONCURRENT_CHANGE"
+      },
+      {
+        "anomaly_interval": [
+          29,
+          29
+        ],
+        "target": "dust",
+        "parameter": "W1C84@PV1_mean",
+        "effect_size": -1.703,
+        "mean_before": 20.3794,
+        "mean_during": 6.3029,
+        "parameter_changed_before_anomaly": true,
+        "parameter_change_timing": "PRECURSOR",
+        "classification": "POTENTIAL_CAUSE"
+      },
+      {
+        "anomaly_interval": [
+          29,
+          29
+        ],
+        "target": "dust",
+        "parameter": "F_PS005@PV1_mean",
+        "effect_size": 2.128,
+        "mean_before": 9.9879,
+        "mean_during": 12.0479,
+        "parameter_changed_before_anomaly": false,
+        "parameter_change_timing": "CONCURRENT",
+        "classification": "CONCURRENT_CHANGE"
+      },
+      {
+        "anomaly_interval": [
+          29,
+          29
+        ],
+        "target": "dust",
+        "parameter": "MD_TH012@PV_mean",
+        "effect_size": -1.009,
+        "mean_before": 28.4551,
+        "mean_during": 26.5877,
+        "parameter_changed_before_anomaly": false,
+        "parameter_change_timing": "CONCURRENT",
+        "classification": "CONCURRENT_CHANGE"
+      },
+      {
+        "anomaly_interval": [
+          35,
+          35
+        ],
+        "target": "other_defects_derived",
+        "parameter": "W1C8A@PV1_mean",
+        "effect_size": 2.242,
+        "mean_before": 26.9206,
+        "mean_during": 39.8221,
+        "parameter_changed_before_anomaly": true,
+        "parameter_change_timing": "PRECURSOR",
+        "classification": "POTENTIAL_CAUSE"
+      },
+      {
+        "anomaly_interval": [
+          35,
+          35
+        ],
+        "target": "other_defects_derived",
+        "parameter": "W1C84@PV1_mean",
+        "effect_size": 3.419,
+        "mean_before": 17.8862,
+        "mean_during": 67.7906,
+        "parameter_changed_before_anomaly": true,
+        "parameter_change_timing": "PRECURSOR",
+        "classification": "POTENTIAL_CAUSE"
+      },
+      {
+        "anomaly_interval": [
+          35,
+          35
+        ],
+        "target": "other_defects_derived",
+        "parameter": "MD_TH012@PV_mean",
+        "effect_size": -2.009,
+        "mean_before": 26.5297,
+        "mean_during": 26.4136,
+        "parameter_changed_before_anomaly": false,
+        "parameter_change_timing": "CONCURRENT",
+        "classification": "CONCURRENT_CHANGE"
+      },
+      {
+        "anomaly_interval": [
+          47,
+          47
+        ],
+        "target": "other_defects_derived",
+        "parameter": "F_PS005@PV1_mean",
+        "effect_size": 4.75,
+        "mean_before": 11.456,
+        "mean_during": 11.5569,
+        "parameter_changed_before_anomaly": false,
+        "parameter_change_timing": "CONCURRENT",
+        "classification": "CONCURRENT_CHANGE"
+      },
+      {
+        "anomaly_interval": [
+          2,
+          2
+        ],
+        "target": "other_defects_derived",
+        "parameter": "W1C8A@PV1_mean",
+        "effect_size": 10.096,
+        "mean_before": 39.5058,
+        "mean_during": 39.6859,
+        "parameter_changed_before_anomaly": false,
+        "parameter_change_timing": "CONCURRENT",
+        "classification": "CONCURRENT_CHANGE"
+      },
+      {
+        "anomaly_interval": [
+          2,
+          2
+        ],
+        "target": "other_defects_derived",
+        "parameter": "W1C84@PV1_mean",
+        "effect_size": -1.295,
+        "mean_before": 14.007,
+        "mean_during": 13.4366,
+        "parameter_changed_before_anomaly": false,
+        "parameter_change_timing": "CONCURRENT",
+        "classification": "CONCURRENT_CHANGE"
+      },
+      {
+        "anomaly_interval": [
+          2,
+          2
+        ],
+        "target": "other_defects_derived",
+        "parameter": "F_PS005@PV1_mean",
+        "effect_size": -1.938,
+        "mean_before": 8.7541,
+        "mean_during": 8.6082,
+        "parameter_changed_before_anomaly": false,
+        "parameter_change_timing": "CONCURRENT",
+        "classification": "CONCURRENT_CHANGE"
+      }
+    ]
+  }
+}

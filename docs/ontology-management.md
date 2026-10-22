@@ -53,6 +53,26 @@ data/ontology_store/
 - **父版本留痕**：`parent_version` + `provenance.edit_of_version` 记录编辑基线。
 - **来源标记**：`origin` = `agent`（管线/采纳）/ `user:<name>`（前端编辑）/ `cli`。
 
+### Profile 命名空间（2026-10-21 起）
+
+索引条目带 `profile` 字段（缺省读作 `diagnosis`）：`diagnosis`（9 阶段管线）、`doe`
+（试验分析）、`stability`（产线稳定性报告）、`sentinel`（数据哨兵）。lookup 永远
+profile 内隔离——一个 profile 的资产绝不会被另一个 profile 复用（OD-08）。
+
+- **版本号与裁剪按 (profile, scene) 作用域**：同一 scene_key 可以同时存在四个
+  profile 的资产，互不挤占版本窗口、互不触发裁剪删除（跨 profile 裁剪防护有
+  conformance 测试钉死：`.claude/shared/scripts/test_ontology_prepare_common.py`）。
+- **目录布局**：`diagnosis` 保持 legacy `<scene>/vN/`；非默认 profile 落
+  `<scene>/<profile>/vN/`（如 `lineA/stability/v3/ontology.json`）。历史布局不动、
+  历史条目不改写。
+- **语义指纹分型**：`doe` 用 `doe-context-v1`（因子/响应声明）；`stability` /
+  `sentinel` 用 `watch-context-v1`（列角色/单位/声明边界），JS 与 Python 双侧
+  1:1 镜像并有跨语言对拍测试。
+- **watch 家族纪律**：prepare（`ontology_prepare_common.py` + 各 skill 适配器）
+  只产声明先验——单位/角色/声明边界进分析，分布估计只来自实测数据；声明的
+  操作窗口带 `window_source:"ontology_declared"` + `confirmation_needed:true`
+  （严重度封顶 ≤warn）；词典 `typical_ranges` 只是参考区间，永不入 spec。
+
 ### 并发不变式（RFC 9110 §13 / RFC 6585 §3）
 
 | 条件 | 响应 |

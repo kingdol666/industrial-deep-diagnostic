@@ -291,3 +291,18 @@ G1–G7 语义不变；新增字段必须同步 `REC_KEYS`/`WIN_KEYS`/`CONC_KEYS
 
 `roundtrip_test.py`：`examples/doe_context.json` → adapter → `analysis_context.json` → 断言 §3 必填路径全部带 `assigned_by`，且回读 run_table 列名一致。
 运行：`uv run --project .claude/shared/scripts python docs/plans/contracts/roundtrip_test.py`
+
+## 14. Watch 家族声明契约（stability / sentinel profiles，2026-10-22）
+
+Schema：`watch_context.schema.json`。watch-context-v1 语义指纹的输入契约（列
+col|role|unit|lsl|usl 五元组 + 窗口 factor|lo|hi 三元组，排序后 sha256）。
+
+- **双侧同源**：`ontology_store.mjs computeWatchContextFingerprint()` 与
+  `ontology_prepare_common.compute_watch_context_fp()` 1:1 镜像，跨语言对拍测试
+  见 `.claude/shared/scripts/test_ontology_prepare_common.py`。
+- **声明先验纪律**：`lsl/usl` 是 `normal_range` 的唯一词典外来源；词典
+  `typical_ranges` 只作参考区间展示，永不入 spec/Cpk；声明的操作窗口经
+  `build_baseline --ontology` 落地时一律 `window_source="ontology_declared"` +
+  `confirmation_needed=true`（严重度封顶 ≤warn，`indicators` 永远 DOE-only）。
+- **store 隔离**：stability / sentinel profile 的资产落
+  `<scene>/<profile>/vN/`，版本号与裁剪按 (profile, scene) 作用域。

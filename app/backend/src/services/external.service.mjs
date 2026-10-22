@@ -11,8 +11,10 @@ import { PROJECT_ROOT } from '../../../../config/loader.mjs';
 import {
   getRunStatus, getDiagTaskView, sendChatMessage, getRunRealtimeSnapshot,
 } from './diagnosis.service.mjs';
+import { stmts } from '../db/database.mjs';
 import { getWorkspaceReport, listWorkspaceHtml } from './files.service.mjs';
 import { ANALYSIS_INTENTS } from '../engine/claude-client.mjs';
+import logger from '../utils/logger.mjs';
 
 // Modes an external caller can request, with the skill each one executes.
 export function listIntents() {
@@ -104,14 +106,23 @@ export async function buildExternalResult(runId) {
 }
 
 // ── Task manager ────────────────────────────────────────────────────────────
-// Non-wait analyze returns a task_id; this registry owns the lifecycle. When
-// a run reaches a terminal state the unified result (incl. report file paths)
-// is built ONCE and stored in the entry, so later result queries are stable.
-const TERMINAL = new Set(['completed', 'failed', 'stopped', 'interrupted']);
-const tasks = new Map(); // task_id -> entry
+// Non-wait analyze returns a task_id; this registry owns the lifecycle. The
+// task_id -> run_id binding is also written to `external_tasks` so it survives
+// a backend restart (plan v2 Phase C1); the Map remains the hot cache for
+// progress counters and the one-shot result snapshot.
+const TERMINAL = new Set(['completed', 'failed', 'stopped', 'interrupted', 'expired', 'awaiting_input']);
+const tasks = new Map(); // task_id -> entry (hot cache; DB is the durable copy)
 
 function _rand4() {
   return Math.random().toString(36).slice(2, 6).toUpperCase();
+}
+
+function _persistTaskStatus(taskId, status) {
+  try {
+    stmts.updateExternalTaskStatus.run({ taskId, status });
+  } catch (err) {
+    logger.warn(`external_tasks status update failed for ${taskId}: ${err.message}`, { context: 'External' });
+  }
 }
 
 export function createTask(runId, { intent, harness, scene, objective }) {
@@ -139,6 +150,56 @@ export function createTask(runId, { intent, harness, scene, objective }) {
     error: null,
   };
   tasks.set(task_id, entry);
+  try {
+    stmts.insertExternalTask.run({
+      taskId: task_id,
+      runId,
+      intent: intent ?? null,
+      harness: harness ?? null,
+      scene: scene ?? null,
+      objective: objective ?? null,
+      status: 'accepted',
+    });
+  } catch (err) {
+    logger.warn(`external_tasks insert failed for ${task_id}: ${err.message}`, { context: 'External' });
+  }
+  return entry;
+}
+
+/**
+ * Rehydrate a task entry from DB after a restart. Status is re-derived from the
+ * run row (the run is the source of truth), so a task whose run completed while
+ * the process was down answers with the real terminal state.
+ */
+function hydrateTask(taskId) {
+  const row = stmts.getExternalTask.get(taskId);
+  if (!row) return null;
+  const run = stmts.getRunById.get(row.run_id);
+  if (!run) return null;
+  const status = run.status === 'pending' ? row.status : run.status;
+  const entry = {
+    task_id: row.task_id,
+    run_id: row.run_id,
+    intent: row.intent,
+    harness: row.harness,
+    scene: row.scene,
+    objective: row.objective,
+    status,
+    created_at: row.created_at,
+    started_at: null,
+    finished_at: run.completed_at || null,
+    progress: { events: 0, tools: 0, phase: TERMINAL.has(status) ? 'completed' : 'awaiting' },
+    links: {
+      task: `/api/external/v1/tasks/${row.task_id}`,
+      result: `/api/external/v1/tasks/${row.task_id}/result`,
+      stream: `/api/external/v1/analyze/${encodeURIComponent(row.run_id)}/stream`,
+      status: `/api/external/v1/analyze/${encodeURIComponent(row.run_id)}`,
+    },
+    result: null,
+    error: run.error_message || null,
+    rehydrated: true,
+  };
+  tasks.set(taskId, entry);
   return entry;
 }
 
@@ -150,17 +211,21 @@ function _runningTaskFor(runId) {
 }
 
 export function getTaskByRun(runId) {
-  return _runningTaskFor(runId);
+  const live = _runningTaskFor(runId);
+  if (live) return live;
+  const row = stmts.getExternalTaskByRun.get(runId);
+  return row ? hydrateTask(row.task_id) : null;
 }
 
 /** Refresh one task entry from live run state; stores the result once. */
 export async function refreshTask(taskId) {
-  const e = tasks.get(taskId);
+  const e = tasks.get(taskId) || hydrateTask(taskId);
   if (!e) return null;
   const built = await buildExternalResult(e.run_id);
   if (!built) {
     e.status = 'failed';
     e.error = 'run not found';
+    _persistTaskStatus(taskId, e.status);
     return e;
   }
   e.status = built.status === 'running' ? 'running' : built.status;
@@ -177,33 +242,55 @@ export async function refreshTask(taskId) {
       artifacts: built.result?.artifacts ?? null,
     };
     if (built.result?.error) e.error = built.result.error;
-  } else {
-    // live progress from the run's realtime snapshot (event-stream counters)
-    const snap = getRunRealtimeSnapshot(e.run_id);
-    if (snap) {
-      const events = Array.isArray(snap.events) ? snap.events : [];
-      e.progress.events = events.length;
-      e.progress.tools = events.filter((ev) =>
-        String(ev?.type || '').includes('tool') || ev?.tool_use_id).length;
-      e.progress.phase = snap.hasActiveEngineRun ? 'executing' : 'awaiting';
-      const last = events[events.length - 1];
-      e.progress.last_event = last ? String(last.type || last.event || 'event') : e.progress.last_event;
-    }
+  }
+  _persistTaskStatus(taskId, e.status);
+
+  // Progress counters must also be refreshed AFTER the run reaches a terminal
+  // state: a task polled for the first time only after completion used to keep
+  // events=0/tools=0 forever (the counters were only updated in the live
+  // branch). The snapshot is the same source for both branches.
+  const snap = getRunRealtimeSnapshot(e.run_id);
+  if (snap) {
+    const events = Array.isArray(snap.events) ? snap.events : [];
+    e.progress.events = events.length;
+    e.progress.tools = events.filter((ev) =>
+      String(ev?.type || '').includes('tool') || ev?.tool_use_id).length;
+    e.progress.phase = TERMINAL.has(e.status)
+      ? 'completed'
+      : (snap.hasActiveEngineRun ? 'executing' : 'awaiting');
+    const last = events[events.length - 1];
+    e.progress.last_event = last ? String(last.type || last.event || 'event') : e.progress.last_event;
   }
   return e;
 }
 
 export function getTaskEntry(taskId) {
-  return tasks.get(taskId) ?? null;
+  return tasks.get(taskId) ?? hydrateTask(taskId);
 }
 
 export function listTaskEntries() {
-  return [...tasks.values()].map((e) => ({
-    task_id: e.task_id, run_id: e.run_id, intent: e.intent,
-    harness: e.harness, status: e.status, created_at: e.created_at,
-  }));
+  // Durable rows first (survive restarts), overlaid with live cache status.
+  const rows = stmts.listExternalTasks.all({ limit: 200 });
+  const liveStatus = new Map([...tasks.values()].map((e) => [e.task_id, e.status]));
+  const seen = new Set();
+  const out = rows.map((row) => {
+    seen.add(row.task_id);
+    return {
+      task_id: row.task_id, run_id: row.run_id, intent: row.intent,
+      harness: row.harness, status: liveStatus.get(row.task_id) || row.status,
+      created_at: row.created_at,
+    };
+  });
+  for (const e of tasks.values()) {
+    if (seen.has(e.task_id)) continue;
+    out.push({
+      task_id: e.task_id, run_id: e.run_id, intent: e.intent,
+      harness: e.harness, status: e.status, created_at: e.created_at,
+    });
+  }
+  return out;
 }
 
-export function chatWithRun(runId, message) {
-  return sendChatMessage(runId, message);
+export function chatWithRun(runId, message, options = {}) {
+  return sendChatMessage(runId, message, options);
 }

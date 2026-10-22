@@ -1,0 +1,39 @@
+{
+ "scene_type": "batch_process_quality_defect_attribution",
+ "process_category": "BOPET film MD-stretch + coating line",
+ "confidence": "high",
+ "classification_basis": [
+  "本体 process_type: 双向拉伸聚酯薄膜（BOPET）涂布-拉伸产线",
+  "row grain = 1 batch，149 批，9 个牌号，批次长度 meters 1065-6473 m",
+  "3 个检测响应 + 1 个派生残差响应，44 个过程/回路参数，重尾计数型响应",
+  "批次级时间戳不规则（11-1161 min），无批内高频轨迹 → 只能做批级关联与批级滞后"
+ ],
+ "ontology_available": true,
+ "adaptive_visualization_plan": {
+  "time_series_required": true,
+  "scatter_plots_required": true,
+  "heatmap_required": true,
+  "ccf_lag_analysis": true,
+  "transition_analysis": true,
+  "batch_cycle_overlay": true,
+  "quality_reset_check": true,
+  "custom_strategies": [
+   "三类响应分别建模，不合并（total != oligomer+dust）",
+   "牌号分层 + 固定效应双重估计，Simpson 检查",
+   "计数与缺陷密度双轨报告（暴露分母 meters）",
+   "参数族复合指标替代 44 列独立比较"
+  ]
+ },
+ "expected_physics": [
+  "oligomer: 扩散控制表面析出 C_surf≈C_bulk[1-exp(-Dt/L²)]，D=D0exp(-Ea/RT)；MD 段 75-86°C 下生成速率极低 → MD 温度只影响迁移",
+  "dust: 多源（磨屑/环境颗粒/低聚物升华冷凝），batch 级不可分离",
+  "total/other: 涂布均匀性与划伤类，理论上与 W1C 通道（涂布/冷却）和张力/线速相关",
+  "MD 冷却区跨过 Tg（26-41°C）→ 取向冻结，温度异常影响薄膜平整度与后续涂布"
+ ],
+ "degradation_candidates": [
+  "W1C 涂布/冷却通道族随时间整体漂移（10 个参数 |rho vs time|>0.7）",
+  "F_PS005 供料回路锯齿（段内上升 + 3 次阶跃复位）",
+  "牌号配方差异（FP41 n=3 中位 4145，极端）",
+  "批次长度暴露效应（密度随 meters 下降 rho=-0.32）"
+ ]
+}

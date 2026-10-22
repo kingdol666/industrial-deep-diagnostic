@@ -1,8 +1,205 @@
 {
-  "run_id": "run",
-  "scene": "doe_condition_analysis",
-  "created_at": "2026-10-01T07:07:19.454803+00:00",
-  "skill": "industrial-doe-analyzer",
-  "script_version": "1.0.0",
-  "steps": []
+  "run_id": "202610211442552_run",
+  "created": "2026-10-21T14:42:55.274Z",
+  "run_dir": "D:\\codes\\myskills\\idd-doe-impl\\workspace\\lekai\\run-mixed\\run",
+  "status": "initialized",
+  "steps": [
+    {
+      "index": 0,
+      "step": "setup",
+      "owner": "main-agent",
+      "status": "completed",
+      "attempts": 1,
+      "started_at": "2026-10-21T14:42:55.275Z",
+      "completed_at": "2026-10-21T14:42:55.275Z",
+      "last_event": "run_initialized",
+      "outputs": [],
+      "notes": []
+    },
+    {
+      "index": 1,
+      "step": "inspect",
+      "owner": "main-agent",
+      "status": "completed",
+      "attempts": 0,
+      "started_at": null,
+      "completed_at": "2026-10-21T14:52:38.299Z",
+      "last_event": "step_complete",
+      "outputs": [
+        "00_input/input_manifest.json",
+        "00_input/user_context.json",
+        "00_input/run_config.json"
+      ],
+      "notes": []
+    },
+    {
+      "index": 2,
+      "step": "context_builder",
+      "owner": "context-builder",
+      "status": "completed",
+      "attempts": 2,
+      "started_at": "2026-10-21T14:53:26.714Z",
+      "completed_at": "2026-10-21T15:38:07.496Z",
+      "last_event": "step_complete",
+      "outputs": [
+        "01_ontology/ontology.json",
+        "01_ontology/schema.json",
+        "01_ontology/clarification_needed.json",
+        "00_input/rag_deep_understanding.json",
+        "00_input/clarification_needed.json"
+      ],
+      "notes": []
+    },
+    {
+      "index": 3,
+      "step": "clarification_gate",
+      "owner": "main-agent",
+      "status": "pending",
+      "attempts": 0,
+      "started_at": null,
+      "completed_at": null,
+      "last_event": null,
+      "outputs": [],
+      "notes": []
+    },
+    {
+      "index": 4,
+      "step": "data_processor",
+      "owner": "data-processor",
+      "status": "completed",
+      "attempts": 2,
+      "started_at": "2026-10-21T15:39:00.972Z",
+      "completed_at": "2026-10-21T16:33:10.391Z",
+      "last_event": "step_complete",
+      "outputs": [
+        "02_processed/data_analysis_conclusion.json",
+        "02_processed/validate_report.json",
+        "03_figures/plot_manifest.json",
+        "03_figures/visual_analysis.json",
+        "03_figures/image_captions.json"
+      ],
+      "notes": []
+    },
+    {
+      "index": 5,
+      "step": "diagnostician",
+      "owner": "diagnostician",
+      "status": "completed",
+      "attempts": 2,
+      "started_at": "2026-10-21T16:34:06.229Z",
+      "completed_at": "2026-10-21T18:00:35.220Z",
+      "last_event": "agent_complete",
+      "outputs": [
+        "04_diagnostics/diagnosis.json",
+        "04_diagnostics/evidence.json",
+        "04_diagnostics/confidence.json",
+        "04_diagnostics/reasoning_chain.json"
+      ],
+      "notes": []
+    },
+    {
+      "index": 6,
+      "step": "judge",
+      "owner": "judge",
+      "status": "pending",
+      "attempts": 0,
+      "started_at": null,
+      "completed_at": null,
+      "last_event": null,
+      "outputs": [],
+      "notes": []
+    },
+    {
+      "index": 7,
+      "step": "reporter",
+      "owner": "reporter",
+      "status": "pending",
+      "attempts": 0,
+      "started_at": null,
+      "completed_at": null,
+      "last_event": null,
+      "outputs": [],
+      "notes": []
+    },
+    {
+      "index": 8,
+      "step": "audit",
+      "owner": "report-reviewer",
+      "status": "pending",
+      "attempts": 0,
+      "started_at": null,
+      "completed_at": null,
+      "last_event": null,
+      "outputs": [],
+      "notes": []
+    },
+    {
+      "index": 9,
+      "step": "present",
+      "owner": "main-agent",
+      "status": "pending",
+      "attempts": 0,
+      "started_at": null,
+      "completed_at": null,
+      "last_event": null,
+      "outputs": [],
+      "notes": []
+    }
+  ],
+  "execution_policy": {
+    "run_mode": "full",
+    "conditional_stages": {
+      "data_profile_prepass": "eligible_if_rows_over_20k",
+      "vlm_analysis": "eligible_if_vision_available",
+      "pre_report_audit": "run"
+    },
+    "audit": {
+      "skipped_stages": [
+        {
+          "stage": "data_profile_prepass",
+          "reason": "below_20k_rows",
+          "event": "artifact_check_complete"
+        }
+      ],
+      "dispatch_budget_advisory": true
+    }
+  },
+  "delivery_contract": {
+    "strict_pipeline_required": true,
+    "evidence_closure_required": true,
+    "required_runtime_artifacts": [
+      "00_input/run_config.json",
+      "00_input/input_manifest.json",
+      "01_ontology/ontology.json",
+      "02_processed/scenario_classification.json",
+      "02_processed/anomaly_report.json",
+      "02_processed/data_analysis_conclusion.json",
+      "03_figures/plot_manifest.json",
+      "03_figures/visual_analysis.json",
+      "03_figures/image_captions.json",
+      "04_diagnostics/diagnosis.json",
+      "04_diagnostics/evidence.json",
+      "04_diagnostics/confidence.json",
+      "04_diagnostics/reasoning_chain.json",
+      "05_review/judge_feedback.json",
+      "report.md",
+      "run_summary.json",
+      "optimizer.md",
+      "evidence_closure_report.json"
+    ]
+  },
+  "pipeline": {
+    "version": "v6.5",
+    "current_step": "diagnostician",
+    "current_owner": "diagnostician",
+    "diag_iters_total": 0,
+    "repair_spawn_count": 0,
+    "artifact_finalize_runs": 0,
+    "integrity": {
+      "event_log_bootstrapped": true,
+      "evidence_closure_last_status": "not_checked",
+      "last_artifact_check": "NOT_APPLICABLE"
+    }
+  },
+  "updated_at": "2026-10-21T18:00:35.220Z"
 }

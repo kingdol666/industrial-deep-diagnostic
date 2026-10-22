@@ -11,7 +11,7 @@ import {
   PROJECT_ROOT, WORKSPACE_DIR, DATA_DIR,
   registerChild as claudeRegisterChild, closeQuery as claudeCloseQuery,
   getSessionMessages, getSessionInfo,
-  resolveAnalysisIntent,
+  resolveAnalysisIntent, resolvePreprocessingMode,
 } from '../engine/claude-client.mjs';
 import {
   startDiagnosis as ompStartDiagnosis, startSessionChat as ompStartSessionChat,
@@ -30,6 +30,7 @@ import { hasHarness } from '../harness/registry.mjs';
 import * as harnessOptionsModule from '../harness/engine-options.mjs';
 import { assertHarnessUsable } from '../harness/availability.mjs';
 import { buildArtifactManifest, resolveRunDir } from './artifact-manifest.service.mjs';
+import { assertOntologyIntentSupported } from './ontology-intent-guard.mjs';
 import { defaultHarnessChain } from '../harness/engines.mjs';
 
 // ── Engine dispatch: route execution by the run's harness ──
@@ -118,6 +119,9 @@ import {
 } from '../engine/diagnosis-engine.mjs';
 import { stmts } from '../db/database.mjs';
 import {
+  assertSessionHarnessMatch, sessionMap, clampChatTurns, CHAT_TURN_PASSTHROUGH,
+} from './session-integrity.service.mjs';
+import {
   config, diagnosis as diagConfig, security as secConfig,
   pipeline as pipeConfig, engine as engConfig,
 } from '../../../../config/loader.mjs';
@@ -131,6 +135,13 @@ let hitlSeq = 0;
 
 // Guard: prevent double execution of the same run
 const executingRuns = new Set();
+// B4: one live session-chat turn per run (two concurrent resumes would race and
+// kill each other); separate from executingRuns, which guards full executions.
+const activeChatTurns = new Set();
+// Runs explicitly stopped by the user. The engine's exit handler must not
+// overwrite the persisted `stopped` status with a `failed` result afterwards
+// (OMP exits non-zero when its child process is killed; that is expected).
+const stoppingRuns = new Set();
 
 const TERMINAL_STATUSES = new Set(['completed', 'failed', 'stopped', 'expired']);
 const PAUSED_STATUSES = new Set(['awaiting_input']);
@@ -263,6 +274,32 @@ function resolveDoeOntologyDirective({ ontologyMode, ontologyScene, ontologyData
   };
 }
 
+// Watch-family ontology policy (stability-report / quick-screen, plan v2 P1.5).
+// Same shape as the DOE directive but with the watch profile name; the store
+// lookup happens in the deterministic stage (the skill's ontology_prepare.py)
+// at run time, so `hit` stays "pending". `ontologyDataStage`/`ontologyDevOverride`
+// are doe-only fields — accepted by the guard, ignored here by design.
+function resolveWatchOntologyDirective({ profile, ontologyMode, ontologyScene, ontologySource } = {}) {
+  const requested = typeof ontologyMode === 'string' ? ontologyMode.trim() : '';
+  const sceneKey = typeof ontologyScene === 'string' && ontologyScene.trim() ? ontologyScene.trim() : null;
+  const source = typeof ontologySource === 'string' && ontologySource.trim() ? ontologySource.trim() : null;
+  if (requested === 'off') {
+    // Same production hard gate as the DOE profile: `off` is never silently
+    // honored for watch intents (no dev-override channel exists for them).
+    return {
+      profile, mode: 'auto', scene_key: sceneKey, data_stage: 'collected',
+      source, hit: 'pending', refused_off: true,
+      reason: `ontology mode "off" is refused for the ${profile} profile (production hard gate) — running auto`,
+    };
+  }
+  const mode = DOE_ONTOLOGY_MODES.includes(requested) ? requested : 'auto';
+  return {
+    profile, mode, scene_key: sceneKey, data_stage: 'collected', source, hit: 'pending',
+    reason: `${profile === 'stability' ? 'stability-report' : 'quick-screen'} intent — `
+      + 'ontology-first policy (prepare → analyze/watch)',
+  };
+}
+
 // Create a new diagnosis run (DB + engine state)
 export function createDiagnosisRun(params) {
   const { dataPath, folderPath, dataPaths, userQuestion, sceneName, maxTurns, timeoutMinutes, reportLanguage,
@@ -279,6 +316,12 @@ export function createDiagnosisRun(params) {
     throw err;
   }
   const isDefaultIntent = analysisIntent === 'deep-diagnosis';
+  // Ontology directives are only defined for the diagnosis pipeline and the
+  // DOE profile; reject the fields on other intents instead of ignoring them.
+  assertOntologyIntentSupported(analysisIntent, params);
+  // Folder-input preprocessing policy (plan v2 §4): stability-report only,
+  // single-primary by default, integrate-merge is an explicit opt-in.
+  const preprocessingMode = resolvePreprocessingMode(analysisIntent, params.preprocessingMode);
 
   // Per-harness model / permission-mode switching — validated against the
   // harness's own catalog (mirrors what the engine really supports), so an
@@ -303,7 +346,9 @@ export function createDiagnosisRun(params) {
     : { policy: 'off', intentHit: false, matched: [] };
 
   // Ontology asset policy — Phase A of optimization plan v4 (deep-diagnosis);
-  // a `doe-analysis` run gets the DOE-profile directive instead (P1-6).
+  // a `doe-analysis` run gets the DOE-profile directive instead (P1-6);
+  // watch-family intents (stability-report / quick-screen) get their own
+  // profile directives (plan v2 P1.5/P2.4).
   const ontology = isDefaultIntent
     ? resolveOntologyDirective({
         ontologyMode: params.ontologyMode,
@@ -318,7 +363,14 @@ export function createDiagnosisRun(params) {
             ontologyDataStage: params.ontologyDataStage,
             ontologyDevOverride: params.ontologyDevOverride,
           })
-        : null);
+        : (analysisIntent === 'stability-report' || analysisIntent === 'quick-screen')
+          ? resolveWatchOntologyDirective({
+              profile: analysisIntent === 'stability-report' ? 'stability' : 'sentinel',
+              ontologyMode: params.ontologyMode,
+              ontologyScene: params.ontologyScene,
+              ontologySource: params.ontologySource,
+            })
+          : null);
 
   let mode, dataPathForDb, scene, dataFolder;
 
@@ -352,9 +404,9 @@ export function createDiagnosisRun(params) {
     throw err;
   }
 
-  // DOE ontology directive: when no scene_key was supplied explicitly, fall back
-  // to the run's scene name (deterministic and already sanitized by the store).
-  if (ontology && ontology.profile === 'doe' && !ontology.scene_key) {
+  // DOE / watch ontology directive: when no scene_key was supplied explicitly,
+  // fall back to the run's scene name (deterministic and already sanitized).
+  if (ontology && ['doe', 'stability', 'sentinel'].includes(ontology.profile) && !ontology.scene_key) {
     ontology.scene_key = scene;
     ontology.reason = `${ontology.reason || ''}; scene_key defaulted to the run scene name`.trim();
   }
@@ -365,6 +417,7 @@ export function createDiagnosisRun(params) {
   stmts.insertRun.run({
     runId,
     name,
+    title: name,
     sceneName: scene,
     dataPath: dataPathForDb,
     dataFolder,
@@ -379,6 +432,7 @@ export function createDiagnosisRun(params) {
     enhancementPolicy: enhancement.policy,
     enhancementTriggered: enhancement.intentHit ? 1 : 0,
     analysisIntent,
+    userId: params.userId ? String(params.userId) : null,
   });
 
   createRun(runId);
@@ -387,6 +441,7 @@ export function createDiagnosisRun(params) {
     ontology,
     enhancement,
     analysisIntent,
+    preprocessingMode,
     model: effectiveModel,
     permissionMode: effectivePermissionMode,
   });
@@ -443,10 +498,16 @@ export function getDiagTaskView(taskId) {
   const run = getRunStatus(taskId);
   if (!run) return null;
   const raw = run.engineStatus || run.status;
+  // Terminal mapping (plan v2 Phase C3): expired runs used to be reported as
+  // "running", which made a wait-mode caller spin until its timeout. Both
+  // `expired` (never executed, past its pending horizon) and `awaiting_input`
+  // (blocked on a human answer) are real states a caller must see.
   const taskStatus = raw === 'completed' ? 'completed'
     : (raw === 'failed' || raw === 'interrupted') ? 'failed'
       : raw === 'stopped' ? 'stopped'
-        : 'running';
+        : raw === 'expired' ? 'expired'
+          : raw === 'awaiting_input' ? 'awaiting_input'
+            : 'running';
   const view = {
     task_id: run.run_id,
     status: taskStatus,
@@ -476,7 +537,10 @@ export function getDiagTaskView(taskId) {
       report_md_path: reportAbs,
       // AR-01: the artifact manifest rides on the SAME result view that both the
       // tasks API and /api/external/v1 return, so the two surfaces cannot drift.
-      artifacts: buildArtifactManifest(resolveRunDir(PROJECT_ROOT, run.workspace_path)),
+      artifacts: buildArtifactManifest(
+        resolveRunDir(PROJECT_ROOT, run.workspace_path),
+        { analysisIntent: run.analysis_intent },
+      ),
     };
   }
   if (taskStatus === 'failed') {
@@ -567,14 +631,31 @@ export function getRunRealtimeSnapshot(runId) {
 // Stop a running diagnosis
 export function stopDiagnosis(runId) {
   const run = stmts.getRunById.get(runId);
+  if (!run) {
+    const err = new Error(`Run not found: ${runId}`);
+    err.status = 404;
+    err.code = 'RUN_NOT_FOUND';
+    throw err;
+  }
+  const stoppable = new Set(['pending', 'running', 'awaiting_input']);
+  if (!stoppable.has(run.status)) {
+    const err = new Error(`Run is already ${run.status}: ${runId}`);
+    err.status = 409;
+    err.code = 'RUN_TERMINAL';
+    throw err;
+  }
+  stoppingRuns.add(runId);
   // Close on every engine — each is a no-op when the runId is unknown.
   closeAllEngines(runId);
-  void run;
   questionSessions.delete(runId);
   updateStatus(runId, 'stopped');
   stmts.updateRunStatus.run({ runId, status: 'stopped' });
   emit(runId, { type: 'status', data: { status: 'stopped', runId } });
   emit(runId, { type: 'complete', data: { status: 'stopped', runId } });
+  // Safety net: an engine that never emits a result must not pin the run in
+  // stoppingRuns forever. The stream-end cleanup normally clears it first.
+  setTimeout(() => stoppingRuns.delete(runId), 60_000).unref?.();
+  return { runId, status: 'stopped' };
 }
 
 // Resolve a HITL request
@@ -597,13 +678,68 @@ export function getPendingHITL(runId) {
   return pending;
 }
 
+// Required products per specialist intent (plan v2 D2). A missing product means
+// the run is incomplete regardless of a written report.md.
+const REQUIRED_ARTIFACTS = {
+  'stability-report': ['line_report/stability_report.json', 'line_report/line_stability_report.html'],
+  'quick-screen': ['sentinel/alert.json', 'sentinel/quick_screen_report.html'],
+};
+
+function missingRequiredArtifacts(runDir, analysisIntent, harness = null) {
+  const required = REQUIRED_ARTIFACTS[analysisIntent];
+  if (!required) return [];
+  // The mock engine is an integration-test double: it never runs the skill's
+  // scripts, so holding it to the artifact contract would make every mock
+  // specialist E2E fail. Real engines are always held to it.
+  if (harness === 'mock') return [];
+  if (!runDir) return required.slice();
+  return required.filter((rel) => !existsSync(join(runDir, rel)));
+}
+
 // Send a chat message — close current query and resume session with message
-export async function sendChatMessage(runId, message) {
+export async function sendChatMessage(runId, message, options = {}) {
   const run = stmts.getRunById.get(runId);
   if (!run) return false;
+  // Soft-deleted runs must not be chatted into (they may be purged at any time).
+  if (run.deleted_at) {
+    const err = new Error(`Run ${runId} was deleted — restore it before continuing`);
+    err.status = 410;
+    err.code = 'RUN_DELETED';
+    throw err;
+  }
+  // B0.4: never let a chat cross harnesses — the stored session id must belong
+  // to the run's engine or the resume would look up a missing session.
+  assertSessionHarnessMatch(run);
+  // One live chat turn per run: two concurrent resumes would kill each other.
+  if (activeChatTurns.has(runId)) {
+    const err = new Error(`A chat turn is already running for ${runId} — wait for it to finish`);
+    err.status = 409;
+    err.code = 'CHAT_TURN_BUSY';
+    throw err;
+  }
+  // B0.2: a terminal run without a session id (e.g. a run stopped while still
+  // pending) has nothing to resume. Continue rebuilds the full context with the
+  // SAME harness/intent/data instead of failing the user's click.
+  if (!run.session_id) {
+    activeChatTurns.add(runId);
+    try {
+      emit(runId, {
+        type: 'system',
+        subtype: 'session_chat',
+        data: { message: '该会话没有可恢复的历史 session，已按当前诊断上下文重新建立（同一引擎与同一分析意图）。' },
+      });
+      continueDiagnosis(runId, message);
+      return true;
+    } finally {
+      // The continue path owns the run for its whole lifetime; the busy flag is
+      // released when its execution settles (see executeDiagnosis finally).
+      setTimeout(() => activeChatTurns.delete(runId), 500);
+    }
+  }
   const engine = resolveEngine(run.harness);
   closeAllEngines(runId);
   executingRuns.delete(runId);
+  activeChatTurns.add(runId);
   try {
     if (!hasRun(runId)) createRun(runId);
     updateStatus(runId, run.status);
@@ -632,8 +768,10 @@ export async function sendChatMessage(runId, message) {
     const result = engine.startSessionChat({
       runId,
       sessionId: run.session_id,
+      // Resume turns carry the user's message VERBATIM: the run's context lives
+      // in the harness session itself, so no extra prompt text is injected.
       message,
-      maxTurns: 1,
+      maxTurns: clampChatTurns(options.maxTurns),
       harness: run.harness || 'claude',
     });
     setChild(runId, result.query);
@@ -641,8 +779,10 @@ export async function sendChatMessage(runId, message) {
     consumeSessionChat(runId, result.query, run.session_id, engine);
     return true;
   } catch (err) {
+    activeChatTurns.delete(runId);
     const errorMessage = formatResumeError(err, runId, run.session_id);
     emit(runId, { type: 'error', data: { status: run.status, runId, error: errorMessage } });
+    if (err.status === 409 && err.code === 'RUN_HARNESS_MISMATCH') throw err;
     return false;
   }
 }
@@ -705,6 +845,7 @@ async function consumeSessionChat(runId, query, sessionId, engine) {
   } finally {
     closeAllEngines(runId);
     setChild(runId, null);
+    activeChatTurns.delete(runId);
   }
 }
 
@@ -732,6 +873,8 @@ export function continueDiagnosis(runId, followUpMessage, options = {}) {
   stmts.updateRunStatus.run({ runId, status: 'running' });
 
   setMeta(runId, {
+    // Continue sends the user's text verbatim (or 'Continue.' when empty): a
+    // resumable harness already carries the run context in its session.
     followUpMessage: followUpMessage || null,
     sessionId: run.session_id || null,
   });
@@ -861,6 +1004,8 @@ async function executeDiagnosis(runId, run, isRetry = false) {
 
   let analysisTarget;
   if (isSessionResume) {
+    // B0.4: resuming must stay on the run's own engine/session pair.
+    assertSessionHarnessMatch(run);
     analysisTarget = { mode: 'resume' };
   } else {
     const dp = run.data_path;
@@ -894,15 +1039,19 @@ async function executeDiagnosis(runId, run, isRetry = false) {
       sceneName: run.scene_name,
       runId,
       maxTurns: run.max_turns,
-      timeoutMinutes: run.timeout_minutes,
+      // No timeout_minutes DB column exists — the requested budget lives in run
+      // meta (setMeta at create time). Reading only the row kept every run
+      // pinned at the engine default (120min) regardless of timeoutMinutes.
+      timeoutMinutes: run.timeout_minutes ?? meta.timeoutMinutes,
       reportLanguage: run.report_language || diagConfig.default_language,
       followUpMessage,
       sessionId,
-      ontology: (runIntent === 'deep-diagnosis' || runIntent === 'doe-analysis')
+      ontology: ['deep-diagnosis', 'doe-analysis', 'stability-report', 'quick-screen'].includes(runIntent)
         ? (meta.ontology || null)
         : null,
       enhancement: runIntent === 'deep-diagnosis' ? (meta.enhancement || null) : null,
       analysisIntent: runIntent,
+      preprocessingMode: meta.preprocessingMode || 'single_primary',
       // Forward ONLY an explicitly selected model — run.model is display data
       // (may hold a legacy claude default) and must not reach other engines.
       model: meta.model || null,
@@ -1058,10 +1207,20 @@ async function executeDiagnosis(runId, run, isRetry = false) {
           }
           if (parsed.subtype === 'success') {
             questionSessions.delete(runId);
+            // Required-artifact check (plan v2 D2): specialist intents promise
+            // concrete products; a run without them is not a success even when
+            // the agent wrote a generic report.md.
+            const missingRequired = missingRequiredArtifacts(runDir, run.analysis_intent, run.harness);
             // False-success guard: an engine can end cleanly (end_turn) while
             // the pipeline stalled before writing report.md. Success without
             // a report (and without a prior report on this run) is a failure.
-            if (!reportPath && !run.report_path) {
+            if (missingRequired.length) {
+              const error = `Run ended without required artifacts (${missingRequired.join(', ')}) — marked failed to prevent false success`;
+              updateStatus(runId, 'failed');
+              stmts.failRun.run({ runId, error });
+              emit(runId, { type: 'status', data: { status: 'failed', runId, error } });
+              emit(runId, { type: 'complete', data: { status: 'failed', runId, error } });
+            } else if (!reportPath && !run.report_path) {
               const error = 'Agent ended without producing report.md (pipeline incomplete at end_turn) — marked failed to prevent false success';
               updateStatus(runId, 'failed');
               stmts.failRun.run({ runId, error });
@@ -1093,17 +1252,24 @@ async function executeDiagnosis(runId, run, isRetry = false) {
             }
           } else {
             questionSessions.delete(runId);
-            const error = `Query stopped: ${parsed.stop_reason || parsed.subtype}`;
-            updateStatus(runId, 'failed');
-            stmts.failRun.run({ runId, error });
-            emit(runId, {
-              type: 'status',
-              data: { status: 'failed', runId, error },
-            });
-            emit(runId, {
-              type: 'complete',
-              data: { status: 'failed', runId, error },
-            });
+            if (stoppingRuns.has(runId)) {
+              // stopDiagnosis already persisted and emitted `stopped`; the
+              // engine's non-zero exit is the expected consequence of the kill.
+              // Do not overwrite it with `failed`.
+              logger.info(`Run ${runId} ended after explicit stop — keeping stopped status`, { context: 'Diagnosis', runId });
+            } else {
+              const error = `Query stopped: ${parsed.stop_reason || parsed.subtype}`;
+              updateStatus(runId, 'failed');
+              stmts.failRun.run({ runId, error });
+              emit(runId, {
+                type: 'status',
+                data: { status: 'failed', runId, error },
+              });
+              emit(runId, {
+                type: 'complete',
+                data: { status: 'failed', runId, error },
+              });
+            }
           }
         } catch (err) {
           const errorMessage = formatResumeError(err, runId, sessionId);
@@ -1134,13 +1300,24 @@ async function executeDiagnosis(runId, run, isRetry = false) {
 
     // Stream ended
     executingRuns.delete(runId);
+    stoppingRuns.delete(runId);
+    activeChatTurns.delete(runId);
     if (shouldCloseRun) {
       setTimeout(() => closeRun(runId), engConfig.close_run_delay_seconds * 1000);
     }
 
   } catch (err) {
-    const errorMessage = formatResumeError(err, runId, resumeSessionId);
     executingRuns.delete(runId);
+    activeChatTurns.delete(runId);
+    if (stoppingRuns.has(runId)) {
+      // The engine was killed on purpose; keep the explicit `stopped` state.
+      stoppingRuns.delete(runId);
+      questionSessions.delete(runId);
+      logger.info(`Run ${runId} closed after explicit stop (engine error suppressed: ${err.message})`, { context: 'Diagnosis', runId });
+      setTimeout(() => closeRun(runId), engConfig.close_run_delay_seconds * 1000);
+      return;
+    }
+    const errorMessage = formatResumeError(err, runId, resumeSessionId);
     questionSessions.delete(runId);
     updateStatus(runId, 'failed');
     stmts.failRun.run({ runId, error: errorMessage });
@@ -1169,7 +1346,7 @@ async function findLatestRunDir(sceneName, knownDirs = new Set()) {
 
   const relPath = (entry) => `workspace/diagnostic-runs/${entry}`;
   let latest = null, latestTime = 0;
-  let fallback = null, fallbackTime = 0;
+  const unmatchedNew = [];
   for (const entry of entries) {
     const fullPath = join(WORKSPACE_DIR, entry);
     // Skip directories that existed before this run started or are claimed by others
@@ -1177,20 +1354,31 @@ async function findLatestRunDir(sceneName, knownDirs = new Set()) {
     try {
       const s = await stat(fullPath);
       if (!s.isDirectory()) continue;
-      if (s.mtimeMs > latestTime && dirPattern.test(entry)) {
-        latestTime = s.mtimeMs;
-        latest = fullPath;
-      }
-      if (s.mtimeMs > fallbackTime) {
-        fallbackTime = s.mtimeMs;
-        fallback = fullPath;
+      if (dirPattern.test(entry)) {
+        if (s.mtimeMs > latestTime) {
+          latestTime = s.mtimeMs;
+          latest = fullPath;
+        }
+      } else {
+        unmatchedNew.push({ path: fullPath, mtime: s.mtimeMs, entry });
       }
     } catch {}
   }
-  // Fallback: the agent may name the run dir after its own scene key instead of
-  // the DB scene_name (e.g. "_eval_cnc_spindle_wear" vs "_data") — link the
-  // newest unclaimed dir created during this run rather than leaving null.
-  return latest || fallback;
+  if (latest) return latest;
+  // Scene-name fallback: the agent may name the run dir after its own scene key
+  // instead of the DB scene_name (e.g. "_eval_cnc_spindle_wear" vs "_data").
+  // Only accept it when it is UNAMBIGUOUS — exactly one unclaimed directory was
+  // created during this run window. Two concurrent runs used to adopt each
+  // other's newest directory here, wiring run A's result to run B's artifacts.
+  if (unmatchedNew.length === 1) return unmatchedNew[0].path;
+  if (unmatchedNew.length > 1) {
+    logger.warn(
+      `Ambiguous run directory: ${unmatchedNew.length} unclaimed dirs created during this run `
+      + `(${unmatchedNew.map((u) => u.entry).slice(0, 5).join(', ')}) — refusing to adopt one`,
+      { context: 'Diagnosis', sceneName },
+    );
+  }
+  return null;
 }
 
 export { hitlRequests, executeDiagnosis };

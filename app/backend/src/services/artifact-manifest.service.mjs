@@ -50,30 +50,100 @@ export function resolveRunDir(projectRoot, recorded) {
   return isAbsolute(recorded) ? recorded : join(projectRoot, recorded);
 }
 
+/** Analysis intents whose result contract is the DOE artifact inventory. */
+export const DOE_ARTIFACT_INTENTS = new Set(['doe-analysis']);
+
+// Specialist artifact inventories (plan v2 Phase C2). Without these, a
+// stability/quick-screen result reported applicable:false and its JSON/MD
+// products were only findable by listing the directory by hand.
+export const STABILITY_ARTIFACTS = [
+  ['ontology', '01_ontology/ontology.json'],
+  ['ontology_brief', '01_ontology/ontology_brief.json'],
+  ['ontology_coverage', '01_ontology/ontology_coverage.json'],
+  ['stability_report', 'line_report/stability_report.json'],
+  ['stability_charts', 'line_report/charts.json'],
+  ['stability_html', 'line_report/line_stability_report.html'],
+  ['stability_md', 'line_report/line_stability_report.md'],
+  ['report', 'report.md'],
+];
+
+export const SENTINEL_ARTIFACTS = [
+  ['ontology', '01_ontology/ontology.json'],
+  ['ontology_brief', '01_ontology/ontology_brief.json'],
+  ['ontology_coverage', '01_ontology/ontology_coverage.json'],
+  ['alert', 'sentinel/alert.json'],
+  ['watch_report', 'sentinel/watch_report.md'],
+  ['quick_screen_html', 'sentinel/quick_screen_report.html'],
+  ['baseline', 'watch_baseline.json'],
+  ['report', 'report.md'],
+];
+
+const SPECIALIST_INVENTORIES = {
+  'stability-report': { items: STABILITY_ARTIFACTS, required: new Set(['stability_report', 'stability_html', 'stability_md']) },
+  'quick-screen': { items: SENTINEL_ARTIFACTS, required: new Set(['alert', 'watch_report', 'quick_screen_html']) },
+};
+
+// Conditional-by-design artifacts: absent is not a failure.
+const CONDITIONAL_KINDS = new Set(['report', 'analysis_plan', 'ontology_brief', 'ontology_coverage', 'baseline',
+  'ontology', 'stability_charts']);
+
 /**
  * Build the artifact manifest for a run directory.
  *
  * @param {string} runDir absolute run directory
- * @returns {{contract_version:string, artifacts:Array, missing:Array, source:string}}
+ * @param {{analysisIntent?: string|null}} [options]
+ *   The manifest is a DOE contract. For any other analysis intent the
+ *   inventory is not applicable: returning 13 "missing DOE artifacts" on a
+ *   quick-screen/stability result would be a false failure signal. Callers
+ *   that omit the intent (legacy tests / direct service use) keep the DOE
+ *   behaviour.
+ * @returns {{contract_version:string, artifacts:Array, missing:Array, source:string,
+ *            applicable:boolean, analysis_intent:string|null}}
  */
-export function buildArtifactManifest(runDir) {
+export function buildArtifactManifest(runDir, { analysisIntent = null } = {}) {
+  const specialist = SPECIALIST_INVENTORIES[analysisIntent];
+  const applicable = !analysisIntent || DOE_ARTIFACT_INTENTS.has(analysisIntent) || !!specialist;
+  if (!applicable) {
+    return {
+      contract_version: '1.1',
+      schema_version: '1.1',
+      run_dir: runDir || null,
+      analysis_intent: analysisIntent,
+      applicable: false,
+      artifacts: [],
+      missing: [],
+      source: 'not-applicable',
+      note: `No artifact inventory is defined for analysisIntent=${analysisIntent}`,
+    };
+  }
   if (!runDir || !existsSync(runDir)) {
-    return { contract_version: '1.1', artifacts: [], missing: [], source: 'absent' };
+    return {
+      contract_version: '1.1', schema_version: '1.1', run_dir: runDir || null,
+      analysis_intent: analysisIntent, applicable: true,
+      artifacts: [], missing: [], source: 'absent',
+    };
   }
 
   const own = join(runDir, 'artifact_manifest.json');
-  if (existsSync(own)) {
+  if (!specialist && existsSync(own)) {
     try {
       const doc = JSON.parse(readFileSync(own, 'utf8'));
-      if (Array.isArray(doc?.artifacts)) return { ...doc, source: 'analyzer' };
+      if (Array.isArray(doc?.artifacts)) {
+        return {
+          ...doc, analysis_intent: analysisIntent, applicable: true,
+          source: 'analyzer',
+        };
+      }
     } catch {
       // fall through to probing: a corrupt manifest is rebuilt, never trusted
     }
   }
 
+  const inventory = specialist ? specialist.items : DOE_ARTIFACTS;
+  const required = specialist ? specialist.required : null;
   const artifacts = [];
   const missing = [];
-  for (const [kind, rel] of DOE_ARTIFACTS) {
+  for (const [kind, rel] of inventory) {
     const abs = join(runDir, rel);
     if (existsSync(abs)) {
       const st = statSync(abs);
@@ -86,8 +156,12 @@ export function buildArtifactManifest(runDir) {
         bytes: st.size,
         produced_by: 'backend-probe',
       });
-    } else if (kind === 'report' || kind === 'analysis_plan') {
-      // report.html and the agent-authored plan are conditional by design
+    } else if (CONDITIONAL_KINDS.has(kind)) {
+      // report.html / agent-authored plan / optional JSON sidecars are
+      // conditional by design.
+      if (required && required.has(kind)) {
+        missing.push({ kind, reason: `required artifact absent: ${rel}` });
+      }
       continue;
     } else {
       missing.push({ kind, reason: `expected artifact absent: ${rel}` });
@@ -97,6 +171,8 @@ export function buildArtifactManifest(runDir) {
     contract_version: '1.1',
     schema_version: '1.1',
     run_dir: runDir,
+    analysis_intent: analysisIntent,
+    applicable: true,
     artifacts,
     missing,
     source: 'probe',

@@ -211,17 +211,23 @@ def _entry_profile(entry):
 
 
 def _lookup(store_dir, *, profile, scene_key, context_fp):
-    """profile+scene+context_fp lookup. exact | scene_only | miss (frozen enum)."""
+    """profile+scene+context_fp lookup. exact | scene_only | miss (frozen enum).
+
+    exact is matched across ALL scenes first: the same data context can be
+    published under different scene keys (run name vs derived key), and a
+    scene-first filter turns that into an avoidable miss + duplicate build.
+    """
     entries = [e for e in _read_store_index(store_dir)["entries"]
                if isinstance(e, dict)
                and _entry_profile(e) == profile
                and e.get("quality") != "deprecated"]
-    scoped = [e for e in entries if not scene_key or e.get("scene_key") == scene_key]
     if context_fp:
-        exact = [e for e in scoped if (e.get("context_fp") or None) == context_fp]
+        exact = [e for e in entries if (e.get("context_fp") or None) == context_fp]
         if exact:
             best = sorted(exact, key=lambda e: (-int(e.get("version") or 0), str(e.get("path") or "")))[0]
-            return {"status": "exact", "entry": best}
+            return {"status": "exact", "entry": best,
+                    "cross_scene": bool(scene_key) and best.get("scene_key") != scene_key}
+    scoped = [e for e in entries if not scene_key or e.get("scene_key") == scene_key]
     if scene_key and scoped:
         best = sorted(scoped, key=lambda e: (-int(e.get("version") or 0), str(e.get("path") or "")))[0]
         return {"status": "scene_only", "entry": best}

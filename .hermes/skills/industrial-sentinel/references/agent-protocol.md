@@ -46,6 +46,7 @@ node .claude/skills/industrial-sentinel/scripts/quality_gate.mjs \
    （gate S1/S3 会拒绝）。
 3. `suggested_next_skill` 路由：根因分析 → `industrial-diagnostician`；
    窗口/工况数据分析 → `industrial-doe-analyzer`；不要越权“顺手优化参数”。
+4. **单位不得发明**：报告/解读中的单位只能来自 baseline、`report_context`、本体或数据列声明；缺失或不确定时写“单位未声明（unit undeclared）”，禁止根据产品名/经验猜写 mm、µm、°C 等。若生成 `drift_quantify.json` 等补充 JSON，每个信号必须带 `unit`（可为 null）与 `unit_status`（`declared|undeclared`）。
 
 ## Phase 4 — fast-screen 增量（可选分支）
 

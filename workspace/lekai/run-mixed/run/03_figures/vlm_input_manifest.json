@@ -1,0 +1,89 @@
+{
+  "generated_at": "2026-10-21T15:58:56Z",
+  "total_images_available": 13,
+  "total_images_for_vlm": 6,
+  "total_images_excluded": 7,
+  "filtering_principle": "Only images with true spatio-temporal alignment are sent to VLM. Single-parameter trends, bar charts, and non-aligned plots are excluded because VLM cannot extract cross-parameter temporal precedence or synchrony from them.",
+  "selection_criteria": [
+    "MANDATORY: temporal overlays with shared time axis + z-score normalization",
+    "MANDATORY: per-group temporal overlays (when product grouping exists)",
+    "SUPPLEMENTARY: scatter plots colored by confounder (Simpson Paradox check)",
+    "EXCLUDED: single-parameter trends (no cross-parameter alignment)",
+    "EXCLUDED: bar charts (VLM cannot read numerical values from bars)",
+    "EXCLUDED: non-aligned basic charts (no diagnostic insight beyond numbers)"
+  ],
+  "vlm_images": [
+    {
+      "filename": "fig03_temporal_overlay.png",
+      "title": "工艺参数与缺陷密度的时间对齐叠加",
+      "plot_type": "",
+      "vlm_priority": "MANDATORY",
+      "vlm_read_order": 1,
+      "diagnostic_questions_for_vlm": [
+        "Which parameters move synchronously?",
+        "What is the temporal precedence? (which changes first)",
+        "At event markers, is there visible response?",
+        "Is degradation linear, stepwise, or accelerating?"
+      ]
+    },
+    {
+      "filename": "fig04_per_product_overlay.png",
+      "title": "重点牌号 PG31DS 的牌号内时间对齐叠加",
+      "plot_type": "",
+      "vlm_priority": "MANDATORY",
+      "vlm_read_order": 2,
+      "diagnostic_questions_for_vlm": [
+        "Which parameters move synchronously?",
+        "What is the temporal precedence? (which changes first)",
+        "At event markers, is there visible response?",
+        "Is degradation linear, stepwise, or accelerating?"
+      ]
+    },
+    {
+      "filename": "fig05_exposure_calibration.png",
+      "title": "暴露标定 C10：批次长度与缺陷计数/密度",
+      "plot_type": "",
+      "vlm_priority": "SUPPLEMENTARY",
+      "vlm_read_order": 3,
+      "diagnostic_questions_for_vlm": [
+        "Do different groups form separate clusters?",
+        "Are within-group slopes consistent? (Simpson check)"
+      ]
+    },
+    {
+      "filename": "fig06_simpson_stratified.png",
+      "title": "Simpson 悖论检查：合并相关与牌号内相关",
+      "plot_type": "",
+      "vlm_priority": "SUPPLEMENTARY",
+      "vlm_read_order": 3,
+      "diagnostic_questions_for_vlm": [
+        "Do different groups form separate clusters?",
+        "Are within-group slopes consistent? (Simpson check)"
+      ]
+    },
+    {
+      "filename": "fig09_ps005_sawtooth.png",
+      "title": "F_PS005 锯齿漂移与缺陷密度对照",
+      "plot_type": "",
+      "vlm_priority": "MANDATORY",
+      "vlm_read_order": 1,
+      "diagnostic_questions_for_vlm": [
+        "Which parameters move synchronously?",
+        "What is the temporal precedence? (which changes first)",
+        "At event markers, is there visible response?",
+        "Is degradation linear, stepwise, or accelerating?"
+      ]
+    },
+    {
+      "filename": "fig13_defect_composition.png",
+      "title": "缺陷构成随时间漂移",
+      "plot_type": "",
+      "vlm_priority": "SUPPLEMENTARY",
+      "vlm_read_order": 3,
+      "diagnostic_questions_for_vlm": [
+        "Do different groups form separate clusters?",
+        "Are within-group slopes consistent? (Simpson check)"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,373 @@
+{
+ "schema": "evidence_pack/2.0",
+ "generated_at": "2026-10-21T16:32:56.662Z",
+ "instruction": "Index for downstream agents. Every value cites its source artifact — open that artifact for full context before relying on a number.",
+ "scenario": null,
+ "data_shape": {
+  "n_rows": null,
+  "n_columns": [
+   {
+    "name": "batch_id",
+    "type": "string"
+   },
+   {
+    "name": "ts_start",
+    "type": "datetime"
+   },
+   {
+    "name": "model",
+    "type": "string"
+   },
+   {
+    "name": "meters",
+    "type": "number"
+   },
+   {
+    "name": "total_defects",
+    "type": "number"
+   },
+   {
+    "name": "oligomer",
+    "type": "number"
+   },
+   {
+    "name": "dust",
+    "type": "number"
+   },
+   {
+    "name": "F_PS002@PV1_mean",
+    "type": "number"
+   },
+   {
+    "name": "F_PS003@PV1_mean",
+    "type": "number"
+   },
+   {
+    "name": "F_PS005@PV1_mean",
+    "type": "number"
+   },
+   {
+    "name": "F_PS006@PV1_mean",
+    "type": "number"
+   },
+   {
+    "name": "MD_TH001@PV_mean",
+    "type": "number"
+   },
+   {
+    "name": "MD_TH002@PV_mean",
+    "type": "number"
+   },
+   {
+    "name": "MD_TH003@PV_mean",
+    "type": "number"
+   },
+   {
+    "name": "MD_TH004@PV_mean",
+    "type": "number"
+   },
+   {
+    "name": "MD_TH005@PV_mean",
+    "type": "number"
+   },
+   {
+    "name": "MD_TH006@PV_mean",
+    "type": "number"
+   },
+   {
+    "name": "MD_TH007@PV_mean",
+    "type": "number"
+   },
+   {
+    "name": "MD_TH008@PV_mean",
+    "type": "number"
+   },
+   {
+    "name": "MD_TH009@PV_mean",
+    "type": "number"
+   },
+   {
+    "name": "MD_TH010@PV_mean",
+    "type": "number"
+   },
+   {
+    "name": "MD_TH011@PV_mean",
+    "type": "number"
+   },
+   {
+    "name": "MD_TH012@PV_mean",
+    "type": "number"
+   },
+   {
+    "name": "MD_TH013@PV_mean",
+    "type": "number"
+   },
+   {
+    "name": "MD_TH014@PV_mean",
+    "type": "number"
+   },
+   {
+    "name": "MD_TH015@PV_mean",
+    "type": "number"
+   },
+   {
+    "name": "MD_TH016@PV_mean",
+    "type": "number"
+   },
+   {
+    "name": "MD_TH017@PV_mean",
+    "type": "number"
+   },
+   {
+    "name": "MD_TH018@PV_mean",
+    "type": "number"
+   },
+   {
+    "name": "W1C00@PV1_mean",
+    "type": "number"
+   },
+   {
+    "name": "W1C01@PV1_mean",
+    "type": "number"
+   },
+   {
+    "name": "W1C40@PV1_mean",
+    "type": "number"
+   },
+   {
+    "name": "W1C4B@PV1_mean",
+    "type": "number"
+   },
+   {
+    "name": "W1C7C@PV1_mean",
+    "type": "number"
+   },
+   {
+    "name": "W1C7D@PV1_mean",
+    "type": "number"
+   },
+   {
+    "name": "W1C7E@PV1_mean",
+    "type": "number"
+   },
+   {
+    "name": "W1C7F@PV1_mean",
+    "type": "number"
+   },
+   {
+    "name": "W1C80@PV1_mean",
+    "type": "number"
+   },
+   {
+    "name": "W1C81@PV1_mean",
+    "type": "number"
+   },
+   {
+    "name": "W1C82@PV1_mean",
+    "type": "number"
+   },
+   {
+    "name": "W1C83@PV1_mean",
+    "type": "number"
+   },
+   {
+    "name": "W1C84@PV1_mean",
+    "type": "number"
+   },
+   {
+    "name": "W1C85@PV1_mean",
+    "type": "number"
+   },
+   {
+    "name": "W1C86@PV1_mean",
+    "type": "number"
+   },
+   {
+    "name": "W1C87@PV1_mean",
+    "type": "number"
+   },
+   {
+    "name": "W1C88@PV1_mean",
+    "type": "number"
+   },
+   {
+    "name": "W1C89@PV1_mean",
+    "type": "number"
+   },
+   {
+    "name": "W1C8A@PV1_mean",
+    "type": "number"
+   },
+   {
+    "name": "W1C8B@PV1_mean",
+    "type": "number"
+   },
+   {
+    "name": "W1C8C@PV1_mean",
+    "type": "number"
+   },
+   {
+    "name": "W1C8D@PV1_mean",
+    "type": "number"
+   }
+  ],
+  "time_col": null,
+  "time_method": null,
+  "median_interval_s": null,
+  "index_implied_only": false
+ },
+ "top_anomalies": [
+  {
+   "column": "mill_power_kW"
+  }
+ ],
+ "top_correlations": [],
+ "quality_reset_verdict": "no quality reset observed",
+ "transitions": [
+  {
+   "type": "state_change",
+   "desc": ""
+  },
+  {
+   "type": "state_change",
+   "desc": ""
+  },
+  {
+   "type": "state_change",
+   "desc": ""
+  },
+  {
+   "type": "state_change",
+   "desc": ""
+  }
+ ],
+ "event_windows": [],
+ "sensor_artifacts": [],
+ "artifact_excluded_recheck": null,
+ "lag_axis": {
+  "axis": null,
+  "step_interval_seconds": null,
+  "unit_conversion_available": false,
+  "rule": "steps are not time unless interval is available"
+ },
+ "ontology_roles": [
+  {
+   "column": "total_defects",
+   "role": "target",
+   "meaning": "批次内在线缺陷检测仪统计的缺陷总计数（全类别合并）"
+  },
+  {
+   "column": "oligomer",
+   "role": "target",
+   "meaning": "低聚物类缺陷计数：PET 环状三聚体（cyclic trimer）在表面析出/结晶形成的点状缺陷"
+  },
+  {
+   "column": "dust",
+   "role": "target",
+   "meaning": "粉尘/异物类缺陷计数：设备磨屑、切边碎屑、环境颗粒、以及烘箱/热定型区挥发物冷凝形成的颗粒"
+  },
+  {
+   "column": "other_defects_derived (derived: total_defects - oligomer - dust)",
+   "role": "target",
+   "meaning": "未分类缺陷残差 = total_defects − oligomer − dust（覆盖涂布不均/划伤/凝胶点等）"
+  },
+  {
+   "column": "F_PS002@PV1_mean",
+   "role": "confounder",
+   "meaning": "前段供料/加压回路 1 的过程值（压力/流量类），波动小（sd 0.54）→ 受控稳定回路"
+  },
+  {
+   "column": "F_PS003@PV1_mean",
+   "role": "confounder",
+   "meaning": "前段 3 号回路过程值，极稳（sd 0.18，6.50-7.33）→ 定值控制回路（疑似真空/冷却水/风压）"
+  },
+  {
+   "column": "F_PS005@PV1_mean",
+   "role": "confounder",
+   "meaning": "前段 5 号回路过程值，波动最大（7.31-12.30，sd 1.49）；单向上行漂移的统计形态与过滤器压差/供液阻力累积一致"
+  },
+  {
+   "column": "F_PS006@PV1_mean",
+   "role": "confounder",
+   "meaning": "前段 6 号回路过程值（低压回路，3.12-5.95）→ 疑似气刀/涂布辊风压或低压冷却"
+  },
+  {
+   "column": "MD_TH001@PV_mean",
+   "role": "process_parameter",
+   "meaning": "纵拉预热区 1 区温度（≈PET Tg 75°C，链段开始解冻）"
+  },
+  {
+   "column": "MD_TH002@PV_mean",
+   "role": "process_parameter",
+   "meaning": "纵拉预热区 2 区温度"
+  }
+ ],
+ "plots": [
+  {
+   "file": "fig01_response_distribution.png",
+   "type": "distribution",
+   "status": "ok"
+  },
+  {
+   "file": "fig02_model_response_medians.png",
+   "type": "boxplot",
+   "status": "ok"
+  },
+  {
+   "file": "fig03_temporal_overlay.png",
+   "type": "temporal_overlay",
+   "status": "ok"
+  },
+  {
+   "file": "fig04_per_product_overlay.png",
+   "type": "temporal_overlay",
+   "status": "ok"
+  },
+  {
+   "file": "fig05_exposure_calibration.png",
+   "type": "scatter",
+   "status": "ok"
+  },
+  {
+   "file": "fig06_simpson_stratified.png",
+   "type": "simpson_stratified",
+   "status": "ok"
+  },
+  {
+   "file": "fig07_correlation_heatmap.png",
+   "type": "heatmap",
+   "status": "ok"
+  },
+  {
+   "file": "fig08_ccf_lag.png",
+   "type": "time_lag_ccf",
+   "status": "ok"
+  },
+  {
+   "file": "fig09_ps005_sawtooth.png",
+   "type": "temporal_overlay",
+   "status": "ok"
+  },
+  {
+   "file": "fig10_leverage.png",
+   "type": "correlation_bar",
+   "status": "ok"
+  },
+  {
+   "file": "fig11_model_response_heatmap.png",
+   "type": "heatmap",
+   "status": "ok"
+  },
+  {
+   "file": "fig12_family_effects.png",
+   "type": "heatmap",
+   "status": "ok"
+  },
+  {
+   "file": "fig13_defect_composition.png",
+   "type": "temporal_overlay",
+   "status": "ok"
+  }
+ ],
+ "physics_checks": null
+}

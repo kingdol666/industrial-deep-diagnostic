@@ -66,6 +66,11 @@ export function buildOntologyDirective(ontology) {
   // P1-6: the DOE intent carries profile="doe" and gets its own directive. The
   // diagnosis rendering below stays byte-identical for every other run.
   if (ontology.profile === 'doe') return buildDoeOntologyDirective(ontology);
+  // Plan v2 P1.5/P2.4: watch-family profiles carry their own deterministic
+  // ontology stage (the skill's ontology_prepare.py) ahead of the analysis.
+  if (ontology.profile === 'stability' || ontology.profile === 'sentinel') {
+    return buildWatchOntologyDirective(ontology);
+  }
   const mode = ontology.mode || 'full';
   const lines = ['', '## Ontology Directive', '', `- ONTOLOGY_MODE: ${mode}`];
   if (ontology.source) lines.push(`- ONTOLOGY_SOURCE (store asset, absolute path): ${ontology.source}`);
@@ -111,6 +116,34 @@ export function buildDoeOntologyDirective(ontology) {
   return lines.join('\n') + '\n';
 }
 
+// ── Ontology directive, watch profiles (stability / sentinel — plan v2) ──
+// Same ontology-first discipline as the DOE profile, one profile per watch
+// skill: prepare (fingerprint → store lookup → reuse/extend/build, declared
+// priors only) writes 01_ontology/ontology.json + brief + coverage, and the
+// analysis must not start before reading the brief (the analyzer/watch gate
+// enforces ONTOLOGY_BRIEF_REQUIRED when mode != off).
+export function buildWatchOntologyDirective(ontology) {
+  const mode = ontology.mode || 'auto';
+  const isStability = ontology.profile === 'stability';
+  const prepareScript = isStability
+    ? '.claude/skills/industrial-line-stability-report/scripts/ontology_prepare.py'
+    : '.claude/skills/industrial-sentinel/scripts/sentinel_ontology_prepare.py';
+  const lines = ['', '## Ontology Directive (watch profile)', '',
+    `- ONTOLOGY_PROFILE: ${ontology.profile}`,
+    `- ONTOLOGY_MODE: ${mode}`];
+  if (ontology.scene_key) lines.push(`- ONTOLOGY_SCENE: ${ontology.scene_key} (store v${ontology.version ?? '?'})`);
+  if (ontology.source) lines.push(`- ONTOLOGY_SOURCE (ontology asset path): ${ontology.source}`);
+  lines.push(`- Reason: ${ontology.reason || 'n/a'}`);
+  lines.push(`Run the deterministic ontology stage FIRST (fingerprint → store lookup by profile=${ontology.profile} + scene_key + context_fp → reuse on an exact hit / extend on a changed context / otherwise build a declared-prior ontology — declarations only, no RAG, no web, never invented units):`);
+  lines.push(`uv run --project .claude/shared/scripts python ${prepareScript} --run-dir "<RUN_DIR>" --mode ${mode}${ontology.scene_key ? ` --scene ${ontology.scene_key}` : ''}${ontology.source ? ` --ontology "${ontology.source}"` : ''}`);
+  lines.push(`Then READ 01_ontology/ontology_brief.json (+ .md) before any analysis step — units, roles, specs and their sources (user declaration vs shipped dictionary reference band) come from the brief; a column without a declared unit is reported as "单位未声明 (unit undeclared)".`);
+  if (!isStability) {
+    lines.push('For watch windows: build the baseline with --ontology pointing at 01_ontology/ontology.json — declared windows carry window_source="ontology_declared" and confirmation_needed=true (severity capped at warn, never high/critical). Never feed ontology values into indicators.');
+  }
+  lines.push('Ontology assets are published with profile=' + ontology.profile + ' + context_fp so the next run of the same scene/context reuses them in seconds with zero RAG/web calls.');
+  return lines.join('\n') + '\n';
+}
+
 // ── Enhancement directive — appended to the user prompt for both engines ──
 export function buildEnhancementDirective(enhancement) {
   if (!enhancement || typeof enhancement !== 'object') return '';
@@ -139,12 +172,27 @@ export function buildEnhancementDirective(enhancement) {
 // reading real outputs and iterating, never as a canned HTTP wrapper.
 export const ANALYSIS_INTENTS = {
   'deep-diagnosis': null, // default — full 9-stage pipeline via industrial-analysis-auto
-  'stability-report': { skill: 'industrial-line-stability-report' },
+  'stability-report': {
+    skill: 'industrial-line-stability-report',
+    // Folder input: the analyzer consumes one tidy table. The deterministic
+    // preprocessor selects the single primary time-series table (default) or,
+    // on an explicit `preprocessingMode: 'integrate_merge'` opt-in, performs
+    // the gated time-axis merge (cadence gate + column audit); it never merges
+    // different cadences silently.
+    preprocessStep: (opts = {}) => {
+      const integrate = opts.preprocessingMode === 'integrate_merge';
+      const modeFlag = integrate ? '--integrate-merge' : '--stability-single-primary';
+      return 'uv run --project .claude/shared/scripts python .claude/skills/industrial-data-preprocessor/scripts/data_preprocessor.py'
+        + ` --data-path "<INPUT_FOLDER>" --output "<RUN_DIR>/00_input" ${modeFlag} --recursive`;
+    },
+    unitRule: true,
+  },
   'quick-screen': {
     skill: 'industrial-sentinel',
     // Deterministic HTML step — the sentinel protocol ends at alert.json +
     // watch_report.md; this builder turns them into the viewable HTML report.
     htmlStep: 'uv run --project .claude/shared/scripts python .claude/skills/industrial-sentinel/scripts/build_screen_report.py --run-dir "<RUN_DIR>"',
+    unitRule: true,
   },
   'doe-analysis': { skill: 'industrial-doe-analyzer' },
   'experience-mining': { skill: 'industrial-tuning-memory' },
@@ -160,10 +208,44 @@ export function resolveAnalysisIntent(value) {
     : null;
 }
 
-export function buildIntentDirective(intent, sceneName) {
+// Folder-input preprocessing policy for the stability-report intent (plan v2
+// §4): single-primary selection is the default; the gated time-axis merge is
+// an explicit opt-in. Any other intent + a non-empty value is a contract trap
+// (accepted-then-ignored), so it is rejected explicitly — same philosophy as
+// the ontology field guard.
+export const PREPROCESSING_MODES = ['single_primary', 'integrate_merge'];
+
+export function resolvePreprocessingMode(analysisIntent, rawValue) {
+  const requested = typeof rawValue === 'string' ? rawValue.trim() : '';
+  if (!requested) return 'single_primary';
+  if (!PREPROCESSING_MODES.includes(requested)) {
+    const err = new Error(
+      `Unknown preprocessingMode: ${JSON.stringify(rawValue)} (supported: ${PREPROCESSING_MODES.join(', ')})`,
+    );
+    err.status = 400;
+    err.code = 'PREPROCESSING_MODE_UNKNOWN';
+    throw err;
+  }
+  if (analysisIntent !== 'stability-report') {
+    const err = new Error(
+      `preprocessingMode is only supported for analysisIntent=stability-report (got ${analysisIntent}).`,
+    );
+    err.status = 400;
+    err.code = 'PREPROCESSING_MODE_UNSUPPORTED_INTENT';
+    throw err;
+  }
+  return requested;
+}
+
+export function buildIntentDirective(intent, sceneName, opts = {}) {
   const resolved = resolveAnalysisIntent(intent);
   if (!resolved || resolved === 'deep-diagnosis') return '';
   const spec = ANALYSIS_INTENTS[resolved];
+  // A spec step may be a static string or an opts-driven template (the
+  // stability preprocessStep switches on `preprocessingMode`).
+  const preprocessStep = typeof spec.preprocessStep === 'function'
+    ? spec.preprocessStep(opts)
+    : spec.preprocessStep;
   // Filename-grade normalization: this string lands in a command the agent
   // is told to copy-execute, so it must stay a safe single path segment.
   const safeRunScene = sanitize(sceneName || '').replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 80) || 'run';
@@ -176,6 +258,8 @@ export function buildIntentDirective(intent, sceneName) {
 - Create the run workspace first, then keep every artifact inside it:
   node .claude/skills/industrial-analysis-auto/scripts/setup.mjs --name "${safeRunScene}" --mode fast --base-dir "$PROJECT_ROOT/workspace/diagnostic-runs"
 - Perform the analysis for real on the data files listed above: run the skill's scripts as tools against the actual data, read their real outputs, and iterate on what they return. Every number you report must come from a tool executed during this run — never fabricate, hard-code, or copy example values.
+${preprocessStep ? `- Folder input (MANDATORY, before the skill analysis): run \`${preprocessStep}\` with <INPUT_FOLDER> set to the folder path shown in ## Data and <RUN_DIR> set to the run workspace. Analyze the canonical primary table it produces; do not merge files or sampling cadences manually.` : ''}
+${spec.unitRule ? '- Unit rule: only use units declared by report_context / ontology / input columns. If a unit is absent, write "单位未声明 (unit undeclared)" — never infer mm/µm/°C from the product name or experience.' : ''}
 ${spec.htmlStep ? `- HTML report step (MANDATORY, after the analysis, before writing report.md): run \`${spec.htmlStep}\` with <RUN_DIR> set to the run workspace. If uv is unavailable, execute the same script with the shared venv python (.claude/shared/scripts/.venv/Scripts/python.exe on Windows, .venv/bin/python elsewhere). Verify the HTML file path it prints exists before finishing.` : ''}
 - Finish by writing report.md at the root of the run dir: a narrative in the report language that answers the analysis question, citing only artifacts produced in this run.
 `;
@@ -350,6 +434,7 @@ export function startDiagnosis({
   reportLanguage, followUpMessage, sessionId = null,
   ontology = null, enhancement = null,
   analysisIntent = 'deep-diagnosis',
+  preprocessingMode = null,
   model = null, permissionMode = null,
 }) {
   if (!sdkAvailable || !queryFn) {
@@ -379,7 +464,7 @@ export function startDiagnosis({
   const prompt = resumeSessionId
     ? buildResumePrompt(followUpMessage)
     : buildPrompt(sceneName, userQuestion, promptTarget, lang, followUpMessage)
-      + buildIntentDirective(analysisIntent, sceneName)
+      + buildIntentDirective(analysisIntent, sceneName, { preprocessingMode })
       + buildOntologyDirective(ontology)
       + buildEnhancementDirective(enhancement);
 

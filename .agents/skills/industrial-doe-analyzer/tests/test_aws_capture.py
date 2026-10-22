@@ -361,8 +361,8 @@ def case_repeat():
     record("repeat.context", ca == cb)
 
 
-def main():
-    cases = sys.argv[1:] or ["all"]
+def main(argv=None):
+    cases = list(argv) if argv is not None else (sys.argv[1:] or ["all"])
     if "all" in cases:
         cases = ["inspect", "pivot", "build", "context", "exclude", "errors", "repeat"]
     print(f"== aws_capture tests: {', '.join(cases)} ==")
@@ -377,6 +377,18 @@ def main():
     print(f"\n{passed}/{len(RESULTS)} passed")
     shutil.rmtree(TMP, ignore_errors=True)
     return 0 if passed == len(RESULTS) else 1
+
+
+def test_aws_capture_all():
+    """pytest entry point; the file is also a standalone runner.
+
+    Keeps the custom-runner convention (`python test_aws_capture.py all`) while
+    making the suite visible to `pytest` and CI collection.
+    """
+    RESULTS.clear()
+    assert main(["all"]) == 0, (
+        f"{sum(1 for _, ok, _ in RESULTS if not ok)} aws_capture assertion(s) failed"
+    )
 
 
 if __name__ == "__main__":

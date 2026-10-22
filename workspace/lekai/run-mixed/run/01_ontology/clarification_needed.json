@@ -1,0 +1,100 @@
+{
+  "interaction_mode": "auto",
+  "clarification_status": "AUTO_RESOLVED",
+  "generated_at": "2026-10-21T15:05:00Z",
+  "user_questions_asked": 0,
+  "rationale": "interaction_mode=auto → 依 physics_inference_framework L1-L5 全部自动推断并记录，不阻塞流水线。所有推断均带 auto_inferred=true 与 resolution_level。",
+  "auto_inferred": [
+    {
+      "item": "工艺类型判定",
+      "question_if_interactive": "FW3 线属于哪类产线（BOPET 纵拉/涂布）？",
+      "resolution": "BOPET 类薄膜纵拉-涂布产线",
+      "resolution_level": "L1+L3（列名族 MD_TH/TH 与取值落在 Tg 两侧，自证）",
+      "confidence": "HIGH",
+      "auto_inferred": true
+    },
+    {
+      "item": "F_PS002/003/005/006 物理量",
+      "question_if_interactive": "F_PS 族是压力、流量还是别的？单位？",
+      "resolution": "前段供料/加压回路过程值（压力或流量）；量纲未定标，本体记录 unit=unknown",
+      "resolution_level": "L1（PS 前缀 + 3-15 量级）+ L4（量级可行性）",
+      "confidence": "INFERRED",
+      "assumption": "F=Feed 前段，@PV1=1 号控制回路",
+      "auto_inferred": true
+    },
+    {
+      "item": "MD_TH 三段的工艺归属",
+      "question_if_interactive": "18 个温度区各自属于预热/拉伸/冷却中的哪一段？",
+      "resolution": "TH001-005 预热(Tg≈75°C)；TH006-011 拉伸(82-84°C)；TH012-018 冷却/定型(26-41°C)",
+      "resolution_level": "L2（KB BOPET 温度窗口）+ L4（区间匹配）",
+      "confidence": "HIGH (前 11 区) / MEDIUM (后 7 区)",
+      "auto_inferred": true
+    },
+    {
+      "item": "W1C 通道语义",
+      "question_if_interactive": "W1C00..W1C8D 的位号含义与单位？",
+      "resolution": "工位1 通道块，按统计签名分四组：近定值(C00/C01/C8D)、绝对过程值(C40/C4B/C84/C87/C8A/C8B)、执行器-混合(C80/C81/C82/C88)、对称偏差(C7C..7F, C83, C85, C86, C89, C8C)",
+      "resolution_level": "L1（十六进制通道号 + 取值区间）+ L4（负值/超 100 排除温度湿度）",
+      "confidence": "INFERRED",
+      "assumption": "W1=工位1（涂布-冷却段），C=通道；无位号表",
+      "auto_inferred": true
+    },
+    {
+      "item": "响应集合的范围",
+      "question_if_interactive": "是否把 dust 与 total_defects 一并作为响应？total 是否等于两子类之和？",
+      "resolution": "三响应独立建模（total_defects / oligomer / dust）；total_defects 非求和关系（子类和中位占比 37.2%），另派 other_defects_derived",
+      "resolution_level": "数据自描述（149 行全量校验）",
+      "confidence": "HIGH",
+      "auto_inferred": true
+    },
+    {
+      "item": "model 的角色",
+      "question_if_interactive": "9 个牌号按混杂处理还是按分层处理？",
+      "resolution": "第一类分层轴 + 混杂：牌号缺陷基线中位 33-66（FP41 4145），且多个工艺列（TH016-018、W1C80-82）按牌号双峰 → 必须分层/固定效应",
+      "resolution_level": "数据自描述 + L4（混杂侵入工艺列的实证）",
+      "confidence": "HIGH",
+      "auto_inferred": true
+    },
+    {
+      "item": "时间分辨率",
+      "question_if_interactive": "能否做批内或分钟级因果分析？",
+      "resolution": "不能。batch 级聚合，滞后上限 5 批（≈0.2-5 h，因批间隔 3-61 min 不规则），批内动态不可见",
+      "resolution_level": "数据结构约束（149 行/215.7 h）",
+      "confidence": "HIGH",
+      "auto_inferred": true
+    },
+    {
+      "item": "缺陷计数是否需要暴露量归一",
+      "question_if_interactive": "meters 是否应作为协变量？",
+      "resolution": "是。meters 1065-6473（6×），计数存在暴露偏倚，须以 defect/m 密度复核",
+      "resolution_level": "L2（质量守恒/暴露量）+ L4（6× 量级足以解释计数差异）",
+      "confidence": "HIGH",
+      "auto_inferred": true
+    }
+  ],
+  "conflicts_resolved": [
+    {
+      "conflict": "任务书先验称 MD_TH018 ≈ 24.6°C，实测 28.93-35.30",
+      "resolution": "24.6 实为 W1C00 中位值；采用实测映射，先验作废",
+      "evidence": "csv 全量统计 + 行级核对(H2652556: W1C00=24.5938, MD_TH018=35.2233)",
+      "action_required_by_human": false
+    },
+    {
+      "conflict": "analysis_context.json 仅声明 total_defects 与 oligomer 为响应，dust 与 total 的关系未声明",
+      "resolution": "本体补入 dust 与 other_defects_derived，并在 schema.json 中下达 analysis_directives",
+      "action_required_by_human": false
+    },
+    {
+      "conflict": "知识库给出的冷却区 31-37°C 与实测 26-41°C 部分不符",
+      "resolution": "判定为牌号工况差异（TH016-018 双峰 30.2/35.2），不判知识错误；列为 discrepancy_signal 供诊断阶段核对",
+      "action_required_by_human": false
+    }
+  ],
+  "pending_human_confirmation": [],
+  "blocking": false,
+  "downstream_obligations": [
+    "任何参数→缺陷的机制陈述必须携带物理语义置信度（HIGH/MEDIUM/INFERRED）",
+    "禁止把 W1C 偏差通道当温度解释；禁止把 total_defects 当 oligomer+dust 之和",
+    "结论必须给出 model 分层前后的对比；滞后结论限定 ≤5 批"
+  ]
+}

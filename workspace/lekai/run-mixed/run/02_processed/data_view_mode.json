@@ -1,0 +1,18 @@
+{
+ "data_view_mode": "process_plus_inspection",
+ "justification": "44 个工艺/回路过程列（F_PS 4 + MD_TH 18 + W1C 22）+ 3 个缺陷检测列，二者按批次一一对齐；存在 batch 级时间戳与 exposure 列，可做过程-检测联合分析。",
+ "targets": [
+  "total_defects",
+  "oligomer",
+  "dust",
+  "other_defects_derived"
+ ],
+ "predictors": 44,
+ "confounders": [
+  "model",
+  "meters",
+  "t_index"
+ ],
+ "grain": "one row = one production batch",
+ "time_column": "ts_start"
+}

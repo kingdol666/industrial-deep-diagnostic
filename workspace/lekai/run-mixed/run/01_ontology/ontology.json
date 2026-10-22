@@ -1,0 +1,1279 @@
+{
+  "ontology_version": "1.0.0-lekai-fw3-mixed-defects-2026-10-21",
+  "process_type": "双向拉伸聚酯薄膜（BOPET）涂布-拉伸产线（乐凯 FW3 线）",
+  "created_at": "2026-10-21T15:05:00Z",
+  "scene": {
+    "name": "lekai-mixed-defects-diag",
+    "process_type": "BOPET 薄膜：铸片 → 纵拉(MD)预热/拉伸/冷却定型 → 涂布 → 收卷；文中“涂布”段归属按 W1C 通道族推断，未获设备清单确认",
+    "equipment": [
+      {
+        "id": "EXT",
+        "name": "挤出/铸片单元（熔体 270-290°C，Tg≈75°C）",
+        "evidence": "推断：BOPET 标准工艺；本数据集无熔体温度/挤出机标签 → 该段不可直接观测",
+        "inferred": true
+      },
+      {
+        "id": "MD",
+        "name": "纵拉单元（MD_TH001-011 加热/拉伸区，MD_TH012-018 冷却/定型区，共 18 区）",
+        "evidence": "列名 MD=Machine Direction + TH=Temperature + 18 个连续编号 + 取值落在 Tg 附近/以下",
+        "inferred": false
+      },
+      {
+        "id": "W1",
+        "name": "工位1 / 涂布-冷却段（W1C00..W1C8D，22 个通道 PV）",
+        "evidence": "列名 W1C + 十六进制序号；取值为绝对值与偏差量混合 → 通道未完全定标",
+        "inferred": true
+      },
+      {
+        "id": "WIND",
+        "name": "收卷单元（meters 为批次计米，收卷张力未单独测点）",
+        "evidence": "meters 列 + 用户上下文",
+        "inferred": true
+      }
+    ],
+    "stages": [
+      {
+        "stage_id": "S1_EXTRUSION_CASTING",
+        "name": "挤出与铸片",
+        "observed": false,
+        "reason": "无熔体温度/压力/螺杆转速测点 → 低聚物“生成”环节在本数据中不可直接检验",
+        "governing_law": "Arrhenius 热降解 k=A·exp(-Ea/RT)"
+      },
+      {
+        "stage_id": "S2_MD_PREHEAT",
+        "name": "纵拉预热（MD_TH001-005，74.9-77.5°C ≈ Tg）",
+        "observed": true,
+        "governing_law": "能量守恒 m·Cp·dT/dt = Q̇_in − Q̇_out；链段解冻后拉伸模量下降"
+      },
+      {
+        "stage_id": "S3_MD_STRETCH",
+        "name": "纵拉拉伸（MD_TH006-011，81.8-84.3°C = Tg+6~9）",
+        "observed": true,
+        "governing_law": "应力-应变 σ = E(T)·ε；拉伸比 3.0-3.8:1"
+      },
+      {
+        "stage_id": "S4_MD_COOL_ANNEAL",
+        "name": "纵拉冷却/定型（MD_TH012-018，26-41°C，跨过并低于 Tg）",
+        "observed": true,
+        "governing_law": "Newton 冷却 Q̇=h·A·ΔT；取向冻结"
+      },
+      {
+        "stage_id": "S5_COATING",
+        "name": "涂布/表面处理（F_PS 供料回路 + W1C 通道，推断）",
+        "observed": true,
+        "governing_law": "涂层厚度 ∝ 供料流量/线速（质量守恒）"
+      },
+      {
+        "stage_id": "S6_WINDING",
+        "name": "收卷（meters 计米；张力未直接测点）",
+        "observed": false,
+        "governing_law": "张力波动 > ±10% → 层间滑移/划伤"
+      }
+    ],
+    "objectives": [
+      "识别驱动 total_defects 升高的工艺参数（batch 级）",
+      "分别识别 oligomer（低聚物）与 dust（粉尘/异物）两类缺陷的独立驱动机制，不合并为单一“缺陷”",
+      "在 model 牌号混杂下区分 competing hypotheses 并给出可执行建议"
+    ]
+  },
+  "signals": {
+    "inspection_signals": [
+      {
+        "name": "total_defects",
+        "column": "total_defects",
+        "role": "target",
+        "unit": "defect_count_per_batch",
+        "physical_meaning": "批次内在线缺陷检测仪统计的缺陷总计数（全类别合并）",
+        "normal_range": [
+          3,
+          9516
+        ],
+        "normal_range_kind": "observed_min_max_not_spec",
+        "observed_data_behavior": "中位 51，均值 >> 中位，最大 9516（中位的 186×）；强右偏重尾，近似对数正态；按 model 分层中位 33-66，FP41(n=3) 中位 4145",
+        "behavior_match": "UNVERIFIED",
+        "discrepancy_signal": "重尾 + 品牌基线差 ⇒ 不能当作正态响应做均值比较；必须用中位/秩方法或 log 变换，且需按 model 分层",
+        "derived": false
+      },
+      {
+        "name": "oligomer",
+        "column": "oligomer",
+        "role": "target",
+        "unit": "defect_count_per_batch",
+        "physical_meaning": "低聚物类缺陷计数：PET 环状三聚体（cyclic trimer）在表面析出/结晶形成的点状缺陷",
+        "normal_range": [
+          0,
+          1105
+        ],
+        "normal_range_kind": "observed_min_max_not_spec",
+        "observed_data_behavior": "中位 8，最大 1105，6 个批次为 0（左侧截断）；按 model 中位 3-10，FP41 中位 25",
+        "behavior_match": "UNVERIFIED",
+        "governing_law": "扩散控制表面析出：C_surf(t) ≈ C_bulk·[1−exp(−Dt/L²)]，D=D0·exp(−Ea/RT)",
+        "physical_mechanism_note": "在 MD 温度（75-86°C）下低聚物的“生成”速率相对熔体温度（270-290°C）低约 10^20 量级（Arrhenius），因此 MD 温度只影响迁移/挥发/冷凝，不驱动生成；生成环节在挤出/缩聚热历史",
+        "derived": false
+      },
+      {
+        "name": "dust",
+        "column": "dust",
+        "role": "target",
+        "unit": "defect_count_per_batch",
+        "physical_meaning": "粉尘/异物类缺陷计数：设备磨屑、切边碎屑、环境颗粒、以及烘箱/热定型区挥发物冷凝形成的颗粒",
+        "normal_range": [
+          0,
+          3775
+        ],
+        "normal_range_kind": "observed_min_max_not_spec",
+        "observed_data_behavior": "中位 11，最大 3775，1 个批次为 0；按 model 中位 7.5-36，FP41 中位 36",
+        "behavior_match": "UNVERIFIED",
+        "physical_mechanism_note": "多源：磨屑（与线速/张力/meters 相关）、环境（与时间/清洁周期相关）、低聚物升华-冷凝（与热区温度相关）。三个来源在 batch 级聚合下不可分离 ⇒ 需靠时间结构与 model 分层做间接区分",
+        "derived": false
+      },
+      {
+        "name": "other_defects_derived",
+        "column": "other_defects_derived (derived: total_defects - oligomer - dust)",
+        "role": "target",
+        "unit": "defect_count_per_batch",
+        "physical_meaning": "未分类缺陷残差 = total_defects − oligomer − dust（覆盖涂布不均/划伤/凝胶点等）",
+        "normal_range": [
+          0,
+          7406
+        ],
+        "normal_range_kind": "derived_from_observed",
+        "observed_data_behavior": "全部 149 批满足 oligomer+dust ≤ total；(oligomer+dust)/total 中位占比仅 37.2%，other 中位 30 个/批 → total_defects 的主体是被未标注类别驱动",
+        "behavior_match": "CONSISTENT",
+        "derived": true,
+        "derivation": "row-wise total_defects − oligomer − dust，149 行全量",
+        "implication": "total_defects 不是 oligomer+dust 的和；对 total_defects 的归因只能弱化传递到两个子类，反之亦然"
+      }
+    ],
+    "process_parameters": [
+      {
+        "name": "F_PS002",
+        "column": "F_PS002@PV1_mean",
+        "role": "confounder",
+        "unit": "unknown (PV engineering unit)",
+        "physical_meaning": "前段供料/加压回路 1 的过程值（压力/流量类），波动小（sd 0.54）→ 受控稳定回路",
+        "normal_range": [
+          12.5647,
+          15.2919
+        ],
+        "physical_meaning_confidence": "INFERRED",
+        "stage_ref": "S1_EXTRUSION_CASTING",
+        "inferred": true,
+        "assumption": "F_=前段供料(Feed)，PS=Pressure/Flow 过程值，@PV1=1号控制回路；无标签文档确认"
+      },
+      {
+        "name": "F_PS003",
+        "column": "F_PS003@PV1_mean",
+        "role": "confounder",
+        "unit": "unknown (PV engineering unit)",
+        "physical_meaning": "前段 3 号回路过程值，极稳（sd 0.18，6.50-7.33）→ 定值控制回路（疑似真空/冷却水/风压）",
+        "normal_range": [
+          6.5005,
+          7.3265
+        ],
+        "physical_meaning_confidence": "INFERRED",
+        "stage_ref": "S1_EXTRUSION_CASTING",
+        "inferred": true
+      },
+      {
+        "name": "F_PS005",
+        "column": "F_PS005@PV1_mean",
+        "role": "confounder",
+        "unit": "unknown (PV engineering unit)",
+        "physical_meaning": "前段 5 号回路过程值，波动最大（7.31-12.30，sd 1.49）；单向上行漂移的统计形态与过滤器压差/供液阻力累积一致",
+        "normal_range": [
+          7.3116,
+          12.2991
+        ],
+        "physical_meaning_confidence": "INFERRED",
+        "stage_ref": "S5_COATING",
+        "inferred": true,
+        "candidate_mechanism": "过滤器/网前压差上升 → 供料不稳/凝胶与粉尘脱落 → 与 dust、total_defects 同向（待验）"
+      },
+      {
+        "name": "F_PS006",
+        "column": "F_PS006@PV1_mean",
+        "role": "confounder",
+        "unit": "unknown (PV engineering unit)",
+        "physical_meaning": "前段 6 号回路过程值（低压回路，3.12-5.95）→ 疑似气刀/涂布辊风压或低压冷却",
+        "normal_range": [
+          3.1173,
+          5.9514
+        ],
+        "physical_meaning_confidence": "INFERRED",
+        "stage_ref": "S5_COATING",
+        "inferred": true
+      },
+      {
+        "name": "MD_TH001",
+        "column": "MD_TH001@PV_mean",
+        "role": "process_parameter",
+        "unit": "°C",
+        "physical_meaning": "纵拉预热区 1 区温度（≈PET Tg 75°C，链段开始解冻）",
+        "normal_range": [
+          74.9238,
+          76.5096
+        ],
+        "physical_meaning_confidence": "HIGH",
+        "stage_ref": "S2_MD_PREHEAT",
+        "inferred": false,
+        "knowledge_source": "KB process_knowledge_base.md：MD stretching temperature (BOPET) Tg+0~5°C = 75-83°C"
+      },
+      {
+        "name": "MD_TH002",
+        "column": "MD_TH002@PV_mean",
+        "role": "process_parameter",
+        "unit": "°C",
+        "physical_meaning": "纵拉预热区 2 区温度",
+        "normal_range": [
+          74.8655,
+          76.4328
+        ],
+        "physical_meaning_confidence": "HIGH",
+        "stage_ref": "S2_MD_PREHEAT",
+        "inferred": false
+      },
+      {
+        "name": "MD_TH003",
+        "column": "MD_TH003@PV_mean",
+        "role": "process_parameter",
+        "unit": "°C",
+        "physical_meaning": "纵拉预热区 3 区温度",
+        "normal_range": [
+          76.083,
+          77.4356
+        ],
+        "physical_meaning_confidence": "HIGH",
+        "stage_ref": "S2_MD_PREHEAT",
+        "inferred": false
+      },
+      {
+        "name": "MD_TH004",
+        "column": "MD_TH004@PV_mean",
+        "role": "process_parameter",
+        "unit": "°C",
+        "physical_meaning": "纵拉预热区 4 区温度",
+        "normal_range": [
+          76.0409,
+          77.4293
+        ],
+        "physical_meaning_confidence": "HIGH",
+        "stage_ref": "S2_MD_PREHEAT",
+        "inferred": false
+      },
+      {
+        "name": "MD_TH005",
+        "column": "MD_TH005@PV_mean",
+        "role": "process_parameter",
+        "unit": "°C",
+        "physical_meaning": "纵拉预热区 5 区温度（预热末/拉伸入口）",
+        "normal_range": [
+          76.2763,
+          77.4855
+        ],
+        "physical_meaning_confidence": "HIGH",
+        "stage_ref": "S2_MD_PREHEAT",
+        "inferred": false
+      },
+      {
+        "name": "MD_TH006",
+        "column": "MD_TH006@PV_mean",
+        "role": "process_parameter",
+        "unit": "°C",
+        "physical_meaning": "纵拉拉伸区 1 区温度（Tg+7，拉伸主体）",
+        "normal_range": [
+          82.0745,
+          83.3109
+        ],
+        "physical_meaning_confidence": "HIGH",
+        "stage_ref": "S3_MD_STRETCH",
+        "inferred": false
+      },
+      {
+        "name": "MD_TH007",
+        "column": "MD_TH007@PV_mean",
+        "role": "process_parameter",
+        "unit": "°C",
+        "physical_meaning": "纵拉拉伸区 2 区温度",
+        "normal_range": [
+          82.0196,
+          83.1374
+        ],
+        "physical_meaning_confidence": "HIGH",
+        "stage_ref": "S3_MD_STRETCH",
+        "inferred": false
+      },
+      {
+        "name": "MD_TH008",
+        "column": "MD_TH008@PV_mean",
+        "role": "process_parameter",
+        "unit": "°C",
+        "physical_meaning": "纵拉拉伸区 3 区温度",
+        "normal_range": [
+          82.4318,
+          83.5823
+        ],
+        "physical_meaning_confidence": "HIGH",
+        "stage_ref": "S3_MD_STRETCH",
+        "inferred": false
+      },
+      {
+        "name": "MD_TH009",
+        "column": "MD_TH009@PV_mean",
+        "role": "process_parameter",
+        "unit": "°C",
+        "physical_meaning": "纵拉拉伸区 4 区温度",
+        "normal_range": [
+          81.9557,
+          83.0061
+        ],
+        "physical_meaning_confidence": "HIGH",
+        "stage_ref": "S3_MD_STRETCH",
+        "inferred": false
+      },
+      {
+        "name": "MD_TH010",
+        "column": "MD_TH010@PV_mean",
+        "role": "process_parameter",
+        "unit": "°C",
+        "physical_meaning": "纵拉拉伸区 5 区温度",
+        "normal_range": [
+          81.8406,
+          82.9231
+        ],
+        "physical_meaning_confidence": "HIGH",
+        "stage_ref": "S3_MD_STRETCH",
+        "inferred": false
+      },
+      {
+        "name": "MD_TH011",
+        "column": "MD_TH011@PV_mean",
+        "role": "process_parameter",
+        "unit": "°C",
+        "physical_meaning": "纵拉拉伸区 6 区温度（拉伸出口最高温区，全组最高 84.3）",
+        "normal_range": [
+          83.2715,
+          84.3465
+        ],
+        "physical_meaning_confidence": "HIGH",
+        "stage_ref": "S3_MD_STRETCH",
+        "inferred": false
+      },
+      {
+        "name": "MD_TH012",
+        "column": "MD_TH012@PV_mean",
+        "role": "process_parameter",
+        "unit": "°C",
+        "physical_meaning": "纵拉冷却区 1 区温度（跨过 Tg 的第一段降温，中位 31.3）",
+        "normal_range": [
+          26.1424,
+          31.5658
+        ],
+        "physical_meaning_confidence": "MEDIUM",
+        "stage_ref": "S4_MD_COOL_ANNEAL",
+        "inferred": false,
+        "knowledge_source": "KB：MD cooling zone 31-37°C（低于 Tg 以冻结取向）"
+      },
+      {
+        "name": "MD_TH013",
+        "column": "MD_TH013@PV_mean",
+        "role": "process_parameter",
+        "unit": "°C",
+        "physical_meaning": "纵拉冷却区 2 区温度（中位 36.2，sd 3.53；与 TH014/TH015 分布高度一致 → 同区组或同一控制回路）",
+        "normal_range": [
+          26.4027,
+          41.1881
+        ],
+        "physical_meaning_confidence": "MEDIUM",
+        "stage_ref": "S4_MD_COOL_ANNEAL",
+        "inferred": false
+      },
+      {
+        "name": "MD_TH014",
+        "column": "MD_TH014@PV_mean",
+        "role": "process_parameter",
+        "unit": "°C",
+        "physical_meaning": "纵拉冷却区 3 区温度（与 TH013 分布几乎同构）",
+        "normal_range": [
+          26.1423,
+          40.9663
+        ],
+        "physical_meaning_confidence": "MEDIUM",
+        "stage_ref": "S4_MD_COOL_ANNEAL",
+        "inferred": false
+      },
+      {
+        "name": "MD_TH015",
+        "column": "MD_TH015@PV_mean",
+        "role": "process_parameter",
+        "unit": "°C",
+        "physical_meaning": "纵拉冷却区 4 区温度（与 TH013/014 同构）",
+        "normal_range": [
+          25.8577,
+          40.7835
+        ],
+        "physical_meaning_confidence": "MEDIUM",
+        "stage_ref": "S4_MD_COOL_ANNEAL",
+        "inferred": false
+      },
+      {
+        "name": "MD_TH016",
+        "column": "MD_TH016@PV_mean",
+        "role": "process_parameter",
+        "unit": "°C",
+        "physical_meaning": "纵拉冷却区 5 区温度（中位 35.5，分布双峰：≈30.2 与 ≈35.2，按 model 回切）",
+        "normal_range": [
+          29.2735,
+          35.6247
+        ],
+        "physical_meaning_confidence": "MEDIUM",
+        "stage_ref": "S4_MD_COOL_ANNEAL",
+        "inferred": false,
+        "discrepancy_signal": "双峰由牌号配方切换造成 → model 混杂侵入工艺列"
+      },
+      {
+        "name": "MD_TH017",
+        "column": "MD_TH017@PV_mean",
+        "role": "process_parameter",
+        "unit": "°C",
+        "physical_meaning": "纵拉冷却区 6 区温度（同 TH016 双峰特征）",
+        "normal_range": [
+          29.0503,
+          35.4444
+        ],
+        "physical_meaning_confidence": "MEDIUM",
+        "stage_ref": "S4_MD_COOL_ANNEAL",
+        "inferred": false
+      },
+      {
+        "name": "MD_TH018",
+        "column": "MD_TH018@PV_mean",
+        "role": "process_parameter",
+        "unit": "°C",
+        "physical_meaning": "纵拉冷却出口区 / 冷却辊温度（中位 35.21；双峰 30.2 vs 35.2）",
+        "normal_range": [
+          28.93,
+          35.2957
+        ],
+        "physical_meaning_confidence": "MEDIUM",
+        "stage_ref": "S4_MD_COOL_ANNEAL",
+        "inferred": false,
+        "discrepancy_signal": "任务书给的先验值为 24.6°C，与实测 28.93-35.30 不符；24.6 实为 W1C00 的中位值 → 先验列映射疑似错位"
+      },
+      {
+        "name": "W1C00",
+        "column": "W1C00@PV1_mean",
+        "role": "process_parameter",
+        "unit": "unknown (°C 或工程单位)",
+        "physical_meaning": "工位1 通道 0x00；极稳（24.60±0.21）→ 设定型回路（疑似冷却水温/环境温度/辊温基准）",
+        "normal_range": [
+          23.5021,
+          24.7062
+        ],
+        "physical_meaning_confidence": "INFERRED",
+        "stage_ref": "S5_COATING",
+        "inferred": true,
+        "assumption": "W1=工位1，C=通道，后缀为十六进制通道号；无标签文档"
+      },
+      {
+        "name": "W1C01",
+        "column": "W1C01@PV1_mean",
+        "role": "process_parameter",
+        "unit": "unknown",
+        "physical_meaning": "工位1 通道 0x01；中位长期钉在 7.117（疑似张力/速度基准），偶发跳至 11.69",
+        "normal_range": [
+          7.1152,
+          11.6924
+        ],
+        "physical_meaning_confidence": "INFERRED",
+        "stage_ref": "S5_COATING",
+        "inferred": true
+      },
+      {
+        "name": "W1C40",
+        "column": "W1C40@PV1_mean",
+        "role": "process_parameter",
+        "unit": "unknown",
+        "physical_meaning": "工位1 通道 0x40；11.23-20.40，中等波动（sd 3.27），疑似温度/湿度类过程值",
+        "normal_range": [
+          11.2333,
+          20.4005
+        ],
+        "physical_meaning_confidence": "INFERRED",
+        "stage_ref": "S5_COATING",
+        "inferred": true
+      },
+      {
+        "name": "W1C4B",
+        "column": "W1C4B@PV1_mean",
+        "role": "process_parameter",
+        "unit": "unknown",
+        "physical_meaning": "工位1 通道 0x4B；呈现 34.4（中位）与 49.70 两个稳定平台 → 设定值/配方切换通道",
+        "normal_range": [
+          34.0994,
+          63.9945
+        ],
+        "physical_meaning_confidence": "INFERRED",
+        "stage_ref": "S5_COATING",
+        "inferred": true,
+        "discrepancy_signal": "平台化取值（49.70000076 反复出现）是设定值足迹，不是连续测量"
+      },
+      {
+        "name": "W1C7C",
+        "column": "W1C7C@PV1_mean",
+        "role": "process_parameter",
+        "unit": "relative/deviation",
+        "physical_meaning": "工位1 偏差通道 0x7C（−73.6..−0.98，跨零近似全为负）→ 相对基准的偏差量，非绝对温度",
+        "normal_range": [
+          -73.6402,
+          -0.9789
+        ],
+        "physical_meaning_confidence": "INFERRED",
+        "stage_ref": "S5_COATING",
+        "inferred": true,
+        "evidence": "负值区间 + sd 26.6 的宽幅 → 只能解释为偏差/相对量"
+      },
+      {
+        "name": "W1C7D",
+        "column": "W1C7D@PV1_mean",
+        "role": "process_parameter",
+        "unit": "relative/deviation",
+        "physical_meaning": "工位1 偏差通道 0x7D（0.03-75.08，正值域）",
+        "normal_range": [
+          0.0327,
+          75.0835
+        ],
+        "physical_meaning_confidence": "INFERRED",
+        "stage_ref": "S5_COATING",
+        "inferred": true
+      },
+      {
+        "name": "W1C7E",
+        "column": "W1C7E@PV1_mean",
+        "role": "process_parameter",
+        "unit": "relative/deviation",
+        "physical_meaning": "工位1 偏差通道 0x7E（−50.4..73.2，双向）",
+        "normal_range": [
+          -50.3573,
+          73.1777
+        ],
+        "physical_meaning_confidence": "INFERRED",
+        "stage_ref": "S5_COATING",
+        "inferred": true
+      },
+      {
+        "name": "W1C7F",
+        "column": "W1C7F@PV1_mean",
+        "role": "process_parameter",
+        "unit": "relative/deviation",
+        "physical_meaning": "工位1 偏差通道 0x7F（±77 最大摆幅，sd 43）→ 强振荡/闭环余差通道",
+        "normal_range": [
+          -76.0092,
+          76.9523
+        ],
+        "physical_meaning_confidence": "INFERRED",
+        "stage_ref": "S5_COATING",
+        "inferred": true
+      },
+      {
+        "name": "W1C80",
+        "column": "W1C80@PV1_mean",
+        "role": "process_parameter",
+        "unit": "unknown (absolute+deviation mixed)",
+        "physical_meaning": "工位1 通道 0x80（中位 72.4，最小 −31.1，双峰）→ 疑似涂布执行器输出/阀位（%、相对量）在牌号切换时跨越零点",
+        "normal_range": [
+          -31.1068,
+          77.2727
+        ],
+        "physical_meaning_confidence": "INFERRED",
+        "stage_ref": "S5_COATING",
+        "inferred": true,
+        "discrepancy_signal": "负值 + 高平台 72-78 共存 ⇒ 该列不是温度；作为“工艺参数”直接用会污染温度类解释"
+      },
+      {
+        "name": "W1C81",
+        "column": "W1C81@PV1_mean",
+        "role": "process_parameter",
+        "unit": "unknown (absolute+deviation mixed)",
+        "physical_meaning": "工位1 通道 0x81（中位 11.1，负尾 −16.5，正尾 78.1，sd 27.6）",
+        "normal_range": [
+          -16.4681,
+          78.0815
+        ],
+        "physical_meaning_confidence": "INFERRED",
+        "stage_ref": "S5_COATING",
+        "inferred": true
+      },
+      {
+        "name": "W1C82",
+        "column": "W1C82@PV1_mean",
+        "role": "process_parameter",
+        "unit": "unknown (absolute+deviation mixed)",
+        "physical_meaning": "工位1 通道 0x82（中位 78.48 且 78.69 处有硬上限 → 控制输出饱和足迹）",
+        "normal_range": [
+          -4.2756,
+          78.6867
+        ],
+        "physical_meaning_confidence": "INFERRED",
+        "stage_ref": "S5_COATING",
+        "inferred": true,
+        "discrepancy_signal": "上限饱和 + 负尾 ⇒ 执行器/输出通道，饱和段对缺陷的影响呈非线性（分段）"
+      },
+      {
+        "name": "W1C83",
+        "column": "W1C83@PV1_mean",
+        "role": "process_parameter",
+        "unit": "unknown",
+        "physical_meaning": "工位1 通道 0x83（−4.2..23.4，中位 3.70，sd 6.98）",
+        "normal_range": [
+          -4.204,
+          23.4202
+        ],
+        "physical_meaning_confidence": "INFERRED",
+        "stage_ref": "S5_COATING",
+        "inferred": true
+      },
+      {
+        "name": "W1C84",
+        "column": "W1C84@PV1_mean",
+        "role": "process_parameter",
+        "unit": "unknown",
+        "physical_meaning": "工位1 通道 0x84（0.95-68.5，中位 32.6，宽幅连续）",
+        "normal_range": [
+          0.9463,
+          68.5432
+        ],
+        "physical_meaning_confidence": "INFERRED",
+        "stage_ref": "S5_COATING",
+        "inferred": true
+      },
+      {
+        "name": "W1C85",
+        "column": "W1C85@PV1_mean",
+        "role": "process_parameter",
+        "unit": "relative/deviation",
+        "physical_meaning": "工位1 通道 0x85（−6.9..19.5，中位 2.16）→ 小幅偏差量",
+        "normal_range": [
+          -6.9058,
+          19.4835
+        ],
+        "physical_meaning_confidence": "INFERRED",
+        "stage_ref": "S5_COATING",
+        "inferred": true
+      },
+      {
+        "name": "W1C86",
+        "column": "W1C86@PV1_mean",
+        "role": "process_parameter",
+        "unit": "relative/deviation",
+        "physical_meaning": "工位1 通道 0x86（−86.1..−37.4，全负）→ 与 W1C7F 呈镜像形态，疑似成对差动/偏差通道",
+        "normal_range": [
+          -86.0863,
+          -37.4056
+        ],
+        "physical_meaning_confidence": "INFERRED",
+        "stage_ref": "S5_COATING",
+        "inferred": true
+      },
+      {
+        "name": "W1C87",
+        "column": "W1C87@PV1_mean",
+        "role": "process_parameter",
+        "unit": "unknown (°C 候选)",
+        "physical_meaning": "工位1 通道 0x87（34.9-71.0，中位 57.7）→ 干燥/热定型类温度候选",
+        "normal_range": [
+          34.9178,
+          71.0268
+        ],
+        "physical_meaning_confidence": "INFERRED",
+        "stage_ref": "S5_COATING",
+        "inferred": true
+      },
+      {
+        "name": "W1C88",
+        "column": "W1C88@PV1_mean",
+        "role": "process_parameter",
+        "unit": "unknown",
+        "physical_meaning": "工位1 通道 0x88（−9.6..50.3，中位 43.0，双峰）",
+        "normal_range": [
+          -9.5953,
+          50.3051
+        ],
+        "physical_meaning_confidence": "INFERRED",
+        "stage_ref": "S5_COATING",
+        "inferred": true
+      },
+      {
+        "name": "W1C89",
+        "column": "W1C89@PV1_mean",
+        "role": "process_parameter",
+        "unit": "relative/deviation",
+        "physical_meaning": "工位1 通道 0x89（−4.9..16.4，中位 2.14）→ 小幅偏差量",
+        "normal_range": [
+          -4.943,
+          16.3712
+        ],
+        "physical_meaning_confidence": "INFERRED",
+        "stage_ref": "S5_COATING",
+        "inferred": true
+      },
+      {
+        "name": "W1C8A",
+        "column": "W1C8A@PV1_mean",
+        "role": "process_parameter",
+        "unit": "unknown",
+        "physical_meaning": "工位1 通道 0x8A（17.8-72.1，中位 52.6，宽幅）",
+        "normal_range": [
+          17.8188,
+          72.1153
+        ],
+        "physical_meaning_confidence": "INFERRED",
+        "stage_ref": "S5_COATING",
+        "inferred": true
+      },
+      {
+        "name": "W1C8B",
+        "column": "W1C8B@PV1_mean",
+        "role": "process_parameter",
+        "unit": "unknown",
+        "physical_meaning": "工位1 通道 0x8B（11.2-69.1，中位 42.9）",
+        "normal_range": [
+          11.1961,
+          69.0923
+        ],
+        "physical_meaning_confidence": "INFERRED",
+        "stage_ref": "S5_COATING",
+        "inferred": true
+      },
+      {
+        "name": "W1C8C",
+        "column": "W1C8C@PV1_mean",
+        "role": "process_parameter",
+        "unit": "unknown",
+        "physical_meaning": "工位1 通道 0x8C（−10.3..46.2，中位 8.54）",
+        "normal_range": [
+          -10.2903,
+          46.1826
+        ],
+        "physical_meaning_confidence": "INFERRED",
+        "stage_ref": "S5_COATING",
+        "inferred": true
+      },
+      {
+        "name": "W1C8D",
+        "column": "W1C8D@PV1_mean",
+        "role": "process_parameter",
+        "unit": "unknown",
+        "physical_meaning": "工位1 通道 0x8D（3.49-5.23，极稳）→ 定值回路",
+        "normal_range": [
+          3.4938,
+          5.2317
+        ],
+        "physical_meaning_confidence": "INFERRED",
+        "stage_ref": "S5_COATING",
+        "inferred": true
+      },
+      {
+        "name": "meters",
+        "column": "meters",
+        "role": "confounder",
+        "unit": "m",
+        "physical_meaning": "批次计米（线速×批次时长），缺陷暴露量的分母项；1065-6473，6 倍差异",
+        "normal_range": [
+          1065,
+          6473
+        ],
+        "physical_meaning_confidence": "HIGH",
+        "inferred": false,
+        "discrepancy_signal": "缺陷“计数”随 meters 线性膨胀，直接比较计数会引入暴露偏倚；建议同时以 defect/m 密度分析"
+      }
+    ],
+    "control_variables": [],
+    "events": [
+      {
+        "event_type": "product_change",
+        "description": "牌号（model）切换：9 个牌号混批，切换周期与批间隔 3-61 min 重叠 → 换型是首要混杂事件",
+        "observable": true
+      },
+      {
+        "event_type": "cleaning_cycle",
+        "description": "设备清洁/过滤器更换（未记录）→ 若存在，会表现为 dust 的时间阶跃下降",
+        "observable": false,
+        "inferred": true
+      }
+    ],
+    "metadata_columns": [
+      {
+        "name": "batch_id",
+        "role": "batch_id",
+        "physical_meaning": "批次主键（H2652xxx），时间上非严格单调 → 排序必须以 ts_start 为准"
+      },
+      {
+        "name": "ts_start",
+        "role": "time",
+        "physical_meaning": "批次开始时间，2026-05-04 14:42 → 2026-05-13 14:26（215.7 h），批间隔 3-61 min 不规则"
+      },
+      {
+        "name": "model",
+        "role": "grouping",
+        "physical_meaning": "产品牌号（9 水平：PG31DS 67 / FP21 19 / PG32D 16 / PG32M 13 / PG32B 10 / PG32DS 9 / FG22 6 / PG22C 6 / FP41 3）；同时决定配方设定值与缺陷基线 → 第一类混杂/分层轴，非噪声"
+      }
+    ]
+  },
+  "quality_target_causal_map": {
+    "total_defects": [
+      "F_PS002@PV1_mean",
+      "F_PS005@PV1_mean",
+      "F_PS006@PV1_mean",
+      "MD_TH006@PV_mean",
+      "MD_TH011@PV_mean",
+      "MD_TH013@PV_mean",
+      "W1C80@PV1_mean",
+      "W1C82@PV1_mean",
+      "W1C87@PV1_mean",
+      "W1C8A@PV1_mean",
+      "meters"
+    ],
+    "oligomer": [
+      "MD_TH006@PV_mean",
+      "MD_TH011@PV_mean",
+      "MD_TH012@PV_mean",
+      "W1C87@PV1_mean",
+      "W1C8A@PV1_mean",
+      "F_PS005@PV1_mean"
+    ],
+    "dust": [
+      "F_PS005@PV1_mean",
+      "F_PS006@PV1_mean",
+      "MD_TH013@PV_mean",
+      "MD_TH015@PV_mean",
+      "W1C7F@PV1_mean",
+      "W1C86@PV1_mean",
+      "meters"
+    ],
+    "other_defects_derived": [
+      "W1C80@PV1_mean",
+      "W1C82@PV1_mean",
+      "W1C84@PV1_mean",
+      "W1C8B@PV1_mean",
+      "F_PS002@PV1_mean",
+      "meters"
+    ]
+  },
+  "physical_principles": [
+    {
+      "principle": "低聚物（环状三聚体）表面析出是扩散控制过程，生成受 Arrhenius 热历史支配",
+      "equation": "C_surf(t)=C_bulk·[1−exp(−D t / L²)], D=D0·exp(−Ea/RT), Ea≈150-200 kJ/mol",
+      "parameters": [
+        "MD_TH006@PV_mean",
+        "MD_TH011@PV_mean",
+        "MD_TH012@PV_mean",
+        "oligomer"
+      ],
+      "direction": "温度↑ → 迁移/挥发↑；但 75-86°C 相对 270-290°C 的生成速率差 ~10^20 量级 → MD 段温度不驱动“生成”，只调控迁移与冷凝"
+    },
+    {
+      "principle": "热降解速率 Arrhenius 双倍律（每 +10°C 约 ×2）",
+      "equation": "k=A·exp(−Ea/RT)",
+      "parameters": [
+        "F_PS002@PV1_mean",
+        "oligomer",
+        "total_defects"
+      ],
+      "direction": "仅适用于熔体热历史；batch 级数据无法直接检验"
+    },
+    {
+      "principle": "纵拉温度-力学耦合：温度波动改变拉伸应力与厚度，而非化学降解",
+      "equation": "σ=E(T)·ε；±2°C → 1-3% 厚度波动",
+      "parameters": [
+        "MD_TH001@PV_mean",
+        "MD_TH011@PV_mean",
+        "total_defects"
+      ],
+      "direction": "温度↑ → 模量↓ → 拉伸比/厚度均匀性变化 → 表观缺陷（属于 other_defects）"
+    },
+    {
+      "principle": "冷却区 Newton 冷却与取向冻结",
+      "equation": "Q̇=h·A·(T_film−T_roll)；低于 Tg 冻结取向",
+      "parameters": [
+        "MD_TH012@PV_mean",
+        "MD_TH018@PV_mean",
+        "dust",
+        "oligomer"
+      ],
+      "direction": "冷却不足 → 结晶/析出增加 → oligomer↑；过冷/结露 → 水汽与颗粒 → dust↑"
+    },
+    {
+      "principle": "质量守恒与暴露量归一",
+      "equation": "缺陷密度 D=defects/meters",
+      "parameters": [
+        "meters",
+        "total_defects",
+        "oligomer",
+        "dust"
+      ],
+      "direction": "meters↑ → 计数↑（线性暴露）；未归一化的计数比较会把“跑得多”误判为“质量差”"
+    },
+    {
+      "principle": "颗粒污染的来源叠加（磨屑/环境/冷凝物）",
+      "equation": "N_dust ≈ N_wear(speed,tension) + N_env(t,cleaning) + N_condensate(T_zone, volatiles)",
+      "parameters": [
+        "F_PS005@PV1_mean",
+        "MD_TH013@PV_mean",
+        "dust"
+      ],
+      "direction": "多源叠加 → 单一工艺参数只能解释部分方差；需按时间结构与 model 分层识别"
+    }
+  ],
+  "relationships": [
+    {
+      "from": "MD_TH006@PV_mean",
+      "to": "oligomer",
+      "type": "physical",
+      "direction": "forward",
+      "strength": "moderate",
+      "mechanism": "拉伸区温度 → 表面迁移/挥发通量（扩散系数 Arrhenius）",
+      "governing_equation": "J=−D·∇C, D=D0·exp(−Ea/RT)",
+      "lag": "batch 级（≤1 批，约 3-61 min）"
+    },
+    {
+      "from": "MD_TH011@PV_mean",
+      "to": "oligomer",
+      "type": "physical",
+      "direction": "forward",
+      "strength": "moderate",
+      "mechanism": "纵拉最高温区 → 挥发物生成/冷凝前驱",
+      "governing_equation": "J=−D·∇C",
+      "lag": "batch 级"
+    },
+    {
+      "from": "MD_TH012@PV_mean",
+      "to": "oligomer",
+      "type": "physical",
+      "direction": "forward",
+      "strength": "moderate",
+      "mechanism": "跨 Tg 冷却速率 → 过饱和析出（结晶成核）",
+      "governing_equation": "成核速率 ∝ exp(−ΔG*/kT)",
+      "lag": "batch 级"
+    },
+    {
+      "from": "MD_TH013@PV_mean",
+      "to": "dust",
+      "type": "physical",
+      "direction": "forward",
+      "strength": "weak",
+      "mechanism": "冷却区温度 → 结露/辊面粘附 → 颗粒转移至膜面",
+      "lag": "batch 级"
+    },
+    {
+      "from": "F_PS005@PV1_mean",
+      "to": "dust",
+      "type": "physical",
+      "direction": "forward",
+      "strength": "moderate",
+      "mechanism": "供料/过滤压差上升 → 凝胶与颗粒脱落（推断）",
+      "lag": "batch 级"
+    },
+    {
+      "from": "F_PS005@PV1_mean",
+      "to": "total_defects",
+      "type": "physical",
+      "direction": "forward",
+      "strength": "weak",
+      "mechanism": "供料稳定性 → 涂布均匀性（推断）",
+      "lag": "batch 级"
+    },
+    {
+      "from": "W1C80@PV1_mean",
+      "to": "total_defects",
+      "type": "unknown",
+      "direction": "unknown",
+      "strength": "unknown",
+      "mechanism": "执行器输出（可能为阀位/张力补偿）跨越零点 → 涂布/张力工况改变；通道语义未定标，方向不可先验指定",
+      "lag": "batch 级"
+    },
+    {
+      "from": "W1C82@PV1_mean",
+      "to": "total_defects",
+      "type": "unknown",
+      "direction": "unknown",
+      "strength": "unknown",
+      "mechanism": "输出饱和段（≈78.7 上限）→ 控制失效窗口",
+      "lag": "batch 级"
+    },
+    {
+      "from": "meters",
+      "to": "total_defects",
+      "type": "causal",
+      "direction": "forward",
+      "strength": "strong",
+      "mechanism": "暴露量：批次越长计数越多（纯计量效应，非质量效应）",
+      "governing_equation": "defects ≈ density × meters",
+      "lag": 0
+    },
+    {
+      "from": "model",
+      "to": "total_defects",
+      "type": "causal",
+      "direction": "forward",
+      "strength": "strong",
+      "mechanism": "牌号配方同时设定温度/张力设定值与缺陷基线（PG31DS 中位 66 vs PG32M 35; FP41 中位 4145）",
+      "lag": "换型即时"
+    }
+  ],
+  "confounders": [
+    {
+      "name": "model",
+      "role": "stratification_axis",
+      "levels": 9,
+      "counts": {
+        "PG31DS": 67,
+        "FP21": 19,
+        "PG32D": 16,
+        "PG32M": 13,
+        "PG32B": 10,
+        "PG32DS": 9,
+        "FG22": 6,
+        "PG22C": 6,
+        "FP41": 3
+      },
+      "effect": "牌号决定配方设定值与缺陷基线；多个 W1C80-82/TH016-018 列呈按牌号的双峰 → 混杂已侵入“工艺”列",
+      "handling": "全部分析必须按 model 分层或作为固定效应/随机效应；禁止跨牌号直接合并均值"
+    },
+    {
+      "name": "meters",
+      "role": "exposure",
+      "range": [
+        1065,
+        6473
+      ],
+      "effect": "缺陷计数的暴露分母，6 倍差异",
+      "handling": "同时报告计数与 defect/m 密度"
+    },
+    {
+      "name": "ts_start",
+      "role": "temporal_trend",
+      "range": [
+        "2026-05-04 14:42",
+        "2026-05-13 14:26"
+      ],
+      "effect": "9 天内可能存在漂移/清洗/季节事件",
+      "handling": "滞后与趋势分析限于 batch 尺度；需做时间顺序证伪"
+    },
+    {
+      "name": "batch_id_order_vs_time",
+      "role": "indexing_trap",
+      "effect": "batch_id 与 ts_start 非严格同序",
+      "handling": "一律以 ts_start 排序，不得用 batch_id 排序"
+    }
+  ],
+  "parameter_groups": {
+    "feed_pressure_flow": [
+      "F_PS002@PV1_mean",
+      "F_PS003@PV1_mean",
+      "F_PS005@PV1_mean",
+      "F_PS006@PV1_mean"
+    ],
+    "md_preheat": [
+      "MD_TH001@PV_mean",
+      "MD_TH002@PV_mean",
+      "MD_TH003@PV_mean",
+      "MD_TH004@PV_mean",
+      "MD_TH005@PV_mean"
+    ],
+    "md_stretch": [
+      "MD_TH006@PV_mean",
+      "MD_TH007@PV_mean",
+      "MD_TH008@PV_mean",
+      "MD_TH009@PV_mean",
+      "MD_TH010@PV_mean",
+      "MD_TH011@PV_mean"
+    ],
+    "md_cooling": [
+      "MD_TH012@PV_mean",
+      "MD_TH013@PV_mean",
+      "MD_TH014@PV_mean",
+      "MD_TH015@PV_mean",
+      "MD_TH016@PV_mean",
+      "MD_TH017@PV_mean",
+      "MD_TH018@PV_mean"
+    ],
+    "w1_stable_setpoint": [
+      "W1C00@PV1_mean",
+      "W1C01@PV1_mean",
+      "W1C8D@PV1_mean"
+    ],
+    "w1_absolute_process": [
+      "W1C40@PV1_mean",
+      "W1C4B@PV1_mean",
+      "W1C84@PV1_mean",
+      "W1C87@PV1_mean",
+      "W1C8A@PV1_mean",
+      "W1C8B@PV1_mean"
+    ],
+    "w1_actuator_or_mixed": [
+      "W1C80@PV1_mean",
+      "W1C81@PV1_mean",
+      "W1C82@PV1_mean",
+      "W1C88@PV1_mean"
+    ],
+    "w1_deviation": [
+      "W1C7C@PV1_mean",
+      "W1C7D@PV1_mean",
+      "W1C7E@PV1_mean",
+      "W1C7F@PV1_mean",
+      "W1C83@PV1_mean",
+      "W1C85@PV1_mean",
+      "W1C86@PV1_mean",
+      "W1C89@PV1_mean",
+      "W1C8C@PV1_mean"
+    ]
+  },
+  "known_failure_modes": [
+    {
+      "id": "FM1",
+      "name": "低聚物表面析出（oligomer bloom）",
+      "mechanism": "熔体热历史生成三聚体 → 拉伸/冷却时向表面迁移、过饱和结晶",
+      "target": "oligomer",
+      "signature": "oligomer 与拉伸/冷却温度同向，与牌号强相关"
+    },
+    {
+      "id": "FM2",
+      "name": "粉尘/异物污染",
+      "mechanism": "磨屑 + 环境颗粒 + 热区挥发物冷凝，经静电/辊面转移至膜面",
+      "target": "dust",
+      "signature": "dust 随 meters/线速上升，时间上呈阶跃（清洁事件）"
+    },
+    {
+      "id": "FM3",
+      "name": "牌号切换瞬态",
+      "mechanism": "配方/温度/张力设定值切换 → 过渡段工艺偏离",
+      "target": "total_defects / other_defects_derived",
+      "signature": "换型后 1-2 批缺陷抬升；重尾尖峰集中在切换点"
+    },
+    {
+      "id": "FM4",
+      "name": "过滤器/供料压差累积",
+      "mechanism": "压差↑ → 供料波动与凝胶脱落",
+      "target": "dust / total_defects",
+      "signature": "F_PS005 单调上行 + dust 同步上行"
+    },
+    {
+      "id": "FM5",
+      "name": "涂布执行器饱和/振荡",
+      "mechanism": "W1C82 触上限、W1C7F 大幅振荡 → 涂层不均",
+      "target": "other_defects_derived",
+      "signature": "饱和区间批次缺陷抬升（分段效应）"
+    }
+  ],
+  "discrepancy_signals": [
+    {
+      "type": "parameter_role_conflict",
+      "severity": "HIGH",
+      "description": "任务书先验称 MD_TH018 ≈ 24.6°C；实测 MD_TH018 = 28.93-35.30，而 24.6 是 W1C00 的中位值。先验列映射错位。",
+      "action": "以本本体按列名+实测分布建立的映射为准；下游不得沿用先验的 TH018/24.6 说法"
+    },
+    {
+      "type": "behavior_mismatch",
+      "severity": "HIGH",
+      "description": "total_defects 与 oligomer+dust 不一致：149 批全部满足和 ≤ 总数，但 (oligomer+dust)/total 中位仅 37.2%，other 中位 30 件/批。",
+      "action": "total_defects 视为独立响应（含未标注主体类），不得当作两子类之和；归因需分三路"
+    },
+    {
+      "type": "range_violation",
+      "severity": "MEDIUM",
+      "description": "MD_TH012-015 出现 26.1°C，低于知识库给出的冷却区 31-37°C 区间，且 TH012 上限 31.6 与 TH013-015 上限 41.2 分群 → 冷却区存在两种工况/配方。",
+      "action": "按 model 分层核对；将其作为牌号混杂的证据而非物理越界"
+    },
+    {
+      "type": "parameter_role_conflict",
+      "severity": "MEDIUM",
+      "description": "W1C7C/7E/7F/86 出现 −86..+77 的对称大幅摆动，物理温度不可能为负、湿度不可能超 100 → 这些是偏差/执行器通道。",
+      "action": "禁止按绝对温度解释；在相关性解释中降权或单独分组"
+    },
+    {
+      "type": "timing_violation",
+      "severity": "HIGH",
+      "description": "响应为 batch 级聚合（149 行 / 215.7 h，批间隔 3-61 min 不规则）；批内动态、秒级联锁、班次内漂移不可见。",
+      "action": "所有滞后结论限定在“批次尺度”，最大可分辨滞后 = max_lag 5 批；禁止声称批内或分钟级因果时序"
+    },
+    {
+      "type": "behavior_mismatch",
+      "severity": "HIGH",
+      "description": "total_defects 中位 51 / 最大 9516（186×），均值被 FP41(n=3, 中位 4145) 主导。",
+      "action": "使用中位/秩检验/分位数回归或 log 响应；均值差异必须加权说明 FP41 的 3 批影响"
+    }
+  ],
+  "temporal_granularity": {
+    "data_granularity": "batch",
+    "rows": 149,
+    "window": [
+      "2026-05-04T14:42:00",
+      "2026-05-13T14:26:00"
+    ],
+    "duration_hours": 215.73,
+    "interval": "3-61 min，不规则",
+    "max_resolvable_lag": "5 批（analysis_context.max_lag），物理含义 ≈ 0.2-5 h，取决于批间隔",
+    "constraints": [
+      "无批内动态：所有参数是批均值，批内波动被平均掉，无法检验秒/分钟级因果",
+      "无法区分同一批内部的先后顺序（参数与缺陷同批聚合，时间先行性只能在批与批之间判断）",
+      "滞后结论的上限为 5 批；超过该尺度的滞后（如数天的设备磨损）只能通过趋势项而非滞后项检验",
+      "批间隔不规则 → 滞后步长在物理时间上不等距，任何 lag 系数都应按物理时间加权解释"
+    ]
+  },
+  "data_self_description": {
+    "source": "00_input/batches.csv（全量 149 行，csv.DictReader 解析，字段数校验 51/51 一致）",
+    "computed": [
+      "每列 min/median/max/pstdev",
+      "9 牌号计数与分层缺陷中位",
+      "oligomer+dust ≤ total 的行占比（100%）",
+      "(oligomer+dust)/total 中位占比（0.372）"
+    ],
+    "not_computed": "本阶段不做显著性检验/相关分析/因果建模（属 Data Processor 与 Diagnostician 阶段）"
+  },
+  "assumptions_for_downstream": [
+    "A1：model 是分层轴而非协变量；任何跨牌号汇总的效应量必须给出分层前后对比。",
+    "A2：total_defects、oligomer、dust 是三个不同机制族的响应，禁止拼成单一“缺陷”节点或互相替代。",
+    "A3：缺陷计数存在 meters 暴露偏倚，效应方向需在 defect/m 密度下复核后才可下结论。",
+    "A4：W1C 族按统计签名分四组使用（稳定设定值 / 绝对过程值 / 执行器-混合 / 偏差量）；组的语义置信度为 INFERRED，相关解释必须标注。",
+    "A5：低聚物“生成”环节（挤出/缩聚，270-290°C）在本数据中无测点 → 相关假设不可直接检验，只能通过牌号/时间/间接代理推理；任何声称“MD 温度导致低聚物热降解生成”的机制在物理上与 Arrhenius 量级矛盾（10^20），应被排除或改写为“迁移/冷凝”。",
+    "A6：滞后与时间先行性只在 batch 尺度成立（≤5 批），不得外推到批内。"
+  ],
+  "limitations": [
+    "无参考文档（REFERENCE_DIR 为空）→ 全部语义来自列名、取值分布、知识库模板与 web 检索，无厂家设备清单/位号表。",
+    "W1C00..W1C8D 与 F_PS 族的物理量纲未定标（unit=unknown/inferred），相关性的机制解释永久带 INFERRED 标记。",
+    "无熔体温度、螺杆转速、线速、张力、过滤压差等直接测点 → 挤出段与收卷段的关键混杂不可控。",
+    "无规格上下限（lsl/usl 为空）→ 本体只记录观测范围，不判定合格/不合格。",
+    "RAG 知识库中无乐凯/PET 专用知识库命中（仅命中通用 process_knowledge_base 与 web 资料）。"
+  ],
+  "metadata": {
+    "sampling_rate": "1 row / batch（149 批，9 天）",
+    "timezone": "local (assumed CST)",
+    "data_sources": [
+      "00_input/batches.csv",
+      "00_input/input_manifest.json",
+      "00_input/analysis_context.json",
+      "skill://industrial-ontology-builder/resources/process_knowledge_base.md",
+      "EXTERNAL_WEB: BOPET 缺陷与低聚物机理公开资料"
+    ],
+    "units": {
+      "MD_TH*": "°C",
+      "meters": "m",
+      "defects": "count/batch",
+      "F_PS*": "unknown",
+      "W1C*": "unknown or relative/deviation"
+    }
+  },
+  "provenance": {
+    "engine": "industrial-ontology-builder",
+    "profile": "diagnosis",
+    "build_mode": "full",
+    "data_stage": "collected",
+    "rag_used": false,
+    "rag_note": "RAG 引擎在线且已执行 kb_list；21 个知识库中无薄膜/PET 领域库（aw-industrial 为通用工业库），因此以 skill 内 process_knowledge_base.md（BOPET 定量物理）作为知识来源，不冒充向量检索命中",
+    "web_used": true,
+    "web_queries": 2,
+    "physics_prior_used": true,
+    "source": "D:/codes/myskills/idd-doe-impl/workspace/lekai/run-mixed/run"
+  }
+}

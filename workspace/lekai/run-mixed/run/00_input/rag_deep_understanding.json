@@ -1,0 +1,85 @@
+{
+  "protocol": "R1→R4 deep understanding",
+  "generated_at": "2026-10-21T15:05:00Z",
+  "retrieval": {
+    "rag_engine": "http://localhost:8764 (health OK)",
+    "kb_catalog_scanned": 21,
+    "domain_hit": false,
+    "domain_hit_note": "21 个知识库中无薄膜/聚酯/涂布领域库；aw-industrial(53 文档) 为通用工业诊断库。因此未声明 vector_retrieval_used；改用 skill 内置 process_knowledge_base.md（含 BOPET 定量物理表）作为知识来源，属 KNOWLEDGE_SOURCE=skill_library 而非 KB 命中。",
+    "web_queries": [
+      {"query": "聚酯薄膜 生产线 低聚物 析出 缺陷 热定型 烘箱 粉尘 缺陷 原因", "finding": "确认 BOPET 产线主要缺陷含低聚物析出点、粉尘/异物、凝胶点；低聚物控制与热历史/温度相关", "grade": "EXTERNAL_WEB"},
+      {"query": "BOPET 双向拉伸 低聚物 环状三聚体 析出 热定型温度 表面 缺陷 控制", "finding": "环状三聚体（cyclic trimer）在 PET 中含量 0.5-2 wt%，高温段升华/迁移至表面后在冷却段结晶；行业做法以降低热区温度与停留时间为主", "grade": "EXTERNAL_WEB"},
+      {"query": "BOPET薄膜生产中常见缺陷及解决方法", "finding": "缺陷治理按段划分：铸片（晶点/气泡）、纵拉（厚度/条纹）、涂布（划伤/涂布不均）→ 支持本本体按段归因的结构", "grade": "EXTERNAL_WEB"}
+    ],
+    "skill_library_sources": [
+      "process_knowledge_base.md#Film Production (BOPET)：MD 拉伸温度 Tg+0~5°C=75-83°C；MD 冷却区 31-37°C；oligomer 生成需 T>200°C；PET 降解 Ea≈150-200 kJ/mol；MD 温度下热降解可忽略；牌号切换是薄膜生产第一大混杂",
+      "physics_inference_framework.md L1-L5：不透明列名的量纲/统计签名推断阶梯"
+    ]
+  },
+  "R1_semantic_understanding": {
+    "process_identification": "由列名结构与取值分布自证：MD_TH 前缀 + 18 个连续区号 + 取值精确落在 PET 的 Tg(75°C) 附近(74.9-84.3) 与其下的冷却带(26-41°C) → 纵拉(MD)18 区温度链。响应命名 oligomer/dust 与 BOPET 两类典型缺陷一一对应 → 判定为 BOPET 类薄膜拉伸-涂布产线，而非模板套用。",
+    "parameter_families": [
+      {"family": "F_PS002/003/005/006@PV1_mean", "n": 4, "range_band": "3.1-15.3", "identified_quantity": "前段供料/加压回路过程值（压力或流量）", "confidence": "INFERRED", "evidence": ["列名 PS 属压力/过程值族（physics L1）", "取值 3-15 与 bar/m³·h⁻¹ 量级相容，与温度带(75-85)明显区隔", "F_PS003 极稳(sd 0.18) → 定值控制回路", "F_PS005 宽幅上行(7.3-12.3, sd 1.49) → 压差/阻力累积形态"], "assumption": "F=前段供料，@PV1=1 号控制回路；无位号表"},
+      {"family": "MD_TH001-005", "n": 5, "range_band": "74.87-77.49", "identified_quantity": "纵拉预热区温度", "confidence": "HIGH", "evidence": ["KB：MD 拉伸温度 Tg+0~5°C", "5 区均值逐区递增 75.3→76.4，符合预热梯度"]},
+      {"family": "MD_TH006-011", "n": 6, "range_band": "81.84-84.35", "identified_quantity": "纵拉拉伸区温度（拉伸主体）", "confidence": "HIGH", "evidence": ["KB：75-83°C 为 BOPET 拉伸窗口；本组 82-84 在其上界", "与预热组存在 +6°C 的清晰台阶"]},
+      {"family": "MD_TH012-018", "n": 7, "range_band": "25.86-41.19", "identified_quantity": "纵拉冷却/定型区温度（跨 Tg 降温）", "confidence": "MEDIUM", "evidence": ["KB：MD 冷却区 31-37°C", "TH013-015 分布同构(26-41, sd 3.5)、TH016-018 同构(29-35.6, sd 1.6) → 两个子区组", "存在低于 31°C 的批次 → 两种工况"]},
+      {"family": "W1C00..W1C8D", "n": 22, "range_band": "-86.1..78.7", "identified_quantity": "工位1 通道 PV，含四类异质通道", "confidence": "INFERRED", "evidence": ["后缀为连续十六进制通道号(00,01,40,4B,7C..8D) → DCS 通道块", "四组统计签名互不相同：近定值(sd<0.6: C00/C01/C8D)、绝对过程值(中位 32-58)、执行器/混合(负尾+78 平台饱和: C80/C81/C82/C88)、对称偏差(±77: C7C..7F, C86)"], "assumption": "W1=工位1/涂布-冷却段；无位号表，单位未定标"}
+    ],
+    "domain_constraints": [
+      "响应为批次计数（非率）→ 暴露量 meters 必须进入模型",
+      "牌号同时改变配方设定值与缺陷基线 → 牌号是分层轴",
+      "熔体段（270-290°C）无测点 → 低聚物生成侧不可观测"
+    ]
+  },
+  "R2_knowledge_data_alignment": {
+    "method": "Stage 1 pre-check only：量纲相容性、取值区间合理性、与支配方程方向的一致性；全量 149 行，不做显著性/相关分析（留待 Data Processor 与 Diagnostician）",
+    "claim_validations": [
+      {"claim_id": "C1", "claim": "MD_TH 族为纵拉温度，单位 °C", "source": "KB BOPET 表 + 列名", "stage1": "PASS", "evidence": "取值 74.9-84.3 与 26-41 精确落在 PET Tg 上下两侧；量纲与工艺窗口一致", "confidence": 90},
+      {"claim_id": "C2", "claim": "MD_TH006-011 位于 BOPET 拉伸窗口(75-83°C)", "source": "KB", "stage1": "PARTIAL", "evidence": "本组 81.84-84.35，上端超 KB 窗口 1.35°C（4 个批次 >84.0）→ 属窗口上界外延，不构成越界否定", "confidence": 70},
+      {"claim_id": "C3", "claim": "MD_TH012-018 为冷却区，应在 31-37°C", "source": "KB", "stage1": "PARTIAL", "evidence": "中位 31.3-36.2 命中区间，但 TH012 最小 26.14、TH013-015 最大 41.19 → 22% 批次越出 KB 区间；结合 TH016-018 双峰(30.2/35.2) 判断为牌号工况差异，非知识错误", "confidence": 65},
+      {"claim_id": "C4", "claim": "低聚物（环状三聚体）生成需 T>200°C，MD 温度(75-86°C)下生成可忽略", "source": "KB + Arrhenius", "stage1": "PASS", "evidence": "Ea=150-200 kJ/mol 下 k(280°C)/k(80°C) ≈ 10^20 量级 → MD 温度只能影响迁移/冷凝，不能驱动生成。该结论否定了「纵拉温度把聚酯热降解成低聚物」类假设", "confidence": 90},
+      {"claim_id": "C5", "claim": "oligomer 与 film_points 高相关 ⇒ 共同源头在挤出段(280°C)", "source": "KB", "stage1": "UNTESTABLE", "evidence": "本数据无 film_points 列，且无熔体温度 → 无法检验", "queue": "stage2: 若引入外部分析，需挤出段测点"},
+      {"claim_id": "C6", "claim": "牌号切换是薄膜生产第一大混杂", "source": "KB", "stage1": "PASS", "evidence": "9 牌号缺陷中位 33-66（PG31DS 66, PG32M 35），FP41(n=3) 中位 4145；且 MD_TH016-018 与 W1C80-82 按牌号双峰 → 混杂已侵入工艺列", "confidence": 95},
+      {"claim_id": "C7", "claim": "total_defects 为 oligomer+dust 之和", "source": "先验/用户直觉", "stage1": "FAIL", "evidence": "149/149 批满足和 ≤ 总数，但中位占比仅 37.2%，other 中位 30 件/批 → total_defects 有独立主体类别，不可当求和", "confidence": 95},
+      {"claim_id": "C8", "claim": "W1C7C/7E/7F/86 为温度类绝对量", "source": "列名先验", "stage1": "FAIL", "evidence": "取值为 −86..+77 的对称区间；若为 °C 则出现不可能的负温，若为湿度则超 100 → 只能为偏差/执行器通道", "confidence": 85},
+      {"claim_id": "C9", "claim": "任务书先验：MD_TH018 ≈ 24.6°C", "source": "主 agent 任务书", "stage1": "FAIL", "evidence": "实测 MD_TH018 = 28.93-35.30（中位 35.21）；24.6 实为 W1C00 中位值(24.60) → 先验列映射错位", "confidence": 95},
+      {"claim_id": "C10", "claim": "缺陷计数随批次计米线性增长（暴露效应）", "source": "质量守恒/暴露量", "stage1": "UNTESTABLE_AT_STAGE1", "evidence": "meters 1065-6473（6×），存在暴露偏倚的充分条件；方向与量级需回归检验", "queue": "stage2: defects ~ meters 的单调性与斜率"},
+      {"claim_id": "C11", "claim": "F_PS005 上行对应过滤压差累积", "source": "physics L3 推断", "stage1": "UNTESTABLE", "evidence": "无过滤器压差测点、无清洁事件记录；仅统计形态（宽幅单向上行）相容", "queue": "stage2: F_PS005 与 ts_start 的趋势项；与 dust 的滞后关联"}
+    ],
+    "validation_queue_stage2": [
+      "C5：挤出段源头假设（缺测点，永不可测于本数据 → 只能标记为不可检验假设）",
+      "C10：defects ~ meters 暴露标定，决定后续是否必须用密度响应",
+      "C11：F_PS005 趋势/清洁事件排查",
+      "新增：total_defects 与 other_defects_derived 的对数尺度关系（确认残差类别是否与总计数同源）",
+      "新增：三响应在 model 分层前后的效应量变化（混杂量化）"
+    ]
+  },
+  "R3_physics_principles": [
+    {"principle": "Arrhenius 热降解", "equation": "k = A·exp(−Ea/RT)，Ea≈150-200 kJ/mol；每 +10°C 约 ×2", "applies_to": ["F_PS002@PV1_mean", "oligomer", "total_defects"], "quantitative_limit": "k(280°C)/k(80°C)≈10^20 → MD 温度不驱动低聚物生成"},
+    {"principle": "扩散控制表面析出", "equation": "C_surf(t)=C_bulk·[1−exp(−D t/L²)], D=D0·exp(−Ea_d/RT)", "applies_to": ["MD_TH006@PV_mean", "MD_TH011@PV_mean", "MD_TH012@PV_mean", "oligomer"], "quantitative_limit": "特征时间 L²/D 在薄膜厚度尺度为秒级 ≪ 批时长 → 批内可视为准平衡，观测差异来自温度水平而非响应延迟"},
+    {"principle": "结晶成核与过饱和（冷却段析出）", "equation": "J_nuc ∝ exp(−ΔG*/kT)·exp(−ΔG_D/kT)", "applies_to": ["MD_TH012@PV_mean", "MD_TH018@PV_mean", "oligomer"], "quantitative_limit": "跨 Tg 降温速率决定过饱和度，冷却不足 → 析出增加"},
+    {"principle": "Newton 冷却 / 能量守恒", "equation": "Q̇=h·A·(T_film−T_roll)；m·Cp·dT/dt=Q̇_in−Q̇_out", "applies_to": ["MD_TH013@PV_mean", "MD_TH018@PV_mean"], "quantitative_limit": "冷却区温度是执行侧的最终结果值，受设定值与线速共同支配"},
+    {"principle": "应力-应变与温度软化", "equation": "σ=E(T)·ε，E 随 T 指数下降", "applies_to": ["MD_TH001@PV_mean", "MD_TH011@PV_mean", "other_defects_derived"], "quantitative_limit": "±2°C → 1-3% 厚度波动（KB）→ 表观缺陷，非化学缺陷"},
+    {"principle": "暴露量守恒", "equation": "defects_count ≈ density × meters", "applies_to": ["meters", "total_defects", "oligomer", "dust"], "quantitative_limit": "meters 6× 差异可使计数无质量变化地变化 6×"},
+    {"principle": "颗粒源叠加", "equation": "N_dust = N_wear(v,tension) + N_env(t,clean) + N_cond(T_zone, volatiles)", "applies_to": ["dust", "F_PS005@PV1_mean", "MD_TH013@PV_mean"], "quantitative_limit": "batch 级聚合下三源不可分离 → 只能靠时间结构（阶跃=清洁/环境；连续=磨屑）与牌号分层间接区分"}
+  ],
+  "R4_gap_aware_integration": {
+    "unmatched_parameters": [
+      {"columns": "W1C00..W1C8D (22)", "gap": "位号语义与量纲未定标", "impact": "相关显著也只能给出 INFERRED 机制；结论须标注语义不确定性", "mitigation": "按统计签名分 4 组使用，禁止把偏差通道当温度解释"},
+      {"columns": "F_PS002/003/005/006 (4)", "gap": "压力 vs 流量未区分", "impact": "机制表述保留二义", "mitigation": "统一表述为「过程值/PV」，并给出候选机制"}
+    ],
+    "missing_measurements": [
+      "熔体温度/螺杆转速/熔体压力（挤出段）→ 低聚物生成侧完全不可观测",
+      "线速与张力（收卷段）→ 磨屑与划伤机制不可直接检验",
+      "过滤压差/更换记录 → F_PS005 机制只能间接推断",
+      "清洁/换辊/停机事件 → 时间阶跃的归因缺事件表",
+      "缺陷空间位置（横向/纵向分布）→ 无法区分辊面局部与全局机制"
+    ],
+    "unexplained_relationships": [
+      "total_defects 的 62.8% 主体类别（other_defects_derived）机制未知：候选为涂布不均、划伤、凝胶点；本数据无子类标签",
+      "W1C80-82 的负值尾部成因（传感器复位 vs 配方切换 vs 停机）未定"
+    ],
+    "knowledge_distance": "中：列名族结构清晰（MD/F_PS/W1C），工艺类型可高置信判定；但无厂家位号表、无领域知识库命中 → 参数级语义停留在族级（family-level），不是点级（tag-level）",
+    "sufficiency_for_diagnosis": "足够支撑三响应分别建模 + 牌号分层 + 分段归因（预热/拉伸/冷却/涂布/供料）；不足以支撑单点位号的精确调参建议，最终建议须以族级表述并标注假设"
+  }
+}

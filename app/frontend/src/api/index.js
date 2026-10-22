@@ -55,7 +55,14 @@ export class ApiError extends Error {
   }
 }
 
-async function request(path, options = {}) {
+function buildQuery(params = {}) {
+  const qs = new URLSearchParams(
+    Object.entries(params).filter(([, v]) => v !== undefined && v !== null && v !== ''),
+  ).toString();
+  return qs ? `?${qs}` : '';
+}
+
+async function requestEnvelope(path, options = {}) {
   const res = await fetch(`${BASE}${path}`, {
     headers: authHeaders({ 'Content-Type': 'application/json' }),
     // Diagnostic state must never be served from heuristic cache: the ETag on
@@ -81,7 +88,11 @@ async function request(path, options = {}) {
       status: res.status, code: data.code, details: data.details,
     });
   }
-  return data.data;
+  return data;
+}
+
+async function request(path, options = {}) {
+  return (await requestEnvelope(path, options)).data;
 }
 
 export const api = {
@@ -214,25 +225,55 @@ export const api = {
       method: 'POST',
       body: followUpMessage ? JSON.stringify({ followUpMessage }) : undefined,
     }),
-  sendChat: (runId, message) =>
+  // The run's harness is locked on the server; never send one here.
+  sendRunChat: (runId, message, maxTurns) =>
     request(`/diagnosis/chat/${runId}`, {
       method: 'POST',
-      body: JSON.stringify({ message }),
+      body: JSON.stringify(maxTurns ? { message, maxTurns } : { message }),
     }),
+  sendChat: (runId, message, maxTurns) => api.sendRunChat(runId, message, maxTurns),
+  getSessionMap: (runId) => request(`/diagnosis/session-map/${runId}`),
   respondHITL: (hitlId, approved) =>
     request(`/diagnosis/hitl/${hitlId}`, { method: 'POST', body: JSON.stringify({ approved }) }),
-  listRuns: () => request('/diagnosis/list'),
+  listDiagnosisRuns: () => request('/diagnosis/list'),
   submitAnswer: (runId, questionId, toolUseId, answers) =>
     request(`/diagnosis/answer/${runId}`, {
       method: 'POST',
       body: JSON.stringify({ questionId, toolUseId, answers }),
     }),
 
-  // History
-  getRuns: () => request('/history/runs'),
+  // ── History（服务端过滤 + 软删/回收站 + 分类）──
+  // Returns { runs, total, limit, offset }; `include_deleted=true` opens the
+  // recycle bin, `category_id`/`status`/`q` are server-side filters.
+  listRuns: async (params = {}) => {
+    const envelope = await requestEnvelope(`/history/runs${buildQuery(params)}`);
+    return {
+      runs: envelope.data || [],
+      total: envelope.total ?? (envelope.data?.length || 0),
+      limit: envelope.limit,
+      offset: envelope.offset,
+    };
+  },
+  getRuns: async (params = {}) => (await api.listRuns(params)).runs,
   getRunWithLogs: (runId) => request(`/history/runs/${runId}`),
-  deleteRun: (runId) =>
-    request(`/history/runs/${runId}`, { method: 'DELETE' }),
+  renameRun: (runId, title) =>
+    request(`/history/runs/${runId}`, { method: 'PATCH', body: JSON.stringify({ title }) }),
+  setRunCategory: (runId, categoryId) =>
+    request(`/history/runs/${runId}`, { method: 'PATCH', body: JSON.stringify({ category_id: categoryId }) }),
+  // Soft delete by default; { purge: true } also removes the workspace directory.
+  deleteRun: (runId, opts = {}) => {
+    const purge = opts === true || opts?.purge === true;
+    return request(`/history/runs/${runId}${purge ? '?purge=true' : ''}`, { method: 'DELETE' });
+  },
+  restoreRun: (runId) =>
+    request(`/history/runs/${runId}/restore`, { method: 'POST' }),
+  listRunCategories: () => request('/history/categories'),
+  createRunCategory: (name) =>
+    request('/history/categories', { method: 'POST', body: JSON.stringify({ name }) }),
+  renameRunCategory: (id, name) =>
+    request(`/history/categories/${id}`, { method: 'PATCH', body: JSON.stringify({ name }) }),
+  deleteRunCategory: (id) =>
+    request(`/history/categories/${id}`, { method: 'DELETE' }),
   getSessionContent: (runId) => request(`/diagnosis/session/${runId}`),
 
   // Chat

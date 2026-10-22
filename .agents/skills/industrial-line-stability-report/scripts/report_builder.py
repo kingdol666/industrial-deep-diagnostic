@@ -14,6 +14,7 @@ import argparse
 import html
 import json
 import os
+import subprocess
 import sys
 import time
 
@@ -459,7 +460,7 @@ def _condition_html(report: dict) -> str:
         col_rows.append(
             f"<tr><td class=strong>{_esc(p['name'])}"
             f"<span class='role-tag'>{_esc(cd.get('label') or doc.get('label') or '')}</span></td>"
-            f"<td>{_esc(cd.get('unit') or doc.get('unit') or '—')}</td>"
+            f"<td>{_esc(cd.get('unit') or doc.get('unit') or '单位未声明（unit undeclared）')}</td>"
             f"<td>{'检测指标' if p['role'] == 'inspection' else '加工参数'}</td>"
             f"<td>{spec_s}</td>"
             f"<td>{_esc((cd.get('governing_law') or doc.get('governing_law')) or '—')}</td>"
@@ -670,7 +671,8 @@ def build_markdown(report: dict) -> str:
             spec_s = (f"[{_num(spec.get('lsl'))}, {_num(spec.get('usl'))}]"
                       f"（{spec.get('source') or '—'}）") if (spec.get("lsl") is not None
                                                         or spec.get("usl") is not None) else "—"
-            ap(f"| {p['name']} | {doc.get('label') or '—'} | {doc.get('unit') or '—'} | "
+            ap(f"| {p['name']} | {doc.get('label') or '—'} | "
+               f"{doc.get('unit') or '单位未声明（unit undeclared）'} | "
                f"{'检测指标' if p['role'] == 'inspection' else '加工参数'} | {spec_s} | "
                f"{doc.get('governing_law') or '—'} | {doc.get('assigned_by') or 'auto'} |")
         snap = cond.get("snapshot") or []
@@ -773,6 +775,35 @@ def build_markdown(report: dict) -> str:
     return "\n".join(lines)
 
 
+def _infer_run_dir(report_path: str) -> str:
+    """<run_dir>/line_report/stability_report.json → <run_dir>; otherwise the
+    report's own directory (custom --out-dir layout)."""
+    parent = os.path.dirname(os.path.abspath(report_path))
+    return os.path.dirname(parent) if os.path.basename(parent) == "line_report" else parent
+
+
+def _append_pipeline_event(run_dir: str, event: str, detail: dict) -> None:
+    path = os.path.join(run_dir, ".pipeline_events.jsonl")
+    payload = {"timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+               "event": event, "run_dir": run_dir, "detail": detail or {}}
+    with open(path, "a", encoding="utf-8") as f:
+        f.write(json.dumps(payload, ensure_ascii=False) + "\n")
+
+
+def _run_quality_gate(report_path: str, out_dir: str) -> dict | None:
+    """Run the delivery gate in-process; None when it cannot be executed."""
+    gate = os.path.join(os.path.dirname(os.path.abspath(__file__)), "quality_gate.mjs")
+    if not os.path.isfile(gate):
+        return None
+    try:
+        proc = subprocess.run(["node", gate, report_path, out_dir],
+                              capture_output=True, text=True, timeout=120,
+                              encoding="utf-8", errors="replace")
+    except (OSError, subprocess.SubprocessError):
+        return None
+    return {"exit_code": proc.returncode, "pass": proc.returncode == 0}
+
+
 def main(argv=None) -> int:
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -781,7 +812,11 @@ def main(argv=None) -> int:
     ap.add_argument("--charts", required=True)
     ap.add_argument("--out", default=None)
     ap.add_argument("--md", default=None,
-                    help="also write a Markdown companion report at this path")
+                    help="compatibility no-op: the Markdown companion report is "
+                         "written by default to <out_dir>/line_stability_report.md")
+    ap.add_argument("--no-md", dest="no_md", action="store_true",
+                    help="skip the Markdown companion report (debugging only; "
+                         "the delivery gate requires it)")
     args = ap.parse_args(argv)
     with open(args.report, "r", encoding="utf-8") as f:
         report = json.load(f)
@@ -792,16 +827,29 @@ def main(argv=None) -> int:
     doc = build(report, charts_data)
     with open(out, "w", encoding="utf-8") as f:
         f.write(doc)
-    if args.md:
-        with open(args.md, "w", encoding="utf-8") as f:
+    if not args.no_md:
+        # MD companion is a default deliverable (P1.4): same numbers as the
+        # HTML, written next to it; --md is accepted for compatibility only
+        md_path = os.path.join(os.path.dirname(os.path.abspath(out)),
+                               "line_stability_report.md")
+        with open(md_path, "w", encoding="utf-8") as f:
             f.write(build_markdown(report))
-        print(f"[line-stability] md written {args.md}")
+        print(f"[line-stability] md written {md_path}")
     check = selfcheck(out, report)
     check_path = os.path.join(os.path.dirname(out), "html_selfcheck.json")
     with open(check_path, "w", encoding="utf-8") as f:
         json.dump(check, f, ensure_ascii=False, indent=2)
+    # Delivery gate: executed here so the run records a gate_done event from the
+    # actual result; uninterruptible absence of node leaves the event unwritten.
+    gate = _run_quality_gate(args.report, os.path.dirname(os.path.abspath(out)))
+    if gate is not None:
+        _append_pipeline_event(_infer_run_dir(args.report), "gate_done",
+                               {"pass": gate["pass"], "exit_code": gate["exit_code"],
+                                "report": os.path.abspath(args.report)})
     print(f"[line-stability] html {os.path.getsize(out)}B pass={check['pass']}")
-    return 0 if check["pass"] else 3
+    if not check["pass"]:
+        return 3
+    return 0 if gate is None or gate["pass"] else 3
 
 
 if __name__ == "__main__":

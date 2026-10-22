@@ -1,0 +1,285 @@
+{
+  "total_rows": 149,
+  "total_columns": 51,
+  "missing_values": {
+    "total_missing": 0
+  },
+  "outliers_iqr": {
+    "meters": {
+      "count": 10,
+      "pct": 6.71
+    },
+    "total_defects": {
+      "count": 13,
+      "pct": 8.72
+    },
+    "oligomer": {
+      "count": 10,
+      "pct": 6.71
+    },
+    "dust": {
+      "count": 12,
+      "pct": 8.05
+    },
+    "F_PS002@PV1_mean": {
+      "count": 28,
+      "pct": 18.79
+    },
+    "F_PS003@PV1_mean": {
+      "count": 14,
+      "pct": 9.4
+    },
+    "F_PS006@PV1_mean": {
+      "count": 43,
+      "pct": 28.86
+    },
+    "MD_TH001@PV_mean": {
+      "count": 23,
+      "pct": 15.44
+    },
+    "MD_TH002@PV_mean": {
+      "count": 23,
+      "pct": 15.44
+    },
+    "MD_TH003@PV_mean": {
+      "count": 31,
+      "pct": 20.81
+    },
+    "MD_TH004@PV_mean": {
+      "count": 23,
+      "pct": 15.44
+    },
+    "MD_TH005@PV_mean": {
+      "count": 23,
+      "pct": 15.44
+    },
+    "MD_TH006@PV_mean": {
+      "count": 24,
+      "pct": 16.11
+    },
+    "MD_TH007@PV_mean": {
+      "count": 23,
+      "pct": 15.44
+    },
+    "MD_TH008@PV_mean": {
+      "count": 25,
+      "pct": 16.78
+    },
+    "MD_TH009@PV_mean": {
+      "count": 23,
+      "pct": 15.44
+    },
+    "MD_TH010@PV_mean": {
+      "count": 23,
+      "pct": 15.44
+    },
+    "MD_TH011@PV_mean": {
+      "count": 26,
+      "pct": 17.45
+    },
+    "MD_TH012@PV_mean": {
+      "count": 17,
+      "pct": 11.41
+    },
+    "MD_TH013@PV_mean": {
+      "count": 32,
+      "pct": 21.48
+    },
+    "MD_TH014@PV_mean": {
+      "count": 32,
+      "pct": 21.48
+    },
+    "MD_TH015@PV_mean": {
+      "count": 32,
+      "pct": 21.48
+    },
+    "MD_TH016@PV_mean": {
+      "count": 18,
+      "pct": 12.08
+    },
+    "MD_TH017@PV_mean": {
+      "count": 18,
+      "pct": 12.08
+    },
+    "MD_TH018@PV_mean": {
+      "count": 20,
+      "pct": 13.42
+    },
+    "W1C00@PV1_mean": {
+      "count": 39,
+      "pct": 26.17
+    },
+    "W1C01@PV1_mean": {
+      "count": 31,
+      "pct": 20.81
+    },
+    "W1C7E@PV1_mean": {
+      "count": 12,
+      "pct": 8.05
+    },
+    "W1C8C@PV1_mean": {
+      "count": 1,
+      "pct": 0.67
+    }
+  },
+  "time_sorted": true,
+  "sorted_strategy": "original_row_order_no_time_column",
+  "time_column": null,
+  "primary_group_column": "model",
+  "derived_features": [
+    "meters_dev",
+    "total_defects_dev",
+    "oligomer_dev",
+    "F_PS002@PV1_mean_dev",
+    "F_PS003@PV1_mean_dev",
+    "F_PS005@PV1_mean_dev",
+    "F_PS006@PV1_mean_dev",
+    "W1C01@PV1_mean_dev",
+    "W1C40@PV1_mean_dev",
+    "W1C4B@PV1_mean_dev",
+    "W1C7C@PV1_mean_dev",
+    "W1C7D@PV1_mean_dev",
+    "W1C7E@PV1_mean_dev",
+    "W1C7F@PV1_mean_dev",
+    "W1C80@PV1_mean_dev",
+    "W1C81@PV1_mean_dev",
+    "W1C82@PV1_mean_dev",
+    "W1C83@PV1_mean_dev",
+    "W1C84@PV1_mean_dev",
+    "W1C85@PV1_mean_dev",
+    "W1C86@PV1_mean_dev",
+    "W1C87@PV1_mean_dev",
+    "W1C88@PV1_mean_dev",
+    "W1C89@PV1_mean_dev",
+    "W1C8A@PV1_mean_dev",
+    "W1C8B@PV1_mean_dev",
+    "W1C8C@PV1_mean_dev",
+    "W1C8D@PV1_mean_dev"
+  ],
+  "grouping_summary": {
+    "group_column": "model",
+    "n_groups": 9,
+    "groups": {
+      "PG31DS": {
+        "rows": 67,
+        "start_time": null,
+        "end_time": null
+      },
+      "PG32M": {
+        "rows": 13,
+        "start_time": null,
+        "end_time": null
+      },
+      "PG32DS": {
+        "rows": 9,
+        "start_time": null,
+        "end_time": null
+      },
+      "PG32D": {
+        "rows": 16,
+        "start_time": null,
+        "end_time": null
+      },
+      "FP21": {
+        "rows": 19,
+        "start_time": null,
+        "end_time": null
+      },
+      "FG22": {
+        "rows": 6,
+        "start_time": null,
+        "end_time": null
+      },
+      "FP41": {
+        "rows": 3,
+        "start_time": null,
+        "end_time": null
+      },
+      "PG32B": {
+        "rows": 10,
+        "start_time": null,
+        "end_time": null
+      },
+      "PG22C": {
+        "rows": 6,
+        "start_time": null,
+        "end_time": null
+      }
+    }
+  },
+  "cleaning_integrity": {
+    "data_source": "cleaned",
+    "data_source_reason": "passed Phase 2.2.5 integrity checks",
+    "integrity_checks": {
+      "row_count_check": {
+        "raw_rows": 149,
+        "cleaned_rows": 149,
+        "dropped": 0,
+        "drop_rate": 0.0,
+        "threshold_exceeded": false
+      },
+      "type_integrity": {},
+      "range_fidelity": {
+        "meters": 0.0,
+        "total_defects": 0.0,
+        "oligomer": 0.0,
+        "dust": 0.0,
+        "F_PS002@PV1_mean": 0.0,
+        "F_PS003@PV1_mean": 0.0,
+        "F_PS005@PV1_mean": 0.0,
+        "F_PS006@PV1_mean": 0.0,
+        "MD_TH001@PV_mean": 0.0,
+        "MD_TH002@PV_mean": 0.0,
+        "MD_TH003@PV_mean": 0.0,
+        "MD_TH004@PV_mean": 0.0,
+        "MD_TH005@PV_mean": 0.0,
+        "MD_TH006@PV_mean": 0.0,
+        "MD_TH007@PV_mean": 0.0,
+        "MD_TH008@PV_mean": 0.0,
+        "MD_TH009@PV_mean": 0.0,
+        "MD_TH010@PV_mean": 0.0,
+        "MD_TH011@PV_mean": 0.0,
+        "MD_TH012@PV_mean": 0.0,
+        "MD_TH013@PV_mean": 0.0,
+        "MD_TH014@PV_mean": 0.0,
+        "MD_TH015@PV_mean": 0.0,
+        "MD_TH016@PV_mean": 0.0,
+        "MD_TH017@PV_mean": 0.0,
+        "MD_TH018@PV_mean": 0.0,
+        "W1C00@PV1_mean": 0.0,
+        "W1C01@PV1_mean": 0.0,
+        "W1C40@PV1_mean": 0.0,
+        "W1C4B@PV1_mean": 0.0,
+        "W1C7C@PV1_mean": 0.0,
+        "W1C7D@PV1_mean": 0.0,
+        "W1C7E@PV1_mean": 0.0,
+        "W1C7F@PV1_mean": 0.0,
+        "W1C80@PV1_mean": 0.0,
+        "W1C81@PV1_mean": 0.0,
+        "W1C82@PV1_mean": 0.0,
+        "W1C83@PV1_mean": 0.0,
+        "W1C84@PV1_mean": 0.0,
+        "W1C85@PV1_mean": 0.0,
+        "W1C86@PV1_mean": 0.0,
+        "W1C87@PV1_mean": 0.0,
+        "W1C88@PV1_mean": 0.0,
+        "W1C89@PV1_mean": 0.0,
+        "W1C8A@PV1_mean": 0.0,
+        "W1C8B@PV1_mean": 0.0,
+        "W1C8C@PV1_mean": 0.0,
+        "W1C8D@PV1_mean": 0.0
+      },
+      "batch_identity_integrity": {
+        "applicable": true,
+        "id_col": "batch_id",
+        "duplicate_batches": [
+          "H2652611"
+        ],
+        "split_record_count": 1,
+        "action": "merge_or_flag"
+      }
+    },
+    "cleaning_operations": [],
+    "repair_attempts": []
+  }
+}

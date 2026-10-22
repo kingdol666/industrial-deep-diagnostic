@@ -1,0 +1,420 @@
+{
+  "run_id": "202610211442552_run",
+  "evidence_inventory": {
+    "visual_evidence": [
+      {
+        "source": "03_figures/fig03_temporal_overlay.png",
+        "finding": "「未分类缺陷密度 log1p(z)」（红粗线）与「总缺陷密度 log1p(z)」（黑粗虚线）在 05-05→05-14 逐点重合，仅在 05-07 前后 4 个孤立尖峰处分叉（黑线 z≈2.9/3.7/5.0/4.0，红线在 5.0 峰处约 4.9、后两峰低 0.2-0.6），其余时段差值 <0.2 个 z 单位",
+        "rank": 4,
+        "implication": "total 的时间走势在视觉上等同于 other（未标注残差）的走势；任何对 total 的根因结论只能传递到 other，不能传递到 oligomer/dust（fig13 显示三者份额一升一降一平）",
+        "generation_method": {
+          "figure": "fig03_temporal_overlay.png",
+          "normalization": "z-score of log1p(defect density per km)",
+          "time_axis": "ts_start 升序（149 批）",
+          "source": "03_figures/plot_manifest.json"
+        },
+        "confidence_note": "批间隔 11-1161 min 不等距，横轴按批序而非物理时间等距，因此「同窗」只能定性；两线重合度按像素读数估计，误差约 ±0.1 z"
+      },
+      {
+        "source": "03_figures/fig03_temporal_overlay.png",
+        "finding": "变点（H2652667, 2026-05-09 20:02, 紫色点线）之后，两条缺陷密度曲线基线由 z≈−1.2 抬升到 z≈+0.4（约 1.6 个 z 单位），形态由「低位平台 + 孤立尖峰」切换为「连续高频振荡」（05-10.5 与 05-11.9 两峰 z≈2.0）",
+        "rank": 4,
+        "implication": "恶化是运行状态切换（持续波动增高）而非脉冲型；支持把 05-09 20:02 作为强制分段点，并支持 H7 的「状态切换」而非「某参数逐渐变坏」",
+        "generation_method": {"figure": "fig03_temporal_overlay.png", "normalization": "z-score of log1p(density)"},
+        "confidence_note": "变点前水平被 4 个极端批次抬高（VLM pipeline_warnings），因此变点前后的均值比较会失真；本节引用中位而非均值"
+      },
+      {
+        "source": "03_figures/fig03_temporal_overlay.png",
+        "finding": "变点线上没有任何单条过程参数出现同量级同步跃变：W1C8A、W1C84、F_PS005 均在该时刻附近连续变化，无阶跃",
+        "rank": 4,
+        "implication": "这是排除「某个已测参数在变点瞬间跳变导致缺陷阶跃」的直接视觉证据；也是 H2/H7 无法判别的原因——触发源不在图像可见的测点里",
+        "generation_method": {"figure": "fig03_temporal_overlay.png", "panels": "缺陷密度 + W1C8A + W1C84 + W1C86 + F_PS005 + MD_TH012 同帧叠加"},
+        "confidence_note": "同帧内只能判断「是否有阶跃」，无法判断 1-3 批尺度的先后；VLM 把先后关系标为 LOW 置信度"
+      },
+      {
+        "source": "03_figures/fig04_per_product_overlay.png",
+        "finding": "仅取 PG31DS（n=67）：黑/红密度线 05-05→05-09 并行抬升，05-10 后进入 z=−1…+3 的锯齿带；W1C8A 蓝线由 −2.7 升到 +0.6，W1C86 橙线由 +3.5 降到 −0.3，MD_TH012 暗红线由 +3.3 降到 −0.5",
+        "rank": 4,
+        "implication": "时间趋势与 W1C 关联在单一牌号内部复现 → 排除「纯牌号构成效应」（支撑 H3 的排除、H7 的成立）；W1C8A 的爬升跨度远长于缺陷爆发窗口 → 仍是共同漂移",
+        "generation_method": {"figure": "fig04_per_product_overlay.png", "group": "model=PG31DS, n=67"},
+        "confidence_note": "PG31DS 在变点前只有 9 批（n=9），前段基线的不确定性较大"
+      },
+      {
+        "source": "03_figures/fig04_per_product_overlay.png",
+        "finding": "牌号内 W1C86 与 MD_TH012 与缺陷密度严格反向（W1C86 +3.5→−0.5、MD_TH012 +3.3→−0.5，05-05→05-09），且两者形态为台阶/设定型而非连续漂移",
+        "rank": 4,
+        "implication": "负相关稳定但不具因果意义：设定型变量的单调段与缺陷的单调段互为镜像。支持把 W1C86 当「状态标签」、把 MD_TH012 排除出主驱动（H8）",
+        "generation_method": {"figure": "fig04_per_product_overlay.png"},
+        "confidence_note": "VLM 明确记录 MD_TH012 仅两次 ±0.45-0.5 的设定台阶，其余全段水平"
+      },
+      {
+        "source": "03_figures/fig09_ps005_sawtooth.png",
+        "finding": "F_PS005 锯齿在 05-07.5（−3.3）与 05-09.4（−2.4）处真实复位；复位前后缺陷密度无可见变化（21.2→16.4/km 与 19.8→21.6/km，方向不一致）；05-11.4 与 05-12.3 处仅回落 0.2-0.3，不是真正复位",
+        "rank": 4,
+        "implication": "供料/过滤回路的累积-排放循环被确认，但「换网即降缺陷」不被支持 → H4 的事件层否证；同时纠正图注「3 次换网」的高估（真实只有 2 次）",
+        "generation_method": {"figure": "fig09_ps005_sawtooth.png", "series": "F_PS005@PV1_mean + 缺陷密度 + dust×10"},
+        "confidence_note": "下图纵轴被单个粉尘批次撑满（>7000 vs 其余 <400），柱高不能用于时段比较"
+      },
+      {
+        "source": "03_figures/fig09_ps005_sawtooth.png",
+        "finding": "dust（×10 放大）除 05-06.9 单峰（H2652604）与 05-07.3（H2652611）外全程贴零轴",
+        "rank": 4,
+        "implication": "dust 的任何线性统计由 1-2 个批次决定 → dust 归因应表述为证据缺口；支撑 dust 的 NEEDS_DATA 判定与 H5（灵敏度同步漂移）的排除",
+        "generation_method": {"figure": "fig09_ps005_sawtooth.png"},
+        "confidence_note": "纵轴尺度由极值决定，读数精度仅能区分「有峰/无峰」"
+      },
+      {
+        "source": "03_figures/fig13_defect_composition.png",
+        "finding": "缺陷构成份额随时间漂移：未标注残差份额由 0.47 单调升到 0.70，粉尘份额由 0.30 降到 0.135；oligomer 份额基本持平",
+        "rank": 4,
+        "implication": "「检测灵敏度整体漂移」与「全线机制同步恶化」两种解释被图像直接否证（若成立，三类份额应同步抬升）→ H5 排除；同时说明 total 抬升由 other 一类承担",
+        "generation_method": {"figure": "fig13_defect_composition.png", "normalization": "逐批份额 = 各类 / total_defects"},
+        "confidence_note": "份额是比值，分母（total）抬升会自动压低其它类的份额；dust 份额下降不代表 dust 绝对量下降，但 dust 绝对量本身也无趋势（+0.024, p=0.769）"
+      },
+      {
+        "source": "03_figures/fig06_simpson_stratified.png",
+        "finding": "W1C8A 与未标注缺陷在 6 个可分层牌号内的拟合线方向不一致（FP21 −0.18、PG31DS +0.199、PG32B −0.225、PG32D +0.729、PG32DS −0.167、PG32M −0.165）；合并 rho +0.498 的 x 跨度主要由 PG32D 支撑",
+        "rank": 4,
+        "implication": "合并相关不能外推到主导牌号内部；支撑 W1C8A 的 SIMPSON_REVERSAL 判定与 H1 的排除（分层后方向反转的关联不允许作为因果证据）",
+        "generation_method": {"figure": "fig06_simpson_stratified.png", "method": "per-model OLS on rank-transformed data + pooled fit"},
+        "confidence_note": "n=6 的牌号（FG22/PG22C）因样本过少未进入分层图；图中每牌号 6-67 点"
+      }
+    ],
+    "numerical_evidence": [
+      {
+        "source": "02_processed/custom_analysis.json#response_profiles [reused]",
+        "finding": "total_defects 强右偏重尾：中位 51、均值 204.79、max 9516、CV 4.79、top1 份额 0.3119、top5 份额 0.689、零值 0 个",
+        "rank": 3,
+        "metric": "median / mean / max / CV / top-k share",
+        "value": {"median": 51, "mean": 204.79, "max": 9516, "cv": 4.79, "top1_share": 0.3119, "top5_share": 0.689},
+        "interpretation": "必须用中位/秩方法或 log 变换；均值被 5 个批次主导，跨段均值比较会失真（这决定了本诊断全程用中位与秩统计）"
+      },
+      {
+        "source": "02_processed/custom_analysis.json#response_profiles [reused]",
+        "finding": "dust 的 top1_share=0.6407：单批 H2652604（FP41, 05-06 21:19, dust=3775）占全体 dust 的 64.1%；中位 11、max 3775、零值 1 个",
+        "rank": 3,
+        "metric": "top1_share",
+        "value": 0.6407,
+        "interpretation": "dust 是事件型而非过程型响应，其归因只能达到 NEEDS_DATA"
+      },
+      {
+        "source": "02_processed/custom_analysis.json#defect_composition [reused]",
+        "finding": "中位份额：oligomer 0.1467、dust 0.20、other 0.6282（中位 total 51 = oligomer 8 + dust 11 + other 30）",
+        "rank": 3,
+        "metric": "median share",
+        "value": {"oligomer": 0.1467, "dust": 0.2, "other": 0.6282},
+        "interpretation": "total 的主体是未标注残差；H5（三类同步抬升）在此已被算术否证"
+      },
+      {
+        "source": "02_processed/custom_analysis.json#model_kruskal [reused]",
+        "finding": "牌号对 total 的 Kruskal H=35.22（p=2.44e-05, eta2_rank=0.194）、对 other H=46.29（p=2.09e-07, eta2=0.274）",
+        "rank": 3,
+        "metric": "Kruskal-Wallis H / eta2_rank",
+        "value": {"total": {"H": 35.22, "p": 2.44e-05, "eta2": 0.194}, "other": {"H": 46.29, "p": 2.09e-07, "eta2": 0.274}},
+        "interpretation": "牌号是必须剥离的分层轴；eta2 0.19-0.27 说明它只能解释约 1/4 的秩方差，不可能是唯一主因（H3 的定量边界）"
+      },
+      {
+        "source": "02_processed/custom_analysis.json#model_kruskal [reused]",
+        "finding": "牌号对 oligomer H=22.91（p=0.00348, eta2=0.107），对 dust H=14.63（p=0.06685, eta2=0.047，不显著）",
+        "rank": 3,
+        "metric": "Kruskal-Wallis",
+        "value": {"oligomer": {"H": 22.91, "p": 0.00348}, "dust": {"H": 14.63, "p": 0.06685}},
+        "interpretation": "oligomer 的显著轴是牌号（配方/挤出热历史），dust 与牌号无关 → 两条机制彼此独立，也与其他 two 不同"
+      },
+      {
+        "source": "02_processed/custom_analysis.json#variance_decomposition [reused]",
+        "finding": "model+meters 的 R²：total 0.309（其中 model 增量 0.291）、other 0.323（0.313）、oligomer 0.137（0.130）、dust 0.217（0.162）",
+        "rank": 3,
+        "metric": "R² / incremental R²",
+        "value": {"total": 0.309, "other": 0.323, "oligomer": 0.137, "dust": 0.217},
+        "interpretation": "牌号+暴露只解释 31% 的 total 方差 → 剩余 69% 含时间漂移、状态切换与不可测噪声，这是 H7 的空间"
+      },
+      {
+        "source": "02_processed/custom_analysis.json#time_trends [reused]",
+        "finding": "total 对时间索引 Spearman +0.461（p=3.15e-09），对密度 +0.600（p=6.59e-16）；变点 index 78（H2652667, 2026-05-09 20:02, Pettitt K=3472, p≈0）",
+        "rank": 3,
+        "metric": "Spearman rho / Pettitt K",
+        "value": {"rho": 0.461, "p": 3.154e-09, "rho_density": 0.6, "cp_index": 78, "K": 3472},
+        "interpretation": "趋势与阶跃同时存在；密度口径比计数口径更强，说明计数趋势部分来自批次变短（meters rho(时间)=−0.440）"
+      },
+      {
+        "source": "02_processed/custom_analysis.json#time_trends [reused]",
+        "finding": "other 对时间 +0.570（p=3.28e-14）、密度 +0.671（p=7.35e-21）；变点 index 78（K=3913, p≈0），次变点 index 26（p=0.0356）",
+        "rank": 3,
+        "metric": "Spearman rho / Pettitt",
+        "value": {"rho": 0.57, "rho_density": 0.671, "cp": [78, 26]},
+        "interpretation": "other 是抬升的主体；主变点与 total 完全一致 → 两者是同一现象"
+      },
+      {
+        "source": "02_processed/custom_analysis.json#time_trends [reused]",
+        "finding": "oligomer 对时间 +0.209（p=0.0107）、密度 +0.351（p=1.12e-05），变点 index 83（H2652672, 05-10 01:45）",
+        "rank": 3,
+        "metric": "Spearman rho",
+        "value": {"rho": 0.209, "p": 0.01066, "cp": 83},
+        "interpretation": "变点滞后 total 5 批，且 index 83 正是 PG31DS 集中投产段 → 该变点更可能是牌号构成事件"
+      },
+      {
+        "source": "02_processed/custom_analysis.json#time_trends [reused]",
+        "finding": "dust 对时间 +0.024（p=0.7693，不显著），对密度 +0.274（p=7.07e-04），无任何变点",
+        "rank": 3,
+        "metric": "Spearman rho",
+        "value": {"rho_count": 0.024, "p": 0.7693, "rho_density": 0.274},
+        "interpretation": "dust 无时间结构；计数口径不显著，密度口径弱显著（因分母 meters 与时间共线，−0.440）"
+      },
+      {
+        "source": "02_processed/custom_analysis.json#collinearity [reused]",
+        "finding": "44 个过程列中 90% 方差只需 10 个主成分，PC1 占 40.7%，平均 |off-diagonal rho|=0.367；W1C_absolute_process 族内 |rho| 中位 0.714",
+        "rank": 3,
+        "metric": "PCA variance share",
+        "value": {"n_components_90pct": 10, "pc1": 0.407, "mean_abs_rho": 0.367},
+        "interpretation": "有效独立信号≈10；「在 44 列里挑最强相关」是共线 + 多重比较的双重伪影，必须做时间控制与差分判别"
+      },
+      {
+        "source": "02_processed/custom_analysis.json#parameter_drift [reused]",
+        "finding": "10+ 列参数随时间单向漂移：W1C86 −0.861（p=4.6e-45）、W1C8A +0.831、W1C88 +0.809、MD_TH017 +0.764、W1C4B −0.764、W1C00 +0.762、W1C81 −0.717、W1C8D −0.687、W1C85 −0.680、W1C84 +0.535、F_PS005 −0.444、meters −0.440",
+        "rank": 3,
+        "metric": "Spearman rho vs time index",
+        "value": {"min_abs_rho_listed": 0.44, "max_abs_rho": 0.861},
+        "interpretation": "共同慢漂移是数据的主导结构；本体 discrepancy_signals 中「批间隔 3-61 min」的说法在 02_processed/time_alignment.json 被实测数据推翻（见 validation_evidence），漂移才是跨批可比性的主要威胁"
+      },
+      {
+        "source": "02_processed/custom_analysis.json#top_associations.total_defects [reused]",
+        "finding": "对 total 的名义最强关联：W1C8A +0.406（partial 0.354）、W1C81 −0.386（−0.302）、W1C86 −0.364（−0.396）、W1C88 +0.351、W1C8B +0.346、W1C84 +0.341（0.336）、W1C40 −0.339、MD_TH012 −0.337",
+        "rank": 3,
+        "metric": "Spearman rho / partial rho(model, meters)",
+        "value": {"top": "W1C8A 0.406", "n_significant_fdr": 8},
+        "interpretation": "全部为 0.33-0.41 的中等强度，无一条达到「强关联」（|rho|>0.7）的因果门槛；且全部来自同一共线簇"
+      },
+      {
+        "source": "02_processed/custom_analysis.json#robustness_time_control_top [reused]",
+        "finding": "控制 model+meters+time 后，total 仅 W1C84 存活：+0.254（p=0.0018, attrn_abs_loss 0.082, param_vs_time_rho 0.535）；其余 43 列全部 fails 或被标 explained_by_shared_trend",
+        "rank": 3,
+        "metric": "partial rho with time control",
+        "value": {"W1C84": 0.254, "p": 0.001806},
+        "interpretation": "这是本数据「共同漂移 vs 传函」判别的主门槛；W1C84 通过门槛（因此不能直接删除它），但随后被差分检验否证（见下条）"
+      },
+      {
+        "source": "02_processed/custom_analysis.json#robustness_time_control_top [reused]",
+        "finding": "对 dust 无任何参数通过时间控制：最好的 W1C84 为 +0.160（p=0.0513）且被标 explained_by_shared_trend=true；对 oligomer 存活两条：F_PS002 +0.210（p=0.0102）、W1C8B +0.202（p=0.0135）",
+        "rank": 3,
+        "metric": "partial rho with time control",
+        "value": {"dust_best": {"W1C84": 0.16, "p": 0.05131}, "oligomer_survivors": {"F_PS002": 0.21, "W1C8B": 0.202}},
+        "interpretation": "dust 在观测域内无驱动量 → NEEDS_DATA；oligomer 的两条存活者幅度小（0.20-0.21）且 FDR 后不显著"
+      },
+      {
+        "source": "02_processed/custom_analysis.json#segment_check_cp78 [reused]",
+        "finding": "以 index 78 分段后重估：total 的 W1C8A pre −0.076/post −0.058、W1C81 −0.036/+0.084、W1C86 +0.129/−0.030、W1C84 −0.056/+0.162（p=0.177）、MD_TH012 −0.095/+0.049、F_PS005 +0.175/+0.091、meters +0.313（p=0.0052）/+0.402（p=0.0005）",
+        "rank": 3,
+        "metric": "Spearman rho within segment",
+        "value": {"W1C84_post": 0.162, "p": 0.1766, "meters_post": 0.402},
+        "interpretation": "所有 W1C 候选在段内归零，唯独 meters 在两段内均显著 → 段内唯一稳定的是暴露项；段内归零是「共同漂移」的教科书指纹"
+      },
+      {
+        "source": "本次判别计算（04_diagnostics，基于 00_input/batches.csv 149 行，ts_start 排序）",
+        "finding": "批次到批次差分相关：Δ(W1C84) vs Δlog(total) 全程 +0.087（p=0.294, n=148）、变点前 −0.010（p=0.930）、变点后 +0.193（p=0.106）；Δ(W1C8A) 变点后 +0.036（p=0.768）；Δ(F_PS005) −0.019（p=0.818）；Δ(MD_TH012) +0.077（p=0.354）；Δ(meters) +0.485（p<1e-4）",
+        "rank": 3,
+        "metric": "Spearman rho of first differences",
+        "value": {"W1C84_all": 0.087, "W1C84_post": 0.193, "W1C8A_post": 0.036, "F_PS005": -0.019, "meters": 0.485},
+        "interpretation": "差分消除了共同趋势后所有过程参数归零，只有暴露项（meters）保留机械性正相关 → 证明这些参数与缺陷之间没有批次级传函，只有共同趋势。这是 H1 排除的决定性检验，也是上游未做过的判别检验"
+      },
+      {
+        "source": "本次判别计算（04_diagnostics，同上数据）",
+        "finding": "扣除牌号中位后的时间趋势：total +0.244（p=0.0027）、other +0.283（p=0.0005）、密度 +0.277（p=0.0006）、oligomer −0.003（p=0.972）、dust +0.131（p=0.110）",
+        "rank": 3,
+        "metric": "Spearman rho of model-median residualized response vs time",
+        "value": {"total": 0.244, "other": 0.283, "density": 0.277, "oligomer": -0.003, "dust": 0.131},
+        "interpretation": "raw +0.461 中约 47% 来自牌号配比；扣除后仍有真实漂移（H3 不能作主因，H7 保留），而 oligomer 的趋势被完全解释为牌号构成（其变点 index 83 即 PG31DS 投产起点）"
+      },
+      {
+        "source": "本次判别计算（04_diagnostics，同上数据）",
+        "finding": "牌号内时间趋势：PG32B +0.815（p=0.0041, n=10）、PG32D +0.785（p=0.0003, n=16）、PG31DS +0.205（p=0.096, n=67）、PG32M +0.033、FP21 −0.057（p=0.817, n=19）",
+        "rank": 3,
+        "metric": "per-model Spearman rho(log1p(total) vs time)",
+        "value": {"PG32B": 0.815, "PG32D": 0.785, "PG31DS": 0.205},
+        "interpretation": "两条中等样本牌号内部显著上行，一条无趋势 → 上行在牌号间不均匀，说明驱动不是全局均匀的慢变量，而与运行状态/工位条件有关"
+      },
+      {
+        "source": "本次判别计算（04_diagnostics，同上数据）",
+        "finding": "PG31DS 内部变点前后：中位 total 30（n=9, pre）→ 72（n=58, post），Mann-Whitney p=0.0052；密度 13.8→30.7 件/km，p=0.0008；非 PG31DS 合成 37（n=69）→ 78（n=13）",
+        "rank": 3,
+        "metric": "Mann-Whitney U p / median",
+        "value": {"PG31DS_pre_median": 30, "PG31DS_post_median": 72, "p": 0.0052},
+        "interpretation": "阶跃在单一牌号内部成立，且非 PG31DS 也同向 → 05-09 的状态切换不是牌号构成的假象（H3 排除的关键，H7 成立的关键）"
+      },
+      {
+        "source": "本次判别计算（04_diagnostics，同上数据）",
+        "finding": "重复键 H2652611 的两行：06:23 / meters=1851 / 至下一批 47 min → 隐含线速 39.38 m/min；07:10 / meters=2879 / 至下一批 74 min → 38.91 m/min；全样本隐含线速中位 34.6 m/min（IQR 34.1-49.9, n=148）",
+        "rank": 3,
+        "metric": "implied line speed = meters / (ts_next − ts)",
+        "value": {"row34": 39.38, "row35": 38.91, "population_median": 34.6},
+        "interpretation": "两行的 meters 相差 55.3%、时间相差 47 min、隐含线速相差仅 1.3% 且都落在总体 IQR 内 → 这是同一 batch_id 下的两条真实子批记录，不是被复制的一行。因此 9516 属真实极端事件（密度 3305/km），不是重复计数伪影（H6 排除）"
+      },
+      {
+        "source": "本次判别计算（04_diagnostics，同上数据）",
+        "finding": "剔除 3 个极端批次（H2652611/H2652604/H2652605，n=145）后：total~时间 +0.513（p<1e-4）、other +0.623、密度 +0.659、中位 total 50",
+        "rank": 3,
+        "metric": "Spearman rho excluding extremes",
+        "value": {"total": 0.513, "other": 0.623, "density": 0.659, "n": 145},
+        "interpretation": "趋势不是极值制造的（H6 第二重否证）；同时说明 5 个批次占 68.9% 计数的现象与趋势是两个独立事实"
+      },
+      {
+        "source": "本次判别计算（04_diagnostics，同上数据）",
+        "finding": "剔除 H2652604 后：dust 余量 2117（原 5892 的 35.9%），dust~时间 +0.037（p=0.654）、密度~时间 +0.291（p=0.0003）",
+        "rank": 3,
+        "metric": "Spearman rho excluding single batch",
+        "value": {"dust_remaining_share": 0.359, "rho_count": 0.037, "p": 0.654},
+        "interpretation": "dust 无趋势的结论不依赖于剔除极值（剔除前后都不显著）；hp 密度口径的弱显著由 meters–时间共线造成"
+      },
+      {
+        "source": "02_processed/custom_analysis.json#exposure_calibration_C10 [reused]",
+        "finding": "meters 1065-6473（6.08 倍，中位 2444）；log-log 斜率 pooled 0.373±0.231（R²=0.017, p=0.109），含 model 固定效应 0.547；meters–total 偏相关（扣 model）−0.08（p=0.332）；密度 vs meters −0.318（p<1e-3）",
+        "rank": 3,
+        "metric": "log-log slope / partial rho",
+        "value": {"slope_pooled": 0.373, "slope_model_fe": 0.547, "partial_r": -0.08},
+        "interpretation": "斜率 0.547≠1 → 计数不按长度线性累积；且 meters 与时间共线（−0.440）→ 暴露是分母项而非主因，禁止据此提排产建议"
+      },
+      {
+        "source": "02_processed/custom_analysis.json#C11_F_PS005_trend [reused]",
+        "finding": "F_PS005 锯齿：三段段内 Spearman +0.726（n=58）/ +0.967（n=13）/ +0.969（n=78）；两次真实复位 Δ=−2.735（05-08 17:06）与 −2.605（05-09 12:36），复位前后缺陷密度 21.2→16.4 /km（−23%）与 19.8→21.6 /km（+9%）；合并 Spearman −0.444 仅因复位主导秩次",
+        "rank": 3,
+        "metric": "segmented Spearman / level jump",
+        "value": {"segment_rhos": [0.726, 0.967, 0.969], "jumps": [-2.735, -2.605]},
+        "interpretation": "累积-排放机制被确认，但两次复位的缺陷响应方向不一致 → 换网不带来稳定改善（H4 排除的核心证据）"
+      },
+      {
+        "source": "02_processed/custom_analysis.json#time_lag [reused]",
+        "finding": "44 对 lag（≤5 批）中 13 对显著改善；F_PS005→total 最优点 lag=5 批，rho 由 −0.206 变为 −0.312（p=1.4e-4）；F_PS005→dust 最优点 lag=0（+0.178, 无改善）",
+        "rank": 3,
+        "metric": "CCF best lag / rho",
+        "value": {"F_PS005_total": {"lag": 5, "rho": -0.312}, "F_PS005_dust": {"lag": 0, "rho": 0.178}},
+        "interpretation": "符号与机制预测相反（ΔP↑ 应使缺陷↑）→ 滞后相关不能作为因果证据；且 5 批滞后在物理时间上覆盖 55 min-96.8 h 不等距，只能定性"
+      },
+      {
+        "source": "02_processed/custom_analysis.json#duplicate_batch_sensitivity [reused]",
+        "finding": "剔除重复批次对（rows 34/35）后相关系数变动：total-W1C8A 0.406→0.416、total-W1C81 −0.386→−0.381、total-meters 0.053→0.044、other-W1C8A 0.498→0.509（|Δ|≤0.011）",
+        "rank": 3,
+        "metric": "absolute rho change",
+        "value": {"max_abs_delta": 0.011},
+        "interpretation": "重复键不改变任何结论方向或强度 → 数据质量问题已量化处置，不影响诊断（H6 排除的第三重证据）"
+      }
+    ],
+    "physical_evidence": [
+      {
+        "source": "Arrhenius 动力学（本体 governing_law + assumptions_for_downstream.A5）",
+        "finding": "PET 低聚物（环状三聚体）生成速率 k=A·exp(−Ea/RT)，Ea≈80-120 kJ/mol；熔体 270-290°C（T≈560 K）与 MD 段 75-86°C（T≈350 K）的速率比 exp(−Ea/R·(1/350−1/560)) ≈ 1e19-1e20",
+        "rank": 5,
+        "interpretation": "9 天窗口内 MD 段对低聚物「生成」的贡献不可检出 → 「MD 温度热降解生成低聚物」在物理上被排除（H9），MD 温度只能影响迁移/挥发/冷凝"
+      },
+      {
+        "source": "Darcy-Weisbach 与滤饼阻力模型",
+        "finding": "ΔP = f(L/D)(ρv²/2)，滤饼增厚使阻力线性上升，换网/反吹造成阶跃回落",
+        "rank": 5,
+        "interpretation": "F_PS005 的锯齿形态（段内 +0.73~+0.97、两次阶跃）与该机制完全一致 → 形态机制成立；但效应端点（→粉尘/凝胶脱落）在数据中无对应，属 CONTRADICTED。机制成立 ≠ 效应成立"
+      },
+      {
+        "source": "Newton 冷却 Q̇=h·A·ΔT",
+        "finding": "MD 冷却区 26-41°C 内 0.5°C 的设定台阶对应热流变化约 0.5/(26~41) ≈ 1.2%-1.9%（<1.5% 量级）",
+        "rank": 5,
+        "interpretation": "与缺陷基线 2 倍抬升（中位 36→74）量级不符 → H8 的量级校验失败"
+      },
+      {
+        "source": "质量守恒（涂层厚度 ∝ 供料流量/线速）",
+        "finding": "稳态下涂层湿厚 h = Q/(w·v)；供料或线速的 1% 偏差对应 1% 厚度偏差，计数型缺陷对厚度偏差的响应通常为超线性（露底/凝胶阈值）",
+        "rank": 5,
+        "interpretation": "该定律给出 H2 的机制骨架，但由于 W1C 通道 unit=unknown，无法把观测到的通道变化换算为厚度变化 → magnitude_ratio=UNTESTED，机制只能到 SUPPORTIVE"
+      },
+      {
+        "source": "聚合物黏弹性与取向冻结（Tg≈75°C）",
+        "finding": "MD 预热 74.9-77.5°C（≈Tg）、拉伸 81.8-84.3°C（Tg+6~9）、冷却 26-41°C（跨过并低于 Tg）；冷却段决定取向冻结与内应力",
+        "rank": 5,
+        "interpretation": "冷却区温度本可通过内应力→平整度→涂布均匀性影响 other 类；但实测该段为定值控制（两次 0.5°C 台阶后全段水平）→ 该通路在本数据中未被激活（H8 排除的物理解释）"
+      },
+      {
+        "source": "EXTERNAL: BOPET 缺陷与低聚物机理公开资料（本体 web_queries=2）",
+        "finding": "工业共识：低聚物缺陷源于缩聚/挤出热历史并在表面析出；粉尘缺陷多源于切边碎屑、辊面磨屑、环境颗粒与热区冷凝物；纵向拉伸段温度窗口为 Tg+0~9°C",
+        "rank": 6,
+        "interpretation": "仅用于确认机制方向与温度窗口，不用于任何定量推断；本数据中的定量结论全部来自 L1（原始数据）与 L3（统计）"
+      }
+    ],
+    "validation_evidence": [
+      {
+        "source": "02_processed/custom_analysis.json#top_associations [reused: simpson_reversal 字段]",
+        "finding": "W1C8A 对 other_defects_derived 标 simpson_reversal=true（within_model 2/6 同号）；对 total 未反转（4/6）",
+        "affected_hypotheses": ["H1", "H2"]
+      },
+      {
+        "source": "02_processed/custom_analysis.json#robustness_time_control_top [reused]",
+        "finding": "时间控制后 W1C8A 对 total 由 +0.354 衰减到 +0.121（衰减 66%，>50% 阈值）→ 判定 trend-confounded",
+        "affected_hypotheses": ["H1", "H2"]
+      },
+      {
+        "source": "02_processed/custom_analysis.json#top_associations [reused: loo_max_abs_delta]",
+        "finding": "全部 top 关联的 leave-one-out 最大变动 ≤0.029（W1C8A 0.024、W1C81 0.026、W1C84 0.024）→ 不是单点杠杆造成",
+        "affected_hypotheses": ["H1", "H2", "H6"]
+      },
+      {
+        "source": "02_processed/custom_analysis.json#duplicate_batch_sensitivity [reused]",
+        "finding": "重复批次敏感性：剔除 rows 34/35 后各 rho 变动 ≤0.011",
+        "affected_hypotheses": ["H6"]
+      },
+      {
+        "source": "02_processed/custom_analysis.json#top_associations [reused: fdr_q]",
+        "finding": "FDR 校正后：对 total 的 W1C 关联 q≤0.0003（显著）；对 oligomer 全部 q≥0.118（无一显著）；对 dust 全部 q≥0.105（无一显著）",
+        "affected_hypotheses": ["H1", "H4", "H9"]
+      },
+      {
+        "source": "02_processed/custom_analysis.json#exposure_calibration_C10 [reused]",
+        "finding": "暴露标定：log-log 斜率 0.547（含 model FE）≠1；meters 偏相关 −0.08（p=0.332）；密度 vs meters −0.318 → 暴露必须作为分母处理",
+        "affected_hypotheses": ["H3", "H7"]
+      },
+      {
+        "source": "02_processed/custom_analysis.json#steady_state_check [reused]",
+        "finding": "稳态子集（101/149）中位 total 62 vs 全样本 51，密度 25.92 vs 20.58，方向一致 → 结论不依赖稳态筛选",
+        "affected_hypotheses": ["H2", "H7"]
+      },
+      {
+        "source": "02_processed/batch_integrity.json + 本次判别计算",
+        "finding": "batch_identity_integrity 报告 duplicate_batches=[H2652611]、split_record_count=1、action=merge_or_flag；本次以隐含线速（39.38 vs 38.91 m/min，总体中位 34.6）判为两条真实子批",
+        "affected_hypotheses": ["H6"]
+      },
+      {
+        "source": "02_processed/time_alignment.json [reused]",
+        "finding": "ts_start 解析成功 149/149、排序后单调、无重复时间戳；中位批间隔 4200 s（70 min），最短 660 s（11 min），最长 69660 s（1161 min），跨度 215.7 h → 本体 temporal_granularity.interval 的「3-61 min」与实测不符（实测 11-1161 min，中位 70）",
+        "affected_hypotheses": ["H2", "H4", "H7"]
+      },
+      {
+        "source": "02_processed/data_quality_report.json / cleaning_integrity.json [reused]",
+        "finding": "行数 149→149（丢弃 0）、range_fidelity 全列 0.0、无插补/无清洗操作；数据本身完整，问题在粒度（1 行/批，无批内动态）",
+        "affected_hypotheses": []
+      },
+      {
+        "source": "02_processed/physics_check.json [reused]",
+        "finding": "quality_reset_analysis：reset_found=false，12 个 transition 全部 INCONCLUSIVE；cp78 total d=0.637（46.5→86.95）、cp83 d=0.894（43.7→91.95）。注意：INCONCLUSIVE 的原因是 transition_type=unknown / declared_direction=null（缺少声明的方向），不是效应量不足",
+        "affected_hypotheses": ["H5", "H7"]
+      }
+    ]
+  },
+  "adjudication_of_upstream_data_quality_issues": [
+    {
+      "issue": "batch_id H2652611 出现两次（06:23 total=39 vs 07:10 total=9516）——真实短批次还是重复键/数据伪影？",
+      "verdict": "两条真实子批记录（同一 batch_id 被复用，不是被复制的一行）",
+      "quantitative_basis": "meters 1851 vs 2879（相差 55.3%）；ts 相差 47 min；按 ts_start 至下一批起点推算的隐含线速 39.38 vs 38.91 m/min（相差 1.3%），均落在全样本中位 34.6 m/min 的 IQR(34.1-49.9) 内；若为复制行，meters 与 ts 应相同。剔除该对后各相关系数变动 ≤0.011。",
+      "impact": "9516（密度 3305 件/km）是真实极端事件，其后 total 与 other 的 max 也随之成立；诊断结论不受该键影响。建议 MES 侧为该子批补发独立批次号，但不修改本数据集。",
+      "evidence_rank": 1
+    },
+    {
+      "issue": "本体称批间隔 3-61 min，实测为 11-1161 min（中位 70 min）——本体的时间粒度声明必须被显式纠正",
+      "verdict": "本体声明错误，予以更正：批间隔 11-1161 min，中位 70 min（4200 s），跨度 215.7 h",
+      "quantitative_basis": "02_processed/time_alignment.json：interval_min_seconds=660（11 min）、interval_max_seconds=69660（1161 min）、median_interval_seconds=4200、monotonic_after_sort=true、duplicate_timestamps=0、axis_provenance=real parsed timestamps。",
+      "impact": "① 本体「最大可分辨滞后 5 批 ≈ 0.2-5 h」低估了一个量级：5 批在物理时间上覆盖 55 min（5×11 min）到 96.8 h（5×1161 min），中位约 5.8 h（5×70 min），且步长不等距 → 任何「lag=N 批」都不是固定时长，滞后结论只能定性（本诊断已按此执行）。② 「3-61 min」这一错误声明若被沿用，会把 5 批滞后误读为「批内秒级」，从而虚构分钟级因果 → 本诊断的输出严禁此类声明。③ 215.7 h 窗口内单批间隔可达 19.4 h，意味着「同一班次」假设不成立，批间漂移与班次事件不可分离。",
+      "evidence_rank": 1
+    },
+    {
+      "issue": "44 个参数坍缩为约 10 个独立主成分（PC1 40.7%）——多重比较与共线的处置",
+      "verdict": "有效独立自由度按 10 处理，不按 44；并对全部候选做时间控制 + 差分双门槛",
+      "quantitative_basis": "90% 方差需 10 个 PC，PC1=0.407，平均 |off-diag rho|=0.367，W1C_absolute_process 族内 |rho| 中位 0.714；10+ 列 |rho(时间)| 在 0.535-0.861。若按 44 列做 0.05 检验，期望假阳性约 2.2 条/每次筛选，正好与「名义显著 W1C 列数」同量级。",
+      "impact": "名义上 8 条对 total 的显著关联（0.33-0.41）不能被视为 8 条独立证据；在共线 + 共同漂移下它们的有效信息量小于 1 条。这正是「共同因漂移」与「参数→缺陷传函」的核心判别点：传函要求同一批次内的增量同步（差分），而共因只要求同向的慢趋势。本诊断采用差分检验作出这一区分（Δ 相关全部归零）。",
+      "evidence_rank": 3
+    }
+  ]
+}

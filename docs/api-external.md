@@ -56,13 +56,15 @@ POST /api/auth/tokens        （需要 Bearer 会话 JWT）
 | 值 | 执行 skill | 产出 |
 |---|---|---|
 | `deep-diagnosis`（默认） | industrial-analysis-auto | 9 阶段根因诊断：竞争假设+证据链+`diagnostic-report.html` |
-| `quick-screen` | industrial-sentinel | 哨兵快筛：`alert.json` + 巡检 md + `quick_screen_report.html` |
-| `stability-report` | industrial-line-stability-report | 稳定性评分（0-100/A-D）+ `line_stability_report.html` |
+| `quick-screen` | industrial-sentinel | 哨兵快筛：`alert.json` + `sentinel/watch_report.md` + `quick_screen_report.html`（本体集成后另有 `01_ontology/` 四件套，见 §3.1 ontology 字段） |
+| `stability-report` | industrial-line-stability-report | 稳定性评分（0-100/A-D）+ `line_stability_report.html` + `line_stability_report.md`（本体集成后另有 `01_ontology/` 四件套） |
 | `doe-analysis` | industrial-doe-analyzer | DOE/工况分析 + 操作窗 `recommendations.json` |
 | `experience-mining` | industrial-tuning-memory | 调优动作归因 + 经验条目 |
 | `optimizer-campaign` | industrial-optimizer-loop | 布点寻优（只设计不下发参数） |
 
 **harness 支持值（14 个）**：`claude`（推荐，真实 agent）· `omp`（推荐）· `mock`（集成测试，非真实分析）· `codex` · `dsh` · `opencode` · `gemini` · `copilot` · `cursor` · `crush` · `goose` · `hermes` —— 以上需本机已安装对应 CLI；`qwen` · `pi`（未安装，选中返回 409）。
+
+> **专项 intent 的引擎支持面**：specialist intents（非 deep-diagnosis）的 intent 指令由 `buildIntentDirective` 注入，当前覆盖 claude / omp / acp 族（dsh·qwen·hermes）/ one-shot 族（gemini·copilot·cursor·crush·goose·pi）共 12 引擎；`codex` / `opencode` 暂不消费该指令（对 doe-analysis 亦然，补齐在列）。deep-diagnosis 主链路不受影响。
 
 ---
 
@@ -76,6 +78,7 @@ POST /api/auth/tokens        （需要 Bearer 会话 JWT）
 | dataPath | string | 三选一 | — | 相对 `data/` 的单文件路径 | 单文件模式 |
 | dataPaths | string[] | 三选一 | — | 多个相对文件路径 | 多文件模式 |
 | analysisIntent | string | - | `deep-diagnosis` | §2 表中 6 值之一；其他值 → 400 `EXTERNAL_INTENT_UNKNOWN`（响应附 supported） | 分析模式 |
+| preprocessingMode | string | - | `single_primary` | `single_primary` / `integrate_merge`；**仅 `stability-report`**（其他 intent 传 → 400 `PREPROCESSING_MODE_UNSUPPORTED_INTENT`）；integrate_merge = 受控时间轴融合（cadence 门 + 列审计） | 文件夹输入预处理策略 |
 | harness | string | - | `claude` | §2 表中 14 值之一；未安装 → 409；未知 → 400 `HARNESS_UNKNOWN` | 执行引擎 |
 | sceneName | string | - | 文件夹名 | 任意字符串（用于 run 命名与场景识别） | 场景名 |
 | question | string | - | "" | 自由文本 | **分析目标**：进入报告 objective 与 agent 指令，越具体越好 |
@@ -84,6 +87,13 @@ POST /api/auth/tokens        （需要 Bearer 会话 JWT）
 | wait_timeout_minutes | number | - | 30 | ≥1 整数 | wait 模式阻塞上限 |
 | maxTurns | number | - | 200 | 正整数 | agent 最大轮次 |
 | timeoutMinutes | number | - | 引擎默认 | 正整数 | 单次执行超时 |
+| ontologyMode | string | - | `auto` | `auto` / `full` / `reuse` / `extend`（`off` 仅 doe + dev override） | 本体策略；**`deep-diagnosis` / `doe-analysis` / `stability-report` / `quick-screen` 支持**（watch 两 intent 的确定性 prepare 阶段消费） |
+| ontologyScene | string | - | 从数据推导 | 场景 key | 复用/扩展的本体场景；仅上述四个 intent |
+| ontologySource | string | - | store 查找 | 本体资产路径 | 显式复用/扩展来源；仅上述四个 intent |
+| ontologyDataStage | string | - | 从响应推导 | `design_only` / `collected` | DOE 本体阶段；仅 `doe-analysis` 消费 |
+| ontologyDevOverride | bool | - | `false` | true/false | 仅调试时允许 DOE `mode=off`；仅 `doe-analysis` 消费 |
+
+> 对其余 analysisIntent（`experience-mining` / `optimizer-campaign`）传 ontology 字段会返回 **400 `ONTOLOGY_UNSUPPORTED_INTENT`**（不再静默忽略）。
 
 ### 3.2 Response
 
@@ -204,8 +214,10 @@ POST /api/auth/tokens        （需要 Bearer 会话 JWT）
 | message | string | ✓ | 发送给分析 agent 的消息（中文即可） |
 
 **Response 200**：`{ "success": true, "data": { "run_id": "…", "delivered": true } }`
-**Response 409**：`EXTERNAL_CHAT_UNAVAILABLE`（run 不存在或引擎进程已结束——对话要求分析正在运行；
-agent 的回复经该 run 的 SSE 流返回）。
+`delivered=true` 表示消息已投递给该 run 的引擎会话。**不要求 run 仍在运行**：只要引擎保留了可恢复的
+`session_id`（mock 恒可；OMP/Claude 在会话仍可恢复时），已完成/失败/停止的 run 也可以继续对话，
+agent 的回复经该 run 的 SSE 流返回。
+**Response 409**：`EXTERNAL_CHAT_UNAVAILABLE`（run 不存在，或引擎进程已结束且会话不可恢复）。
 
 ---
 
@@ -248,11 +260,14 @@ analysis-auto 建议 ≥100 行（>10 万行自动抽样）。上传入口：`PO
 | 400 | EXTERNAL_INTENT_UNKNOWN | 未知 analysisIntent | 按 supported 列表修正 |
 | 400 | EXTERNAL_DATA_REQUIRED | 未提供数据来源 | 补 folderPath/dataPath |
 | 400 | HARNESS_UNKNOWN | 未知 harness | 按 capabilities 修正 |
+| 400 | ONTOLOGY_UNSUPPORTED_INTENT | 对不支持的 intent 传了 ontology 字段 | 只用 deep-diagnosis / doe-analysis / stability-report / quick-screen，或去掉字段 |
+| 400 | PREPROCESSING_MODE_UNKNOWN / PREPROCESSING_MODE_UNSUPPORTED_INTENT | preprocessingMode 值非法 / 用于非 stability-report intent | 修正值或去掉字段（仅 stability-report 支持） |
 | 400 | VALIDATION_ERROR | token 参数不合法 | 见 error 信息 |
 | 404 | — | run/task 不存在 | 检查 ID |
 | 409 | HARNESS_UNAVAILABLE | 引擎未安装 | 换已安装引擎 |
 | 409 | EXTERNAL_TASK_RUNNING | 结果未就绪 | 继续轮询 |
-| 409 | EXTERNAL_CHAT_UNAVAILABLE | 无存活引擎进程 | 对话需分析运行中 |
+| 409 | EXTERNAL_CHAT_UNAVAILABLE | run 不存在或会话不可恢复 | 重新发起分析 |
+| 409 | RUN_TERMINAL | stop 一个已终态 run | 读取当前状态，不要重复 stop |
 | 202 | — | wait 超时仍运行 | 继续 GET /tasks/:taskId |
 
 ---

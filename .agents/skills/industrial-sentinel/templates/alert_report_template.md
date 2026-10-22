@@ -20,6 +20,7 @@
 
 ## 三、操作窗口投影（C2）
 
+{{WINDOW_SOURCE_LINE}}
 {{PROJECTION_SECTION}}
 
 ## 四、防风暴抑制

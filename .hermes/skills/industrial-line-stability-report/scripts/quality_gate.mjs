@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // quality gate for industrial-line-stability-report (exit 0 pass / 3 fail)
 // S1 schema + required core fields   S2 conclusion honesty (score/grade consistent)
-// S3 zero-LLM provenance             S4 html exists + selfcheck pass
+// S3 zero-LLM provenance             S4 html exists + selfcheck pass + md companion
 // S5 enum literals match shared closedloop_enums.json
 import { readFileSync, existsSync, statSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
@@ -61,10 +61,12 @@ results.push(['S3 zero_llm true', prov.zero_llm === true]);
 results.push(['S3 input sha256', typeof prov.input_sha256 === 'string'
   && prov.input_sha256.startsWith('sha256:')]);
 
-// ---- S4 html + selfcheck
+// ---- S4 html + selfcheck + md companion (md is a default deliverable)
 const htmlPath = join(outDir, 'line_stability_report.html');
 const selfPath = join(outDir, 'html_selfcheck.json');
+const mdPath = join(outDir, 'line_stability_report.md');
 const htmlOk = existsSync(htmlPath) && statSync(htmlPath).size >= 8192;
+const mdOk = existsSync(mdPath);
 let selfOk = false;
 if (existsSync(selfPath)) {
   try {
@@ -74,6 +76,7 @@ if (existsSync(selfPath)) {
 }
 results.push(['S4 html >= 8KB', htmlOk]);
 results.push(['S4 html_selfcheck pass', selfOk]);
+results.push(['S4 md companion', mdOk]);
 
 // ---- S5 enum literals vs shared enums
 try {

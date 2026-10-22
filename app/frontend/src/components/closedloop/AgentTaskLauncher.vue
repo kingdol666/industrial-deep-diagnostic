@@ -50,6 +50,19 @@
       :placeholder="questionPlaceholder || $t('closedloop.launcher.questionPlaceholder')"
     ></textarea>
 
+    <div v-if="ontologyCapable" class="atl-ontology">
+      <label class="atl-ontology-label">{{ $t('diagnosis.ontologyPolicy') }}</label>
+      <select v-model="ontologyMode" class="atl-ontology-select">
+        <option value="auto">{{ $t('diagnosis.ontologyAuto') }}</option>
+        <option value="full">{{ $t('diagnosis.ontologyFull') }}</option>
+        <option value="reuse">{{ $t('diagnosis.ontologyReuse') }}</option>
+        <option value="extend">{{ $t('diagnosis.ontologyExtend') }}</option>
+      </select>
+      <span v-if="ontologyMode === 'reuse' || ontologyMode === 'extend'" class="atl-ontology-scene">
+        {{ $t('closedloop.launcher.ontologyScene') }}: <code>{{ folderName }}</code>
+      </span>
+    </div>
+
     <div class="atl-actions">
       <span class="atl-note">{{ $t('closedloop.launcher.note', { skill }) }}</span>
       <button type="button" class="atl-launch" :disabled="!selectedPath || launching" @click="launch">
@@ -79,13 +92,21 @@ const emit = defineEmits(['launched']);
 
 const { t } = useI18n();
 
+// Intents whose runs consume an ontology directive — mirrors ONTOLOGY_INTENTS
+// in the backend guard (ontology-intent-guard.mjs).
+const ONTOLOGY_INTENTS = new Set(['deep-diagnosis', 'doe-analysis', 'stability-report', 'quick-screen']);
+const ontologyCapable = computed(() => ONTOLOGY_INTENTS.has(props.intent));
+
 const entries = ref([]);
 const loading = ref(false);
 const cwd = ref('');           // relative dir currently listed
 const selectedPath = ref('');  // relative folder chosen for analysis
 const question = ref('');
+const ontologyMode = ref('auto');
 const launching = ref(false);
 const error = ref('');
+
+const folderName = computed(() => (selectedPath.value || '').split('/').pop());
 
 const crumbs = computed(() => {
   if (!cwd.value) return [];
@@ -150,6 +171,9 @@ async function launch() {
       harness: props.harness,
       sceneName: folderName,
       reportLanguage: 'zh',
+      ontologyMode: ontologyCapable.value ? ontologyMode.value : undefined,
+      ontologyScene: ontologyCapable.value && (ontologyMode.value === 'reuse' || ontologyMode.value === 'extend')
+        ? folderName : undefined,
     };
     if (question.value.trim()) payload.userQuestion = question.value.trim();
     const data = await api.startDiagnosis(payload);
@@ -211,6 +235,14 @@ onMounted(() => browse(''));
   font-size: 12.5px; font-family: inherit; resize: vertical; min-height: 44px;
 }
 .atl-question:focus { outline: none; border-color: var(--accent); }
+.atl-ontology { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.atl-ontology-label { font-size: 11px; color: var(--text2); }
+.atl-ontology-select {
+  background: var(--surface-soft); border: 1px solid var(--border); border-radius: 8px;
+  padding: 5px 8px; color: var(--text); font-size: 12px; font-family: inherit;
+}
+.atl-ontology-scene { font-size: 11px; color: var(--text2); }
+.atl-ontology-scene code { color: var(--accent); font-family: var(--font-mono, monospace); }
 .atl-actions { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .atl-note { font-size: 11px; color: var(--text2); line-height: 1.5; }
 .atl-launch {

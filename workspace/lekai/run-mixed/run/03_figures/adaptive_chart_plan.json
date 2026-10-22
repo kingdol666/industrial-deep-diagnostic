@@ -1,0 +1,41 @@
+{
+ "source_data": "D:\\codes\\myskills\\idd-doe-impl\\workspace\\lekai\\run-mixed\\run\\02_processed\\cleaned_data.csv",
+ "time_alignment": {
+  "time_col": "ts_start",
+  "method": "single-source-parse",
+  "merged_sources": [],
+  "n_rows_total": 149,
+  "n_rows_dropped_unparsable": 0,
+  "monotonic_after_sort": true,
+  "median_interval_s": 4200.0,
+  "span_s": 776640.0
+ },
+ "decisions": [
+  {
+   "target": [
+    "meters",
+    "total_defects",
+    "oligomer",
+    "dust",
+    "F_PS002@PV1_mean",
+    "F_PS003@PV1_mean",
+    "F_PS005@PV1_mean",
+    "F_PS006@PV1_mean"
+   ],
+   "shape": "multi_parameter_time_series",
+   "chart_type": "z_overlay",
+   "reason": "2..8 numeric series on one aligned time axis"
+  },
+  {
+   "target": "meters",
+   "shape": "single_time_series",
+   "chart_type": "line",
+   "reason": "single measurement channel over the aligned time axis"
+  }
+ ],
+ "files": [
+  "D:\\codes\\myskills\\idd-doe-impl\\workspace\\lekai\\run-mixed\\run\\03_figures\\fig_adaptive_overlay.png",
+  "D:\\codes\\myskills\\idd-doe-impl\\workspace\\lekai\\run-mixed\\run\\03_figures\\fig_adaptive_line_meters.png"
+ ],
+ "chart_policy": "2d_field->contour_cloud; multi_parameter_time_series->z_overlay; single_time_series->line; all temporal charts on the aligned axis"
+}

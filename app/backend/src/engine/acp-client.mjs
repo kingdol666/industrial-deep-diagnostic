@@ -270,7 +270,7 @@ function createAcpQuery(id, { turnKey, prompt, label }) {
 }
 
 // ── Shared prompt assembly (mirrors omp-client / one-shot specs) ──
-function buildAcpPrompt({ analysisTarget, userQuestion, sceneName, reportLanguage, followUpMessage, ontology, enhancement, analysisIntent }) {
+function buildAcpPrompt({ analysisTarget, userQuestion, sceneName, reportLanguage, followUpMessage, ontology, enhancement, analysisIntent, preprocessingMode }) {
   const lang = reportLanguage || config.diagnosis.default_language;
   const { dataPaths, promptTarget } = resolveAnalysisTarget(analysisTarget);
   // A non-default analysis intent re-points the skill reference at the
@@ -291,7 +291,7 @@ function buildAcpPrompt({ analysisTarget, userQuestion, sceneName, reportLanguag
 
 ${skillRef}
 
-${buildDataPrompt(sceneName, userQuestion, promptTarget, lang, followUpMessage)}${buildIntentDirective(analysisIntent, sceneName)}${buildOntologyDirective(ontology)}${buildEnhancementDirective(enhancement)}`;
+${buildDataPrompt(sceneName, userQuestion, promptTarget, lang, followUpMessage)}${buildIntentDirective(analysisIntent, sceneName, { preprocessingMode })}${buildOntologyDirective(ontology)}${buildEnhancementDirective(enhancement)}`;
   return { dataPaths, prompt };
 }
 
@@ -305,11 +305,12 @@ function createAcpEngineClient(id) {
     reportLanguage, followUpMessage, sessionId = null,
     ontology = null, enhancement = null,
     analysisIntent = 'deep-diagnosis',
+    preprocessingMode = null,
   }) {
     void maxTurns; void timeoutMinutes; // turn budget enforced by abort + engine limits
     void sessionId; // ACP v1 无跨进程 session resume — follow-ups 走 Continue 全量重放
     const built = buildAcpPrompt({
-      analysisTarget, userQuestion, sceneName, reportLanguage, followUpMessage, ontology, enhancement, analysisIntent,
+      analysisTarget, userQuestion, sceneName, reportLanguage, followUpMessage, ontology, enhancement, analysisIntent, preprocessingMode,
     });
     const query = createAcpQuery(id, {
       turnKey: runId,

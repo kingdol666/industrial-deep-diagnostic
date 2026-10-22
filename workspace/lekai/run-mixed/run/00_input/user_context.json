@@ -1,0 +1,12 @@
+{
+  "run_id": "run",
+  "scene": "lekai-mixed-defects-diag",
+  "user_language": "zh-CN",
+  "user_objective": "乐凯FW3线FP21/PG31DS混合批次缺陷根因诊断：batch级数据含total_defects/oligomer/dust缺陷与全部工艺参数，找出驱动缺陷升高的工艺参数，区分 competing hypotheses 并给出可执行建议。",
+  "process_description": "乐凯 FW3 线（聚酯/光学膜类涂布-拉伸产线，按本体构建阶段由 RAG/知识补全）：批次级聚合数据。缺陷响应：total_defects（总缺陷数）、oligomer（低聚物缺陷数）、dust（粉尘/异物缺陷数）；产量上下文 meters。工艺参数族：F_PS002/003/005/006（工艺段压力/流量类 PV）、MD_TH001-018（纵向拉伸/加热区温度 18 区）、W1C00..W1C8D（涂布/冷却段通道类 PV，含负值，为偏差/相对量）。分组维度：model（9 个牌号，混合批次）。",
+  "constraints": [
+    "数据为批次级聚合（149 批），无批内时间分辨率",
+    "工艺参数为批次均值，天然抑制批内高频波动"
+  ],
+  "notes": "run dir 由用户指定；历史 DOE 产物已归档至 _legacy_doe/"
+}

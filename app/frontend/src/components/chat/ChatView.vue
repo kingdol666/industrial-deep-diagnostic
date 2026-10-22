@@ -850,7 +850,7 @@ async function refreshChats() {
 
 async function refreshDiagnosePanels() {
   try {
-    const runs = await api.listRuns();
+    const runs = await api.listDiagnosisRuns();
     runCatalog.value = runs || [];
     refreshDiagnosePanelsFromCatalog();
   } catch (err) {

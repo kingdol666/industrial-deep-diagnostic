@@ -11,7 +11,13 @@ Usage:
                                 [--data PATH] [--time-col T] [--metric M]
                                 [--baseline B] [--action-log A]
                                 [--doe-run-dir D] [--attribution-json J]
-                                [--ontology O] [--scene S]
+                                [--ontology O] [--ontology-mode MODE] [--scene S]
+
+Ontology-first pipeline: Phase 0.5 runs scripts/ontology_prepare.py (declared
+prior: report_context declarations + table header probe + physics dictionary
+unique hits; typical_ranges stay reference bands, never Cpk specs) unless
+--ontology is given; the analyze-entry brief gate (ONTOLOGY_BRIEF_REQUIRED)
+blocks mode≠off runs whose 01_ontology/ontology_brief.json is missing.
 
 Reuse (single source of truth, no reinvented wheels):
   - Nelson SPC episodes + robust z ....... industrial-sentinel sentinelcore
@@ -19,7 +25,8 @@ Reuse (single source of truth, no reinvented wheels):
   - operating windows .................... industrial-doe-analyzer recommendations
   - action attribution ................... industrial-tuning-memory tune_stats
 
-Exit codes: 0 ok | 1 report with findings | 2 not_assessable | 3 input error.
+Exit codes: 0 ok | 1 report with findings | 2 not_assessable | 3 input error
+| 4 crash (uncaught exception).
 All numbers deterministic (numpy/scipy/pandas); zero LLM, zero network.
 """
 from __future__ import annotations
@@ -32,11 +39,23 @@ import random
 import subprocess
 import sys
 import time
+import traceback
 
 import numpy as np
 import pandas as pd
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+# shared ontology-stage core (single copy in .claude/shared/, not mirrored):
+# the analyze-entry brief gate comes from there
+_SHARED_SCRIPTS = os.path.normpath(os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "..", "..", "..", ".claude", "shared", "scripts"))
+if os.path.isdir(_SHARED_SCRIPTS) and _SHARED_SCRIPTS not in sys.path:
+    sys.path.insert(0, _SHARED_SCRIPTS)
+try:
+    from ontology_prepare_common import enforce_brief_gate  # noqa: E402
+except ImportError:                                    # pragma: no cover
+    enforce_brief_gate = None
 
 from lstcore import __version__ as SCRIPT_VERSION  # noqa: E402
 from lstcore import charts, drivers, findings, ontology, profile, score, subject as _subject  # noqa: E402
@@ -47,6 +66,17 @@ CHARTS_CONTRACT = "line-stability-charts/1.0"
 MIN_ROWS = score.MIN_ROWS
 MAX_PARAMS = 60
 SAMPLE_MAX_ROWS = ontology.MAX_SAMPLE_ROWS if hasattr(ontology, "MAX_SAMPLE_ROWS") else 100_000
+
+
+def _append_pipeline_event(run_dir: str | None, event: str, detail: dict) -> None:
+    """Append one JSON Lines event to <run_dir>/.pipeline_events.jsonl."""
+    if not run_dir:
+        return
+    payload = {"timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+               "event": event, "run_dir": run_dir, "detail": detail or {}}
+    with open(os.path.join(run_dir, ".pipeline_events.jsonl"), "a",
+              encoding="utf-8") as f:
+        f.write(json.dumps(payload, ensure_ascii=False) + "\n")
 
 
 def _load_context(path: str | None, run_dir: str | None) -> dict:
@@ -73,6 +103,53 @@ def _resolve_data(args, context: dict) -> str:
             return found
     raise ValueError("no data file found (pass --data, --run-dir with 00_input/, "
                      "or data_path in report_context.json)")
+
+
+def _run_ontology_prepare(args, context: dict) -> dict | None:
+    """Phase 0.5: run scripts/ontology_prepare.py (declared-prior prepare) as a
+    subprocess before discovery. Skipped for an explicit --ontology (the user
+    already owns the asset) and for runs without a run-dir layout. Any failure
+    is returned as {"action": None, "error": ...} — the caller degrades and the
+    brief gate decides whether mode≠off blocks the analysis."""
+    prepare_py = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                              "ontology_prepare.py")
+    if not args.run_dir or not os.path.isfile(prepare_py):
+        return None
+    env = dict(os.environ)
+    env.setdefault("PYTHONIOENCODING", "utf-8")
+    cmd = [sys.executable, prepare_py, "--run-dir", args.run_dir,
+           "--mode", getattr(args, "ontology_mode", None) or "auto", "--json"]
+    if args.context:
+        cmd += ["--context", args.context]
+    if args.scene:
+        cmd += ["--scene", args.scene]
+    try:
+        proc = subprocess.run(cmd, capture_output=True, text=True, timeout=300,
+                              encoding="utf-8", errors="replace", env=env)
+    except Exception as exc:
+        return {"action": None, "error": f"ontology prepare failed to start: {exc}"}
+    if proc.returncode != 0:
+        return {"action": None, "error": (proc.stderr or proc.stdout
+                                          or f"exit {proc.returncode}").strip()[-400:]}
+    try:
+        return json.loads(proc.stdout)
+    except json.JSONDecodeError:
+        return {"action": None, "error": "ontology prepare produced unparseable output"}
+
+
+def _ontology_brief_summary(prepare_result: dict | None) -> dict | None:
+    """≤10-key digest of the prepare brief for provenance.ontology."""
+    if not isinstance(prepare_result, dict) or not prepare_result.get("action"):
+        return None
+    cov = prepare_result.get("coverage") or {}
+    return {
+        "build_mode": prepare_result.get("build_mode"),
+        "n_columns_total": cov.get("n_columns_total"),
+        "n_matched": cov.get("n_matched"),
+        "n_inferred": cov.get("n_inferred"),
+        "n_unmatched": cov.get("n_unmatched"),
+        "coverage_ratio": cov.get("ratio"),
+    }
 
 
 def _run_tuning_memory(args, work_dir: str) -> str | None:
@@ -231,6 +308,22 @@ def _build_limitations(prof: dict, roles: dict, understanding: dict,
 
 def analyze(args) -> tuple[dict, dict, int]:
     context = _load_context(args.context, args.run_dir)
+
+    # ── Phase 0.5 本体制备（声明先验 prepare；显式 --ontology 时跳过） ──────
+    prepare_result = None
+    if not args.ontology:
+        prepare_result = _run_ontology_prepare(args, context)
+        if prepare_result is not None and enforce_brief_gate is not None:
+            # mode≠off (from report_context.ontology.mode) without a brief blocks
+            enforce_brief_gate(args.run_dir, context)
+        if prepare_result is not None and prepare_result.get("action"):
+            _append_pipeline_event(args.run_dir, "prepare_done", {
+                "action": prepare_result.get("action"),
+                "scene_key": prepare_result.get("scene_key"),
+                "version": prepare_result.get("version"),
+                "build_mode": prepare_result.get("build_mode"),
+            })
+
     data_path = _resolve_data(args, context)
     time_col = args.time_col or context.get("time_col") or None
 
@@ -278,6 +371,34 @@ def analyze(args) -> tuple[dict, dict, int]:
                           if pd.to_numeric(df[c], errors="coerce").dropna().nunique() < 2]
     varying_cols = [c for c in all_numeric if c not in invariant_cols]
     degradation = []
+    if prepare_result and prepare_result.get("error"):
+        degradation.append({"check": "ontology_prepare",
+                            "reason": str(prepare_result["error"])})
+    # multi-source disclosure: a preprocessing merge (outer merge on the time
+    # axis) changes the row semantics of the scored table — drift slopes are
+    # re-based per column (see _column_interval_seconds) and the audit stays in
+    # 00_input/preprocessing_report.json
+    prep_report_path = (os.path.join(args.run_dir, "00_input", "preprocessing_report.json")
+                        if args.run_dir else None)
+    if prep_report_path and os.path.isfile(prep_report_path):
+        try:
+            with open(prep_report_path, "r", encoding="utf-8") as f:
+                _prep = json.load(f)
+            _merge = _prep.get("merge") if isinstance(_prep, dict) else None
+            if isinstance(_merge, dict) \
+                    and str(_merge.get("strategy") or "").startswith("outer_merge"):
+                n_src = len(_merge.get("merged_files") or [])
+                ratio = _merge.get("cadence_ratio")
+                degradation.append({
+                    "check": "merged_sources",
+                    "reason": (f"评分为 {n_src} 个源表的时间轴外连接合并产物"
+                               + (f"，源采样节奏比 cadence_ratio={ratio}" if ratio is not None else "")
+                               + "；逐参数漂移斜率已按该列非缺失行的中位间隔重估；"
+                                 "逐文件审计见 00_input/preprocessing_report.json"),
+                })
+        except (json.JSONDecodeError, OSError) as exc:
+            degradation.append({"check": "preprocessing_report",
+                                "reason": f"unreadable: {exc}"})
     if invariant_cols:
         degradation.append({
             "check": "time_invariant_channels",
@@ -308,7 +429,12 @@ def analyze(args) -> tuple[dict, dict, int]:
     def spec_for(col: str) -> dict:
         if col in spec_map:
             return {**spec_map[col], "source": "user"}
-        if col in ontology_specs:
+        # dictionary defense line (defense in depth): a signal whose knowledge
+        # came from the shipped physics dictionary (auto_inferred) never feeds
+        # a Cpk spec — a dictionary prior must never turn into a score penalty.
+        # user_provided / context specs and legacy signals are unaffected.
+        doc = understanding["columns"].get(col) or {}
+        if col in ontology_specs and doc.get("knowledge_source") != "auto_inferred":
             return dict(ontology_specs[col])
         return {}
 
@@ -361,7 +487,8 @@ def analyze(args) -> tuple[dict, dict, int]:
         spec = spec_for(col)
         lsl, usl = spec.get("lsl"), spec.get("usl")
         cap = _capability(clean, lsl, usl)
-        dr = _drift(clean, interval)
+        col_interval = _column_interval_seconds(df, col)
+        dr = _drift(clean, col_interval if col_interval else interval)
         doc = understanding["columns"].get(col, {})
         entry = {
             "name": col,
@@ -525,6 +652,14 @@ def analyze(args) -> tuple[dict, dict, int]:
             "spc_source": spc_adapter.source_name(),
             "regime_method": regimes_res.get("method"),
             "ontology_source": ont["source"],
+            "ontology": {
+                "source": ont["source"],
+                "action": (prepare_result or {}).get("action"),
+                "scene_key": (prepare_result or {}).get("scene_key")
+                             or (args.scene or context.get("scene")),
+                "rag_used": bool((prepare_result or {}).get("rag_used", False)),
+                "brief_summary": _ontology_brief_summary(prepare_result),
+            },
             "weights_source": weights_source,
             "python": sys.version.split()[0],
             "numpy": np.__version__, "pandas": pd.__version__,
@@ -637,12 +772,43 @@ def _capability(clean, lsl, usl):
     return stability.capability(np.asarray(clean, dtype=float), lsl, usl)
 
 
+def _column_interval_seconds(df: pd.DataFrame, col: str) -> float | None:
+    """Median sampling interval over THIS column's non-NaN rows.
+
+    A global interval mis-bases columns on a different cadence after a
+    multi-source merge (a 5-min lab channel judged with the 1-min DCS median
+    inflates its per-day slope ~5x); the per-column median keeps every drift
+    rate physical. Deterministic.
+    """
+    if col not in df.columns:
+        return None
+    sub = df.loc[df[col].notna(), "_dt"]
+    if len(sub) < 2:
+        return None
+    is_dt = pd.api.types.is_datetime64_any_dtype(sub.dtype)
+    deltas = (np.diff(sub.values.astype("datetime64[ns]").astype(np.int64)) / 1e9
+              if is_dt else np.diff(pd.to_numeric(sub).values))
+    deltas = deltas[deltas > 0]
+    return float(np.median(deltas)) if len(deltas) else None
+
+
 def _drift(clean, interval):
     from lstcore import stability
     return stability.drift(np.asarray(clean, dtype=float), interval)
 
 
 def main(argv=None) -> int:
+    try:
+        return _main(argv)
+    except (SystemExit, KeyboardInterrupt):
+        raise
+    except BaseException:
+        print(f"CRASH: {traceback.format_exc().strip().splitlines()[-1]}",
+              file=sys.stderr)
+        return 4
+
+
+def _main(argv=None) -> int:
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")
         sys.stderr.reconfigure(encoding="utf-8", errors="replace")
@@ -660,7 +826,12 @@ def main(argv=None) -> int:
     a.add_argument("--doe-run-dir", default=None)
     a.add_argument("--attribution-json", default=None)
     a.add_argument("--ontology", default=None,
-                   help="ontology.json path (else run_dir artifacts, else asset store)")
+                   help="ontology.json path (else run_dir artifacts, else asset store); "
+                        "skips the Phase 0.5 ontology prepare")
+    a.add_argument("--ontology-mode", default="auto",
+                   choices=["off", "auto", "full", "reuse", "extend"],
+                   help="Phase 0.5 ontology prepare mode (default auto; report_context "
+                        "ontology.mode refines it inside the prepare)")
     a.add_argument("--scene", default=None,
                    help="scene key for ontology asset store lookup")
     a.add_argument("--doe-auto", action="store_true",
@@ -673,6 +844,11 @@ def main(argv=None) -> int:
     except (ValueError, FileNotFoundError, json.JSONDecodeError) as exc:
         print(f"[line-stability] input error: {exc}", file=sys.stderr)
         return 3
+    except SystemExit as exc:
+        # ontology gate (ONTOLOGY_BRIEF_REQUIRED / ONTOLOGY_CP2_FAILED / ...)
+        # — blocking contract, surfaced as the input/gate exit code
+        print(f"[line-stability] ontology gate: {exc}", file=sys.stderr)
+        return 3
 
     out_dir = args.out_dir or (os.path.join(args.run_dir, "line_report")
                                if args.run_dir else "line_report")
@@ -683,6 +859,14 @@ def main(argv=None) -> int:
         json.dump(report, f, ensure_ascii=False, indent=2)
     with open(chart_path, "w", encoding="utf-8") as f:
         json.dump(chart_bundle, f, ensure_ascii=False, indent=2)
+    _append_pipeline_event(args.run_dir, "analysis_done", {
+        "status": report["status"],
+        "score": report["conclusion"].get("score"),
+        "grade": report["conclusion"].get("grade"),
+        "n_parameters": report["conclusion"].get("n_parameters_assessed"),
+        "exit_code": code,
+        "report": rep_path,
+    })
 
     c = report["conclusion"]
     print(f"[line-stability] {report['status']} score={c['score']} grade={c['grade']} "

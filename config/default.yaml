@@ -117,6 +117,12 @@ data:
   folder_name_pattern: "^[a-zA-Z0-9_\\-一-龥]+$"
   file_preview_max_chars: 50000
   asset_cache_max_age: 3600
+  # Run workspace retention (plan v2 D5). Checked once at backend startup:
+  # workspaces older than retention_days are removed while their DB rows stay
+  # (report links become unavailable); soft-deleted runs older than
+  # purge_deleted_after_days are purged entirely (row + workspace).
+  retention_days: 90
+  purge_deleted_after_days: 30
 
 # --- Diagnosis Engine ---
 engine:

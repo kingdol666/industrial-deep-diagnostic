@@ -27,6 +27,11 @@ def build_charts(report: dict, df, roles: dict, top_n: int = MAX_TREND_PARAMS) -
         ts = df["_dt"]
         t_out = [ts.iloc[i].value // 10**6 if hasattr(ts.iloc[i], "value")
                  else float(ts.iloc[i]) * 1000.0 for i in keep]
+        # `p["nelson"]` values are buckets {"n_episodes", "indices"}, not bare
+        # index lists: iterating the bucket yields its keys, so the previous
+        # comprehension never matched a row and the report's red violation
+        # markers were silently always empty.
+        pos = {idx: i for i, idx in enumerate(keep)}
         sigma = p["sigma_within_mr"] or p["sigma"] or 0.0
         trend.append({
             "name": col,
@@ -38,9 +43,9 @@ def build_charts(report: dict, df, roles: dict, top_n: int = MAX_TREND_PARAMS) -
             "center": p["median"],
             "ucl": round(p["median"] + 3 * sigma, 6) if sigma else None,
             "lcl": round(p["median"] - 3 * sigma, 6) if sigma else None,
-            "violation_indices_in_plot": [
-                keep.index(idx) for rule, idxs in p["nelson"].items() for idx in idxs
-                if idx in keep],
+            "violation_indices_in_plot": sorted({
+                pos[idx] for bucket in p["nelson"].values()
+                for idx in (bucket.get("indices") or []) if idx in pos}),
             "spec": p["spec"],
         })
     heatmap_labels = [p["name"] for p in report["parameters"]]

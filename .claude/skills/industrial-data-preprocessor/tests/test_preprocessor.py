@@ -14,6 +14,16 @@ preprocessed_data.csv + report:
 8.  batch data without time     — cross-sectional passthrough
 9.  multi-block delimited file  — largest block wins
 10. no-tabular directory        — graceful no_tabular_data report
+11. quality flags / actual merge key / per-file exclusions (t12)
+12. --integrate-merge csv+xlsx folder — merge + column_source (t13)
+13. --integrate-merge cadence gate — default exclude vs opt-in (t14)
+14. CLI — integrate-merge x stability-single-primary mutex, exit 0 (t15)
+15. --integrate-merge strict exits — no primary / merged <50 rows (t16)
+16. parquet in default mode + corrupt-source isolation (t17)
+17. --integrate-merge duplicate-column semantics vetting (t18)
+
+New tests scratch under the in-repo .tmp-fixtures-preprocessor/ directory
+(never the system temp); it is removed again when the suite finishes.
 
 Run: uv run --project .claude/shared/scripts python .claude/skills/industrial-data-preprocessor/tests/test_preprocessor.py
 """
@@ -22,6 +32,7 @@ from __future__ import annotations
 
 import json
 import shutil
+import subprocess
 import sys
 import tempfile
 from pathlib import Path
@@ -31,12 +42,18 @@ import pandas as pd
 
 _HERE = Path(__file__).resolve().parent
 _SCRIPTS = _HERE.parent / "scripts"
+_REPO = _HERE.parents[3]
 sys.path.insert(0, str(_SCRIPTS))
 
-from data_preprocessor import preprocess, _preprocess_stability_folder  # noqa: E402
+from data_preprocessor import (  # noqa: E402
+    _preprocess_integrate_merge,
+    _preprocess_stability_folder,
+    preprocess,
+)
 
 _FAILURES: list[str] = []
 _TMP: Path = Path(tempfile.mkdtemp(prefix="prep_test_"))
+_INREPO_TMP: Path = _REPO / ".tmp-fixtures-preprocessor"
 
 
 def check(name: str, cond: bool, detail: str = "") -> None:
@@ -49,6 +66,15 @@ def check(name: str, cond: bool, detail: str = "") -> None:
 
 def run_case(data_path: Path, out_dir: Path, name: str = "t") -> dict:
     return preprocess(data_path, out_dir, name)
+
+
+def _inrepo_case(name: str) -> tuple[Path, Path]:
+    """Fresh in-repo scratch case dir; returns (case_dir, out_dir)."""
+    d = _INREPO_TMP / name
+    if d.exists():
+        shutil.rmtree(d, ignore_errors=True)
+    d.mkdir(parents=True)
+    return d, d / "out"
 
 
 def test_clean_csv() -> None:
@@ -372,8 +398,221 @@ def test_stability_folder_no_time_series() -> None:
     check("folder-no-time-no-output", not (out / "preprocessed_data.csv").exists(), "must not synthesize a series")
 
 
+def test_integrate_merge_two_format_folder() -> None:
+    """t13: --integrate-merge merges a csv+xlsx folder onto one primary and
+    discloses column_source / per-source cadence in the merge block."""
+    d, out = _inrepo_case("t13")
+    data = d / "data"
+    data.mkdir()
+    ts = pd.date_range("2025-08-01", periods=150, freq="min").strftime("%Y-%m-%d %H:%M:%S")
+    pd.DataFrame({
+        "timestamp": ts,
+        "temp_C": np.random.normal(200, 5, 150),
+        "press_bar": np.random.normal(8, 0.2, 150),
+    }).to_csv(data / "a_process.csv", index=False)
+    import openpyxl
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "quality"
+    ws.append(["timestamp", "quality_score"])
+    for i in range(150):
+        ws.append([ts[i], 90 + i * 0.02])
+    wb.save(data / "quality.xlsx")
+
+    rep = _preprocess_integrate_merge(data, out, "t13")
+    check("t13-status", rep["status"] == "ok", str(rep.get("reason", rep["status"])))
+    df = pd.read_csv(out / "preprocessed_data.csv")
+    check("t13-merged-shape", df.shape[0] == 150
+          and all(c in df.columns for c in ("temp_C", "press_bar", "quality_score")),
+          str(df.shape) + str(list(df.columns)))
+    mg = rep["merge"]
+    check("t13-merge-strategy", mg["strategy"] == "outer_merge_on_time_column", str(mg))
+    check("t13-merge-key", mg["key"] == "timestamp", str(mg.get("key")))
+    check("t13-column-source", mg["column_source"].get("temp_C") == "a_process.csv"
+          and mg["column_source"].get("quality_score") == "quality.xlsx"
+          and mg["column_source"].get("timestamp") == "a_process.csv",
+          str(mg.get("column_source")))
+    check("t13-cadence-map", mg["source_cadence_seconds"] == {"a_process.csv": 60.0, "quality.xlsx": 60.0},
+          str(mg.get("source_cadence_seconds")))
+    check("t13-cadence-ratio", mg["cadence_ratio"] == 1.0, str(mg.get("cadence_ratio")))
+    check("t13-no-exclusions", rep["merge_exclusions"] == [], str(rep["merge_exclusions"]))
+
+
+def test_integrate_merge_cadence_gate() -> None:
+    """t14: cadence gate — an 11-min secondary against a 1-min primary is
+    excluded as cadence_mismatch by default and merged with the opt-in flag."""
+    d, out = _inrepo_case("t14")
+    data = d / "data"
+    data.mkdir()
+    pd.DataFrame({
+        "timestamp": pd.date_range("2025-08-01", periods=300, freq="min").strftime("%Y-%m-%d %H:%M:%S"),
+        "fast_val": np.random.normal(50, 1, 300),
+    }).to_csv(data / "b_fast.csv", index=False)
+    pd.DataFrame({
+        "timestamp": pd.date_range("2025-08-01", periods=120, freq="11min").strftime("%Y-%m-%d %H:%M:%S"),
+        "slow_val": np.random.normal(10, 1, 120),
+    }).to_csv(data / "c_slow.csv", index=False)
+
+    rep = _preprocess_integrate_merge(data, out, "t14")
+    check("t14-status", rep["status"] == "ok", str(rep.get("reason", rep["status"])))
+    excl = {e["file"]: e["reason_code"] for e in rep["merge_exclusions"]}
+    check("t14-cadence-excluded", excl.get("c_slow.csv") == "cadence_mismatch", str(excl))
+    check("t14-neg-no-merge", rep["merge"]["strategy"] == "no_merge", str(rep["merge"]))
+    disp = {x["relative_path"]: x.get("reason_code") for x in rep["source_dispositions"]}
+    check("t14-disposition-code", disp.get("c_slow.csv") == "cadence_mismatch", str(disp))
+    df = pd.read_csv(out / "preprocessed_data.csv")
+    check("t14-slow-col-dropped", "slow_val" not in df.columns, str(list(df.columns)))
+
+    out2 = d / "out2"
+    rep2 = _preprocess_integrate_merge(data, out2, "t14-allow", allow_cadence_mismatch=True)
+    check("t14-allow-status", rep2["status"] == "ok", str(rep2.get("reason", rep2["status"])))
+    mg = rep2["merge"]
+    df2 = pd.read_csv(out2 / "preprocessed_data.csv")
+    check("t14-allow-merged", "slow_val" in df2.columns and df2.shape[0] == 392,
+          str(df2.shape) + str(list(df2.columns)))
+    check("t14-allow-cadence-map", mg["source_cadence_seconds"] == {"b_fast.csv": 60.0, "c_slow.csv": 660.0},
+          str(mg.get("source_cadence_seconds")))
+    check("t14-allow-ratio", mg["cadence_ratio"] == 11.0, str(mg.get("cadence_ratio")))
+    check("t14-allow-disclosure", mg.get("cadence_mismatch_allowed") == ["c_slow.csv"],
+          str(mg.get("cadence_mismatch_allowed")))
+
+
+def test_cli_integrate_merge_mutex() -> None:
+    """t15: --integrate-merge and --stability-single-primary are hard mutually
+    exclusive (usage error, exit 2); --integrate-merge alone exits 0."""
+    d, out = _inrepo_case("t15")
+    data = d / "data"
+    data.mkdir()
+    pd.DataFrame({
+        "timestamp": pd.date_range("2025-08-01", periods=80, freq="min").strftime("%Y-%m-%d %H:%M:%S"),
+        "value": np.arange(80),
+    }).to_csv(data / "only.csv", index=False)
+    script = str(_SCRIPTS / "data_preprocessor.py")
+    both = subprocess.run([sys.executable, script, "--data-path", str(data), "--output", str(out),
+                           "--integrate-merge", "--stability-single-primary"],
+                          capture_output=True, text=True)
+    check("t15-mutex-exit2", both.returncode == 2,
+          f"rc={both.returncode} err={(both.stderr or '')[:200]}")
+    check("t15-mutex-usage", "usage" in (both.stderr or "").lower(), str((both.stderr or "")[:200]))
+    single = subprocess.run([sys.executable, script, "--data-path", str(data), "--output", str(d / "out2"),
+                             "--integrate-merge"], capture_output=True, text=True)
+    check("t15-integrate-exit0", single.returncode == 0,
+          f"rc={single.returncode} err={(single.stderr or '')[:200]}")
+
+
+def test_integrate_merge_strict_exits() -> None:
+    """t16: no eligible primary and a post-merge primary below 50 rows are the
+    strict exit-2 statuses of --integrate-merge."""
+    d, out = _inrepo_case("t16")
+    # (a) no usable primary: only a tiny table without a time axis
+    tiny = d / "tiny"
+    tiny.mkdir()
+    pd.DataFrame({"metric_0": np.arange(10), "metric_1": np.arange(10)}).to_csv(tiny / "small.csv", index=False)
+    rep = _preprocess_integrate_merge(tiny, d / "out-tiny", "t16a")
+    check("t16a-no-primary-status", rep["status"] == "no_usable_primary", str(rep["status"]))
+
+    # (b) merge executes but the anti-bloat gate abandons it and the score
+    # fallback restores a <50-row table → merged_primary_too_small → exit 2.
+    # a_small_wide carries a time column (so it is a merge-pool candidate the
+    # fallback can pick) but stays below the 50-row primary eligibility.
+    data = d / "data"
+    data.mkdir()
+    small_ts = pd.date_range("2025-08-01", periods=30, freq="min").strftime("%Y-%m-%d %H:%M:%S")
+    pd.DataFrame({"timestamp": small_ts,
+                  **{f"metric_{i}": np.random.normal(0, 1, 30) for i in range(30)}}).to_csv(
+        data / "a_small_wide.csv", index=False)
+    pd.DataFrame({
+        "timestamp": pd.date_range("2025-09-01", periods=60, freq="min").strftime("%Y-%m-%d %H:%M:%S"),
+        "temp_C": np.random.normal(200, 5, 60),
+        "press_bar": np.random.normal(8, 0.2, 60),
+    }).to_csv(data / "b_primary.csv", index=False)
+    pd.DataFrame({
+        "timestamp": ["2025-09-01 00:00:00"] * 50 + ["2025-09-01 00:01:00"] * 50,
+        "partner_val": np.arange(100),
+    }).to_csv(data / "c_partner.csv", index=False)
+    proc = subprocess.run([sys.executable, str(_SCRIPTS / "data_preprocessor.py"),
+                           "--data-path", str(data), "--output", str(out), "--integrate-merge"],
+                          capture_output=True, text=True)
+    check("t16b-exit2", proc.returncode == 2,
+          f"rc={proc.returncode} err={(proc.stderr or '')[:300]}")
+    report = json.loads((out / "preprocessing_report.json").read_text(encoding="utf-8"))
+    check("t16b-status", report["status"] == "merged_primary_too_small", str(report["status"]))
+    check("t16b-abandoned", report["merge"]["strategy"] == "abandoned", str(report["merge"].get("strategy")))
+    check("t16b-fallback-selected", report["selected_table"]["file"] == "a_small_wide.csv",
+          str(report["selected_table"].get("file")))
+
+
+def test_default_mode_parquet() -> None:
+    """t17: parquet is a first-class default-mode table source; a corrupt
+    parquet degrades to a per-source error instead of failing the run."""
+    d, out = _inrepo_case("t17")
+    pd.DataFrame({
+        "timestamp": pd.date_range("2025-07-01", periods=120, freq="min"),
+        "value": np.random.normal(10, 1, 120),
+    }).to_parquet(d / "data.parquet")
+    rep = run_case(d / "data.parquet", out)
+    check("t17-parquet-status", rep["status"] == "ok", str(rep["status"]))
+    df = pd.read_csv(out / "preprocessed_data.csv")
+    check("t17-parquet-shape", df.shape == (120, 2), str(df.shape))
+    check("t17-parquet-format", (rep["tables"][0] or {}).get("format") == "parquet", str(rep["tables"]))
+
+    d2, out2 = _inrepo_case("t17b")
+    pd.DataFrame({
+        "timestamp": pd.date_range("2025-07-01", periods=120, freq="min").strftime("%Y-%m-%d %H:%M:%S"),
+        "value": np.arange(120),
+    }).to_csv(d2 / "good.csv", index=False)
+    (d2 / "bad.parquet").write_bytes(b"definitely not a parquet file")
+    rep2 = run_case(d2, out2)
+    check("t17b-still-ok", rep2["status"] == "ok", str(rep2["status"]))
+    roles = {s["file"]: s["role"] for s in rep2["sources"]}
+    check("t17b-bad-parquet-isolated", roles.get("bad.parquet") == "error", str(rep2["sources"]))
+    check("t17b-good-processed", any(t["file"] == "good.csv" for t in rep2["tables"]),
+          str(rep2["tables"]))
+    df2 = pd.read_csv(out2 / "preprocessed_data.csv")
+    check("t17b-good-rows", df2.shape[0] == 120, str(df2.shape))
+
+
+def test_integrate_merge_duplicate_columns() -> None:
+    """t18: duplicated columns are vetted with _same_column_meaning on the
+    aligned time axis — agreeing copies fill gaps, disagreeing copies are
+    dropped with a duplicate_column_semantics_mismatch exclusion."""
+    d, out = _inrepo_case("t18")
+    data = d / "data"
+    data.mkdir()
+    ts = pd.date_range("2025-08-01", periods=150, freq="min").strftime("%Y-%m-%d %H:%M:%S")
+    temp = [f"{200 + i * 0.1:.1f}" for i in range(150)]
+    temp[10] = ""
+    temp[20] = ""
+    pd.DataFrame({"timestamp": ts, "temp_C": temp, "press_bar": np.random.normal(8, 0.2, 150),
+                  "flow_m3h": np.random.normal(55, 1, 150)}).to_csv(data / "a_main.csv", index=False)
+    agree = temp[:]
+    agree[10] = f"{200 + 10 * 0.1:.1f}"
+    agree[20] = f"{200 + 20 * 0.1:.1f}"
+    pd.DataFrame({"timestamp": ts, "temp_C": agree,
+                  "humidity_pct": np.random.normal(60, 2, 150)}).to_csv(data / "b_agree.csv", index=False)
+    pd.DataFrame({"timestamp": ts,
+                  "temp_C": [f"{300 + i * 0.1:.1f}" for i in range(150)]}).to_csv(data / "c_disagree.csv", index=False)
+
+    rep = _preprocess_integrate_merge(data, out, "t18")
+    check("t18-status", rep["status"] == "ok", str(rep.get("reason", rep["status"])))
+    mismatches = {(e["file"], e.get("column")): e["reason_code"]
+                  for e in rep["merge_exclusions"]
+                  if e.get("reason_code") == "duplicate_column_semantics_mismatch"}
+    check("t18-disagree-excluded", mismatches.get(("c_disagree.csv", "temp_C"))
+          == "duplicate_column_semantics_mismatch", str(mismatches))
+    check("t18-agree-not-excluded", ("b_agree.csv", "temp_C") not in mismatches, str(mismatches))
+    df = pd.read_csv(out / "preprocessed_data.csv")
+    check("t18-gap-filled", abs(float(df.loc[10, "temp_C"]) - 201.0) < 1e-9, str(df.loc[10, "temp_C"]))
+    check("t18-primary-values-kept", abs(float(df.loc[0, "temp_C"]) - 200.0) < 1e-9,
+          str(df.loc[0, "temp_C"]))
+    cs = rep["merge"]["column_source"]
+    check("t18-column-source", cs.get("humidity_pct") == "b_agree.csv"
+          and cs.get("temp_C") == "a_main.csv", str(cs))
+
+
 def main() -> None:
     print("preprocessor tests:")
+    shutil.rmtree(_INREPO_TMP, ignore_errors=True)
     for fn in [
         test_clean_csv,
         test_gbk_semicolon_junk,
@@ -388,9 +627,16 @@ def main() -> None:
         test_quality_flags_merge_key_exclusions,
         test_stability_folder_adaptive_bc2_shape,
         test_stability_folder_no_time_series,
+        test_integrate_merge_two_format_folder,
+        test_integrate_merge_cadence_gate,
+        test_cli_integrate_merge_mutex,
+        test_integrate_merge_strict_exits,
+        test_default_mode_parquet,
+        test_integrate_merge_duplicate_columns,
     ]:
         fn()
     shutil.rmtree(_TMP, ignore_errors=True)
+    shutil.rmtree(_INREPO_TMP, ignore_errors=True)
     if _FAILURES:
         print(f"\n{len(_FAILURES)} FAILURES")
         sys.exit(1)

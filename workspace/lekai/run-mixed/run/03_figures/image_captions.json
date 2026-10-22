@@ -1,0 +1,361 @@
+{
+  "generated_at": "2026-10-22T00:24:00Z",
+  "source_files": {
+    "plot_manifest": "03_figures/plot_manifest.json",
+    "vlm_input_manifest": "03_figures/vlm_input_manifest.json",
+    "visual_analysis": "03_figures/visual_analysis.json",
+    "validate_report": "02_processed/validate_report.json",
+    "data_analysis_conclusion": "02_processed/data_analysis_conclusion.json",
+    "anomaly_report": "02_processed/anomaly_report.json",
+    "vlm_read_successfully": [
+      "fig03_temporal_overlay.png",
+      "fig04_per_product_overlay.png",
+      "fig05_exposure_calibration.png",
+      "fig06_simpson_stratified.png",
+      "fig09_ps005_sawtooth.png",
+      "fig13_defect_composition.png"
+    ]
+  },
+  "total_figures": 13,
+  "figures": {
+    "fig01_response_distribution.png": {
+      "figure_id": "fig01_response_distribution",
+      "title": "三类缺陷计数的重尾分布（对数轴）",
+      "chart_type": "distribution",
+      "axes": {
+        "x": "缺陷计数（对数轴）",
+        "y": "批次频数",
+        "color": "缺陷类别"
+      },
+      "description": "三面板直方图分别给出 total_defects / oligomer / dust 的计数分布（对数横轴），红虚线为中位数、橙点线为均值，用于判断响应是否可当作近正态、均值比较是否被极端批次劫持。",
+      "key_observations": [
+        "total_defects 中位 51、均值 205、最大 9516：均值是中位的 4.0 倍，偏度 7.83",
+        "oligomer 中位 8（最大 1105，6 个批次为 0），dust 中位 11（最大 3775，1 个批次为 0）",
+        "分布在对数轴上才近似对称 → 原尺度下为正态假设的统计不适用",
+        "5 个批次占缺陷总量的 69%，直方图右尾由极少数批次构成"
+      ],
+      "diagnostic_implication": "响应是重尾计数，诊断必须使用中位数/秩方法或 log 变换，任何基于均值的比较都会被 H2652611（9516）等单点劫持。",
+      "validation_issues": [
+        "重尾：偏度 7.4-12.0，Pearson 不适用",
+        "重复 batch_id H2652611 两行（39 与 9516）"
+      ],
+      "trend_shapes": "N/A — 横截面分布",
+      "vlm_notes": "未送 VLM（分布直方图，按 VLM 派发规则排除）。以上为 plot_manifest 图注 + validate_report 统计的转述，非像素读数。",
+      "figure_order": 1
+    },
+    "fig02_model_response_medians.png": {
+      "figure_id": "fig02_model_response_medians",
+      "title": "牌号分层：缺陷计数与缺陷密度中位对比",
+      "chart_type": "bar",
+      "axes": {
+        "x": "牌号（model）",
+        "y": "中位计数（对数轴）/ 中位缺陷密度",
+        "color": "缺陷类别",
+        "facet": "左：计数；右：密度"
+      },
+      "description": "左图按 9 个牌号给出 total/oligomer/dust 的批内中位计数（对数轴），右图给出总缺陷密度中位，用于区分“牌号是混杂变量”还是“牌号是真实驱动”，并检查计数差异是否只是批次长度差异。",
+      "key_observations": [
+        "牌号对 total_defects 显著（Kruskal p=2.4e-5），对残差类显著（p=2.1e-7）",
+        "牌号对 dust 不显著（p=0.067）",
+        "FP41（n=3）中位 4145，是其余牌号（33-66）的 60 倍以上",
+        "PG31DS 占样本 45%，主导合并统计"
+      ],
+      "diagnostic_implication": "牌号是第一层混杂：任何未分层的合并结论都会被牌号构成变化污染，诊断必须按牌号分层或加固定效应。",
+      "validation_issues": [
+        "FP41 仅 n=3，中位不可外推",
+        "PG31DS 占 45%，权重失衡"
+      ],
+      "trend_shapes": "N/A — 分组对比",
+      "vlm_notes": "未送 VLM（分组柱状图，VLM 无法从柱高读出数值，按派发规则排除）。内容来自 plot_manifest 图注与 model_kruskal 结果。",
+      "figure_order": 2
+    },
+    "fig03_temporal_overlay.png": {
+      "figure_id": "fig03_temporal_overlay",
+      "title": "工艺参数与缺陷密度的时间对齐叠加",
+      "chart_type": "overlay",
+      "axes": {
+        "x": "ts_start（2026-05-04 → 2026-05-14，按批次严格排序）",
+        "y": "z 分数（已标准化）",
+        "color": "未分类缺陷密度(红粗)/总缺陷密度(黑虚)/W1C8A(浅蓝)/W1C86(橙)/W1C84(绿)/F_PS005(紫)/MD_TH012(暗红细)"
+      },
+      "description": "全样本 149 批的 z 标准化时间对齐叠加图：红色粗线为未分类缺陷密度 log1p(z)，黑色粗虚线为总缺陷密度 log1p(z)，另叠加 W1C8A/W1C86/W1C84、F_PS005、MD_TH012 五条过程量；紫色点线为 total_defects 的 Pettitt 变点（H2652667，2026-05-09 20:02）。",
+      "key_observations": [
+        "未分类缺陷密度与总缺陷密度两条曲线自 05-05 至 05-14 几乎逐点重合，仅在 05-07 前后的四个孤立尖峰（黑线 z≈2.9/3.7/5.0/4.0）处分离，最大分离约 0.6 个 z 单位",
+        "变点竖线之后两条缺陷曲线基线由 z≈−1.2 抬升到 z≈+0.4（约 1.6 个 z 单位），且形态由“低位平台+孤立尖峰”切换为“连续高频振荡”（05-10.5 与 05-11.9 两峰 z≈2.0）",
+        "变点线上没有任何单条过程参数出现同量级阶跃：W1C8A、W1C84、F_PS005 均连续变化",
+        "W1C8A 在 05-09.3 起由 −1.2 单调爬升至 05-12 的 +1.0 后平台化（跨约 55 批，中途无台阶）",
+        "W1C86 与缺陷密度反相：缺陷基线抬升的同时 W1C86 由 +1.3 缓降至 −0.8",
+        "MD_TH012 仅在 05-07.1 阶跃下移、05-08.3 阶跃上移，此后全段近水平（+0.35…+0.45），不跟随缺陷漂移"
+      ],
+      "diagnostic_implication": "total_defects 的时间走势由未标注残差类主导，恶化形态是 05-09 20:02 的一次运行状态切换（基线抬升 + 高频振荡）而非某参数的设备阶跃。",
+      "validation_issues": [
+        "变点前的“低位”被 05-06 21:19–05-08 03:00 的极值批次抬高，直接比较两段均值会失真",
+        "W1C 通道族单位 mixed（绝对量 + 偏差量），z 标准化后仅相对可比"
+      ],
+      "trend_shapes": "低位平台 + 孤立尖峰（变点前）→ 基线抬升 + 高频振荡（变点后）",
+      "divergence_points": "05-07 前后四个孤立尖峰处 total 与残差分离；05-09 之后 W1C86 与缺陷密度持续反向",
+      "anomaly_regions": "05-06 21:19 – 05-08 03:00（极值批次窗口）",
+      "vlm_notes": "VLM 直接读图（READ_SUCCESS）。读数细节：W1C84 在 05-10.6 有 z≈+2.0 的单峰，为全图过程量最大上冲。",
+      "figure_order": 3
+    },
+    "fig04_per_product_overlay.png": {
+      "figure_id": "fig04_per_product_overlay",
+      "title": "重点牌号 PG31DS 的牌号内时间对齐叠加",
+      "chart_type": "overlay",
+      "axes": {
+        "x": "ts_start（仅 PG31DS，n=67）",
+        "y": "z 分数",
+        "color": "总缺陷密度(黑)/残差缺陷密度(红粗)/W1C8A(蓝)/W1C86(橙)/F_PS005(绿)/MD_TH012(暗红细)"
+      },
+      "description": "只保留 PG31DS 的 67 个批次，消除牌号混杂后重画时间对齐叠加，用于判别 fig03 的“参数-缺陷同向漂移”是否只是牌号构成造成的假象。",
+      "key_observations": [
+        "牌号内总缺陷密度与残差缺陷密度仍几乎完全重合，仅 05-05 02:00 尖峰处分离（黑 +2.0 / 红 +1.2，随即跌至 −2.0 / −3.2）",
+        "05-05→05-09 两条缺陷密度线并行抬升；05-10 之后进入 z∈[−1,+3] 的高方差锯齿带，与全样本变点时刻一致",
+        "W1C8A 由 −2.7 连续爬升至 +0.6（05-05→05-13.5），方向与缺陷一致；但 05-10.5 缺陷爆发（z≈+2.7）时 W1C8A 仅 +0.4，批次级不同步",
+        "W1C86 由 +3.5 降至 −0.3、MD_TH012 由 +3.3 降至 −0.5（05-05→05-09），与缺陷上升严格反向",
+        "F_PS005 由 +2.7 降到 −1.9（05-05→05-09）后进入 0…+1.4 震荡，末段回升"
+      ],
+      "diagnostic_implication": "牌号内时间趋势与 W1C absolute 子族的同向漂移均复现 → 排除“纯牌号构成效应”，但 W1C8A 与缺陷仍只在数天尺度同向，属共同慢漂移而非批次级因果。",
+      "validation_issues": [
+        "图注“W1C 通道族与缺陷同向漂移”仅对 W1C8A/W1C84 成立，W1C86 在同帧内明确反相",
+        "PG31DS 内批次间隔仍不规则"
+      ],
+      "trend_shapes": "前段（05-05→05-09）并行缓升 → 后段（05-10→05-14）高方差锯齿",
+      "anomaly_regions": "05-05 02:00 单峰；05-10 之后连续爆发",
+      "vlm_notes": "VLM 直接读图（READ_SUCCESS）。注意 05-05 的尖峰来自 FG22 牌号外的早期批次被 z 标准化放大，不代表 PG31DS 自身异常。",
+      "figure_order": 4
+    },
+    "fig05_exposure_calibration.png": {
+      "figure_id": "fig05_exposure_calibration",
+      "title": "暴露标定 C10：批次长度与缺陷计数/密度",
+      "chart_type": "scatter",
+      "axes": {
+        "x": "批次计米 meters（对数轴，10^3–6.5×10^3）",
+        "y": "左：总缺陷计数（对数轴）；右：缺陷密度（1/km，对数轴）",
+        "color": "时间索引（viridis，0–149）",
+        "facet": "左：计数；右：密度"
+      },
+      "description": "左图以 log-log 坐标检验缺陷计数是否随批次长度成比例增长，红线为模型固定效应下估计的斜率 0.547；右图为缺陷密度（计数/meters）对批次长度的散点，颜色为时间索引。",
+      "key_observations": [
+        "meters 从 10^3 增至 6.5×10^3（0.81 个数量级）时，计数中位仅由约 35 升到约 90（0.41 个数量级）→ 斜率 0.547 远小于 1",
+        "黄色/浅绿点（时间索引≈110–149）全部压缩在 meters 2500–3200 的窄带内，深紫点（索引≈0–40）横跨 1000–6500 m",
+        "右图缺陷密度由约 50 /km（10^3 m）降到约 10 /km（4×10^3–6.5×10^3 m），下降主要发生在 1.5×10^3→3×10^3 区间，3 km 后近似饱和",
+        "最高的密度点（约 4000 /km）出现在 4.5×10^3 m 处的早期批次，属单点离群"
+      ],
+      "diagnostic_implication": "批次长度是暴露分母而非主因：计数不与长度成正比，密度随长度下降并在 3 km 后饱和，且 meters 与时间强混杂，不能据此提出“拉长批次降缺陷”的排产建议。",
+      "validation_issues": [
+        "meters 与时间索引强混杂（后段排产集中在 2.5–3.2 km），斜率估计含时间成分",
+        "右图最高密度点由单批次支撑"
+      ],
+      "trend_shapes": "计数-长度：亚比例幂律（斜率 0.547）；密度-长度：下降后饱和",
+      "vlm_notes": "VLM 直接读图（READ_SUCCESS）。颜色分层是最强视觉信号：时间与 exposure 不可分离。",
+      "figure_order": 5
+    },
+    "fig06_simpson_stratified.png": {
+      "figure_id": "fig06_simpson_stratified",
+      "title": "Simpson 悖论检查：合并相关与牌号内相关",
+      "chart_type": "scatter",
+      "axes": {
+        "x": "左：W1C8A@PV1_mean；右：效应量（Spearman / 偏相关）",
+        "y": "左：未分类缺陷计数（对数轴）；右：参数名",
+        "color": "牌号（左）；估计方式（右）",
+        "facet": "左：分牌号散点+拟合线；右：合并 vs 控制后柱状对比"
+      },
+      "description": "左侧按牌号着色展示 W1C8A 与未分类缺陷的关系并逐牌号拟合（合并 rho=0.50）；右侧对比 9 个 W1C 参数的合并 Spearman 与控制牌号+计米后的偏相关，用于检验 Simpson 反转。",
+      "key_observations": [
+        "6 条牌号内拟合线方向不一致：仅 PG31DS（红，n=67）明显上行（W1C8A 20→72 时未分类缺陷约 12→90），FP21/FG22 近水平，PG32D/PG32M 缓降",
+        "PG31DS 独占 W1C8A 45–72 的 x 区间，其余牌号集中在 18–42 → 合并 rho=0.50 主要由单一牌号的跨度支撑",
+        "右图 9 个参数全部“同号但衰减”：W1C8A 0.50→0.40、W1C88 0.47→0.35、W1C84 0.42→0.37、W1C8B 0.42→0.30",
+        "负向侧：W1C81 −0.44→−0.28、W1C40 −0.37→−0.30、W1C4B −0.36→−0.26、W1C83 −0.36→−0.22",
+        "W1C86 几乎不衰减（−0.40→−0.40），最不依赖牌号构成"
+      ],
+      "diagnostic_implication": "W1C 族与缺陷的关系在控制牌号与计米后方向不反转，只是幅度衰减，因此不是典型 Simpson 反转；但 W1C8A 的合并效应依赖 PG31DS 的 x 跨度，必须按牌号分层表述。",
+      "validation_issues": [
+        "Simpson 结构存在（分层方向不一致，6 个分层中仅 2 个与合并同号），但方向未反转",
+        "PG32M 有 1 个约 10^4 的极端点（W1C8A≈40），可能抬高该层斜率"
+      ],
+      "trend_shapes": "分层拟合线：1 升 / 2 平 / 2 降",
+      "vlm_notes": "VLM 直接读图（READ_SUCCESS）。左图的视觉要点是“只有红点覆盖上半段 x 范围”，这是合并相关的真正来源。",
+      "figure_order": 6
+    },
+    "fig07_correlation_heatmap.png": {
+      "figure_id": "fig07_correlation_heatmap",
+      "title": "44 个工艺参数的相关矩阵与共线性聚类",
+      "chart_type": "heatmap",
+      "axes": {
+        "x": "44 个工艺参数（按聚类排序）",
+        "y": "44 个工艺参数（按聚类排序）",
+        "color": "Spearman rho"
+      },
+      "description": "按 1-|rho| 平均连接聚类排序的 44×44 Spearman 相关矩阵，用于识别哪些列是同一物理信号的重复测量、独立信号到底有几个。",
+      "key_observations": [
+        "参数间平均 |rho|=0.37",
+        "PC1 解释 40.7% 方差，90% 方差只需 10 个主成分",
+        "W1C 族内部成块高相关（绝对量族与偏差量族各自成块）",
+        "MD_TH 族（18 区）自成一簇，与 W1C 族相关性较低"
+      ],
+      "diagnostic_implication": "44 列不可当作独立证据：按单列统计“显著关联”会把同一物理信号重复计入 5-9 次，诊断提名必须按族去重。",
+      "validation_issues": [
+        "聚类阈值 0.6 为经验选择，改变阈值会移动族边界",
+        "含 mixed 单位列（W1C 绝对量与偏差量并列）"
+      ],
+      "trend_shapes": "N/A — 横截面",
+      "vlm_notes": "未送 VLM（相关矩阵热力图，按派发规则排除）。内容来自 collinearity 结果。",
+      "figure_order": 7
+    },
+    "fig08_ccf_lag.png": {
+      "figure_id": "fig08_ccf_lag",
+      "title": "F_PS005 的 5 批滞后互相关",
+      "chart_type": "line",
+      "axes": {
+        "x": "滞后（0–5 批）",
+        "y": "Spearman rho",
+        "color": "响应变量（total/oligomer/dust）"
+      },
+      "description": "以批次为步长计算 F_PS005 领先 0–5 批时与三类缺陷的 Spearman，用于检验“供料回路压差先于缺陷出现”的时序假设。",
+      "key_observations": [
+        "搜索上限 5 批（受不规则批间隔约束）",
+        "若最优点落在 lag=5 边界，则不能宣称已找到真实物性滞后",
+        "批间相关在锯齿趋势下易被趋势自相关放大",
+        "该图支持“批级滞后”而非“秒级传递”，物理解释需标 INFERRED"
+      ],
+      "diagnostic_implication": "滞后结论不能超过 0–5 批的搜索窗口；若最优值贴边界，只能报告“滞后未界定”，不能作为传递时间证据。",
+      "validation_issues": [
+        "边界效应：搜索上限 5 批",
+        "趋势自相关会伪造滞后峰"
+      ],
+      "trend_shapes": "N/A — 滞后剖面",
+      "vlm_notes": "未送 VLM（单参数双轴/滞后剖面，按派发规则排除）。内容来自 time_lag 结果与 plot_manifest 图注。",
+      "figure_order": 8
+    },
+    "fig09_ps005_sawtooth.png": {
+      "figure_id": "fig09_ps005_sawtooth",
+      "title": "F_PS005 锯齿漂移与缺陷密度对照",
+      "chart_type": "overlay",
+      "axes": {
+        "x": "ts_start（2026-05-04 → 2026-05-14）",
+        "y": "上图：F_PS005@PV1 过程值（7.5–12.3）；下图：缺陷密度（1/km）",
+        "color": "上图：F_PS005；下图：总缺陷密度(红)、粉尘密度×10(绿)",
+        "facet": "上下两联，共享时间轴"
+      },
+      "description": "上图展示 F_PS005 随时间的锯齿形态（段内上升 + 阶跃回落），下图对照同期的总缺陷密度与粉尘密度（×10），用于检验复位点是否伴随缺陷下降、从而验证“过滤器压差累积→颗粒脱落”假设。",
+      "key_observations": [
+        "锯齿确认：05-05 由 8.7 起升，05-06 台阶至 10.1 后陡升到 12.1，05-06.5–05-07.4 形成 12.1–12.3 高原，05-07.5 直落 8.8（−3.3），05-09.4 阶跃跌至 7.5（−2.4），此后极缓爬升到 8.6",
+        "末段 05-13.4–05-13.7 由 8.6 陡升到 11.9，与首段 8.7–12.1 形态相似 → 新一轮累积周期开始",
+        "与图注不一致（DISCREPANCY）：标注的 05-11.4 与 05-12.3 处曲线仅回落 0.2–0.3（8.55→8.25、8.45→8.40），不构成阶跃复位；真正可见的阶跃只有 05-07.5 与 05-09.4 两次",
+        "下图缺陷密度除 3 个尖峰外全贴零轴：粉尘×10 峰 7500（05-06.9）、总密度峰 3300（05-07.3）、930（05-07.9）",
+        "两次真实复位前后缺陷密度无可见变化（复位前 0–50、复位后 0–30，无台阶）"
+      ],
+      "diagnostic_implication": "供料/过滤回路的“累积-复位”循环被确认，但复位不带来缺陷改善、且 3 个最高密度峰都落在复位之前并与极值批次同刻 → “压差上升→颗粒脱落→缺陷上升”的因果链缺少事件层面支持，应降为弱候选。",
+      "validation_issues": [
+        "图注“index 70/108/128 三次阶跃回落”与像素读数不符（后两次仅 −0.2~−0.3）",
+        "下图纵轴被单个批次撑满（峰 >7000，其余 <400），无法据柱高做时段比较"
+      ],
+      "trend_shapes": "锯齿（段内上升 + 阶跃复位），末段复位幅度衰减后再次陡升",
+      "divergence_points": "05-07.5 与 05-09.4 两次复位后 F_PS005 与缺陷密度完全脱钩",
+      "anomaly_regions": "05-06.9 与 05-07.3（H2652604 / H2652611 极值批次）",
+      "vlm_notes": "VLM 直接读图（READ_SUCCESS）。读数在还原到过程值单位（7.5–12.3）后给出，避免 z 化造成的幅度错觉。",
+      "figure_order": 9
+    },
+    "fig10_leverage.png": {
+      "figure_id": "fig10_leverage",
+      "title": "留一杠杆检验（单点敏感性）",
+      "chart_type": "bar",
+      "axes": {
+        "x": "参数",
+        "y": "留一最大 |Δrho|",
+        "color": "参数族"
+      },
+      "description": "对 10 个主要关联逐一删除单个批次并重算 Spearman，取最大变化量，用于判断关联是否只由一两个极端批次支撑。",
+      "key_observations": [
+        "全部关联的留一最大 |Δrho| 均 < 0.15",
+        "最大 |Δrho| 仅 0.027",
+        "删除 H2652611（9516）与同 batch_id 的另一行后，主要 rho 变化 <0.02",
+        "关联不是单点支撑的"
+      ],
+      "diagnostic_implication": "主要合并关联具有单点稳健性，不能以“极端批次制造”为由否定它们；但“稳健”不等于“非共同漂移”，仍需时间控制。",
+      "validation_issues": [
+        "留一仅检验单点杠杆，不检验时间混杂"
+      ],
+      "trend_shapes": "N/A — 横截面",
+      "vlm_notes": "未送 VLM（柱状图，按派发规则排除）。内容来自 duplicate_batch_sensitivity 与 plot_manifest 图注。",
+      "figure_order": 10
+    },
+    "fig11_model_response_heatmap.png": {
+      "figure_id": "fig11_model_response_heatmap",
+      "title": "牌号 × 缺陷类别中位计数矩阵",
+      "chart_type": "heatmap",
+      "axes": {
+        "x": "缺陷类别（total/oligomer/dust/残差）",
+        "y": "牌号（9 个）",
+        "color": "中位计数"
+      },
+      "description": "9 个牌号在四类响应上的中位计数矩阵，用于定位牌号-类别特异的异常并评估分层结论的样本量支撑。",
+      "key_observations": [
+        "FP41（n=3）在 total 与 oligomer 上极端偏高（total 中位 4145）",
+        "PG31DS 占样本 45%，主导合并统计",
+        "按牌号总缺陷中位落在 33–66 区间（除 FP41）",
+        "dust 在牌号间差异边缘（Kruskal p=0.067）"
+      ],
+      "diagnostic_implication": "牌号差异主要落在 total 与残差类，dust 不随牌号变化 → 诊断应按牌号分层处理 total/残差，dust 则更可能是全场性多源问题。",
+      "validation_issues": [
+        "FP41 n=3，单元格中位不可外推",
+        "PG31DS 权重 45%"
+      ],
+      "trend_shapes": "N/A — 横截面",
+      "vlm_notes": "未送 VLM（热力图，按派发规则排除）。内容来自 model_table 与 plot_manifest 图注。",
+      "figure_order": 11
+    },
+    "fig12_family_effects.png": {
+      "figure_id": "fig12_family_effects",
+      "title": "参数族复合指标与缺陷类别的偏相关",
+      "chart_type": "heatmap",
+      "axes": {
+        "x": "缺陷类别",
+        "y": "8 个参数族（F_PS_feed / MD_TH_preheat / stretch / cooling / W1C_stable_setpoint / absolute_process / actuator_mixed / deviation）",
+        "color": "控制牌号与计米后的偏相关"
+      },
+      "description": "按本体定义的 8 个参数族构造 z 复合指标，控制牌号与批次计米后估计与四类响应的偏相关，用于回答“哪个物理段才是主驱动”。",
+      "key_observations": [
+        "W1C 族最强（total 偏相关 +0.418，残差类 −0.468 量级，方向需按族解读）",
+        "F_PS 供料族整体偏弱",
+        "MD_TH 三个温度族（preheat/stretch/cooling）偏相关均较弱",
+        "单看个别 F_PS 参数会高估该段作用"
+      ],
+      "diagnostic_implication": "物理段层面应优先审 W1C 涂布/冷却段，纵拉温度族与供料族证据不足；但族复合相关仍含时间成分，需与分段检验联读。",
+      "validation_issues": [
+        "族复合指标受 mixed 单位影响，仅相对可比",
+        "偏相关未控制时间（时间控制见 validate_report 的 segment_check）"
+      ],
+      "trend_shapes": "N/A — 横截面",
+      "vlm_notes": "未送 VLM（热力图，按派发规则排除）。内容来自 family_associations 结果。",
+      "figure_order": 12
+    },
+    "fig13_defect_composition.png": {
+      "figure_id": "fig13_defect_composition",
+      "title": "缺陷构成随时间漂移",
+      "chart_type": "bar",
+      "axes": {
+        "x": "时间组（每 25 批一组，05-04 至 05-12 共 6 组）",
+        "y": "中位占比（0–1，堆叠）",
+        "color": "低聚物(蓝)/粉尘(橙)/未分类残差(灰)"
+      },
+      "description": "按时间顺序每 25 批分组，展示三类缺陷占比中位数的堆叠变化，用于判别总量上升是某一机制恶化，还是全部机制同步恶化（后者才是检测灵敏度漂移的特征）。",
+      "key_observations": [
+        "灰色未分类残差占比单调上升：0.47→0.54→0.62→0.68→0.72→0.73（05-04→05-12）",
+        "橙色粉尘占比单调下降：0.30→0.27→0.23→0.17→0.14→0.135",
+        "蓝色低聚物占比 0.23→0.115 后走平于 0.13–0.15",
+        "没有任何两组份额在同期同向上升"
+      ],
+      "diagnostic_implication": "总量上升由残差类份额扩张独占（近半数升到七成）、粉尘份额腰斩 → 恶化机制是未标注类缺陷在增加，可同时否证“检测灵敏度整体漂移”和“全线机制同步恶化”。",
+      "validation_issues": [
+        "分组粒度 25 批，无法定位组内变点（变点 05-09 落在第 4-5 组之间）",
+        "份额为组内中位数，不反映组内波动"
+      ],
+      "trend_shapes": "份额：残差类线性上升、粉尘类线性下降、低聚物类先降后平",
+      "anomaly_regions": "05-06→05-09 之间粉尘份额下降最快（0.27→0.17）",
+      "vlm_notes": "VLM 直接读图（READ_SUCCESS）。堆叠高度在三类占比之和为 1 时对各组一致，可直接比较分段厚度。",
+      "figure_order": 13
+    }
+  }
+}

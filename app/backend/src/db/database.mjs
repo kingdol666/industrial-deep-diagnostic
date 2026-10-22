@@ -106,6 +106,32 @@ export function initDB() {
 
     CREATE INDEX IF NOT EXISTS idx_chat_sessions_created ON chat_sessions(created_at);
     CREATE INDEX IF NOT EXISTS idx_chat_messages_chat_id ON chat_messages(chat_id);
+
+    -- Run management (2026-10-22): user-created categories. Rows are scoped to
+    -- the owning user; a category name is unique per user only.
+    CREATE TABLE IF NOT EXISTS run_categories (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL,
+      name TEXT NOT NULL,
+      created_at TEXT DEFAULT (datetime('now')),
+      UNIQUE(user_id, name)
+    );
+
+    -- External task registry (2026-10-22): the task_id -> run_id binding must
+    -- survive a backend restart (it used to live only in a process Map).
+    CREATE TABLE IF NOT EXISTS external_tasks (
+      task_id TEXT PRIMARY KEY,
+      run_id TEXT NOT NULL,
+      intent TEXT,
+      harness TEXT,
+      scene TEXT,
+      objective TEXT,
+      status TEXT DEFAULT 'accepted',
+      created_at TEXT DEFAULT (datetime('now')),
+      updated_at TEXT DEFAULT (datetime('now'))
+    );
+    CREATE INDEX IF NOT EXISTS idx_external_tasks_run ON external_tasks(run_id);
+    CREATE INDEX IF NOT EXISTS idx_external_tasks_created ON external_tasks(created_at);
   `);
 
   // Migration: add report_language column if missing
@@ -143,6 +169,24 @@ export function initDB() {
     db.exec(`ALTER TABLE diagnostic_runs ADD COLUMN analysis_intent TEXT DEFAULT 'deep-diagnosis'`);
     db.exec(`UPDATE diagnostic_runs SET analysis_intent = 'deep-diagnosis' WHERE analysis_intent IS NULL`);
   }
+
+  // Migration: run management columns (2026-10-22) — ownership, user-editable
+  // title, soft-delete timestamp and a single-level user category.
+  if (!cols.some(c => c.name === 'user_id')) {
+    db.exec('ALTER TABLE diagnostic_runs ADD COLUMN user_id TEXT');
+  }
+  if (!cols.some(c => c.name === 'title')) {
+    db.exec('ALTER TABLE diagnostic_runs ADD COLUMN title TEXT');
+    db.exec('UPDATE diagnostic_runs SET title = name WHERE title IS NULL');
+  }
+  if (!cols.some(c => c.name === 'deleted_at')) {
+    db.exec('ALTER TABLE diagnostic_runs ADD COLUMN deleted_at TEXT');
+  }
+  if (!cols.some(c => c.name === 'category_id')) {
+    db.exec('ALTER TABLE diagnostic_runs ADD COLUMN category_id TEXT');
+  }
+  db.exec('CREATE INDEX IF NOT EXISTS idx_runs_user ON diagnostic_runs(user_id)');
+  db.exec('CREATE INDEX IF NOT EXISTS idx_runs_category ON diagnostic_runs(category_id)');
 
   const chatCols = db.prepare('PRAGMA table_info(chat_sessions)').all();
   const hasOriginSessionId = chatCols.some(c => c.name === 'origin_session_id');
@@ -245,8 +289,8 @@ initDB();
 // Prepared statements
 const stmts = {
   insertRun: db.prepare(`
-    INSERT INTO diagnostic_runs (run_id, name, scene_name, data_path, data_folder, user_question, model, max_turns, report_language, harness, ontology_hit, enhancement_policy, enhancement_triggered, analysis_intent)
-    VALUES (@runId, @name, @sceneName, @dataPath, @dataFolder, @userQuestion, @model, @maxTurns, @reportLanguage, @harness, @ontologyHit, @enhancementPolicy, @enhancementTriggered, @analysisIntent)
+    INSERT INTO diagnostic_runs (run_id, name, title, scene_name, data_path, data_folder, user_question, model, max_turns, report_language, harness, ontology_hit, enhancement_policy, enhancement_triggered, analysis_intent, user_id)
+    VALUES (@runId, @name, @title, @sceneName, @dataPath, @dataFolder, @userQuestion, @model, @maxTurns, @reportLanguage, @harness, @ontologyHit, @enhancementPolicy, @enhancementTriggered, @analysisIntent, @userId)
   `),
   setRunOntologyHit: db.prepare(`
     UPDATE diagnostic_runs SET ontology_hit = @ontologyHit, updated_at = datetime('now') WHERE run_id = @runId
@@ -263,8 +307,12 @@ const stmts = {
   `),
   completeRun: db.prepare(`
     UPDATE diagnostic_runs
-    SET status = 'completed', workspace_path = @workspacePath, report_path = @reportPath,
-        score = @score, judge_verdict = @judgeVerdict, error_message = NULL,
+    SET status = 'completed',
+        workspace_path = COALESCE(@workspacePath, workspace_path),
+        report_path = COALESCE(@reportPath, report_path),
+        score = COALESCE(@score, score),
+        judge_verdict = COALESCE(@judgeVerdict, judge_verdict),
+        error_message = NULL,
         completed_at = datetime('now'), updated_at = datetime('now')
     WHERE run_id = @runId
   `),
@@ -280,11 +328,100 @@ const stmts = {
     VALUES (@runId, @seq, @eventType, @eventSubtype, @payloadJson)
   `),
   getAllRuns: db.prepare(`
-    SELECT id, run_id, name, scene_name, data_path, data_folder, user_question, status,
+    SELECT id, run_id, name, title, scene_name, data_path, data_folder, user_question, status,
            session_id, workspace_path, report_path, score, judge_verdict, harness,
            ontology_hit, enhancement_policy, enhancement_triggered, analysis_intent,
+           user_id, category_id, deleted_at,
            created_at, updated_at, completed_at, error_message
     FROM diagnostic_runs ORDER BY created_at DESC
+  `),
+  // Filtered listing (2026-10-22): ownership + soft-delete + category + status
+  // + free-text, with LIMIT/OFFSET. NULL filters are no-ops by design.
+  listRunsFiltered: db.prepare(`
+    SELECT id, run_id, name, title, scene_name, data_path, data_folder, user_question, status,
+           session_id, workspace_path, report_path, score, judge_verdict, harness,
+           ontology_hit, enhancement_policy, enhancement_triggered, analysis_intent,
+           user_id, category_id, deleted_at,
+           created_at, updated_at, completed_at, error_message
+    FROM diagnostic_runs
+    -- Legacy rows (user_id IS NULL) predate ownership and stay visible to every
+    -- authenticated user; newly created rows are scoped to their creator.
+    WHERE (@userId IS NULL OR user_id = @userId OR user_id IS NULL)
+      AND (@includeDeleted = 1 OR deleted_at IS NULL)
+      AND (@categoryId IS NULL OR category_id = @categoryId)
+      AND (@status IS NULL OR status = @status)
+      AND (@q IS NULL OR title LIKE @q OR name LIKE @q OR scene_name LIKE @q OR user_question LIKE @q)
+    ORDER BY created_at DESC
+    LIMIT @limit OFFSET @offset
+  `),
+  countRunsFiltered: db.prepare(`
+    SELECT COUNT(*) AS n FROM diagnostic_runs
+    WHERE (@userId IS NULL OR user_id = @userId OR user_id IS NULL)
+      AND (@includeDeleted = 1 OR deleted_at IS NULL)
+      AND (@categoryId IS NULL OR category_id = @categoryId)
+      AND (@status IS NULL OR status = @status)
+      AND (@q IS NULL OR title LIKE @q OR name LIKE @q OR scene_name LIKE @q OR user_question LIKE @q)
+  `),
+  renameRun: db.prepare(`
+    UPDATE diagnostic_runs SET title = @title, updated_at = datetime('now') WHERE run_id = @runId
+  `),
+  setRunCategory: db.prepare(`
+    UPDATE diagnostic_runs SET category_id = @categoryId, updated_at = datetime('now') WHERE run_id = @runId
+  `),
+  softDeleteRun: db.prepare(`
+    UPDATE diagnostic_runs SET deleted_at = datetime('now'), updated_at = datetime('now') WHERE run_id = @runId
+  `),
+  restoreRun: db.prepare(`
+    UPDATE diagnostic_runs SET deleted_at = NULL, updated_at = datetime('now') WHERE run_id = @runId
+  `),
+  deleteRunRow: db.prepare('DELETE FROM diagnostic_runs WHERE run_id = ?'),
+  deleteLogsByRunId: db.prepare('DELETE FROM diagnosis_logs WHERE run_id = ?'),
+  clearRunWorkspacePaths: db.prepare(`
+    UPDATE diagnostic_runs SET workspace_path = NULL, report_path = NULL,
+           updated_at = datetime('now') WHERE run_id = @runId
+  `),
+  getPendingRuns: db.prepare("SELECT run_id FROM diagnostic_runs WHERE status = 'pending'"),
+  markStopped: db.prepare(`
+    UPDATE diagnostic_runs SET status = 'stopped', error_message = @error,
+           completed_at = datetime('now'), updated_at = datetime('now')
+    WHERE run_id = @runId
+  `),
+  getRunsMissingSession: db.prepare(`
+    SELECT run_id, harness, workspace_path FROM diagnostic_runs
+    WHERE session_id IS NULL AND status IN ('completed', 'stopped', 'failed')
+  `),
+  setRunSessionIfNull: db.prepare(`
+    UPDATE diagnostic_runs SET session_id = @sessionId, updated_at = datetime('now')
+    WHERE run_id = @runId AND session_id IS NULL
+  `),
+  // ── run categories (2026-10-22) ──
+  insertCategory: db.prepare(`
+    INSERT INTO run_categories (id, user_id, name) VALUES (@id, @userId, @name)
+  `),
+  listCategories: db.prepare(`
+    SELECT c.*, (SELECT COUNT(*) FROM diagnostic_runs r
+                 WHERE r.category_id = c.id AND r.deleted_at IS NULL) AS run_count
+    FROM run_categories c
+    WHERE (@userId IS NULL OR c.user_id = @userId)
+    ORDER BY c.created_at ASC
+  `),
+  getCategoryById: db.prepare('SELECT * FROM run_categories WHERE id = ?'),
+  getCategoryByName: db.prepare('SELECT * FROM run_categories WHERE user_id = @userId AND name = @name'),
+  renameCategory: db.prepare('UPDATE run_categories SET name = @name WHERE id = @id'),
+  deleteCategory: db.prepare('DELETE FROM run_categories WHERE id = ?'),
+  clearCategoryRefs: db.prepare('UPDATE diagnostic_runs SET category_id = NULL WHERE category_id = ?'),
+  // ── external tasks (2026-10-22) ──
+  insertExternalTask: db.prepare(`
+    INSERT INTO external_tasks (task_id, run_id, intent, harness, scene, objective, status)
+    VALUES (@taskId, @runId, @intent, @harness, @scene, @objective, @status)
+  `),
+  getExternalTask: db.prepare('SELECT * FROM external_tasks WHERE task_id = ?'),
+  getExternalTaskByRun: db.prepare('SELECT * FROM external_tasks WHERE run_id = ? ORDER BY created_at DESC LIMIT 1'),
+  listExternalTasks: db.prepare(`
+    SELECT * FROM external_tasks ORDER BY created_at DESC LIMIT @limit
+  `),
+  updateExternalTaskStatus: db.prepare(`
+    UPDATE external_tasks SET status = @status, updated_at = datetime('now') WHERE task_id = @taskId
   `),
   getRunById: db.prepare('SELECT * FROM diagnostic_runs WHERE run_id = ?'),
   getLogsByRunId: db.prepare('SELECT * FROM diagnosis_logs WHERE run_id = ? ORDER BY created_at ASC'),
@@ -293,6 +430,9 @@ const stmts = {
     FROM diagnosis_event_stream
     WHERE run_id = ?
     ORDER BY id ASC
+  `),
+  getMaxEventSeq: db.prepare(`
+    SELECT COALESCE(MAX(seq), -1) AS maxSeq FROM diagnosis_event_stream WHERE run_id = ?
   `),
   getActiveRuns: db.prepare("SELECT run_id FROM diagnostic_runs WHERE status = 'running'"),
   insertFolder: db.prepare(`

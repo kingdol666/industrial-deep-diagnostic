@@ -10,6 +10,18 @@ import numpy as np
 import pandas as pd
 
 DATA_SUFFIXES = (".csv", ".tsv", ".xlsx", ".xls", ".parquet", ".json")
+# Metadata/artifact residents of 00_input that must never be picked as the data
+# table (exact-name or suffix match — .json stays a legitimate data format).
+AUX_EXACT_NAMES = {
+    "report_context.json",
+    "run_config.json",
+    "input_manifest.json",
+    "preprocessing_report.json",
+    "ontology.json",
+    "ontology_brief.json",
+    "ontology_coverage.json",
+}
+AUX_NAME_SUFFIXES = ("action_log.json", "_manifest.json")
 # Heuristic names for inspection (quality) columns when context does not pin them.
 INSPECTION_HINTS = ("yield", "quality", "qual", "defect", "scrapp", "reject",
                     "pass_rate", "ok_rate", "ng_rate", "spec", "grade", "pct_good")
@@ -32,9 +44,11 @@ def find_data_file(run_dir: str) -> str | None:
             continue
         for name in sorted(os.listdir(base)):
             low = name.lower()
-            if low.endswith(DATA_SUFFIXES) and low != "report_context.json" \
-                    and not low.endswith("action_log.json"):
-                return os.path.join(base, name)
+            if not low.endswith(DATA_SUFFIXES):
+                continue
+            if low in AUX_EXACT_NAMES or low.endswith(AUX_NAME_SUFFIXES):
+                continue
+            return os.path.join(base, name)
     return None
 
 

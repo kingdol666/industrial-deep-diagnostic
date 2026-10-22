@@ -12,7 +12,7 @@
 
 import { createHash } from 'crypto';
 import { spawnSync } from 'child_process';
-import { existsSync, mkdirSync, readFileSync, writeFileSync, renameSync, copyFileSync, statSync, readdirSync, unlinkSync, rmdirSync } from 'fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync, renameSync, copyFileSync, statSync, readdirSync, unlinkSync, rmdirSync, openSync, closeSync, readSync, writeSync } from 'fs';
 import { join, dirname, resolve, basename, extname } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -30,10 +30,12 @@ export const STORE_INDEX_VERSION = 1;
 const MAX_VERSIONS_PER_SCENE = 10;
 
 // Ontology profiles (P1-2): `diagnosis` is the legacy diagnosis pipeline
-// profile; `doe` is the designed-experiment profile. Legacy index entries
-// without a `profile` field are read as `diagnosis` — never re-written.
+// profile; `doe` is the designed-experiment profile; `stability` / `sentinel`
+// are the watch-family profiles (line stability report / data sentinel).
+// Legacy index entries without a `profile` field are read as `diagnosis` —
+// never re-written.
 export const DEFAULT_PROFILE = 'diagnosis';
-export const KNOWN_PROFILES = ['diagnosis', 'doe'];
+export const KNOWN_PROFILES = ['diagnosis', 'doe', 'stability', 'sentinel'];
 
 /** Read an index entry's profile (legacy entries default to diagnosis). */
 export function entryProfile(entry) {
@@ -44,6 +46,69 @@ export function entryProfile(entry) {
 function normalizeProfile(profile) {
   const p = typeof profile === 'string' ? profile.trim() : '';
   return p || DEFAULT_PROFILE;
+}
+
+// ────────────────────────── 并发写锁 ──────────────────────────
+
+// 后端长驻进程与 CLI 子进程共用同一 store：所有 read-modify-write 必须在
+// 进程间串行，否则会互覆版本目录 / 丢 index entry。锁文件用 `wx` 独占创建，
+// 内容只是诊断信息（pid + 时间）；进程崩溃留下的锁按 mtime 判陈旧。
+const LOCK_PATH = join(STORE_DIR, '.lock');
+const LOCK_RETRY_MS = 50;
+// 同进程重入标记：publish → addVersion 会再次请求写锁，直接复用外层临界区
+// （否则自锁死等）。
+let storeLockHeld = false;
+
+function sleepSync(ms) {
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
+}
+
+/**
+ * Run `fn` inside the store's cross-process write lock.
+ *
+ * The lock is `<STORE_DIR>/.lock`, acquired with `openSync(..., 'wx')` (pid +
+ * timestamp written inside). A waiter retries every 50ms until `timeoutMs`; a
+ * lock file whose mtime is older than `staleMs` is treated as abandoned and
+ * removed before re-attempting. Re-entrant within one process (module-level
+ * marker) so nested public entry points never deadlock on themselves.
+ * Read-only paths intentionally do NOT take this lock.
+ */
+export function withStoreLock(fn, { timeoutMs = 15000, staleMs = 30000 } = {}) {
+  if (storeLockHeld) return fn();
+  mkdirSync(STORE_DIR, { recursive: true });
+  const deadline = Date.now() + timeoutMs;
+  for (;;) {
+    if (Date.now() >= deadline) {
+      throw new Error(`ontology store lock timeout after ${timeoutMs}ms — lock file: ${LOCK_PATH}`);
+    }
+    try {
+      const fd = openSync(LOCK_PATH, 'wx');
+      try {
+        writeSync(fd, JSON.stringify({ pid: process.pid, acquired_at: new Date().toISOString() }));
+      } finally {
+        closeSync(fd);
+      }
+      break;
+    } catch (err) {
+      if (err.code !== 'EEXIST') throw err;
+      let stale = false;
+      try {
+        stale = Date.now() - statSync(LOCK_PATH).mtimeMs > staleMs;
+      } catch { /* lock vanished between open and stat — retry immediately */ }
+      if (stale) {
+        try { unlinkSync(LOCK_PATH); } catch { /* another waiter won the race */ }
+        continue;
+      }
+      sleepSync(LOCK_RETRY_MS);
+    }
+  }
+  storeLockHeld = true;
+  try {
+    return fn();
+  } finally {
+    storeLockHeld = false;
+    try { unlinkSync(LOCK_PATH); } catch { /* already removed */ }
+  }
 }
 
 // CP-2 判据所用的唯一 schema（skill 协议 / 快路径 / 管理 API 三者必须同源）
@@ -120,6 +185,38 @@ export function computeFingerprint(dataPath) {
 }
 
 const DATA_EXTS = ['.csv', '.tsv'];
+// Input guards: fingerprints only ever read a bounded head; a file beyond the
+// hard cap is refused with an actionable error instead of being slurped.
+const MAX_INPUT_BYTES = 200 * 1024 * 1024;     // 200MB hard input cap
+const SAMPLE_BYTES = 2 * 1024 * 1024;          // 2MB streaming head sample
+const HEAD_CHUNK_BYTES = 256 * 1024;
+
+function assertInputSize(abs, size) {
+  if (size > MAX_INPUT_BYTES) {
+    throw new Error(`DATA_TOO_LARGE: ${abs} is ${size} bytes (>200MB); `
+      + `fingerprint samples at most the first ${SAMPLE_BYTES} bytes — split the file`);
+  }
+}
+
+/** Read at most SAMPLE_BYTES from the head of `abs` in fixed-size chunks. */
+function readHeadBytes(abs, size) {
+  const limit = Math.min(size, SAMPLE_BYTES);
+  const fd = openSync(abs, 'r');
+  try {
+    const chunks = [];
+    let read = 0;
+    while (read < limit) {
+      const buf = Buffer.allocUnsafe(Math.min(HEAD_CHUNK_BYTES, limit - read));
+      const n = readSync(fd, buf, 0, buf.length, read);
+      if (n <= 0) break;
+      chunks.push(buf.subarray(0, n));
+      read += n;
+    }
+    return Buffer.concat(chunks, read);
+  } finally {
+    closeSync(fd);
+  }
+}
 
 function computeDirFingerprint(dir) {
   const files = readdirSync(dir)
@@ -132,6 +229,7 @@ function computeDirFingerprint(dir) {
     const size = statSync(full).size;
     if (size > bestSize) { bestSize = size; best = full; }
   }
+  assertInputSize(best, bestSize);
   const fp = fingerprintFile(best);
   // 目录指纹：文件清单参与哈希（同最大文件但清单不同 → 视为不同数据集）
   const listHash = createHash('sha256').update(files.join('|')).digest('hex');
@@ -147,8 +245,9 @@ function computeDirFingerprint(dir) {
 function fingerprintFile(abs) {
   const stat = statSync(abs);
   const size = stat.size;
-  const SAMPLE_BYTES = 2 * 1024 * 1024; // 2MB 头部采样足以取表头与类型样本
-  const head = readFileSync(abs, { encoding: 'utf-8' }).slice(0, SAMPLE_BYTES);
+  assertInputSize(abs, size);
+  // 2MB 头部采样足以取表头与类型样本；流式分块读，绝不整文件读入。
+  const head = readHeadBytes(abs, size).toString('utf-8');
   const rows = parseCsvLines(head, 501);
   if (rows.length === 0) throw new Error(`Empty or unparsable CSV: ${abs}`);
   const header = rows[0].map(h => h.trim());
@@ -241,6 +340,46 @@ export function computeContextFingerprint(ctx) {
     `D|${designType === null || designType === undefined ? '' : String(designType)}`,
     ...factorLines,
     ...responseLines,
+  ].join('\n');
+  return 'sha256:' + createHash('sha256').update(payload, 'utf-8').digest('hex');
+}
+
+/**
+ * Watch-family context fingerprint (`stability` / `sentinel` profiles) — the
+ * semantic identity of a declared column contract: per-column role + unit +
+ * declared spec band, plus optional declared operating windows.
+ *
+ * Mirrored 1:1 by `compute_watch_context_fp()` in
+ * `.claude/shared/scripts/ontology_prepare_common.py`; a cross-language
+ * equality test pins this (test_ontology_prepare_common.py).
+ */
+export const WATCH_CONTEXT_FP_VERSION = 'watch-context-v1';
+
+export function computeWatchContextFingerprint(decl) {
+  const cols = Array.isArray(decl?.columns) ? decl.columns : [];
+  const wins = Array.isArray(decl?.windows) ? decl.windows : [];
+  const colLines = cols
+    .map((c) => [
+      'C',
+      c?.col ?? c?.name ?? '',
+      c?.role ?? '',
+      c?.unit ?? '',
+      canonicalNumberToken(c?.lsl),
+      canonicalNumberToken(c?.usl),
+    ].join('|'))
+    .sort();
+  const winLines = wins
+    .map((w) => [
+      'W',
+      w?.factor ?? w?.col ?? '',
+      canonicalNumberToken(w?.lo),
+      canonicalNumberToken(w?.hi),
+    ].join('|'))
+    .sort();
+  const payload = [
+    `v=${WATCH_CONTEXT_FP_VERSION}`,
+    ...colLines,
+    ...winLines,
   ].join('\n');
   return 'sha256:' + createHash('sha256').update(payload, 'utf-8').digest('hex');
 }
@@ -385,26 +524,48 @@ export function findMatch(dataPath, { scene, profile = null, contextFp = null } 
   return { match: 'miss', schema_fp: fp.schema_fp, reason: 'no compatible ontology in store' };
 }
 
-// Version namespace = scene (NOT scene+profile): `scene/vN` paths must stay
-// globally unique per scene or a diagnosis publish could overwrite a DOE
-// version's directory. Profile only discriminates dedupe + lookups.
-function nextVersion(idx, sceneKey) {
-  const max = idx.entries
-    .filter(e => e.scene_key === sceneKey)
+// Version namespace (profile-scoped since 2026-10-21): the legacy layout
+// `<scene>/vN` stays reserved for the default (diagnosis) profile — its next
+// version number must therefore skip over ANY entry already living in that
+// namespace, regardless of that entry's profile (legacy DOE assets share it).
+// Non-default profiles publish to `<scene>/<profile>/vN`, and version
+// numbering + pruning are scoped to (profile, scene) so a stability publish
+// can never crowd out or delete a diagnosis/doe asset of the same scene.
+function entryNamespace(entry) {
+  const parts = String(entry?.path || '').split('/');
+  // legacy shape: `<scene>/vN/ontology.json`; profile shape: `<scene>/<profile>/vN/ontology.json`
+  if (parts.length === 3 && /^v\d+$/.test(parts[1])) return 'legacy';
+  return parts.length >= 4 ? parts[1] : 'legacy';
+}
+
+function versionScopeEntries(idx, sceneKey, profile) {
+  return idx.entries.filter((e) => {
+    if (e.scene_key !== sceneKey) return false;
+    if (profile === DEFAULT_PROFILE) return entryNamespace(e) === 'legacy';
+    return entryProfile(e) === profile;
+  });
+}
+
+function nextVersion(idx, sceneKey, profile = DEFAULT_PROFILE) {
+  const max = versionScopeEntries(idx, sceneKey, profile)
     .reduce((m, e) => Math.max(m, e.version), 0);
   return max + 1;
 }
 
-function pruneVersions(idx, sceneKey) {
+function versionRelDir(sceneKey, version, profile) {
+  if (profile === DEFAULT_PROFILE) return join(sceneKey, `v${version}`);
+  return join(sceneKey, profile, `v${version}`);
+}
+
+function pruneVersions(idx, sceneKey, profile = DEFAULT_PROFILE) {
   const keep = new Set(['endorsed']);
-  const entries = idx.entries
-    .filter(e => e.scene_key === sceneKey)
+  const entries = versionScopeEntries(idx, sceneKey, profile)
     .sort((a, b) => b.version - a.version);
   const live = entries.filter((e) => keep.has(e.quality));
   const removable = entries.filter((e) => !keep.has(e.quality)).slice(MAX_VERSIONS_PER_SCENE);
   for (const e of removable) {
     try {
-      const dir = join(STORE_DIR, e.scene_key, `v${e.version}`);
+      const dir = dirname(join(STORE_DIR, e.path));
       if (existsSync(dir)) rmRf(dir);
     } catch { /* ignore */ }
   }
@@ -505,9 +666,17 @@ function contentHashOf(content) {
  * collapse onto a diagnosis entry), and a deduped legacy entry backfills the
  * new fields so it stays findable by the semantic lookup.
  *
+ * The whole read-modify-write (dedupe probe → nextVersion → version dir →
+ * index) runs inside withStoreLock; publish() delegates here and relies on the
+ * re-entrant marker instead of taking a second lock.
+ *
  * @returns {{scene_key, version, path, deduped?, summary}}
  */
-export function addVersion({
+export function addVersion(options) {
+  return withStoreLock(() => addVersionUnlocked(options));
+}
+
+function addVersionUnlocked({
   sceneKey,
   ontology,
   buildMode = 'edit',
@@ -579,8 +748,8 @@ export function addVersion({
     };
   }
 
-  const version = nextVersion(idx, key);
-  const relDir = join(key, `v${version}`);
+  const version = nextVersion(idx, key, wantProfile);
+  const relDir = versionRelDir(key, version, wantProfile);
   const absDir = join(STORE_DIR, relDir);
   mkdirSync(absDir, { recursive: true });
   const absOntologyPath = join(absDir, 'ontology.json');
@@ -648,7 +817,7 @@ export function addVersion({
   }, null, 2));
 
   idx.entries.push(entry);
-  pruneVersions(idx, key);
+  pruneVersions(idx, key, wantProfile);
   writeIndex(idx);
   return {
     scene_key: key, version, path: absOntologyPath, summary: entry.summary,
@@ -778,10 +947,11 @@ export function reuse({ source, runDir }) {
   const sidecarSrc = join(dirname(src), 'schema.json');
   if (existsSync(sidecarSrc)) copyFileSync(sidecarSrc, join(ontologyDir, 'schema.json'));
 
-  // 更新 store 的 reuse 计数与 provenance 历史
-  const idx = readIndex();
-  const entry = idx.entries.find(e => join(STORE_DIR, e.path) === src);
-  if (entry) {
+  // 更新 store 的 reuse 计数与 provenance 历史（读-改-写走写锁）
+  withStoreLock(() => {
+    const idx = readIndex();
+    const entry = idx.entries.find(e => join(STORE_DIR, e.path) === src);
+    if (!entry) return;
     entry.reuse_count = (entry.reuse_count || 0) + 1;
     const provPath = join(STORE_DIR, dirname(entry.path), 'provenance.json');
     try {
@@ -790,18 +960,20 @@ export function reuse({ source, runDir }) {
       writeFileSync(provPath, JSON.stringify(prov, null, 2));
     } catch { /* ignore */ }
     writeIndex(idx);
-  }
+  });
   return { copied_to: dst, bytes: statSync(dst).size };
 }
 
 export function deprecate(sceneKey, version) {
-  const idx = readIndex();
-  const entry = idx.entries.find(e => e.scene_key === sceneKey && e.version === Number(version));
-  if (!entry) throw new Error(`Entry not found: ${sceneKey} v${version}`);
-  entry.quality = 'deprecated';
-  entry.updated_at = new Date().toISOString();
-  writeIndex(idx);
-  return entry;
+  return withStoreLock(() => {
+    const idx = readIndex();
+    const entry = idx.entries.find(e => e.scene_key === sceneKey && e.version === Number(version));
+    if (!entry) throw new Error(`Entry not found: ${sceneKey} v${version}`);
+    entry.quality = 'deprecated';
+    entry.updated_at = new Date().toISOString();
+    writeIndex(idx);
+    return entry;
+  });
 }
 
 // ────────────────────────── 资产管理原语（前端本体管理页 / 控制 API） ──────────────────────────
@@ -845,52 +1017,60 @@ export function readAsset(sceneKey, version) {
 
 /** 元数据补丁（title/tags/notes/quality）——不产生新版本，仅改索引与 provenance。 */
 export function updateEntry(sceneKey, version, patch = {}) {
-  const idx = readIndex();
-  const entry = idx.entries.find((e) => e.scene_key === sceneKey && e.version === Number(version));
-  if (!entry) throw new Error(`Entry not found: ${sceneKey} v${version}`);
-  if (patch.title !== undefined) entry.title = String(patch.title || entry.scene_key);
-  if (patch.tags !== undefined) {
-    entry.tags = Array.isArray(patch.tags)
-      ? patch.tags.filter((t) => typeof t === 'string' && t.trim()).map((t) => t.trim())
-      : [];
-  }
-  if (patch.notes !== undefined) entry.notes = String(patch.notes || '');
-  if (patch.quality !== undefined) {
-    if (!['unvalidated', 'endorsed', 'deprecated', 'rejected'].includes(patch.quality)) {
-      throw new Error(`invalid quality: ${patch.quality}`);
+  return withStoreLock(() => {
+    const idx = readIndex();
+    const entry = idx.entries.find((e) => e.scene_key === sceneKey && e.version === Number(version));
+    if (!entry) throw new Error(`Entry not found: ${sceneKey} v${version}`);
+    if (patch.title !== undefined) entry.title = String(patch.title || entry.scene_key);
+    if (patch.tags !== undefined) {
+      entry.tags = Array.isArray(patch.tags)
+        ? patch.tags.filter((t) => typeof t === 'string' && t.trim()).map((t) => t.trim())
+        : [];
     }
-    entry.quality = patch.quality;
-  }
-  // 场景重命名/重新打标 → 同步新版本号摘要标题
-  entry.updated_at = new Date().toISOString();
-  writeIndex(idx);
-  try {
-    const provPath = join(STORE_DIR, dirname(entry.path), 'provenance.json');
-    if (existsSync(provPath)) {
-      const prov = JSON.parse(readFileSync(provPath, 'utf-8'));
-      prov.title = entry.title;
-      prov.tags = entry.tags;
-      prov.notes = entry.notes;
-      prov.quality = entry.quality;
-      prov.updated_at = entry.updated_at;
-      writeFileSync(provPath, JSON.stringify(prov, null, 2));
+    if (patch.notes !== undefined) entry.notes = String(patch.notes || '');
+    if (patch.quality !== undefined) {
+      if (!['unvalidated', 'endorsed', 'deprecated', 'rejected'].includes(patch.quality)) {
+        throw new Error(`invalid quality: ${patch.quality}`);
+      }
+      entry.quality = patch.quality;
     }
-  } catch { /* provenance 是可选伴生文件 */ }
-  return entry;
+    // 场景重命名/重新打标 → 同步新版本号摘要标题
+    entry.updated_at = new Date().toISOString();
+    writeIndex(idx);
+    try {
+      const provPath = join(STORE_DIR, dirname(entry.path), 'provenance.json');
+      if (existsSync(provPath)) {
+        const prov = JSON.parse(readFileSync(provPath, 'utf-8'));
+        prov.title = entry.title;
+        prov.tags = entry.tags;
+        prov.notes = entry.notes;
+        prov.quality = entry.quality;
+        prov.updated_at = entry.updated_at;
+        writeFileSync(provPath, JSON.stringify(prov, null, 2));
+      }
+    } catch { /* provenance 是可选伴生文件 */ }
+    return entry;
+  });
 }
 
 /** 删除单个版本（索引 + 磁盘目录）；若场景目录随之变空，一并清除。 */
-export function removeVersion(sceneKey, version) {
-  const idx = readIndex();
-  const v = Number(version);
-  const entry = idx.entries.find((e) => e.scene_key === sceneKey && e.version === v);
-  if (!entry) throw new Error(`Entry not found: ${sceneKey} v${v}`);
-  const dir = join(STORE_DIR, entry.scene_key, `v${v}`);
-  try { if (existsSync(dir)) rmRf(dir); } catch { /* ignore */ }
-  idx.entries = idx.entries.filter((e) => e !== entry);
-  writeIndex(idx);
-  pruneEmptySceneDir(idx, sceneKey);
-  return { removed: { scene_key: sceneKey, version: v } };
+export function removeVersion(sceneKey, version, profile = null) {
+  return withStoreLock(() => {
+    const idx = readIndex();
+    const v = Number(version);
+    const candidates = idx.entries.filter((e) => e.scene_key === sceneKey && e.version === v);
+    const entry = (profile
+      ? candidates.find((e) => entryProfile(e) === normalizeProfile(profile))
+      : (candidates.find((e) => entryNamespace(e) === 'legacy') || candidates[0]))
+      || null;
+    if (!entry) throw new Error(`Entry not found: ${sceneKey} v${v}`);
+    const dir = dirname(join(STORE_DIR, entry.path));
+    try { if (existsSync(dir)) rmRf(dir); } catch { /* ignore */ }
+    idx.entries = idx.entries.filter((e) => e !== entry);
+    writeIndex(idx);
+    pruneEmptySceneDir(idx, sceneKey);
+    return { removed: { scene_key: sceneKey, version: v } };
+  });
 }
 
 /** 索引中已无该场景的版本 → 清理磁盘上残留的空目录（含孤立的 provenance）。 */
@@ -904,14 +1084,16 @@ function pruneEmptySceneDir(idx, sceneKey) {
 
 /** 删除整个场景（所有版本）。索引已空但磁盘有残留时，仍然清理并如实返回。 */
 export function removeScene(sceneKey) {
-  const idx = readIndex();
-  const doomed = idx.entries.filter((e) => e.scene_key === sceneKey);
-  const dir = join(STORE_DIR, sceneKey);
-  if (doomed.length === 0 && !existsSync(dir)) throw new Error(`Scene not found: ${sceneKey}`);
-  idx.entries = idx.entries.filter((e) => e.scene_key !== sceneKey);
-  writeIndex(idx);
-  try { if (existsSync(dir)) rmRf(dir); } catch { /* ignore */ }
-  return { removed_versions: doomed.map((e) => e.version).sort((a, b) => a - b) };
+  return withStoreLock(() => {
+    const idx = readIndex();
+    const doomed = idx.entries.filter((e) => e.scene_key === sceneKey);
+    const dir = join(STORE_DIR, sceneKey);
+    if (doomed.length === 0 && !existsSync(dir)) throw new Error(`Scene not found: ${sceneKey}`);
+    idx.entries = idx.entries.filter((e) => e.scene_key !== sceneKey);
+    writeIndex(idx);
+    try { if (existsSync(dir)) rmRf(dir); } catch { /* ignore */ }
+    return { removed_versions: doomed.map((e) => e.version).sort((a, b) => a - b) };
+  });
 }
 
 /**
@@ -1154,16 +1336,25 @@ function cli() {
         break;
       }
       case 'context-fp': {
-        // Semantic DOE fingerprint of an analysis_context-shaped JSON file
-        // (mirrored 1:1 by doe_ontology_prepare._context_fp). Options:
-        //   --context <analysis_context.json> | --context-json '<json>'
+        // Semantic fingerprint of a context JSON file:
+        //   - profile=doe / default: analysis_context shape (mirrored 1:1 by
+        //     doe_ontology_prepare._context_fp)
+        //   - profile=stability|sentinel: watch declaration shape
+        //     {columns:[{col,role,unit,lsl,usl}], windows:[{factor,lo,hi}]}
+        //     (mirrored 1:1 by ontology_prepare_common.compute_watch_context_fp)
         const ctxPath = arg('context');
         const ctxJson = arg('context-json');
         let ctx;
         if (ctxPath) ctx = JSON.parse(readFileSync(resolve(ctxPath), 'utf-8'));
         else if (ctxJson) ctx = JSON.parse(ctxJson);
         else throw new Error('context-fp requires --context <file> or --context-json <json>');
-        console.log(JSON.stringify({
+        const wantProfile = normalizeProfile(arg('profile'));
+        const watch = wantProfile === 'stability' || wantProfile === 'sentinel';
+        console.log(JSON.stringify(watch ? {
+          context_fp: computeWatchContextFingerprint(ctx),
+          version: WATCH_CONTEXT_FP_VERSION,
+          profile: wantProfile,
+        } : {
           context_fp: computeContextFingerprint(ctx),
           version: CONTEXT_FP_VERSION,
         }, null, 2));
@@ -1249,7 +1440,7 @@ function cli() {
         break;
       }
       case 'remove': {
-        if (arg('version')) console.log(JSON.stringify(removeVersion(args[0], arg('version')), null, 2));
+        if (arg('version')) console.log(JSON.stringify(removeVersion(args[0], arg('version'), arg('profile')), null, 2));
         else console.log(JSON.stringify(removeScene(args[0]), null, 2));
         break;
       }
@@ -1260,23 +1451,29 @@ function cli() {
       case 'stats': {
         const idx = listStore();
         const byScene = {};
+        const byProfile = {};
         for (const e of idx.entries) {
-          byScene[e.scene_key] = byScene[e.scene_key] || { versions: 0, latest_version: 0, reuse_count: 0, quality: e.quality };
+          const prof = entryProfile(e);
+          byProfile[prof] = (byProfile[prof] || 0) + 1;
+          byScene[e.scene_key] = byScene[e.scene_key] || { versions: 0, latest_version: 0, reuse_count: 0, quality: e.quality, profiles: {} };
           byScene[e.scene_key].versions++;
           byScene[e.scene_key].latest_version = Math.max(byScene[e.scene_key].latest_version, e.version);
           byScene[e.scene_key].reuse_count += e.reuse_count || 0;
+          byScene[e.scene_key].profiles[prof] = (byScene[e.scene_key].profiles[prof] || 0) + 1;
           if (e.quality === 'endorsed') byScene[e.scene_key].quality = 'endorsed';
         }
-        console.log(JSON.stringify({ store_dir: STORE_DIR, scenes: byScene, total_entries: idx.entries.length }, null, 2));
+        console.log(JSON.stringify({ store_dir: STORE_DIR, scenes: byScene, by_profile: byProfile, total_entries: idx.entries.length }, null, 2));
         break;
       }
       default:
         console.error('Usage: ontology_store.mjs <cmd> [args]');
         console.error('  -- 管线协议 --');
         console.error('  fingerprint <data.csv>');
-        console.error('  find <data.csv> [--scene <key>] [--profile diagnosis|doe] [--context-fp <sha256:…>]');
-        console.error('  context-fp --context <analysis_context.json>    DOE 语义指纹（与 doe_ontology_prepare 同源）');
-        console.error('  publish --run-dir <RUN_DIR> [--scene <key>] [--build-mode full|extend|reuse|prior_knowledge] [--quality unvalidated|endorsed] [--profile diagnosis|doe] [--context-fp <sha256:…>] [--data-stage design_only|collected]');
+        console.error('  find <data.csv> [--scene <key>] [--profile diagnosis|doe|stability|sentinel] [--context-fp <sha256:…>]');
+        console.error('  context-fp --context <analysis_context.json> [--profile diagnosis|doe|stability|sentinel]');
+        console.error('                                                  doe=语义指纹（与 doe_ontology_prepare 同源）；');
+        console.error('                                                  stability|sentinel=watch 声明指纹（与 ontology_prepare_common 同源）');
+        console.error('  publish --run-dir <RUN_DIR> [--scene <key>] [--build-mode full|extend|reuse|prior_knowledge] [--quality unvalidated|endorsed] [--profile diagnosis|doe|stability|sentinel] [--context-fp <sha256:…>] [--data-stage design_only|collected]');
         console.error('  reuse --source <ontology.json> --run-dir <RUN_DIR>');
         console.error('  fast-reuse --data <data.csv> --run-dir <RUN_DIR> [--scene <key>] [--schema <schema.json>]');
         console.error('  -- 资产管理（前端本体管理页同源） --');
@@ -1284,8 +1481,8 @@ function cli() {
         console.error('  show <scene> --version <N>                            读取单个资产');
         console.error('  save --scene <key> --file <edited.json> [--base-version N] [--title T] [--tags a,b] [--notes S]');
         console.error('  validate <path> | --file <path> [--schema <schema.json>]');
-        console.error('  recommend [--data <data.csv>] [--scene <key>] [--profile diagnosis|doe] [--context-fp <sha256:…>]');
-        console.error('  remove <scene> [--version <N>]                        删版本或整场景');
+        console.error('  recommend [--data <data.csv>] [--scene <key>] [--profile diagnosis|doe|stability|sentinel] [--context-fp <sha256:…>]');
+        console.error('  remove <scene> [--version <N>] [--profile <p>]         删版本或整场景');
         console.error('  deprecate <scene_key> --version <N>');
         console.error('  stats');
         process.exit(cmd ? 1 : 0);

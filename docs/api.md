@@ -237,6 +237,9 @@ analysis-auto 建议 ≥100 行（>10 万行自动抽样，上传上限 500MB/50
 | harness | string | - | 引擎（未知 400 `HARNESS_UNKNOWN`，未安装 409） |
 | analysisIntent | string | - | 同 A§2 六值，默认 deep-diagnosis |
 | sceneName / userQuestion / reportLanguage | string | - | 场景 / 分析目标 / 报告语言(zh/en) |
+| ontologyMode / ontologyScene / ontologySource | string | - | 本体策略（flat 字段，无嵌套对象）；`deep-diagnosis` / `doe-analysis` / `stability-report` / `quick-screen` 支持，其余 intent → 400 `ONTOLOGY_UNSUPPORTED_INTENT`（详见 A§3.1） |
+| ontologyDataStage / ontologyDevOverride | string/bool | - | 仅 `doe-analysis` 消费（design_only / dev 时允许 off） |
+| preprocessingMode | string | - | `single_primary` / `integrate_merge`；仅 `stability-report`（其他 intent → 400 `PREPROCESSING_MODE_UNSUPPORTED_INTENT`，详见 A§3.1） |
 | maxTurns / timeoutMinutes | number | - | 轮次与超时 |
 | model / permissionMode | string | - | 引擎侧模型与权限模式（按引擎目录校验，不支持→400） |
 

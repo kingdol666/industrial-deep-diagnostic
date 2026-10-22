@@ -16,7 +16,7 @@ const MAX_RUNS = 100;
 const CLEANUP_INTERVAL = 5 * 60 * 1000; // 5 minutes
 
 // Periodic cleanup: remove finished runs that have no active subscribers
-setInterval(() => {
+const cleanupTimer = setInterval(() => {
   if (runs.size <= MAX_RUNS) return;
   const finished = [];
   for (const [runId, run] of runs) {
@@ -29,16 +29,27 @@ setInterval(() => {
   }
   if (finished.length > 0) logger.info(`Cleaned up ${finished.length} finished runs, ${runs.size} remaining`, { context: 'Engine' });
 }, CLEANUP_INTERVAL);
+// Never keep the process (and unit tests) alive just for housekeeping.
+cleanupTimer.unref?.();
 
 export function createRun(runId) {
   if (runs.has(runId)) return;
+  // Continue the persisted sequence for an already-known run. A chat/continue
+  // turn on a completed run recreates this entry after closeRun; starting at 0
+  // would collide with the historical _seq values and the frontend (which drops
+  // events with seq <= lastEventSeq) would silently discard the live reply.
+  let nextSeq = 0;
+  try {
+    const row = stmts.getMaxEventSeq.get(runId);
+    if (row && Number.isFinite(row.maxSeq)) nextSeq = row.maxSeq + 1;
+  } catch { /* brand-new run / no history table yet */ }
   runs.set(runId, {
     subscribers: new Set(),
     child: null,
     events: [],
     status: 'pending',
     meta: {},
-    nextSeq: 0,
+    nextSeq,
   });
 }
 
@@ -129,8 +140,13 @@ export function emit(runId, event) {
 }
 
 export function subscribe(runId, callback) {
+  // A completed run's in-memory entry is removed 60s after it settles (closeRun).
+  // Chat/continue on a completed run creates a fresh entry later, so a viewer
+  // opened BEFORE that turn used to register nothing — its socket silently got
+  // no live events (the reply only appeared after a manual refresh). Create the
+  // entry here so the subscription survives the turn that is about to start.
+  if (!runs.has(runId)) createRun(runId);
   const run = runs.get(runId);
-  if (!run) return () => {};
 
   run.subscribers.add(callback);
 

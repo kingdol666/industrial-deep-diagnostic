@@ -31,8 +31,16 @@ async function initialize() {
   }
   logger.info('Config loaded successfully', { context: 'Init' });
 
-  // DB already initialized at module load time (database.mjs)
-  // Just mark stale runs as interrupted
+  // Restart recovery (plan v2 Phase B0):
+  //   1. runs that were only ever `pending` never executed → stopped (resumable);
+  //   2. runs that were executing when the process died → failed (interrupted);
+  //   3. session ids lost in flight are reconciled from the persisted event
+  //      stream / omp session dir so the run stays continuable.
+  const { recoverInterruptedRuns, reconcileSessionIds } = await import('./services/session-integrity.service.mjs');
+  const stopped = recoverInterruptedRuns();
+  if (stopped.stopped.length) {
+    logger.info(`Pending runs marked stopped: ${stopped.stopped.join(', ')}`, { context: 'Init' });
+  }
 
   // Mark stale runs as interrupted
   const staleRuns = stmts.getActiveRuns.all();
@@ -42,6 +50,20 @@ async function initialize() {
       logger.info(`Marked stale run as interrupted: ${run.run_id}`, { context: 'Init', runId: run.run_id });
     }
   }
+
+  const reconcile = reconcileSessionIds();
+  if (reconcile.recovered.length) {
+    logger.info(
+      `Reconciled ${reconcile.recovered.length} session id(s): `
+      + reconcile.recovered.map((r) => `${r.run_id}<-${r.source}`).join(', '),
+      { context: 'Init' },
+    );
+  }
+
+  // Retention (plan v2 D5): purge expired soft-deleted runs and expire old
+  // workspaces / orphan directories. Never touches live runs.
+  const { applyRetentionPolicies } = await import('./services/retention.service.mjs');
+  applyRetentionPolicies();
 
   logger.info('Initialization complete.', { context: 'Init' });
 }

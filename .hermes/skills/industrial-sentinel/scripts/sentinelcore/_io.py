@@ -47,10 +47,14 @@ def _contained(candidate, extra_root=None):
     raise ValueError(f"path outside allowed roots: {candidate}")
 
 
+SHA256_CHUNK_BYTES = 1024 * 1024   # stream large inputs, never read_bytes() whole
+
+
 def sha256_file(path):
     h = hashlib.sha256()
-    data = Path(path).read_bytes()
-    h.update(data)
+    with Path(path).open("rb") as fh:
+        for chunk in iter(lambda: fh.read(SHA256_CHUNK_BYTES), b""):
+            h.update(chunk)
     return h.hexdigest()
 
 
@@ -77,6 +81,14 @@ def write_text(path, text):
     out = _contained(path)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(text, encoding="utf-8")
+
+
+def append_text(path, text):
+    """Append UTF-8 text (JSON Lines event logs); never truncates."""
+    out = _contained(path)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    with out.open("a", encoding="utf-8") as fh:
+        fh.write(text)
 
 
 def load_table(path):

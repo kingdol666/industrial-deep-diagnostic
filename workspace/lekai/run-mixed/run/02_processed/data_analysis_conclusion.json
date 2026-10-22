@@ -1,0 +1,399 @@
+{
+  "run_id": "202610211442552_run",
+  "generated_at": "2026-10-21T16:32:56.658Z",
+  "analysis_mode": "ontology_guided_baseline",
+  "baseline_script_results": {
+    "scripts_run": [
+      "convert.mjs",
+      "dp_toolkit.py preprocess",
+      "stats.mjs / stats_analysis.py",
+      "stats_validate.mjs",
+      "dp_toolkit.py anomaly",
+      "physics_check.py"
+    ],
+    "key_findings": [
+      {
+        "finding": "Baseline statistical scripts completed, but no high-confidence correlation summary was automatically extracted.",
+        "source": "02_processed/feature_summary.json",
+        "evidence_rank": 3
+      }
+    ],
+    "limitations": [
+      "Aggregate patterns should not be treated as causal without subgroup and physics confirmation.",
+      "No reliable time column was detected, so lag claims must remain limited."
+    ]
+  },
+  "expert_custom_analysis": {
+    "custom_scripts_written": false,
+    "script_inventory": [],
+    "analysis_questions": [
+      "Which process-side abnormalities remain after validation and grouping checks?",
+      "Do inspection anomalies align with process-side instability in the same product or time context?"
+    ],
+    "custom_outputs": [],
+    "why_needed": "No custom script artifacts were found; baseline sufficiency must be justified by the Data Processor."
+  },
+  "ontology_industry_interpretation": [
+    {
+      "parameter_or_pattern": "unknown_pattern",
+      "ontology_role": "ontology-linked process feature",
+      "industry_knowledge": "Industry context indicates this feature can influence quality through a process mechanism.",
+      "interpretation": "任务书先验称 MD_TH018 ≈ 24.6°C；实测 MD_TH018 = 28.93-35.30，而 24.6 是 W1C00 的中位值。先验列映射错位。",
+      "confidence": "medium"
+    },
+    {
+      "parameter_or_pattern": "unknown_pattern",
+      "ontology_role": "ontology-linked process feature",
+      "industry_knowledge": "Industry context indicates this feature can influence quality through a process mechanism.",
+      "interpretation": "total_defects 与 oligomer+dust 不一致：149 批全部满足和 ≤ 总数，但 (oligomer+dust)/total 中位仅 37.2%，other 中位 30 件/批。",
+      "confidence": "medium"
+    },
+    {
+      "parameter_or_pattern": "unknown_pattern",
+      "ontology_role": "ontology-linked process feature",
+      "industry_knowledge": "Industry context indicates this feature can influence quality through a process mechanism.",
+      "interpretation": "MD_TH012-015 出现 26.1°C，低于知识库给出的冷却区 31-37°C 区间，且 TH012 上限 31.6 与 TH013-015 上限 41.2 分群 → 冷却区存在两种工况/配方。",
+      "confidence": "medium"
+    }
+  ],
+  "adaptive_decision_audit": {
+    "data_view_mode": "process_plus_inspection",
+    "mode_justification": "44 过程列 + 3 检测列按批次对齐，存在时间轴与暴露列",
+    "data_shapes_detected": [
+      "batch-level tabular (149×51)",
+      "heavy-tailed count responses",
+      "9-level categorical grouping",
+      "irregular time series (11-1161 min gaps)",
+      "strongly collinear parameter families",
+      "mixed absolute/deviation units in W1C"
+    ],
+    "selected_analyses": [
+      {
+        "analysis": "per-response distribution + robust shape",
+        "reason": "重尾计数，均值不可用",
+        "evidence_artifacts": [
+          "fig01_response_distribution.png",
+          "custom_analysis.json#response_profiles"
+        ],
+        "coverage_status": "covered"
+      },
+      {
+        "analysis": "model stratification + fixed effects",
+        "reason": "9 牌号，Kruskal 显著",
+        "evidence_artifacts": [
+          "fig02_model_response_medians.png",
+          "fig11_model_response_heatmap.png"
+        ],
+        "coverage_status": "covered"
+      },
+      {
+        "analysis": "Spearman + partial (model, meters, time)",
+        "reason": "重尾 + 混杂 + 共同趋势",
+        "evidence_artifacts": [
+          "validate_report.json",
+          "custom_analysis.json#robustness_time_control"
+        ],
+        "coverage_status": "covered"
+      },
+      {
+        "analysis": "Simpson / stratified re-estimation",
+        "reason": "牌号混杂 + 变点分段",
+        "evidence_artifacts": [
+          "fig06_simpson_stratified.png",
+          "custom_analysis.json#segment_check_cp78"
+        ],
+        "coverage_status": "covered"
+      },
+      {
+        "analysis": "leave-one-out leverage",
+        "reason": "9516 极值与重复批次",
+        "evidence_artifacts": [
+          "fig10_leverage.png"
+        ],
+        "coverage_status": "covered"
+      },
+      {
+        "analysis": "family collinearity clustering",
+        "reason": "44 列仅约 10 个独立信号",
+        "evidence_artifacts": [
+          "fig07_correlation_heatmap.png",
+          "fig12_family_effects.png"
+        ],
+        "coverage_status": "covered"
+      },
+      {
+        "analysis": "batch-scale CCF <=5 batches",
+        "reason": "本体规定上限；不规则间隔",
+        "evidence_artifacts": [
+          "fig08_ccf_lag.png",
+          "custom_analysis.json#time_lag"
+        ],
+        "coverage_status": "covered"
+      },
+      {
+        "analysis": "C10 exposure calibration",
+        "reason": "预注册检查",
+        "evidence_artifacts": [
+          "fig05_exposure_calibration.png"
+        ],
+        "coverage_status": "covered"
+      },
+      {
+        "analysis": "C11 F_PS005 trend",
+        "reason": "预注册检查",
+        "evidence_artifacts": [
+          "fig09_ps005_sawtooth.png"
+        ],
+        "coverage_status": "covered"
+      }
+    ],
+    "skipped_or_not_applicable": [
+      {
+        "analysis": "intra-batch trajectory / SPC control chart",
+        "status": "not_applicable",
+        "reason": "数据仅批级聚合，无批内采样"
+      },
+      {
+        "analysis": "Granger causality",
+        "status": "skipped",
+        "reason": "149 点、不规则间隔、强共同趋势 → 会被趋势伪造成'因果'"
+      },
+      {
+        "analysis": "steady-state-only primary analysis",
+        "status": "skipped",
+        "reason": "稳态滤波对慢漂移不敏感（10 个强漂移参数仍标 steady）；已用全 149 行 + 稳态子集敏感性对照"
+      },
+      {
+        "analysis": "挤出段/收卷张力机制检验",
+        "status": "not_applicable",
+        "reason": "无熔体温度、螺杆、张力测点（本体 S1/S6 observed=false）"
+      }
+    ],
+    "custom_analysis_required": true,
+    "custom_analysis_reason": "通用基线无法处理牌号固定效应、共同时间趋势分解、暴露标定与参数族结构；这四项直接决定诊断结论是否成立。",
+    "expert_review_summary": "本数据的核心风险不是噪声而是'共同慢漂移'：整线 10+ 参数在 9 天内同向漂移，任何单参数关联都可能只是漂移的影子。因此把'控制时间后是否仍成立'作为证据分级门槛。"
+  },
+  "analysis_coverage_matrix": {
+    "pure_process_analysis": {
+      "status": "covered",
+      "evidence_artifacts": [
+        "02_processed/anomaly_report.json"
+      ],
+      "summary": "Screened 1 process parameters for fluctuation, drift, span, and abrupt behavior.",
+      "gaps": []
+    },
+    "process_inspection_dual_drive": {
+      "status": "partial",
+      "evidence_artifacts": [
+        "02_processed/anomaly_report.json"
+      ],
+      "summary": "Process and inspection targets exist, but no strong cross-domain link was extracted.",
+      "gaps": [
+        "Review whether target/process column selection is correct and whether timing/group windows are too sparse."
+      ]
+    },
+    "grouping_confounding": {
+      "status": "partial",
+      "evidence_artifacts": [
+        "02_processed/anomaly_report.json",
+        "02_processed/validate_report.json"
+      ],
+      "summary": "Grouping/confounding analysis used primary grouping column model.",
+      "gaps": [
+        "Product group artifact missing; verify grouped analysis ran."
+      ]
+    },
+    "temporal_regime_event": {
+      "status": "not_applicable",
+      "evidence_artifacts": [],
+      "summary": "No reliable time column or transition/event artifact was detected.",
+      "gaps": [
+        "Temporal order claims should not be made."
+      ]
+    },
+    "scenario_specific": {
+      "status": "partial",
+      "evidence_artifacts": [],
+      "summary": "No scenario-specific artifact was generated; baseline-only sufficiency needs explicit justification.",
+      "gaps": [
+        "Consider zone, paired-sensor, event, nonlinear, cyclic, or process-health custom analysis if data shape supports it."
+      ]
+    }
+  },
+  "analysis_boundary": {
+    "pruned_pairs": [
+      {
+        "columns": [
+          "meters_dev",
+          "total_defects_dev",
+          "oligomer_dev",
+          "F_PS002@PV1_mean_dev",
+          "F_PS003@PV1_mean_dev",
+          "F_PS005@PV1_mean_dev",
+          "F_PS006@PV1_mean_dev",
+          "W1C01@PV1_mean_dev",
+          "W1C40@PV1_mean_dev",
+          "W1C4B@PV1_mean_dev",
+          "W1C7C@PV1_mean_dev",
+          "W1C7D@PV1_mean_dev",
+          "W1C7E@PV1_mean_dev",
+          "W1C7F@PV1_mean_dev",
+          "W1C80@PV1_mean_dev",
+          "W1C81@PV1_mean_dev",
+          "W1C82@PV1_mean_dev",
+          "W1C83@PV1_mean_dev",
+          "W1C84@PV1_mean_dev",
+          "W1C85@PV1_mean_dev",
+          "W1C86@PV1_mean_dev",
+          "W1C87@PV1_mean_dev",
+          "W1C88@PV1_mean_dev",
+          "W1C89@PV1_mean_dev",
+          "W1C8A@PV1_mean_dev",
+          "W1C8B@PV1_mean_dev",
+          "W1C8C@PV1_mean_dev",
+          "W1C8D@PV1_mean_dev"
+        ],
+        "reason": "preprocess 生成的 *_dev 派生列与原始列信息重复（r=1.0），保留会造成多重比较膨胀；统计分析只用原始 44 列"
+      },
+      {
+        "columns": [
+          "batch_id",
+          "ts_start"
+        ],
+        "reason": "标识/时间轴，仅作排序与追溯，不作为预测变量"
+      }
+    ],
+    "derived_features": []
+  },
+  "time_lag_analysis": {
+    "applicable": false,
+    "pairs_analyzed": 0,
+    "significant_lags_found": 0,
+    "key_recommendations": [
+      {
+        "pair": "N/A",
+        "recommended_lag_steps": 0,
+        "recommended_lag_seconds": 0,
+        "action": "Time-lag analysis not performed — no physical lag justification detected."
+      }
+    ],
+    "status": "not_computed",
+    "reason": "Time-lag analysis was not performed (no time column or physical lag justification)."
+  },
+  "data_cleaning_provenance": {
+    "data_source": "cleaned",
+    "data_source_reason": "cleaned_data passed Phase 2.2.5 integrity checks (row/type/range fidelity)",
+    "integrity_checks": {
+      "row_count": {},
+      "type_integrity": {},
+      "range_fidelity": {}
+    },
+    "cleaning_operations": [],
+    "repair_attempts": []
+  },
+  "data_supported_conclusions": [
+    {
+      "conclusion": "Statistical validation completed and should bound confidence for any causal claim.",
+      "supporting_sources": [
+        "02_processed/validate_report.json"
+      ],
+      "evidence_strength": "strong",
+      "diagnostic_relevance": "Validated findings should be prioritized over raw correlations.",
+      "known_caveats": []
+    }
+  ],
+  "handoff_to_diagnostician": {
+    "priority_hypothesis_inputs": [
+      {
+        "candidate": "candidate_1",
+        "why_prioritized": "Statistical validation completed and should bound confidence for any causal claim.",
+        "supporting_artifacts": [
+          "02_processed/validate_report.json"
+        ]
+      }
+    ],
+    "evidence_gaps": [
+      "Need final competing-hypothesis testing before turning data patterns into root-cause claims."
+    ],
+    "recommended_diagnostic_focus": [
+      "Cross-check statistical patterns against physics plausibility and ontology roles.",
+      "Verify whether product-group differences or event transitions explain the anomaly better than a universal process drift."
+    ]
+  },
+  "analysis_method_plan_summary": {
+    "hypotheses": [
+      {
+        "id": "H1",
+        "statement": "涂布/冷却通道族（W1C）漂移驱动总缺陷与未分类残差上升",
+        "methods": [
+          "family composite partial Spearman (control model+meters)",
+          "time-control partial (add t_index)",
+          "segment re-estimation pre/post change point",
+          "leave-one-out leverage"
+        ]
+      },
+      {
+        "id": "H2",
+        "statement": "F_PS005 供料回路压差累积（锯齿）+ 复位，是周期性污染源",
+        "methods": [
+          "Mann-Kendall/Spearman trend",
+          "Pettitt change point",
+          "segment medians",
+          "lagged CCF <=5 batches"
+        ]
+      },
+      {
+        "id": "H3",
+        "statement": "牌号配方差异（model）是主要分层混杂，甚至造成 Simpson 反转",
+        "methods": [
+          "Kruskal-Wallis per response",
+          "fixed-effect variance decomposition",
+          "within-model Spearman",
+          "stratified scatter"
+        ]
+      },
+      {
+        "id": "H4",
+        "statement": "缺陷计数主要由批次长度暴露决定，密度才是可比量",
+        "methods": [
+          "log-log regression with model FE",
+          "partial r of meters after model",
+          "density vs meters Spearman"
+        ]
+      },
+      {
+        "id": "H5",
+        "statement": "oligomer 由挤出段热历史决定，MD 温度只影响迁移，故模型内参数关联应很弱",
+        "methods": [
+          "pooled vs partial Spearman per family",
+          "FDR control",
+          "comparison with dust"
+        ]
+      },
+      {
+        "id": "H6",
+        "statement": "dust 多源且与过程参数弱关联，时间上无趋势",
+        "methods": [
+          "pooled/partial Spearman",
+          "time trend",
+          "change point"
+        ]
+      }
+    ],
+    "skipped": [
+      {
+        "method": "steady-state filtering as primary input",
+        "reason": "稳态标签按 76 列窗口方差判定，对 149 个批次的慢漂移线会误删漂移主体（101/149 判 steady）；实际用全 149 行做主分析，稳态子集仅作敏感性对照（中位 62 vs 51，方向一致）"
+      },
+      {
+        "method": "intra-batch analysis",
+        "reason": "数据为批级聚合，无批内轨迹"
+      },
+      {
+        "method": "Granger causality",
+        "reason": "149 点 + 不规则间隔 + 强共同趋势，Granger 会被趋势伪造"
+      }
+    ],
+    "full_battery_justified": false
+  }
+}

@@ -259,6 +259,15 @@ def case_ont_store():
     record("ont-store.reuse_no_rag",
            second["rag_used"] is False and second["web_used"] is False,
            "reuse path must not call RAG/web")
+    # same data context published under a different scene key must still reuse
+    # (DEF-03: exact context_fp is matched across scenes, not only inside scene).
+    renamed_ctx = make_context()
+    renamed_ctx["ontology"]["scene_key"] = "bopet_tdo_renamed"
+    run_renamed = make_run("store_run_renamed", renamed_ctx)
+    renamed = prepare(run_renamed, store_dir=store)
+    record("ont-store.cross_scene_exact_reuse",
+           renamed["action"] == "reused" and renamed["lookup"] == "exact",
+           f"action={renamed['action']} lookup={renamed['lookup']} scene={renamed['scene_key']}")
     record("ont-store.version_pinned",
            second["version"] == first["version"]
            and read_json(second["brief_json"])["ontology_version"] == first["version"]
@@ -290,14 +299,21 @@ def case_ont_store():
            f"js={js_fp} py={_context_fp(ctx)}")
 
     # a diagnosis entry for the same scene/data file must never leak into the doe lookup
+    # (2026-10-21 namespace change: version numbers are (profile, scope)-local and
+    # directories are namespaced — the invariant is now "the doe asset is untouched
+    # and on disk", not "version numbers differ")
     diag = make_run("store_diag", None, table=None)
     (diag / "01_ontology").mkdir(parents=True, exist_ok=True)
     shutil.copyfile(run1 / "01_ontology" / "ontology.json", diag / "01_ontology" / "ontology.json")
     pub = node([STORE_JS, "publish", "--run-dir", diag, "--scene", "bopet_tdo",
                 "--data-file", run1 / "00_input" / "run_table.csv"], store=store)
     pub_out = json.loads(pub.stdout or "{}")
+    doe_entry = next((e for e in read_json(store / "index.json")["entries"]
+                      if e.get("profile") == "doe" and e.get("scene_key") == "bopet_tdo"), None)
     record("ont-store.diagnosis_profile_unchanged",
-           pub_out.get("profile") == "diagnosis" and pub_out.get("version") != first["version"],
+           pub_out.get("profile") == "diagnosis" and doe_entry is not None
+           and (store / doe_entry["path"]).is_file()
+           and Path(pub_out.get("path") or "").resolve() != (store / doe_entry["path"]).resolve(),
            json.dumps(pub_out)[:200])
     doe_find = json.loads(node([STORE_JS, "find", "--profile", "doe", "--scene", "bopet_tdo",
                                 "--context-fp", first["context_fp"]], store=store).stdout or "{}")
@@ -575,7 +591,7 @@ def case_p1_surfaces():
            and "profile: 'doe'" in service,
            "DOE intent does not carry the doe ontology profile")
     record("P1-6.execution_passthrough",
-           "runIntent === 'doe-analysis'" in service,
+           "'doe-analysis', 'stability-report', 'quick-screen'].includes(runIntent)" in service,
            "execution pass-through still blanks the DOE ontology")
     record("P1-6.off_refused_source",
            "refused_off" in service and "ontologyDevOverride" in service,

@@ -1,0 +1,22 @@
+{
+  "data_path": "D:/codes/myskills/idd-doe-impl/workspace/lekai/run-mixed/run/00_input/batches.csv",
+  "interaction_mode": "auto",
+  "run_mode": "full",
+  "ontology": {
+    "mode": "full",
+    "source": null
+  },
+  "enhancement": {
+    "policy": "auto",
+    "intent_hit": false
+  },
+  "process_description": "",
+  "user_objective": "乐凯FW3线FP21/PG31DS混合批次缺陷根因诊断：batch级数据含total_defects/oligomer/dust缺陷与全部工艺参数，找出驱动缺陷升高的工艺参数，区分 competing hypotheses 并给出可执行建议。",
+  "analysis_constraints": {
+    "max_web_research_queries": 5,
+    "judge_score_threshold": 90,
+    "max_judge_iterations": 3,
+    "max_reviewer_iterations": 2,
+    "global_max_iterations": 5
+  }
+}

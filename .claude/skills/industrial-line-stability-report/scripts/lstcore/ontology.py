@@ -39,8 +39,72 @@ def _norm(name: str) -> str:
             .lower())
 
 
+def resolve_store_root(repo_root: str | None, store_dir: str | None = None) -> str | None:
+    """Store root: explicit arg > ONTOLOGY_STORE_DIR env > <repo>/data/ontology_store."""
+    if store_dir:
+        return os.path.normpath(os.path.abspath(store_dir))
+    env = os.environ.get("ONTOLOGY_STORE_DIR")
+    if env:
+        return os.path.normpath(os.path.abspath(env))
+    if repo_root:
+        return os.path.join(repo_root, "data", "ontology_store")
+    return None
+
+
+def _store_asset_candidates(store_root: str, scene_hint: str,
+                            profile: str | None) -> list[str]:
+    """Index-derived asset paths for a scene, profile-scoped, newest first.
+
+    With a non-diagnosis `profile`, entries of that profile are preferred and
+    default-profile (diagnosis) assets serve as fallback — an ontology built
+    for another lens is still a valid condition understanding, and its
+    provenance stays truthful in the asset itself.
+    """
+    try:
+        with open(os.path.join(store_root, "index.json"), encoding="utf-8") as f:
+            index = json.load(f)
+    except Exception:
+        return []
+    entries = index.get("entries") if isinstance(index, dict) else None
+    if not isinstance(entries, list):
+        return []
+    cands = [e for e in entries
+             if isinstance(e, dict) and e.get("scene_key") == scene_hint
+             and e.get("quality") != "deprecated"]
+    if profile and profile != "diagnosis":
+        own = [e for e in cands if (e.get("profile") or "diagnosis") == profile]
+        cands = own or [e for e in cands if (e.get("profile") or "diagnosis") == "diagnosis"]
+    elif profile == "diagnosis":
+        cands = [e for e in cands if (e.get("profile") or "diagnosis") == "diagnosis"]
+    cands.sort(key=lambda e: (-int(e.get("version") or 0), str(e.get("path") or "")))
+    return [os.path.join(store_root, e["path"]) for e in cands if e.get("path")]
+
+
+def _scan_asset_dirs(store_root: str, scene_hint: str, profile: str | None) -> list[str]:
+    """Directory-scan fallback (index drift): `<scene>/<profile>/vN` namespaces
+    first (when a non-default profile is requested), then legacy `<scene>/vN`."""
+    scene_dir = os.path.join(store_root, scene_hint)
+    if not os.path.isdir(scene_dir):
+        return []
+    ordered: list[str] = []
+    namespaces: list[str] = []
+    if profile and profile != "diagnosis":
+        namespaces.append(os.path.join(scene_dir, profile))
+    namespaces.append(scene_dir)
+    for ns_dir in namespaces:
+        if not os.path.isdir(ns_dir):
+            continue
+        for v in sorted((d for d in os.listdir(ns_dir) if d.startswith("v")), reverse=True):
+            p = os.path.join(ns_dir, v, "ontology.json")
+            if os.path.isfile(p):
+                ordered.append(p)
+    return ordered
+
+
 def discover_ontology(run_dir: str | None, explicit: str | None,
-                      scene_hint: str | None, repo_root: str | None) -> dict:
+                      scene_hint: str | None, repo_root: str | None,
+                      *, profile: str | None = None,
+                      store_dir: str | None = None) -> dict:
     """Return {path, source, ontology|None, reason}."""
     candidates = []
     if explicit and os.path.isfile(explicit):
@@ -53,36 +117,16 @@ def discover_ontology(run_dir: str | None, explicit: str | None,
     for cand in candidates:
         if os.path.isfile(cand):
             return _load(cand, "run_dir")
-    if scene_hint and repo_root:
-        index_path = os.path.join(repo_root, "data", "ontology_store", "index.json")
-        try:
-            with open(index_path, encoding="utf-8") as f:
-                index = json.load(f)
-        except Exception:
-            index = {}
-        entries = index.get("scenes") if isinstance(index, dict) else index
-        if isinstance(entries, dict):
-            entry = entries.get(scene_hint)
-            if isinstance(entry, dict):
-                for key in ("latest", "current", "path"):
-                    p = entry.get(key)
-                    if p and os.path.isfile(p):
-                        return _load(p, "asset_store")
-                ver = entry.get("latest_version") or entry.get("version")
-                if ver:
-                    p = os.path.join(repo_root, "data", "ontology_store",
-                                     scene_hint, f"v{ver}" if isinstance(ver, int) else str(ver),
-                                     "ontology.json")
-                    if os.path.isfile(p):
-                        return _load(p, "asset_store")
-        store_dir = os.path.join(repo_root, "data", "ontology_store", scene_hint)
-        if os.path.isdir(store_dir):
-            vers = sorted((d for d in os.listdir(store_dir) if d.startswith("v")),
-                          reverse=True)
-            for v in vers:
-                p = os.path.join(store_dir, v, "ontology.json")
-                if os.path.isfile(p):
-                    return _load(p, "asset_store")
+    store_root = resolve_store_root(repo_root, store_dir)
+    if scene_hint and store_root:
+        for path in _store_asset_candidates(store_root, scene_hint, profile):
+            loaded = _load(path, "asset_store")
+            if loaded["ontology"] is not None:
+                return loaded
+        for path in _scan_asset_dirs(store_root, scene_hint, profile):
+            loaded = _load(path, "asset_store")
+            if loaded["ontology"] is not None:
+                return loaded
     return {"path": None, "source": None, "ontology": None,
             "reason": "no ontology artifact found (auto mode)"}
 
@@ -170,6 +214,12 @@ def build_understanding(ontology: dict | None, columns: list[str],
             "role": role,
             "spec": spec,
             "normal_range": sig.get("normal_range"),
+            # knowledge provenance of the signal itself: a dictionary-inferred
+            # (auto_inferred) signal must never feed a Cpk spec downstream —
+            # the analyzer's spec_for() guard reads this field (defense in
+            # depth on top of prepare never writing typical_ranges to
+            # normal_range). Legacy signals without the field keep working.
+            "knowledge_source": sig.get("knowledge_source"),
             "stage": sig.get("stage_ref"),
             "equipment": sig.get("equipment_ref"),
             "governing_law": sig.get("governing_law"),

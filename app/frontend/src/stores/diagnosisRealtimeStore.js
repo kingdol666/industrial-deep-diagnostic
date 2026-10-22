@@ -530,7 +530,7 @@ export async function hydrateRun(runId) {
 
 export async function refreshCatalog() {
   try {
-    const runs = await api.listRuns();
+    const runs = await api.listDiagnosisRuns();
     mergeCatalogRuns(runs || []);
   } catch (err) {
     state.lastError = err.message || 'Failed to refresh catalog';

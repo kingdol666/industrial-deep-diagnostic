@@ -1,0 +1,61 @@
+{
+  "schema_version": "1.0.0",
+  "scene": "lekai-mixed-defects-diag",
+  "generated_from": "01_ontology/ontology.json",
+  "grain": "one row = one production batch",
+  "row_count": 149,
+  "column_count": 51,
+  "classification": {
+    "quality_target": [
+      {"column": "total_defects", "level": "L1_primary", "note": "含未标注主体类的总计数；重尾"},
+      {"column": "oligomer", "level": "L2_mode", "note": "低聚物析出类，独立机制"},
+      {"column": "dust", "level": "L2_mode", "note": "粉尘/异物类，独立机制"},
+      {"column": "other_defects_derived", "level": "L2_residual", "derived": true, "formula": "total_defects - oligomer - dust", "note": "中位占比 62.8% 的未标注主体类"}
+    ],
+    "process_parameter": {
+      "count": 44,
+      "families": {
+        "F_PS_feed": {"columns": ["F_PS002@PV1_mean", "F_PS003@PV1_mean", "F_PS005@PV1_mean", "F_PS006@PV1_mean"], "semantic_confidence": "INFERRED", "unit": "unknown"},
+        "MD_TH_preheat": {"columns": ["MD_TH001@PV_mean", "MD_TH002@PV_mean", "MD_TH003@PV_mean", "MD_TH004@PV_mean", "MD_TH005@PV_mean"], "semantic_confidence": "HIGH", "unit": "°C"},
+        "MD_TH_stretch": {"columns": ["MD_TH006@PV_mean", "MD_TH007@PV_mean", "MD_TH008@PV_mean", "MD_TH009@PV_mean", "MD_TH010@PV_mean", "MD_TH011@PV_mean"], "semantic_confidence": "HIGH", "unit": "°C"},
+        "MD_TH_cooling": {"columns": ["MD_TH012@PV_mean", "MD_TH013@PV_mean", "MD_TH014@PV_mean", "MD_TH015@PV_mean", "MD_TH016@PV_mean", "MD_TH017@PV_mean", "MD_TH018@PV_mean"], "semantic_confidence": "MEDIUM", "unit": "°C"},
+        "W1C_stable_setpoint": {"columns": ["W1C00@PV1_mean", "W1C01@PV1_mean", "W1C8D@PV1_mean"], "semantic_confidence": "INFERRED", "unit": "unknown"},
+        "W1C_absolute_process": {"columns": ["W1C40@PV1_mean", "W1C4B@PV1_mean", "W1C84@PV1_mean", "W1C87@PV1_mean", "W1C8A@PV1_mean", "W1C8B@PV1_mean"], "semantic_confidence": "INFERRED", "unit": "unknown"},
+        "W1C_actuator_mixed": {"columns": ["W1C80@PV1_mean", "W1C81@PV1_mean", "W1C82@PV1_mean", "W1C88@PV1_mean"], "semantic_confidence": "INFERRED", "unit": "mixed_absolute_deviation"},
+        "W1C_deviation": {"columns": ["W1C7C@PV1_mean", "W1C7D@PV1_mean", "W1C7E@PV1_mean", "W1C7F@PV1_mean", "W1C83@PV1_mean", "W1C85@PV1_mean", "W1C86@PV1_mean", "W1C89@PV1_mean", "W1C8C@PV1_mean"], "semantic_confidence": "INFERRED", "unit": "relative/deviation"}
+      }
+    },
+    "confounder": [
+      {"column": "meters", "type": "exposure", "note": "批次长度 1065-6473 m，缺陷计数的暴露分母"},
+      {"column": "MD_TH016@PV_mean", "type": "recipe_leakage", "note": "双峰 30.2/35.2 由牌号切换产生"},
+      {"column": "MD_TH017@PV_mean", "type": "recipe_leakage"},
+      {"column": "MD_TH018@PV_mean", "type": "recipe_leakage"},
+      {"column": "W1C80@PV1_mean", "type": "actuator_regime_switch"},
+      {"column": "W1C81@PV1_mean", "type": "actuator_regime_switch"},
+      {"column": "W1C82@PV1_mean", "type": "actuator_saturation"}
+    ],
+    "grouping": [
+      {"column": "model", "levels": 9, "role": "stratification", "counts": {"PG31DS": 67, "FP21": 19, "PG32D": 16, "PG32M": 13, "PG32B": 10, "PG32DS": 9, "FG22": 6, "PG22C": 6, "FP41": 3}}
+    ],
+    "time": [
+      {"column": "ts_start", "role": "time", "format": "YYYY-MM-DD HH:MM:SS", "window": ["2026-05-04 14:42:00", "2026-05-13 14:26:00"], "interval": "irregular 3-61 min"}
+    ],
+    "metadata": [
+      {"column": "batch_id", "role": "batch_id", "note": "非时间单调，排序须用 ts_start"}
+    ]
+  },
+  "roles_for_analysis_context": {
+    "responses": ["total_defects", "oligomer", "dust"],
+    "group_col": "model",
+    "index_col": "batch_id",
+    "time_col": "ts_start",
+    "predictors": 44,
+    "note": "analysis_context.json 只声明了 total_defects 与 oligomer 两个响应；本体显式补入 dust 并派生 other_defects_derived，三缺陷模式必须分别建模"
+  },
+  "analysis_directives": [
+    "按 model 分层或作为固定效应后再估计参数效应",
+    "报告缺陷/m 密度与原始计数两套结果",
+    "对重尾响应使用中位差/秩检验/log 变换，不依赖均值",
+    "滞后分析上限 5 批，且按物理时间加权解释"
+  ]
+}

@@ -5,9 +5,10 @@ import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 
 const {
-  ANALYSIS_INTENTS, resolveAnalysisIntent, buildIntentDirective, buildPrompt,
-  buildOntologyDirective,
+  ANALYSIS_INTENTS, resolveAnalysisIntent, resolvePreprocessingMode,
+  buildIntentDirective, buildPrompt, buildOntologyDirective,
 } = await import('../src/engine/claude-client.mjs');
+const { assertOntologyIntentSupported } = await import('../src/services/ontology-intent-guard.mjs');
 
 describe('resolveAnalysisIntent', () => {
   test('absent / empty / default → deep-diagnosis', () => {
@@ -61,11 +62,78 @@ describe('buildIntentDirective', () => {
     assert.ok(!directive.includes('\nscene'));
     assert.match(directive, /--name "badscene__rm_-rf"/);
   });
+
+  test('folder-input intents get the deterministic preprocessor step', () => {
+    const stability = buildIntentDirective('stability-report', 'line1');
+    assert.match(stability, /data_preprocessor\.py/);
+    assert.match(stability, /--stability-single-primary/);
+    assert.match(stability, /do not merge files or sampling cadences/i);
+  });
+
+  test('report intents carry the no-invented-unit rule', () => {
+    for (const intent of ['stability-report', 'quick-screen']) {
+      const directive = buildIntentDirective(intent, 'line1');
+      assert.match(directive, /unit undeclared/i);
+      assert.match(directive, /never infer mm\/µm\/°C/i);
+    }
+  });
 });
 
 describe('ANALYSIS_INTENTS registry', () => {
   test('default intent is registered with no skill override', () => {
     assert.equal(ANALYSIS_INTENTS['deep-diagnosis'], null);
+  });
+});
+
+describe('preprocessingMode policy (plan v2 §4)', () => {
+  test('default renders the single-primary preprocessor step only', () => {
+    const directive = buildIntentDirective('stability-report', 'line1');
+    assert.match(directive, /--stability-single-primary/);
+    assert.doesNotMatch(directive, /--integrate-merge/);
+  });
+
+  test('integrate_merge opt-in renders the gated merge mode only', () => {
+    const directive = buildIntentDirective('stability-report', 'line1', { preprocessingMode: 'integrate_merge' });
+    assert.match(directive, /--integrate-merge/);
+    assert.doesNotMatch(directive, /--stability-single-primary/);
+  });
+
+  test('other intents never render a preprocess step from the mode', () => {
+    const directive = buildIntentDirective('quick-screen', 'line1', { preprocessingMode: 'integrate_merge' });
+    assert.doesNotMatch(directive, /data_preprocessor\.py/);
+  });
+
+  test('resolver: default / accepted / unknown / wrong intent', () => {
+    assert.equal(resolvePreprocessingMode('stability-report', undefined), 'single_primary');
+    assert.equal(resolvePreprocessingMode('stability-report', ''), 'single_primary');
+    assert.equal(resolvePreprocessingMode('stability-report', 'integrate_merge'), 'integrate_merge');
+    assert.throws(
+      () => resolvePreprocessingMode('stability-report', 'bogus'),
+      (err) => err.status === 400 && err.code === 'PREPROCESSING_MODE_UNKNOWN',
+    );
+    assert.throws(
+      () => resolvePreprocessingMode('quick-screen', 'integrate_merge'),
+      (err) => err.status === 400 && err.code === 'PREPROCESSING_MODE_UNSUPPORTED_INTENT',
+    );
+  });
+});
+
+describe('ontology field contract', () => {
+  test('ontology fields on an unsupported specialist intent are rejected, not ignored', () => {
+    for (const intent of ['experience-mining', 'optimizer-campaign']) {
+      assert.throws(
+        () => assertOntologyIntentSupported(intent, { ontologyMode: 'auto' }),
+        (err) => err.status === 400 && err.code === 'ONTOLOGY_UNSUPPORTED_INTENT',
+      );
+    }
+  });
+
+  test('the same fields are accepted for doe-analysis and the watch-family intents', () => {
+    for (const intent of ['doe-analysis', 'stability-report', 'quick-screen']) {
+      assert.doesNotThrow(
+        () => assertOntologyIntentSupported(intent, { ontologyMode: 'auto' }),
+      );
+    }
   });
 });
 
@@ -118,5 +186,46 @@ describe('DOE ontology-first directive', () => {
     const text = buildOntologyDirective({ mode: 'auto', scene_key: 's', reason: 'r' });
     assert.doesNotMatch(text, /doe_ontology_prepare/);
     assert.doesNotMatch(text, /DOE profile/);
+  });
+});
+
+describe('watch-family ontology directives (plan v2 P1.5/P2.4)', () => {
+  test('stability profile renders the stability prepare step and brief-first order', () => {
+    const text = buildOntologyDirective({
+      profile: 'stability', mode: 'auto', scene_key: 'lineA', data_stage: 'collected',
+      source: null, hit: 'pending', reason: 'stability-report intent — ontology-first policy',
+    });
+    assert.match(text, /Ontology Directive \(watch profile\)/);
+    assert.match(text, /ONTOLOGY_PROFILE: stability/);
+    assert.match(text, /ontology_prepare\.py/);
+    assert.match(text, /industrial-line-stability-report/);
+    assert.match(text, /--mode auto/);
+    assert.match(text, /--scene lineA/);
+    const prepare = text.indexOf('ontology_prepare.py');
+    const readBrief = text.indexOf('READ 01_ontology/ontology_brief.json');
+    assert.ok(prepare > 0 && readBrief > prepare, 'brief must be read after prepare');
+    assert.match(text, /unit undeclared/i);
+  });
+
+  test('sentinel profile renders the sentinel prepare step and the window caps', () => {
+    const text = buildOntologyDirective({
+      profile: 'sentinel', mode: 'full', scene_key: 'millB', data_stage: 'collected',
+      source: 'D:/assets/ontology.json', hit: 'pending', reason: 'quick-screen intent',
+    });
+    assert.match(text, /sentinel_ontology_prepare\.py/);
+    assert.match(text, /industrial-sentinel/);
+    assert.match(text, /--ontology "D:\/assets\/ontology\.json"/);
+    assert.match(text, /ontology_declared/);
+    assert.match(text, /capped at warn/);
+    assert.match(text, /Never feed ontology values into indicators/);
+  });
+
+  test('watch directives never leak DOE-specific gates', () => {
+    for (const profile of ['stability', 'sentinel']) {
+      const text = buildOntologyDirective({ profile, mode: 'auto', reason: 'r' });
+      assert.doesNotMatch(text, /analysis_plan\.md/);
+      assert.doesNotMatch(text, /DESIGN_ONLY_NO_RESPONSE/);
+      assert.doesNotMatch(text, /doe_ontology_prepare/);
+    }
   });
 });

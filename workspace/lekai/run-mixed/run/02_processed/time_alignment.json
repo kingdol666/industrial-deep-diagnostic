@@ -1,0 +1,14 @@
+{
+ "time_column": "ts_start",
+ "parsed_format": "%Y-%m-%d %H:%M:%S",
+ "rows_total": 149,
+ "rows_unparsable_dropped": 0,
+ "monotonic_after_sort": true,
+ "duplicate_timestamps": 0,
+ "median_interval_seconds": 4200.0,
+ "interval_min_seconds": 660.0,
+ "interval_max_seconds": 69660.0,
+ "span_hours": 215.7,
+ "axis_provenance": "real parsed timestamps (not index-implied)",
+ "note": "批间间隔极不规则（11-1161 min），因此任何'滞后 N 批'都对应浮动的物理时长；滞后结论只能定性。"
+}

@@ -339,6 +339,18 @@
         "spc_source": { "type": ["string", "null"] },
         "regime_method": { "type": ["string", "null"] },
         "ontology_source": { "type": ["string", "null"] },
+        "ontology": {
+          "type": ["object", "null"],
+          "description": "Phase 0.5 ontology stage disclosure: discovery source, prepare action, scene key, and the honest rag_used of the deterministic prepare path.",
+          "properties": {
+            "source": { "type": ["string", "null"] },
+            "action": { "type": ["string", "null"],
+                        "enum": ["built", "reused", "extended", "skipped", null] },
+            "scene_key": { "type": ["string", "null"] },
+            "rag_used": { "type": "boolean" },
+            "brief_summary": { "type": ["object", "null"] }
+          }
+        },
         "methods": { "type": "array", "items": { "type": "string" } }
       }
     }

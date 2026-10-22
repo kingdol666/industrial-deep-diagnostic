@@ -26,7 +26,7 @@ import {
 import { ANALYSIS_INTENTS } from '../engine/claude-client.mjs';
 
 const router = Router();
-const TERMINAL = new Set(['completed', 'failed', 'stopped', 'interrupted']);
+const TERMINAL = new Set(['completed', 'failed', 'stopped', 'interrupted', 'expired', 'awaiting_input']);
 
 // ── GET /v1/capabilities — mode + harness discovery ────────────────────────
 router.get('/v1/capabilities', async (req, res) => {
@@ -37,7 +37,7 @@ router.get('/v1/capabilities', async (req, res) => {
       harnesses = (listHarnesses() || []).map((h) => ({
         id: h.id,
         label: h.label ?? h.name ?? h.id,
-        runs_capable: !!h.runsCapable,
+        runs_capable: Array.isArray(h.capabilities) && h.capabilities.includes('runs'),
       }));
     } catch { /* harness listing is advisory for callers */ }
     res.json({ success: true, data: { intents, harnesses } });
@@ -91,6 +91,7 @@ router.post('/v1/analyze', async (req, res) => {
       ontologySource: body.ontologySource,
       ontologyDataStage: body.ontologyDataStage,
       ontologyDevOverride: body.ontologyDevOverride,
+      preprocessingMode: body.preprocessingMode,
       reportLanguage: body.reportLanguage || 'zh',
       userQuestion: body.question || '',
       maxTurns: body.maxTurns,

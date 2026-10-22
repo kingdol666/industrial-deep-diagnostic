@@ -34,6 +34,19 @@
         "generated_from": { "type": ["string", "null"] }
       }
     },
+    "ontology": {
+      "type": "object",
+      "description": "Optional (watch mode only): the ontology this run consumed — units/roles verbatim from the ontology, rag_used reported as-is; declared windows stay capped at warn",
+      "required": ["source_path", "rag_used"],
+      "properties": {
+        "source_path": { "type": "string" },
+        "scene": { "type": ["string", "null"] },
+        "rag_used": { "type": "boolean" },
+        "units": { "type": "object", "additionalProperties": { "type": "string" } },
+        "roles": { "type": "object", "additionalProperties": { "type": "string" } },
+        "declared_window_count": { "type": "integer", "minimum": 0 }
+      }
+    },
     "checks_summary": {
       "type": "object",
       "properties": {

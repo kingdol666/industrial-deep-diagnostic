@@ -90,12 +90,13 @@
                   <option value="en">{{ $t('diagnosis.english') }}</option>
                 </select>
               </div>
-              <div class="turns-control" v-if="analysisIntent === 'deep-diagnosis'">
+              <div class="turns-control" v-if="ONTOLOGY_INTENTS.includes(analysisIntent)">
                 <label class="turns-label">{{ $t('diagnosis.ontologyPolicy') }}</label>
                 <select v-model="ontologyMode" class="ctrl-input ctrl-select">
                   <option value="auto">{{ $t('diagnosis.ontologyAuto') }}</option>
                   <option value="full">{{ $t('diagnosis.ontologyFull') }}</option>
                   <option v-if="ontologyScenes.length" value="reuse">{{ $t('diagnosis.ontologyReuse') }}</option>
+                  <option v-if="ontologyScenes.length" value="extend">{{ $t('diagnosis.ontologyExtend') }}</option>
                 </select>
               </div>
               <div class="turns-control" v-if="analysisIntent === 'deep-diagnosis'">
@@ -320,9 +321,18 @@ async function loadEngineOptions() {
 
 watch(() => props.harness, loadEngineOptions, { immediate: true });
 
+// The transcript must be labeled with the harness that OWNS this run. When a
+// historical run is opened from History/ClosedLoop, `startedHarness` still holds
+// the app-selected engine, which used to label a claude run as OMP (and vice
+// versa). Prefer the run row's harness whenever we are viewing an existing run.
+const runHarnessId = computed(() => {
+  const fromRun = viewingRun.value ? (run.value?.harness || null) : null;
+  return fromRun || startedHarness.value;
+});
+
 const runEngineLabel = computed(() => {
-  if (startedHarness.value === props.harness && props.harnessName) return props.harnessName;
-  return startedHarness.value.toUpperCase();
+  if (runHarnessId.value === props.harness && props.harnessName) return props.harnessName;
+  return String(runHarnessId.value || 'claude').toUpperCase();
 });
 
 const emit = defineEmits(['started', 'view-report', 'go-data']);
@@ -358,6 +368,9 @@ const INTENTS = [
   { id: 'experience-mining', icon: '☰' },
   { id: 'optimizer-campaign', icon: '⇄' },
 ];
+// Intents whose runs consume an ontology directive — mirrors ONTOLOGY_INTENTS
+// in the backend guard (ontology-intent-guard.mjs).
+const ONTOLOGY_INTENTS = ['deep-diagnosis', 'doe-analysis', 'stability-report', 'quick-screen'];
 const analysisIntent = ref('deep-diagnosis');
 const elapsed = ref('0:00');
 const currentPhase = ref('');
@@ -566,8 +579,11 @@ async function start() {
     reportLanguage: reportLanguage.value,
     harness: props.harness || 'claude',
     analysisIntent: analysisIntent.value,
-    ontologyMode: analysisIntent.value === 'deep-diagnosis' ? ontologyMode.value : undefined,
-    ontologyScene: analysisIntent.value === 'deep-diagnosis' && ontologyMode.value === 'reuse' ? (sceneName.value || undefined) : undefined,
+    ontologyMode: ONTOLOGY_INTENTS.includes(analysisIntent.value)
+      ? ontologyMode.value : undefined,
+    ontologyScene: ONTOLOGY_INTENTS.includes(analysisIntent.value)
+      && (ontologyMode.value === 'reuse' || ontologyMode.value === 'extend')
+      ? (sceneName.value || undefined) : undefined,
     enhancement: analysisIntent.value === 'deep-diagnosis' ? enhancement.value : 'off',
   };
   startedHarness.value = payload.harness;

@@ -5,7 +5,7 @@ Usage (from repo root, inside the shared uv venv):
   uv run --project .claude/shared/scripts python \
       .claude/skills/industrial-sentinel/scripts/sentinel.py watch \
       (--run-dir RUN_DIR | --data PATH) \
-      [--baseline PATH] [--config PATH] [--out-dir DIR]
+      [--baseline PATH] [--config PATH] [--out-dir DIR] [--ontology PATH]
 
 Watch = batch screening of one data window (1k-100k rows) with four checks:
   C1 SPC Nelson R1/R2/R3/R5/R6        (spc.py, sigma = MRbar/1.128)
@@ -24,7 +24,8 @@ the window per group (Mahalanobis disabled), every run is marked
 baseline.mode="self" with a SELF_BASELINE alert + 48h TTL reminder.
 
 Exit codes: 0 ok · 1 findings (warn/high/critical) · 2 undetermined (bad
-input / cold start impossible) · 3 self-check (gate) failure.
+input / cold start impossible) · 3 self-check (gate) failure · 4 crash
+(uncaught exception).
 ZERO LLM / ZERO NETWORK on this path — numpy/scipy/pandas only, no raw open().
 """
 
@@ -33,6 +34,7 @@ import datetime
 import json
 import re
 import sys
+import traceback
 from pathlib import Path
 
 import numpy as np
@@ -66,6 +68,9 @@ from sentinelcore import _io, projection, regime_map, robust, spc, suppress  # n
 from sentinelcore.suppress import downgrade_severity, make_suppression_key  # noqa: E402
 
 DATA_SUFFIXES = (".csv", ".tsv", ".tab", ".parquet", ".pq")
+# Input-size guards (watch is a one-window batch screen, 1k-100k rows).
+MAX_WATCH_ROWS = 100000
+MAX_PARAMETER_COLS = 60
 # serial is {n:03d}-zero-padded but grows past 3 digits on long watches
 # (>999 alerts on real 60-day data); the pattern must accept the growth.
 ALERT_ID_PATTERN = re.compile(r"^ALT-[0-9]{8}-[0-9]{6}-[0-9]{3,}$")
@@ -96,6 +101,30 @@ DEFAULT_THRESHOLDS = {
 
 # ------------------------------------------------------------------ helpers
 
+def append_pipeline_event(run_dir, event, detail):
+    """Append one JSON Lines event to <run_dir>/.pipeline_events.jsonl."""
+    run_dir_v = _io._contained(run_dir)
+    payload = {"timestamp": _io.now_iso(), "event": event,
+               "run_dir": str(run_dir_v), "detail": detail or {}}
+    _io.append_text(run_dir_v / ".pipeline_events.jsonl",
+                    json.dumps(payload, ensure_ascii=False) + "\n")
+
+
+def inspection_column_names(cfg, ont_doc, baseline):
+    """Columns the run treats as inspection/quality targets (cap priority)."""
+    names = {str(c) for c in (cfg.get("inspection_cols") or [])}
+    signals = (ont_doc or {}).get("signals") if isinstance(ont_doc, dict) else {}
+    for sig in (signals or {}).get("inspection_signals") or []:
+        if isinstance(sig, dict):
+            name = sig.get("column") or sig.get("name")
+            if name is not None:
+                names.add(str(name))
+    for store in ((baseline or {}).get("groups") or {}).values():
+        for indicator in ((store or {}).get("indicators") or {}):
+            names.add(str(indicator))
+    return names
+
+
 def find_data_file(run_dir):
     rd = _io._contained(run_dir)
     input_dir = rd / "00_input"
@@ -123,6 +152,68 @@ def merged_thresholds(cfg):
     th.update({k: v for k, v in (cfg.get("thresholds") or {}).items()
                if v is not None})
     return th
+
+
+def resolve_ontology(explicit, run_dir):
+    """--ontology explicit > <run-dir>/01_ontology/ontology.json > None.
+
+    Returns (ontology_doc_or_None, block_or_None, error_or_None). An explicit
+    path that is missing/unreadable is a bad input (honest refusal); the
+    auto-discovery candidate is only used when the file exists (behaviour
+    unchanged otherwise). The block is the alert's optional top-level
+    `ontology` object (watch mode only — fast-screen never emits it).
+    """
+    if explicit:
+        p = Path(str(explicit))
+        if not p.exists() and run_dir:
+            candidate = _io._contained(run_dir) / str(explicit)
+            if candidate.exists():
+                p = candidate
+        if not p.exists():
+            return None, None, f"--ontology not found: {explicit}"
+        try:
+            doc = _io.read_json(p)
+        except Exception as exc:  # noqa: BLE001
+            return None, None, f"cannot load --ontology {p}: {exc}"
+        return doc, _ontology_block(doc, p), None
+    if run_dir:
+        candidate = _io._contained(run_dir) / "01_ontology" / "ontology.json"
+        if candidate.is_file():
+            try:
+                doc = _io.read_json(candidate)
+            except Exception as exc:  # noqa: BLE001
+                return None, None, f"cannot load {candidate}: {exc}"
+            return doc, _ontology_block(doc, candidate), None
+    return None, None, None
+
+
+def _ontology_block(doc, path):
+    """Optional alert.ontology block: what the run consumed from the ontology
+    (units/roles verbatim from the ontology; rag_used reported, never invented)."""
+    if not isinstance(doc, dict):
+        return None
+    scene = doc.get("scene") if isinstance(doc.get("scene"), dict) else {}
+    prov = doc.get("provenance") if isinstance(doc.get("provenance"), dict) else {}
+    metadata = doc.get("metadata") if isinstance(doc.get("metadata"), dict) else {}
+    watch = doc.get("watch") if isinstance(doc.get("watch"), dict) else {}
+    units = {str(k): str(v) for k, v in (metadata.get("units") or {}).items()
+             if v is not None}
+    roles = {str(k): str(v) for k, v in (watch.get("roles") or {}).items()
+             if v is not None}
+    signals = doc.get("signals") if isinstance(doc.get("signals"), dict) else {}
+    declared_windows = 0
+    for kind in ("process_parameters", "inspection_signals", "control_variables"):
+        for sig in signals.get(kind) or []:
+            if isinstance(sig, dict) and sig.get("normal_range") is not None:
+                declared_windows += 1
+    return {
+        "source_path": str(_io._contained(path)),
+        "scene": str(scene.get("name")) if scene.get("name") is not None else None,
+        "rag_used": bool(prov.get("rag_used", False)),
+        "units": units,
+        "roles": roles,
+        "declared_window_count": declared_windows,
+    }
 
 
 def build_alert(*, check_type, rule_name, severity, urgency, group,
@@ -359,6 +450,11 @@ def check_projection(group, arrays, store, steady, time_hours, th,
                 continue
             lo, hi = rng
             confirmation = bool(w.get("confirmation_needed"))
+            # ontology-declared windows: the spec came from the ontology stage,
+            # not from DOE-validated recommendations — honest labelling only
+            # (severity cap already frozen by confirmation_needed in
+            # projection.py; this never escalates past warn)
+            ontology_declared = str(w.get("window_source") or "") == "ontology_declared"
             v = np.asarray(arrays[factor], dtype=float)[steady]
             h = np.asarray(time_hours, dtype=float)[steady]
             proj = projection.project(v, h, lo, hi, confirmation, th)
@@ -371,14 +467,24 @@ def check_projection(group, arrays, store, steady, time_hours, th,
             if level in (SEV["warn"], SEV["high"], SEV["critical"]) or proj["out_of_range"]:
                 hours = proj["hours_to_edge"]
                 if proj["out_of_range"]:
-                    suggestion = (f"{factor} 当前值 {proj['current']:.4g} 已越出操作窗口 "
-                                  f"[{lo}, {hi}]，请立即核实工艺状态")
+                    suggestion = (
+                        f"{factor} 当前值 {proj['current']:.4g} 已越出"
+                        + ("声明窗口" if ontology_declared else "操作窗口")
+                        + f" [{lo}, {hi}]"
+                        + ("（来源：本体声明，未经 DOE 验证）" if ontology_declared else "")
+                        + "，请立即核实工艺状态")
                 elif hours is not None:
-                    suggestion = (f"{factor} 按当前漂移速率预计 {hours:.1f} 小时后触及窗口边界 "
-                                  f"[{lo}, {hi}]，请提前安排核查")
+                    suggestion = (
+                        f"{factor} 按当前漂移速率预计 {hours:.1f} 小时后触及"
+                        + ("声明窗口" if ontology_declared else "窗口边界")
+                        + f" [{lo}, {hi}]"
+                        + ("（来源：本体声明，未经 DOE 验证）" if ontology_declared else "")
+                        + "，请提前安排核查")
                 else:
-                    suggestion = f"{factor} 存在趋势性漂移，建议关注"
-                alerts.append(build_alert(
+                    suggestion = (f"{factor} 存在趋势性漂移，建议关注"
+                                  + (f"（声明窗口 [{lo}, {hi}]，来源：本体声明，未经 DOE 验证）"
+                                     if ontology_declared else ""))
+                alert = build_alert(
                     check_type=check_type, rule_name=rule,
                     severity=level, urgency=projection.urgency_for(level),
                     group=group, parameter=factor,
@@ -395,7 +501,11 @@ def check_projection(group, arrays, store, steady, time_hours, th,
                     advisory=confirmation,
                     suggested_check=suggestion,
                     suggested_next_skill=NEXT_SKILL["window_projection"],
-                    generated_at=generated_at))
+                    generated_at=generated_at)
+                if ontology_declared:
+                    alert["interpretation"] = ("窗口为本体声明（ontology_declared），"
+                                               "未经验证，已封顶 warn")
+                alerts.append(alert)
             summary.append({
                 "factor": factor,
                 "current": _finite(proj["current"]),
@@ -642,6 +752,13 @@ def cmd_watch(args):
                   "multivariate": True}
     checks_cfg.update(cfg.get("checks") or {})
 
+    # optional ontology consumption: explicit --ontology > 01_ontology discovery
+    ont_doc, ontology_block, ont_error = resolve_ontology(
+        getattr(args, "ontology", None), run_dir)
+    if ont_error:
+        print(f"[sentinel] bad input: {ont_error}")
+        return EXIT_UNDETERMINED
+
     try:
         df = _io.load_table(data_path)
     except Exception as exc:  # noqa: BLE001
@@ -649,6 +766,10 @@ def cmd_watch(args):
         return EXIT_UNDETERMINED
     if df.empty:
         print("[sentinel] bad input: empty table")
+        return EXIT_UNDETERMINED
+    if len(df) > MAX_WATCH_ROWS:
+        print(f"WATCH_TOO_MANY_ROWS: {len(df)} rows (>100000) — one watch screens "
+              f"at most {MAX_WATCH_ROWS} rows; split the window before watching")
         return EXIT_UNDETERMINED
 
     time_col, group_col = _io.identify_columns(
@@ -688,6 +809,19 @@ def cmd_watch(args):
     if not cols:
         print("[sentinel] bad input: no usable numeric parameter columns")
         return EXIT_UNDETERMINED
+    checks_skipped = []
+    inspection_first = inspection_column_names(cfg, ont_doc, baseline)
+    ordered_cols = ([c for c in cols if c in inspection_first]
+                    + [c for c in cols if c not in inspection_first])
+    if len(ordered_cols) > MAX_PARAMETER_COLS:
+        checks_skipped.append({
+            "check": "parameter_cap",
+            "reason": (f"{len(ordered_cols)} numeric parameter columns exceed the "
+                       f"{MAX_PARAMETER_COLS}-column watch cap; screened the first "
+                       f"{MAX_PARAMETER_COLS} (inspection columns first)"),
+        })
+        ordered_cols = ordered_cols[:MAX_PARAMETER_COLS]
+    cols = ordered_cols
 
     groups_arrays = {g: _io.to_arrays(sub, sorted(set(cols) |
                                                  {i for s in
@@ -864,7 +998,6 @@ def cmd_watch(args):
 
     # ---- C2 coverage disclosure: the projection loop above silently no-ops
     # when the effective baseline carries no operating_windows; surface it.
-    checks_skipped = []
     if checks_cfg.get("window_projection", True) and not any(
             (s.get("operating_windows") or [])
             for s in (baseline.get("groups") or {}).values()):
@@ -878,6 +1011,7 @@ def cmd_watch(args):
     if time_col and time_col in df.columns:
         window_start = str(df[time_col].iloc[0])
         window_end = str(df[time_col].iloc[-1])
+    input_sha = _io.sha256_file(data_path)
     payload = {
         "contract_version": ALERT_CONTRACT_VERSION,
         "alert_id": make_alert_id(generated_at, 0),
@@ -888,7 +1022,7 @@ def cmd_watch(args):
         "generated_at": generated_at,
         "source": {
             "data_path": str(data_path),
-            "sha256": _io.sha256_file(data_path),
+            "sha256": input_sha,
             "window_start": window_start,
             "window_end": window_end,
             "n_rows": int(len(df)),
@@ -935,13 +1069,16 @@ def cmd_watch(args):
             },
         },
         "provenance": {
-            "input_sha256": _io.sha256_file(data_path),
+            "input_sha256": input_sha,
             "script_version": SCRIPT_VERSION,
             "duration_ms": duration_ms,
             "zero_llm": True,
             "authored_by": "script",
         },
     }
+    # optional top-level ontology block (watch mode only; gate S3 whitelists it)
+    if ontology_block is not None:
+        payload["ontology"] = ontology_block
 
     # ---- self-check (in-process gate; failure -> exit 3)
     problems = self_check(payload)
@@ -949,6 +1086,10 @@ def cmd_watch(args):
         for p in problems:
             print(f"[sentinel] SELF-CHECK FAIL: {p}")
         _io.write_json(out_dir / "alert.json", payload)
+        if run_dir:
+            append_pipeline_event(run_dir, "analysis_done", {
+                "status": "gate_fail", "mode": payload["mode"],
+                "baseline_mode": baseline_mode, "alerts": len(merged)})
         return EXIT_GATE_FAIL
 
     _io.write_json(out_dir / "alert.json", payload)
@@ -960,6 +1101,18 @@ def cmd_watch(args):
     base_line = (f"模式：{baseline_mode}"
                  + (f"（{(baseline or {}).get('baseline_version') or ''}）" if baseline else "")
                  + (f"，路径：{baseline_path}" if baseline_path else ""))
+    # Chinese report — window-source disclosure when the effective baseline
+    # carries ontology-declared windows (honest provenance for C2)
+    n_ontology_windows = sum(
+        1 for s in (baseline or {}).get("groups", {}).values()
+        for w in (s.get("operating_windows") or [])
+        if str(w.get("window_source") or "") == "ontology_declared")
+    window_source_line = ""
+    if n_ontology_windows:
+        window_source_line = (
+            f"- 窗口来源：{n_ontology_windows} 个本体声明窗口"
+            f"（window_source=ontology_declared，未经 DOE 验证；"
+            f"越界/触界告警一律封顶 warn）")
     report = render_report(template, {
         "GENERATED_AT": generated_at,
         "MODE": payload["mode"],
@@ -970,6 +1123,7 @@ def cmd_watch(args):
         "TIME_COL": time_col or "-",
         "GROUP_COL": group_col or "-",
         "BASELINE_LINE": base_line,
+        "WINDOW_SOURCE_LINE": window_source_line,
         "COLD_START_SECTION": (f"> **冷启动提示**：{cold_start_note}\n" if cold_start_note else ""),
         "ALERTS_SECTION": alerts_table_md(merged),
         "REGIME_SECTION": "\n".join(
@@ -993,6 +1147,11 @@ def cmd_watch(args):
         "DURATION_MS": duration_ms,
     })
     _io.write_text(out_dir / "watch_report.md", report)
+
+    if run_dir:
+        append_pipeline_event(run_dir, "analysis_done", {
+            "status": status, "mode": payload["mode"],
+            "baseline_mode": baseline_mode, "alerts": len(merged)})
 
     print(f"[sentinel] status={status} alerts={len(merged)} -> "
           f"{out_dir / 'alert.json'} ({duration_ms}ms)")
@@ -1060,20 +1219,29 @@ def self_check(payload):
 
 
 def main(argv=None):
-    ap = argparse.ArgumentParser(description="industrial-sentinel watch")
-    sub = ap.add_subparsers(dest="command", required=True)
-    w = sub.add_parser("watch", help="batch screening of one data window")
-    w.add_argument("--run-dir", default=None)
-    w.add_argument("--data", default=None)
-    w.add_argument("--baseline", default=None)
-    w.add_argument("--config", default=None)
-    w.add_argument("--out-dir", default=None)
-    w.add_argument("--time-col", default=None)
-    w.add_argument("--group-col", default=None)
-    w.add_argument("--no-self-baseline", action="store_true")
-    w.set_defaults(func=cmd_watch)
-    args = ap.parse_args(argv)
-    return args.func(args)
+    try:
+        ap = argparse.ArgumentParser(description="industrial-sentinel watch")
+        sub = ap.add_subparsers(dest="command", required=True)
+        w = sub.add_parser("watch", help="batch screening of one data window")
+        w.add_argument("--run-dir", default=None)
+        w.add_argument("--data", default=None)
+        w.add_argument("--baseline", default=None)
+        w.add_argument("--config", default=None)
+        w.add_argument("--out-dir", default=None)
+        w.add_argument("--time-col", default=None)
+        w.add_argument("--group-col", default=None)
+        w.add_argument("--ontology", default=None,
+                       help="ontology.json consumed by this run (default: auto-discover "
+                            "<run-dir>/01_ontology/ontology.json; absent -> no ontology block)")
+        w.add_argument("--no-self-baseline", action="store_true")
+        w.set_defaults(func=cmd_watch)
+        args = ap.parse_args(argv)
+        return args.func(args)
+    except (SystemExit, KeyboardInterrupt):
+        raise
+    except BaseException:
+        print(f"CRASH: {traceback.format_exc().strip().splitlines()[-1]}", file=sys.stderr)
+        return 4
 
 
 if __name__ == "__main__":

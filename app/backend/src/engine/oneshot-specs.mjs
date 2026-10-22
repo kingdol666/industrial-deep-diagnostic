@@ -28,7 +28,7 @@ import {
 } from './claude-client.mjs';
 
 // ── Shared prompt assembly (mirrors omp-client startDiagnosis) ──
-function buildEnginePrompt({ analysisTarget, userQuestion, sceneName, reportLanguage, followUpMessage, ontology, enhancement, analysisIntent }) {
+function buildEnginePrompt({ analysisTarget, userQuestion, sceneName, reportLanguage, followUpMessage, ontology, enhancement, analysisIntent, preprocessingMode }) {
   const lang = reportLanguage || config.diagnosis.default_language;
   const { dataPaths, promptTarget } = resolveAnalysisTarget(analysisTarget);
 
@@ -51,7 +51,7 @@ function buildEnginePrompt({ analysisTarget, userQuestion, sceneName, reportLang
 
 ${skillRef}
 
-${buildDataPrompt(sceneName, userQuestion, promptTarget, lang, followUpMessage)}${buildIntentDirective(analysisIntent, sceneName)}${buildOntologyDirective(ontology)}${buildEnhancementDirective(enhancement)}`;
+${buildDataPrompt(sceneName, userQuestion, promptTarget, lang, followUpMessage)}${buildIntentDirective(analysisIntent, sceneName, { preprocessingMode })}${buildOntologyDirective(ontology)}${buildEnhancementDirective(enhancement)}`;
 
   return { dataPaths, prompt };
 }

@@ -70,7 +70,10 @@ TIME_PARSE_MIN_RATE = 0.8
 DATA_SUFFIXES = (".csv", ".xlsx", ".xls", ".parquet", ".feather", ".json", ".tsv")
 
 # P0-4: 00_input holds descriptors alongside the run table. None of these is data.
-AUX_INPUT_NAMES = {"doe_context.json", "analysis_context.json", "analysis_context.merged.json"}
+AUX_INPUT_NAMES = {"doe_context.json", "analysis_context.json", "analysis_context.merged.json",
+                   "run_config.json", "input_manifest.json", "preprocessing_report.json",
+                   "report_context.json", "ontology.json",
+                   "ontology_brief.json", "ontology_coverage.json"}
 
 
 def is_aux_input_name(name):

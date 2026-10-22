@@ -24,6 +24,12 @@ SCRIPTS = os.path.join(SKILL, "scripts")
 ANALYZER = os.path.join(SCRIPTS, "stability_analyzer.py")
 BUILDER = os.path.join(SCRIPTS, "report_builder.py")
 GATE = os.path.join(SCRIPTS, "quality_gate.mjs")
+PREPARE = os.path.join(SCRIPTS, "ontology_prepare.py")
+PREPROCESSOR = os.path.join(REPO, ".claude", "skills", "industrial-data-preprocessor",
+                            "scripts", "data_preprocessor.py")
+ONTOLOGY_SCHEMA = os.path.join(REPO, ".claude", "skills", "industrial-ontology-builder",
+                               "schemas", "ontology_schema.json")
+VALIDATOR = os.path.join(REPO, ".claude", "shared", "scripts", "validate.mjs")
 SHARED_ENUMS = os.path.join(REPO, ".claude", "shared", "schemas", "closedloop_enums.json")
 
 CHECKS = []
@@ -34,10 +40,10 @@ def check(name, cond, detail=""):
     print(f"  {'PASS' if cond else 'FAIL'}  {name}" + (f"  [{detail}]" if detail and not cond else ""))
 
 
-def py(*args, cwd=None):
+def py(*args, cwd=None, env=None):
     return subprocess.run([sys.executable, *args], capture_output=True,
                           text=True, cwd=cwd or REPO, timeout=300, encoding="utf-8",
-                          errors="replace")
+                          errors="replace", env={**os.environ, **(env or {})})
 
 
 def node_gate(report_path, out_dir):
@@ -158,6 +164,17 @@ def run_analyze(run_dir, out_dir=None, extra=None):
     if extra:
         cmd += extra
     return py(*cmd)
+
+
+def run_prepare(run_dir, extra=None, store=None):
+    """Ontology prepare with --json; ONTOLOGY_STORE_DIR comes from the suite env
+    unless a private in-repo store is passed (zero-declaration fixtures that
+    must observe their own first build)."""
+    cmd = [PREPARE, "--run-dir", run_dir, "--json"]
+    if extra:
+        cmd += extra
+    env = {"ONTOLOGY_STORE_DIR": store} if store else None
+    return py(*cmd, env=env)
 
 
 def load_report(out_dir):
@@ -766,11 +783,327 @@ def scenario_schema_validation(base, stable_out):
     check("schema.valid_report", r.returncode == 0, r.stdout[-300:])
 
 
+def scenario_ontology_prepare(base):
+    print("[S19] ontology prepare: build/reuse + CP-2 + honest provenance")
+    run_dir = os.path.join(base, "prep_build")
+    out = os.path.join(run_dir, "line_report")
+    os.makedirs(os.path.join(run_dir, "00_input"), exist_ok=True)
+    write_stable_csv(os.path.join(run_dir, "00_input", "data.csv"), n=600, seed=81)
+    with open(os.path.join(run_dir, "00_input", "report_context.json"), "w",
+              encoding="utf-8") as f:
+        json.dump({"line_id": "L-PREP",
+                   "inspection_cols": ["yield_pct"],
+                   "spec_limits": {"yield_pct": {"lsl": 97.0, "usl": 100.0,
+                                                 "target": 98.5}},
+                   "units": {"temp": "degC"}}, f)
+    r = run_prepare(run_dir)
+    check("prep.build_exit0", r.returncode == 0, r.stderr[-300:])
+    res = json.loads(r.stdout)
+    check("prep.action_built", res["action"] == "built", str(res.get("action")))
+    ontology_path = res.get("ontology_path")
+    check("prep.four_artifacts", bool(ontology_path) and all(
+        os.path.isfile(p) for p in (ontology_path, res.get("brief_json"),
+                                    res.get("brief_md"), res.get("coverage_path"))),
+          json.dumps({k: res.get(k) for k in ("ontology_path", "brief_json",
+                                              "brief_md", "coverage_path")}))
+    check("prep.cp2_floor_ok", res.get("cp2_floor_ok") is True)
+    check("prep.rag_web_unused",
+          res.get("rag_used") is False and res.get("web_used") is False
+          and res.get("rag_used_by_prepare") is False)
+    v = subprocess.run(["node", VALIDATOR, ONTOLOGY_SCHEMA, ontology_path],
+                       capture_output=True, text=True, cwd=REPO, timeout=60,
+                       encoding="utf-8")
+    check("prep.ontology_schema_valid", v.returncode == 0, v.stdout[-300:])
+    with open(res["brief_json"], encoding="utf-8") as f:
+        brief = json.load(f)
+    yp = next((c for c in brief["columns"] if c["col"] == "yield_pct"), None)
+    check("prep.user_spec_matched",
+          yp and yp["mapping_status"] == "matched"
+          and yp["knowledge_source"] == "user_provided" and yp["spec"] is not None,
+          json.dumps(yp, ensure_ascii=False))
+    check("prep.spec_only_user_declared",
+          all(c["spec"] is None or c["col"] == "yield_pct" for c in brief["columns"]),
+          json.dumps([c["col"] for c in brief["columns"] if c["spec"]]))
+    with open(ontology_path, encoding="utf-8") as f:
+        ont = json.load(f)
+    sigs = ont["signals"]["process_parameters"] + ont["signals"]["inspection_signals"]
+    check("prep.normal_range_only_user",
+          all("normal_range" not in s or s.get("knowledge_source") == "user_provided"
+              for s in sigs))
+    r2 = run_prepare(run_dir)
+    res2 = json.loads(r2.stdout)
+    check("prep.reuse_action", res2["action"] == "reused", str(res2.get("action")))
+    check("prep.reuse_lookup_exact", res2["lookup"] == "exact", str(res2.get("lookup")))
+    ra = run_analyze(run_dir)
+    check("prep.analyze_runs", ra.returncode in (0, 1, 2), ra.stderr[-200:])
+    rep = load_report(out)
+    ont_prov = rep["provenance"].get("ontology") or {}
+    check("prep.analyzer_provenance_rag_false", ont_prov.get("rag_used") is False,
+          json.dumps(ont_prov, ensure_ascii=False))
+    check("prep.analyzer_action_reused", ont_prov.get("action") == "reused",
+          str(ont_prov.get("action")))
+    summary = ont_prov.get("brief_summary")
+    check("prep.analyzer_brief_summary",
+          isinstance(summary, dict) and 0 < len(summary) <= 10
+          and summary.get("coverage_ratio") == 1.0,
+          json.dumps(summary, ensure_ascii=False))
+
+
+def scenario_multisource_merge(base):
+    print("[S20] folder multi-source integrate-merge -> merge disclosure")
+    src = os.path.join(base, "raw_folder")
+    os.makedirs(src, exist_ok=True)
+    rng = np.random.default_rng(23)
+    n_main, n_lab = 200, 100
+    t0 = datetime(2026, 10, 6, 8, 0, 0)
+    pd.DataFrame({
+        # space-separated timestamps: the canonical DCS export shape this
+        # skill documents (data-prep-dcs.md), and the format the preprocessor's
+        # CN-datetime normalizer handles for its cadence gate
+        "t": [(t0 + timedelta(seconds=60 * i)).strftime("%Y-%m-%d %H:%M:%S")
+              for i in range(n_main)],
+        "temp": 85.0 + rng.normal(0, 0.05, n_main),
+        "press": 0.6 + rng.normal(0, 0.001, n_main),
+        "rate": 120.0 + rng.normal(0, 0.3, n_main),
+        "yield_pct": 98.5 + rng.normal(0, 0.2, n_main),
+    }).to_csv(os.path.join(src, "dcs_main.csv"), index=False)
+    pd.DataFrame({
+        # 2-min cadence inside the main table's own window: every lab timestamp
+        # also exists on the minute grid, so the merged union stays at the
+        # primary's row count (a wider window would trip the anti-bloat gate)
+        "t": [(t0 + timedelta(seconds=120 * i)).strftime("%Y-%m-%d %H:%M:%S")
+              for i in range(n_lab)],
+        "lab_moisture": 0.42 + rng.normal(0, 0.01, n_lab),
+    }).to_excel(os.path.join(src, "lab_secondary.xlsx"), index=False)
+    run_dir = os.path.join(base, "merged_run")
+    in_dir = os.path.join(run_dir, "00_input")
+    os.makedirs(in_dir, exist_ok=True)
+    r_prep = py(PREPROCESSOR, "--data-path", src, "--output", in_dir,
+                "--integrate-merge", "--recursive")
+    check("merge.preproc_exit0", r_prep.returncode == 0, r_prep.stderr[-300:])
+    with open(os.path.join(in_dir, "preprocessing_report.json"), encoding="utf-8") as f:
+        prep_report = json.load(f)
+    merge = prep_report.get("merge") or {}
+    check("merge.strategy_outer", merge.get("strategy") == "outer_merge_on_time_column",
+          json.dumps(merge, ensure_ascii=False)[:200])
+    check("merge.cadence_fields",
+          "source_cadence_seconds" in merge and "cadence_ratio" in merge
+          and (merge.get("cadence_ratio") or 0) >= 1,
+          json.dumps({k: merge.get(k) for k in ("source_cadence_seconds", "cadence_ratio")},
+                     ensure_ascii=False))
+    check("merge.column_source",
+          isinstance(merge.get("column_source"), dict)
+          and "lab_moisture" in merge["column_source"],
+          json.dumps(merge.get("column_source"), ensure_ascii=False)[:200])
+    r = run_analyze(run_dir)
+    check("merge.analyze_runs", r.returncode in (0, 1, 2), r.stderr[-200:])
+    rep = load_report(os.path.join(run_dir, "line_report"))
+    check("merge.disclosure_in_degradations",
+          any(d.get("check") == "merged_sources" for d in rep["degradations"]),
+          json.dumps(rep["degradations"], ensure_ascii=False)[:300])
+
+
+def scenario_md_default_and_gate(base, stable_out):
+    print("[S21] md companion by default + gate md check")
+    md_path = os.path.join(stable_out, "line_stability_report.md")
+    check("md.default_written", os.path.isfile(md_path))
+    if os.path.isfile(md_path):
+        with open(md_path, encoding="utf-8") as f:
+            md = f.read()
+        check("md.content_cn", "运行稳定性报告" in md and "核心发现" in md)
+    nomd = os.path.join(base, "nomd")
+    shutil.copytree(stable_out, nomd)
+    os.remove(os.path.join(nomd, "line_stability_report.md"))
+    b = py(BUILDER, "--report", os.path.join(nomd, "stability_report.json"),
+           "--charts", os.path.join(nomd, "charts.json"),
+           "--out", os.path.join(nomd, "line_stability_report.html"), "--no-md")
+    check("md.no_md_skips",
+          not os.path.isfile(os.path.join(nomd, "line_stability_report.md")),
+          b.stderr[-200:])
+    g = node_gate(os.path.join(nomd, "stability_report.json"), nomd)
+    check("md.gate_exit3_without_md", g.returncode == 3, g.stdout[-300:])
+    b2 = py(BUILDER, "--report", os.path.join(nomd, "stability_report.json"),
+            "--charts", os.path.join(nomd, "charts.json"),
+            "--out", os.path.join(nomd, "line_stability_report.html"))
+    check("md.default_rewrites",
+          os.path.isfile(os.path.join(nomd, "line_stability_report.md")),
+          b2.stderr[-200:])
+    g2 = node_gate(os.path.join(nomd, "stability_report.json"), nomd)
+    check("md.gate_exit0_with_md", g2.returncode == 0, g2.stdout[-300:])
+
+
+def scenario_units_and_dictionary(base):
+    print("[S22] unit discipline + dictionary reference bands never Cpk")
+    # (a) undeclared units surface verbatim in the report; declared ones flow through
+    run_a = os.path.join(base, "units_a")
+    out_a = os.path.join(run_a, "line_report")
+    os.makedirs(os.path.join(run_a, "00_input"), exist_ok=True)
+    write_stable_csv(os.path.join(run_a, "00_input", "data.csv"), n=600, seed=91)
+    with open(os.path.join(run_a, "00_input", "report_context.json"), "w",
+              encoding="utf-8") as f:
+        json.dump({"units": {"temp": "degC"}}, f)
+    r = run_analyze(run_a)
+    check("units.analyze_runs", r.returncode in (0, 1, 2), r.stderr[-200:])
+    b = py(BUILDER, "--report", os.path.join(out_a, "stability_report.json"),
+           "--charts", os.path.join(out_a, "charts.json"))
+    check("units.builder_ok", b.returncode == 0, b.stderr[-200:])
+    with open(os.path.join(out_a, "line_stability_report.md"), encoding="utf-8") as f:
+        md = f.read()
+    check("units.undeclared_marked", "单位未声明" in md)
+    rep_a = load_report(out_a)
+    temp_doc = (rep_a["condition"].get("columns") or {}).get("temp") or {}
+    check("units.declared_unit_flows", temp_doc.get("unit") == "degC",
+          json.dumps(temp_doc, ensure_ascii=False)[:120])
+
+    def _vib_csv(run_dir):
+        os.makedirs(os.path.join(run_dir, "00_input"), exist_ok=True)
+        rng = np.random.default_rng(9)
+        n = 600
+        t0 = datetime(2026, 10, 7, 8, 0, 0)
+        pd.DataFrame({
+            "t": [(t0 + timedelta(seconds=60 * i)).isoformat() for i in range(n)],
+            "temp": 85.0 + rng.normal(0, 0.03, n),
+            "vibration": 0.008 + rng.normal(0, 0.0004, n),
+        }).to_csv(os.path.join(run_dir, "00_input", "data.csv"), index=False)
+
+    # (b) prepare: unique dictionary hit carries unit/meaning but NO normal_range
+    run_b = os.path.join(base, "dict_prior")
+    _vib_csv(run_b)
+    rp = run_prepare(run_b)
+    check("units.prepare_exit0", rp.returncode == 0, rp.stderr[-300:])
+    res_p = json.loads(rp.stdout)
+    with open(res_p["ontology_path"], encoding="utf-8") as f:
+        ont = json.load(f)
+    vib = next((s for s in ont["signals"]["process_parameters"]
+                if s["column"] == "vibration"), None)
+    check("units.dict_hit_auto_inferred",
+          vib is not None and vib.get("knowledge_source") == "auto_inferred"
+          and vib.get("unit") == "m/s" and "normal_range" not in vib,
+          json.dumps(vib, ensure_ascii=False)[:200])
+    check("units.dict_band_only_in_watch",
+          "vibration" in ((ont.get("watch") or {}).get("reference_bands") or {}))
+    rd = run_analyze(run_b)
+    check("units.dict_prior_analyze", rd.returncode in (0, 1, 2), rd.stderr[-200:])
+    rep_b = load_report(os.path.join(run_b, "line_report"))
+    check("units.prior_ontology_consumed",
+          rep_b["condition"]["ontology"]["mode"] == "ontology",
+          json.dumps(rep_b["condition"]["ontology"], ensure_ascii=False))
+    vib_b = next(p for p in rep_b["parameters"] if p["name"] == "vibration")
+    check("units.no_cpk_without_user_spec",
+          vib_b["capability"]["cpk"] is None and vib_b["spec"]["source"] is None,
+          json.dumps(vib_b["capability"]))
+
+    def _hand_ontology(run_dir, ks):
+        with open(os.path.join(run_dir, "00_input", "ontology.json"), "w",
+                  encoding="utf-8") as f:
+            json.dump({
+                "scene": {"name": "词典纪律线", "process_type": "test"},
+                "signals": {"process_parameters": [
+                    {"column": "vibration", "name": "振动", "unit": "m/s",
+                     "role": "predictor", "normal_range": [0.0, 0.02],
+                     "knowledge_source": ks},
+                ]},
+            }, f, ensure_ascii=False)
+
+    # (c) negative control: user_provided ontology spec DOES produce Cpk
+    run_c = os.path.join(base, "dict_user")
+    _vib_csv(run_c)
+    _hand_ontology(run_c, "user_provided")
+    run_analyze(run_c)
+    rep_c = load_report(os.path.join(run_c, "line_report"))
+    vib_c = next(p for p in rep_c["parameters"] if p["name"] == "vibration")
+    check("units.user_spec_cpk_computed", vib_c["capability"]["cpk"] is not None,
+          json.dumps(vib_c["capability"]))
+
+    # (d) guard: auto_inferred signal with a baked normal_range never enters Cpk
+    run_d = os.path.join(base, "dict_guard")
+    _vib_csv(run_d)
+    _hand_ontology(run_d, "auto_inferred")
+    run_analyze(run_d)
+    rep_d = load_report(os.path.join(run_d, "line_report"))
+    vib_d = next(p for p in rep_d["parameters"] if p["name"] == "vibration")
+    check("units.auto_inferred_cpk_blocked",
+          vib_d["capability"]["cpk"] is None and vib_d["spec"]["source"] is None,
+          json.dumps(vib_d["capability"]))
+
+
+def scenario_bare_zero_declaration(base):
+    print("[S22b] bare CSV zero declarations -> minimal prior + honest exit 2")
+    run_dir = os.path.join(base, "bare_tiny")
+    os.makedirs(os.path.join(run_dir, "00_input"), exist_ok=True)
+    write_stable_csv(os.path.join(run_dir, "00_input", "data.csv"), n=30, seed=97)
+    # private store: the shared suite store already holds this bare column
+    # contract from S1 — a zero-declaration first build needs its own namespace
+    bare_store = os.path.join(base, "bare_store")
+    r = run_prepare(run_dir, store=bare_store)
+    check("bare.prepare_exit0", r.returncode == 0, r.stderr[-300:])
+    res = json.loads(r.stdout)
+    check("bare.action_built", res["action"] == "built", str(res.get("action")))
+    check("bare.store_dir_isolated", os.path.normpath(res.get("store_dir") or "")
+          == os.path.normpath(bare_store), str(res.get("store_dir")))
+    check("bare.rag_unused", res.get("rag_used") is False
+          and res.get("rag_used_by_prepare") is False)
+    with open(res["brief_json"], encoding="utf-8") as f:
+        brief = json.load(f)
+    statuses = sorted({c["unit_status"] for c in brief["columns"]})
+    check("bare.all_units_undeclared", statuses == ["undeclared"], str(statuses))
+    check("bare.coverage_full", brief["coverage"]["ratio"] == 1.0,
+          str(brief["coverage"]["ratio"]))
+    ra = run_analyze(run_dir)
+    check("bare.analyze_exit2", ra.returncode == 2,
+          f"rc={ra.returncode} {ra.stderr[-200:]}")
+    rep = load_report(os.path.join(run_dir, "line_report"))
+    check("bare.honest_status", rep["status"] == "not_assessable"
+          and rep["conclusion"]["score"] is None
+          and rep["provenance"]["ontology"]["rag_used"] is False)
+
+
+def scenario_pipeline_events(base):
+    print("[S23] specialist event log: prepare_done + analysis_done + gate_done; "
+          "crash exit-code contract in source")
+    run_dir = os.path.join(base, "events")
+    out = os.path.join(run_dir, "line_report")
+    os.makedirs(os.path.join(run_dir, "00_input"), exist_ok=True)
+    write_stable_csv(os.path.join(run_dir, "00_input", "data.csv"), n=600, seed=77)
+    r = run_analyze(run_dir)
+    check("events.analyze_runs", r.returncode in (0, 1), r.stderr[-200:])
+    events_path = os.path.join(run_dir, ".pipeline_events.jsonl")
+    check("events.file_exists", os.path.isfile(events_path))
+    events = []
+    if os.path.isfile(events_path):
+        with open(events_path, encoding="utf-8") as f:
+            events = [json.loads(line) for line in f if line.strip()]
+    names = [e.get("event") for e in events]
+    check("events.prepare_done", "prepare_done" in names, str(names))
+    check("events.analysis_done", "analysis_done" in names, str(names))
+    analysis = next((e for e in events if e.get("event") == "analysis_done"), {})
+    check("events.analysis_detail", "status" in (analysis.get("detail") or {}),
+          str(analysis.get("detail")))
+
+    b = py(BUILDER, "--report", os.path.join(out, "stability_report.json"),
+           "--charts", os.path.join(out, "charts.json"))
+    check("events.builder_ok", b.returncode == 0, b.stderr[-300:])
+    with open(events_path, encoding="utf-8") as f:
+        events = [json.loads(line) for line in f if line.strip()]
+    names = [e.get("event") for e in events]
+    check("events.gate_done", "gate_done" in names, str(names))
+    gate_ev = next((e for e in events if e.get("event") == "gate_done"), {})
+    check("events.gate_detail", "pass" in (gate_ev.get("detail") or {}), str(gate_ev))
+
+    # D4 static contract: uncaught exceptions surface as CRASH + exit 4
+    with open(ANALYZER, encoding="utf-8") as f:
+        src = f.read()
+    check("events.crash_contract", "CRASH:" in src and "return 4" in src)
+
+
 def main():
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     only = sys.argv[1] if len(sys.argv) > 1 else "all"
     base = tempfile.mkdtemp(prefix="lsr-tests-", dir=os.path.join(HERE))
+    # whole-suite ontology store isolation: every analyze/prepare subprocess in
+    # this run publishes into the in-repo temp store, never the repo's own
+    os.environ["ONTOLOGY_STORE_DIR"] = os.path.join(base, "ontology_store")
     try:
         rep, stable_out = scenario_stable(base)
         scenario_unstable(base)
@@ -792,6 +1125,12 @@ def main():
         scenario_reuse_and_regime(base)
         scenario_confidence_and_data_truth(base, stable_out)
         scenario_sampling(base)
+        scenario_ontology_prepare(base)
+        scenario_multisource_merge(base)
+        scenario_md_default_and_gate(base, stable_out)
+        scenario_units_and_dictionary(base)
+        scenario_bare_zero_declaration(base)
+        scenario_pipeline_events(base)
     finally:
         shutil.rmtree(base, ignore_errors=True)
     total = len(CHECKS)

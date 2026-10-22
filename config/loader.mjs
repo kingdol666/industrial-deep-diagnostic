@@ -100,6 +100,7 @@ function applyEnvOverrides(config) {
     ['SERVER_BODY_LIMIT', 'server.body_limit', String],
     ['FRONTEND_PORT', 'frontend.port', Number],
     ['FRONTEND_BACKEND_URL', 'frontend.backend_url', String],
+    ['FRONTEND_WS_URL', 'frontend.ws_url', String],
     ['CLAUDE_MODEL', 'claude.model', String],
     ['CLAUDE_MAX_TURNS', 'claude.max_turns', Number],
     ['CLAUDE_TIMEOUT_MINUTES', 'claude.timeout_minutes', Number],

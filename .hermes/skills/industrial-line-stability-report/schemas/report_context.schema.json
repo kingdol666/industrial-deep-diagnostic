@@ -118,6 +118,35 @@
     },
     "preprocessing": {
       "description": "Upstream preprocessing provenance (source export file, script, sha256, summary path) carried verbatim into report.data.preprocessing for the data traceability chain."
+    },
+    "ontology_path": {
+      "type": "string",
+      "description": "Explicit ontology.json to adopt (must exist, be valid JSON and carry scene+signals). Overridden by --ontology; when absent the ontology stage prepares a declared prior."
+    },
+    "scene": {
+      "type": "string",
+      "maxLength": 120,
+      "description": "Scene key for the ontology asset store lookup (same as --scene)."
+    },
+    "units": {
+      "type": "object",
+      "additionalProperties": { "type": "string" },
+      "description": "Declared per-column units (column -> unit). Declared units are the only units that enter the ontology as user_provided/KNOWN; columns without a declaration stay 'unit undeclared'."
+    },
+    "ontology": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "enum": ["off", "auto", "full", "reuse", "extend"],
+          "description": "Ontology stage mode for scripts/ontology_prepare.py and the analyze-entry brief gate (ONTOLOGY_BRIEF_REQUIRED). Absent/none/off keeps the gate off."
+        },
+        "scene_key": {
+          "type": "string",
+          "description": "Scene key override for the ontology asset store (fallback chain: --scene > ontology.scene_key > scenario > run dir name)."
+        }
+      },
+      "description": "Ontology stage directives consumed by scripts/ontology_prepare.py (prepare mode/scene) and by the analyzer's brief gate."
     }
   }
 }

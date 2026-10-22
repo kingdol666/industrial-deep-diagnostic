@@ -1,0 +1,60 @@
+{
+ "stage": "data-processor",
+ "schema": "stage_digest/1.0",
+ "scenario": null,
+ "data_shape": {
+  "n_rows": null,
+  "n_columns": null,
+  "time_col": null,
+  "time_method": null,
+  "median_interval_s": null,
+  "index_implied_only": false
+ },
+ "anomaly_counts": {
+  "normalized_from_legacy_shape": true
+ },
+ "top_anomalies": [
+  {
+   "column": "mill_power_kW"
+  }
+ ],
+ "fluctuation_top_cv": [
+  {
+   "column": "mill_power_kW"
+  }
+ ],
+ "top_correlations": [],
+ "segment_contrast": null,
+ "robustness": null,
+ "analysis_mode": "ontology_guided_baseline",
+ "key_findings": [],
+ "charts": {
+  "adaptive_plan": [
+   {
+    "chart": "z_overlay",
+    "target": [
+     "meters",
+     "total_defects",
+     "oligomer",
+     "dust",
+     "F_PS002@PV1_mean",
+     "F_PS003@PV1_mean",
+     "F_PS005@PV1_mean",
+     "F_PS006@PV1_mean"
+    ]
+   },
+   {
+    "chart": "line",
+    "target": "meters"
+   }
+  ],
+  "n_pngs": 2
+ },
+ "read_full": {
+  "data_analysis_conclusion": "02_processed/data_analysis_conclusion.json",
+  "validate_report": "02_processed/validate_report.json",
+  "anomaly_report": "02_processed/anomaly_report.json",
+  "segment_statistics": "02_processed/segment_statistics.json",
+  "adaptive_chart_plan": "03_figures/adaptive_chart_plan.json"
+ }
+}

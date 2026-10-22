@@ -9,7 +9,7 @@ description: "产线运行稳定性报告 skill：给定时间段的生产数据
 
 ## 设计原则（house rules）
 
-1. **本体优先**：先理解工况、再碰统计。本体发现顺序：`--ontology` 显式路径 → `<run_dir>/00_input|01_ontology/ontology.json`（ontology-builder 产物）→ `data/ontology_store` 资产库按 scene 匹配 → 都没有才进入 auto 模式（启发推断），**每个理解字段带 `assigned_by=ontology|user|auto` 溯源**。本体提供的 normal_range 在用户未给规格时回退为 Cpk 规格限；relationships 作为相关性发现的物理机制校验（机制四条件）；confounders 进入报告"假设与局限"。
+1. **本体优先**：先理解工况、再碰统计。分析前先经 Phase 0.5 本体制备（`scripts/ontology_prepare.py`，profile=stability）：从 report_context 声明 + 数据表头探测 + 物理词典唯一命中构建声明先验，写 `01_ontology/` 四件套并入资产库（build/reuse/extend 动作机）。本体发现顺序：`--ontology` 显式路径（原样采纳，build_mode=full）→ `<run_dir>/00_input|01_ontology/ontology.json` → `data/ontology_store` 资产库按 scene 匹配（stability profile 优先、diagnosis 兜底）→ 都没有才进入 auto 模式（启发推断），**每个理解字段带 `assigned_by=ontology|user|auto` 溯源**。本体提供的 normal_range 在用户未给规格时回退为 Cpk 规格限，但 `knowledge_source=auto_inferred`（词典先验）的信号永不参与 Cpk；词典 `typical_ranges` 是参考区间（非规格），只进简报展示、永不写入 normal_range/spec；无方向声明不造因果边。mode≠off 时缺 `01_ontology/ontology_brief.json` 即被门禁阻断（`ONTOLOGY_BRIEF_REQUIRED`）。
 2. **意图与场景自适应**：分析主语与措辞不写死"产线"——按 `context.scenario` → 本体 scene（process_type/name）→ `context.line_id|product` 的顺序推断主语（**产线 / 系统 / 对象** 三档）并进报告标题与结论句；`context.objective`（分析目标）直接进入报告头部；用户未声明权重时，质检/响应类信号（用户 inspection_cols 或本体 role）自动加权 ×2（provenance.weights_source=ontology_roles）。任意数值时序场景（产线、能耗、环境、实验室流程……）都适用。
 3. **不重复造轮子**（复用=单一事实源）：Nelson 判异剧集与稳健 z 复用 `industrial-sentinel/sentinelcore`（spc/robust），工况分段复用 `sentinelcore/regime_map`（C3 方差比+漂移坡道+二分变点），操作窗来自 `industrial-doe-analyzer` recommendations，动作归因调 `industrial-tuning-memory` tune_stats，`--doe-auto` 可选深腿直接跑 doe 观测分析并融合其 BH-FDR 相关报告。复用不可用时显式降级（provenance.spc_source=local_fallback 等）。
 4. **确定性**：评分、发现、证据全部来自脚本；agent 禁止改动任何数值字段，只能追加中文 `interpretation` 字段与面向人的解读。
@@ -25,7 +25,9 @@ description: "产线运行稳定性报告 skill：给定时间段的生产数据
 输出：  <out>/stability_report.json      机器可读契约 line-stability-report/1.0
         <out>/charts.json                 图表数据束 line-stability-charts/1.0
         <out>/line_stability_report.html  自包含中文落地页（结论先行+证据链附录）
+        <out>/line_stability_report.md    中文 Markdown 伴随报告（默认产出，gate 检查）
         <out>/html_selfcheck.json         HTML 自检
+        <run>/01_ontology/                本体四件套（ontology.json / ontology_brief.json / ontology_brief.md / ontology_coverage.json，Phase 0.5 制备）
 退出码：0 ok | 1 有发现（报告完整） | 2 not_assessable（数据不足，诚实降级） | 3 输入/门禁失败
 ```
 
@@ -50,25 +52,26 @@ description: "产线运行稳定性报告 skill：给定时间段的生产数据
 
 | Mode | 入口 | 输入 | 时延 | 退出码 |
 |---|---|---|---|---|
-- `stability_analyzer.py analyze` 文件模式分析一个输入表；HTTP line-report 的目录模式先运行 `industrial-data-preprocessor/data_preprocessor.py --stability-single-primary --recursive`，再将其唯一主时序规范表交给 analyzer。
+- `stability_analyzer.py analyze` 文件模式分析一个输入表；**文件夹输入**由 agent 先运行 `industrial-data-preprocessor/scripts/data_preprocessor.py --stability-single-primary --recursive`，把它选出的唯一主时序规范表交给 analyzer（不跨文件/跨采样率合并；选择理由写进 `preprocessing_report.json`）。
 - 目录模式按确定性评分选择一个 ≥50 行且时间列 ≥80% 可解析的主表；默认不跨文件合并/重采样不同采样频率。QC/检测表、维修/事件表、manifest/说明材料按角色审计；真值/答案文件不读取、不复制、不哈希。逐文件处置与 SHA-256 存入 `00_input/input_manifest.json`，摘要通过 `data.preprocessing` 进入 JSON/HTML/Markdown。
-- 文件夹内若存在 `ontology*.json` 且用户未显式传本体，HTTP 编排层自动将其接线为 `--ontology` 输入（`condition.ontology.path` 可追溯）。同表内的 SV（设定值）列通常近似不变，会被时间不变量通道守卫剔除评分并出 data_quality 发现；PV（实际值）列正常入评。
+- 文件夹内若存在本体资产且用户未显式传本体，分析器按发现顺序取用（`--ontology` 显式路径 > run 目录 `00_input|01_ontology/ontology.json` > 资产库按 scene）。HTTP 编排层会为 stability-report 注入本体指令（扁平字段 `ontologyMode`/`ontologyScene`）：skill 先运行 `scripts/ontology_prepare.py` 制备 `01_ontology/` 四件套（声明先验 + 词典纪律 + CP-2 硬闸），再进入分析；prepare 的动作（built/reused/extended）与 `rag_used=false` 如实记录在 `stability_report.json` 的 `provenance.ontology`。同表内的 SV（设定值）列通常近似不变，会被时间不变量通道守卫剔除评分并出 data_quality 发现；PV（实际值）列正常入评。
 
 ## Inputs / Outputs
 
 | 文件 | 角色 |
 |---|---|
-| `schemas/report_context.schema.json` | 上下文契约（全字段可选：line_id/product/时段/spec_limits/weights/协同路径/preprocessing 预处理溯源） |
+| `schemas/report_context.schema.json` | 上下文契约（全字段可选：line_id/product/时段/spec_limits/units/weights/协同路径/ontology_path/scene/ontology.mode/preprocessing 预处理溯源） |
 | `templates/report_context.template.json` | 上下文填写模板 |
 | `references/data-prep-dcs.md` | DCS 多级表头宽表 → tidy 表的确定性预处理配方（含冻结快照检测） |
-| `scripts/stability_analyzer.py` | 核心分析 CLI（写 stability_report.json + charts.json） |
-| `scripts/report_builder.py` | HTML 落地页构建（写 line_stability_report.html + html_selfcheck.json） |
-| `scripts/quality_gate.mjs` | 交付门禁（S1 schema / S2 诚实性 / S3 zero-LLM / S4 HTML 自检 / S5 共享枚举） |
+| `scripts/ontology_prepare.py` | Phase 0.5 本体制备 CLI（profile=stability：声明先验 build/reuse/extend + CP-2 + 词典纪律 + 简报） |
+| `scripts/stability_analyzer.py` | 核心分析 CLI（写 stability_report.json + charts.json；入口自动跑 prepare + brief 门禁） |
+| `scripts/report_builder.py` | HTML 落地页 + Markdown 伴随报告（默认双产出；`--no-md` 仅调试） |
+| `scripts/quality_gate.mjs` | 交付门禁（S1 schema / S2 诚实性 / S3 zero-LLM / S4 HTML+MD 自检 / S5 共享枚举） |
 | `scripts/lstcore/` | 确定性核心（_io/profile/stability/drivers/score/findings/charts） |
 | `references/agent-protocol.md` | agent Phase 0-4 执行协议（agent 模式必读） |
 
 协同输入（全部可选，缺席自动降级并记录）：
-- `--ontology <ontology.json>` / `--scene <scene-key>` / context.ontology_path：本体优先的工况理解（角色/单位/规格回退/机制图谱/混杂因子）。
+- `--ontology <ontology.json>`（跳过 prepare，原样采纳）/ `--ontology-mode off|auto|full|reuse|extend` / `--scene <scene-key>` / context.ontology_path、ontology.mode、ontology.scene_key：本体优先的工况理解（角色/单位/规格回退/机制图谱/混杂因子）。缺省 auto：无显式本体时先由 `ontology_prepare.py` 制备声明先验并入资产库，后续同声明 run 秒级复用。
 - `--baseline <watch_baseline.json>`：sentinel 基线逐参数对照（median/MAD → robust z 越限即偏离发现+扣分）。
 - `--action-log <action_log.json> --run-dir ...`：调 industrial-tuning-memory `tune_stats.py attribute` 归因本期调优动作，归因报告并入 `integrations.tuning_memory`（estimable 动作产出效果发现；不可估时如实说明）。
 - `--doe-run-dir <doe_run>`：读 doe-analyzer `conclusions/recommendations.json` 推荐操作窗，时段中位超窗产出 warn 发现。
@@ -104,6 +107,9 @@ node .claude/skills/industrial-line-stability-report/scripts/quality_gate.mjs \
 | 症状 | 处置 |
 |---|---|
 | exit 3 no data file | 检查 --data / --run-dir/00_input/ / context.data_path 三处 |
+| exit 3 ONTOLOGY_BRIEF_REQUIRED | context.ontology.mode≠off 但缺 `01_ontology/ontology_brief.json`：先跑 `scripts/ontology_prepare.py --run-dir <run>`（或去掉 ontology.mode 要求）再分析 |
+| exit 3 ONTOLOGY_CP2_FAILED | 本体未过 CP-2（schema 校验或 ≥1024B）：修本体来源后重跑 prepare，禁止手改产物 |
+| exit 3 ONTOLOGY_INVALID / ONTOLOGY_NOT_FOUND | 显式 `--ontology` 路径缺失或不是含 scene+signals 的合法 JSON：核对路径与文件内容 |
 | exit 2 not_assessable | 补足 ≥50 行数据或放宽 start/end；这是诚实结果，不是错误 |
 | exit 2 且结论提到「快照」 | 全部数值通道时间不变量（冻结快照导出/死点）：改从 DCS 历史站导出逐时刻存档值（每时刻一行、数值随时间变化）后重试，不是脚本问题 |
 | 部分通道时间不变量 | 正常行为：不变量通道被剔除评分并发 data_quality 发现（占比 ≥50% 为 high），结论只覆盖变化通道 |
