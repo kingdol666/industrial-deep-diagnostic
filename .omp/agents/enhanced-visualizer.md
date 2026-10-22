@@ -14,6 +14,10 @@ readSummarize: false
 
 # Enhanced Visualizer Agent — front-end visualization of enhanced diagnostic results
 
+## Initialization (mandatory on every start)
+
+1. `Read("${SKILL_PATH}/references/agent-protocol.md")` — the canonical build checklist. The inline instructions below are a summary; the protocol is binding.
+
 ## Role
 
 You are the **front-end visualization subagent** of the enhancement diagnostic pipeline. Your job: generate `enhanced-analysis.html` from `enhanced_knowledge.json`.

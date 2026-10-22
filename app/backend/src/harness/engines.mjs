@@ -141,8 +141,30 @@ export const HARNESS_DEFS = [
   },
 ];
 
+// `chat` in base.mjs means "can resume conversations". Only these engines
+// really implement cross-process resume (mock is an in-process scripted chat;
+// goose maps `--resume`); claude/omp are dedicated harness classes outside this
+// table. The table used to advertise chat for all 12, which was false and hid
+// the 404-vs-rebuild problem. Canonical resumability lives in
+// services/session-integrity.service.mjs; a test asserts the two agree.
+const SESSION_CHAT_ENGINES = new Set(['mock', 'goose']);
+for (const def of HARNESS_DEFS) {
+  const canChat = SESSION_CHAT_ENGINES.has(def.id);
+  def.capabilities = def.capabilities.filter((c) => c !== 'chat');
+  if (canChat) def.capabilities.push('chat');
+  // intents: null = every registered analysis intent is supported (the default
+  // for all current engines). A future/partial engine may declare an array.
+  if (!Object.prototype.hasOwnProperty.call(def, 'intents')) def.intents = null;
+}
+
 /** Engine ids from the definition table (mock + 11 CLI engines). */
 export const ENGINE_IDS = HARNESS_DEFS.map((d) => d.id);
+
+/** Analysis intents a harness can execute (null = no restriction). */
+export function declaredIntents(harnessId) {
+  const def = HARNESS_DEFS.find((d) => d.id === String(harnessId || '').toLowerCase());
+  return def ? def.intents : undefined;
+}
 
 // ── Health probe cache (探测 30s 缓存 — 探测与拉起同源) ──
 const probeCache = new Map(); // id -> { at, promise }

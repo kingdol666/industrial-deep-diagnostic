@@ -3,7 +3,6 @@
 
 import { WebSocketServer } from 'ws';
 import engine, {
-  subscribe,
   getActiveRuns,
 } from '../engine/diagnosis-engine.mjs';
 import {
@@ -11,6 +10,9 @@ import {
   getRunRealtimeSnapshot,
   continueDiagnosis,
   sendChatMessage as sendDiagnosisChatMessage,
+  // Viewing subscription: seeds the engine entry from the persisted run so a
+  // completed run is not reported as "pending" just because it was opened.
+  subscribeRunView as subscribe,
 } from '../services/diagnosis.service.mjs';
 import { hitlRequests } from '../services/diagnosis.service.mjs';
 import {
@@ -366,6 +368,9 @@ function sendRunSnapshot(ws, runId) {
       hasActiveEngineRun: snapshot.hasActiveEngineRun,
       currentQuestion: snapshot.currentQuestion || null,
       events: snapshot.events,
+      events_total: snapshot.events_total,
+      events_truncated: snapshot.events_truncated,
+      events_limit: snapshot.events_limit,
       sentAt: new Date().toISOString(),
     },
   });
@@ -725,4 +730,14 @@ export function initWebSocket(httpServer) {
 
 export function getWSS() {
   return wss;
+}
+
+/** Close the WebSocket server (graceful shutdown). */
+export function closeWebSocket() {
+  if (!wss) return;
+  for (const ws of wss.clients) {
+    try { ws.close(1001, 'server shutting down'); } catch { /* already gone */ }
+  }
+  try { wss.close(); } catch { /* already closed */ }
+  wss = null;
 }

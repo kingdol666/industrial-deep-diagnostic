@@ -9,6 +9,7 @@ import { randomUUID } from 'crypto';
 import { rmSync } from 'fs';
 import { stmts } from '../db/database.mjs';
 import { getRunRealtimeSnapshot, listRuns } from './diagnosis.service.mjs';
+import { enrichRunOutcome } from './intent-outcome.service.mjs';
 import logger from '../utils/logger.mjs';
 
 const DEFAULT_LIMIT = 200;
@@ -62,10 +63,15 @@ export function listRunsForUser(user, {
   // Live engine status is only meaningful for rows that still have a live run.
   const live = new Map(listRuns().map(r => [r.run_id, r.engineStatus]));
   return {
-    runs: rows.map(run => ({
-      ...run,
-      liveStatus: live.get(run.run_id) || run.status,
-    })),
+    runs: rows.map((row) => {
+      // Artifact-derived outcome for specialist runs whose DB columns are
+      // empty (historical rows / crash-orphaned runs); never overwrites.
+      const run = enrichRunOutcome(row);
+      return {
+        ...run,
+        liveStatus: live.get(run.run_id) || run.status,
+      };
+    }),
     total,
     limit: lim,
     offset: off,
@@ -78,7 +84,7 @@ export function getRunWithLogs(runId) {
   if (!run) return null;
   const logs = stmts.getLogsByRunId.all(runId);
   return {
-    ...run,
+    ...enrichRunOutcome(run),
     engineStatus: snapshot?.liveStatus || run.engineStatus || run.status,
     liveStatus: snapshot?.liveStatus || run.engineStatus || run.status,
     hasActiveEngineRun: snapshot?.hasActiveEngineRun || false,

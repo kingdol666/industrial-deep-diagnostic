@@ -58,6 +58,7 @@ export async function buildExternalResult(runId) {
     name: view.name,
     scene: view.scene,
     harness: view.harness,
+    analysis_mode: view.harness === 'mock' ? 'mock' : 'real',
     intent: run?.analysis_intent ?? null,
     objective: run?.user_question || null,
     created_at: view.created_at,
@@ -133,6 +134,9 @@ export function createTask(runId, { intent, harness, scene, objective }) {
     run_id: runId,
     intent,
     harness,
+    // mock is an integration double, not a real analysis: callers must be able
+    // to tell them apart without guessing from the harness name.
+    analysis_mode: harness === 'mock' ? 'mock' : 'real',
     scene: scene ?? null,
     objective: objective ?? null,
     status: 'accepted',
@@ -182,6 +186,7 @@ function hydrateTask(taskId) {
     run_id: row.run_id,
     intent: row.intent,
     harness: row.harness,
+    analysis_mode: row.harness === 'mock' ? 'mock' : 'real',
     scene: row.scene,
     objective: row.objective,
     status,
@@ -277,7 +282,9 @@ export function listTaskEntries() {
     seen.add(row.task_id);
     return {
       task_id: row.task_id, run_id: row.run_id, intent: row.intent,
-      harness: row.harness, status: liveStatus.get(row.task_id) || row.status,
+      harness: row.harness,
+      analysis_mode: row.harness === 'mock' ? 'mock' : 'real',
+      status: liveStatus.get(row.task_id) || row.status,
       created_at: row.created_at,
     };
   });
@@ -285,7 +292,9 @@ export function listTaskEntries() {
     if (seen.has(e.task_id)) continue;
     out.push({
       task_id: e.task_id, run_id: e.run_id, intent: e.intent,
-      harness: e.harness, status: e.status, created_at: e.created_at,
+      harness: e.harness,
+      analysis_mode: e.harness === 'mock' ? 'mock' : 'real',
+      status: e.status, created_at: e.created_at,
     });
   }
   return out;

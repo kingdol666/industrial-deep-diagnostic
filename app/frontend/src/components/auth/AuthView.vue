@@ -30,6 +30,7 @@
           <button
             type="button"
             role="tab"
+            data-testid="auth-tab-login"
             :aria-selected="mode === 'login'"
             :class="{ active: mode === 'login' }"
             @click="switchMode('login')"
@@ -37,6 +38,7 @@
           <button
             type="button"
             role="tab"
+            data-testid="auth-tab-register"
             :aria-selected="mode === 'register'"
             :class="{ active: mode === 'register' }"
             @click="switchMode('register')"
@@ -46,16 +48,28 @@
         <form class="auth-form" @submit.prevent="submit">
           <label class="auth-field">
             <span class="auth-field-label">{{ $t('auth.username') }}</span>
-            <input v-model.trim="username" autocomplete="username" :placeholder="$t('auth.usernamePlaceholder')" />
+            <input
+              v-model.trim="username"
+              data-testid="auth-username"
+              autocomplete="username"
+              :placeholder="$t('auth.usernamePlaceholder')"
+            />
           </label>
           <label v-if="mode === 'register'" class="auth-field">
             <span class="auth-field-label">{{ $t('auth.emailOptional') }}</span>
-            <input v-model.trim="email" type="email" autocomplete="email" placeholder="name@example.com" />
+            <input
+              v-model.trim="email"
+              data-testid="auth-email"
+              type="email"
+              autocomplete="email"
+              placeholder="name@example.com"
+            />
           </label>
           <label class="auth-field">
             <span class="auth-field-label">{{ $t('auth.passwordLabel') }}</span>
             <input
               v-model="password"
+              data-testid="auth-password"
               type="password"
               :autocomplete="mode === 'login' ? 'current-password' : 'new-password'"
               :placeholder="$t('auth.passwordPlaceholder')"
@@ -64,7 +78,7 @@
 
           <div v-if="error" class="auth-error" role="alert">{{ error }}</div>
 
-          <button class="auth-submit" type="submit" :disabled="loading">
+          <button class="auth-submit" data-testid="auth-submit" type="submit" :disabled="loading">
             {{ loading ? $t('auth.pleaseWait') : (mode === 'login' ? $t('auth.loginAction') : $t('auth.registerAndLogin')) }}
           </button>
           <p class="auth-note">{{ $t('auth.tokenNote') }}</p>

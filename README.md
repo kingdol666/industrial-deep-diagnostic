@@ -141,7 +141,8 @@
 
 ### 🧠 Elimination-based diagnostic engine
 - **9-stage fully automated pipeline** — raw data to Chinese report, zero intervention
-- **18 standardized skills × 14 dedicated agents** working in concert
+- **24 standardized skills × 16 dedicated agents** working in concert
+- **Six analysis intents** — deep diagnosis, stability report, quick screen, DOE, experience mining, optimizer campaign; each runs its own skill protocol and reports artifact-derived score/verdict
 - **Competing-hypotheses protocol** — hypothesize, score discriminability, then eliminate
 - **9 quality gates (CP-1 ~ CP-9)** enforced stage by stage; the pipeline blocks or rolls back
 - **Anti-spurious-correlation statistics** v6.4–v6.7: lag-compensated CCF · steady-state filtering · batch integrity · leave-one-out leverage
@@ -155,6 +156,8 @@
 - **VLM visual cross-check** — a vision model reads the charts independently, so chart claims cannot be hallucinated
 - **Physical-truth audit** — pre-audit and final audit; `ENDORSED` is required to ship
 - **Repair anti-oscillation** — a third attempt at the same problem is downgraded automatically; global cap of 5 rediagnoses
+- **Bounded run stream** — snapshots return the newest 2,000 events (`events_total` / `events_truncated`); per-run event logs are capped so the DB stays bounded
+- **Provider errors classified** — quota / rate-limit / auth / unavailable are surfaced as first-class states, not buried in an empty reply
 
 </td>
 </tr>
@@ -163,11 +166,12 @@
 
 ### ⚙ 14-engine swappable execution layer
 - **Genuinely swappable engines** — Claude Code SDK, OMP RPC, Codex app-server, ACP, one-shot CLI family and more
-- **Diagnose *and* chat on every engine** — conversations ride a generic turn path: native session resume first, automatic transcript replay for stateless engines; never a silent engine swap
+- **Diagnose *and* continue on every engine** — claude/omp/goose resume the original session; the other 11 run a controlled rebuild with the SAME harness/intent/data; never a silent engine swap
 - **Isomorphic event streams** — tool calls, thinking and subagent orchestration stay visible in real time
 - **Startup availability probe** — the engine dropdown lists all 14 harnesses; unavailable ones are greyed out and unselectable
 - **Strict pre-flight** — unknown engine → 400 `HARNESS_UNKNOWN`; registered but not installed → 409 `HARNESS_UNAVAILABLE`
 - **Per-run provenance** — every diagnosis and chat records its engine; the ledger shows an engine badge
+- **Honest capability matrix** — `/api/external/v1/capabilities` exposes `session_resume` + `supported_intents`; a declared-unsupported pair is 400, never a silently wrong skill
 
 </td>
 <td width="50%" valign="top">
@@ -520,7 +524,7 @@ draw value and the resulting index so the draw is both verifiable and replayable
 
 ## 🧩 Skills & agents
 
-### 18 standardized skills
+### 24 standardized skills
 
 `.claude/skills/<name>/` is the **single skill source** (discovered by OMP through the `claude` provider at priority 80, and simultaneously serving native Claude Code discovery). `scripts/`, `schemas/`, `references/`, `resources/` and `templates/` all live together under it.
 
@@ -544,13 +548,19 @@ draw value and the resulting index so the draw is both verifiable and replayable
 | `industrial-analysis-enhance-auto` | enhance-orchestrator | E0-E8 enhancement orchestration | — |
 | `industrial-enhanced-html-visualizer` | enhanced-visualizer | enhanced HTML | — |
 | `industrial-enhanced-html-reviewer` | enhanced-html-reviewer | enhanced HTML review | — |
+| `industrial-doe-analyzer` | doe-analyst | DOE / observational analysis + `recommendations.json` | — |
+| `industrial-doe-orchestrator` | — | DOE order & gates (prepare → brief → plan → analyzer → consistency → next design) | — |
+| `industrial-line-stability-report` | — | stability score/grade + Chinese HTML/MD report | — |
+| `industrial-sentinel` | — | watch / fast-screen `alert.json` + quick-screen HTML | — |
+| `industrial-tuning-memory` | — | tuning experience / action attribution `recommendation.json` | — |
+| `industrial-optimizer-loop` | optimizer-pilot | campaign state + next design (never dispatches setpoints) | — |
 | `rag-knowledge-builder` | — | domain knowledge graph | — |
 | `diagnostic-html-visualizer` | — | HTML design system | — |
 | `darwin-skill` | — | skill fitness evolution assessment | — |
 
 </details>
 
-### 14 dedicated agents
+### 16 dedicated agents
 
 | Agent | Persona | Core output |
 |-------|---------|---------|
@@ -568,6 +578,10 @@ draw value and the resulting index so the draw is both verifiable and replayable
 | `enhance-orchestrator` | Enhancement Pipeline Orchestration | fully automated E0-E8 enhancement |
 | `enhanced-visualizer` | Enhanced Frontend | enhanced ECharts HTML |
 | `enhanced-html-reviewer` | Enhanced Review | enhanced HTML review |
+| `doe-analyst` | Engineer Qin · DOE & Process Data Analysis | deterministic effect/correlation/stability analysis + recommendations |
+| `optimizer-pilot` | 骆工 · Closed-loop Optimization Pilot | campaign rounds interpretation + Chinese optimization report (script-authored numbers only) |
+
+> The six analysis intents are dispatched as real agent runs; the specialist skills above are standalone and are **not** pipeline stages.
 
 ---
 
@@ -651,7 +665,7 @@ GET /api/health
 | **Diagnosis** | `/api/diagnosis/start` | POST | start a diagnosis (`harness` / `ontologyMode` / `enhancement` optional) |
 | | `/api/diagnosis/execute/:runId` | POST | execute the diagnosis |
 | | `/api/diagnosis/status/:runId` | GET | query run status |
-| | `/api/diagnosis/snapshot/:runId` | GET | fetch a snapshot |
+| | `/api/diagnosis/snapshot/:runId?events_limit=N` | GET | bounded event snapshot: newest N (default 2000, max 10000) + `events_total` / `events_truncated` |
 | | `/api/diagnosis/stop/:runId` | POST | stop a run |
 | | `/api/diagnosis/list` | GET | list all runs |
 | | `/api/diagnosis/stream/:runId` | GET | SSE event stream |
@@ -659,12 +673,23 @@ GET /api/health
 | **Ontology assets** | `/api/ontology/assets` | GET | asset-library registry (scene / version / fingerprint) |
 | | `/api/ontology/assets/:scene/:version` | GET | read one ontology asset |
 | | `/api/ontology/assets/:scene/:version/graph` | GET | ontology graph projection |
-| **Chat** | `/api/diagnosis/chat/:runId` | POST | diagnostic conversation |
+| **Chat** | `/api/diagnosis/chat/:runId` | POST | continue a run: 200 `mode=session|rebuild`; 404 only if missing; 409 `CHAT_TURN_BUSY` / `RESUME_UNSUPPORTED` |
+| | `/api/diagnosis/session-map/:runId` | GET | run ↔ session audit (`resumable`, `harness_matches_session`) |
 | | `/api/diagnosis/hitl/:hitlId` | POST | human approval |
 | | `/api/chat/start` | POST | start a chat session (`harness` optional) |
 | | `/api/chat/stream/:chatId` | GET | SSE chat stream |
 | **Engines** | `/api/harness` | GET | engine registry (14 engines) |
-| | `/api/harness/availability` | GET | per-engine availability and the default engine |
+| | `/api/harness/availability` | GET | per-engine availability, default engine, last `provider_error` |
+
+### External integration API (`/api/external/v1`)
+
+| Endpoint | Method | Purpose |
+|---|:--:|---|
+| `/capabilities` | GET | 6 intents + 14 harnesses with `session_resume` / `supported_intents` |
+| `/analyze` | POST | launch an analysis (harness + intent) → `task_id` / `run_id` |
+| `/analyze/:runId` | GET | unified result: status, score/verdict, artifact manifest, MD + HTML |
+| `/chat` | POST | continue a run (`mode: session` or `rebuild`) |
+| `/tasks/:taskId/result` | GET | stable terminal result snapshot |
 
 ### WebSocket real-time push
 
@@ -672,7 +697,7 @@ GET /api/health
 ws://localhost:3210/ws
 ```
 
-Streams diagnostic progress, logs and events in real time (30s heartbeat, 60s timeout).
+Streams run progress, logs and events in real time. The server sends `{type:"ping"}` every 30s; clients MUST reply `{type:"pong"}` within 60s or the socket is terminated. Subscribe with `{type:"subscribe_run", runId}`. Snapshot events follow the same bounded-window semantics as REST.
 
 ---
 
@@ -705,11 +730,15 @@ claude:
 diagnosis:
   default_language: "zh"           # zh | en
   interaction_mode: "auto"         # auto | interactive | minimal
+  chat_turn_idle_timeout_minutes: 10   # silent chat turn → terminate, keep the session
 
 data:
   upload:
     max_file_size_mb: 500          # per-file limit
     max_files: 50
+  retention_days: 90               # expire old run workspaces
+  purge_deleted_after_days: 30     # purge soft-deleted runs
+  event_stream_max_rows_per_run: 20000   # per-run event-log cap (0 disables)
 
 pipeline:
   max_judge_repair: 3              # Judge repair limit
@@ -937,6 +966,26 @@ ls -la workspace/diagnostic-runs/<run>/                         # inspect each s
 
 </details>
 
+<details>
+<summary><b>❌ A chat reply is empty and the log says "provider"</b></summary>
+
+The engine's LLM provider rejected the turn (quota / 429 / auth). The run now classifies it:
+`GET /api/harness/availability` exposes `provider_error` per engine, and the event stream carries a
+`system:notice` with `provider_error=provider_quota|provider_rate_limit|provider_auth|provider_unavailable`.
+Top up or switch the provider key; the session stays resumable.
+
+</details>
+
+<details>
+<summary><b>❌ A very large run looks truncated or opens slowly</b></summary>
+
+Snapshots are windowed by design: `GET /api/diagnosis/snapshot/:runId?events_limit=N` returns the
+newest N events (default 2,000, max 10,000) plus `events_total` / `events_truncated`. The run header
+shows `shown/total` when truncated. Full event rows stay in `diagnosis_event_stream`, capped per run
+by `data.event_stream_max_rows_per_run` (default 20,000). Reports/HTML artifacts are never truncated.
+
+</details>
+
 ---
 
 ## 🧪 Verified, not claimed
@@ -945,7 +994,12 @@ Every release-quality claim traces to a repeatable check, not to a paragraph of 
 
 | Verification | Scope | Result | Evidence |
 |------|------|------|------|
-| Backend test suite | routes · services · engine adapters · HTTP e2e (fake CLI / fake ACP / codex app-server) | **116/116 pass** | `app/backend npm test` |
+| Backend test suite | routes · services · engine adapters · HTTP e2e (fake CLI / fake ACP / codex app-server) | **220/220 pass** | `app/backend npm test` |
+| Static skill design | 24 skills / 16 agents · frontmatter · protocol refs · JSON schemas · script refs | **0 failures** | `node scripts/audit/skill-design.mjs` |
+| API contract (GET-only) | harness · capabilities · history · bounded snapshot · report/assets · auth/404 | **22/22 pass** | `node scripts/e2e/api-contract-final.mjs` |
+| UI render audit | native login → History → run → report MD/HTML · console/network · 1440/1280 | **20/20 pass** | `node scripts/e2e/ui-visual-audit.mjs` |
+| Large-run window | 5,001-event fixture: 226 KB / 11 ms (vs 11.5 MB full stream) | **pass** | `node scripts/e2e/ui-large-run-probe.mjs` |
+| Graceful shutdown | real OMP child terminated by `shutdownAllEngines` | **pass** | `node scripts/e2e/graceful-shutdown-check.mjs` |
 | End-to-end acceptance | 28 UI-driven checks across auth · data · diagnose · chat · reports · ontology · history · engines · API surface | **28/28 pass** | [`paper/workbench/e2e-acceptance-report-20260919.md`](paper/workbench/e2e-acceptance-report-20260919.md) |
 | Real-scenario multi-harness | 20 diagnosis rounds on real industrial datasets across mock / claude / codex / omp + live chats on claude / codex / omp / mock | 11/20 terminal pass first run; real-AI rounds verified down to pipeline stage artifacts | [`paper/workbench/real-scenario-test-report-20260919.md`](paper/workbench/real-scenario-test-report-20260919.md) |
 | Benchmark rerun | 12 scenarios, four-step pipeline | 12/12 · REPRODUCIBLE · rubric 94.6 | `results/benchmark/` |

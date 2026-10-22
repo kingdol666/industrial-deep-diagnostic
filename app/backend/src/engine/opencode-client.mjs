@@ -14,6 +14,7 @@ import {
   resolveAnalysisTarget, buildRuntimeProtocol,
   buildPrompt as buildDataPrompt,
   buildOntologyDirective, buildEnhancementDirective,
+  ANALYSIS_INTENTS, resolveAnalysisIntent, buildIntentDirective,
 } from './claude-client.mjs';
 import { existsSync } from 'fs';
 import { join } from 'path';
@@ -346,18 +347,32 @@ function createOpenCodeQuery({ turnKey, prompt }) {
 }
 
 // ── Shared prompt assembly ──
-function buildOpenCodePrompt({ analysisTarget, userQuestion, sceneName, reportLanguage, followUpMessage, ontology, enhancement }) {
+// ── Shared prompt assembly (exported for the intent-injection contract test) ──
+export function buildOpenCodePrompt({
+  analysisTarget, userQuestion, sceneName, reportLanguage, followUpMessage, ontology, enhancement,
+  analysisIntent = 'deep-diagnosis', preprocessingMode = null,
+}) {
   const lang = reportLanguage || config.diagnosis.default_language;
   const { dataPaths, promptTarget } = resolveAnalysisTarget(analysisTarget);
-  const skillMd = join(PROJECT_ROOT, config.claude.skill_dir || '.claude/skills/industrial-analysis-auto', 'SKILL.md');
+  // Re-point the skill reference at the intent's own skill (same contract as
+  // omp/acp/oneshot) so a specialist run never executes the 9-stage pipeline.
+  const intent = resolveAnalysisIntent(analysisIntent);
+  const intentSpec = intent && intent !== 'deep-diagnosis' ? ANALYSIS_INTENTS[intent] : null;
+  const skillMd = join(
+    PROJECT_ROOT,
+    intentSpec
+      ? `.claude/skills/${intentSpec.skill}`
+      : (config.claude.skill_dir || '.claude/skills/industrial-analysis-auto'),
+    'SKILL.md',
+  );
   const skillRef = existsSync(skillMd)
-    ? `First read the authoritative skill definition at ${skillMd} and follow its full pipeline contract as binding.`
-    : 'Follow the industrial deep diagnostic skill protocol (industrial-analysis-auto).';
+    ? `First read the authoritative skill definition at ${skillMd} and follow its full protocol contract as binding.`
+    : `Follow the ${intentSpec ? intentSpec.skill : 'industrial deep diagnostic skill (industrial-analysis-auto)'} protocol.`;
   const prompt = `${buildRuntimeProtocol(sceneName, lang)}
 
 ${skillRef}
 
-${buildDataPrompt(sceneName, userQuestion, promptTarget, lang, followUpMessage)}${buildOntologyDirective(ontology)}${buildEnhancementDirective(enhancement)}`;
+${buildDataPrompt(sceneName, userQuestion, promptTarget, lang, followUpMessage)}${buildIntentDirective(analysisIntent, sceneName, { preprocessingMode })}${buildOntologyDirective(ontology)}${buildEnhancementDirective(enhancement)}`;
   return { dataPaths, prompt };
 }
 
@@ -369,10 +384,12 @@ export function startDiagnosis({
   runId, maxTurns = 0, timeoutMinutes = 0,
   reportLanguage, followUpMessage, sessionId = null,
   ontology = null, enhancement = null,
+  analysisIntent = 'deep-diagnosis', preprocessingMode = null,
 }) {
   void maxTurns; void timeoutMinutes; void sessionId;
   const built = buildOpenCodePrompt({
     analysisTarget, userQuestion, sceneName, reportLanguage, followUpMessage, ontology, enhancement,
+    analysisIntent, preprocessingMode,
   });
   const query = createOpenCodeQuery({ turnKey: runId, prompt: built.prompt });
   activeQueries.set(runId, query);

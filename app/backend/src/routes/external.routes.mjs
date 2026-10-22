@@ -24,6 +24,8 @@ import {
   createTask, refreshTask, getTaskEntry, listTaskEntries, getTaskByRun,
 } from '../services/external.service.mjs';
 import { ANALYSIS_INTENTS } from '../engine/claude-client.mjs';
+import { supportedIntentsFor } from '../services/intent-capability.service.mjs';
+import { engineSupportsSessionChat } from '../services/session-integrity.service.mjs';
 
 const router = Router();
 const TERMINAL = new Set(['completed', 'failed', 'stopped', 'interrupted', 'expired', 'awaiting_input']);
@@ -38,6 +40,9 @@ router.get('/v1/capabilities', async (req, res) => {
         id: h.id,
         label: h.label ?? h.name ?? h.id,
         runs_capable: Array.isArray(h.capabilities) && h.capabilities.includes('runs'),
+        // Honest capability surface: exact engine support, not a guess.
+        session_resume: engineSupportsSessionChat(h.id),
+        supported_intents: supportedIntentsFor(h.id),
       }));
     } catch { /* harness listing is advisory for callers */ }
     res.json({ success: true, data: { intents, harnesses } });
@@ -253,15 +258,34 @@ router.post('/v1/chat', async (req, res) => {
       error: 'run_id and message (string) are required',
     });
   }
-  const sent = await chatWithRun(runId, message);
-  if (!sent) {
-    return res.status(409).json({
+  try {
+    const sent = await chatWithRun(runId, message);
+    if (!sent) {
+      return res.status(404).json({
+        success: false,
+        code: 'RUN_NOT_FOUND',
+        error: `Run not found: ${runId}`,
+      });
+    }
+    res.json({
+      success: true,
+      data: {
+        run_id: runId,
+        delivered: true,
+        mode: sent.mode,
+        resumed: sent.mode === 'session',
+        reason: sent.reason ?? null,
+      },
+    });
+  } catch (err) {
+    res.status(err.status || 500).json({
       success: false,
-      code: 'EXTERNAL_CHAT_UNAVAILABLE',
-      error: 'Run not found or no live engine process — chat requires a running analysis.',
+      code: err.code || 'CHAT_ERROR',
+      error: err.message,
+      harness: err.harness ?? null,
+      run_id: err.runId ?? runId,
     });
   }
-  res.json({ success: true, data: { run_id: runId, delivered: true } });
 });
 
 // ── POST /v1/analyze/:runId/stop — stop a running analysis ─────────────────

@@ -31,6 +31,7 @@ import * as harnessOptionsModule from '../harness/engine-options.mjs';
 import { assertHarnessUsable } from '../harness/availability.mjs';
 import { buildArtifactManifest, resolveRunDir } from './artifact-manifest.service.mjs';
 import { assertOntologyIntentSupported } from './ontology-intent-guard.mjs';
+import { assertIntentSupportedOnHarness } from './intent-capability.service.mjs';
 import { defaultHarnessChain } from '../harness/engines.mjs';
 
 // ── Engine dispatch: route execution by the run's harness ──
@@ -115,12 +116,15 @@ export function closeAllEngines(runId) {
 }
 import {
   createRun, setChild, getChild, updateStatus, getStatus, emit, closeRun,
-  hasRun, subscribe, setMeta, getMeta, resetRun,
+  hasRun, subscribe, setMeta, getMeta, resetRun, listRunIds,
 } from '../engine/diagnosis-engine.mjs';
 import { stmts } from '../db/database.mjs';
 import {
   assertSessionHarnessMatch, sessionMap, clampChatTurns, CHAT_TURN_PASSTHROUGH,
+  resolveChatRoute, hasRebuildContext, rebuildNotice,
 } from './session-integrity.service.mjs';
+import { extractIntentOutcome, enrichRunOutcome } from './intent-outcome.service.mjs';
+import { classifyProviderError, tagProviderError } from './provider-error.service.mjs';
 import {
   config, diagnosis as diagConfig, security as secConfig,
   pipeline as pipeConfig, engine as engConfig,
@@ -316,6 +320,9 @@ export function createDiagnosisRun(params) {
     throw err;
   }
   const isDefaultIntent = analysisIntent === 'deep-diagnosis';
+  // Intent × harness capability gate: an engine that explicitly declares it
+  // cannot run this intent is a 400 up front, never a silent wrong-skill run.
+  assertIntentSupportedOnHarness(analysisIntent, harness);
   // Ontology directives are only defined for the diagnosis pipeline and the
   // DOE profile; reject the fields on other intents instead of ignoring them.
   assertOntologyIntentSupported(analysisIntent, params);
@@ -495,7 +502,10 @@ export function listRuns() {
 // POST /api/diagnosis/tasks 即返 task_id(=runId,诊断在引擎子进程后台执行);
 // GET /api/diagnosis/tasks/:id 返回状态与结果(诊断总结 + 报告 md 绝对路径)。
 export function getDiagTaskView(taskId) {
-  const run = getRunStatus(taskId);
+  // Read-time outcome enrichment: specialist runs completed before the
+  // artifact-first contract (or orphaned by a crash) still answer with the
+  // score/verdict their own artifacts contain.
+  const run = enrichRunOutcome(getRunStatus(taskId));
   if (!run) return null;
   const raw = run.engineStatus || run.status;
   // Terminal mapping (plan v2 Phase C3): expired runs used to be reported as
@@ -582,6 +592,25 @@ export function getRunEventStream(runId) {
   return stmts.getEventStreamByRunId.all(runId).map(parseEventStreamRow).filter(Boolean);
 }
 
+// Snapshot event window: the newest N events. A claude run can emit tens of
+// thousands of events (measured 53k = 11.5 MB); the view renders the tail, so
+// sending the whole stream only costs bandwidth and parse time. The pending
+// question is derived from the tail — a paused run emits nothing while paused,
+// so its question is always inside the window.
+export const SNAPSHOT_EVENTS_DEFAULT = 2000;
+export const SNAPSHOT_EVENTS_MAX = 10000;
+
+export function clampSnapshotEventsLimit(value) {
+  const n = Number(value);
+  if (!Number.isFinite(n) || n <= 0) return SNAPSHOT_EVENTS_DEFAULT;
+  return Math.min(SNAPSHOT_EVENTS_MAX, Math.max(100, Math.trunc(n)));
+}
+
+export function getRunEventStreamTail(runId, limit = SNAPSHOT_EVENTS_DEFAULT) {
+  const rows = stmts.getEventStreamTail.all(runId, clampSnapshotEventsLimit(limit));
+  return { events: rows.map(parseEventStreamRow).filter(Boolean), total: stmts.countEventStreamByRunId.get(runId).n };
+}
+
 function derivePendingQuestionFromEvents(events) {
   let latestQuestion = null;
   for (const event of events) {
@@ -597,18 +626,22 @@ function derivePendingQuestionFromEvents(events) {
   return latestQuestion;
 }
 
-export function getRunRealtimeSnapshot(runId) {
+export function getRunRealtimeSnapshot(runId, options = {}) {
   const run = getRunStatus(runId);
   if (!run) return null;
   const liveStatus = getStatus(runId) || run.status;
   const hasActiveEngineRun = !TERMINAL_STATUSES.has(liveStatus)
     && !PAUSED_STATUSES.has(liveStatus)
     && hasRun(runId);
-  const events = getRunEventStream(runId);
+  const limit = clampSnapshotEventsLimit(options.eventsLimit);
+  const { events, total } = getRunEventStreamTail(runId, limit);
   const pendingQuestion = questionSessions.get(runId) || derivePendingQuestionFromEvents(events);
   return {
     run,
     events,
+    events_total: total,
+    events_truncated: total > events.length,
+    events_limit: limit,
     liveStatus,
     hasActiveEngineRun,
     currentQuestion: pendingQuestion ? {
@@ -696,7 +729,11 @@ function missingRequiredArtifacts(runDir, analysisIntent, harness = null) {
   return required.filter((rel) => !existsSync(join(runDir, rel)));
 }
 
-// Send a chat message — close current query and resume session with message
+// Send a chat message — resume the run's own session, or rebuild with the same
+// harness/intent/data when that engine cannot resume across processes.
+//
+// Return contract: `false` = run missing (the route answers 404); otherwise
+// `{ mode: 'session' | 'rebuild', reason? }` so callers can report honestly.
 export async function sendChatMessage(runId, message, options = {}) {
   const run = stmts.getRunById.get(runId);
   if (!run) return false;
@@ -710,6 +747,14 @@ export async function sendChatMessage(runId, message, options = {}) {
   // B0.4: never let a chat cross harnesses — the stored session id must belong
   // to the run's engine or the resume would look up a missing session.
   assertSessionHarnessMatch(run);
+  // A pending run has no analysis to continue; chatting into it would rebuild
+  // a pipeline that was never started. Execute it first.
+  if (run.status === 'pending') {
+    const err = new Error(`Run ${runId} is still pending — execute it before chatting`);
+    err.status = 400;
+    err.code = 'RUN_PENDING';
+    throw err;
+  }
   // One live chat turn per run: two concurrent resumes would kill each other.
   if (activeChatTurns.has(runId)) {
     const err = new Error(`A chat turn is already running for ${runId} — wait for it to finish`);
@@ -717,25 +762,12 @@ export async function sendChatMessage(runId, message, options = {}) {
     err.code = 'CHAT_TURN_BUSY';
     throw err;
   }
-  // B0.2: a terminal run without a session id (e.g. a run stopped while still
-  // pending) has nothing to resume. Continue rebuilds the full context with the
-  // SAME harness/intent/data instead of failing the user's click.
-  if (!run.session_id) {
-    activeChatTurns.add(runId);
-    try {
-      emit(runId, {
-        type: 'system',
-        subtype: 'session_chat',
-        data: { message: '该会话没有可恢复的历史 session，已按当前诊断上下文重新建立（同一引擎与同一分析意图）。' },
-      });
-      continueDiagnosis(runId, message);
-      return true;
-    } finally {
-      // The continue path owns the run for its whole lifetime; the busy flag is
-      // released when its execution settles (see executeDiagnosis finally).
-      setTimeout(() => activeChatTurns.delete(runId), 500);
-    }
+
+  const route = resolveChatRoute(run); // throws 409 RESUME_UNSUPPORTED when nothing can run
+  if (route.mode === 'rebuild') {
+    return rebuildChatTurn(runId, message, route);
   }
+
   const engine = resolveEngine(run.harness);
   closeAllEngines(runId);
   executingRuns.delete(runId);
@@ -777,19 +809,96 @@ export async function sendChatMessage(runId, message, options = {}) {
     setChild(runId, result.query);
     engine.registerChild(runId, result.query);
     consumeSessionChat(runId, result.query, run.session_id, engine);
-    return true;
+    return { mode: 'session' };
   } catch (err) {
     activeChatTurns.delete(runId);
+    // A harness mismatch is never recoverable by rebuilding: it means the run's
+    // recorded engine and its session disagree, which is a data-integrity bug.
+    if (err.status === 409 && err.code === 'RUN_HARNESS_MISMATCH') throw err;
+    // Resume failed for a session-shaped reason (CLI lost the session, id
+    // expired, engine refused). If the run still has data context, rebuild is
+    // strictly better than a dead-end click — and the banner says so.
+    if (hasRebuildContext(run)) {
+      logger.warn(`Session resume failed for ${runId} (${err.message}); rebuilding with the same harness/intent/data`, {
+        context: 'Diagnosis', runId,
+      });
+      return rebuildChatTurn(runId, message, {
+        mode: 'rebuild',
+        harness: run.harness || 'claude',
+        reason: 'resume_failed',
+        detail: err.message,
+      });
+    }
     const errorMessage = formatResumeError(err, runId, run.session_id);
     emit(runId, { type: 'error', data: { status: run.status, runId, error: errorMessage } });
-    if (err.status === 409 && err.code === 'RUN_HARNESS_MISMATCH') throw err;
-    return false;
+    const resumeErr = new Error(errorMessage);
+    resumeErr.status = 409;
+    resumeErr.code = 'RESUME_UNSUPPORTED';
+    resumeErr.harness = run.harness || 'claude';
+    resumeErr.runId = runId;
+    throw resumeErr;
   }
 }
 
+/** Rebuild path: same harness / intent / data, with the message as follow-up. */
+function rebuildChatTurn(runId, message, route) {
+  activeChatTurns.add(runId);
+  // A persisted run that was never executed in this process has no engine
+  // entry yet, and emit() is a no-op without one. Create it first so the
+  // banner is persisted and visible to the UI/stream subscribers.
+  if (!hasRun(runId)) createRun(runId);
+  const detail = route?.detail ? `（恢复失败：${String(route.detail).slice(0, 160)}）` : '';
+  try {
+    emit(runId, {
+      type: 'system',
+      subtype: 'session_chat',
+      data: {
+        message: rebuildNotice(route) + detail,
+        mode: 'rebuild',
+        reason: route?.reason || null,
+      },
+    });
+    continueDiagnosis(runId, message);
+  } catch (err) {
+    // Starting the rebuild failed synchronously (e.g. run became pending) —
+    // do not leave the run locked.
+    activeChatTurns.delete(runId);
+    throw err;
+  }
+  // The rebuild owns the run for its whole lifetime; executeDiagnosis releases
+  // the lock when the run's single result has been consumed.
+  return { mode: 'rebuild', reason: route?.reason || null };
+}
+
+// A chat turn that goes silent (engine hung, upstream retry loop, lost
+// process) must not pin the run busy forever or hold the engine's session
+// lock. Reset on every event; a result clears it.
+const CHAT_TURN_IDLE_MS = Math.max(1, Number(diagConfig.chat_turn_idle_timeout_minutes ?? 10)) * 60_000;
+
 async function consumeSessionChat(runId, query, sessionId, engine) {
+  let turnIdle = null;
+  const armIdle = () => {
+    clearTimeout(turnIdle);
+    turnIdle = setTimeout(() => {
+      logger.warn(`Session chat turn for ${runId} idle > ${Math.round(CHAT_TURN_IDLE_MS / 60000)}min — terminating the turn`, {
+        context: 'Diagnosis', runId,
+      });
+      emit(runId, {
+        type: 'error',
+        data: {
+          status: 'running',
+          runId,
+          error: `会话聊天超过 ${Math.round(CHAT_TURN_IDLE_MS / 60000)} 分钟无响应，已终止该回合；会话保留，可重新发送重试。`,
+          code: 'CHAT_TURN_IDLE_TIMEOUT',
+        },
+      });
+      try { query.close?.(); } catch { /* best effort */ }
+    }, CHAT_TURN_IDLE_MS);
+  };
+  armIdle();
   try {
     for await (const msg of query) {
+      armIdle();
       const parsed = engine.parseStreamEvent(msg);
       if (!parsed) continue;
 
@@ -833,16 +942,31 @@ async function consumeSessionChat(runId, query, sessionId, engine) {
             stopReason: parsed.stop_reason,
           },
         });
+        // ONE chat turn = ONE result. Release the turn lock and stop consuming
+        // here: a resident/mock engine stream can stay open after the result,
+        // and waiting for stream end left the run permanently busy (every later
+        // message answered 409 CHAT_TURN_BUSY).
+        activeChatTurns.delete(runId);
+        try { query.close?.(); } catch { /* engine-specific close is best effort */ }
+        break;
       } else if (parsed.type === 'stream_event') {
         emit(runId, { type: 'stream_event', subtype: parsed.event?.type || 'event', data: parsed.event });
       }
     }
   } catch (err) {
+    const message = formatResumeError(err, runId, sessionId);
+    const provider = classifyProviderError(message);
     emit(runId, {
       type: 'error',
-      data: { runId, error: formatResumeError(err, runId, sessionId) },
+      data: {
+        runId,
+        error: message,
+        provider_error: provider?.code || null,
+        provider_label: provider?.label || null,
+      },
     });
   } finally {
+    clearTimeout(turnIdle);
     closeAllEngines(runId);
     setChild(runId, null);
     activeChatTurns.delete(runId);
@@ -950,6 +1074,23 @@ export function answerQuestion(runId, questionId, toolUseId, answers) {
     });
     return false;
   }
+}
+
+/**
+ * Close every live engine process (all active runs + chats' diagnosis turns).
+ * Called by the process shutdown handler: without it, killing the backend
+ * leaves omp/claude children alive, holding their session files and blocking
+ * the next process's resume ("session open for writing in another process").
+ */
+export function shutdownAllEngines() {
+  // Every in-memory run id — active runs AND completed runs holding a chat
+  // turn child. closeAllEngines closes each engine's known query for that id.
+  const ids = listRunIds();
+  for (const runId of ids) {
+    try { closeAllEngines(runId); } catch { /* best effort */ }
+    try { setChild(runId, null); } catch { /* best effort */ }
+  }
+  return ids.length;
 }
 
 /**
@@ -1193,16 +1334,27 @@ async function executeDiagnosis(runId, run, isRetry = false) {
         try {
           const runDir = await findLatestRunDir(run.scene_name, preExistingDirs);
           let workspacePath = null, reportPath = null, score = null, verdict = null;
+          let outcomeSource = null;
           if (runDir) {
             workspacePath = relative(PROJECT_ROOT, runDir);
+            // Specialist intents have no Judge step: their outcome lives in the
+            // skill's own JSON artifacts. Artifact-first, `Judge Score:` fallback.
+            const outcome = extractIntentOutcome(runDir, run.analysis_intent);
+            score = outcome.score;
+            verdict = outcome.verdict;
+            outcomeSource = outcome.source;
             const absReportPath = join(runDir, 'report.md');
             if (existsSync(absReportPath)) {
               reportPath = relative(PROJECT_ROOT, absReportPath);
               const reportContent = readFileSync(absReportPath, 'utf-8');
-              const scoreMatch = reportContent.match(/Judge Score:\s*(\d+)\/100/);
-              if (scoreMatch) score = parseInt(scoreMatch[1]);
-              const verdictMatch = reportContent.match(/Judge Score:.*?\((\w+)/);
-              if (verdictMatch) verdict = verdictMatch[1];
+              if (score === null) {
+                const scoreMatch = reportContent.match(/Judge Score:\s*(\d+)\/100/);
+                if (scoreMatch) score = parseInt(scoreMatch[1]);
+              }
+              if (verdict === null) {
+                const verdictMatch = reportContent.match(/Judge Score:.*?\((\w+)/);
+                if (verdictMatch) verdict = verdictMatch[1];
+              }
             }
           }
           if (parsed.subtype === 'success') {
@@ -1243,11 +1395,11 @@ async function executeDiagnosis(runId, run, isRetry = false) {
               });
               emit(runId, {
                 type: 'status',
-                data: { status: 'completed', runId, workspacePath, reportPath, score, verdict },
+                data: { status: 'completed', runId, workspacePath, reportPath, score, verdict, outcome_source: outcomeSource },
               });
               emit(runId, {
                 type: 'complete',
-                data: { status: 'completed', runId, workspacePath, reportPath, score, verdict },
+                data: { status: 'completed', runId, workspacePath, reportPath, score, verdict, outcome_source: outcomeSource },
               });
             }
           } else {
@@ -1282,6 +1434,12 @@ async function executeDiagnosis(runId, run, isRetry = false) {
           });
           emit(runId, { type: 'error', data: { status: 'failed', runId, error: errorMessage } });
         }
+        // A diagnosis run has exactly one terminal `result`. Some engines
+        // (mock/in-process, resident RPC) keep their stream open afterwards, so
+        // waiting for stream end left execution promises and the chat-turn lock
+        // alive forever. Stop consuming here; the code after the loop settles
+        // the run (status already persisted above).
+        break;
       } else if (parsed.type === 'stream_event') {
         const ev = parsed.event;
         if (ev?.type === 'task_progress') {
@@ -1302,6 +1460,13 @@ async function executeDiagnosis(runId, run, isRetry = false) {
     executingRuns.delete(runId);
     stoppingRuns.delete(runId);
     activeChatTurns.delete(runId);
+    // Kill the engine process NOW. A finished run's engine (OMP RPC in
+    // particular) keeps its session file locked until it exits; with only the
+    // delayed closeRun, a follow-up chat's resume hit OMP's cross-process
+    // lock and retried forever with no events. closeRun (in-memory cleanup)
+    // stays delayed for subscribers; the child does not.
+    closeAllEngines(runId);
+    setChild(runId, null);
     if (shouldCloseRun) {
       setTimeout(() => closeRun(runId), engConfig.close_run_delay_seconds * 1000);
     }
@@ -1318,12 +1483,15 @@ async function executeDiagnosis(runId, run, isRetry = false) {
       return;
     }
     const errorMessage = formatResumeError(err, runId, resumeSessionId);
+    // Stable category prefix so a provider quota/auth failure is queryable and
+    // does not read like a platform bug.
+    const tagged = tagProviderError(errorMessage);
     questionSessions.delete(runId);
     updateStatus(runId, 'failed');
-    stmts.failRun.run({ runId, error: errorMessage });
+    stmts.failRun.run({ runId, error: tagged.text });
     logger.error(`Diagnosis execution error for run ${runId}: ${err.message}`, { context: 'Diagnosis', runId });
-    emit(runId, { type: 'status', data: { status: 'failed', runId, error: errorMessage } });
-    emit(runId, { type: 'error', data: { status: 'failed', runId, error: errorMessage } });
+    emit(runId, { type: 'status', data: { status: 'failed', runId, error: tagged.text, provider_error: tagged.category?.code || null } });
+    emit(runId, { type: 'error', data: { status: 'failed', runId, error: tagged.text, provider_error: tagged.category?.code || null } });
     setTimeout(() => closeRun(runId), engConfig.close_run_delay_seconds * 1000);
   }
 }
@@ -1384,7 +1552,29 @@ async function findLatestRunDir(sceneName, knownDirs = new Set()) {
 export { hitlRequests, executeDiagnosis };
 
 // ── SSE + streaming helpers ──
+
+/**
+ * Seed a viewing entry for a run that has no engine state in this process.
+ * The engine's create-on-subscribe defaults to `pending`, and listRuns()/API
+ * views prefer engine status — without this, merely OPENING a completed run
+ * flipped it to "pending" in History and hid its continue/report buttons.
+ */
+function seedRunViewEntry(runId) {
+  if (hasRun(runId)) return;
+  const run = stmts.getRunById.get(runId);
+  if (!run) return;
+  createRun(runId);
+  updateStatus(runId, run.status);
+}
+
+/** WS viewing subscription — same truthful entry seeding as SSE. */
+export function subscribeRunView(runId, callback) {
+  seedRunViewEntry(runId);
+  return subscribe(runId, callback);
+}
+
 export function subscribeSSE(runId, callback) {
+  seedRunViewEntry(runId);
   return subscribe(runId, (event) => {
     let sseEvent;
     switch (event.type) {

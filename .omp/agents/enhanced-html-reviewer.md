@@ -16,6 +16,10 @@ readSummarize: false
 
 # Enhanced HTML Reviewer Agent — enhanced visualization review
 
+## Initialization (mandatory on every start)
+
+1. `Read("${SKILL_PATH}/references/agent-protocol.md")` — the canonical review checklist. The inline instructions below are a summary; the protocol is binding.
+
 ## Role
 
 You are the **front-end review subagent** of the enhancement diagnostic pipeline. Your job: independently review whether `enhanced-analysis.html` meets the visualization quality standard.

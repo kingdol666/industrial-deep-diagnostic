@@ -34,7 +34,11 @@ A diagnostic job can be driven by any one of 14 execution engines (selected in t
 - **Single source of truth**: `HARNESS_DEFS` in `app/backend/src/harness/engines.mjs` (capability surface / probing / metadata) + the `ENGINES` dispatch table in `app/backend/src/services/diagnosis.service.mjs` (unified contract: startDiagnosis/startSessionChat/parseStreamEvent/registerChild/closeQuery). Adding an engine touches only these two files plus one engine client.
 - **Strict pre-flight validation**: unknown engine → 400 `HARNESS_UNKNOWN`; registered but unavailable → 409 `HARNESS_UNAVAILABLE`. Probing and the real spawn share one code path (`engine/cli-common.mjs resolveCliBinary`); command override chain: `harness.engines.<id>.binary` → env `HARNESS_<ID>_COMMAND` → PATH.
 - **Standard event stream**: every engine client emits Claude-SDK-compatible events (system init / assistant / user tool_result / result), so the consumption loop is engine-agnostic.
-- See `docs/multi-harness.md` (engine integration cards, engineering discipline, test matrix). Backend tests: `cd app/backend && npm test` (45 cases, including a real-subprocess fake CLI / fake ACP / fake codex app-server / mock-engine HTTP e2e).
+- See `docs/multi-harness.md` (engine integration cards, engineering discipline, test matrix). Backend tests: `cd app/backend && npm test`.
+- **Capability truth (2026-10-22)**: `HARNESS_DEFS.chat` means "can resume a session across processes" (only claude/omp/goose/mock); every other engine's Continue is a same-harness rebuild. `/api/external/v1/capabilities` exposes `session_resume` + `supported_intents`; a declared-unsupported intent×harness pair is 400 `INTENT_UNSUPPORTED_ON_HARNESS`.
+- **Bounded run stream (2026-10-22)**: `GET /api/diagnosis/snapshot/:runId?events_limit=N` returns only the newest N events (default 2000, max 10000) with `events_total/events_truncated`. `diagnosis_event_stream` is capped per run by `data.event_stream_max_rows_per_run` (default 20000); reports/artifacts are unaffected. A real claude run measured 53k events / 11.5 MB full-stream.
+- **Provider errors are classified**: OMP/claude transport failures matching quota/429/auth/5xx become `provider_quota|provider_rate_limit|provider_auth|provider_unavailable` (`services/provider-error.service.mjs`), prefixed `[provider_quota]` in `error_message`; `/api/harness/availability` carries the last `provider_error` per engine.
+- **Shutdown**: SIGINT/SIGTERM/SIGBREAK close every engine child (`shutdownAllEngines`) before exit — orphaned omp processes hold session-file locks and break the next resume.
 
 ## Commands
 
@@ -269,5 +273,5 @@ The default output language is **Chinese**. Reports, diagnostic conclusions and 
 - **Image fallback**: `image_captions.json` is the fallback when PNG rendering is unavailable
 - **Automatic HTML build**: after CP-8 ENDORSED, `diagnostic-report.html` is produced automatically and non-interactively by default (Step 8→8.5→9); only a pre-existing `00_input/html_opt_out` can skip it
 - **VLM Agent**: the only agent that uses `model: vision`; it needs a vision-capable model to read chart PNGs
-- **Agent initialization**: every agent reads `references/agent-protocol.md`, not `agents/<self>.md` (self-reference bug fixed)
+- **Agent initialization**: every pipeline analysis agent reads the skill-side `references/agent-protocol.md`, not `agents/<self>.md` (self-reference bug fixed). Presentation subagents (`html-*`, `enhanced-*`) read their protocol too; the VLM subagent reads `industrial-data-processor/resources/visual_analysis_framework.md` + the two visual schemas (its canonical protocol). Static audit: `node scripts/audit/skill-design.mjs` (24 skills / 16 agents / schemas / protocol refs).
 - **Four numbering schemes**: Pipeline Step / Agent Phase / Reasoning Segment / Method Stage are each independent and must not be mixed

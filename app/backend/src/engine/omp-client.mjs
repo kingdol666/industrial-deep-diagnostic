@@ -15,8 +15,9 @@ import {
   config, PROJECT_ROOT,
 } from '../../../../config/loader.mjs';
 import logger from '../utils/logger.mjs';
+import { recordProviderError } from '../services/provider-error.service.mjs';
 import { whereLookup, spawnResolvedCli } from './cli-common.mjs';
-import { existsSync, mkdirSync, rmSync, readFileSync } from 'fs';
+import { existsSync, mkdirSync, rmSync, readFileSync, readdirSync, statSync } from 'fs';
 import { join, isAbsolute } from 'path';
 import {
   buildRuntimeProtocol, buildPrompt, resolveAnalysisTarget,
@@ -96,6 +97,26 @@ export function parseOmpSessionId(marker) {
 // timeoutMinutes (per-run, minutes) wins over ompConfig().timeout_minutes;
 // 0/undefined keeps the config default. The service layer forwards the run's
 // requested budget so a long pipeline is not silently killed at the default.
+/**
+ * The run's own session file: the OLDEST jsonl in its session dir.
+ *
+ * Resume must target THIS file explicitly (`--resume=<path>`) instead of `-c`
+ * (continue-latest): when a resume ever hits OMP's cross-process session lock,
+ * OMP falls back to a fresh session file whose replay turns are empty — and
+ * `-c` would then keep resuming the poisoned file forever.
+ */
+export function resolveOmpSessionFile(sessionDir) {
+  try {
+    const files = readdirSync(sessionDir)
+      .filter((f) => f.endsWith('.jsonl'))
+      .map((f) => ({ f, m: statSync(join(sessionDir, f)).mtimeMs }))
+      .sort((a, b) => a.m - b.m);
+    return files.length ? join(sessionDir, files[0].f) : null;
+  } catch {
+    return null;
+  }
+}
+
 function spawnOmpRpc({ sessionDir, resume = false, label = 'omp', timeoutMinutes = 0 }) {
   const binary = resolveOmpBinary();
   const args = ['--mode=rpc', '-p'];
@@ -105,7 +126,11 @@ function spawnOmpRpc({ sessionDir, resume = false, label = 'omp', timeoutMinutes
   const maxTimeMinutes = Number(timeoutMinutes) > 0 ? Number(timeoutMinutes) : ompConfig().timeout_minutes;
   if (maxTimeMinutes) args.push(`--max-time=${Math.round(maxTimeMinutes * 60)}`);
   args.push(`--session-dir=${sessionDir}`);
-  if (resume) args.push('-c');
+  if (resume) {
+    const sessionFile = resolveOmpSessionFile(sessionDir);
+    if (sessionFile) args.push(`--resume=${sessionFile}`);
+    else args.push('-c');
+  }
 
   logger.info(`Spawning ${label}: ${binary} ${args.join(' ')}`, { context: 'OmpClient' });
 
@@ -226,8 +251,26 @@ function createOmpQuery(proc, { runKey, maxTurns = 0, label = 'omp' }) {
         break;
       case 'message_end': {
         const role = evt.message?.role;
-        if (role === 'assistant') emitAssistantMessage(evt.message);
-        else if (role === 'toolResult') emitToolResult(evt.message);
+        if (role === 'assistant') {
+          // A provider-failed turn (429/5xx) arrives as an assistant message
+          // with empty content and stopReason=error. Surfacing it beats a
+          // silently empty reply the user cannot distinguish from success.
+          if (evt.message.stopReason === 'error') {
+            const detail = evt.message.errorMessage || evt.message.errorStatus || 'provider error';
+            const provider = recordProviderError('omp', detail);
+            push({
+              type: 'system',
+              subtype: 'notice',
+              data: {
+                level: 'error',
+                message: `OMP assistant turn failed: ${detail}`,
+                provider_error: provider?.code || null,
+                provider_label: provider?.label || null,
+              },
+            });
+          }
+          emitAssistantMessage(evt.message);
+        } else if (role === 'toolResult') emitToolResult(evt.message);
         break;
       }
       case 'tool_execution_start':

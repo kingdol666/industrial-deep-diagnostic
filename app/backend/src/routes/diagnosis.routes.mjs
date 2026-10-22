@@ -159,15 +159,32 @@ router.post('/chat/:runId', async (req, res) => {
   try {
     const sent = await sendChatMessage(runId, message, { maxTurns });
     if (!sent) {
+      // 404 now means exactly one thing: the run does not exist. A run that
+      // exists but cannot resume/rebuild throws 409 with a code.
       return res.status(404).json({
         success: false,
-        error: 'Run not found or could not be resumed.',
+        code: 'RUN_NOT_FOUND',
+        error: `Run not found: ${runId}`,
       });
     }
-    res.json({ success: true, data: { runId, resumed: true } });
+    res.json({
+      success: true,
+      data: {
+        runId,
+        mode: sent.mode,
+        resumed: sent.mode === 'session',
+        reason: sent.reason ?? null,
+      },
+    });
   } catch (err) {
     const status = err.status || 500;
-    res.status(status).json({ success: false, code: err.code || 'CHAT_ERROR', error: err.message });
+    res.status(status).json({
+      success: false,
+      code: err.code || 'CHAT_ERROR',
+      error: err.message,
+      harness: err.harness ?? null,
+      run_id: err.runId ?? runId,
+    });
   }
 });
 
@@ -231,9 +248,13 @@ router.get('/status/:runId', (req, res) => {
   res.json({ success: true, data: run });
 });
 
-// Get run realtime snapshot from DB event stream + current status
+// Get run realtime snapshot from DB event stream + current status.
+// `?events_limit=N` (100..10000, default 2000) bounds the event payload;
+// the response reports events_total / events_truncated.
 router.get('/snapshot/:runId', (req, res) => {
-  const snapshot = getRunRealtimeSnapshot(req.params.runId);
+  const snapshot = getRunRealtimeSnapshot(req.params.runId, {
+    eventsLimit: req.query.events_limit,
+  });
   if (!snapshot) return res.status(404).json({ success: false, error: 'Run not found' });
   res.json({ success: true, data: snapshot });
 });

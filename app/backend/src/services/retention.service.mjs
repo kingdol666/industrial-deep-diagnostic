@@ -115,11 +115,53 @@ export function applyRetentionPolicies(now = Date.now()) {
       { context: 'Retention' },
     );
   }
-  return { expiredWorkspaces, purgedRuns, orphansRemoved };
+  return { expiredWorkspaces, purgedRuns, orphansRemoved, ...applyEventStreamRetention() };
 }
 
 /** Exposed for tests: relative form of a workspace path, or null. */
 export function workspaceRel(abs) {
   if (!abs) return null;
   return relative(PROJECT_ROOT, abs).replace(/\\/g, '/');
+}
+
+/**
+ * Bound the event log per run. A long claude run can emit >100k events; the UI
+ * only ever renders the newest window, so keeping every row forever grows the
+ * DB without adding user-visible value. The newest N rows are kept (MAX(seq)
+ * is preserved, so session-chat sequence continuation stays correct).
+ * Only terminal runs are pruned — a live run's tail is its live stream.
+ * @returns {{runs:number, deleted:number}}
+ */
+export function applyEventStreamRetention({ runIds = null } = {}) {
+  const cap = Number(config.data?.event_stream_max_rows_per_run);
+  if (!Number.isFinite(cap) || cap <= 0) return { eventRunsPruned: 0, eventRowsDeleted: 0 };
+  const keep = Math.trunc(cap);
+  let runs = 0;
+  let deleted = 0;
+  // `runIds` scopes the sweep for tests. Tests MUST pass it: a global sweep
+  // with a test-sized cap would prune every run in the database.
+  const candidates = Array.isArray(runIds)
+    ? runIds
+      .map((id) => ({ run_id: id, n: stmts.countEventStreamByRunId.get(id).n }))
+      .filter((row) => row.n > keep)
+    : stmts.listRunsOverEventCap.all({ cap: keep });
+  for (const row of candidates) {
+    const run = stmts.getRunById.get(row.run_id);
+    if (!run || LIVE.has(run.status)) continue;
+    const before = Number(row.n);
+    try {
+      stmts.pruneEventStreamForRun.run({ runId: row.run_id, keep });
+      const after = stmts.countEventStreamByRunId.get(row.run_id).n;
+      deleted += Math.max(0, before - after);
+      runs += 1;
+    } catch (err) {
+      logger.warn(`Retention: event prune failed for ${row.run_id}: ${err.message}`, { context: 'Retention' });
+    }
+  }
+  if (runs > 0) {
+    logger.info(`Retention: pruned ${deleted} old event row(s) across ${runs} run(s) (keep ${keep}/run)`, {
+      context: 'Retention',
+    });
+  }
+  return { eventRunsPruned: runs, eventRowsDeleted: deleted };
 }

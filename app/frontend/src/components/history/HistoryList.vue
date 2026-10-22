@@ -24,11 +24,12 @@
       <input
         v-model="filters.q"
         class="filter-search"
+        data-testid="history-search"
         :placeholder="$t('history.searchPlaceholder')"
         @input="onSearchInput"
         @keyup.enter="loadHistory"
       />
-      <select v-model="filters.status" @change="loadHistory">
+      <select v-model="filters.status" data-testid="history-status-filter" @change="loadHistory">
         <option value="">{{ $t('history.allStatuses') }}</option>
         <option v-for="s in statusOptions" :key="s" :value="s">{{ getRunStatusLabel(s) }}</option>
       </select>
@@ -99,12 +100,12 @@
           <tr>
             <th>{{ $t('history.colTitle') }}</th>
             <th>{{ $t('history.colCategory') }}</th>
-            <th>{{ $t('history.colScene') }}</th>
-            <th>{{ $t('history.colData') }}</th>
-            <th>{{ $t('history.colQuestion') }}</th>
             <th>{{ $t('history.colStatus') }}</th>
             <th>{{ $t('history.colScore') }}</th>
             <th>{{ $t('history.colVerdict') }}</th>
+            <th>{{ $t('history.colScene') }}</th>
+            <th>{{ $t('history.colData') }}</th>
+            <th>{{ $t('history.colQuestion') }}</th>
             <th>{{ $t('history.colCreated') }}</th>
             <th>{{ $t('history.colActions') }}</th>
           </tr>
@@ -113,6 +114,7 @@
           <tr
             v-for="run in runs"
             :key="run.run_id"
+            :data-testid="`history-row-${run.run_id}`"
             :class="['history-row', `row-${getEffectiveRunStatus(run)}`, { 'row-deleted': run.deleted_at }]"
             @click="toggleDetail(run.run_id)"
           >
@@ -143,14 +145,6 @@
                 <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
               </select>
             </td>
-            <td>{{ run.scene_name }}</td>
-            <td class="cell-path">{{ run.data_path }}</td>
-            <td class="cell-question">
-              <span v-if="run.user_question" :title="run.user_question">
-                {{ truncate(run.user_question, 40) }}
-              </span>
-              <span v-else class="text-muted">--</span>
-            </td>
             <td>
               <span :class="['badge', getRunStatusBadgeClass(run)]">{{ getRunStatusLabel(run) }}</span>
             </td>
@@ -161,12 +155,24 @@
               <span v-else class="text-muted">--</span>
             </td>
             <td>
-              <span v-if="run.judge_verdict" :class="['badge', verdictBadge(run.judge_verdict)]">
+              <span
+                v-if="run.judge_verdict"
+                :class="['badge', 'verdict-badge', verdictBadge(run.judge_verdict)]"
+                :title="run.judge_verdict"
+              >
                 {{ run.judge_verdict }}
               </span>
               <span v-else class="text-muted">--</span>
             </td>
-            <td class="cell-date">{{ formatDate(run.created_at) }}</td>
+            <td>{{ run.scene_name }}</td>
+            <td class="cell-path">{{ run.data_path }}</td>
+            <td class="cell-question">
+              <span v-if="run.user_question" :title="run.user_question">
+                {{ truncate(run.user_question, 40) }}
+              </span>
+              <span v-else class="text-muted">--</span>
+            </td>
+            <td class="cell-date" :title="formatDate(run.created_at)">{{ formatDateShort(run.created_at) }}</td>
             <td class="cell-actions" @click.stop>
               <template v-if="filters.include_deleted">
                 <button class="btn btn-sm btn-restore" @click="restoreRun(run.run_id)">
@@ -189,6 +195,7 @@
                 <button
                   v-if="getEffectiveRunStatus(run) === 'completed' && run.report_path"
                   class="btn btn-sm btn-primary"
+                  :data-testid="`history-report-${run.run_id}`"
                   @click="viewReport(run)"
                 >{{ $t('history.report') }}</button>
                 <button
@@ -207,6 +214,7 @@
                 <button
                   v-if="canContinueChat(run)"
                   class="btn btn-sm btn-continue"
+                  :data-testid="`history-continue-${run.run_id}`"
                   :title="run.session_id ? $t('history.continueChat') : $t('history.noSessionHint')"
                   @click="openRun(run)"
                 >{{ $t('history.continueChat') }}</button>
@@ -628,16 +636,34 @@ function formatDate(dateStr) {
   }
 }
 
+/* Ledger cells show `MM-DD HH:mm`; the full timestamp stays on hover and in
+   the detail panel. The lane is 104px — a full toLocaleString() does not fit. */
+function formatDateShort(dateStr) {
+  if (!dateStr) return '--';
+  const d = new Date(dateStr);
+  if (Number.isNaN(d.getTime())) return dateStr;
+  const p = (n) => String(n).padStart(2, '0');
+  return `${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+
 function scoreClass(score) {
   if (score >= 90) return 'score-high';
   if (score >= 70) return 'score-mid';
   return 'score-low';
 }
 
+// Specialist verdicts are artifact-derived strings (`C · 波动`, `A · rsm_ccd`,
+// `alert · 29 alerts`, `playbook_hit · 1 playbook`), so tone must be graded —
+// the old exact-match map painted every one of them red, including grade A.
 function verdictBadge(verdict) {
-  if (verdict === 'PASS' || verdict === 'ENDORSED') return 'badge-green';
-  if (verdict === 'CONDITIONAL') return 'badge-yellow';
-  return 'badge-red';
+  const v = String(verdict || '').trim();
+  if (/^(PASS|ENDORSED|ok)\b/i.test(v) || /^A\b/.test(v) || /^playbook_hit\b/.test(v)) return 'badge-green';
+  if (/^CONDITIONAL\b/i.test(v) || /^[BC]\b/.test(v)
+      || /^direction_only\b/.test(v) || /^fallback_generic\b/.test(v)) return 'badge-yellow';
+  // Real negatives are red; optimizer phases (`exploiting · round 2`) are
+  // neutral state labels, not failures.
+  if (/^(alert|D)\b/.test(v) || /^no_playbook_hit\b/.test(v)) return 'badge-red';
+  return 'badge-neutral';
 }
 
 const maxLogPage = computed(() => Math.max(1, Math.ceil(logs.value.length / pageSize)));
@@ -875,38 +901,79 @@ const paginatedLogs = computed(() => {
   background-position: right 6px center;
 }
 
-/* Scene has no class of its own — it is the third column. Same treatment. */
-.history-table td:nth-child(3) { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Scene has no class of its own — sixth lane after the outcome-first reorder
+   (title/category/status/score/verdict). Same treatment. */
+.history-table td:nth-child(6) { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 /* ── Column template ──────────────────────────────────────────────────────
    Ten columns, so the geometry is declared once here instead of being
    renegotiated for every row by the auto table algorithm. Fixed layout makes
    those declarations exact: no lane can be crushed by a long value, and every
-   elastic cell ellipsizes instead of wrapping.
-
-   The control rail is sized from measured content; the title and category
-   lanes carry the editable controls. Everything is one line, so each row is
-   exactly --row-h-lg (40px). Narrower windows keep the declared lanes and the
-   wrapper scrolls instead of stacking controls into columns. */
+   elastic cell ellipsizes instead of wrapping. Outcome-first order: status,
+   score and verdict sit immediately after the identity lanes, so they stay
+   visible in a 1280px window even when the wide action rail forces a scroll.
+   The lane sum (1128px) fits a 1440px viewport's content area outright. */
 .history-table {
   table-layout: fixed;
-  min-width: 1336px;
+  min-width: 1128px;
 }
 
-.history-table th:nth-child(1) { width: 150px; }  /* 标题 */
-.history-table th:nth-child(2) { width: 118px; }  /* 分类 */
-.history-table th:nth-child(3) { width: 84px; }   /* 场景 */
-.history-table th:nth-child(4) { width: 72px; }   /* 数据文件 */
-.history-table th:nth-child(5) { width: 96px; }   /* 问题 */
-.history-table th:nth-child(6) { width: 76px; }   /* 状态 */
-.history-table th:nth-child(7) { width: 46px; }   /* 评分 */
-.history-table th:nth-child(8) { width: 102px; }  /* 结论 */
-.history-table th:nth-child(9) { width: 112px; }  /* 创建时间 */
-.history-table th:nth-child(10) { width: 480px; } /* 操作 */
+.history-table th:nth-child(1) { width: 128px; }  /* 标题 */
+.history-table th:nth-child(2) { width: 96px; }   /* 分类 */
+.history-table th:nth-child(3) { width: 62px; }   /* 状态 */
+.history-table th:nth-child(4) { width: 44px; }   /* 评分 */
+.history-table th:nth-child(5) { width: 124px; }  /* 结论 */
+.history-table th:nth-child(6) { width: 64px; }   /* 场景 */
+.history-table th:nth-child(7) { width: 56px; }   /* 数据文件 */
+.history-table th:nth-child(8) { width: 74px; }   /* 问题 */
+.history-table th:nth-child(9) { width: 100px; }  /* 创建时间 */
+.history-table th:nth-child(10) { width: 380px; } /* 操作 */
+
+/* The action rail freezes to the wrapper's right edge: the ledger is wider
+   than most viewports, and a scrolled-away rail hid the only way to open a
+   report or continue a chat. Opaque surface + left hairline keep it readable
+   while identifier columns scroll underneath. */
+.history-table th:nth-child(10),
+.history-table td:nth-child(10) {
+  position: sticky;
+  right: 0;
+  z-index: 3;
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  box-shadow: -12px 0 16px -14px rgba(0, 0, 0, 0.65);
+}
+
+.history-row:hover td:nth-child(10) {
+  background: color-mix(in srgb, var(--accent) 3%, var(--surface));
+}
 
 .history-list .badge {
   white-space: nowrap;
   word-break: keep-all;
+}
+
+/* Artifact-derived verdicts can be longer than a judge verdict
+   (`alert · 742 alerts`); keep one line and expose the full text in title. */
+.history-list .verdict-badge {
+  display: inline-block;
+  max-width: 116px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+}
+
+/* Below 1360px the data-file and question lanes are dropped (both are in the
+   detail panel) and the action rail narrows: the remaining lanes fit without
+   a horizontal scroll, so no column hides under the sticky rail. */
+@media (max-width: 1360px) {
+  .history-table { min-width: 948px; }
+  .history-table th:nth-child(7),
+  .history-table td:nth-child(7),
+  .history-table th:nth-child(8),
+  .history-table td:nth-child(8) { display: none; }
+  .history-table th:nth-child(10),
+  .history-table td:nth-child(10) { width: 330px; }
+  .history-table .btn-enhance { display: none; }
 }
 
 /* The rail is one instrument line. The global .cell-actions rule wraps and caps

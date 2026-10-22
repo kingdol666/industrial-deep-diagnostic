@@ -44,6 +44,9 @@ before(async () => {
       // 显式把 cursor 指向一个不存在的二进制 —— 用文档化的覆盖链（config → env → PATH）
       // 构造「已注册但不可用」状态，而不是赌某台机器上恰好没装 cursor-agent。
       HARNESS_CURSOR_COMMAND: join(mkdtempSync(join(tmpdir(), 'idd-cursor-abs-')), 'no-such-cursor-agent'),
+      // Codex must never spawn for real in this suite: a seeded non-resumable
+      // run is chatted into, and its rebuild path would start that engine.
+      HARNESS_CODEX_COMMAND: join(mkdtempSync(join(tmpdir(), 'idd-codex-abs-')), 'no-such-codex'),
     },
     windowsHide: true,
   });
@@ -386,5 +389,129 @@ describe('zombie pending hygiene — listRuns lazily expires orphaned pendings',
     const exec = await api('POST', `/api/diagnosis/execute/${staleRunId}`);
     assert.equal(exec.status, 400);
     assert.match(exec.json.error, /not pending/);
+  });
+});
+
+describe('continue/chat routing — rebuild fallback + honest HTTP semantics', () => {
+  const seedRun = async (id, {
+    harness, status = 'completed', sessionId = null,
+    dataPath = 'data/smoke.csv', intent = 'deep-diagnosis', score = null, verdict = null,
+  }) => {
+    const { default: Database } = await import('better-sqlite3');
+    const db = new Database(DB_PATH);
+    db.prepare(`
+      INSERT INTO diagnostic_runs
+        (run_id, name, scene_name, data_path, status, harness, analysis_intent,
+         session_id, score, judge_verdict, created_at, updated_at)
+      VALUES (?, ?, 'route_contract', ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
+    `).run(id, id, dataPath, status, harness, intent, sessionId, score, verdict);
+    db.close();
+    return id;
+  };
+
+  test('capabilities expose honest session_resume + supported_intents', async () => {
+    const { status, json } = await api('GET', '/api/external/v1/capabilities');
+    assert.equal(status, 200);
+    const byId = Object.fromEntries(json.data.harnesses.map((h) => [h.id, h]));
+    for (const id of ['claude', 'omp', 'goose', 'mock']) {
+      assert.equal(byId[id].session_resume, true, id);
+    }
+    for (const id of ['codex', 'opencode', 'gemini', 'cursor']) {
+      assert.equal(byId[id].session_resume, false, id);
+    }
+    for (const h of json.data.harnesses) {
+      assert.equal(h.supported_intents.length, 6, `${h.id} intents`);
+      assert.ok(h.supported_intents.includes('stability-report'));
+    }
+  });
+
+  test('a non-resumable engine chat is served by rebuild (200), not a 404', async () => {
+    const id = `routeCodex${Date.now().toString(36).slice(-5)}`;
+    await seedRun(id, { harness: 'codex', sessionId: 'codex:run:whatever' });
+    const { status, json } = await api('POST', `/api/diagnosis/chat/${id}`, { message: '继续' });
+    assert.equal(status, 200, JSON.stringify(json));
+    assert.equal(json.data.mode, 'rebuild');
+    assert.equal(json.data.resumed, false);
+    assert.equal(json.data.reason, 'engine_no_resume');
+    // The banner explains the rebuild instead of pretending it resumed.
+    await new Promise((r) => setTimeout(r, 300));
+    const { json: snap } = await api('GET', `/api/diagnosis/snapshot/${id}`);
+    const banner = (snap.data?.events || []).find((e) =>
+      e.type === 'system' && e.subtype === 'session_chat' && e.data?.mode === 'rebuild');
+    assert.ok(banner, 'rebuild system banner emitted');
+    assert.match(banner.data.message, /不支持会话级恢复/);
+  });
+
+  test('a resumable engine chat still goes to its own session (mock)', async () => {
+    const { json: startJson } = await api('POST', '/api/diagnosis/start', {
+      harness: 'mock', dataPath: 'data/smoke.csv', sceneName: 'route_mock_session',
+      userQuestion: 'session routing',
+    });
+    const id = startJson.data.runId;
+    await api('POST', `/api/diagnosis/execute/${id}`);
+    await waitForStatus(id, ['completed', 'failed']);
+    const { status, json } = await api('POST', `/api/diagnosis/chat/${id}`, { message: '继续' });
+    assert.equal(status, 200);
+    assert.equal(json.data.mode, 'session');
+    assert.equal(json.data.resumed, true);
+  });
+
+  test('no resumable session AND no data context → 409 RESUME_UNSUPPORTED', async () => {
+    const id = `routeNoCtx${Date.now().toString(36).slice(-5)}`;
+    await seedRun(id, { harness: 'codex', sessionId: 'codex:run:none', dataPath: '' });
+    const { status, json } = await api('POST', `/api/diagnosis/chat/${id}`, { message: '继续' });
+    assert.equal(status, 409, JSON.stringify(json));
+    assert.equal(json.code, 'RESUME_UNSUPPORTED');
+    assert.equal(json.harness, 'codex');
+    assert.equal(json.run_id, id);
+  });
+
+  test('a missing run is a 404 with RUN_NOT_FOUND (never a fake rebuild)', async () => {
+    const { status, json } = await api('POST', '/api/diagnosis/chat/does-not-exist-xyz', { message: 'hi' });
+    assert.equal(status, 404);
+    assert.equal(json.code, 'RUN_NOT_FOUND');
+    const ext = await api('POST', '/api/external/v1/chat', { run_id: 'does-not-exist-xyz', message: 'hi' });
+    assert.equal(ext.status, 404);
+    assert.equal(ext.json.code, 'RUN_NOT_FOUND');
+  });
+});
+
+describe('external result — analysis_mode honesty + artifact-derived outcome', () => {
+  test('a mock analysis is labelled analysis_mode=mock on result and task entry', async () => {
+    const created = await api('POST', '/api/external/v1/analyze', {
+      harness: 'mock',
+      dataPath: 'data/smoke.csv',
+      analysisIntent: 'deep-diagnosis',
+      sceneName: 'ext_mock_mode',
+      question: 'mode label probe',
+    });
+    assert.equal(created.status, 202, JSON.stringify(created.json));
+    const { run_id: runId, task_id: taskId } = created.json.data;
+    await waitForStatus(runId, ['completed', 'failed'], 40000);
+
+    const result = await api('GET', `/api/external/v1/analyze/${runId}`);
+    assert.equal(result.status, 200);
+    assert.equal(result.json.data.analysis_mode, 'mock');
+    assert.equal(result.json.data.harness, 'mock');
+
+    const tasks = await api('GET', '/api/external/v1/tasks');
+    const entry = (tasks.json.data || []).find((t) => t.task_id === taskId);
+    assert.ok(entry, 'task entry listed');
+    assert.equal(entry.analysis_mode, 'mock');
+  });
+
+  test('a non-mock run is analysis_mode=real', async () => {
+    const { default: Database } = await import('better-sqlite3');
+    const id = `realMode${Date.now().toString(36).slice(-5)}`;
+    const db = new Database(DB_PATH);
+    db.prepare(`
+      INSERT INTO diagnostic_runs
+        (run_id, name, scene_name, data_path, status, harness, analysis_intent, created_at, updated_at)
+      VALUES (?, ?, 'mode_real', 'data/smoke.csv', 'completed', 'claude', 'deep-diagnosis', datetime('now'), datetime('now'))
+    `).run(id, id);
+    db.close();
+    const result = await api('GET', `/api/external/v1/analyze/${id}`);
+    assert.equal(result.status, 200);
+    assert.equal(result.json.data.analysis_mode, 'real');
   });
 });

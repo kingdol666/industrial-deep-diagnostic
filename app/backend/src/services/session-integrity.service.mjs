@@ -39,6 +39,73 @@ export function sessionKind(sessionId) {
 /** Harnesses that can resume an existing process-external session. */
 const RESUMABLE = new Set(['claude', 'omp', 'goose']);
 
+/** Engines that can actually resume a process-external session (single truth). */
+export const RESUMABLE_HARNESSES = Object.freeze([...RESUMABLE]);
+
+/**
+ * Can `startSessionChat` work for this harness at all?
+ * mock has an in-process scripted chat (used by the chat-contract E2E), so it
+ * counts as chat-capable even though nothing survives a process restart.
+ * Every other engine that lacks cross-process resume must go through a rebuild.
+ */
+export function engineSupportsSessionChat(harnessId) {
+  const id = normalizeStoredHarness(harnessId);
+  return RESUMABLE.has(id) || id === 'mock';
+}
+
+/** Does this run carry enough context to rebuild the analysis from scratch? */
+export function hasRebuildContext(run) {
+  return !!(run && (run.data_path || run.data_folder));
+}
+
+/**
+ * Decide how a chat/continue turn is served, without side effects:
+ *   { mode: 'session' }                         — resume the stored session;
+ *   { mode: 'rebuild', reason }                 — full re-run, same harness;
+ *   throws 409 RESUME_UNSUPPORTED               — nothing to resume or rebuild.
+ *
+ * Rationale: "继续对话" must work for every harness (the user clicks one
+ * button). A non-resumable engine rebuilds with the same harness/intent/data;
+ * only a run with no data context at all is genuinely unrecoverable.
+ */
+export function resolveChatRoute(run) {
+  if (!run) {
+    const err = new Error('Run not found');
+    err.status = 404;
+    err.code = 'RUN_NOT_FOUND';
+    throw err;
+  }
+  const harness = normalizeStoredHarness(run.harness);
+  if (run.session_id && engineSupportsSessionChat(harness)) {
+    return { mode: 'session', harness };
+  }
+  if (hasRebuildContext(run)) {
+    return {
+      mode: 'rebuild',
+      harness,
+      reason: run.session_id ? 'engine_no_resume' : 'no_session',
+    };
+  }
+  const err = new Error(
+    `Run ${run.run_id} cannot be continued: the ${harness} engine has no resumable session `
+    + 'and the run carries no data path to rebuild from. Start a new analysis with data.',
+  );
+  err.status = 409;
+  err.code = 'RESUME_UNSUPPORTED';
+  err.harness = harness;
+  err.runId = run.run_id;
+  throw err;
+}
+
+/** User-facing explanation emitted as a system line before a rebuild. */
+export function rebuildNotice(route) {
+  const label = String(route?.harness || '').toUpperCase();
+  if (route?.reason === 'engine_no_resume') {
+    return `该引擎（${label}）不支持会话级恢复，已按当前诊断上下文重建（同一引擎 / 同一分析意图 / 同一数据）。`;
+  }
+  return `该会话没有可恢复的历史 session，已按当前诊断上下文重新建立（同一引擎与同一分析意图）。`;
+}
+
 /**
  * Refuse a chat/continue whose stored session id cannot belong to the run's
  * harness. A silent engine switch is exactly how a session id becomes

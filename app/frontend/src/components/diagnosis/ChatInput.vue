@@ -5,6 +5,7 @@
         ref="inputEl"
         v-model="text"
         type="text"
+        data-testid="run-chat-input"
         :placeholder="placeholder"
         class="ci-input"
         @keydown.enter="send"
@@ -12,6 +13,7 @@
       />
       <button
         class="ci-send-btn"
+        data-testid="run-chat-send"
         @click="send"
         :disabled="!text.trim() || sending"
       >

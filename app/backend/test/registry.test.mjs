@@ -38,11 +38,14 @@ describe('harness registry — 14 engines', () => {
     // chat 加入 omp 能力面：OMP 聊天一直存在（RPC 驻留会话），2026-09-19 起清单如实声明
     assert.deepEqual(caps.omp, ['live', 'chat', 'runs', 'report', 'html', 'enhancement']);
     assert.deepEqual(caps.mock, ['live', 'chat']);
-    // 2026-09-19 起：全部定义表引擎统一声明 live + chat —— 诊断走各自客户端，
-    // 聊天走 chat.service 的通用 turn 路径（原生 resume 优先，否则历史重放）。
-    for (const id of ['codex', 'dsh', 'opencode', 'copilot', 'cursor', 'crush', 'qwen', 'pi', 'hermes', 'gemini', 'goose']) {
-      assert.deepEqual(caps[id], ['live', 'chat'], `${id} should carry live + chat`);
+    // base.mjs defines `chat` as "can resume conversations". Run-level resume
+    // only exists for goose in the definition table (oneshot --resume); the
+    // other engines can still be chatted with via the standalone chat tab and
+    // Continue rebuild, but advertising run-level chat for them was false.
+    for (const id of ['codex', 'dsh', 'opencode', 'copilot', 'cursor', 'crush', 'qwen', 'pi', 'hermes', 'gemini']) {
+      assert.deepEqual(caps[id], ['live'], `${id} must not advertise session resume`);
     }
+    assert.deepEqual(caps.goose, ['live', 'chat']);
     // runs browsing stays OMP-only
     for (const id of ['mock', 'codex', 'dsh', 'gemini', 'goose', 'pi', 'hermes', 'qwen', 'opencode']) {
       assert.ok(!caps[id].includes('runs'));

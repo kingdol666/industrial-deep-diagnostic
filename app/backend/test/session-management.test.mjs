@@ -7,8 +7,12 @@ const {
   sessionKind, sessionMap, assertSessionHarnessMatch,
   recoverInterruptedRuns, reconcileSessionIds,
   clampChatTurns, CHAT_TURNS_DEFAULT, CHAT_TURN_PASSTHROUGH,
+  engineSupportsSessionChat, resolveChatRoute, hasRebuildContext, RESUMABLE_HARNESSES,
 } = await import('../src/services/session-integrity.service.mjs');
 const { stmts } = await import('../src/db/database.mjs');
+// Imported once at module level: diagnosis.service wires engine timers, but
+// they are unref'ed, so the test process can still exit cleanly.
+const diagnosisService = await import('../src/services/diagnosis.service.mjs');
 
 const UUID = '3f2504e0-4f89-11d3-9a0c-0305e82c3301';
 
@@ -93,6 +97,69 @@ describe('chat turn budget + passthrough contract (B3)', () => {
   });
 });
 
+describe('chat routing — one-click continue for every harness', () => {
+  test('only claude/omp/goose resume across processes; mock chats in-process', () => {
+    assert.deepEqual([...RESUMABLE_HARNESSES].sort(), ['claude', 'goose', 'omp']);
+    for (const id of ['claude', 'omp', 'goose', 'mock']) {
+      assert.equal(engineSupportsSessionChat(id), true, id);
+    }
+    for (const id of ['codex', 'opencode', 'gemini', 'copilot', 'cursor', 'crush', 'qwen', 'pi', 'dsh', 'hermes']) {
+      assert.equal(engineSupportsSessionChat(id), false, id);
+    }
+  });
+
+  test('resumable engine with a session → session mode', () => {
+    const route = resolveChatRoute({
+      run_id: 'r1', harness: 'claude', status: 'completed', session_id: UUID, data_path: 'data/a.csv',
+    });
+    assert.deepEqual(route, { mode: 'session', harness: 'claude' });
+  });
+
+  test('non-resumable engine with a session → controlled rebuild', () => {
+    const route = resolveChatRoute({
+      run_id: 'r2', harness: 'codex', status: 'completed', session_id: 'codex:run:r2', data_path: 'data/a.csv',
+    });
+    assert.equal(route.mode, 'rebuild');
+    assert.equal(route.reason, 'engine_no_resume');
+    assert.equal(route.harness, 'codex');
+  });
+
+  test('missing session but data context → rebuild (no_session)', () => {
+    const route = resolveChatRoute({
+      run_id: 'r3', harness: 'claude', status: 'stopped', session_id: null, data_path: 'data/a.csv',
+    });
+    assert.equal(route.mode, 'rebuild');
+    assert.equal(route.reason, 'no_session');
+  });
+
+  test('a folder run also counts as rebuild context', () => {
+    assert.equal(hasRebuildContext({ data_folder: 'data/dir' }), true);
+    assert.equal(hasRebuildContext({ data_path: 'data/a.csv' }), true);
+    assert.equal(hasRebuildContext({ data_path: 'data/a.csv', data_folder: null }), true);
+    assert.equal(hasRebuildContext({}), false);
+  });
+
+  test('no session AND no data → 409 RESUME_UNSUPPORTED with harness/run_id', () => {
+    assert.throws(() => resolveChatRoute({
+      run_id: 'r4', harness: 'gemini', status: 'completed', session_id: 'gemini:abc',
+    }), (err) => {
+      assert.equal(err.status, 409);
+      assert.equal(err.code, 'RESUME_UNSUPPORTED');
+      assert.equal(err.harness, 'gemini');
+      assert.equal(err.runId, 'r4');
+      return true;
+    });
+  });
+
+  test('missing run → 404 RUN_NOT_FOUND (never a fake rebuild)', () => {
+    assert.throws(() => resolveChatRoute(null), (err) => {
+      assert.equal(err.status, 404);
+      assert.equal(err.code, 'RUN_NOT_FOUND');
+      return true;
+    });
+  });
+});
+
 describe('engine subscription survives a closed completed run', () => {
   test('subscribe on a missing/closed run registers and receives later emits', async () => {
     const eng = await import('../src/engine/diagnosis-engine.mjs');
@@ -145,6 +212,43 @@ describe('engine subscription survives a closed completed run', () => {
     eng.closeRun(runId);
     stmts.deleteEventStreamByRunId.run(runId);
     stmts.deleteRunRow.run(runId);
+  });
+});
+
+describe('viewing a completed run must not fabricate pending', () => {
+  const RUN_VIEW = 'zz-view-test';
+  const { subscribeRunView, listRuns, closeRun: closeEngineRun } = diagnosisService;
+
+  function cleanup() {
+    try { closeEngineRun(RUN_VIEW); } catch { /* no engine entry */ }
+    try { stmts.deleteLogsByRunId.run(RUN_VIEW); } catch { /* ignore */ }
+    try { stmts.deleteEventStreamByRunId.run(RUN_VIEW); } catch { /* ignore */ }
+    try { stmts.deleteRunRow.run(RUN_VIEW); } catch { /* ignore */ }
+  }
+
+  test('subscribeRunView seeds the engine entry from the persisted status', () => {
+    cleanup();
+    try {
+      stmts.insertRun.run({
+        runId: RUN_VIEW, name: RUN_VIEW, title: RUN_VIEW, sceneName: 'zz_test_scene',
+        dataPath: 'data/smoke.csv', dataFolder: null, userQuestion: '',
+        model: null, maxTurns: 10, reportLanguage: 'zh', harness: 'claude',
+        ontologyHit: 0, enhancementPolicy: 'auto', enhancementTriggered: 0,
+        analysisIntent: 'stability-report', userId: null,
+      });
+      stmts.updateRunStatus.run({ runId: RUN_VIEW, status: 'completed' });
+
+      const unsubscribe = subscribeRunView(RUN_VIEW, () => {});
+      try {
+        const row = listRuns().find((r) => r.run_id === RUN_VIEW);
+        // The regression: engine subscribe() used to create a `pending` entry,
+        // and engine status wins in listRuns — so merely opening a completed
+        // run flipped it to pending and hid its continue/report buttons.
+        assert.equal(row.engineStatus, 'completed');
+      } finally {
+        unsubscribe();
+      }
+    } finally { cleanup(); }
   });
 });
 

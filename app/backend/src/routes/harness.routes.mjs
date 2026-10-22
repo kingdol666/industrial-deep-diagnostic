@@ -21,6 +21,7 @@ import { listHarnesses, getHarness } from '../harness/registry.mjs';
 import { resolveBestAvailableHarness } from '../harness/engines.mjs';
 import { HarnessNotFoundError, HarnessNotSupportedError } from '../harness/base.mjs';
 import { rewriteHtmlAssetUrls, callerToken } from '../utils/html-assets.mjs';
+import { getProviderError } from '../services/provider-error.service.mjs';
 
 const router = Router();
 
@@ -70,9 +71,21 @@ router.get('/availability', async (_req, res) => {
     try {
       const h = getHarness(m.id);
       const health = await h.health();
-      return { id: m.id, name: m.name, capabilities: m.capabilities, processModel: m.processModel || null, homepage: m.homepage || null, ...health };
+      return {
+        id: m.id, name: m.name, capabilities: m.capabilities,
+        processModel: m.processModel || null, homepage: m.homepage || null,
+        // Advisory: the most recent provider quota/auth/rate failure seen for
+        // this engine in this process (null when none).
+        provider_error: getProviderError(m.id),
+        ...health,
+      };
     } catch (e) {
-      return { id: m.id, name: m.name, capabilities: m.capabilities, processModel: m.processModel || null, homepage: m.homepage || null, available: false, meta: { probe_error: e.message } };
+      return {
+        id: m.id, name: m.name, capabilities: m.capabilities,
+        processModel: m.processModel || null, homepage: m.homepage || null,
+        provider_error: getProviderError(m.id),
+        available: false, meta: { probe_error: e.message },
+      };
     }
   }));
   let defaultId = null;

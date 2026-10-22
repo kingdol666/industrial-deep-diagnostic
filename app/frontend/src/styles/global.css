@@ -2644,3 +2644,19 @@ a:focus-visible,
   text-decoration-thickness: 1px;
 }
 .app-engine-row.offline .app-engine-dot { opacity: 0.4; }
+
+/* ── Reduced motion ─────────────────────────────────────────────────────
+   Decorative loops (phosphor pulse, status dots, typing bounce, tool sweep)
+   carry no information that the text does not; users who ask the OS for less
+   motion get a static UI. Spinners keep a single non-repeating frame so a
+   loading state is still visible. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

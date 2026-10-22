@@ -119,20 +119,22 @@
           @click="activeTab = 'optimizer'"
         >{{ $t('report.audit') }}</button>
         <button
-          v-for="h in htmlReports"
+          v-for="(h, idx) in htmlReports"
           :key="h.path"
           :class="['tab-btn', { active: activeTab === 'html:' + h.path }]"
+          :data-testid="`report-tab-html-${idx}`"
           @click="activeTab = 'html:' + h.path"
           :title="h.path"
         >{{ h.label }}</button>
       </div>
-      <div class="report-body" v-if="activeTab === 'report' && !viewRaw" v-html="renderedReport"></div>
+      <div class="report-body" data-testid="report-body" v-if="activeTab === 'report' && !viewRaw" v-html="renderedReport"></div>
       <pre class="report-raw" v-if="activeTab === 'report' && viewRaw">{{ reportContent }}</pre>
       <div class="report-body" v-if="activeTab === 'optimizer' && !viewRaw" v-html="renderedOptimizer"></div>
       <pre class="report-raw" v-if="activeTab === 'optimizer' && viewRaw">{{ optimizerContent }}</pre>
       <div class="report-html-wrap" v-if="activeTab.startsWith('html:') && htmlReportSrc">
         <iframe
           :src="htmlReportSrc"
+          data-testid="report-html-frame"
           class="report-html-frame"
           sandbox="allow-scripts allow-same-origin"
           :title="activeTab.slice(5)"
@@ -259,8 +261,9 @@ watch(() => props.targetRunName, (name) => {
     });
     api.getOptimizer(name).then(data => {
       if (selectedRun.value === requestedName) {
-        optimizerContent.value = data.content;
-        hasOptimizer.value = true;
+        // 200 + null when the run has no optimizer.md (proactive probe).
+        optimizerContent.value = data?.content ?? null;
+        hasOptimizer.value = !!data?.content;
       }
     }).catch(() => {
       if (selectedRun.value === requestedName) hasOptimizer.value = false;

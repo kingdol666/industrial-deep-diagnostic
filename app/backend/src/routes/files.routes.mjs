@@ -162,12 +162,13 @@ router.get('/workspace/report/:runName', async (req, res) => {
   }
 });
 
-// Get optimizer content
+// Get optimizer content. The report viewer probes this for EVERY opened run,
+// and most runs have no optimizer.md — same convention as the harness artifact
+// endpoints: 200 + null instead of a 404 that only feeds the console.
 router.get('/workspace/optimizer/:runName', async (req, res) => {
   try {
     const optimizer = await getWorkspaceOptimizer(req.params.runName);
-    if (!optimizer) return res.status(404).json({ success: false, error: 'optimizer.md not found' });
-    res.json({ success: true, data: optimizer });
+    res.json({ success: true, data: optimizer ?? null });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }

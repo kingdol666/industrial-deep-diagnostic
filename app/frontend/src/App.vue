@@ -34,6 +34,7 @@
         <button
           v-for="tab in visibleTabs"
           :key="tab.key"
+          :data-testid="`nav-${tab.key}`"
           :class="['app-nav-item', { active: currentTab === tab.key }]"
           :title="tab.label"
           @click="selectTab(tab.key)"
@@ -52,7 +53,7 @@
             <span class="app-userbox-name">{{ authUser.username }}</span>
             <span class="app-userbox-role">{{ authUser.role === 'admin' ? $t('auth.roleAdmin') : $t('auth.roleUser') }}</span>
           </div>
-          <button class="app-userbox-logout" type="button" :title="$t('auth.logoutTitle')" @click="logout">{{ $t('auth.logout') }}</button>
+          <button class="app-userbox-logout" data-testid="logout" type="button" :title="$t('auth.logoutTitle')" @click="logout">{{ $t('auth.logout') }}</button>
         </div>
 
         <!-- 执行引擎选择：真下拉列表。14 个引擎全部列出；启动探测判定的
@@ -472,19 +473,21 @@ function onContinueRun(runId) {
   currentTab.value = 'diagnose';
 }
 
+// report_path is persisted with the platform separator (backslashes on
+// Windows). Splitting on '/' alone made the run-dir segment undefined there,
+// so the Report button landed on the run list instead of the opened report.
+function runDirFromReportPath(reportPath) {
+  const parts = String(reportPath || '').split(/[/\\]/);
+  return parts[parts.length - 2] || '';
+}
+
 function onViewReport(reportPath) {
-  if (reportPath) {
-    const parts = reportPath.split('/');
-    openReportPath.value = parts[parts.length - 2] || '';
-  }
+  if (reportPath) openReportPath.value = runDirFromReportPath(reportPath);
   currentTab.value = 'reports';
 }
 
 function onOpenReport(reportPath) {
-  if (reportPath) {
-    const parts = reportPath.split('/');
-    openReportPath.value = parts[parts.length - 2] || '';
-  }
+  if (reportPath) openReportPath.value = runDirFromReportPath(reportPath);
   currentTab.value = 'reports';
 }
 

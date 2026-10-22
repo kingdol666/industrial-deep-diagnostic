@@ -431,6 +431,40 @@ const stmts = {
     WHERE run_id = ?
     ORDER BY id ASC
   `),
+  // Tail read for snapshots: newest N rows (descending LIMIT) re-sorted ASC.
+  // A 50k-event claude run used to serialize its whole stream (11.5 MB) on
+  // every open; the view only renders the tail.
+  getEventStreamTail: db.prepare(`
+    SELECT run_id, seq, event_type, event_subtype, payload_json, created_at
+    FROM (
+      SELECT * FROM diagnosis_event_stream
+      WHERE run_id = ?
+      ORDER BY seq DESC
+      LIMIT ?
+    )
+    ORDER BY seq ASC
+  `),
+  countEventStreamByRunId: db.prepare(`
+    SELECT COUNT(*) AS n FROM diagnosis_event_stream WHERE run_id = ?
+  `),
+  // Keep the newest @keep rows for a run; oldest seqs are removed. MAX(seq)
+  // is untouched, so createRun()'s sequence continuation stays correct.
+  pruneEventStreamForRun: db.prepare(`
+    DELETE FROM diagnosis_event_stream
+    WHERE run_id = @runId
+      AND seq NOT IN (
+        SELECT seq FROM diagnosis_event_stream
+        WHERE run_id = @runId
+        ORDER BY seq DESC
+        LIMIT @keep
+      )
+  `),
+  listRunsOverEventCap: db.prepare(`
+    SELECT run_id, COUNT(*) AS n
+    FROM diagnosis_event_stream
+    GROUP BY run_id
+    HAVING COUNT(*) > @cap
+  `),
   getMaxEventSeq: db.prepare(`
     SELECT COALESCE(MAX(seq), -1) AS maxSeq FROM diagnosis_event_stream WHERE run_id = ?
   `),

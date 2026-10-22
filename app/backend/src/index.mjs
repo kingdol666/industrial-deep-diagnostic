@@ -13,7 +13,7 @@ import harnessRoutes from './routes/harness.routes.mjs';
 import authRoutes from './routes/auth.routes.mjs';
 import externalRoutes from './routes/external.routes.mjs';
 import { authGuard } from './middleware/auth.middleware.mjs';
-import { initWebSocket } from './transport/ws-server.mjs';
+import { initWebSocket, closeWebSocket } from './transport/ws-server.mjs';
 import { initDB, stmts, db } from './db/database.mjs';
 import { existsSync } from 'fs';
 import { server as serverConfig, PROJECT_ROOT } from '../../../config/loader.mjs';
@@ -175,5 +175,48 @@ initialize().then(() => {
   logger.error(`Failed to start: ${err.message}`, { context: 'Init' });
   process.exit(1);
 });
+
+// ─── Graceful shutdown ───────────────────────────────────────────────────
+// Killing the backend used to leave engine children (omp/claude) alive; they
+// keep their session files locked, so the next process's resume hits
+// "session open for writing in another omp process" and stalls. Close every
+// engine child and the WS server before exiting.
+let shuttingDown = false;
+async function shutdown(signal) {
+  if (shuttingDown) return;
+  shuttingDown = true;
+  logger.info(`Received ${signal} — shutting down (closing engine children)`, { context: 'Server' });
+  try {
+    const { shutdownAllEngines } = await import('./services/diagnosis.service.mjs');
+    const { listActiveChats, stopChat } = await import('./services/chat.service.mjs');
+    for (const chat of listActiveChats()) {
+      if (chat.status === 'active') {
+        try { stopChat(chat.chatId); } catch { /* best effort */ }
+      }
+    }
+    const closed = shutdownAllEngines();
+    logger.info(`Closed engine state for ${closed} run(s)`, { context: 'Server' });
+  } catch (err) {
+    logger.warn(`Engine shutdown incomplete: ${err.message}`, { context: 'Server' });
+  }
+  try { closeWebSocket(); } catch { /* best effort */ }
+  server.close(() => {
+    logger.info('HTTP server closed', { context: 'Server' });
+    process.exit(0);
+  });
+  // A stuck keep-alive connection must not block shutdown forever.
+  setTimeout(() => process.exit(0), 5000).unref?.();
+}
+process.on('SIGINT', () => { void shutdown('SIGINT'); });
+process.on('SIGTERM', () => { void shutdown('SIGTERM'); });
+process.on('SIGBREAK', () => { void shutdown('SIGBREAK'); }); // Windows Ctrl+Break
+
+// Periodic event-log retention (startup applies it too): long claude runs can
+// emit >100k events; the UI only renders the newest window.
+setInterval(() => {
+  import('./services/retention.service.mjs')
+    .then(({ applyEventStreamRetention }) => applyEventStreamRetention())
+    .catch((err) => logger.warn(`Event retention tick failed: ${err.message}`, { context: 'Retention' }));
+}, 6 * 60 * 60 * 1000).unref?.();
 
 export default app;

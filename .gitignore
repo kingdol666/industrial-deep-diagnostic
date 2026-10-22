@@ -196,3 +196,6 @@ workspace/field-tests/
 
 # Local E2E runtime scratch (logs/state/tokens)
 .runtime-e2e*
+
+# Acceptance evidence (screenshots + audit.json); regenerate with scripts/e2e
+workspace/acceptance/

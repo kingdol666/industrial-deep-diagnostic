@@ -50,6 +50,8 @@ POST /api/auth/tokens        （需要 Bearer 会话 JWT）
 | intents[].default | bool | 是否默认模式（deep-diagnosis） |
 | harnesses[].id | string | 引擎名，可直接填入 `/analyze` 的 `harness` |
 | harnesses[].label / runs_capable | string/bool | 展示名 / 是否支持 run 执行 |
+| harnesses[].session_resume | bool | 是否能跨进程恢复会话（true 仅 claude / omp / goose / mock；其余引擎的「继续」走同引擎受控重建） |
+| harnesses[].supported_intents | string[] | 该引擎可执行的 intent 列表（当前 14 引擎 × 6 intent 全支持） |
 
 **analysisIntent 支持值（6 个）**：
 
@@ -64,7 +66,7 @@ POST /api/auth/tokens        （需要 Bearer 会话 JWT）
 
 **harness 支持值（14 个）**：`claude`（推荐，真实 agent）· `omp`（推荐）· `mock`（集成测试，非真实分析）· `codex` · `dsh` · `opencode` · `gemini` · `copilot` · `cursor` · `crush` · `goose` · `hermes` —— 以上需本机已安装对应 CLI；`qwen` · `pi`（未安装，选中返回 409）。
 
-> **专项 intent 的引擎支持面**：specialist intents（非 deep-diagnosis）的 intent 指令由 `buildIntentDirective` 注入，当前覆盖 claude / omp / acp 族（dsh·qwen·hermes）/ one-shot 族（gemini·copilot·cursor·crush·goose·pi）共 12 引擎；`codex` / `opencode` 暂不消费该指令（对 doe-analysis 亦然，补齐在列）。deep-diagnosis 主链路不受影响。
+> **专项 intent 的引擎支持面**：specialist intents（非 deep-diagnosis）的 intent 指令由 `buildIntentDirective` 注入，14 个引擎全部覆盖（claude / omp / acp 族 dsh·qwen·hermes / one-shot 族 gemini·copilot·cursor·crush·goose·pi / codex / opencode / mock），并把技能引用重定向到 intent 对应的 skill。若某引擎显式声明不支持某 intent，`/analyze` 返回 400 `INTENT_UNSUPPORTED_ON_HARNESS`（附 supported 列表），绝不静默跑错技能。deep-diagnosis 主链路不受影响。
 
 ---
 
@@ -126,6 +128,7 @@ POST /api/auth/tokens        （需要 Bearer 会话 JWT）
 |---|---|---|
 | task_id / run_id | string | 双 ID |
 | intent / harness / scene / objective | string\|null | 发起时的参数回显 |
+| analysis_mode | string | `real` / `mock`——mock 引擎是集成测试替身，不执行真实分析、不承诺产物契约 |
 | status | string | 任务生命周期：`accepted → running → completed | failed | stopped | interrupted` |
 | created_at / started_at / finished_at | string\|null | ISO 时间戳（finished 仅终态有） |
 | progress.events | number | 事件流累计事件数（实时增长 = agent 活跃） |
@@ -160,8 +163,8 @@ POST /api/auth/tokens        （需要 Bearer 会话 JWT）
 | data.finished_at | string | 完成时间 |
 | data.error | string\|null | 失败原因（仅 failed） |
 | data.result.summary | string | 结论摘要（≤1500 字符，取自报告结论节） |
-| data.result.verdict | string\|null | 审计判定（`ENDORSED` 等；specialist 模式无 judge 时为 null） |
-| data.result.score | number\|null | 质量门分数（specialist 模式为 null，评分在报告/html 内） |
+| data.result.verdict | string\|null | 与该 run 工件一致的结论：deep-diagnosis 取 `Judge Score` 的判定（如 `ENDORSED`）；稳定性 `C · 波动`；哨兵 `alert · 742 alerts`；DOE `A · rsm_ccd`；经验 `playbook_hit · 1 playbook`；寻优 `exploiting · round 2`。历史 run 也会在读取时从工件派生 |
+| data.result.score | number\|null | deep-diagnosis 为 Judge 分数；stability-report 为 0-100 稳定性评分（可含小数，如 `65.8`）；其余 specialist 模式不伪造分数，为 null |
 | data.result.report_md | string | **完整分析报告 Markdown 全文** |
 | data.result.report_md_url | string | md 的 API 读取地址 |
 | data.result.files.workspace_path | string\|null | run 工作区路径 |
@@ -213,11 +216,28 @@ POST /api/auth/tokens        （需要 Bearer 会话 JWT）
 | run_id | string | ✓ | 目标运行 ID |
 | message | string | ✓ | 发送给分析 agent 的消息（中文即可） |
 
-**Response 200**：`{ "success": true, "data": { "run_id": "…", "delivered": true } }`
-`delivered=true` 表示消息已投递给该 run 的引擎会话。**不要求 run 仍在运行**：只要引擎保留了可恢复的
-`session_id`（mock 恒可；OMP/Claude 在会话仍可恢复时），已完成/失败/停止的 run 也可以继续对话，
-agent 的回复经该 run 的 SSE 流返回。
-**Response 409**：`EXTERNAL_CHAT_UNAVAILABLE`（run 不存在，或引擎进程已结束且会话不可恢复）。
+**Response 200**：
+
+```json
+{ "success": true,
+  "data": { "run_id": "…", "delivered": true,
+            "mode": "session",          // session = 原会话续聊；rebuild = 同引擎受控重建
+            "resumed": true,            // mode === "session"
+            "reason": null } }          // rebuild 原因：engine_no_resume / no_session / resume_failed
+```
+
+**语义（任意 harness 都能「继续」）**：
+
+- `mode: "session"`：引擎能跨进程恢复（claude / omp / goose / mock），消息**原样**发给该 run 的
+  原 `session_id`，不注入任何额外提示词；agent 回复经该 run 的 SSE 流返回。
+- `mode: "rebuild"`：引擎不支持会话恢复（codex / opencode / gemini / …），或该 run 没有可用
+  `session_id`，服务端用**同一 harness / 同一 intent / 同一数据**重建分析，并把本条消息作为
+  follow-up；事件流中先出现一条 `system(session_chat, mode=rebuild)` 说明条。
+- 已完成 / 失败 / 停止的 run 都可以继续；soft-deleted run → 410 `RUN_DELETED`；pending run → 400 `RUN_PENDING`。
+
+**Response 404**：`RUN_NOT_FOUND`（run 不存在——不再用它冒充「会话不可恢复」）。
+**Response 409**：`RESUME_UNSUPPORTED`（既无可用会话、又无数据上下文可重建，附 `harness` / `run_id`）；
+`RUN_HARNESS_MISMATCH`（记录的引擎与 session 归属冲突，拒绝静默换引擎）；`CHAT_TURN_BUSY`（同一 run 已有进行中的聊天回合）。
 
 ---
 
@@ -263,10 +283,13 @@ analysis-auto 建议 ≥100 行（>10 万行自动抽样）。上传入口：`PO
 | 400 | ONTOLOGY_UNSUPPORTED_INTENT | 对不支持的 intent 传了 ontology 字段 | 只用 deep-diagnosis / doe-analysis / stability-report / quick-screen，或去掉字段 |
 | 400 | PREPROCESSING_MODE_UNKNOWN / PREPROCESSING_MODE_UNSUPPORTED_INTENT | preprocessingMode 值非法 / 用于非 stability-report intent | 修正值或去掉字段（仅 stability-report 支持） |
 | 400 | VALIDATION_ERROR | token 参数不合法 | 见 error 信息 |
-| 404 | — | run/task 不存在 | 检查 ID |
+| 400 | INTENT_UNSUPPORTED_ON_HARNESS | 该引擎显式声明不支持此 intent | 按 supported 列表换 intent 或引擎 |
+| 400 | RUN_PENDING | 对尚未执行的 pending run 发聊天 | 先 `POST /diagnosis/execute/:runId` |
+| 404 | RUN_NOT_FOUND | run 不存在 | 检查 ID |
 | 409 | HARNESS_UNAVAILABLE | 引擎未安装 | 换已安装引擎 |
 | 409 | EXTERNAL_TASK_RUNNING | 结果未就绪 | 继续轮询 |
-| 409 | EXTERNAL_CHAT_UNAVAILABLE | run 不存在或会话不可恢复 | 重新发起分析 |
+| 409 | RESUME_UNSUPPORTED | 会话不可恢复且无数据上下文可重建 | 重新发起分析 |
+| 409 | CHAT_TURN_BUSY | 同一 run 已有进行中的聊天回合 | 等待该回合结束 |
 | 409 | RUN_TERMINAL | stop 一个已终态 run | 读取当前状态，不要重复 stop |
 | 202 | — | wait 超时仍运行 | 继续 GET /tasks/:taskId |
 

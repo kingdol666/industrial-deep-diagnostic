@@ -47,6 +47,11 @@ ws.addEventListener('open', () => {
 ws.addEventListener('message', (event) => {
   let msg;
   try { msg = JSON.parse(typeof event.data === 'string' ? event.data : String(event.data)); } catch { return; }
+  // The server terminates clients that miss its app-level heartbeat.
+  if (msg.type === 'ping') {
+    ws.send(JSON.stringify({ type: 'pong', data: { ts: Date.now() } }));
+    return;
+  }
   if (msg.type === 'subscribed' && msg.data?.runId === RUN) subscribed = true;
   if (msg.type === 'run_event' && msg.data?.runId === RUN) {
     events.push(msg.data.event);
@@ -61,22 +66,27 @@ check('ws 订阅已确认（已关闭的 completed run 也能订阅）', subscri
 
 const H = { 'Content-Type': 'application/json', Authorization: `Bearer ${jwt}` };
 const marker = `WS实时渲染-${Date.now().toString(36).slice(-5)}`;
+// Replayed history from subscribe() must not satisfy the assertions: only
+// events with a seq ABOVE this watermark were produced by the POST.
+const seqBefore = events.reduce((max, e) => Math.max(max, Number(e?._seq ?? -1)), -1);
 const post = await fetch(`${BASE}/api/diagnosis/chat/${RUN}`, {
   method: 'POST', headers: H, body: JSON.stringify({ message: `${marker}：只回答两个字“收到”`, maxTurns: 4 }),
 });
 check('chat POST accepted', post.status === 200, post.status);
 
 // Wait up to 120s for the assistant message event over the socket.
-const deadline = Date.now() + 120000;
+const deadline = Date.now() + (Number(opt('wait-seconds', '120')) * 1000);
 let assistantMsg = null;
 while (!assistantMsg && Date.now() < deadline) {
   assistantMsg = [...events].reverse().find((e) =>
-    e?.type === 'message' && e?.data?.source === 'session_chat' && (e?.data?.content || '').trim());
+    Number(e?._seq ?? -1) > seqBefore
+    && e?.type === 'message' && e?.data?.source === 'session_chat' && (e?.data?.content || '').trim());
   if (!assistantMsg) await sleep(1000);
 }
 check('WS 实时收到 assistant 消息（无需刷新）', !!assistantMsg,
   assistantMsg ? JSON.stringify(assistantMsg.data.content).slice(0, 120) : `events=${events.length}`);
-const userEv = events.find((e) => e?.type === 'user_message' && (e?.data?.content || '').includes(marker));
+const userEv = events.find((e) => Number(e?._seq ?? -1) > seqBefore
+  && e?.type === 'user_message' && (e?.data?.content || '').includes(marker));
 check('WS 实时收到原样用户消息', !!userEv, userEv ? JSON.stringify(userEv.data.content).slice(0, 120) : 'missing');
 if (userEv) {
   check('用户消息无额外提示词注入', userEv.data.content === `${marker}：只回答两个字“收到”`,

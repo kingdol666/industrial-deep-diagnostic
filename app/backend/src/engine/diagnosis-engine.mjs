@@ -186,4 +186,9 @@ export function getActiveRuns() {
     .map(([runId]) => runId);
 }
 
+/** Every in-memory run id (includes completed runs holding a chat child). */
+export function listRunIds() {
+  return Array.from(runs.keys());
+}
+
 export default engine;

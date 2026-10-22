@@ -229,3 +229,63 @@ describe('watch-family ontology directives (plan v2 P1.5/P2.4)', () => {
     }
   });
 });
+
+// ── Intent × harness capability matrix (P1) ────────────────────────────────
+const { HARNESS_DEFS, declaredIntents } = await import('../src/harness/engines.mjs');
+const {
+  ALL_INTENTS, supportedIntentsFor, isIntentSupported, assertIntentSupportedOnHarness,
+} = await import('../src/services/intent-capability.service.mjs');
+const { engineSupportsSessionChat, RESUMABLE_HARNESSES } = await import('../src/services/session-integrity.service.mjs');
+
+describe('intent capability matrix', () => {
+  test('every registered intent is present in the matrix', () => {
+    assert.deepEqual([...ALL_INTENTS].sort(), [
+      'deep-diagnosis', 'doe-analysis', 'experience-mining',
+      'optimizer-campaign', 'quick-screen', 'stability-report',
+    ]);
+  });
+
+  test('all 14 engines support all 6 intents (no silent wrong-skill path)', () => {
+    const ids = [...HARNESS_DEFS.map((d) => d.id), 'claude', 'omp'];
+    assert.equal(ids.length, 14);
+    for (const id of ids) {
+      assert.deepEqual(supportedIntentsFor(id), [...ALL_INTENTS], id);
+      for (const intent of ALL_INTENTS) assert.equal(isIntentSupported(id, intent), true, `${id}/${intent}`);
+    }
+  });
+
+  test('a restricted engine declaration is enforced with 400 INTENT_UNSUPPORTED_ON_HARNESS', () => {
+    const defs = [{ id: 'partial', intents: ['deep-diagnosis'] }, { id: 'open', intents: null }];
+    assert.deepEqual(supportedIntentsFor('partial', defs), ['deep-diagnosis']);
+    assert.equal(isIntentSupported('partial', 'stability-report', defs), false);
+    assert.equal(isIntentSupported('open', 'stability-report', defs), true);
+    assert.throws(
+      () => assertIntentSupportedOnHarness('stability-report', 'partial', defs),
+      (err) => {
+        assert.equal(err.status, 400);
+        assert.equal(err.code, 'INTENT_UNSUPPORTED_ON_HARNESS');
+        assert.equal(err.harness, 'partial');
+        assert.equal(err.intent, 'stability-report');
+        assert.deepEqual(err.supported, ['deep-diagnosis']);
+        return true;
+      },
+    );
+    assert.doesNotThrow(() => assertIntentSupportedOnHarness('deep-diagnosis', 'partial', defs));
+  });
+
+  test('declaredIntents exposes the raw declaration', () => {
+    assert.equal(declaredIntents('codex'), null);
+    assert.equal(declaredIntents('nope'), undefined);
+  });
+});
+
+describe('harness capability truth', () => {
+  test('the `chat` flag matches real session-resume support', () => {
+    for (const def of HARNESS_DEFS) {
+      const advertised = def.capabilities.includes('chat');
+      assert.equal(advertised, engineSupportsSessionChat(def.id),
+        `${def.id}: capabilities=${def.capabilities.join(',')} resumable=${engineSupportsSessionChat(def.id)}`);
+    }
+    assert.deepEqual([...RESUMABLE_HARNESSES].sort(), ['claude', 'goose', 'omp']);
+  });
+});

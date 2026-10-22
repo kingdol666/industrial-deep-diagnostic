@@ -238,14 +238,22 @@ let scrollFrame = null;
 let autoScrollReleaseFrame = null;
 let userScrollPriorityTimer = null;
 
-const renderedItems = computed(() => {
-  const items = [];
-  const toolMap = new Map();
-  const subagentMap = new Map();
-  const systemMap = new Map();
+// Incremental item builder. During a live run events only ever append (the
+// store keeps a bounded tail and replaces the array on hydrate), so the built
+// items and the grouping maps are kept across appends instead of rebuilding
+// from event 0 on every frame. A new array reference or a shrink rebuilds.
+const buildCache = {
+  eventsRef: null,
+  length: 0,
+  items: [],
+  toolMap: new Map(),
+  subagentMap: new Map(),
+  systemMap: new Map(),
+};
 
-  for (const ev of props.events || []) {
-    if (!ev) continue;
+function applyEvent(ctx, ev) {
+  const { items, toolMap, subagentMap, systemMap } = ctx;
+  if (!ev) return;
 
     if (ev.type === 'message' && ev.data?.content) {
       const prev = items[items.length - 1];
@@ -258,7 +266,7 @@ const renderedItems = computed(() => {
           content: ev.data.content,
         });
       }
-      continue;
+      return;
     }
 
     if (ev.type === 'user_message' && ev.data?.content) {
@@ -267,7 +275,7 @@ const renderedItems = computed(() => {
         key: `user:${ev._seq}`,
         content: ev.data.content,
       });
-      continue;
+      return;
     }
 
     if (ev.type === 'thinking' && ev.data?.content) {
@@ -281,7 +289,7 @@ const renderedItems = computed(() => {
           content: ev.data.content,
         });
       }
-      continue;
+      return;
     }
 
     if (ev.type === 'tool_use') {
@@ -298,7 +306,7 @@ const renderedItems = computed(() => {
       };
       toolMap.set(item.toolId, item);
       items.push(item);
-      continue;
+      return;
     }
 
     if (ev.type === 'tool_result') {
@@ -323,7 +331,7 @@ const renderedItems = computed(() => {
           result: { summary: ev.data?.summary || '', isError: !!ev.data?.isError },
         });
       }
-      continue;
+      return;
     }
 
     if (ev.type === 'task_progress' || ev.type === 'stream_event') {
@@ -341,7 +349,7 @@ const renderedItems = computed(() => {
           subagentMap.set(key, subagent);
           items.push(subagent);
         }
-        continue;
+        return;
       }
     }
 
@@ -351,7 +359,7 @@ const renderedItems = computed(() => {
         key: `question:${ev.data?.questionId || ev._seq}`,
         questions: ev.data?.questions || [],
       });
-      continue;
+      return;
     }
 
     if (ev.type === 'system') {
@@ -369,7 +377,7 @@ const renderedItems = computed(() => {
           items.push(systemItem);
         }
       }
-      continue;
+      return;
     }
 
     if (ev.type === 'stats') {
@@ -381,7 +389,7 @@ const renderedItems = computed(() => {
         totalCost: ev.data?.totalCost || 0,
         stopReason: ev.data?.stopReason || '',
       });
-      continue;
+      return;
     }
 
     if (ev.type === 'complete') {
@@ -395,7 +403,7 @@ const renderedItems = computed(() => {
             ? t('messageStream.diagnosisStoppedText')
             : `${t('messageStream.diagnosisCompleteText')}${ev.data?.verdict ? ` · ${t('messageStream.conclusionText')}：${ev.data.verdict}` : ''}${ev.data?.score != null ? ` · ${t('messageStream.scoreText')}：${ev.data.score}` : ''}`,
       });
-      continue;
+      return;
     }
 
     if (ev.type === 'error') {
@@ -404,7 +412,7 @@ const renderedItems = computed(() => {
         key: `error:${ev._seq}`,
         text: ev.data?.error || 'Unknown runtime error',
       });
-      continue;
+      return;
     }
 
     if (ev.type === 'hitl_request') {
@@ -415,10 +423,24 @@ const renderedItems = computed(() => {
         riskDesc: ev.data?.riskDesc || 'Dangerous command',
       });
     }
-  }
+}
 
-  if (items.length <= MAX_ITEMS) return items;
-  return items.slice(-MAX_ITEMS);
+const renderedItems = computed(() => {
+  const events = props.events || [];
+  const cache = buildCache;
+  if (cache.eventsRef !== events || events.length < cache.length) {
+    cache.eventsRef = events;
+    cache.length = 0;
+    cache.items = [];
+    cache.toolMap = new Map();
+    cache.subagentMap = new Map();
+    cache.systemMap = new Map();
+  }
+  for (let i = cache.length; i < events.length; i += 1) applyEvent(cache, events[i]);
+  cache.length = events.length;
+  // Always return a NEW array: the underlying items array is mutated in place,
+  // and a same-reference return would not trigger a re-render in Vue.
+  return cache.items.slice(Math.max(0, cache.items.length - MAX_ITEMS));
 });
 
 function toggleThinking(item) {

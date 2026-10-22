@@ -141,7 +141,8 @@
 
 ### 🧠 排除法诊断引擎
 - **9 步全自动管线** —— 从原始数据到中文报告零干预
-- **18 个标准化技能 × 14 个专职智能体** 协同作业
+- **24 个标准化技能 × 16 个专职智能体** 协同作业
+- **六种分析意图** —— 深度诊断、稳定性报告、快速筛检、DOE、经验挖掘、寻优战役；每种都执行自己的 skill 协议，结论/评分来自工件
 - **竞争假设协议** —— 先建假设、再评估判别力、后排除
 - **9 道质量门（CP-1 ~ CP-9）** 逐级强制校验，不通过则阻塞或回滚
 - **反虚假关联统计** v6.4–v6.7：滞后 CCF · 稳态过滤 · 批次完整性 · 留一法杠杆
@@ -155,6 +156,8 @@
 - **VLM 视觉复核** —— 视觉模型独立读图，杜绝"凭空描述图表"
 - **物理真值审计** —— 预审计 + 终审计双模式，`ENDORSED` 方可放行
 - **修复防震荡** —— 同一问题第三次重诊自动降级；全局重诊上限 5 次
+- **有界运行流** —— 快照只返回最新 2,000 条事件（带 `events_total` / `events_truncated`）；每 run 事件日志有上限，数据库不会无限膨胀
+- **Provider 错误分类** —— 配额 / 限流 / 鉴权 / 不可用会显式呈现，不再表现为空回复
 
 </td>
 </tr>
@@ -163,11 +166,12 @@
 
 ### ⚙ 14 引擎可插拔执行层
 - **真实可替换的执行引擎** —— Claude Code SDK、OMP RPC、Codex app-server、ACP、一次性 CLI 家族等 14 种
-- **每个引擎都能诊断 + 聊天** —— 对话走通用回合路径：优先原生会话续聊，无状态引擎自动重放对话上下文；绝不静默换引擎
+- **每个引擎都能诊断 + 继续** —— claude/omp/goose 续原会话；其余 11 个引擎以同一 harness/intent/data 受控重建；绝不静默换引擎
 - **同构事件流** —— 工具调用 / 思考 / 子智能体编排全程实时可见
 - **启动可用性探测** —— 引擎下拉列出全部 14 个 Harness；不可用的置灰禁选
 - **严格预检** —— 未知引擎 400 `HARNESS_UNKNOWN`；已注册但未安装 409 `HARNESS_UNAVAILABLE`
 - **逐次可溯源** —— 每次诊断与聊天记录其执行引擎，历史页展示引擎徽章
+- **能力矩阵如实** —— `/api/external/v1/capabilities` 暴露 `session_resume` 与 `supported_intents`；显式不支持的组合返回 400，绝不静默跑错技能
 
 </td>
 <td width="50%" valign="top">
@@ -514,7 +518,7 @@ RNG seed、均匀抽样值与命中索引，抽签既可验证又可精确复现
 
 ## 🧩 技能与智能体
 
-### 18 个标准化技能
+### 24 个标准化技能
 
 `.claude/skills/<name>/` 是**唯一技能源**（OMP 经 `claude` provider 以优先级 80 发现，同时服务原生 Claude Code 发现机制），`scripts/` `schemas/` `references/` `resources/` `templates/` 全部内聚于此。
 
@@ -538,13 +542,19 @@ RNG seed、均匀抽样值与命中索引，抽签既可验证又可精确复现
 | `industrial-analysis-enhance-auto` | enhance-orchestrator | E0-E8 增强管线编排 | — |
 | `industrial-enhanced-html-visualizer` | enhanced-visualizer | 增强版 HTML | — |
 | `industrial-enhanced-html-reviewer` | enhanced-html-reviewer | 增强版 HTML 评审 | — |
+| `industrial-doe-analyzer` | doe-analyst | DOE / 观测数据分析 + `recommendations.json` | — |
+| `industrial-doe-orchestrator` | — | DOE 分析顺序与门禁（prepare → brief → plan → analyzer → consistency → next design） | — |
+| `industrial-line-stability-report` | — | 稳定性评分/等级 + 中文 HTML/MD 报告 | — |
+| `industrial-sentinel` | — | 值守 / 快筛 `alert.json` + 快筛 HTML | — |
+| `industrial-tuning-memory` | — | 调优经验 / 动作归因 `recommendation.json` | — |
+| `industrial-optimizer-loop` | optimizer-pilot | 寻优战役状态 + 下一轮设计（绝不下发参数） | — |
 | `rag-knowledge-builder` | — | 领域知识图谱 | — |
 | `diagnostic-html-visualizer` | — | HTML 设计系统 | — |
 | `darwin-skill` | — | 技能适应度演化评估 | — |
 
 </details>
 
-### 14 个专职智能体
+### 16 个专职智能体
 
 | 智能体 | 角色人设 | 核心产出 |
 |--------|---------|---------|
@@ -562,6 +572,10 @@ RNG seed、均匀抽样值与命中索引，抽签既可验证又可精确复现
 | `enhance-orchestrator` | 增强管线编排 | 全自动 E0-E8 增强 |
 | `enhanced-visualizer` | 增强版前端 | 增强 ECharts HTML |
 | `enhanced-html-reviewer` | 增强版评审 | 增强 HTML 评审 |
+| `doe-analyst` | 秦工 · 试验设计与工艺数据分析 | 确定性效应/相关性/稳定性分析 + 下游建议契约 |
+| `optimizer-pilot` | 骆工 · 小试闭环寻优驾驶员 | 战役轮次解读 + 中文寻优报告（数字仅来自脚本） |
+
+> 六种分析意图都以真实 agent run 调度；上述专项 skill 是独立分析能力，**不是** 9 步管线的阶段。
 
 ---
 
@@ -645,7 +659,7 @@ GET /api/health
 | **诊断** | `/api/diagnosis/start` | POST | 新建诊断（`harness` / `ontologyMode` / `enhancement` 可选） |
 | | `/api/diagnosis/execute/:runId` | POST | 执行诊断 |
 | | `/api/diagnosis/status/:runId` | GET | 查询运行状态 |
-| | `/api/diagnosis/snapshot/:runId` | GET | 获取快照 |
+| | `/api/diagnosis/snapshot/:runId?events_limit=N` | GET | 有界事件快照：最新 N 条（默认 2000，上限 10000）+ `events_total` / `events_truncated` |
 | | `/api/diagnosis/stop/:runId` | POST | 停止运行 |
 | | `/api/diagnosis/list` | GET | 列出全部运行 |
 | | `/api/diagnosis/stream/:runId` | GET | SSE 事件流 |
@@ -653,12 +667,23 @@ GET /api/health
 | **本体资产** | `/api/ontology/assets` | GET | 本体资产库注册表（场景 / 版本 / 指纹） |
 | | `/api/ontology/assets/:scene/:version` | GET | 读取指定本体资产 |
 | | `/api/ontology/assets/:scene/:version/graph` | GET | 本体图谱投影 |
-| **对话** | `/api/diagnosis/chat/:runId` | POST | 诊断会话 |
+| **对话** | `/api/diagnosis/chat/:runId` | POST | 继续运行：200 `mode=session|rebuild`；仅 run 不存在才 404；409 `CHAT_TURN_BUSY` / `RESUME_UNSUPPORTED` |
+| | `/api/diagnosis/session-map/:runId` | GET | run ↔ session 审计（`resumable`、`harness_matches_session`） |
 | | `/api/diagnosis/hitl/:hitlId` | POST | 人工审批 |
 | | `/api/chat/start` | POST | 新建会话（`harness` 可选） |
 | | `/api/chat/stream/:chatId` | GET | SSE 会话流 |
 | **执行引擎** | `/api/harness` | GET | 引擎注册表（14 个） |
-| | `/api/harness/availability` | GET | 引擎可用性与默认引擎 |
+| | `/api/harness/availability` | GET | 引擎可用性、默认引擎、最近 `provider_error` |
+
+### 外部集成 API（`/api/external/v1`）
+
+| 端点 | 方法 | 用途 |
+|---|:--:|---|
+| `/capabilities` | GET | 6 种意图 + 14 引擎（含 `session_resume` / `supported_intents`） |
+| `/analyze` | POST | 发起分析（harness + intent）→ `task_id` / `run_id` |
+| `/analyze/:runId` | GET | 统一结果：状态、score/verdict、工件清单、MD + HTML |
+| `/chat` | POST | 继续运行（`mode: session` 或 `rebuild`） |
+| `/tasks/:taskId/result` | GET | 终态结果快照 |
 
 ### WebSocket 实时推送
 
@@ -666,7 +691,7 @@ GET /api/health
 ws://localhost:3210/ws
 ```
 
-实时推送诊断进度、日志与事件（30s 心跳，60s 超时）。
+实时推送运行进度、日志与事件。服务端每 30s 发送 `{type:"ping"}`；客户端必须在 60s 内回 `{type:"pong"}`，否则连接被终止。订阅使用 `{type:"subscribe_run", runId}`。快照事件与 REST 一样是有界窗口。
 
 ---
 
@@ -699,11 +724,15 @@ claude:
 diagnosis:
   default_language: "zh"           # zh | en
   interaction_mode: "auto"         # auto | interactive | minimal
+  chat_turn_idle_timeout_minutes: 10   # 聊天回合静默超时：终止回合、保留会话
 
 data:
   upload:
-    max_file_size_mb: 500          # 单文件上限
+    max_file_size_mb: 500          # per-file limit
     max_files: 50
+  retention_days: 90               # 过期 run 工作区清理
+  purge_deleted_after_days: 30     # 软删 run 彻底清理
+  event_stream_max_rows_per_run: 20000   # 每 run 事件日志上限（0 关闭）
 
 pipeline:
   max_judge_repair: 3              # Judge 修复次数上限
@@ -931,6 +960,26 @@ ls -la workspace/diagnostic-runs/<run>/                         # 检查各步�
 
 </details>
 
+<details>
+<summary><b>❌ 聊天回复为空、日志里出现 provider</b></summary>
+
+引擎的 LLM provider 拒绝了该回合（配额 / 429 / 鉴权）。现在会被分类：
+`GET /api/harness/availability` 暴露每个引擎的 `provider_error`，事件流里的 `system:notice` 带
+`provider_error=provider_quota|provider_rate_limit|provider_auth|provider_unavailable`。
+充值或更换 provider key 即可；会话仍可恢复。
+
+</details>
+
+<details>
+<summary><b>❌ 很大的 run 看起来被截断或打开很慢</b></summary>
+
+快照是**有意有界**的：`GET /api/diagnosis/snapshot/:runId?events_limit=N` 只返回最新 N 条
+（默认 2,000，上限 10,000），并带 `events_total` / `events_truncated`。截断时运行头显示
+`已显示/总数`。完整事件仍保存在 `diagnosis_event_stream`，由
+`data.event_stream_max_rows_per_run`（默认 20,000）限制每 run 行数；报告/HTML 工件永不截断。
+
+</details>
+
 ---
 
 ## 🧪 用验证说话，不用形容词
@@ -939,7 +988,12 @@ ls -la workspace/diagnostic-runs/<run>/                         # 检查各步�
 
 | 验证 | 范围 | 结果 | 证据 |
 |------|------|------|------|
-| 后端测试套件 | 路由 · 服务 · 引擎适配器 · HTTP e2e（fake CLI / fake ACP / codex app-server） | **116/116 通过** | `app/backend npm test` |
+| 后端测试套件 | 路由 · 服务 · 引擎适配器 · HTTP e2e（fake CLI / fake ACP / codex app-server） | **220/220 通过** | `app/backend npm test` |
+| Skill 设计静态审计 | 24 skills / 16 agents · frontmatter · 协议引用 · JSON Schema · 脚本路径 | **0 failures** | `node scripts/audit/skill-design.mjs` |
+| API 契约（只读） | harness · capabilities · history · 有界快照 · 报告/资产 · 鉴权/404 | **22/22 通过** | `node scripts/e2e/api-contract-final.mjs` |
+| UI 渲染审计 | 原生登录 → History → 运行 → 报告 MD/HTML · console/网络 · 1440/1280 | **20/20 通过** | `node scripts/e2e/ui-visual-audit.mjs` |
+| 大 run 窗口 | 5,001 事件夹具：226 KB / 11 ms（全量 11.5 MB） | **通过** | `node scripts/e2e/ui-large-run-probe.mjs` |
+| 优雅退出 | 真实 OMP 子进程被 `shutdownAllEngines` 终止 | **通过** | `node scripts/e2e/graceful-shutdown-check.mjs` |
 | 端到端验收 | 28 项 UI 驱动检查：认证 · 数据 · 诊断 · 聊天 · 报告 · 本体 · 历史 · 引擎 · API 面 | **28/28 通过** | [`paper/workbench/e2e-acceptance-report-20260919.md`](paper/workbench/e2e-acceptance-report-20260919.md) |
 | 真实场景多 Harness | 20 轮真实工业数据诊断（mock / claude / codex / omp）+ claude / codex / omp / mock 四引擎真实对话 | 首轮 11/20 终态通过；真实 AI 轮均验证到管线阶段产物 | [`paper/workbench/real-scenario-test-report-20260919.md`](paper/workbench/real-scenario-test-report-20260919.md) |
 | 基准复跑 | 12 场景 · 四步流水线 | 12/12 · REPRODUCIBLE · rubric 94.6 | `results/benchmark/` |

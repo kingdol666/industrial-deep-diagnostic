@@ -97,6 +97,11 @@ diagnosis:
   default_language: "zh"                     # "zh" (Chinese) or "en" (English)
   run_id_length: 8
   name_format: "{scene}_{run_id}"
+  # A session chat turn that produces no engine events for this long is
+  # terminated (engine process closed, busy lock released). Protects the run
+  # from a hung upstream (e.g. an OMP resume stuck on its cross-process
+  # session lock) and keeps the session resumable.
+  chat_turn_idle_timeout_minutes: 10
 
 # --- Data Paths (relative to project root) ---
 data:
@@ -123,10 +128,17 @@ data:
   # purge_deleted_after_days are purged entirely (row + workspace).
   retention_days: 90
   purge_deleted_after_days: 30
+  # Per-run event-log cap. The UI only renders the newest snapshot window, so
+  # rows beyond this are pruned periodically (oldest first). 0 disables.
+  event_stream_max_rows_per_run: 20000
 
 # --- Diagnosis Engine ---
 engine:
   max_event_buffer: 500
+  # Grace period before a finished run's in-memory entry is dropped. Engine
+  # CHILD processes are closed immediately at stream end (they hold session
+  # file locks); this delay only affects in-memory event retention for late
+  # subscribers.
   close_run_delay_seconds: 60
 
 # --- WebSocket ---

@@ -57,5 +57,48 @@ check('不同模式指令内容确实不同',
   && quickScreen.includes('build_screen_report.py')
   && !quickScreen.includes('data_preprocessor.py'));
 
+// ── codex / opencode prompt builders ──────────────────────────────────────
+// These two engines used to ignore `analysisIntent` entirely: a specialist
+// request ran the generic 9-stage protocol. Assert the REAL builders now carry
+// the directive and re-point the skill reference.
+const codexPath = pathToFileURL(
+  new URL('../../app/backend/src/engine/codex-client.mjs', import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1'),
+).href;
+const opencodePath = pathToFileURL(
+  new URL('../../app/backend/src/engine/opencode-client.mjs', import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1'),
+).href;
+const codex = await import(codexPath);
+const opencode = await import(opencodePath);
+
+const built = (builder) => builder({
+  analysisTarget: { mode: 'file', dataPath: 'app/backend/package.json' },
+  userQuestion: 'contract probe',
+  sceneName: 'sceneA',
+  reportLanguage: 'zh',
+  followUpMessage: null,
+  ontology: null,
+  enhancement: null,
+});
+
+for (const [label, builder] of [['codex', codex.buildCodexPrompt], ['opencode', opencode.buildOpenCodePrompt]]) {
+  for (const intent of intents) {
+    if (intent === 'deep-diagnosis') {
+      const prompt = built((args) => builder({ ...args, analysisIntent: intent })).prompt;
+      check(`${label}/deep-diagnosis 不注入意图指令`, !prompt.includes('ANALYSIS_INTENT:'));
+      continue;
+    }
+    const spec = m.ANALYSIS_INTENTS[intent];
+    const prompt = built((args) => builder({ ...args, analysisIntent: intent })).prompt;
+    const ok = prompt.includes(`ANALYSIS_INTENT: ${intent}`)
+      && prompt.includes(`Executing skill: ${spec.skill}`)
+      && prompt.includes(`.claude/skills/${spec.skill}/SKILL.md`)
+      && prompt.includes('setup.mjs')
+      && prompt.includes('report.md');
+    check(`${label}/${intent} prompt 注入意图 + 技能重定向`, ok, prompt.length);
+  }
+}
+const stabCodex = built((args) => codex.buildCodexPrompt({ ...args, analysisIntent: 'stability-report' })).prompt;
+check('codex/stability 携带 preprocessStep', stabCodex.includes('data_preprocessor.py') && !stabCodex.includes('build_screen_report.py'));
+
 console.log(`\n[RESULT] failures=${failures}`);
 process.exit(failures ? 1 : 0);

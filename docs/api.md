@@ -200,7 +200,10 @@ POST /api/auth/tokens        （需要 Bearer 会话 JWT）
 | run_id | string | ✓ | 目标运行 ID |
 | message | string | ✓ | 发送给分析 agent 的消息 |
 
-200：`{run_id, delivered: true}`；409 `EXTERNAL_CHAT_UNAVAILABLE`（要求分析运行中；回复经该 run 的 SSE 流返回）。
+200：`{run_id, delivered: true, mode: "session"|"rebuild", resumed: bool, reason}`——可恢复引擎走原 session；
+其余引擎（或无 session 的 run）以同一 harness/intent/data 重建，事件流先出 `system(session_chat, mode=rebuild)` 说明条。
+404 `RUN_NOT_FOUND`（run 不存在）；409 `RESUME_UNSUPPORTED`（无会话且无数据上下文）、
+`CHAT_TURN_BUSY`、`RUN_HARNESS_MISMATCH`。回复经该 run 的 SSE/WS 流返回。
 
 ## 10. POST /analyze/:runId/stop — 停止
 
@@ -335,3 +338,44 @@ body `{ "questionId", "toolUseId", "answers": {...} }` → 200 `{ "runId", "ques
 - **AgentWorkShop 桥接存量**：`B13/B14`（`/api/diagnosis/tasks`）保持兼容，不必迁移。
 - 深度诊断（deep-diagnosis）真实耗时 1.5-2 小时（多子代理串行），务必使用异步任务 +
   轮询/SSE 模式，不要用阻塞 HTTP。
+
+---
+
+# E. WebSocket 实时协议（/ws）
+
+前端实时视图与外部订阅者共用的长连接。鉴权：`ws://host:port/ws?token=<session JWT 或 idd_ API Token>`（未携带/无效 → close code 4401）。
+
+## E1. 订阅与事件
+
+| 客户端 → 服务端 | 说明 |
+|---|---|
+| `{ type: 'subscribe_run', runId }` | 订阅一个 run：先收到 `subscribed`（含活跃 run 列表），随后回放该 run 的**内存事件尾部**，再增量推送 |
+| `{ type: 'unsubscribe_run', runId }` | 取消订阅 |
+| `{ type: 'pong', data: { ts } }` | 应答服务端心跳（见 E2） |
+
+| 服务端 → 客户端 | 说明 |
+|---|---|
+| `{ type: 'subscribed', data: { runId, activeRuns } }` | 订阅确认 |
+| `{ type: 'run_event', data: { runId, event } }` | 增量事件；`event._seq` 单调递增（前端按 `seq <= lastEventSeq` 去重） |
+| `{ type: 'run_snapshot', ... }` / `{ type: 'catalog_snapshot', ... }` | 初始快照（事件窗口受 `GET /snapshot?events_limit` 同一上限约束） |
+| `{ type: 'ping', data: { ts } }` | 服务端心跳 |
+
+## E2. 心跳纪律（外部集成必读）
+
+服务端每 `websocket.heartbeat_interval_ms`（默认 30s）发送 `ping`；客户端必须在
+`websocket.heartbeat_timeout_ms`（默认 60s）内回 `pong`，否则连接被**主动终止**
+（日志 `Heartbeat timeout`）。浏览器原生 `WebSocket` 不会自动回 pong——订阅方必须显式应答：
+
+```js
+ws.addEventListener('message', (ev) => {
+  const msg = JSON.parse(ev.data);
+  if (msg.type === 'ping') ws.send(JSON.stringify({ type: 'pong', data: { ts: Date.now() } }));
+});
+```
+
+## E3. 大 run 的事件窗口
+
+`GET /api/diagnosis/snapshot/:runId?events_limit=N`（100–10000，默认 2000）只返回**最新 N 条**事件，
+响应带 `events_total` / `events_truncated` / `events_limit`。真实 claude run 实测可达
+53,490 条事件（11.5 MB 全量）——界面只渲染尾部，全量传输没有收益。历史全量仍保存在
+`diagnosis_event_stream`，并按每 run 行数上限（`data.event_stream_max_rows_per_run`，默认 20000）定期裁剪最旧行。

@@ -42,6 +42,10 @@ function ensureRunSnapshot(runId) {
       hitlRequest: null,
       lastEventSeq: -1,
       lastSyncAt: null,
+      // The snapshot carries only the newest N events; these tell the view how
+      // much of the run it is actually showing.
+      eventsTotal: 0,
+      eventsTruncated: false,
     });
   }
   return state.runSnapshots[runId];
@@ -149,6 +153,14 @@ function setSnapshotFromPayload(runId, payload) {
   snapshot.liveStatus = payload.liveStatus || snapshot.run?.engineStatus || snapshot.run?.status || snapshot.liveStatus;
   snapshot.hasActiveEngineRun = !!payload.hasActiveEngineRun;
   snapshot.events = Array.isArray(payload.events) ? payload.events.slice(-MAX_EVENTS) : [];
+  // Truthful window metadata: the server sends the tail, not the whole stream.
+  // A payload without the fields (older surface / status-only update) must not
+  // erase what an earlier snapshot established.
+  if (Number.isFinite(payload.eventsTotal)) snapshot.eventsTotal = payload.eventsTotal;
+  else if (Array.isArray(payload.events)) snapshot.eventsTotal = Math.max(snapshot.eventsTotal || 0, snapshot.events.length);
+  if (payload.eventsTruncated === true || payload.eventsTruncated === false) {
+    snapshot.eventsTruncated = payload.eventsTruncated;
+  }
   snapshot.lastSyncAt = payload.sentAt || new Date().toISOString();
   snapshot.isHydrating = false;
   rebuildDerivedState(snapshot);
@@ -521,6 +533,8 @@ export async function hydrateRun(runId) {
       hasActiveEngineRun: realtimeSnapshot.hasActiveEngineRun,
       currentQuestion: realtimeSnapshot.currentQuestion || null,
       events: realtimeSnapshot.events || [],
+      eventsTotal: realtimeSnapshot.events_total ?? (realtimeSnapshot.events || []).length,
+      eventsTruncated: realtimeSnapshot.events_truncated === true,
       sentAt: new Date().toISOString(),
     });
   } finally {

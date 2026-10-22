@@ -217,7 +217,10 @@ export const api = {
     request('/ontology/adopt', { method: 'POST', body: JSON.stringify(body) }),
 
   getRunStatus: (runId) => request(`/diagnosis/status/${runId}`),
-  getRunSnapshot: (runId) => request(`/diagnosis/snapshot/${runId}`),
+  // Snapshot event window is bounded server-side (default 2000; the view only
+  // renders the tail). events_total / events_truncated ride on the response.
+  getRunSnapshot: (runId, eventsLimit = 2000) =>
+    request(`/diagnosis/snapshot/${runId}?events_limit=${encodeURIComponent(eventsLimit)}`),
   stopDiagnosis: (runId) =>
     request(`/diagnosis/stop/${runId}`, { method: 'POST' }),
   continueDiagnosis: (runId, followUpMessage) =>

@@ -145,6 +145,15 @@
               <div class="smetric"><span class="sm-val">{{ turnCount }}</span><span class="sm-lbl">{{ $t('diagnosis.metricTurns') }}</span></div>
               <div class="smetric"><span class="sm-val">{{ toolCount }}</span><span class="sm-lbl">{{ $t('diagnosis.metricTools') }}</span></div>
               <div class="smetric"><span class="sm-val">{{ msgCount }}</span><span class="sm-lbl">{{ $t('diagnosis.metricMessages') }}</span></div>
+              <!-- Truthful window: long runs only ship the newest events. -->
+              <div
+                v-if="eventsTruncated"
+                class="smetric sm-window"
+                :title="$t('diagnosis.eventsTruncatedTitle', { shown: events.length, total: eventsTotal })"
+              >
+                <span class="sm-val">{{ events.length }}/{{ eventsTotal }}</span>
+                <span class="sm-lbl">{{ $t('diagnosis.metricEvents') }}</span>
+              </div>
               <div class="smetric sm-time"><span class="sm-val">{{ elapsed }}</span></div>
             </div>
             <button v-if="canStop" class="stop-btn" @click="stop">{{ $t('common.stop') }}</button>
@@ -428,6 +437,8 @@ const turnCount = computed(() => {
 
 const toolCount = computed(() => events.value.filter(ev => ev.type === 'tool_use').length);
 const msgCount = computed(() => events.value.filter(ev => ev.type === 'message').length);
+const eventsTotal = computed(() => snapshot.value?.eventsTotal ?? events.value.length);
+const eventsTruncated = computed(() => snapshot.value?.eventsTruncated === true);
 
 const latestToolName = computed(() => {
   const latest = [...events.value].reverse().find(ev => ev.type === 'tool_use');
@@ -510,13 +521,29 @@ function startElapsed() {
   elapsedTimer = setInterval(() => {
     const start = run.value?.created_at ? new Date(run.value.created_at).getTime() : Date.now();
     const diff = Math.max(0, Math.floor((Date.now() - start) / 1000));
-    elapsed.value = `${Math.floor(diff / 60)}:${String(diff % 60).padStart(2, '0')}`;
+    elapsed.value = formatDuration(diff);
   }, 1000);
 }
 
 function stopElapsed() {
   if (elapsedTimer) clearInterval(elapsedTimer);
   elapsedTimer = null;
+}
+
+function formatDuration(totalSeconds) {
+  const diff = Math.max(0, Math.floor(totalSeconds));
+  return `${Math.floor(diff / 60)}:${String(diff % 60).padStart(2, '0')}`;
+}
+
+/* A terminal run has no clock anymore — show its real duration
+   (created → completed) instead of a frozen 0:00. */
+function setElapsedFromRun() {
+  const r = run.value;
+  if (!r?.created_at) { elapsed.value = '0:00'; return; }
+  const start = new Date(r.created_at).getTime();
+  const end = r.completed_at ? new Date(r.completed_at).getTime()
+    : (r.updated_at ? new Date(r.updated_at).getTime() : Date.now());
+  elapsed.value = formatDuration((end - start) / 1000);
 }
 
 function formatSize(bytes) {
@@ -805,9 +832,16 @@ watch(events, (nextEvents) => {
   }
 }, { deep: true, immediate: true });
 
-watch([isRunning, isAwaitingInput, () => run.value?.created_at], ([running, awaiting]) => {
-  if (running || awaiting) startElapsed();
-  else stopElapsed();
+// Only a genuinely running run needs a per-second clock. Awaiting-input and
+// terminal views are static, and re-rendering them once a second made the page
+// look frozen to automation and wasted frames. Terminal runs show their real
+// duration once instead.
+watch([isRunning, () => run.value?.created_at], ([running]) => {
+  if (running) startElapsed();
+  else {
+    stopElapsed();
+    setElapsedFromRun();
+  }
 }, { immediate: true });
 
 onMounted(() => {
@@ -1011,6 +1045,9 @@ onUnmounted(() => {
 .sm-val { font-weight: 600; font-size: 13px; font-variant-numeric: tabular-nums; color: var(--text); }
 .sm-lbl { font-size: 10px; color: var(--text2); text-transform: uppercase; }
 .sm-time .sm-val { color: var(--yellow); }
+/* Bounded event window: amber signals "showing a slice, not everything". */
+.sm-window .sm-val { color: var(--yellow); }
+.sm-window { cursor: help; }
 .stop-btn {
   padding: 6px 14px; background: color-mix(in srgb, var(--red) 10%, transparent); color: var(--red);
   border: 1px solid color-mix(in srgb, var(--red) 28%, transparent); border-radius: 10px; font-size: 12px;
