@@ -275,12 +275,15 @@ executeDiagnosis 收到 result(success)
 | AC-11 续跑 UPSERT | ✅ | mock-e2e continue 后索引中该 run 恰 1 行；单测 re-upsert 后 description/tags 存活、score 更新 |
 | AC-12 软删可见性 | ✅ | 单测软删后索引/详情均 404，restore 恢复 |
 | AC-G 全量回归 | ✅ | 后端 **242/242**；Python 5 套 779 检查全绿；前端 build ✓；镜像 `--check` 同步；ui-smoke-native 全过；ui-visual-audit 0 失败（1280 无溢出）；api-contract-final 22/22 |
+| AC-13（追加）AWS/AgentWorkShop 集成 | ✅ | `results-aws-integration.mjs` **87/87**：`idd_` API Token 全链路（非会话 JWT）——索引→按 run id 取详情→**直接读取** report.md 全文（字节与 metadata 完全一致）、每个 HTML 报告（200 + text/html + 真实 HTML）、每个工件 JSON（6 意图 35 个文件全部可读可 parse）；`summary_json.sources` 关键数字逐项回溯工件字段；`?token=` 查询串同样可读（iframe/SSE 路径）；PATCH 与 404 语义一致 |
 
 ### 9.3 实施中发现并修复的缺陷
 
 1. **首屏大量 `--` 摘要**（UI 截图审出）：51 个 mock 专项运行无 skill 工件 → 摘要空。修复：意图工件缺失时回退 report.md 结论段（sources 标 `report_fallback`），回填对"空摘要且无用户描述"行做安全刷新；刷新后仅剩 12 个无 workspace 的测试行为诚实空（DOM 38/50 有摘要）。
-2. **可见性计数**：非 admin 调用方索引总数 97<106 属正确归属过滤（9 行属其他用户），验收阈值相应修正。
-3. 其余 3 处为测试脚本自身问题（regex/选择器/等待时机），非产品缺陷。
+2. **结果库「报告」按钮打不开报告**（AWS 集成轮审出）：`ResultsLibrary.openReport` emit `{runId}`，而 App 的 `onOpenReport` 期望 `report_path` 字符串（`runDirFromReportPath` 会得到 `[object Object]`）。修复：从详情 metadata.report_md.path 解析真实路径（复用已加载详情或补一次 `include_md=false` 请求）。
+3. **卡片 `has_html` 恒 false**：指数 SELECT 漏选 `a.metadata`，`buildCard` 解析不到 html 数组。修复 SELECT 并加 API 验收断言（837404b0 has_html===true）。
+4. **可见性计数**：非 admin 调用方索引总数 97<106 属正确归属过滤（9 行属其他用户），验收阈值相应修正。
+5. 其余为测试脚本自身问题（regex/选择器/等待时机、`nativeType` 追加而非替换、`api()` 把 JSON 工件当信封解析）——非产品缺陷，均已修正脚本。
 
 ### 9.4 遗留
 

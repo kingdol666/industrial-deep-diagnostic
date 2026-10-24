@@ -280,8 +280,24 @@ function onDetailUpdated(updated) {
   }
 }
 
-function openReport(row) {
-  emit('open-report', { runId: row.result_id });
+// Reports tab expects a run-dir-relative report path (App derives the run dir
+// from it). The card carries no path, so read it from the detail metadata —
+// reusing an already-loaded drawer detail when it matches the row.
+async function openReport(row) {
+  let path = null;
+  if (detailMeta.value?.result_id === row.result_id) {
+    path = detailMeta.value.metadata?.report_md?.path || null;
+  }
+  if (!path) {
+    try {
+      const d = await api.getResultDetail(row.result_id, { includeMd: false });
+      path = d.metadata?.report_md?.path
+        || (d.metadata?.workspace_path ? `${d.metadata.workspace_path}/report.md` : null);
+    } catch (err) {
+      console.error('Failed to resolve report path:', err);
+    }
+  }
+  emit('open-report', path || '');
 }
 
 function formatDateShort(s) {

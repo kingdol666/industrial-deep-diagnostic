@@ -994,8 +994,9 @@ ls -la workspace/diagnostic-runs/<run>/                         # 检查各步�
 | 后端测试套件 | 路由 · 服务 · 引擎适配器 · HTTP e2e（fake CLI / fake ACP / codex app-server） | **242/242 通过** | `app/backend npm test` |
 | Skill 设计静态审计 | 24 skills / 16 agents · frontmatter · 协议引用 · JSON Schema · 脚本路径 | **0 failures** | `node scripts/audit/skill-design.mjs` |
 | API 契约（只读） | harness · capabilities · history · 有界快照 · 报告/资产 · 鉴权/404 | **22/22 通过** | `node scripts/e2e/api-contract-final.mjs` |
-| 结果库 API | 索引过滤/brief/分页 · 详情（summary_json/sources/report_md）· PATCH 规则 · capabilities | **36/36 通过** | `node scripts/e2e/results-api-acceptance.mjs --base http://127.0.0.1:3210` |
-| 结果库 UI | 原生输入全流程：结果库页 · 搜索 · 详情抽屉 · 描述/标签 PATCH · History 摘要卡 | **14/14 通过** | `node scripts/e2e/results-ui-check.mjs --api http://127.0.0.1:3210 --web http://127.0.0.1:5180` |
+| 结果库 API | 索引过滤/brief/分页 · 详情（summary_json/sources/report_md）· PATCH 规则 · capabilities | **37/37 通过** | `node scripts/e2e/results-api-acceptance.mjs --base http://127.0.0.1:3210` |
+| 结果库 UI | 原生输入全流程：结果库页 · 搜索 · 详情抽屉 · 描述/标签 PATCH · 报告打开 · History 摘要卡 | **15/15 通过** | `node scripts/e2e/results-ui-check.mjs --api http://127.0.0.1:3210 --web http://127.0.0.1:5180` |
+| AWS 集成（结果库） | `idd_` API Token 全链路：索引 → 按 run id 取详情 → **直读** report.md / 全部 HTML / 全部工件 JSON（6 意图 35 个文件）→ 关键数字回溯工件字段 | **87/87 通过** | `node scripts/e2e/results-aws-integration.mjs --base http://127.0.0.1:3210` |
 | UI 渲染审计 | 原生登录 → History → 运行 → 报告 MD/HTML · console/网络 · 1440/1280 | **20/20 通过** | `node scripts/e2e/ui-visual-audit.mjs` |
 | 大 run 窗口 | 5,001 事件夹具：226 KB / 11 ms（全量 11.5 MB） | **通过** | `node scripts/e2e/ui-large-run-probe.mjs` |
 | 优雅退出 | 真实 OMP 子进程被 `shutdownAllEngines` 终止 | **通过** | `node scripts/e2e/graceful-shutdown-check.mjs` |

@@ -69,6 +69,9 @@ check('AC-2 all six intents present in the index', six.every((i) => intentsSeen.
 
 const stab = idx.json.data.results.find((r) => r.intent === 'stability-report' && r.has_report);
 check('a stability-report result with a report exists', !!stab, stab?.result_id);
+// has_html is derived from the stored metadata — it must be truthful.
+check('AC-3 has_html is truthful for the stability run (has line_stability_report.html)',
+  typeof stab?.has_html === 'boolean' && stab.has_html === true, stab?.has_html);
 
 // q filter: the stability statement mentions 波动/参数 — search by a rare scene token instead
 const qHit = await api('GET', '/api/external/v1/results?q=accept_api&intent=stability-report');

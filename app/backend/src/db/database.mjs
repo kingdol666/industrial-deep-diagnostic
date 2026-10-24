@@ -611,7 +611,7 @@ const stmts = {
   // Index query: joined with the run row for title/category/soft-delete truth.
   // Visibility matches history semantics — own rows plus legacy NULL rows.
   listResultsFiltered: db.prepare(`
-    SELECT a.result_id, a.run_id, a.description, a.summary, a.summary_json, a.tags,
+    SELECT a.result_id, a.run_id, a.description, a.summary, a.summary_json, a.tags, a.metadata,
            a.intent, a.scene_name, a.harness, a.score, a.verdict, a.user_id,
            a.created_at AS result_created_at, a.updated_at,
            r.title, r.name, r.category_id, r.completed_at, r.report_path, r.workspace_path

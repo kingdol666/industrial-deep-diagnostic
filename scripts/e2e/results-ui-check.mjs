@@ -261,8 +261,19 @@ async function main() {
 
     // close drawer, search precisely for our run id to exercise the API filter through the UI
     await nativeClick(cdp, '[data-testid="results-drawer-close"]');
-    await nativeType(cdp, '[data-testid="results-search"]', runId);
-    await waitFor(cdp, `document.querySelectorAll('[data-testid^="results-row-"]').length === 1`, { label: 'search narrows to 1 row', timeout: 15000 });
+    // select-all before typing: a second insertText APPENDS at the caret, and
+    // "scene|runId" concatenation matches nothing (the earlier 1-row assertion
+    // raced the 300ms debounce and read the stale scene-search result).
+    await nativeClick(cdp, '[data-testid="results-search"]');
+    await cdp.send('Input.dispatchKeyEvent', { type: 'keyDown', modifiers: 2, key: 'a', code: 'KeyA', windowsVirtualKeyCode: 65 });
+    await cdp.send('Input.dispatchKeyEvent', { type: 'keyUp', modifiers: 2, key: 'a', code: 'KeyA', windowsVirtualKeyCode: 65 });
+    await cdp.send('Input.insertText', { text: runId });
+    await waitFor(
+      cdp,
+      `document.querySelectorAll('[data-testid^="results-row-"]').length === 1`
+      + ` && (document.querySelector('[data-testid^="results-row-"]')?.textContent || '').includes('${runId}')`,
+      { label: 'search narrows to exactly the target row', timeout: 15000 },
+    );
     check('AC-9 search narrows to the target result', true, runId);
 
     // ── description edit round-trip (native input → PATCH → row updates) ──
@@ -296,6 +307,14 @@ async function main() {
       serverDetail.json.data?.description === descText
       && JSON.stringify(serverDetail.json.data?.tags) === JSON.stringify(['ui-check', '收率基准']),
       serverDetail.json.data?.description?.slice(0, 40));
+
+    // ── 报告 button opens the run's report in the Reports tab ──
+    await nativeClick(cdp, '[data-testid="results-drawer-close"]');
+    await sleep(400);
+    await nativeClick(cdp, '[data-testid="results-report-btn-0"]');
+    await waitFor(cdp, `${sel('[data-testid="report-body"]')} !== null`, { label: 'report body rendered', timeout: 25000 });
+    const reportText = await evaluate(cdp, `${sel('[data-testid="report-body"]')}.innerText`);
+    check('AC-9 报告按钮 opens the row report in the Reports tab', reportText.length > 20, reportText.slice(0, 60));
 
     // ── History detail panel embeds the summary card ──
     await nativeClick(cdp, '[data-testid="nav-history"]');
