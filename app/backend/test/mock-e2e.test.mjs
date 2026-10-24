@@ -224,6 +224,15 @@ describe('mock harness full run — create → execute → complete → report �
     // No model was selected → the run row must not carry a claude default
     // (Bug A: claude model must not leak into non-claude engine runs).
     assert.equal(run.model ?? null, null);
+    // Results library (AC-10): completion and the results row share one
+    // synchronous path — the detail endpoint answers the moment the run lands.
+    const { status: rStatus, json: rJson } = await api('GET', `/api/results/${runId}`);
+    assert.equal(rStatus, 200);
+    assert.equal(rJson.data.result_id, runId);
+    assert.equal(rJson.data.score, 96);
+    assert.equal(rJson.data.verdict, 'ENDORSED');
+    assert.ok(rJson.data.report_md && rJson.data.report_md.length > 0, 'report_md full text included');
+    assert.equal(rJson.data.derived, false, 'completion hook wrote the row (not read-time derive)');
   });
 
   test('event stream recorded the scripted pipeline', async () => {
@@ -251,6 +260,14 @@ describe('mock harness full run — create → execute → complete → report �
     assert.equal(status, 200);
     const run = await waitForStatus(runId, ['completed', 'failed']);
     assert.equal(run.status, 'completed');
+    // Results library (AC-11): a continue re-completes the SAME run — the row
+    // is updated in place, never duplicated.
+    const { json: idx } = await api('GET', '/api/results?limit=200');
+    const mine = idx.data.filter((r) => r.result_id === runId);
+    assert.equal(mine.length, 1, 'exactly one result row after continue');
+    const { json: detail } = await api('GET', `/api/results/${runId}`);
+    assert.equal(detail.data.derived, false);
+    assert.ok(detail.data.summary_json);
   });
 
   test('stop endpoint exists for the harness run', async () => {

@@ -26,6 +26,7 @@ import {
 import { ANALYSIS_INTENTS } from '../engine/claude-client.mjs';
 import { supportedIntentsFor } from '../services/intent-capability.service.mjs';
 import { engineSupportsSessionChat } from '../services/session-integrity.service.mjs';
+import { listResults, getResultDetail, updateResult } from '../services/results-library.service.mjs';
 
 const router = Router();
 const TERMINAL = new Set(['completed', 'failed', 'stopped', 'interrupted', 'expired', 'awaiting_input']);
@@ -45,7 +46,19 @@ router.get('/v1/capabilities', async (req, res) => {
         supported_intents: supportedIntentsFor(h.id),
       }));
     } catch { /* harness listing is advisory for callers */ }
-    res.json({ success: true, data: { intents, harnesses } });
+    res.json({
+      success: true,
+      data: {
+        intents,
+        results_index: true,
+        results_endpoints: [
+          'GET /api/external/v1/results',
+          'GET /api/external/v1/results/:resultId',
+          'PATCH /api/external/v1/results/:resultId',
+        ],
+        harnesses,
+      },
+    });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
@@ -153,6 +166,52 @@ router.post('/v1/analyze', async (req, res) => {
 // ── GET /v1/tasks — list tasks tracked by this backend instance ────────────
 router.get('/v1/tasks', (req, res) => {
   res.json({ success: true, data: listTaskEntries() });
+});
+
+// ── Results library (2026-10-25): summary index → id → detail, for agents ──
+// Index cards carry display_text = description || summary; `brief=true` is the
+// token-saving mode (no key_numbers, display_text capped at 160 chars).
+router.get('/v1/results', (req, res) => {
+  try {
+    const data = listResults(req.user, req.query);
+    res.json({ success: true, data: data });
+  } catch (err) {
+    res.status(err.status || 500).json({
+      success: false,
+      code: err.code || 'RESULTS_QUERY_INVALID',
+      error: err.message,
+    });
+  }
+});
+
+// Detail: summary_json (auditable key numbers + sources), metadata (report /
+// artifacts / fingerprint), report_md full text (include_md=false to skip).
+router.get('/v1/results/:resultId', (req, res) => {
+  try {
+    const includeMd = req.query.include_md !== 'false' && req.query.include_md !== '0';
+    const detail = getResultDetail(req.params.resultId, { user: req.user, includeMd });
+    res.json({ success: true, data: detail });
+  } catch (err) {
+    res.status(err.status || 500).json({
+      success: false,
+      code: err.code || 'RESULTS_ERROR',
+      error: err.message,
+    });
+  }
+});
+
+// Editable: description / tags / title / category_id. summary is read-only.
+router.patch('/v1/results/:resultId', (req, res) => {
+  try {
+    const detail = updateResult(req.params.resultId, req.body || {}, req.user);
+    res.json({ success: true, data: detail });
+  } catch (err) {
+    res.status(err.status || 500).json({
+      success: false,
+      code: err.code || 'RESULTS_ERROR',
+      error: err.message,
+    });
+  }
 });
 
 // ── GET /v1/tasks/:taskId — live progress view (poll this) ─────────────────

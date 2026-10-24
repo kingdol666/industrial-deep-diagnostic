@@ -210,7 +210,8 @@ workspace/diagnostic-runs/<timestamp>_<scene>/
 
 ### Web Application
 - **Backend** (`app/backend/`): Express.js + SQLite (WAL mode) + WebSocket, event-bus architecture
-- **Frontend** (`app/frontend/`): Vue 3 + Vite + tabbed layout (Data / Diagnose / Reports / History), SSE live stream + WebSocket
+- **Frontend** (`app/frontend/`): Vue 3 + Vite + tabbed layout (Data / Diagnose / Reports / Results / History), SSE live stream + WebSocket
+- **Analysis results library (2026-10-25)**: flat `analysis_results` table (`result_id = run_id`) — deterministic per-intent auto-summary written by the completion chokepoint (`upsertResultFromRun`, never disturbs the run's terminal state), idempotent insert-only startup backfill, read-time `derived:true` fallback. `summary`/`summary_json` are system-managed with per-number `sources`; `description`/`tags` are user-editable. Two-level Agent API `GET /api/external/v1/results` (brief index) → `/results/:id` (detail) → `PATCH`; title/category/soft-delete stay on `diagnostic_runs` (reads JOIN the run row — single source of truth). Console mirror `/api/results*`; UI Results tab + History summary card.
 
 ### RAG Retrieval Engine (`rag-retrieval-engine/`)
 - FastAPI + ChromaDB vector retrieval + web search

@@ -291,6 +291,9 @@ analysis-auto 建议 ≥100 行（>10 万行自动抽样）。上传入口：`PO
 | 409 | RESUME_UNSUPPORTED | 会话不可恢复且无数据上下文可重建 | 重新发起分析 |
 | 409 | CHAT_TURN_BUSY | 同一 run 已有进行中的聊天回合 | 等待该回合结束 |
 | 409 | RUN_TERMINAL | stop 一个已终态 run | 读取当前状态，不要重复 stop |
+| 400 | RESULTS_QUERY_INVALID / RESULT_PATCH_INVALID / SUMMARY_READONLY | 结果库查询/编辑校验（§16） | 见 §16.4 |
+| 403 | RESULT_FORBIDDEN | 编辑非属主结果 | 换属主或管理员凭据 |
+| 404 | RESULT_NOT_FOUND | 结果 id 不存在/软删/未完成 | 检查 result_id |
 | 202 | — | wait 超时仍运行 | 继续 GET /tasks/:taskId |
 
 ---
@@ -353,3 +356,86 @@ with requests.get(f"{BASE}/analyze/<run_id>/stream",
 - specialist 模式（quick-screen/stability-report 等）不走 9 阶段 judge 门，因此
   `result.score/verdict` 为 null——质量结论在报告与 HTML 内（稳定性报告自带 81 分制评分）。
 - 纯分析边界：所有模式只产报告与告警，绝不向产线下发参数。
+
+---
+
+## 16. Results Library — 分析结果库（摘要索引 → id → 详情）
+
+每个**已完成**的分析在 `analysis_results` 表中有一条扁平记录（`result_id = run_id`）。
+摘要由确定性提取器在完成时自动生成（零 LLM，数字可溯源到 `sources` 中的工件字段）；
+`description`（≤2000 字符）与 `tags`（≤16 项）可由用户/Agent 通过 PATCH 编辑；
+索引卡片返回 `display_text = description || summary`。控制台同源镜像路由
+`GET|PATCH /api/results(…)` 与外部路由同实现。启动时幂等回填历史完成 run（只增不改）；
+行缺失时详情接口即时派生并标注 `"derived": true`。
+
+### 16.1 GET /results — 摘要索引（Agent 先看这个）
+
+| Query | 默认 | 说明 |
+|---|---|---|
+| `q` | — | 匹配 title/description/summary/scene/tags（大小写不敏感） |
+| `intent` | — | 6 值之一 |
+| `category_id` | — | run_categories.id |
+| `tag` | — | 单标签精确匹配 |
+| `scene` / `harness` | — | 精确匹配 |
+| `min_score` | — | `score >= min_score` |
+| `sort` | `created_desc` | `created_desc` / `created_asc` / `score_desc` |
+| `limit` / `offset` | 50 / 0 | limit 上限 200 |
+| `brief` | false | true = 省 token 模式（无 key_numbers，display_text 截 160 字符，单卡 ≤ ~600 字符） |
+
+**Response `data`**：`{ total, limit, offset, results: 卡片数组 }`，卡片不含 report.md 全文：
+
+```json
+{
+  "result_id": "837404b0", "title": "accept_api_837404b0",
+  "description": null,
+  "display_text": "该产线在本时段总体运行波动（65.8 分，C 级）…最需关注：yield_pct。 数据 864 行…",
+  "intent": "stability-report", "scene": "accept_api", "harness": "claude",
+  "score": 65.8, "verdict": "C · 波动",
+  "category_id": null, "tags": [],
+  "key_numbers": { "score": 65.8, "grade": "C", "label": "波动", "top_concern": "yield_pct" },
+  "has_report": true, "has_html": true,
+  "created_at": "2026-10-22 14:15:05", "completed_at": "2026-10-22 14:33:12"
+}
+```
+
+### 16.2 GET /results/:resultId — 完整详情
+
+Query：`include_md`（默认 true 携带 report.md 全文；false 只给 `report_md_url`）。
+
+**Response `data`**（节选）：`result_id` / `title` / `description` / `summary` / `summary_json`
+（`{conclusion, key_numbers, data_profile, artifacts, sources}`，sources 把每个数字钉到
+`工件路径#json字段`）/ `metadata`（`report_md{path,bytes}`、`html[]`、`artifacts[]`、
+`duration_ms`、`engine`、`model`、`data_fingerprint`、`ontology_hit`）/ `report_md` 全文 /
+`files.html[]`（含 `abs_path` 与 `/api/files/workspace/asset/…` URL）/ `run{run_id,status,
+session_resumable}` / `derived`。软删除的 run → 404。
+
+### 16.3 PATCH /results/:resultId — 编辑（description/tags/title/category_id）
+
+Body 至少一项：`{ "description"?: string|null ≤2000, "tags"?: string[] ≤16 项单项 ≤40 字符,
+"title"?: string ≤200, "category_id"?: string|null }`。`title`/`category_id` 委托给 run 行
+（与 History 同一套校验/归属规则）。响应 200 + 更新后的详情。
+
+### 16.4 错误码（结果库新增）
+
+| HTTP | code | 场景 |
+|---|---|---|
+| 400 | RESULTS_QUERY_INVALID | intent/sort/min_score/limit 非法 |
+| 400 | RESULT_PATCH_INVALID | PATCH body 校验失败（空 body、超长、类型错） |
+| 400 | SUMMARY_READONLY | 试图改 summary（改 description） |
+| 403 | RESULT_FORBIDDEN | 非属主编辑 |
+| 404 | RESULT_NOT_FOUND | id 不存在 / run 软删除 / run 未完成 |
+
+### 16.5 Agent 三步接入配方
+
+```python
+# 1) 摘要索引（省 token）：list → 挑 id
+cards = requests.get(f"{BASE}/results", headers=HDR,
+                     params={"brief": "true", "q": "yield"}).json()["data"]["results"]
+picked = cards[0]["result_id"]
+# 2) 详情（引用 summary_json.key_numbers，数字可溯源）
+detail = requests.get(f"{BASE}/results/{picked}", headers=HDR).json()["data"]
+print(detail["score"], detail["summary_json"]["key_numbers"], detail["metadata"]["report_md"]["bytes"])
+# 3) 需要时给结果补一段描述/标签
+requests.patch(f"{BASE}/results/{picked}", headers=HDR,
+               json={"description": "收率波动的基准分析，复用于对比", "tags": ["yield", "baseline"]})
+```

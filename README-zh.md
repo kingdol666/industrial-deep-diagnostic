@@ -679,11 +679,14 @@ GET /api/health
 
 | 端点 | 方法 | 用途 |
 |---|:--:|---|
-| `/capabilities` | GET | 6 种意图 + 14 引擎（含 `session_resume` / `supported_intents`） |
+| `/capabilities` | GET | 6 种意图 + 14 引擎（含 `session_resume` / `supported_intents` / `results_index`） |
 | `/analyze` | POST | 发起分析（harness + intent）→ `task_id` / `run_id` |
 | `/analyze/:runId` | GET | 统一结果：状态、score/verdict、工件清单、MD + HTML |
 | `/chat` | POST | 继续运行（`mode: session` 或 `rebuild`） |
 | `/tasks/:taskId/result` | GET | 终态结果快照 |
+| `/results` | GET | 分析结果库——扁平摘要索引（`q/intent/tag/scene/harness/min_score/sort/limit/offset/brief`），完成即自动生成摘要，`display_text = description ‖ summary` |
+| `/results/:resultId` | GET | 完整详情：`summary_json`（关键数字 + 可溯源 sources）、metadata（报告/工件/指纹）、`report_md` 全文、HTML 文件 URL |
+| `/results/:resultId` | PATCH | 仅编辑用户字段：`description` / `tags` / `title` / `category_id`（summary 只读） |
 
 ### WebSocket 实时推送
 
@@ -988,9 +991,11 @@ ls -la workspace/diagnostic-runs/<run>/                         # 检查各步�
 
 | 验证 | 范围 | 结果 | 证据 |
 |------|------|------|------|
-| 后端测试套件 | 路由 · 服务 · 引擎适配器 · HTTP e2e（fake CLI / fake ACP / codex app-server） | **220/220 通过** | `app/backend npm test` |
+| 后端测试套件 | 路由 · 服务 · 引擎适配器 · HTTP e2e（fake CLI / fake ACP / codex app-server） | **242/242 通过** | `app/backend npm test` |
 | Skill 设计静态审计 | 24 skills / 16 agents · frontmatter · 协议引用 · JSON Schema · 脚本路径 | **0 failures** | `node scripts/audit/skill-design.mjs` |
 | API 契约（只读） | harness · capabilities · history · 有界快照 · 报告/资产 · 鉴权/404 | **22/22 通过** | `node scripts/e2e/api-contract-final.mjs` |
+| 结果库 API | 索引过滤/brief/分页 · 详情（summary_json/sources/report_md）· PATCH 规则 · capabilities | **36/36 通过** | `node scripts/e2e/results-api-acceptance.mjs --base http://127.0.0.1:3210` |
+| 结果库 UI | 原生输入全流程：结果库页 · 搜索 · 详情抽屉 · 描述/标签 PATCH · History 摘要卡 | **14/14 通过** | `node scripts/e2e/results-ui-check.mjs --api http://127.0.0.1:3210 --web http://127.0.0.1:5180` |
 | UI 渲染审计 | 原生登录 → History → 运行 → 报告 MD/HTML · console/网络 · 1440/1280 | **20/20 通过** | `node scripts/e2e/ui-visual-audit.mjs` |
 | 大 run 窗口 | 5,001 事件夹具：226 KB / 11 ms（全量 11.5 MB） | **通过** | `node scripts/e2e/ui-large-run-probe.mjs` |
 | 优雅退出 | 真实 OMP 子进程被 `shutdownAllEngines` 终止 | **通过** | `node scripts/e2e/graceful-shutdown-check.mjs` |

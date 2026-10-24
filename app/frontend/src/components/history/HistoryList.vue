@@ -219,7 +219,7 @@
                   @click="openRun(run)"
                 >{{ $t('history.continueChat') }}</button>
               </template>
-              <button class="btn btn-sm" @click="toggleDetail(run.run_id)">
+              <button class="btn btn-sm" :data-testid="`history-detail-${run.run_id}`" @click="toggleDetail(run.run_id)">
                 {{ expandedRun === run.run_id ? $t('history.collapse') : $t('history.detail') }}
               </button>
               <button
@@ -290,6 +290,13 @@
         </div>
       </div>
 
+      <!-- Results library summary card (completed runs only): auto summary +
+           key numbers + editable description/tags, same source as /api/results -->
+      <div v-if="isRunCompleted(detailRun)" class="history-result-card" data-testid="history-result-card">
+        <div class="card-title" style="margin-top:16px">{{ $t('results.summaryCardTitle') }}</div>
+        <ResultSummaryCard :key="detailRun.run_id" :result-id="detailRun.run_id" />
+      </div>
+
       <!-- Logs -->
       <div v-if="logs.length > 0" class="logs-section">
         <div class="card-title" style="margin-top:16px">{{ $t('history.logsTitle') }}（{{ logs.length }} {{ $t('history.logsSuffix') }}）</div>
@@ -320,6 +327,7 @@
 import { ref, reactive, computed, nextTick, onMounted, onUnmounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { api } from '../../api/index.js';
+import ResultSummaryCard from '../results/ResultSummaryCard.vue';
 import {
   getEffectiveRunStatus,
   getRunStatusBadgeClass,
@@ -560,6 +568,12 @@ function resetDetail() {
   expandedRun.value = null;
   detailRun.value = null;
   logs.value = [];
+}
+
+// The results-library card only exists for completed runs (a result row is
+// materialized at completion).
+function isRunCompleted(run) {
+  return run && getEffectiveRunStatus(run) === 'completed';
 }
 
 function viewReport(run) {
@@ -996,6 +1010,7 @@ const paginatedLogs = computed(() => {
 .score-low { color: var(--red); }
 
 .detail-panel { margin-top: 16px; }
+.history-result-card { margin-top: 4px; }
 
 .detail-grid {
   display: grid;

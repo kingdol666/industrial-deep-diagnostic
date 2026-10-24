@@ -124,6 +124,7 @@ import {
   resolveChatRoute, hasRebuildContext, rebuildNotice,
 } from './session-integrity.service.mjs';
 import { extractIntentOutcome, enrichRunOutcome } from './intent-outcome.service.mjs';
+import { upsertResultFromRun } from './results-library.service.mjs';
 import { classifyProviderError, tagProviderError } from './provider-error.service.mjs';
 import {
   config, diagnosis as diagConfig, security as secConfig,
@@ -1401,6 +1402,14 @@ async function executeDiagnosis(runId, run, isRetry = false) {
                 type: 'complete',
                 data: { status: 'completed', runId, workspacePath, reportPath, score, verdict, outcome_source: outcomeSource },
               });
+              // Results library (2026-10-25): the single completion chokepoint.
+              // Fresh runs, continues and chat rebuilds all land here, so the
+              // result row is created/updated the moment the run completes
+              // (AC-10/AC-11). A summary failure must never disturb the
+              // terminal state — upsertResultFromRun catches its own errors.
+              try { upsertResultFromRun(runId); } catch (e) {
+                logger.warn(`Results-library upsert failed for ${runId}: ${e.message}`, { context: 'Results', runId });
+              }
             }
           } else {
             questionSessions.delete(runId);

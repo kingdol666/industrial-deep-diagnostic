@@ -279,6 +279,26 @@ export const api = {
     request(`/history/categories/${id}`, { method: 'DELETE' }),
   getSessionContent: (runId) => request(`/diagnosis/session/${runId}`),
 
+  // ── Results library（扁平分析结果库：摘要索引 → id → 详情 + 编辑）──
+  // Returns { results, total, limit, offset, brief }; server-side filters
+  // q/intent/category_id/tag/scene/harness/min_score/sort/limit/offset/brief.
+  listResults: async (params = {}) => {
+    const envelope = await requestEnvelope(`/results${buildQuery(params)}`);
+    return {
+      results: envelope.data || [],
+      total: envelope.total ?? (envelope.data?.length || 0),
+      limit: envelope.limit,
+      offset: envelope.offset,
+      brief: envelope.brief,
+    };
+  },
+  // include_md=false omits the report body (detail without the bulk).
+  getResultDetail: (resultId, { includeMd = false } = {}) =>
+    request(`/results/${encodeURIComponent(resultId)}${includeMd ? '' : '?include_md=false'}`),
+  // User-editable fields only (summary/summary_json are server-managed).
+  patchResult: (resultId, body) =>
+    request(`/results/${encodeURIComponent(resultId)}`, { method: 'PATCH', body: JSON.stringify(body) }),
+
   // Chat
   startChat: (params) =>
     request('/chat/start', { method: 'POST', body: JSON.stringify(params) }),

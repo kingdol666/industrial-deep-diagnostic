@@ -132,6 +132,33 @@ export function initDB() {
     );
     CREATE INDEX IF NOT EXISTS idx_external_tasks_run ON external_tasks(run_id);
     CREATE INDEX IF NOT EXISTS idx_external_tasks_created ON external_tasks(created_at);
+
+    -- Analysis results library (2026-10-25): one row per COMPLETED analysis,
+    -- result_id = run_id (single key). Derived fields (summary/summary_json/
+    -- metadata/score/verdict/intent/scene/harness/user_id) are refreshed by the
+    -- completion hook + startup backfill; description/tags are user-editable via
+    -- PATCH. title / category / soft-delete are NOT mirrored here — reads JOIN
+    -- diagnostic_runs so the run row stays the single source of truth.
+    CREATE TABLE IF NOT EXISTS analysis_results (
+      result_id TEXT PRIMARY KEY,
+      run_id TEXT NOT NULL UNIQUE,
+      description TEXT,
+      summary TEXT DEFAULT '',
+      summary_json TEXT,
+      tags TEXT DEFAULT '[]',
+      metadata TEXT,
+      intent TEXT NOT NULL,
+      scene_name TEXT,
+      harness TEXT,
+      score REAL,
+      verdict TEXT,
+      user_id TEXT,
+      created_at TEXT,
+      updated_at TEXT DEFAULT (datetime('now'))
+    );
+    CREATE INDEX IF NOT EXISTS idx_results_intent ON analysis_results(intent);
+    CREATE INDEX IF NOT EXISTS idx_results_user ON analysis_results(user_id);
+    CREATE INDEX IF NOT EXISTS idx_results_created ON analysis_results(created_at);
   `);
 
   // Migration: add report_language column if missing
@@ -549,6 +576,80 @@ const stmts = {
     INSERT INTO api_tokens (user_id, name, token_hash, token_prefix, expires_at)
     VALUES (@userId, @name, @tokenHash, @tokenPrefix, @expiresAt)
   `),
+  // ── analysis results library (2026-10-25) ──
+  // UPSERT refreshes the DERIVED fields only; description/tags survive a
+  // continue/rebuild re-completion (AC-11: update, never duplicate).
+  upsertResult: db.prepare(`
+    INSERT INTO analysis_results
+      (result_id, run_id, description, summary, summary_json, tags, metadata,
+       intent, scene_name, harness, score, verdict, user_id, created_at, updated_at)
+    VALUES
+      (@resultId, @runId, NULL, @summary, @summaryJson, '[]', @metadata,
+       @intent, @sceneName, @harness, @score, @verdict, @userId, @createdAt, datetime('now'))
+    ON CONFLICT(result_id) DO UPDATE SET
+      summary = excluded.summary,
+      summary_json = excluded.summary_json,
+      metadata = excluded.metadata,
+      intent = excluded.intent,
+      scene_name = excluded.scene_name,
+      harness = excluded.harness,
+      score = excluded.score,
+      verdict = excluded.verdict,
+      user_id = excluded.user_id,
+      created_at = excluded.created_at,
+      updated_at = datetime('now')
+  `),
+  getResultByRunId: db.prepare('SELECT * FROM analysis_results WHERE run_id = ?'),
+  updateResultUserFields: db.prepare(`
+    UPDATE analysis_results
+    SET description = @description,
+        tags = @tags,
+        updated_at = datetime('now')
+    WHERE result_id = @resultId
+  `),
+  deleteResultByRunId: db.prepare('DELETE FROM analysis_results WHERE run_id = ?'),
+  // Index query: joined with the run row for title/category/soft-delete truth.
+  // Visibility matches history semantics — own rows plus legacy NULL rows.
+  listResultsFiltered: db.prepare(`
+    SELECT a.result_id, a.run_id, a.description, a.summary, a.summary_json, a.tags,
+           a.intent, a.scene_name, a.harness, a.score, a.verdict, a.user_id,
+           a.created_at AS result_created_at, a.updated_at,
+           r.title, r.name, r.category_id, r.completed_at, r.report_path, r.workspace_path
+    FROM analysis_results a
+    JOIN diagnostic_runs r ON r.run_id = a.run_id
+    WHERE r.deleted_at IS NULL
+      AND (@userId IS NULL OR a.user_id IS NULL OR a.user_id = @userId)
+      AND (@intent IS NULL OR a.intent = @intent)
+      AND (@categoryId IS NULL OR r.category_id = @categoryId)
+      AND (@scene IS NULL OR a.scene_name = @scene)
+      AND (@harness IS NULL OR a.harness = @harness)
+      AND (@minScore IS NULL OR a.score >= @minScore)
+      AND (@tagPattern IS NULL OR a.tags LIKE @tagPattern)
+      AND (@q IS NULL OR a.description LIKE @q OR a.summary LIKE @q
+           OR r.title LIKE @q OR r.name LIKE @q OR a.scene_name LIKE @q OR a.tags LIKE @q)
+    ORDER BY
+      CASE WHEN @sort = 'created_asc' THEN a.created_at END ASC,
+      CASE WHEN @sort = 'score_desc' THEN (a.score IS NULL) END ASC,
+      CASE WHEN @sort = 'score_desc' THEN a.score END DESC,
+      a.created_at DESC
+    LIMIT @limit OFFSET @offset
+  `),
+  countResultsFiltered: db.prepare(`
+    SELECT COUNT(*) AS n
+    FROM analysis_results a
+    JOIN diagnostic_runs r ON r.run_id = a.run_id
+    WHERE r.deleted_at IS NULL
+      AND (@userId IS NULL OR a.user_id IS NULL OR a.user_id = @userId)
+      AND (@intent IS NULL OR a.intent = @intent)
+      AND (@categoryId IS NULL OR r.category_id = @categoryId)
+      AND (@scene IS NULL OR a.scene_name = @scene)
+      AND (@harness IS NULL OR a.harness = @harness)
+      AND (@minScore IS NULL OR a.score >= @minScore)
+      AND (@tagPattern IS NULL OR a.tags LIKE @tagPattern)
+      AND (@q IS NULL OR a.description LIKE @q OR a.summary LIKE @q
+           OR r.title LIKE @q OR r.name LIKE @q OR a.scene_name LIKE @q OR a.tags LIKE @q)
+  `),
+
   getApiTokenByHash: db.prepare('SELECT * FROM api_tokens WHERE token_hash = ?'),
   getApiTokenById: db.prepare('SELECT * FROM api_tokens WHERE id = ?'),
   listApiTokensByUser: db.prepare(`

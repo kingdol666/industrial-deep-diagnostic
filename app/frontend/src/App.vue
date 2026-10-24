@@ -168,6 +168,10 @@
           />
         </div>
 
+        <div v-else-if="currentTab === 'results'" class="app-view-frame">
+          <ResultsLibrary @open-report="onOpenReport" />
+        </div>
+
         <div v-else-if="currentTab === 'history'" class="app-view-frame">
           <HistoryList
             @open-report="onOpenReport"
@@ -207,6 +211,7 @@ import DiagnosisView from './components/diagnosis/DiagnosisView.vue';
 import ChatView from './components/chat/ChatView.vue';
 import ReportViewer from './components/reports/ReportViewer.vue';
 import HistoryList from './components/history/HistoryList.vue';
+import ResultsLibrary from './components/results/ResultsLibrary.vue';
 import OmpRunsView from './components/harness/HarnessRunsView.vue';
 import OntologyView from './components/ontology/OntologyView.vue';
 import ClosedLoopView from './components/closedloop/ClosedLoopView.vue';
@@ -276,6 +281,7 @@ const tabs = computed(() => [
   { key: 'diagnose', label: t('tabs.diagnose.label'), icon: '◎', kicker: t('tabs.diagnose.kicker'), title: t('tabs.diagnose.title'), description: t('tabs.diagnose.description'), caption: t('tabs.diagnose.caption') },
   { key: 'chat', label: t('tabs.chat.label'), icon: '⌘', kicker: t('tabs.chat.kicker'), title: t('tabs.chat.title'), description: t('tabs.chat.description'), caption: t('tabs.chat.caption') },
   { key: 'reports', label: t('tabs.reports.label'), icon: '▣', kicker: t('tabs.reports.kicker'), title: t('tabs.reports.title'), description: t('tabs.reports.description'), caption: t('tabs.reports.caption') },
+  { key: 'results', label: t('tabs.results.label'), icon: '▤', kicker: t('tabs.results.kicker'), title: t('tabs.results.title'), description: t('tabs.results.description'), caption: t('tabs.results.caption') },
   { key: 'ontology', label: t('tabs.ontology.label'), icon: '⬡', kicker: t('tabs.ontology.kicker'), title: t('tabs.ontology.title'), description: t('tabs.ontology.description'), caption: t('tabs.ontology.caption') },
   { key: 'closedloop', label: t('tabs.closedloop.label'), icon: '∿', kicker: t('tabs.closedloop.kicker'), title: t('tabs.closedloop.title'), description: t('tabs.closedloop.description'), caption: t('tabs.closedloop.caption') },
   { key: 'history', label: t('tabs.history.label'), icon: '◌', kicker: t('tabs.history.kicker'), title: t('tabs.history.title'), description: t('tabs.history.description'), caption: t('tabs.history.caption') },

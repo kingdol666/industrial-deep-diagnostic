@@ -12,6 +12,7 @@ import ontologyRoutes from './routes/ontology.routes.mjs';
 import harnessRoutes from './routes/harness.routes.mjs';
 import authRoutes from './routes/auth.routes.mjs';
 import externalRoutes from './routes/external.routes.mjs';
+import resultsRoutes from './routes/results.routes.mjs';
 import { authGuard } from './middleware/auth.middleware.mjs';
 import { initWebSocket, closeWebSocket } from './transport/ws-server.mjs';
 import { initDB, stmts, db } from './db/database.mjs';
@@ -65,6 +66,20 @@ async function initialize() {
   const { applyRetentionPolicies } = await import('./services/retention.service.mjs');
   applyRetentionPolicies();
 
+  // Results library backfill (2026-10-25): materialize analysis_results rows
+  // for completed runs that predate the library. Insert-only and idempotent —
+  // existing rows (and their user description/tags) are never rewritten.
+  const { backfillResults } = await import('./services/results-library.service.mjs');
+  try {
+    const backfill = backfillResults();
+    logger.info(
+      `Results library backfill: ${backfill.inserted} inserted, ${backfill.skipped} present, ${backfill.failed} failed`,
+      { context: 'Init' },
+    );
+  } catch (err) {
+    logger.warn(`Results backfill failed: ${err.message}`, { context: 'Init' });
+  }
+
   logger.info('Initialization complete.', { context: 'Init' });
 }
 
@@ -95,6 +110,7 @@ app.use('/api/external', externalRoutes);
 app.use('/api/files', fileRoutes);
 app.use('/api/diagnosis', diagnosisRoutes);
 app.use('/api/history', historyRoutes);
+app.use('/api/results', resultsRoutes);
 app.use('/api/analysis', analysisRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/omp', ompRoutes);

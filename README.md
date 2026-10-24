@@ -685,11 +685,14 @@ GET /api/health
 
 | Endpoint | Method | Purpose |
 |---|:--:|---|
-| `/capabilities` | GET | 6 intents + 14 harnesses with `session_resume` / `supported_intents` |
+| `/capabilities` | GET | 6 intents + 14 harnesses with `session_resume` / `supported_intents` + `results_index` |
 | `/analyze` | POST | launch an analysis (harness + intent) → `task_id` / `run_id` |
 | `/analyze/:runId` | GET | unified result: status, score/verdict, artifact manifest, MD + HTML |
 | `/chat` | POST | continue a run (`mode: session` or `rebuild`) |
 | `/tasks/:taskId/result` | GET | stable terminal result snapshot |
+| `/results` | GET | results library — flat summary index (`q/intent/tag/scene/harness/min_score/sort/limit/offset/brief`), auto-summary at completion, `display_text = description ‖ summary` |
+| `/results/:resultId` | GET | full detail: `summary_json` (auditable key numbers + sources), metadata (report/artifacts/fingerprint), `report_md`, HTML file URLs |
+| `/results/:resultId` | PATCH | edit user fields only: `description` / `tags` / `title` / `category_id` (summary is read-only) |
 
 ### WebSocket real-time push
 
@@ -994,9 +997,11 @@ Every release-quality claim traces to a repeatable check, not to a paragraph of 
 
 | Verification | Scope | Result | Evidence |
 |------|------|------|------|
-| Backend test suite | routes · services · engine adapters · HTTP e2e (fake CLI / fake ACP / codex app-server) | **220/220 pass** | `app/backend npm test` |
+| Backend test suite | routes · services · engine adapters · HTTP e2e (fake CLI / fake ACP / codex app-server) | **242/242 pass** | `app/backend npm test` |
 | Static skill design | 24 skills / 16 agents · frontmatter · protocol refs · JSON schemas · script refs | **0 failures** | `node scripts/audit/skill-design.mjs` |
 | API contract (GET-only) | harness · capabilities · history · bounded snapshot · report/assets · auth/404 | **22/22 pass** | `node scripts/e2e/api-contract-final.mjs` |
+| Results library API | index filters/brief/paging · detail (summary_json/sources/report_md) · PATCH rules · capabilities | **36/36 pass** | `node scripts/e2e/results-api-acceptance.mjs --base http://127.0.0.1:3210` |
+| Results library UI | native-input tour: Results tab · search · drawer · description/tags PATCH · History summary card | **14/14 pass** | `node scripts/e2e/results-ui-check.mjs --api http://127.0.0.1:3210 --web http://127.0.0.1:5180` |
 | UI render audit | native login → History → run → report MD/HTML · console/network · 1440/1280 | **20/20 pass** | `node scripts/e2e/ui-visual-audit.mjs` |
 | Large-run window | 5,001-event fixture: 226 KB / 11 ms (vs 11.5 MB full stream) | **pass** | `node scripts/e2e/ui-large-run-probe.mjs` |
 | Graceful shutdown | real OMP child terminated by `shutdownAllEngines` | **pass** | `node scripts/e2e/graceful-shutdown-check.mjs` |

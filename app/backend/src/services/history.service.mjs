@@ -159,6 +159,9 @@ export function purgeRun(runId, user = null) {
   // old database file.
   stmts.deleteLogsByRunId.run(runId);
   stmts.deleteEventStreamByRunId.run(runId);
+  // The results-library row dies with its run (it is a derived copy; the
+  // read-time derive fallback still answers for orphaned workspace dirs).
+  try { stmts.deleteResultByRunId.run(runId); } catch { /* old DB without the table */ }
   stmts.deleteRunRow.run(runId);
   return { run_id: runId, deleted: true, purged: true, workspace_removed: !!run.workspace_path };
 }
