@@ -532,7 +532,7 @@ export function backfillResults() {
     `Results backfill: ${inserted} inserted, ${refreshed} refreshed, ${skipped} already present, ${failed} failed`,
     { context: 'Results' },
   );
-  return { inserted, refreshed, skipped, failed };
+  return { examined: completed.length, inserted, refreshed, skipped, failed };
 }
 
 // ── Read path: cards, detail, derive ───────────────────────────────────────

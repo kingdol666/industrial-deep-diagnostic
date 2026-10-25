@@ -277,7 +277,7 @@ executeDiagnosis 收到 result(success)
 | AC-G 全量回归 | ✅ | 后端 **242/242**；Python 5 套 779 检查全绿；前端 build ✓；镜像 `--check` 同步；ui-smoke-native 全过；ui-visual-audit 0 失败（1280 无溢出）；api-contract-final 22/22 |
 | AC-13（追加）AWS/AgentWorkShop 集成 | ✅ | `results-aws-integration.mjs` **87/87**：`idd_` API Token 全链路（非会话 JWT）——索引→按 run id 取详情→**直接读取** report.md 全文（字节与 metadata 完全一致）、每个 HTML 报告（200 + text/html + 真实 HTML）、每个工件 JSON（6 意图 35 个文件全部可读可 parse）；`summary_json.sources` 关键数字逐项回溯工件字段；`?token=` 查询串同样可读（iframe/SSE 路径）；PATCH 与 404 语义一致 |
 | AC-14（追加）四条需求级验收 | ✅ | `results-requirements-check.mjs`：R1 分类（列出/创建/指派/按分类筛选/详情回显/外部路由同源/恢复）；R2 全部描述（可见结果 0 条空 display_text；描述覆盖自动摘要、清除后回落，q 可检索描述）；R3 按 id 元信息（workspace/report{path,bytes}/html[]/工件清单/时长/引擎/指纹/运行态 + HTML 与 8 工件**全部可直读**）；R4 详细报告（report.md 全文 = 磁盘字节、report_md_url 信封内容一致、HTML 报告可渲染且含真实结论） |
-| AC-15（追加）分类 API 管理 + 描述视图 | ✅ | 需求升级轮：结果面分类 CRUD（`GET/POST /api/results/categories`、`PATCH/DELETE /:id`、重名 409、删除清引用不删结果，全部委托 history.service 单实现）+ **分类描述视图** `GET /api/results/categories/:id/results`（每条含 description，未编辑回落 display_text；result_count 与索引/视图三处一致；外部镜像同语义；他人分类 404）——需求级 e2e **39/39**（R1 19 项），UI 内联建分类（自动切换筛选 + 计数徽标 + 诚实空态）19/19，后端 **246/246** |
+| AC-15（追加）分类 API 管理 + 描述视图 | ✅ | 需求升级轮：结果面分类 CRUD（`GET/POST /api/results/categories`、`PATCH/DELETE /:id`、重名 409、删除清引用不删结果，全部委托 history.service 单实现）+ **分类描述视图** `GET /api/results/categories/:id/results`（每条含 description，未编辑回落 display_text；result_count 与索引/视图三处一致；外部镜像同语义；他人分类 404）——需求级 e2e **42/42**（R1 22 项，含空名校验、第二用户 HTTP 隔离、删分类后结果仍可读），UI 内联建分类（自动切换筛选 + 计数徽标 + 诚实空态）19/19，后端 **246/246（连续 3 轮稳定）** |
 
 ### 9.3 实施中发现并修复的缺陷
 
@@ -288,6 +288,7 @@ executeDiagnosis 收到 result(success)
 5. **无工件运行摘要为空**（"查看全部的描述"不成立）：摘要提取无果时给出诚实文案（"该运行未产出可解析的工件/无 workspace，无自动摘要"），不编造结论；118 条结果 0 条空 display_text（DOM 50/50 行有摘要）。
 6. **可见性计数**：非 admin 调用方索引总数 97<106 属正确归属过滤（9 行属其他用户），验收阈值相应修正。
 7. 其余为测试脚本自身问题（regex/选择器/等待时机、`nativeType` 追加而非替换、`api()` 把 JSON 工件当信封解析、控制台路由 `data` 是数组而非 `data.results`）——非产品缺陷，均已修正脚本。
+8. **回填幂等测试在并发套件下 flaky**（ralph 验收轮发现，1/246 偶发）：断言比较了"先取的结果行数"与"后取的完成 run 数"，而 `node --test` 的文件并行会并发完成/软删 dev DB 行。修复：`backfillResults()` 返回自身快照 `examined`，断言改为「各结果之和 = examined」+ 可见域比较用**单条 SQL**（一致性快照）；连续 3 轮 246/246 稳定。
 
 ### 9.4 遗留
 

@@ -93,9 +93,29 @@ const catId = created.json?.data?.id;
 check('R1', '通过 API 创建分类（POST /api/results/categories）', created.status === 201 && !!catId, `${catName} → ${catId}`);
 check('R1', '重名创建 → 409 CATEGORY_EXISTS',
   (await api('/api/external/v1/results/categories', { method: 'POST', body: { name: catName } })).status === 409);
+check('R1', '空名创建 → 400（两种挂载一致）',
+  (await api('/api/results/categories', { method: 'POST', body: { name: '   ' } })).status === 400
+  && (await api('/api/external/v1/results/categories', { method: 'POST', body: {} })).status === 400);
 check('R1', '改名（PATCH /api/results/categories/:id）',
   (await api(`/api/results/categories/${catId}`, { method: 'PATCH', body: { name: `${catName}-改` } })).status === 200);
 await api(`/api/results/categories/${catId}`, { method: 'PATCH', body: { name: catName } });
+
+// per-user isolation over HTTP: a second identity must not see or read it
+const otherUser = `iso_${Date.now().toString(36)}`;
+const regOther = await fetch(`${BASE}/api/auth/register`, {
+  method: 'POST', headers: { 'content-type': 'application/json' },
+  body: JSON.stringify({ username: otherUser, password: 'Iso-User-2026!' }),
+});
+const otherToken = (await regOther.json().catch(() => ({})))?.data?.session_token || '';
+const otherCats = otherToken
+  ? await fetch(`${BASE}/api/results/categories`, { headers: { authorization: `Bearer ${otherToken}` } }).then((r) => r.json())
+  : { data: [] };
+const otherView = otherToken
+  ? await fetch(`${BASE}/api/results/categories/${encodeURIComponent(catId)}/results`, { headers: { authorization: `Bearer ${otherToken}` } })
+  : { status: 0 };
+check('R1', '分类隔离：其他用户列表不可见且描述视图 404',
+  !!otherToken && !(otherCats.data || []).some((c) => c.id === catId) && otherView.status === 404,
+  `${otherUser} → view ${otherView.status}`);
 
 // a second visible stability result so the description view shows both kinds
 const stabList = (await listConsole('intent=stability-report&limit=50')).results;
@@ -235,10 +255,12 @@ check('R4', '报告渲染内容包含真实结论（稳定性报告标题/评分
 await api(`/api/results/${GT}`, { method: 'PATCH', body: { description: null, category_id: null } });
 if (second) await api(`/api/results/${second.result_id}`, { method: 'PATCH', body: { category_id: null } });
 const delCat = await api(`/api/results/categories/${encodeURIComponent(catId)}`, { method: 'DELETE' });
-const restored = (await api(`/api/results/${GT}?include_md=false`)).json?.data || {};
-check('R1', '验收后恢复原状（描述 null、分类 null；分类删除后视图 404）',
-  restored.description === null && restored.category_id === null && delCat.status === 200
-  && (await api(`/api/results/categories/${encodeURIComponent(catId)}/results`)).status === 404);
+const restoredRes = await api(`/api/results/${GT}?include_md=false`);
+const restored = restoredRes.json?.data || {};
+check('R1', '删除分类不删结果（详情仍 200 可读、分类引用已清空）',
+  delCat.status === 200 && restoredRes.status === 200 && restored.description === null && restored.category_id === null);
+check('R1', '分类删除后描述视图 404（恢复原状）',
+  (await api(`/api/results/categories/${encodeURIComponent(catId)}/results`)).status === 404);
 
 // ═══ requirement summary ══════════════════════════════════════════════════
 console.log('\nRequirement | Checks | Result');

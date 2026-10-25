@@ -579,23 +579,25 @@ describe('backfillResults — idempotent', () => {
     const second = backfillResults();
     assert.equal(second.inserted, 0, 'second pass inserts nothing');
     assert.equal(second.refreshed, 0, 'second pass refreshes nothing (first pass settled the empties)');
+    // Purely internal consistency: the per-run outcomes partition the pass's
+    // own snapshot — concurrent suites mutating the dev DB cannot skew it.
+    assert.equal(first.inserted + first.refreshed + first.skipped + first.failed, first.examined);
     // Raw-table duplicate guard (no join): one row per run, period.
     const { n: rawRows, distinct_runs: rawDistinct } = dbHandle
       .prepare('SELECT COUNT(*) AS n, COUNT(DISTINCT run_id) AS distinct_runs FROM analysis_results')
       .get();
     assert.equal(rawRows, rawDistinct, 'no duplicate rows');
-    // Visible-scope guard (index semantics): joined to completed non-deleted
-    // runs — soft-deleted runs keep their rows but leave the visible scope,
-    // and concurrent suites may soft-delete at any time.
-    const { n } = dbHandle
-      .prepare(`SELECT COUNT(*) AS n FROM analysis_results a
-                JOIN diagnostic_runs r ON r.run_id = a.run_id
-                WHERE r.status = 'completed' AND r.deleted_at IS NULL`).get();
-    assert.ok(n >= 1, 'legacy completed runs are materialized');
-    const completed = dbHandle
-      .prepare("SELECT COUNT(*) AS c FROM diagnostic_runs WHERE status='completed' AND deleted_at IS NULL")
-      .get().c;
-    assert.ok(n <= completed, 'backfill never exceeds completed non-deleted runs');
-    assert.equal(first.inserted + first.refreshed + first.skipped + first.failed, completed);
+    // Visible-scope guard (index semantics) — both counts in ONE statement so
+    // a concurrent completion/soft-delete cannot race the comparison.
+    const scope = dbHandle.prepare(`
+      SELECT
+        (SELECT COUNT(*) FROM analysis_results a
+         JOIN diagnostic_runs r ON r.run_id = a.run_id
+         WHERE r.status = 'completed' AND r.deleted_at IS NULL) AS in_scope,
+        (SELECT COUNT(*) FROM diagnostic_runs
+         WHERE status = 'completed' AND deleted_at IS NULL) AS completed
+    `).get();
+    assert.ok(scope.in_scope >= 1, 'legacy completed runs are materialized');
+    assert.ok(scope.in_scope <= scope.completed, 'backfill never exceeds completed non-deleted runs');
   });
 });

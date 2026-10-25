@@ -999,7 +999,7 @@ ls -la workspace/diagnostic-runs/<run>/                         # 检查各步�
 | API 契约（只读） | harness · capabilities · history · 有界快照 · 报告/资产 · 鉴权/404 | **22/22 通过** | `node scripts/e2e/api-contract-final.mjs` |
 | 结果库 API | 索引过滤/brief/分页 · 详情（summary_json/sources/report_md）· PATCH 规则 · capabilities | **37/37 通过** | `node scripts/e2e/results-api-acceptance.mjs --base http://127.0.0.1:3210` |
 | 结果库 UI | 原生输入全流程：结果库页 · 搜索 · 详情抽屉 · 描述/标签 PATCH · 分类指派与筛选 · 报告打开 · History 摘要卡 | **19/19 通过** | `node scripts/e2e/results-ui-check.mjs --api http://127.0.0.1:3210 --web http://127.0.0.1:5180` |
-| 结果库需求级验收 | R1 分类管理（API CRUD + 按分类描述视图）· R2 全部结果有可读描述 · R3 按 id 取元信息 · R4 报告全文可读 | **39/39 通过** | `node scripts/e2e/results-requirements-check.mjs --base http://127.0.0.1:3210` |
+| 结果库需求级验收 | R1 分类管理（API CRUD + 按分类描述视图）· R2 全部结果有可读描述 · R3 按 id 取元信息 · R4 报告全文可读 | **42/42 通过** | `node scripts/e2e/results-requirements-check.mjs --base http://127.0.0.1:3210` |
 | AWS 集成（结果库） | `idd_` API Token 全链路：索引 → 按 run id 取详情 → **直读** report.md / 全部 HTML / 全部工件 JSON（6 意图 35 个文件）→ 关键数字回溯工件字段 | **87/87 通过** | `node scripts/e2e/results-aws-integration.mjs --base http://127.0.0.1:3210` |
 | UI 渲染审计 | 原生登录 → History → 运行 → 报告 MD/HTML · console/网络 · 1440/1280 | **20/20 通过** | `node scripts/e2e/ui-visual-audit.mjs` |
 | 大 run 窗口 | 5,001 事件夹具：226 KB / 11 ms（全量 11.5 MB） | **通过** | `node scripts/e2e/ui-large-run-probe.mjs` |
