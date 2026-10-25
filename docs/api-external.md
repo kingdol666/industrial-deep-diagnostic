@@ -1,6 +1,6 @@
 # IDD 对外集成 API 完整接口文档（/api/external/v1）
 
-> 版本 v1 · Base URL：`http://<host>:3210/api/external/v1`（下文省写为 `{base}`）
+> 版本 v1.1（2026-10-25 新增 §16 Results Library：摘要索引 / 详情 / 分类管理 / 描述视图）· Base URL：`http://<host>:3210/api/external/v1`（下文省写为 `{base}`）
 > 通用响应信封：成功 `{"success": true, "data": …}`；失败 `{"success": false, "code": "…", "error": "…"}`
 > 本文档逐端点给出**每个字段的类型、必填性、默认值、支持取值**。最后附错误码总表与接入配方。
 
@@ -52,6 +52,8 @@ POST /api/auth/tokens        （需要 Bearer 会话 JWT）
 | harnesses[].label / runs_capable | string/bool | 展示名 / 是否支持 run 执行 |
 | harnesses[].session_resume | bool | 是否能跨进程恢复会话（true 仅 claude / omp / goose / mock；其余引擎的「继续」走同引擎受控重建） |
 | harnesses[].supported_intents | string[] | 该引擎可执行的 intent 列表（当前 14 引擎 × 6 intent 全支持） |
+| results_index | bool | 是否提供分析结果库两级接口（恒为 true；见 §16） |
+| results_endpoints | string[] | 结果库端点清单（索引 / 详情 / PATCH / 分类） |
 
 **analysisIntent 支持值（6 个）**：
 
@@ -368,6 +370,12 @@ with requests.get(f"{BASE}/analyze/<run_id>/stream",
 `GET|PATCH /api/results(…)` 与外部路由同实现。启动时幂等回填历史完成 run（只增不改）；
 行缺失时详情接口即时派生并标注 `"derived": true`。
 
+> **可整合性保证（2026-10-25 实测）**：`idd_` API Token 全链路可用（索引 → 详情 → 直读
+> report.md / 全部 HTML / 全部工件 JSON → 关键数字回溯 `sources`）；六个意图共 35 个工件
+> 文件经 API 全部可读可解析。验收脚本：`results-requirements-check`（42/42）、
+> `results-api-acceptance`（37/37）、`results-aws-integration`（87/87）、
+> `results-ui-check`（19/19，原生输入）。
+
 ### 16.1 GET /results — 摘要索引（Agent 先看这个）
 
 | Query | 默认 | 说明 |
@@ -442,7 +450,7 @@ results:[{result_id,title,description,display_text,intent,score,verdict,tags,cre
 | 409 | CATEGORY_EXISTS | 分类重名（同名创建） |
 | 404 | CATEGORY_NOT_FOUND | 分类不存在 / 非本人分类（不确认存在性） |
 
-### 16.5 Agent 三步接入配方
+### 16.5 Agent 接入配方（索引 → 详情 → 分类 → 分类描述视图）
 
 ```python
 # 1) 摘要索引（省 token）：list → 挑 id
@@ -455,4 +463,14 @@ print(detail["score"], detail["summary_json"]["key_numbers"], detail["metadata"]
 # 3) 需要时给结果补一段描述/标签
 requests.patch(f"{BASE}/results/{picked}", headers=HDR,
                json={"description": "收率波动的基准分析，复用于对比", "tags": ["yield", "baseline"]})
+# 4) 建分类 → 归档（category_id 落在 run 行，索引卡片即时回显）
+cat = requests.post(f"{BASE}/results/categories", headers=HDR,
+                    json={"name": "收率异常"}).json()["data"]
+requests.patch(f"{BASE}/results/{picked}", headers=HDR, json={"category_id": cat["id"]})
+# 5) 从分类查看全部结果的 description（未编辑的回落 display_text）
+view = requests.get(f"{BASE}/results/categories/{cat['id']}/results", headers=HDR).json()["data"]
+for row in view["results"]:
+    print(row["result_id"], row["description"] or row["display_text"])
+# 6) 删除分类只清引用、不删结果；结果详情仍可读
+requests.delete(f"{BASE}/results/categories/{cat['id']}", headers=HDR)
 ```

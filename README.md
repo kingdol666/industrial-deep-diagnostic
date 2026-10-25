@@ -15,8 +15,9 @@
 <!-- ══ Status badges ══ -->
 <img src="https://img.shields.io/badge/Pipeline-9%20stages-e8a33d?style=flat-square" alt="9-stage pipeline">
 <img src="https://img.shields.io/badge/Engines-14%20·%20diagnose%20%2B%20chat-6ba8b8?style=flat-square" alt="14 engines">
+<img src="https://img.shields.io/badge/Results%20library-auto%20summary%20·%20categories-9b7bd4?style=flat-square" alt="Results library">
 <img src="https://img.shields.io/badge/Benchmark-Rubric%2094.6-8fbf6a?style=flat-square" alt="Benchmark rubric 94.6">
-<img src="https://img.shields.io/badge/Backend%20tests-116%20passed-8fbf6a?style=flat-square" alt="Backend tests">
+<img src="https://img.shields.io/badge/Backend%20tests-246%20passed-8fbf6a?style=flat-square" alt="Backend tests">
 <img src="https://img.shields.io/badge/Setup-one%20command-f4b65a?style=flat-square" alt="One-command setup">
 <img src="https://img.shields.io/badge/Node-%E2%89%A518-339933?style=flat-square&logo=nodedotjs&logoColor=white" alt="Node">
 <img src="https://img.shields.io/badge/License-MIT-success?style=flat-square" alt="License">
@@ -36,6 +37,30 @@
 > That is not caution. On a real plant floor it is the only honest option available.
 
 ---
+
+<details>
+<summary><b>Contents</b></summary>
+
+- [📸 The console](#-the-console)
+- [✨ Capabilities](#-capabilities)
+- [📚 Analysis results library — the agent-readable memory of every analysis](#-analysis-results-library--the-agent-readable-memory-of-every-analysis)
+- [🎯 Use cases](#-use-cases)
+- [🚀 Quick start](#-quick-start)
+- [🖥 Architecture](#-architecture)
+- [🧪 Diagnosis benchmark — 12 scenarios, four-step test pipeline](#-diagnosis-benchmark--12-scenarios-four-step-test-pipeline)
+- [🧩 Skills & agents](#-skills--agents)
+- [✅ The 9 quality gates](#-the-9-quality-gates)
+- [🔬 Evidence grading](#-evidence-grading)
+- [🔌 API reference](#-api-reference)
+- [🔧 Configuration](#-configuration)
+- [🐳 Docker deployment](#-docker-deployment)
+- [🗂 Project structure](#-project-structure)
+- [🐛 Troubleshooting](#-troubleshooting)
+- [🧪 Verified, not claimed](#-verified-not-claimed)
+- [🤝 Contributing](#-contributing)
+- [📜 License](#-license)
+
+</details>
 
 ## 📸 The console
 
@@ -185,6 +210,56 @@
 </td>
 </tr>
 </table>
+
+---
+
+## 📚 Analysis results library — the agent-readable memory of every analysis
+
+> Every completed analysis becomes one flat, structured record (`result_id = run_id`): an **auto-generated summary**, auditable key numbers, the full report, every HTML artifact — and a management surface (description · tags · categories) shared by humans and agents.
+
+<table>
+<tr>
+<td width="52%" valign="top">
+
+### What you get
+- **Auto summary at completion** — deterministic, zero-LLM extraction from the run's *own* artifacts; each key number carries a `sources` pointer (`file#json.path`) so nothing is invented
+- **Two-level API for agents** — flat index (`brief=true` token-saving mode, `display_text = description ‖ summary`) → detail by id (`summary_json` · metadata · `report_md` · HTML/artifact URLs)
+- **Everything is directly readable** — with an `idd_` API token an external agent fetches the report, all HTML reports and every artifact JSON through the API; no filesystem access needed
+- **Human management** — editable description (wins over the auto summary), tags, and per-user categories with a category filter
+- **Per-category description view** — `GET /results/categories/:id/results` returns every result's description in one call; un-edited rows fall back to their auto summary
+- **Never empty, never fabricated** — an artifact-less run states exactly that instead of a blank card; a missing row is derived on read (`derived: true`)
+- **Lifecycle-safe** — one row per run, UPSERTed on continue/rebuild; deleting a category clears references but never deletes results
+
+</td>
+<td width="48%" align="center">
+
+<img src="docs/screenshots/12-results-library.png" alt="Analysis results library"/>
+<br/><b>Flat results ledger</b><br/>
+<sub>9 columns · intent · category · tags · score/verdict · full-text search</sub>
+
+<img src="docs/screenshots/13-results-detail.png" alt="Result detail drawer"/>
+<br/><b>Result detail</b><br/>
+<sub>Auto summary + traceable key numbers · editable description & tags · category picker</sub>
+
+</td>
+</tr>
+</table>
+
+```python
+# An AWS-side agent can complete the whole loop with only an idd_ API token.
+# get/post/patch below are thin wrappers that add {"Authorization": "Bearer idd_…"}.
+# 1) survey (token-saving): flat index cards
+cards = get("/api/external/v1/results", params={"brief": "true", "q": "yield"})["data"]["results"]
+# 2) read the detail by id — metadata, report text, HTML/artifact URLs
+r = get(f"/api/external/v1/results/{cards[0]['result_id']}")["data"]
+print(r["score"], r["verdict"], r["summary_json"]["key_numbers"], r["metadata"]["report_md"]["bytes"])
+# 3) manage: create a category, file the result, read every description in it
+cat = post("/api/external/v1/results/categories", {"name": "yield-excursions"})["data"]
+patch(f"/api/results/{r['result_id']}", {"category_id": cat["id"], "description": "baseline for line A"})
+view = get(f"/api/external/v1/results/categories/{cat['id']}/results")["data"]
+for row in view["results"]:
+    print(row["result_id"], row["description"] or row["display_text"])
+```
 
 ---
 
@@ -413,11 +488,13 @@ flowchart LR
     subgraph STORE["💾 Assets"]
         ONTO[("Ontology asset library<br/>data/ontology_store")]
         RUNS[("Diagnostic runs<br/>workspace/diagnostic-runs")]
+        RES[("Results library<br/>analysis_results · auto summaries")]
     end
 
     UI <-->|HTTP| API
     UI <-->|WS / SSE| WS
     API --> ORCH
+    API <-->|results index / detail / categories| RES
     ORCH --> DB
     ORCH --> BUS
     BUS --> WS
@@ -425,6 +502,7 @@ flowchart LR
     ORCH -->|retrieve / score / inject| RAG
     ORCH --> ONTO
     ORCH --> RUNS
+    ORCH -->|completion hook · UPSERT| RES
     RAG -.->|automatic degradation when down:<br/>parameter_to_physics + web search| ORCH
     ONTO -.->|fingerprint hit → reuse<br/>ontology build 15.6 min → ≤0.5 min| ORCH
 
@@ -680,6 +758,12 @@ GET /api/health
 | | `/api/chat/stream/:chatId` | GET | SSE chat stream |
 | **Engines** | `/api/harness` | GET | engine registry (14 engines) |
 | | `/api/harness/availability` | GET | per-engine availability, default engine, last `provider_error` |
+| **Results library** | `/api/results` | GET | flat result index (`q/intent/category_id/tag/scene/harness/min_score/sort/limit/offset/brief`) |
+| | `/api/results/:resultId` | GET | detail: `summary_json` (traceable key numbers), metadata, `report_md`, HTML/artifact URLs |
+| | `/api/results/:resultId` | PATCH | edit user fields: `description` / `tags` / `title` / `category_id` (summary read-only) |
+| | `/api/results/categories` | GET/POST | categories with per-caller result counts · create (409 on duplicates) |
+| | `/api/results/categories/:id` | PATCH/DELETE | rename · delete (clears refs, never deletes results) |
+| | `/api/results/categories/:id/results` | GET | **per-category description view** — every result's description |
 
 ### External integration API (`/api/external/v1`)
 
@@ -1000,7 +1084,7 @@ Every release-quality claim traces to a repeatable check, not to a paragraph of 
 
 | Verification | Scope | Result | Evidence |
 |------|------|------|------|
-| Backend test suite | routes · services · engine adapters · HTTP e2e (fake CLI / fake ACP / codex app-server) | **242/242 pass** | `app/backend npm test` |
+| Backend test suite | routes · services · engine adapters · HTTP e2e (fake CLI / fake ACP / codex app-server) | **246/246 pass** | `app/backend npm test` |
 | Static skill design | 24 skills / 16 agents · frontmatter · protocol refs · JSON schemas · script refs | **0 failures** | `node scripts/audit/skill-design.mjs` |
 | API contract (GET-only) | harness · capabilities · history · bounded snapshot · report/assets · auth/404 | **22/22 pass** | `node scripts/e2e/api-contract-final.mjs` |
 | Results library API | index filters/brief/paging · detail (summary_json/sources/report_md) · PATCH rules · capabilities | **37/37 pass** | `node scripts/e2e/results-api-acceptance.mjs --base http://127.0.0.1:3210` |

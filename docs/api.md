@@ -1,5 +1,10 @@
 # IDD API 接口文档
 
+> **维护说明（2026-10-25）**：A 部分（对外集成 API `/api/external/v1`）的最新完整版本以
+> [`docs/api-external.md`](api-external.md) 为准 —— 其中 §16 **Results Library（分析结果库：
+> 摘要索引 / 详情 / 分类管理 / 按分类描述视图）** 为新增能力的逐字段契约。本文档保留 B 部分
+> （诊断任务 API `/api/diagnosis`）与历史对照；两者不冲突时以 api-external.md 为准。
+>
 > 本文档覆盖两组 API：
 > **A. 对外集成 API `/api/external/v1`** —— 外部应用的推荐接入面（任务托管 + 流式 + 统一结果）；
 > **B. 诊断任务 API `/api/diagnosis`** —— 诊断执行的全端点细粒度面（含 AgentWorkShop 桥接沿用的 `/tasks`）。

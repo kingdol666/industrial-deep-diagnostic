@@ -15,8 +15,9 @@
 <!-- ══ 状态徽章 ══ -->
 <img src="https://img.shields.io/badge/%E7%AE%A1%E7%BA%BF-9%20%E6%AD%A5-e8a33d?style=flat-square" alt="9 步管线">
 <img src="https://img.shields.io/badge/%E6%89%A7%E8%A1%8C%E5%BC%95%E6%93%8E-14%20%C2%B7%20%E8%AF%8A%E6%96%AD%20%2B%20%E8%81%8A%E5%A4%A9-6ba8b8?style=flat-square" alt="14 引擎">
+<img src="https://img.shields.io/badge/%E7%BB%93%E6%9E%9C%E5%BA%93-%E8%87%AA%E5%8A%A8%E6%91%98%E8%A6%81%20%C2%B7%20%E5%88%86%E7%B1%BB%E7%AE%A1%E7%90%86-9b7bd4?style=flat-square" alt="分析结果库">
 <img src="https://img.shields.io/badge/%E5%9F%BA%E5%87%86-Rubric%2094.6-8fbf6a?style=flat-square" alt="基准 Rubric 94.6">
-<img src="https://img.shields.io/badge/%E5%90%8E%E7%AB%AF%E6%B5%8B%E8%AF%95-116%20%E9%80%9A%E8%BF%87-8fbf6a?style=flat-square" alt="后端测试">
+<img src="https://img.shields.io/badge/%E5%90%8E%E7%AB%AF%E6%B5%8B%E8%AF%95-246%20%E9%80%9A%E8%BF%87-8fbf6a?style=flat-square" alt="后端测试">
 <img src="https://img.shields.io/badge/%E5%90%AF%E5%8A%A8-%E4%B8%80%E6%9D%A1%E5%91%BD%E4%BB%A4-f4b65a?style=flat-square" alt="一键启动">
 <img src="https://img.shields.io/badge/Node-%E2%89%A518-339933?style=flat-square&logo=nodedotjs&logoColor=white" alt="Node">
 <img src="https://img.shields.io/badge/License-MIT-success?style=flat-square" alt="License">
@@ -36,6 +37,30 @@
 > 这不是保守，这是工业现场唯一可用的诚实。
 
 ---
+
+<details>
+<summary><b>目录</b></summary>
+
+- [📸 界面一览](#-界面一览)
+- [✨ 能力概览](#-能力概览)
+- [📚 分析结果库 —— 每一次分析都可被人与 Agent 读懂的「记忆」](#-分析结果库--每一次分析都可被人与-agent-读懂的记忆)
+- [🎯 适用场景](#-适用场景)
+- [🚀 快速开始](#-快速开始)
+- [🖥 系统架构](#-系统架构)
+- [🧪 诊断基准 —— 12 场景 · 四步测试流水线](#-诊断基准--12-场景--四步测试流水线)
+- [🧩 技能与智能体](#-技能与智能体)
+- [✅ 9 道质量门](#-9-道质量门)
+- [🔬 证据分级体系](#-证据分级体系)
+- [🔌 API 参考](#-api-参考)
+- [🔧 配置](#-配置)
+- [🐳 Docker 部署](#-docker-部署)
+- [🗂 项目结构](#-项目结构)
+- [🐛 故障排查](#-故障排查)
+- [🧪 用验证说话，不用形容词](#-用验证说话不用形容词)
+- [🤝 贡献](#-贡献)
+- [📜 许可证](#-许可证)
+
+</details>
 
 ## 📸 界面一览
 
@@ -185,6 +210,56 @@
 </td>
 </tr>
 </table>
+
+---
+
+## 📚 分析结果库 —— 每一次分析都可被人与 Agent 读懂的「记忆」
+
+> 每个完成的分析都落成一条扁平结构化记录（`result_id = run_id`）：**自动摘要**、可溯源关键数字、完整报告、全部 HTML 工件，外加一套人机共用（描述 · 标签 · 分类）的管理面。
+
+<table>
+<tr>
+<td width="52%" valign="top">
+
+### 你得到什么
+- **完成即自动摘要** —— 零 LLM、确定性提取自该运行**自己的**工件；每个关键数字带 `sources` 指针（`文件#json.字段`），绝不编造
+- **两级 Agent API** —— 扁平索引（`brief=true` 省 token 模式，`display_text = description ‖ summary`）→ 按 id 取详情（`summary_json` · metadata · `report_md` · HTML/工件 URL）
+- **一切均可直读** —— 外部 Agent 用 `idd_` API Token 就能经 API 取回报告全文、所有 HTML 报告与每个工件 JSON，无需文件系统权限
+- **人的管理面** —— 可编辑描述（优先于自动摘要）、标签、每用户分类与分类筛选
+- **分类描述视图** —— `GET /results/categories/:id/results` 一次取回该分类下每条结果的描述；未编辑的回落自动摘要
+- **永不空白、永不虚构** —— 无工件运行如实说明原因；行缺失时读取即时派生（`derived: true`）
+- **生命周期安全** —— 每个运行仅一行，续跑/重建时 UPSERT；删除分类只清引用、绝不删结果
+
+</td>
+<td width="48%" align="center">
+
+<img src="docs/screenshots/12-results-library.png" alt="分析结果库"/>
+<br/><b>扁平结果台账</b><br/>
+<sub>9 列 · 意图 · 分类 · 标签 · 评分/结论 · 全文检索</sub>
+
+<img src="docs/screenshots/13-results-detail.png" alt="结果详情抽屉"/>
+<br/><b>结果详情</b><br/>
+<sub>自动摘要 + 可溯源关键数字 · 描述/标签编辑 · 分类选择</sub>
+
+</td>
+</tr>
+</table>
+
+```python
+# AWS 侧 Agent 仅凭 idd_ API Token 即可完成闭环
+# get/post/patch 为薄封装，统一加 {"Authorization": "Bearer idd_…"}
+# 1) 省 token 的摘要索引
+cards = get("/api/external/v1/results", params={"brief": "true", "q": "yield"})["data"]["results"]
+# 2) 按 id 取详情：元信息、报告全文、HTML/工件 URL
+r = get(f"/api/external/v1/results/{cards[0]['result_id']}")["data"]
+print(r["score"], r["verdict"], r["summary_json"]["key_numbers"], r["metadata"]["report_md"]["bytes"])
+# 3) 管理：建分类 → 归档结果 → 读该分类下全部描述
+cat = post("/api/external/v1/results/categories", {"name": "收率异常"})["data"]
+patch(f"/api/results/{r['result_id']}", {"category_id": cat["id"], "description": "A 线基准分析"})
+view = get(f"/api/external/v1/results/categories/{cat['id']}/results")["data"]
+for row in view["results"]:
+    print(row["result_id"], row["description"] or row["display_text"])
+```
 
 ---
 
@@ -410,11 +485,13 @@ flowchart LR
     subgraph STORE["💾 资产"]
         ONTO[("本体资产库<br/>data/ontology_store")]
         RUNS[("诊断运行<br/>workspace/diagnostic-runs")]
+        RES[("分析结果库<br/>analysis_results · 自动摘要")]
     end
 
     UI <-->|HTTP| API
     UI <-->|WS / SSE| WS
     API --> ORCH
+    API <-->|结果索引 / 详情 / 分类| RES
     ORCH --> DB
     ORCH --> BUS
     BUS --> WS
@@ -422,6 +499,7 @@ flowchart LR
     ORCH -->|检索 / 打分 / 注入| RAG
     ORCH --> ONTO
     ORCH --> RUNS
+    ORCH -->|完成钩子 · UPSERT| RES
     RAG -.->|不可用时自动降级<br/>parameter_to_physics + 网络检索| ORCH
     ONTO -.->|指纹命中则复用<br/>本体构建 15.6 分钟 → ≤0.5 分钟| ORCH
 
@@ -674,6 +752,12 @@ GET /api/health
 | | `/api/chat/stream/:chatId` | GET | SSE 会话流 |
 | **执行引擎** | `/api/harness` | GET | 引擎注册表（14 个） |
 | | `/api/harness/availability` | GET | 引擎可用性、默认引擎、最近 `provider_error` |
+| **分析结果库** | `/api/results` | GET | 扁平结果索引（`q/intent/category_id/tag/scene/harness/min_score/sort/limit/offset/brief`） |
+| | `/api/results/:resultId` | GET | 详情：`summary_json`（可溯源关键数字）、元信息、`report_md`、HTML/工件 URL |
+| | `/api/results/:resultId` | PATCH | 编辑用户字段：`description` / `tags` / `title` / `category_id`（summary 只读） |
+| | `/api/results/categories` | GET/POST | 分类列表（各带调用方口径 result_count）· 创建（重名 409） |
+| | `/api/results/categories/:id` | PATCH/DELETE | 重命名 · 删除（清引用，绝不删结果） |
+| | `/api/results/categories/:id/results` | GET | **分类描述视图**——该分类下每条结果的 description |
 
 ### 外部集成 API（`/api/external/v1`）
 
@@ -994,7 +1078,7 @@ ls -la workspace/diagnostic-runs/<run>/                         # 检查各步�
 
 | 验证 | 范围 | 结果 | 证据 |
 |------|------|------|------|
-| 后端测试套件 | 路由 · 服务 · 引擎适配器 · HTTP e2e（fake CLI / fake ACP / codex app-server） | **242/242 通过** | `app/backend npm test` |
+| 后端测试套件 | 路由 · 服务 · 引擎适配器 · HTTP e2e（fake CLI / fake ACP / codex app-server） | **246/246 通过** | `app/backend npm test` |
 | Skill 设计静态审计 | 24 skills / 16 agents · frontmatter · 协议引用 · JSON Schema · 脚本路径 | **0 failures** | `node scripts/audit/skill-design.mjs` |
 | API 契约（只读） | harness · capabilities · history · 有界快照 · 报告/资产 · 鉴权/404 | **22/22 通过** | `node scripts/e2e/api-contract-final.mjs` |
 | 结果库 API | 索引过滤/brief/分页 · 详情（summary_json/sources/report_md）· PATCH 规则 · capabilities | **37/37 通过** | `node scripts/e2e/results-api-acceptance.mjs --base http://127.0.0.1:3210` |
