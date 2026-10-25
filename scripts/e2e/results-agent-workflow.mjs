@@ -3,12 +3,12 @@
 // agent runs — survey summaries → pick an id → read the detail and cite the
 // report numbers. GET-only, repeatable, never starts an analysis.
 //
-// Usage: node scripts/e2e/results-agent-workflow.mjs --base http://127.0.0.1:3988 --q yield
+// Usage: node scripts/e2e/results-agent-workflow.mjs --base http://127.0.0.1:3210 --q yield
 // (default q=yield: summaries keep the artifacts' real parameter names, e.g.
 //  yield_pct — search those tokens, not their translations)
 const args = process.argv.slice(2);
 const opt = (n, d = null) => { const i = args.indexOf(`--${n}`); return i >= 0 ? args[i + 1] : d; };
-const BASE = opt('base', 'http://127.0.0.1:3988').replace(/\/$/, '');
+const BASE = opt('base', 'http://127.0.0.1:3210').replace(/\/$/, '');
 const USER = opt('user', 'e2e_ontology');
 const PASS = opt('password', 'E2e-Onto-2026!');
 const QUERY = opt('q', 'yield');
