@@ -756,6 +756,17 @@ export async function sendChatMessage(runId, message, options = {}) {
     err.code = 'RUN_PENDING';
     throw err;
   }
+  // A running run owns a live engine child. The session-resume path below
+  // closes engines and spawns a fresh CLI process on the same session file —
+  // doing that mid-run kills the diagnosis (observed: omp_process_exit:null
+  // the moment a chat landed on a running run). Refuse instead; stop → chat.
+  if (run.status === 'running') {
+    const err = new Error(`Run ${runId} is still running — stop it before continuing the conversation`);
+    err.status = 409;
+    err.code = 'RUN_NOT_IDLE';
+    err.runId = runId;
+    throw err;
+  }
   // One live chat turn per run: two concurrent resumes would kill each other.
   if (activeChatTurns.has(runId)) {
     const err = new Error(`A chat turn is already running for ${runId} — wait for it to finish`);

@@ -7,7 +7,7 @@
 // refresh. This is the regression test for the "subscribe on a closed run
 // silently no-ops" bug.
 //
-// Usage: node scripts/e2e/ws-live-chat-e2e.mjs --run <runId> --base http://127.0.0.1:3211
+// Usage: node scripts/e2e/ws-live-chat-e2e.mjs --run <runId> --base http://127.0.0.1:3210
 // Uses Node's built-in WebSocket (Node >= 22), same wire protocol as the UI.
 
 const args = process.argv.slice(2);
@@ -15,7 +15,7 @@ const opt = (name, fallback = null) => {
   const i = args.indexOf(`--${name}`);
   return i >= 0 ? args[i + 1] : fallback;
 };
-const BASE = opt('base', 'http://127.0.0.1:3211');
+const BASE = opt('base', 'http://127.0.0.1:3210');
 const RUN = opt('run', 'b5c9236a');
 const CREDS = { username: 'e2e_ontology', password: 'E2e-Onto-2026!' };
 

@@ -7,7 +7,7 @@
 // on: uncaught page exceptions, console errors, failed /api/* responses,
 // horizontal page overflow, missing score/verdict text, empty report/HTML.
 //
-//   node scripts/e2e/ui-visual-audit.mjs --api http://127.0.0.1:3211 --web http://127.0.0.1:5181 \
+//   node scripts/e2e/ui-visual-audit.mjs --api http://127.0.0.1:3210 --web http://127.0.0.1:5180 \
 //     --run 46833919 --out workspace/acceptance/2026-10-22
 import { spawn } from 'child_process';
 import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'fs';
@@ -20,8 +20,8 @@ const opt = (name, fallback = null) => {
   const i = args.indexOf(`--${name}`);
   return i >= 0 ? args[i + 1] : fallback;
 };
-const API = opt('api', 'http://127.0.0.1:3211').replace(/\/$/, '');
-const WEB = opt('web', 'http://127.0.0.1:5181').replace(/\/$/, '');
+const API = opt('api', 'http://127.0.0.1:3210').replace(/\/$/, '');
+const WEB = opt('web', 'http://127.0.0.1:5180').replace(/\/$/, '');
 const RUN = opt('run', '46833919');
 const OUT = resolve(opt('out', 'workspace/acceptance/2026-10-22'));
 const USER = opt('user', 'e2e_ontology');

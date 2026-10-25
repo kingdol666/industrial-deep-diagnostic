@@ -12,9 +12,9 @@
 //   P5  a run that was `running` when the server restarted becomes `failed`.
 //
 // Usage:
-//   node scripts/e2e/continue-chat-state-e2e.mjs before --base http://127.0.0.1:3211
+//   node scripts/e2e/continue-chat-state-e2e.mjs before --base http://127.0.0.1:3210
 //   # restart the backend
-//   node scripts/e2e/continue-chat-state-e2e.mjs after  --base http://127.0.0.1:3211
+//   node scripts/e2e/continue-chat-state-e2e.mjs after  --base http://127.0.0.1:3210
 import { readFileSync, writeFileSync } from 'node:fs';
 import { stmts } from '../../app/backend/src/db/database.mjs';
 
@@ -24,7 +24,7 @@ const opt = (name, fallback = null) => {
   const i = args.indexOf(`--${name}`);
   return i >= 0 ? args[i + 1] : fallback;
 };
-const BASE = opt('base', 'http://127.0.0.1:3211');
+const BASE = opt('base', 'http://127.0.0.1:3210');
 const CREDS = { username: 'e2e_ontology', password: 'E2e-Onto-2026!' };
 const STATE = '.runtime-e2e-chat-state.json';
 

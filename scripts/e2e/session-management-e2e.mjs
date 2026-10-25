@@ -9,8 +9,8 @@
 //                   filtered listing, restore/purge, session-map.
 //
 // Usage:
-//   node scripts/e2e/session-management-e2e.mjs before --base http://127.0.0.1:3211 --token <idd_...>
-//   node scripts/e2e/session-management-e2e.mjs after  --base http://127.0.0.1:3211 --token <idd_...>
+//   node scripts/e2e/session-management-e2e.mjs before --base http://127.0.0.1:3210 --token <idd_...>
+//   node scripts/e2e/session-management-e2e.mjs after  --base http://127.0.0.1:3210 --token <idd_...>
 import { stmts } from '../../app/backend/src/db/database.mjs';
 
 const args = process.argv.slice(2);
@@ -19,7 +19,7 @@ const opt = (name, fallback = null) => {
   const i = args.indexOf(`--${name}`);
   return i >= 0 ? args[i + 1] : fallback;
 };
-const BASE = opt('base', 'http://127.0.0.1:3211');
+const BASE = opt('base', 'http://127.0.0.1:3210');
 const TOKEN = process.env.E2E_TOKEN || opt('token');
 const STATE_FILE = opt('state', '.runtime-e2e-session-state.json');
 

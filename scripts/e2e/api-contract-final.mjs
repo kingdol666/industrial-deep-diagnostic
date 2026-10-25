@@ -2,10 +2,10 @@
 // Final front/back contract probe — GET-only against existing runs.
 // No diagnosis is started (no /diagnosis/start, no /execute, no external analyze).
 //
-// Usage: node scripts/e2e/api-contract-final.mjs --base http://127.0.0.1:3211
+// Usage: node scripts/e2e/api-contract-final.mjs --base http://127.0.0.1:3210
 const args = process.argv.slice(2);
 const opt = (n, d = null) => { const i = args.indexOf(`--${n}`); return i >= 0 ? args[i + 1] : d; };
-const BASE = opt('base', 'http://127.0.0.1:3211').replace(/\/$/, '');
+const BASE = opt('base', 'http://127.0.0.1:3210').replace(/\/$/, '');
 const USER = opt('user', 'e2e_ontology');
 const PASS = opt('password', 'E2e-Onto-2026!');
 const RUN = opt('run', '837404b0');

@@ -8,7 +8,7 @@
 // (element re-render churn + infinite animations) recorded in the follow-up plan.
 //
 // Requires the real backend and the Vite dev server:
-//   node scripts/e2e/ui-smoke-native.mjs --api http://127.0.0.1:3211 --web http://127.0.0.1:5181
+//   node scripts/e2e/ui-smoke-native.mjs --api http://127.0.0.1:3210 --web http://127.0.0.1:5180
 //
 // Uses the locally installed Chrome/Edge via the DevTools Protocol; no extra npm
 // dependency. CHROME_PATH overrides binary discovery.
@@ -23,8 +23,8 @@ const opt = (name, fallback = null) => {
   const i = args.indexOf(`--${name}`);
   return i >= 0 ? args[i + 1] : fallback;
 };
-const API = opt('api', 'http://127.0.0.1:3211').replace(/\/$/, '');
-const WEB = opt('web', 'http://127.0.0.1:5181').replace(/\/$/, '');
+const API = opt('api', 'http://127.0.0.1:3210').replace(/\/$/, '');
+const WEB = opt('web', 'http://127.0.0.1:5180').replace(/\/$/, '');
 const KEEP = args.includes('--keep');
 
 let failures = 0;

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Large-run rendering probe: open a run with a big event stream in the real UI
 // and measure time-to-interactive, DOM weight, heap, and input latency.
-// Usage: node scripts/e2e/ui-large-run-probe.mjs --run <runId> --web http://127.0.0.1:5181
+// Usage: node scripts/e2e/ui-large-run-probe.mjs --run <runId> --web http://127.0.0.1:5180
 import { spawn } from 'child_process';
 import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'fs';
 import { createServer } from 'net';
@@ -10,8 +10,8 @@ import { join } from 'path';
 
 const args = process.argv.slice(2);
 const opt = (n, d = null) => { const i = args.indexOf(`--${n}`); return i >= 0 ? args[i + 1] : d; };
-const API = opt('api', 'http://127.0.0.1:3211').replace(/\/$/, '');
-const WEB = opt('web', 'http://127.0.0.1:5181').replace(/\/$/, '');
+const API = opt('api', 'http://127.0.0.1:3210').replace(/\/$/, '');
+const WEB = opt('web', 'http://127.0.0.1:5180').replace(/\/$/, '');
 const RUN = opt('run');
 const USER = opt('user', 'e2e_ontology');
 const PASS = opt('password', 'E2e-Onto-2026!');

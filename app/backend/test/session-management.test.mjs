@@ -321,3 +321,42 @@ describe('restart semantics (B0.1) + session reconcile (B0.3) — DB backed', ()
     } finally { cleanup(); }
   });
 });
+
+describe('chat on a live run is refused (RUN_NOT_IDLE)', () => {
+  // Regression: a chat turn on a RUNNING run used to fall through to the
+  // session-resume path, whose closeAllEngines() killed the live engine child
+  // before spawning a fresh CLI process on the same session file — the
+  // diagnosis died (observed twice on 2026-10-25: omp_process_exit:null the
+  // moment a chat landed on a running omp run). Chat must refuse instead.
+  const RUN_LIVE = 'zz-live-chat';
+
+  function cleanup() {
+    for (const stmt of [stmts.deleteLogsByRunId, stmts.deleteEventStreamByRunId, stmts.deleteRunRow]) {
+      try { stmt.run(RUN_LIVE); } catch { /* ignore */ }
+    }
+  }
+
+  function insertRunning() {
+    stmts.insertRun.run({
+      runId: RUN_LIVE, name: RUN_LIVE, title: RUN_LIVE, sceneName: 'zz_test_scene',
+      dataPath: 'data/smoke.csv', dataFolder: null, userQuestion: '',
+      model: null, maxTurns: 10, reportLanguage: 'zh', harness: 'omp',
+      ontologyHit: 0, enhancementPolicy: 'auto', enhancementTriggered: 0,
+      analysisIntent: 'deep-diagnosis', userId: null,
+    });
+    stmts.updateRunStatus.run({ runId: RUN_LIVE, status: 'running' });
+    stmts.updateRunSession.run({ runId: RUN_LIVE, sessionId: 'omp:run:zz-live-chat' });
+  }
+
+  test('running run → 409 RUN_NOT_IDLE and the run is left untouched', async () => {
+    cleanup();
+    try {
+      insertRunning();
+      await assert.rejects(
+        diagnosisService.sendChatMessage(RUN_LIVE, 'hi'),
+        (err) => err.status === 409 && err.code === 'RUN_NOT_IDLE',
+      );
+      assert.equal(stmts.getRunById.get(RUN_LIVE).status, 'running');
+    } finally { cleanup(); }
+  });
+});
