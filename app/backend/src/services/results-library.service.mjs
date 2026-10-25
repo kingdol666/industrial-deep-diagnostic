@@ -19,7 +19,7 @@ import { stmts } from '../db/database.mjs';
 import { resolveRunDir, buildArtifactManifest } from './artifact-manifest.service.mjs';
 import { enrichRunOutcome } from './intent-outcome.service.mjs';
 import { engineSupportsSessionChat } from './session-integrity.service.mjs';
-import { renameRun, setRunCategory } from './history.service.mjs';
+import { renameRun, setRunCategory, createCategory, renameCategory, deleteCategory } from './history.service.mjs';
 import { PROJECT_ROOT } from '../../../../config/loader.mjs';
 import logger from '../utils/logger.mjs';
 
@@ -621,6 +621,77 @@ export function listResults(user, params = {}) {
   const rows = stmts.listResultsFiltered.all(sqlParams);
   const total = stmts.countResultsFiltered.get(sqlParams).n;
   return { total, limit: p.limit, offset: p.offset, brief: p.brief, results: rows.map((r) => buildCard(r, { brief: p.brief })) };
+}
+
+// ── Category management on the results surface ─────────────────────────────
+// One implementation, mounted on both /api/results/categories* and
+// /api/external/v1/results/categories*; every mutation delegates to the
+// history service (per-user isolation, 409 on duplicate names, category
+// deletion clears result refs) — run_categories stays the single truth.
+
+/** Categories visible to the caller, each with its RESULT count. */
+export function listResultCategories(user) {
+  const isAdmin = user?.role === 'admin' || !user?.id;
+  const userId = isAdmin ? null : String(user.id);
+  // result_count mirrors the index's visibility rule (own rows + legacy
+  // NULL-owner rows), so the badge can never promise rows the caller cannot list.
+  return stmts.listResultCategories.all({ userId }).map((c) => ({
+    id: c.id,
+    name: c.name,
+    result_count: c.result_count ?? 0,
+    created_at: c.created_at,
+  }));
+}
+
+export function createResultCategory(name, user) {
+  return createCategory(name, user);
+}
+
+export function renameResultCategory(categoryId, name, user) {
+  return renameCategory(categoryId, name, user);
+}
+
+export function deleteResultCategory(categoryId, user) {
+  return deleteCategory(categoryId, user);
+}
+
+/**
+ * The category-centric description view: every result in a category with its
+ * description (and display_text fallback). Foreign categories read as 404 so
+ * ids of other users are never confirmed.
+ */
+export function listResultsByCategory(categoryId, user, { limit, offset } = {}) {
+  const category = stmts.getCategoryById.get(String(categoryId || ''));
+  if (!category) {
+    throw httpError(404, 'CATEGORY_NOT_FOUND', `Category not found: ${categoryId}`);
+  }
+  if (user?.id && user.role !== 'admin' && String(category.user_id) !== String(user.id)) {
+    throw httpError(404, 'CATEGORY_NOT_FOUND', `Category not found: ${categoryId}`);
+  }
+  const page = listResults(user, { category_id: category.id, limit, offset });
+  return {
+    category: {
+      id: category.id,
+      name: category.name,
+      result_count: page.total,
+      created_at: category.created_at,
+    },
+    total: page.total,
+    limit: page.limit,
+    offset: page.offset,
+    results: page.results.map((card) => ({
+      result_id: card.result_id,
+      title: card.title,
+      description: card.description,
+      display_text: card.display_text,
+      intent: card.intent,
+      score: card.score,
+      verdict: card.verdict,
+      tags: card.tags,
+      created_at: card.created_at,
+      completed_at: card.completed_at,
+    })),
+  };
 }
 
 function htmlFileEntries(run, metadata) {

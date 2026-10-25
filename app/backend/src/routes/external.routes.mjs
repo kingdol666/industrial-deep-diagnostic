@@ -26,7 +26,11 @@ import {
 import { ANALYSIS_INTENTS } from '../engine/claude-client.mjs';
 import { supportedIntentsFor } from '../services/intent-capability.service.mjs';
 import { engineSupportsSessionChat } from '../services/session-integrity.service.mjs';
-import { listResults, getResultDetail, updateResult } from '../services/results-library.service.mjs';
+import {
+  listResults, getResultDetail, updateResult,
+  listResultCategories, createResultCategory, renameResultCategory,
+  deleteResultCategory, listResultsByCategory,
+} from '../services/results-library.service.mjs';
 
 const router = Router();
 const TERMINAL = new Set(['completed', 'failed', 'stopped', 'interrupted', 'expired', 'awaiting_input']);
@@ -183,6 +187,60 @@ router.get('/v1/results', (req, res) => {
       success: false,
       code: err.code || 'RESULTS_QUERY_INVALID',
       error: err.message,
+    });
+  }
+});
+
+// ── Results-library categories — same service as the console mount ────────
+// Created for agent integrations: manage categories and read a category's
+// every description without crossing into the /history console domain.
+// ROUTE ORDER: these must precede /v1/results/:resultId, or "categories"
+// is captured as a result id.
+router.get('/v1/results/categories', (req, res) => {
+  res.json({ success: true, data: listResultCategories(req.user) });
+});
+
+router.post('/v1/results/categories', (req, res) => {
+  try {
+    res.status(201).json({ success: true, data: createResultCategory(req.body?.name, req.user) });
+  } catch (err) {
+    res.status(err.status || 500).json({
+      success: false, code: err.code || 'CATEGORY_ERROR', error: err.message,
+    });
+  }
+});
+
+router.patch('/v1/results/categories/:id', (req, res) => {
+  try {
+    res.json({ success: true, data: renameResultCategory(req.params.id, req.body?.name, req.user) });
+  } catch (err) {
+    res.status(err.status || 500).json({
+      success: false, code: err.code || 'CATEGORY_ERROR', error: err.message,
+    });
+  }
+});
+
+router.delete('/v1/results/categories/:id', (req, res) => {
+  try {
+    res.json({ success: true, data: deleteResultCategory(req.params.id, req.user) });
+  } catch (err) {
+    res.status(err.status || 500).json({
+      success: false, code: err.code || 'CATEGORY_ERROR', error: err.message,
+    });
+  }
+});
+
+// The category-centric description view: every result of one category.
+router.get('/v1/results/categories/:id/results', (req, res) => {
+  try {
+    const view = listResultsByCategory(req.params.id, req.user, {
+      limit: req.query.limit,
+      offset: req.query.offset,
+    });
+    res.json({ success: true, data: view });
+  } catch (err) {
+    res.status(err.status || 500).json({
+      success: false, code: err.code || 'RESULTS_ERROR', error: err.message,
     });
   }
 });

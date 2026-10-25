@@ -14,6 +14,8 @@ import { join } from 'path';
 const {
   summarizeRun, upsertResultFromRun, backfillResults,
   listResults, getResultDetail, updateResult, RESULT_INTENTS,
+  listResultCategories, createResultCategory, renameResultCategory,
+  deleteResultCategory, listResultsByCategory,
 } = await import('../src/services/results-library.service.mjs');
 import { stmts, db as dbHandle } from '../src/db/database.mjs';
 
@@ -479,6 +481,96 @@ describe('updateResult — PATCH rules', () => {
   });
 });
 
+// ── category management on the results surface ─────────────────────────────
+
+describe('result categories — CRUD + description view', () => {
+  const OWNER = { id: '777001', role: 'user' };
+  const OTHER = { id: '777002', role: 'user' };
+
+  test('create via the results surface; duplicate name → 409; list carries result_count', () => {
+    const created = createResultCategory('结果库分类A', OWNER);
+    assert.ok(created.id);
+    try {
+      const list = listResultCategories(OWNER);
+      const mine = list.find((c) => c.id === created.id);
+      assert.ok(mine, 'new category listed');
+      assert.equal(mine.result_count, 0);
+      assert.equal(list.every((c) => Number.isInteger(c.result_count)), true);
+      assert.throws(() => createResultCategory('结果库分类A', OWNER), (e) => e.code === 'CATEGORY_EXISTS' && e.status === 409);
+      assert.throws(() => createResultCategory('', OWNER), (e) => e.code === 'CATEGORY_NAME_REQUIRED' && e.status === 400);
+    } finally {
+      deleteResultCategory(created.id, OWNER);
+    }
+  });
+
+  test('per-user isolation: another user neither sees nor reads the category', () => {
+    const created = createResultCategory('隔离分类', OWNER);
+    try {
+      assert.equal(listResultCategories(OTHER).some((c) => c.id === created.id), false);
+      assert.throws(() => listResultsByCategory(created.id, OTHER), (e) => e.code === 'CATEGORY_NOT_FOUND' && e.status === 404);
+    } finally {
+      deleteResultCategory(created.id, OWNER);
+    }
+  });
+
+  test('by-category view returns every description (assigned + display_text fallback)', () => {
+    const dirA = runDir({
+      'line_report/stability_report.json': { conclusion: { score: 65, grade: 'C', statement: 'A 的结论' } },
+    });
+    const dirB = runDir({
+      'line_report/stability_report.json': { conclusion: { score: 90, grade: 'A', statement: 'B 的结论' } },
+    });
+    const a = insertTestRun({ intent: 'stability-report', workspacePath: dirA, userId: OWNER.id });
+    const b = insertTestRun({ intent: 'stability-report', workspacePath: dirB, userId: OWNER.id });
+    upsertResultFromRun(a);
+    upsertResultFromRun(b);
+    const cat = createResultCategory('描述视图分类', OWNER);
+    try {
+      updateResult(a, { category_id: cat.id, description: 'A 的手工描述' }, OWNER);
+      updateResult(b, { category_id: cat.id }, OWNER);
+      const view = listResultsByCategory(cat.id, OWNER);
+      assert.equal(view.category.id, cat.id);
+      assert.equal(view.category.result_count, 2);
+      assert.equal(view.total, 2);
+      const ra = view.results.find((r) => r.result_id === a);
+      const rb = view.results.find((r) => r.result_id === b);
+      assert.equal(ra.description, 'A 的手工描述');
+      assert.equal(ra.display_text, 'A 的手工描述');
+      assert.equal(rb.description, null);
+      assert.ok(rb.display_text.includes('B 的结论'), 'un-edited result falls back to its auto summary');
+      // every entry carries the description-view contract
+      for (const r of view.results) {
+        for (const key of ['result_id', 'title', 'description', 'display_text', 'intent', 'score', 'verdict', 'tags', 'created_at']) {
+          assert.ok(key in r, `entry carries ${key}`);
+        }
+      }
+    } finally {
+      deleteResultCategory(cat.id, OWNER);
+    }
+  });
+
+  test('rename + delete: rename is visible; delete clears refs and empties the view', () => {
+    const dir = runDir({
+      'line_report/stability_report.json': { conclusion: { score: 70, grade: 'B', statement: '结论' } },
+    });
+    const runId = insertTestRun({ intent: 'stability-report', workspacePath: dir, userId: OWNER.id });
+    upsertResultFromRun(runId);
+    const cat = createResultCategory('重命名分类', OWNER);
+    try {
+      updateResult(runId, { category_id: cat.id }, OWNER);
+      const renamed = renameResultCategory(cat.id, '重命名后的分类', OWNER);
+      assert.equal(renamed.name, '重命名后的分类');
+      assert.equal(listResultsByCategory(cat.id, OWNER).total, 1);
+    } finally {
+      deleteResultCategory(cat.id, OWNER);
+    }
+    // deletion clears the run's category ref and the view is gone (404)
+    assert.equal(stmts.getRunById.get(runId).category_id, null);
+    assert.throws(() => listResultsByCategory(cat.id, OWNER), (e) => e.code === 'CATEGORY_NOT_FOUND');
+    assert.throws(() => listResultsByCategory('no-such-cat', OWNER), (e) => e.code === 'CATEGORY_NOT_FOUND');
+  });
+});
+
 // ── backfill — idempotent, insert-only ─────────────────────────────────────
 
 describe('backfillResults — idempotent', () => {
@@ -487,10 +579,18 @@ describe('backfillResults — idempotent', () => {
     const second = backfillResults();
     assert.equal(second.inserted, 0, 'second pass inserts nothing');
     assert.equal(second.refreshed, 0, 'second pass refreshes nothing (first pass settled the empties)');
-    const { n, distinct_runs: distinct } = dbHandle
+    // Raw-table duplicate guard (no join): one row per run, period.
+    const { n: rawRows, distinct_runs: rawDistinct } = dbHandle
       .prepare('SELECT COUNT(*) AS n, COUNT(DISTINCT run_id) AS distinct_runs FROM analysis_results')
       .get();
-    assert.equal(n, distinct, 'no duplicate rows');
+    assert.equal(rawRows, rawDistinct, 'no duplicate rows');
+    // Visible-scope guard (index semantics): joined to completed non-deleted
+    // runs — soft-deleted runs keep their rows but leave the visible scope,
+    // and concurrent suites may soft-delete at any time.
+    const { n } = dbHandle
+      .prepare(`SELECT COUNT(*) AS n FROM analysis_results a
+                JOIN diagnostic_runs r ON r.run_id = a.run_id
+                WHERE r.status = 'completed' AND r.deleted_at IS NULL`).get();
     assert.ok(n >= 1, 'legacy completed runs are materialized');
     const completed = dbHandle
       .prepare("SELECT COUNT(*) AS c FROM diagnostic_runs WHERE status='completed' AND deleted_at IS NULL")

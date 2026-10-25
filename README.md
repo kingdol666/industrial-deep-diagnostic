@@ -693,6 +693,9 @@ GET /api/health
 | `/results` | GET | results library — flat summary index (`q/intent/tag/scene/harness/min_score/sort/limit/offset/brief`), auto-summary at completion, `display_text = description ‖ summary` |
 | `/results/:resultId` | GET | full detail: `summary_json` (auditable key numbers + sources), metadata (report/artifacts/fingerprint), `report_md`, HTML file URLs |
 | `/results/:resultId` | PATCH | edit user fields only: `description` / `tags` / `title` / `category_id` (summary is read-only) |
+| `/results/categories` | GET/POST | list categories with per-caller result counts · create (`name`; 409 on duplicate) |
+| `/results/categories/:id` | PATCH/DELETE | rename · delete (clears result refs, never deletes results) |
+| `/results/categories/:id/results` | GET | the per-category description view — every result's `description` (falls back to `display_text`) |
 
 ### WebSocket real-time push
 
@@ -1002,7 +1005,7 @@ Every release-quality claim traces to a repeatable check, not to a paragraph of 
 | API contract (GET-only) | harness · capabilities · history · bounded snapshot · report/assets · auth/404 | **22/22 pass** | `node scripts/e2e/api-contract-final.mjs` |
 | Results library API | index filters/brief/paging · detail (summary_json/sources/report_md) · PATCH rules · capabilities | **37/37 pass** | `node scripts/e2e/results-api-acceptance.mjs --base http://127.0.0.1:3210` |
 | Results library UI | native-input tour: Results tab · search · drawer · description/tags PATCH · category assign + filter · report open · History summary card | **19/19 pass** | `node scripts/e2e/results-ui-check.mjs --api http://127.0.0.1:3210 --web http://127.0.0.1:5180` |
-| Results requirements | R1 categorization · R2 every result has a readable description · R3 metadata by id · R4 full report readable | **28/28 pass** | `node scripts/e2e/results-requirements-check.mjs --base http://127.0.0.1:3210` |
+| Results requirements | R1 categorization (API CRUD + per-category description view) · R2 every result has a readable description · R3 metadata by id · R4 full report readable | **39/39 pass** | `node scripts/e2e/results-requirements-check.mjs --base http://127.0.0.1:3210` |
 | AWS integration (results) | `idd_` API token end-to-end: index → detail by run id → **read** report.md / all HTML / all artifact JSONs (35 files, 6 intents) → key numbers traced to artifact fields | **87/87 pass** | `node scripts/e2e/results-aws-integration.mjs --base http://127.0.0.1:3210` |
 | UI render audit | native login → History → run → report MD/HTML · console/network · 1440/1280 | **20/20 pass** | `node scripts/e2e/ui-visual-audit.mjs` |
 | Large-run window | 5,001-event fixture: 226 KB / 11 ms (vs 11.5 MB full stream) | **pass** | `node scripts/e2e/ui-large-run-probe.mjs` |

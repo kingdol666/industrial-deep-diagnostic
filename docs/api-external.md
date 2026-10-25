@@ -415,6 +415,21 @@ Body 至少一项：`{ "description"?: string|null ≤2000, "tags"?: string[] �
 "title"?: string ≤200, "category_id"?: string|null }`。`title`/`category_id` 委托给 run 行
 （与 History 同一套校验/归属规则）。响应 200 + 更新后的详情。
 
+### 16.3a 分类管理（结果面，与 /api/history/categories 同一实现）
+
+| 端点 | 方法 | 说明 |
+|---|:--:|---|
+| `/results/categories` | GET | 调用方可见的分类，各带 `result_count`（按索引可见性口径：本人 + 遗留 NULL 归属行） |
+| `/results/categories` | POST | `{name ≤60}` 创建 → 201；重名 409 `CATEGORY_EXISTS`；空名 400 |
+| `/results/categories/:id` | PATCH | `{name}` 重命名（属主校验，403/404 同 History） |
+| `/results/categories/:id` | DELETE | 删除分类；结果的 category 引用被清空（绝不删结果） |
+| `/results/categories/:id/results` | GET | **分类描述视图**：该分类下全部结果，每条含 `description` 与 `display_text`（未编辑的回落自动摘要）；`limit/offset` 同索引 |
+
+描述视图响应 `data`：`{ category{id,name,result_count}, total, limit, offset,
+results:[{result_id,title,description,display_text,intent,score,verdict,tags,created_at,completed_at}] }`。
+他人分类一律 404 `CATEGORY_NOT_FOUND`（不确认存在性）。控制台 `/api/results/categories*` 与外部
+`/api/external/v1/results/categories*` 同实现同语义。
+
 ### 16.4 错误码（结果库新增）
 
 | HTTP | code | 场景 |
@@ -424,6 +439,8 @@ Body 至少一项：`{ "description"?: string|null ≤2000, "tags"?: string[] �
 | 400 | SUMMARY_READONLY | 试图改 summary（改 description） |
 | 403 | RESULT_FORBIDDEN | 非属主编辑 |
 | 404 | RESULT_NOT_FOUND | id 不存在 / run 软删除 / run 未完成 |
+| 409 | CATEGORY_EXISTS | 分类重名（同名创建） |
+| 404 | CATEGORY_NOT_FOUND | 分类不存在 / 非本人分类（不确认存在性） |
 
 ### 16.5 Agent 三步接入配方
 

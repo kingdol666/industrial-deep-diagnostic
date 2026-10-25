@@ -649,6 +649,21 @@ const stmts = {
       AND (@q IS NULL OR a.description LIKE @q OR a.summary LIKE @q
            OR r.title LIKE @q OR r.name LIKE @q OR a.scene_name LIKE @q OR a.tags LIKE @q)
   `),
+  // Categories on the results surface, each with its result count under the
+  // index's visibility rule (own + legacy NULL-owner rows only).
+  listResultCategories: db.prepare(`
+    SELECT c.id, c.name, c.created_at,
+      (SELECT COUNT(*)
+       FROM analysis_results a
+       JOIN diagnostic_runs r ON r.run_id = a.run_id
+       WHERE r.category_id = c.id
+         AND r.deleted_at IS NULL
+         AND (@userId IS NULL OR a.user_id IS NULL OR a.user_id = @userId)
+      ) AS result_count
+    FROM run_categories c
+    WHERE (@userId IS NULL OR c.user_id = @userId)
+    ORDER BY c.created_at ASC
+  `),
 
   getApiTokenByHash: db.prepare('SELECT * FROM api_tokens WHERE token_hash = ?'),
   getApiTokenById: db.prepare('SELECT * FROM api_tokens WHERE id = ?'),

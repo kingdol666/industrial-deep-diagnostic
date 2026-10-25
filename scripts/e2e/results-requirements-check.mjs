@@ -75,14 +75,37 @@ const cats = await api('/api/history/categories');
 check('R1', '分类列表可读（run_categories）', cats.status === 200 && Array.isArray(cats.json?.data),
   `${cats.json?.data?.length ?? 0} categories`);
 
-const catName = `需求验收-${Date.now().toString(36)}`;
-const created = await api('/api/history/categories', { method: 'POST', body: { name: catName } });
-const catId = created.json?.data?.id;
-check('R1', '创建分类（POST /api/history/categories）', created.status === 201 && !!catId, `${catName} → ${catId}`);
+// results-surface listing parity + per-caller result counts
+const rcats = await api('/api/results/categories');
+const rcatsExt = await api('/api/external/v1/results/categories');
+check('R1', '结果面分类列表（GET /api/results/categories，含 result_count）',
+  rcats.status === 200 && Array.isArray(rcats.json?.data)
+  && rcats.json.data.every((c) => Number.isInteger(c.result_count)),
+  `${rcats.json?.data?.length} cats`);
+check('R1', '外部镜像分类列表一致',
+  JSON.stringify((rcatsExt.json?.data || []).map((c) => c.id).sort())
+  === JSON.stringify((rcats.json?.data || []).map((c) => c.id).sort()));
 
-const assigned = await api(`/api/results/${GT}`, { method: 'PATCH', body: { category_id: catId } });
+const catName = `需求验收-${Date.now().toString(36)}`;
+// create via the RESULTS surface (the new API-first path)
+const created = await api('/api/results/categories', { method: 'POST', body: { name: catName } });
+const catId = created.json?.data?.id;
+check('R1', '通过 API 创建分类（POST /api/results/categories）', created.status === 201 && !!catId, `${catName} → ${catId}`);
+check('R1', '重名创建 → 409 CATEGORY_EXISTS',
+  (await api('/api/external/v1/results/categories', { method: 'POST', body: { name: catName } })).status === 409);
+check('R1', '改名（PATCH /api/results/categories/:id）',
+  (await api(`/api/results/categories/${catId}`, { method: 'PATCH', body: { name: `${catName}-改` } })).status === 200);
+await api(`/api/results/categories/${catId}`, { method: 'PATCH', body: { name: catName } });
+
+// a second visible stability result so the description view shows both kinds
+const stabList = (await listConsole('intent=stability-report&limit=50')).results;
+const second = stabList.find((r) => r.result_id !== GT);
+check('R1', '准备第二个同分类结果', !!second, second?.result_id);
+
+const assigned = await api(`/api/results/${GT}`, { method: 'PATCH', body: { category_id: catId, description: '分类视图用描述-甲' } });
 check('R1', '给分析结果指派分类（PATCH /api/results/:id category_id）',
   assigned.status === 200 && assigned.json?.data?.category_id === catId, assigned.json?.data?.category_id);
+if (second) await api(`/api/results/${second.result_id}`, { method: 'PATCH', body: { category_id: catId } });
 
 const listByCat = await listConsole(`category_id=${encodeURIComponent(catId)}&limit=50`);
 const catCards = listByCat.results;
@@ -90,6 +113,26 @@ check('R1', '按分类筛选结果（GET /api/results?category_id=…）',
   listByCat.status === 200 && catCards.length >= 1 && catCards.every((c) => c.category_id === catId),
   `${catCards.length} results`);
 check('R1', '结果卡片带分类字段', catCards.some((c) => c.result_id === GT && c.category_id === catId));
+
+// ── the category-centric description view ──
+const view = await api(`/api/results/categories/${encodeURIComponent(catId)}/results`);
+const vd = view.json?.data || {};
+check('R1', '从分类查看全部结果的 description（GET /api/results/categories/:id/results）',
+  view.status === 200 && vd.category?.id === catId && vd.total === catCards.length
+  && vd.results.length === catCards.length,
+  `${vd.category?.name}: ${vd.total} 条`);
+check('R1', '描述视图：编辑过描述的条目显示 description，未编辑的回落 display_text',
+  vd.results.some((r) => r.result_id === GT && r.description === '分类视图用描述-甲' && r.display_text === '分类视图用描述-甲')
+  && vd.results.some((r) => r.description === null && (r.display_text || '').length > 0));
+check('R1', '描述视图条目契约（result_id/title/description/display_text/intent/score/verdict/tags/created_at）',
+  vd.results.every((r) => ['result_id', 'title', 'description', 'display_text', 'intent', 'score', 'verdict', 'tags', 'created_at']
+    .every((k) => k in r)));
+check('R1', '分类列表 result_count 与描述视图一致',
+  (await api('/api/results/categories')).json?.data?.find((c) => c.id === catId)?.result_count === vd.total);
+check('R1', '外部镜像描述视图一致',
+  (await api(`/api/external/v1/results/categories/${encodeURIComponent(catId)}/results`)).json?.data?.total === vd.total);
+check('R1', '未知/他人分类 → 404 CATEGORY_NOT_FOUND',
+  (await api('/api/results/categories/no-such-cat/results')).status === 404);
 
 const detailCat = await api(`/api/results/${GT}?include_md=false`);
 check('R1', '详情返回分类', detailCat.json?.data?.category_id === catId);
@@ -111,7 +154,10 @@ check('R2', '每条结果都有可读的描述/摘要（display_text 非空）',
 check('R2', '卡片同时暴露 description 与派生的 display_text',
   all.every((r) => (r.description === null || typeof r.description === 'string') && typeof r.display_text === 'string'));
 
-const autoSummary = all.find((r) => r.result_id === GT)?.display_text || '';
+// R1 leaves a description on GT — clear it and re-read the card so the
+// auto-summary baseline below is fresh, not R1's test description.
+await api(`/api/results/${GT}`, { method: 'PATCH', body: { description: null } });
+const autoSummary = (await listConsole(`q=${encodeURIComponent(GT)}`)).results[0]?.display_text || '';
 const descText = `需求验收描述-${Date.now().toString(36)}`;
 await api(`/api/results/${GT}`, { method: 'PATCH', body: { description: descText } });
 const afterDesc = (await listConsole(`q=${encodeURIComponent(descText)}`)).results;
@@ -187,10 +233,12 @@ check('R4', '报告渲染内容包含真实结论（稳定性报告标题/评分
 
 // ═══ restore ══════════════════════════════════════════════════════════════
 await api(`/api/results/${GT}`, { method: 'PATCH', body: { description: null, category_id: null } });
-await api(`/api/history/categories/${encodeURIComponent(catId)}`, { method: 'DELETE' });
+if (second) await api(`/api/results/${second.result_id}`, { method: 'PATCH', body: { category_id: null } });
+const delCat = await api(`/api/results/categories/${encodeURIComponent(catId)}`, { method: 'DELETE' });
 const restored = (await api(`/api/results/${GT}?include_md=false`)).json?.data || {};
-check('R1', '验收后恢复原状（描述 null、分类 null）',
-  restored.description === null && restored.category_id === null);
+check('R1', '验收后恢复原状（描述 null、分类 null；分类删除后视图 404）',
+  restored.description === null && restored.category_id === null && delCat.status === 200
+  && (await api(`/api/results/categories/${encodeURIComponent(catId)}/results`)).status === 404);
 
 // ═══ requirement summary ══════════════════════════════════════════════════
 console.log('\nRequirement | Checks | Result');

@@ -191,12 +191,6 @@ async function main() {
   }
   check('mock run completes', st === 'completed', String(st));
 
-  // A category created BEFORE the UI mounts, so the drawer select lists it.
-  const catName = `UI分类-${Date.now().toString(36)}`;
-  const catRes = await apiJson('/api/history/categories', { method: 'POST', token, body: { name: catName } });
-  const catId = catRes.json?.data?.id;
-  check('create category for the UI test', catRes.status === 201 && !!catId, catName);
-
   // Boot headless browser
   const port = await freePort();
   const profile = mkdtempSync(join(tmpdir(), 'idd-ui-res-'));
@@ -250,6 +244,30 @@ async function main() {
     const rowCount = await evaluate(cdp, `document.querySelectorAll('[data-testid^="results-row-"]').length`);
     const totalText = await evaluate(cdp, `${sel('[data-testid="results-total"]')}?.textContent || ''`);
     check('AC-9 results table renders rows + total', rowCount >= 1 && /[0-9]/.test(totalText), `${rowCount} rows / ${totalText.trim()}`);
+
+    // ── create a category through the inline UI affordance ──
+    const catName = `UI分类-${Date.now().toString(36)}`;
+    await nativeClick(cdp, '[data-testid="results-category-create"]');
+    await nativeType(cdp, '[data-testid="results-category-name-input"]', catName);
+    await nativeClick(cdp, '[data-testid="results-category-save"]');
+    // creation auto-selects the new category filter; nothing is assigned to it
+    // yet, so the table must show the honest empty state.
+    await waitFor(cdp, `(${sel('[data-testid="results-category-filter"]')}?.value || '').length > 0`, {
+      label: 'filter switches to the new category', timeout: 15000,
+    });
+    const catId = await evaluate(cdp, `${sel('[data-testid="results-category-filter"]')}.value`);
+    await waitFor(cdp, `${sel('[data-testid="results-empty"]')} !== null`, { label: 'new category shows empty state', timeout: 15000 });
+    const catOption = await evaluate(cdp, `${sel('[data-testid="results-category-filter"]')}?.selectedOptions?.[0]?.textContent || ''`);
+    check('AC-9 create category via inline UI (auto-filter + count badge + honest empty state)',
+      !!catId && catOption.includes(catName) && catOption.includes('0'), catOption.trim());
+    // clear the filter to continue the tour
+    await evaluate(cdp, `(() => {
+      const s = ${sel('[data-testid="results-category-filter"]')};
+      s.value = '';
+      s.dispatchEvent(new Event('change', { bubbles: true }));
+      return s.value;
+    })()`);
+    await waitFor(cdp, `document.querySelectorAll('[data-testid^="results-row-"]').length > 0`, { label: 'filter cleared, rows back' });
 
     // search filter narrows to this run's scene (soft check — legacy rows may
     // share the scene token; the precise run-id search below is the hard gate)

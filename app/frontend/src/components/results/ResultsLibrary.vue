@@ -17,8 +17,31 @@
         </select>
         <select v-model="filters.category_id" data-testid="results-category-filter" @change="reload">
           <option value="">{{ $t('results.allCategories') }}</option>
-          <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
+          <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}（{{ cat.result_count ?? 0 }}）</option>
         </select>
+        <button
+          class="btn btn-sm results-category-create-btn"
+          data-testid="results-category-create"
+          :title="$t('results.createCategory')"
+          @click="showCategoryCreate = !showCategoryCreate"
+        >＋</button>
+        <input
+          v-if="showCategoryCreate"
+          v-model="newCategoryName"
+          class="results-category-name-input"
+          type="text"
+          maxlength="60"
+          data-testid="results-category-name-input"
+          :placeholder="$t('results.categoryNamePlaceholder')"
+          @keyup.enter="createCategory"
+        />
+        <button
+          v-if="showCategoryCreate"
+          class="btn btn-sm btn-primary"
+          data-testid="results-category-save"
+          :disabled="creatingCategory || !newCategoryName.trim()"
+          @click="createCategory"
+        >{{ $t('common.create') }}</button>
         <input
           v-model="filters.tag"
           class="results-tag-input"
@@ -214,6 +237,9 @@ const summaryCard = ref(null);
 const filters = reactive({ q: '', intent: '', category_id: '', tag: '', sort: 'created_desc' });
 const draftCategory = ref('');
 const categorySaving = ref(false);
+const showCategoryCreate = ref(false);
+const newCategoryName = ref('');
+const creatingCategory = ref(false);
 
 const maxPage = computed(() => Math.max(1, Math.ceil(total.value / pageSize)));
 const selected = computed(() => results.value.find((r) => r.result_id === selectedId.value) || null);
@@ -266,9 +292,32 @@ async function load() {
 
 async function loadCategories() {
   try {
-    categories.value = await api.listRunCategories();
+    // Results-surface listing: result_count matches what THIS page can list
+    // (own + legacy rows), unlike history's run_count.
+    categories.value = await api.listResultCategories();
   } catch (err) {
     console.error('Failed to load categories:', err);
+  }
+}
+
+// Create a category on the results surface (same service as History); on
+// success it becomes the active filter so the new category is immediately
+// visible (empty until results are assigned to it).
+async function createCategory() {
+  const name = newCategoryName.value.trim();
+  if (!name || creatingCategory.value) return;
+  creatingCategory.value = true;
+  try {
+    const created = await api.createResultCategory(name);
+    newCategoryName.value = '';
+    showCategoryCreate.value = false;
+    await loadCategories();
+    filters.category_id = created.id;
+    await load();
+  } catch (err) {
+    alert(`${t('results.categoryCreateFailed')}${err.message || err}`);
+  } finally {
+    creatingCategory.value = false;
   }
 }
 
@@ -423,6 +472,12 @@ onMounted(() => {
 .result-category-select {
   border: 1px solid var(--border-color, #d8dee9); border-radius: 8px;
   padding: 4px 8px; font-size: 12.5px; background: var(--surface, #fff); max-width: 180px;
+}
+.results-category-create-btn { flex: 0 0 auto; }
+.results-category-name-input {
+  flex: 1 1 150px; min-width: 130px;
+  border: 1px solid var(--border-color, #d8dee9); border-radius: 8px;
+  padding: 7px 10px; font-size: 13px; background: var(--surface, #fff);
 }
 .muted { color: var(--text-muted, #9aa4b5); }
 

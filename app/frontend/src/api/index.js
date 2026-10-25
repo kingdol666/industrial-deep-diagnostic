@@ -298,6 +298,10 @@ export const api = {
   // User-editable fields only (summary/summary_json are server-managed).
   patchResult: (resultId, body) =>
     request(`/results/${encodeURIComponent(resultId)}`, { method: 'PATCH', body: JSON.stringify(body) }),
+  // Category management on the results surface (same service as /history).
+  listResultCategories: () => request('/results/categories'),
+  createResultCategory: (name) =>
+    request('/results/categories', { method: 'POST', body: JSON.stringify({ name }) }),
 
   // Chat
   startChat: (params) =>
