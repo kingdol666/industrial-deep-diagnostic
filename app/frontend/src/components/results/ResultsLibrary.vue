@@ -50,6 +50,7 @@
             <th>{{ $t('results.colTitle') }}</th>
             <th>{{ $t('results.colSummary') }}</th>
             <th>{{ $t('results.colIntent') }}</th>
+            <th>{{ $t('results.colCategory') }}</th>
             <th>{{ $t('results.colTags') }}</th>
             <th>{{ $t('results.colScore') }}</th>
             <th>{{ $t('results.colVerdict') }}</th>
@@ -74,6 +75,10 @@
             </td>
             <td>
               <span :class="['badge', `intent-${r.intent}`]">{{ intentLabel(r.intent) }}</span>
+            </td>
+            <td class="cell-category" :data-testid="`results-cat-${i}`">
+              <span v-if="r.category_id">{{ categoryName(r.category_id) }}</span>
+              <span v-else class="muted">--</span>
             </td>
             <td class="cell-tags">
               <span v-if="!r.tags?.length" class="muted">--</span>
@@ -144,7 +149,17 @@
           </div>
           <div class="detail-item">
             <span class="detail-label">{{ $t('results.metaCategory') }}</span>
-            <span class="detail-value">{{ categoryName(detailMeta.category_id) }}</span>
+            <select
+              v-model="draftCategory"
+              class="result-category-select"
+              data-testid="results-detail-category"
+              :disabled="categorySaving"
+              @change="saveCategory"
+            >
+              <option value="">{{ $t('history.uncategorized') }}</option>
+              <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
+            </select>
+            <span v-if="categorySaving" class="muted">{{ $t('common.loadingEllipsis') }}</span>
           </div>
           <div class="detail-item">
             <span class="detail-label">{{ $t('results.metaCompleted') }}</span>
@@ -197,6 +212,8 @@ const detailMeta = ref(null);
 const summaryCard = ref(null);
 
 const filters = reactive({ q: '', intent: '', category_id: '', tag: '', sort: 'created_desc' });
+const draftCategory = ref('');
+const categorySaving = ref(false);
 
 const maxPage = computed(() => Math.max(1, Math.ceil(total.value / pageSize)));
 const selected = computed(() => results.value.find((r) => r.result_id === selectedId.value) || null);
@@ -265,8 +282,28 @@ async function openDetail(resultId) {
   detailMeta.value = null;
   try {
     detailMeta.value = await api.getResultDetail(resultId, { includeMd: false });
+    draftCategory.value = detailMeta.value?.category_id || '';
   } catch (err) {
     console.error('Failed to load result detail:', err);
+  }
+}
+
+// Category assignment lives on the run row (single source of truth); the
+// PATCH delegates there and the table column follows immediately.
+async function saveCategory() {
+  if (!selectedId.value || categorySaving.value) return;
+  categorySaving.value = true;
+  try {
+    const updated = await api.patchResult(selectedId.value, { category_id: draftCategory.value || null });
+    detailMeta.value = { ...detailMeta.value, ...updated };
+    const row = results.value.find((r) => r.result_id === selectedId.value);
+    if (row) row.category_id = updated.category_id;
+    if (filters.category_id) await load();
+  } catch (err) {
+    alert(`${t('results.categorySaveFailed')}${err.message || err}`);
+    draftCategory.value = detailMeta.value?.category_id || '';
+  } finally {
+    categorySaving.value = false;
   }
 }
 
@@ -383,6 +420,10 @@ onMounted(() => {
 .results-sources { font-size: 12px; }
 .results-sources ul { margin: 4px 0 0; padding-left: 18px; }
 .results-sources code { background: var(--surface-soft, #f0f3f8); padding: 0 4px; border-radius: 4px; }
+.result-category-select {
+  border: 1px solid var(--border-color, #d8dee9); border-radius: 8px;
+  padding: 4px 8px; font-size: 12.5px; background: var(--surface, #fff); max-width: 180px;
+}
 .muted { color: var(--text-muted, #9aa4b5); }
 
 @media (max-width: 1100px) {

@@ -276,14 +276,17 @@ executeDiagnosis 收到 result(success)
 | AC-12 软删可见性 | ✅ | 单测软删后索引/详情均 404，restore 恢复 |
 | AC-G 全量回归 | ✅ | 后端 **242/242**；Python 5 套 779 检查全绿；前端 build ✓；镜像 `--check` 同步；ui-smoke-native 全过；ui-visual-audit 0 失败（1280 无溢出）；api-contract-final 22/22 |
 | AC-13（追加）AWS/AgentWorkShop 集成 | ✅ | `results-aws-integration.mjs` **87/87**：`idd_` API Token 全链路（非会话 JWT）——索引→按 run id 取详情→**直接读取** report.md 全文（字节与 metadata 完全一致）、每个 HTML 报告（200 + text/html + 真实 HTML）、每个工件 JSON（6 意图 35 个文件全部可读可 parse）；`summary_json.sources` 关键数字逐项回溯工件字段；`?token=` 查询串同样可读（iframe/SSE 路径）；PATCH 与 404 语义一致 |
+| AC-14（追加）四条需求级验收 | ✅ | `results-requirements-check.mjs` **28/28**：R1 分类（列出/创建/指派/按分类筛选/详情回显/外部路由同源/恢复）；R2 全部描述（98 条可见结果 0 条空 display_text；描述覆盖自动摘要、清除后回落，q 可检索描述）；R3 按 id 元信息（workspace/report{path,bytes}/html[]/工件清单/时长/引擎/指纹/运行态 + HTML 与 8 工件**全部可直读**）；R4 详细报告（report.md 全文 = 磁盘字节、report_md_url 信封内容一致、HTML 报告可渲染且含真实结论） |
 
 ### 9.3 实施中发现并修复的缺陷
 
 1. **首屏大量 `--` 摘要**（UI 截图审出）：51 个 mock 专项运行无 skill 工件 → 摘要空。修复：意图工件缺失时回退 report.md 结论段（sources 标 `report_fallback`），回填对"空摘要且无用户描述"行做安全刷新；刷新后仅剩 12 个无 workspace 的测试行为诚实空（DOM 38/50 有摘要）。
 2. **结果库「报告」按钮打不开报告**（AWS 集成轮审出）：`ResultsLibrary.openReport` emit `{runId}`，而 App 的 `onOpenReport` 期望 `report_path` 字符串（`runDirFromReportPath` 会得到 `[object Object]`）。修复：从详情 metadata.report_md.path 解析真实路径（复用已加载详情或补一次 `include_md=false` 请求）。
 3. **卡片 `has_html` 恒 false**：指数 SELECT 漏选 `a.metadata`，`buildCard` 解析不到 html 数组。修复 SELECT 并加 API 验收断言（837404b0 has_html===true）。
-4. **可见性计数**：非 admin 调用方索引总数 97<106 属正确归属过滤（9 行属其他用户），验收阈值相应修正。
-5. 其余为测试脚本自身问题（regex/选择器/等待时机、`nativeType` 追加而非替换、`api()` 把 JSON 工件当信封解析）——非产品缺陷，均已修正脚本。
+4. **结果库表格缺「分类」列、抽屉内无法指派分类**（需求验收轮发现，P2 计划原本要求分类列）：新增分类列（`results-cat-*`）与抽屉内分类下拉（PATCH category_id，委托 run 行），指派后表格即时回显、分类筛选生效（UI 19/19）。
+5. **无工件运行摘要为空**（"查看全部的描述"不成立）：摘要提取无果时给出诚实文案（"该运行未产出可解析的工件/无 workspace，无自动摘要"），不编造结论；118 条结果 0 条空 display_text（DOM 50/50 行有摘要）。
+6. **可见性计数**：非 admin 调用方索引总数 97<106 属正确归属过滤（9 行属其他用户），验收阈值相应修正。
+7. 其余为测试脚本自身问题（regex/选择器/等待时机、`nativeType` 追加而非替换、`api()` 把 JSON 工件当信封解析、控制台路由 `data` 是数组而非 `data.results`）——非产品缺陷，均已修正脚本。
 
 ### 9.4 遗留
 

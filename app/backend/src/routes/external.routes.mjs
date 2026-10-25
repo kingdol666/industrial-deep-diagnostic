@@ -101,6 +101,9 @@ router.post('/v1/analyze', async (req, res) => {
       sceneName: body.sceneName,
       harness,
       analysisIntent: intent,
+      // Attribute the run to the authenticated caller so results-library
+      // ownership enforcement (RESULT_FORBIDDEN) applies to external runs too.
+      userId: req.user?.id ?? null,
       // DOE ontology-first policy (contracts §7.3). Omitted fields fall back to
       // mode=auto/data_stage=collected; `off` is refused unless the dev override
       // is explicitly set (an external caller can never silently skip the gate).

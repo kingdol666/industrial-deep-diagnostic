@@ -209,13 +209,14 @@ describe('summarizeRun — per-intent deterministic extraction', () => {
     assert.equal(sj.key_numbers.verdict, 'ENDORSED');
   });
 
-  test('missing/malformed artifacts degrade to an empty summary, never throw', () => {
+  test('missing/malformed artifacts yield an honest no-artifact summary, never throw', () => {
     const dir = runDir({ 'sentinel/alert.json': '{broken' });
     const out = summarizeRun(dir, { analysis_intent: 'quick-screen' });
-    assert.equal(out.summary, '');
+    assert.match(out.summary, /无自动摘要/);
     assert.deepEqual(out.summary_json.key_numbers, {});
     const none = summarizeRun(null, { analysis_intent: 'stability-report' });
-    assert.equal(none.summary, '');
+    assert.match(none.summary, /没有 workspace|无自动摘要/);
+    assert.equal(none.summary_json.data_profile, null);
   });
 
   test('intent artifact absent but report.md present → report fallback summary', () => {

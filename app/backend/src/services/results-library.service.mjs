@@ -343,7 +343,19 @@ export function summarizeRun(runDir, run) {
     logger.warn(`Summary extraction failed for ${run?.run_id}: ${err.message}`, { context: 'Results' });
     pack = null;
   }
-  if (!pack) pack = { ...EMPTY_SUMMARY };
+  if (!pack) {
+    // No parseable artifact at all. Say exactly that — an honest statement is
+    // better than a blank card, and it never invents a conclusion.
+    pack = {
+      conclusion: dir
+        ? '该运行未产出可解析的分析工件，无自动摘要；请查看运行日志与 report.md（如有）。'
+        : '该运行没有 workspace 记录（未产出分析工件），无自动摘要。',
+      key_numbers: {},
+      data_profile: null,
+      artifacts: [],
+      sources: { conclusion: dir ? 'run_dir#no-parseable-artifacts' : 'diagnostic_runs.workspace_path#null' },
+    };
+  }
   const summary = [pack.conclusion, profileSentence(pack.data_profile)].filter(Boolean).join(' ');
   return {
     summary,

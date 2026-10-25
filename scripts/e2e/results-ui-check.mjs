@@ -191,6 +191,12 @@ async function main() {
   }
   check('mock run completes', st === 'completed', String(st));
 
+  // A category created BEFORE the UI mounts, so the drawer select lists it.
+  const catName = `UI分类-${Date.now().toString(36)}`;
+  const catRes = await apiJson('/api/history/categories', { method: 'POST', token, body: { name: catName } });
+  const catId = catRes.json?.data?.id;
+  check('create category for the UI test', catRes.status === 201 && !!catId, catName);
+
   // Boot headless browser
   const port = await freePort();
   const profile = mkdtempSync(join(tmpdir(), 'idd-ui-res-'));
@@ -301,6 +307,44 @@ async function main() {
     const tagText = await evaluate(cdp, `${sel('[data-testid="results-drawer"]')}.innerText`);
     check('AC-9 tags PATCH round-trip', /ui-check/.test(tagText) && /收率基准/.test(tagText));
 
+    // ── category assignment from the drawer → table 分类 column ──
+    // A <select> cannot be driven by raw mouse clicks in headless mode (the
+    // OS dropdown never opens); set the value and dispatch the real change
+    // event the component listens to.
+    await evaluate(cdp, `(() => {
+      const s = ${sel('[data-testid="results-detail-category"]')};
+      s.value = ${JSON.stringify(catId)};
+      s.dispatchEvent(new Event('change', { bubbles: true }));
+      return s.value;
+    })()`);
+    await waitFor(cdp, `document.querySelector('[data-testid^="results-cat-"]')?.textContent?.includes('${catName}')`, {
+      label: 'table category column updates after assignment', timeout: 15000,
+    });
+    check('AC-9 category assign via drawer reflects in the table 分类 column', true, catName);
+
+    // category filter narrows the table to this result
+    await nativeClick(cdp, '[data-testid="results-drawer-close"]');
+    await sleep(300);
+    await evaluate(cdp, `(() => {
+      const s = ${sel('[data-testid="results-category-filter"]')};
+      s.value = ${JSON.stringify(catId)};
+      s.dispatchEvent(new Event('change', { bubbles: true }));
+      return s.value;
+    })()`);
+    await waitFor(cdp, `document.querySelectorAll('[data-testid^="results-row-"]').length === 1
+      && (document.querySelector('[data-testid^="results-cat-"]')?.textContent || '').includes('${catName}')`, {
+      label: 'category filter narrows to the assigned result', timeout: 15000,
+    });
+    check('AC-9 category filter narrows the results table', true);
+    // clear the filter (search by run id is still applied)
+    await evaluate(cdp, `(() => {
+      const s = ${sel('[data-testid="results-category-filter"]')};
+      s.value = '';
+      s.dispatchEvent(new Event('change', { bubbles: true }));
+      return s.value;
+    })()`);
+    await waitFor(cdp, `document.querySelectorAll('[data-testid^="results-row-"]').length === 1`, { label: 'filter cleared' });
+
     // verify server-side: PATCH persisted via API
     const serverDetail = await apiJson(`/api/external/v1/results/${runId}`, { token });
     check('server confirms description + tags persisted',
@@ -309,8 +353,11 @@ async function main() {
       serverDetail.json.data?.description?.slice(0, 40));
 
     // ── 报告 button opens the run's report in the Reports tab ──
-    await nativeClick(cdp, '[data-testid="results-drawer-close"]');
-    await sleep(400);
+    // (the category-filter step above already closed the drawer)
+    if (await evaluate(cdp, `${sel('[data-testid="results-drawer-close"]')} !== null`)) {
+      await nativeClick(cdp, '[data-testid="results-drawer-close"]');
+      await sleep(400);
+    }
     await nativeClick(cdp, '[data-testid="results-report-btn-0"]');
     await waitFor(cdp, `${sel('[data-testid="report-body"]')} !== null`, { label: 'report body rendered', timeout: 25000 });
     const reportText = await evaluate(cdp, `${sel('[data-testid="report-body"]')}.innerText`);
@@ -324,6 +371,12 @@ async function main() {
     await waitFor(cdp, `${sel('[data-testid="history-result-card"]')} !== null`, { label: 'history result card', timeout: 15000 });
     await waitFor(cdp, `(${sel('[data-testid="history-result-card"]')}?.innerText || '').includes('${descText}')`, { label: 'card shows the edited description', timeout: 15000 });
     check('AC-9 History detail panel shows the result summary card', true);
+
+    // cleanup: unassign + delete the test category
+    await apiJson(`/api/results/${runId}`, { method: 'PATCH', token, body: { category_id: null } });
+    const delCat = await apiJson(`/api/history/categories/${catId}`, { method: 'DELETE', token });
+    check('cleanup: test category deleted, result uncategorized',
+      delCat.status === 200, delCat.status);
 
     // console health
     const realErrors = consoleErrors.filter((e) => !/favicon|net::ERR|ResizeObserver/.test(e));

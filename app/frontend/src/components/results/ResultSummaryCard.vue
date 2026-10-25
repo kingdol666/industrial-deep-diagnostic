@@ -140,7 +140,12 @@ function keyLabel(k) {
 function formatKn(v) {
   if (typeof v === 'boolean') return v ? '✓' : '✗';
   if (typeof v === 'number') return Number.isInteger(v) ? String(v) : String(Number(v.toFixed(3)));
-  if (v !== null && typeof v === 'object') return JSON.stringify(v);
+  if (v !== null && typeof v === 'object') {
+    // Compact object rendering (e.g. findings_by_severity → info 2 · warn 3).
+    const entries = Array.isArray(v) ? v.map((x, i) => [String(i), x]) : Object.entries(v);
+    const text = entries.slice(0, 6).map(([k, n]) => `${k} ${formatKn(n)}`).join(' · ');
+    return entries.length > 6 ? `${text} …` : text;
+  }
   return String(v);
 }
 

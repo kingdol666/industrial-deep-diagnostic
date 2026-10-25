@@ -98,13 +98,14 @@ try {
     const cells = rows.map((r) => r.querySelector('.cell-summary')?.textContent?.trim() || '');
     const withSummary = cells.filter((c) => c && c !== '--').length;
     const overflowX = document.documentElement.scrollWidth > document.documentElement.clientWidth + 2;
-    // column alignment sanity: every row has 8 cells
+    // column alignment sanity: every row has 9 cells
+    // (title/summary/intent/category/tags/score/verdict/created/actions)
     const cellCounts = rows.map((r) => r.querySelectorAll('td').length);
-    return { rows: rows.length, withSummary, overflowX, cellCountsOk: cellCounts.every((n) => n === 8) };
+    return { rows: rows.length, withSummary, overflowX, cellCountsOk: cellCounts.every((n) => n === 9) };
   })()`);
   console.log('[DOM]', JSON.stringify(stats));
   const ok = stats.rows > 0 && stats.withSummary >= Math.floor(stats.rows * 0.7) && !stats.overflowX && stats.cellCountsOk;
-  console.log(`[RESULT] ${ok ? 'PASS' : 'FAIL'} — ${stats.withSummary}/${stats.rows} rows carry a summary, overflowX=${stats.overflowX}, cells8=${stats.cellCountsOk}`);
+  console.log(`[RESULT] ${ok ? 'PASS' : 'FAIL'} — ${stats.withSummary}/${stats.rows} rows carry a summary, overflowX=${stats.overflowX}, cells9=${stats.cellCountsOk}`);
   cdp.close();
   process.exitCode = ok ? 0 : 1;
 } finally {
