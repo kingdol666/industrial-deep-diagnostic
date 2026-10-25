@@ -3,10 +3,10 @@
 // GET-heavy against a LIVE server with the real DB; the only mutations are a
 // PATCH round-trip on one legacy NULL-owner result that is restored afterwards.
 //
-// Usage: node scripts/e2e/results-api-acceptance.mjs --base http://127.0.0.1:3988
+// Usage: node scripts/e2e/results-api-acceptance.mjs --base http://127.0.0.1:3210
 const args = process.argv.slice(2);
 const opt = (n, d = null) => { const i = args.indexOf(`--${n}`); return i >= 0 ? args[i + 1] : d; };
-const BASE = opt('base', 'http://127.0.0.1:3988').replace(/\/$/, '');
+const BASE = opt('base', 'http://127.0.0.1:3210').replace(/\/$/, '');
 const USER = opt('user', 'e2e_ontology');
 const PASS = opt('password', 'E2e-Onto-2026!');
 
