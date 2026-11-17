@@ -1,0 +1,1410 @@
+{
+  "scene": {
+    "name": "BOPET-L3 双向拉伸聚酯薄膜产线（12μm 光膜）",
+    "process_type": "pet_film_biaxial_orientation_line",
+    "production_goal": "在厚度公差 ±0.20μm、横向不匀率 ≤2.0%、热收缩率TD ≤2.0% 约束下最大化优品率",
+    "equipment": [
+      {
+        "id": "L3-DRY",
+        "name": "干燥系统",
+        "type": "unit",
+        "function": "切片预结晶与干燥除湿，控制切片含水率"
+      },
+      {
+        "id": "L3-EX",
+        "name": "主挤出机",
+        "type": "unit",
+        "function": "PET 切片熔融、计量泵送熔体"
+      },
+      {
+        "id": "L3-FL",
+        "name": "熔体过滤器",
+        "type": "unit",
+        "function": "过滤熔体杂质（滤网随运行堵塞，需定期换网）"
+      },
+      {
+        "id": "L3-DIE",
+        "name": "模头",
+        "type": "unit",
+        "function": "熔体分配到设定宽度与厚度"
+      },
+      {
+        "id": "L3-CR",
+        "name": "铸片辊（急冷辊）",
+        "type": "unit",
+        "function": "熔膜骤冷成铸片，控制预结晶度"
+      },
+      {
+        "id": "L3-MDO",
+        "name": "纵拉机(MDO)",
+        "type": "unit",
+        "function": "铸片预热后在 Tg 以上纵向拉伸并急冷定型"
+      },
+      {
+        "id": "L3-TDO",
+        "name": "横拉机(TDO)",
+        "type": "unit",
+        "function": "纵拉片预热、横向拉伸（分区分侧热风）、热定型"
+      },
+      {
+        "id": "L3-PU",
+        "name": "牵引机组",
+        "type": "unit",
+        "function": "张力控制与薄膜输送"
+      },
+      {
+        "id": "L3-WD",
+        "name": "收卷机",
+        "type": "unit",
+        "function": "成品膜卷收卷"
+      },
+      {
+        "id": "L3-GA",
+        "name": "在线测厚仪",
+        "type": "instrument",
+        "function": "全幅扫描测厚：平均厚度、横向不匀率、边缘偏差、在线优品率"
+      },
+      {
+        "id": "L3-LAB",
+        "name": "实验室/化验室",
+        "type": "instrument",
+        "function": "雾度、晶点、热收缩率、拉伸强度、含水率抽检"
+      },
+      {
+        "id": "L3-ENV",
+        "name": "车间环境",
+        "type": "environment",
+        "function": "环境温湿度（混淆因素来源）"
+      },
+      {
+        "id": "L3-CW",
+        "name": "循环水系统",
+        "type": "utility",
+        "function": "急冷辊/工艺冷却水供应"
+      },
+      {
+        "id": "L3-MES",
+        "name": "生产管理系统(MES)",
+        "type": "system",
+        "function": "批次、规格、配方（回料比例）与运行状态记录"
+      }
+    ],
+    "stages": [
+      {
+        "id": "dry",
+        "name": "原料干燥",
+        "sequence": 0,
+        "key_physics": "干燥平衡 + 结晶动力学"
+      },
+      {
+        "id": "extrude",
+        "name": "熔融挤出",
+        "sequence": 1,
+        "key_physics": "Arrhenius 粘度-温度；计量泵体积守恒"
+      },
+      {
+        "id": "cast",
+        "name": "铸片急冷",
+        "sequence": 2,
+        "key_physics": "骤冷结晶 Xc∝1/冷却速率；换热 Q=K·A·ΔT"
+      },
+      {
+        "id": "mdo",
+        "name": "纵向拉伸(MDO)",
+        "sequence": 3,
+        "key_physics": "Tg 附近拉伸；取向与拉伸比"
+      },
+      {
+        "id": "tdo",
+        "name": "横向拉伸与定型(TDO)",
+        "sequence": 4,
+        "key_physics": "Avrami 结晶；横向温度分布决定 TD 均匀性；热收缩 ∝ 热历史"
+      },
+      {
+        "id": "pull",
+        "name": "牵引收卷",
+        "sequence": 5,
+        "key_physics": "胡克弹性；张力-应变"
+      },
+      {
+        "id": "inspect",
+        "name": "在线/离线检验",
+        "sequence": 6,
+        "key_physics": "测量系统与工艺真值分离"
+      }
+    ],
+    "objectives": [
+      "定位优品率下降与横向厚度劣化的主导原因",
+      "区分工艺真值劣化与测量/原料等混杂因素"
+    ]
+  },
+  "signals": {
+    "inspection_signals": [
+      {
+        "name": "在线平均厚度",
+        "column": "L3-GA-TH-AVG01",
+        "unit": "μm",
+        "role": "target",
+        "physical_meaning": "在线测厚仪全幅平均厚度（产品规格 12.0μm，内控 ±0.20μm）",
+        "physical_meaning_confidence": "KNOWN",
+        "governing_law": "体积守恒：h = 挤出量/(宽×速)；均值正常不代表分布正常",
+        "equipment_ref": "L3-GA",
+        "stage_ref": "在线测厚",
+        "knowledge_source": "user_provided",
+        "target": 12.0,
+        "normal_range": [
+          11.95,
+          12.05
+        ]
+      },
+      {
+        "name": "横向厚度不匀率",
+        "column": "L3-GA-TH-CV01",
+        "unit": "%",
+        "role": "target",
+        "physical_meaning": "全幅厚度变异系数（内控 ≤2.0%）；横向拉伸温度不对称会直接抬高该值",
+        "physical_meaning_confidence": "KNOWN",
+        "governing_law": "TD 均匀性 ← 拉伸区横向温度分布",
+        "equipment_ref": "L3-GA",
+        "stage_ref": "在线测厚",
+        "knowledge_source": "user_provided",
+        "target": 1.4,
+        "normal_range": [
+          1.3,
+          2.7
+        ]
+      },
+      {
+        "name": "北边缘厚度偏差",
+        "column": "L3-GA-EDGE-N01",
+        "unit": "%",
+        "role": "target",
+        "physical_meaning": "距北侧边缘 50mm 处厚度相对均值偏差（内控 ±1.0%）；北侧拉伸温度偏低会使该处偏厚",
+        "physical_meaning_confidence": "KNOWN",
+        "governing_law": "拉伸应力-温度：温度低→应力高→拉伸不足→偏厚",
+        "equipment_ref": "L3-GA",
+        "stage_ref": "在线测厚",
+        "knowledge_source": "user_provided",
+        "target": 0.0,
+        "normal_range": [
+          -0.5,
+          2.0
+        ]
+      },
+      {
+        "name": "南边缘厚度偏差",
+        "column": "L3-GA-EDGE-S01",
+        "unit": "%",
+        "role": "target",
+        "physical_meaning": "距南侧边缘 50mm 处厚度相对均值偏差（内控 ±1.0%）",
+        "physical_meaning_confidence": "KNOWN",
+        "governing_law": "同上",
+        "equipment_ref": "L3-GA",
+        "stage_ref": "在线测厚",
+        "knowledge_source": "user_provided",
+        "target": -0.3,
+        "normal_range": [
+          -0.5,
+          -0.1
+        ]
+      },
+      {
+        "name": "综合优品率",
+        "column": "L3-QM-YIELD01",
+        "unit": "%",
+        "role": "target",
+        "physical_meaning": "在线综合优品率（含厚度/外观判定），对工艺偏差存在数小时滞后响应",
+        "physical_meaning_confidence": "KNOWN",
+        "governing_law": "滞后响应：膜卷后处理+离线判定引入时滞",
+        "equipment_ref": "L3-GA",
+        "stage_ref": "在线测厚",
+        "knowledge_source": "user_provided",
+        "target": 98.6,
+        "normal_range": [
+          95.8,
+          98.8
+        ]
+      },
+      {
+        "name": "雾度",
+        "column": "L3-LAB-HAZE01",
+        "unit": "%",
+        "role": "target",
+        "physical_meaning": "薄膜雾度（内控 ≤2.0%），对回料比例与结晶状态敏感",
+        "physical_meaning_confidence": "KNOWN",
+        "governing_law": "结晶/杂质散射 → 雾度",
+        "equipment_ref": "L3-LAB",
+        "stage_ref": "实验室检验",
+        "knowledge_source": "user_provided",
+        "target": 1.55,
+        "normal_range": [
+          1.4,
+          2.1
+        ]
+      },
+      {
+        "name": "晶点数",
+        "column": "L3-LAB-GEL01",
+        "unit": "个/㎡",
+        "role": "target",
+        "physical_meaning": "单位面积晶点数量（内控 ≤10 个/㎡），与原料洁净度/回料比例强相关",
+        "physical_meaning_confidence": "KNOWN",
+        "governing_law": "杂质/凝胶点计数",
+        "equipment_ref": "L3-LAB",
+        "stage_ref": "实验室检验",
+        "knowledge_source": "user_provided",
+        "target": 3.2,
+        "normal_range": [
+          2.0,
+          7.0
+        ]
+      },
+      {
+        "name": "热收缩率(TD)",
+        "column": "L3-LAB-SHR-TD01",
+        "unit": "%",
+        "role": "target",
+        "physical_meaning": "横向热收缩率（内控 ≤2.0%，150℃×30min），定型区温度不足会使其上升",
+        "physical_meaning_confidence": "KNOWN",
+        "governing_law": "收缩 ∝ (T-Tg) 热历史",
+        "equipment_ref": "L3-LAB",
+        "stage_ref": "实验室检验",
+        "knowledge_source": "user_provided",
+        "target": 1.8,
+        "normal_range": [
+          1.6,
+          2.45
+        ]
+      },
+      {
+        "name": "热收缩率(MD)",
+        "column": "L3-LAB-SHR-MD01",
+        "unit": "%",
+        "role": "target",
+        "physical_meaning": "纵向热收缩率（内控 ≤3.5%）",
+        "physical_meaning_confidence": "KNOWN",
+        "governing_law": "同上",
+        "equipment_ref": "L3-LAB",
+        "stage_ref": "实验室检验",
+        "knowledge_source": "user_provided",
+        "target": 3.1,
+        "normal_range": [
+          3.0,
+          3.25
+        ]
+      },
+      {
+        "name": "拉伸强度(TD)",
+        "column": "L3-LAB-STR-TD01",
+        "unit": "MPa",
+        "role": "target",
+        "physical_meaning": "横向拉伸强度，取向度下降时会降低",
+        "physical_meaning_confidence": "KNOWN",
+        "governing_law": "强度 ← 取向度 ← 拉伸温度",
+        "equipment_ref": "L3-LAB",
+        "stage_ref": "实验室检验",
+        "knowledge_source": "user_provided",
+        "target": 215.0,
+        "normal_range": [
+          208.0,
+          220.0
+        ]
+      },
+      {
+        "name": "拉伸强度(MD)",
+        "column": "L3-LAB-STR-MD01",
+        "unit": "MPa",
+        "role": "target",
+        "physical_meaning": "纵向拉伸强度",
+        "physical_meaning_confidence": "KNOWN",
+        "governing_law": "同上",
+        "equipment_ref": "L3-LAB",
+        "stage_ref": "实验室检验",
+        "knowledge_source": "user_provided",
+        "target": 225.0,
+        "normal_range": [
+          219.0,
+          231.0
+        ]
+      },
+      {
+        "name": "实验室平均厚度",
+        "column": "L3-LAB-TH-AVG01",
+        "unit": "μm",
+        "role": "target",
+        "physical_meaning": "离线测厚复核（与在线测厚交叉验证）",
+        "physical_meaning_confidence": "KNOWN",
+        "governing_law": "——",
+        "equipment_ref": "L3-LAB",
+        "stage_ref": "实验室检验",
+        "knowledge_source": "user_provided",
+        "target": 12.0,
+        "normal_range": [
+          11.95,
+          12.05
+        ]
+      },
+      {
+        "name": "切片含水率",
+        "column": "L3-LAB-WATER01",
+        "unit": "ppm",
+        "role": "target",
+        "physical_meaning": "干燥后切片含水率（内控 ≤50 ppm），干燥系统健康度的化验证据",
+        "physical_meaning_confidence": "KNOWN",
+        "governing_law": "含水率 ← 露点",
+        "equipment_ref": "L3-LAB",
+        "stage_ref": "实验室检验",
+        "knowledge_source": "user_provided",
+        "target": 32.0,
+        "normal_range": [
+          24.0,
+          42.0
+        ]
+      }
+    ],
+    "process_parameters": [
+      {
+        "name": "干燥塔露点温度",
+        "column": "L3-DRY-DP-TE01",
+        "unit": "℃",
+        "role": "predictor",
+        "physical_meaning": "切片干燥塔出口空气露点，反映切片含水控制水平；露点劣化会把水分带进熔体",
+        "physical_meaning_confidence": "KNOWN",
+        "governing_law": "干燥平衡：露点 ← 再生风温度/风量，含水率 ∝ 露点",
+        "equipment_ref": "L3-DRY",
+        "stage_ref": "原料干燥",
+        "knowledge_source": "user_provided",
+        "target": -60.0,
+        "normal_range": [
+          -62.0,
+          -58.0
+        ]
+      },
+      {
+        "name": "再生风加热温度",
+        "column": "L3-DRY-RG-TE01",
+        "unit": "℃",
+        "role": "predictor",
+        "physical_meaning": "干燥塔再生风加热器出口温度，决定除湿能力",
+        "physical_meaning_confidence": "KNOWN",
+        "governing_law": "干燥再生热平衡",
+        "equipment_ref": "L3-DRY",
+        "stage_ref": "原料干燥",
+        "knowledge_source": "user_provided",
+        "target": 175.0,
+        "normal_range": [
+          172.0,
+          178.0
+        ]
+      },
+      {
+        "name": "主挤出机计量段温度",
+        "column": "L3-EX-MGT-TE01",
+        "unit": "℃",
+        "role": "predictor",
+        "physical_meaning": "计量段熔体温度，决定熔体粘度与泵送稳定性",
+        "physical_meaning_confidence": "KNOWN",
+        "governing_law": "Arrhenius 粘度-温度依赖 η=A·exp(Ea/RT)",
+        "equipment_ref": "L3-EX",
+        "stage_ref": "熔融挤出",
+        "knowledge_source": "user_provided",
+        "target": 282.0,
+        "normal_range": [
+          281.0,
+          283.2
+        ]
+      },
+      {
+        "name": "熔体压力（模头前）",
+        "column": "L3-EX-PT01",
+        "unit": "bar",
+        "role": "predictor",
+        "physical_meaning": "模头前熔体压力，反映计量泵输送与管路阻力状态",
+        "physical_meaning_confidence": "KNOWN",
+        "governing_law": "计量泵输送 Q∝n/η(T)；滤网堵塞时 ΔP 上升",
+        "equipment_ref": "L3-EX",
+        "stage_ref": "熔融挤出",
+        "knowledge_source": "user_provided",
+        "target": 110.0,
+        "normal_range": [
+          107.0,
+          113.5
+        ]
+      },
+      {
+        "name": "主挤出机电流",
+        "column": "L3-EX-CUR01",
+        "unit": "A",
+        "role": "predictor",
+        "physical_meaning": "主挤出机螺杆驱动电流，与扭矩/熔体粘度同向",
+        "physical_meaning_confidence": "KNOWN",
+        "governing_law": "电机功率 ∝ 扭矩 × 转速",
+        "equipment_ref": "L3-EX",
+        "stage_ref": "熔融挤出",
+        "knowledge_source": "user_provided",
+        "target": 212.0,
+        "normal_range": [
+          205.0,
+          218.0
+        ]
+      },
+      {
+        "name": "主挤出机螺杆转速",
+        "column": "L3-EX-SPD01",
+        "unit": "rpm",
+        "role": "predictor",
+        "physical_meaning": "主挤出机转速，与铸片厚度基准成正比",
+        "physical_meaning_confidence": "KNOWN",
+        "governing_law": "体积守恒：挤出量 ∝ 转速",
+        "equipment_ref": "L3-EX",
+        "stage_ref": "熔融挤出",
+        "knowledge_source": "user_provided",
+        "target": 63.0,
+        "normal_range": [
+          62.0,
+          64.0
+        ]
+      },
+      {
+        "name": "熔体过滤器压差",
+        "column": "L3-FL-DP01",
+        "unit": "bar",
+        "role": "predictor",
+        "physical_meaning": "熔体过滤器进出口压差，随时间锯齿上升，换网后复位；是滤网寿命直接指标",
+        "physical_meaning_confidence": "KNOWN",
+        "governing_law": "Darcy 渗流 ΔP∝μ·Q·R_filter(t)",
+        "equipment_ref": "L3-FL",
+        "stage_ref": "熔融挤出",
+        "knowledge_source": "user_provided",
+        "target": 0.8,
+        "normal_range": [
+          0.5,
+          2.5
+        ]
+      },
+      {
+        "name": "模头温度",
+        "column": "L3-DIE-TE01",
+        "unit": "℃",
+        "role": "predictor",
+        "physical_meaning": "模头区熔体温度，影响模口出膜厚度横向分布",
+        "physical_meaning_confidence": "KNOWN",
+        "governing_law": "同主挤 Arrhenius 依赖",
+        "equipment_ref": "L3-DIE",
+        "stage_ref": "熔融挤出",
+        "knowledge_source": "user_provided",
+        "target": 285.0,
+        "normal_range": [
+          284.3,
+          285.8
+        ]
+      },
+      {
+        "name": "铸片辊表面温度",
+        "column": "L3-CR-TE01",
+        "unit": "℃",
+        "role": "predictor",
+        "physical_meaning": "急冷辊表面温度，决定预结晶度；过高会发雾、过低会粘辊",
+        "physical_meaning_confidence": "KNOWN",
+        "governing_law": "骤冷结晶度 Xc ∝ 1/冷却速率",
+        "equipment_ref": "L3-CR",
+        "stage_ref": "铸片急冷",
+        "knowledge_source": "user_provided",
+        "target": 26.5,
+        "normal_range": [
+          26.2,
+          26.9
+        ]
+      },
+      {
+        "name": "急冷辊冷却水回水温度",
+        "column": "L3-CR-CW-OUT-TE01",
+        "unit": "℃",
+        "role": "predictor",
+        "physical_meaning": "回水温度；进/回水温差反映换热能力（结垢会缩小温差）",
+        "physical_meaning_confidence": "KNOWN",
+        "governing_law": "Q=K·A·ΔT_lm",
+        "equipment_ref": "L3-CW",
+        "stage_ref": "铸片急冷",
+        "knowledge_source": "user_provided",
+        "target": 24.2,
+        "normal_range": [
+          23.9,
+          24.7
+        ]
+      },
+      {
+        "name": "急冷辊冷却水流量",
+        "column": "L3-CR-CW-FQ01",
+        "unit": "m³/h",
+        "role": "predictor",
+        "physical_meaning": "辊内冷却水流量，与温差共同决定换热量",
+        "physical_meaning_confidence": "KNOWN",
+        "governing_law": "Q = c·m·ΔT",
+        "equipment_ref": "L3-CW",
+        "stage_ref": "铸片急冷",
+        "knowledge_source": "user_provided",
+        "target": 60.0,
+        "normal_range": [
+          58.0,
+          63.0
+        ]
+      },
+      {
+        "name": "铸片辊线速度",
+        "column": "L3-CR-SPD01",
+        "unit": "m/min",
+        "role": "predictor",
+        "physical_meaning": "铸片线速，与挤出量共同决定铸片厚度基准",
+        "physical_meaning_confidence": "KNOWN",
+        "governing_law": "体积守恒（铸片段）",
+        "equipment_ref": "L3-CR",
+        "stage_ref": "铸片急冷",
+        "knowledge_source": "user_provided",
+        "target": 16.4,
+        "normal_range": [
+          16.3,
+          16.52
+        ]
+      },
+      {
+        "name": "纵拉预热辊1温度",
+        "column": "L3-MDO-PH1-TE01",
+        "unit": "℃",
+        "role": "predictor",
+        "physical_meaning": "预热段第1辊温度（接近 PET Tg≈78℃）",
+        "physical_meaning_confidence": "KNOWN",
+        "governing_law": "PET 玻璃化转变：预热需贴近 Tg",
+        "equipment_ref": "L3-MDO",
+        "stage_ref": "纵向拉伸(MDO)",
+        "knowledge_source": "user_provided",
+        "target": 78.0,
+        "normal_range": [
+          77.4,
+          78.6
+        ]
+      },
+      {
+        "name": "纵拉预热辊2温度",
+        "column": "L3-MDO-PH2-TE01",
+        "unit": "℃",
+        "role": "predictor",
+        "physical_meaning": "预热段第2辊温度",
+        "physical_meaning_confidence": "KNOWN",
+        "governing_law": "同上",
+        "equipment_ref": "L3-MDO",
+        "stage_ref": "纵向拉伸(MDO)",
+        "knowledge_source": "user_provided",
+        "target": 79.0,
+        "normal_range": [
+          78.4,
+          79.6
+        ]
+      },
+      {
+        "name": "纵拉预热辊3温度",
+        "column": "L3-MDO-PH3-TE01",
+        "unit": "℃",
+        "role": "predictor",
+        "physical_meaning": "预热段第3辊温度",
+        "physical_meaning_confidence": "KNOWN",
+        "governing_law": "同上",
+        "equipment_ref": "L3-MDO",
+        "stage_ref": "纵向拉伸(MDO)",
+        "knowledge_source": "user_provided",
+        "target": 80.0,
+        "normal_range": [
+          79.4,
+          80.6
+        ]
+      },
+      {
+        "name": "纵拉拉伸辊1温度",
+        "column": "L3-MDO-ST1-TE01",
+        "unit": "℃",
+        "role": "predictor",
+        "physical_meaning": "拉伸段第1辊温度（Tg 以上 8℃ 左右，保证均匀拉伸）",
+        "physical_meaning_confidence": "KNOWN",
+        "governing_law": "拉伸应力-温度关系",
+        "equipment_ref": "L3-MDO",
+        "stage_ref": "纵向拉伸(MDO)",
+        "knowledge_source": "user_provided",
+        "target": 86.5,
+        "normal_range": [
+          85.8,
+          87.2
+        ]
+      },
+      {
+        "name": "纵拉拉伸辊2温度",
+        "column": "L3-MDO-ST2-TE01",
+        "unit": "℃",
+        "role": "predictor",
+        "physical_meaning": "拉伸段第2辊温度",
+        "physical_meaning_confidence": "KNOWN",
+        "governing_law": "同上",
+        "equipment_ref": "L3-MDO",
+        "stage_ref": "纵向拉伸(MDO)",
+        "knowledge_source": "user_provided",
+        "target": 87.0,
+        "normal_range": [
+          86.4,
+          87.8
+        ]
+      },
+      {
+        "name": "纵拉定型辊温度",
+        "column": "L3-MDO-AN-TE01",
+        "unit": "℃",
+        "role": "predictor",
+        "physical_meaning": "纵拉出口急冷定型辊温度",
+        "physical_meaning_confidence": "KNOWN",
+        "governing_law": "急冷抑制回弹",
+        "equipment_ref": "L3-MDO",
+        "stage_ref": "纵向拉伸(MDO)",
+        "knowledge_source": "user_provided",
+        "target": 35.0,
+        "normal_range": [
+          33.6,
+          36.4
+        ]
+      },
+      {
+        "name": "纵拉入口速度",
+        "column": "L3-MDO-V01",
+        "unit": "m/min",
+        "role": "predictor",
+        "physical_meaning": "纵拉慢辊线速度（拉伸入口）",
+        "physical_meaning_confidence": "KNOWN",
+        "governing_law": "拉伸比 λ=v2/v1",
+        "equipment_ref": "L3-MDO",
+        "stage_ref": "纵向拉伸(MDO)",
+        "knowledge_source": "user_provided",
+        "target": 16.4,
+        "normal_range": [
+          16.32,
+          16.52
+        ]
+      },
+      {
+        "name": "纵拉出口速度",
+        "column": "L3-MDO-V02",
+        "unit": "m/min",
+        "role": "predictor",
+        "physical_meaning": "纵拉快辊线速度（拉伸出口）",
+        "physical_meaning_confidence": "KNOWN",
+        "governing_law": "拉伸比 λ=v2/v1",
+        "equipment_ref": "L3-MDO",
+        "stage_ref": "纵向拉伸(MDO)",
+        "knowledge_source": "user_provided",
+        "target": 52.9,
+        "normal_range": [
+          52.7,
+          53.15
+        ]
+      },
+      {
+        "name": "纵拉机组扭矩",
+        "column": "L3-MDO-TQ01",
+        "unit": "%",
+        "role": "predictor",
+        "physical_meaning": "纵拉驱动扭矩，反映拉伸应力水平",
+        "physical_meaning_confidence": "KNOWN",
+        "governing_law": "σ = E·ε；扭矩 ∝ 拉伸应力",
+        "equipment_ref": "L3-MDO",
+        "stage_ref": "纵向拉伸(MDO)",
+        "knowledge_source": "user_provided",
+        "target": 62.0,
+        "normal_range": [
+          60.5,
+          63.5
+        ]
+      },
+      {
+        "name": "TDO北侧预热区热风温度",
+        "column": "L3-TDO-N-PH-TE01",
+        "unit": "℃",
+        "role": "predictor",
+        "physical_meaning": "横拉机北侧预热区热风温度（链铗入机前）",
+        "physical_meaning_confidence": "KNOWN",
+        "governing_law": "对流换热 h∝Re^0.8",
+        "equipment_ref": "L3-TDO",
+        "stage_ref": "横向拉伸(TDO)",
+        "knowledge_source": "user_provided",
+        "target": 155.0,
+        "normal_range": [
+          154.4,
+          155.6
+        ]
+      },
+      {
+        "name": "TDO南侧预热区热风温度",
+        "column": "L3-TDO-S-PH-TE01",
+        "unit": "℃",
+        "role": "predictor",
+        "physical_meaning": "横拉机南侧预热区热风温度",
+        "physical_meaning_confidence": "KNOWN",
+        "governing_law": "同上",
+        "equipment_ref": "L3-TDO",
+        "stage_ref": "横向拉伸(TDO)",
+        "knowledge_source": "user_provided",
+        "target": 155.0,
+        "normal_range": [
+          154.4,
+          155.6
+        ]
+      },
+      {
+        "name": "TDO北侧拉伸区4区热风温度",
+        "column": "L3-TDO-N-ST-Z4-TE01",
+        "unit": "℃",
+        "role": "predictor",
+        "physical_meaning": "横向拉伸主拉伸区（第4分区）北侧热风实际温度，决定该侧 PET 取向与横向厚度分布",
+        "physical_meaning_confidence": "KNOWN",
+        "governing_law": "结晶动力学 Avrami；热收缩 ∝ (T-Tg) 热历史",
+        "equipment_ref": "L3-TDO",
+        "stage_ref": "横向拉伸(TDO)",
+        "knowledge_source": "user_provided",
+        "target": 240.0,
+        "normal_range": [
+          237.8,
+          240.6
+        ]
+      },
+      {
+        "name": "TDO南侧拉伸区4区热风温度",
+        "column": "L3-TDO-S-ST-Z4-TE01",
+        "unit": "℃",
+        "role": "predictor",
+        "physical_meaning": "横向拉伸主拉伸区（第4分区）南侧热风实际温度",
+        "physical_meaning_confidence": "KNOWN",
+        "governing_law": "同上",
+        "equipment_ref": "L3-TDO",
+        "stage_ref": "横向拉伸(TDO)",
+        "knowledge_source": "user_provided",
+        "target": 240.0,
+        "normal_range": [
+          239.6,
+          240.4
+        ]
+      },
+      {
+        "name": "TDO北侧定型区6区热风温度",
+        "column": "L3-TDO-N-AN-Z6-TE01",
+        "unit": "℃",
+        "role": "predictor",
+        "physical_meaning": "定型区（第6分区）北侧热风温度，决定热收缩率与尺寸稳定性",
+        "physical_meaning_confidence": "KNOWN",
+        "governing_law": "定型度-尺寸稳定性平衡",
+        "equipment_ref": "L3-TDO",
+        "stage_ref": "横向拉伸(TDO)",
+        "knowledge_source": "user_provided",
+        "target": 191.0,
+        "normal_range": [
+          190.1,
+          191.4
+        ]
+      },
+      {
+        "name": "TDO南侧定型区6区热风温度",
+        "column": "L3-TDO-S-AN-Z6-TE01",
+        "unit": "℃",
+        "role": "predictor",
+        "physical_meaning": "定型区（第6分区）南侧热风温度",
+        "physical_meaning_confidence": "KNOWN",
+        "governing_law": "同上",
+        "equipment_ref": "L3-TDO",
+        "stage_ref": "横向拉伸(TDO)",
+        "knowledge_source": "user_provided",
+        "target": 191.0,
+        "normal_range": [
+          190.7,
+          191.3
+        ]
+      },
+      {
+        "name": "TDO出口轨宽",
+        "column": "L3-TDO-RAIL-W01",
+        "unit": "mm",
+        "role": "predictor",
+        "physical_meaning": "横拉出口链铗轨距，反映横向拉伸倍率与破膜风险",
+        "physical_meaning_confidence": "KNOWN",
+        "governing_law": "几何守恒（横拉比 × 入口宽度）",
+        "equipment_ref": "L3-TDO",
+        "stage_ref": "横向拉伸(TDO)",
+        "knowledge_source": "user_provided",
+        "target": 6330.0,
+        "normal_range": [
+          6324.0,
+          6336.0
+        ]
+      },
+      {
+        "name": "TDO链铗驱动电流",
+        "column": "L3-TDO-CHAIN-I01",
+        "unit": "A",
+        "role": "predictor",
+        "physical_meaning": "链铗驱动电流，反映横向拉伸阻力（随拉伸区温度变化）",
+        "physical_meaning_confidence": "KNOWN",
+        "governing_law": "电流 ∝ 拉伸张力",
+        "equipment_ref": "L3-TDO",
+        "stage_ref": "横向拉伸(TDO)",
+        "knowledge_source": "user_provided",
+        "target": 40.0,
+        "normal_range": [
+          38.0,
+          42.0
+        ]
+      },
+      {
+        "name": "牵引入口张力",
+        "column": "L3-PU-TN01",
+        "unit": "N",
+        "role": "predictor",
+        "physical_meaning": "牵引段入口张力，过大产生纵向应变、过小跑偏",
+        "physical_meaning_confidence": "KNOWN",
+        "governing_law": "胡克弹性 σ=E·ε",
+        "equipment_ref": "L3-PU",
+        "stage_ref": "牵引收卷",
+        "knowledge_source": "user_provided",
+        "target": 2270.0,
+        "normal_range": [
+          2240.0,
+          2300.0
+        ]
+      },
+      {
+        "name": "牵引速度",
+        "column": "L3-PU-V01",
+        "unit": "m/min",
+        "role": "predictor",
+        "physical_meaning": "牵引线速度（主线速基准）",
+        "physical_meaning_confidence": "KNOWN",
+        "governing_law": "体积守恒",
+        "equipment_ref": "L3-PU",
+        "stage_ref": "牵引收卷",
+        "knowledge_source": "user_provided",
+        "target": 52.95,
+        "normal_range": [
+          52.7,
+          53.2
+        ]
+      },
+      {
+        "name": "卷绕张力",
+        "column": "L3-WD-TN01",
+        "unit": "N",
+        "role": "predictor",
+        "physical_meaning": "收卷张力，影响卷形与膜卷内应力",
+        "physical_meaning_confidence": "KNOWN",
+        "governing_law": "同上",
+        "equipment_ref": "L3-WD",
+        "stage_ref": "牵引收卷",
+        "knowledge_source": "user_provided",
+        "target": 1180.0,
+        "normal_range": [
+          1160.0,
+          1200.0
+        ]
+      },
+      {
+        "name": "收卷速度",
+        "column": "L3-WD-V01",
+        "unit": "m/min",
+        "role": "predictor",
+        "physical_meaning": "收卷线速度",
+        "physical_meaning_confidence": "KNOWN",
+        "governing_law": "体积守恒",
+        "equipment_ref": "L3-WD",
+        "stage_ref": "牵引收卷",
+        "knowledge_source": "user_provided",
+        "target": 52.9,
+        "normal_range": [
+          52.7,
+          53.2
+        ]
+      }
+    ],
+    "control_variables": [
+      {
+        "name": "模头加热输出",
+        "column": "L3-DIE-HOUT01",
+        "unit": "%",
+        "role": "control",
+        "physical_meaning": "模头加热器输出百分比（闭环输出量），长期偏高说明热损失/加热器老化",
+        "physical_meaning_confidence": "KNOWN",
+        "governing_law": "闭环输出 = f(偏差)；输出持续偏高 = 执行器效能下降",
+        "equipment_ref": "L3-DIE",
+        "stage_ref": "熔融挤出",
+        "knowledge_source": "user_provided",
+        "target": 44.0,
+        "normal_range": [
+          40.0,
+          48.0
+        ],
+        "control_type": "output"
+      },
+      {
+        "name": "静电贴附电压",
+        "column": "L3-CR-ES-V01",
+        "unit": "kV",
+        "role": "control",
+        "physical_meaning": "静电吸附电压，保证铸片与冷辊贴合（不足会产生横向厚度条纹）",
+        "physical_meaning_confidence": "KNOWN",
+        "governing_law": "静电吸附力 ∝ V²/d²",
+        "equipment_ref": "L3-CR",
+        "stage_ref": "铸片急冷",
+        "knowledge_source": "user_provided",
+        "target": 7.0,
+        "normal_range": [
+          6.8,
+          7.3
+        ],
+        "control_type": "output"
+      },
+      {
+        "name": "TDO北侧拉伸区4区温度设定值",
+        "column": "L3-TDO-N-ST-Z4-SP01",
+        "unit": "℃",
+        "role": "control",
+        "physical_meaning": "操作设定的北侧拉伸区温度目标值（本窗口内未调整，恒定 240.0）",
+        "physical_meaning_confidence": "KNOWN",
+        "governing_law": "——",
+        "equipment_ref": "L3-TDO",
+        "stage_ref": "横向拉伸(TDO)",
+        "knowledge_source": "user_provided",
+        "target": 240.0,
+        "normal_range": [
+          240.0,
+          240.0
+        ],
+        "control_type": "setpoint",
+        "setpoint": 240.0
+      },
+      {
+        "name": "TDO北侧4区加热输出",
+        "column": "L3-TDO-N-Z4-HOUT01",
+        "unit": "%",
+        "role": "control",
+        "physical_meaning": "北侧4区热风加热器输出百分比。闭环输出持续上升直至触及上限，说明加热/送风效能下降（执行器饱和特征）",
+        "physical_meaning_confidence": "KNOWN",
+        "governing_law": "闭环输出 = f(偏差)；饱和 = 执行器能力不足",
+        "equipment_ref": "L3-TDO",
+        "stage_ref": "横向拉伸(TDO)",
+        "knowledge_source": "user_provided",
+        "target": 45.0,
+        "normal_range": [
+          44.0,
+          80.0
+        ],
+        "control_type": "output"
+      },
+      {
+        "name": "TDO南侧4区加热输出",
+        "column": "L3-TDO-S-Z4-HOUT01",
+        "unit": "%",
+        "role": "control",
+        "physical_meaning": "南侧4区热风加热器输出百分比（正常工况下平稳）",
+        "physical_meaning_confidence": "KNOWN",
+        "governing_law": "同上",
+        "equipment_ref": "L3-TDO",
+        "stage_ref": "横向拉伸(TDO)",
+        "knowledge_source": "user_provided",
+        "target": 45.0,
+        "normal_range": [
+          43.5,
+          47.0
+        ],
+        "control_type": "output"
+      },
+      {
+        "name": "TDO北侧循环风机频率",
+        "column": "L3-TDO-N-FAN-HZ01",
+        "unit": "Hz",
+        "role": "control",
+        "physical_meaning": "北侧热风循环风机频率（风量指标），本窗口内恒定 —— 可据此排除风机故障",
+        "physical_meaning_confidence": "KNOWN",
+        "governing_law": "风量 ∝ 频率；h∝Re^0.8",
+        "equipment_ref": "L3-TDO",
+        "stage_ref": "横向拉伸(TDO)",
+        "knowledge_source": "user_provided",
+        "target": 85.0,
+        "normal_range": [
+          84.8,
+          85.2
+        ],
+        "control_type": "output"
+      },
+      {
+        "name": "TDO南侧循环风机频率",
+        "column": "L3-TDO-S-FAN-HZ01",
+        "unit": "Hz",
+        "role": "control",
+        "physical_meaning": "南侧热风循环风机频率",
+        "physical_meaning_confidence": "KNOWN",
+        "governing_law": "同上",
+        "equipment_ref": "L3-TDO",
+        "stage_ref": "横向拉伸(TDO)",
+        "knowledge_source": "user_provided",
+        "target": 85.0,
+        "normal_range": [
+          84.8,
+          85.2
+        ],
+        "control_type": "output"
+      }
+    ],
+    "events": [
+      {
+        "name": "产线运行状态码",
+        "column": "L3-LINE-MODE01",
+        "description": "1=正常运行 2=升降速/换网 3=停机",
+        "event_values": [
+          1,
+          2,
+          3
+        ],
+        "event_meanings": {
+          "1": "正常运行（稳态）",
+          "2": "升降速或换网（非稳态）",
+          "3": "停机"
+        }
+      }
+    ],
+    "metadata_columns": [
+      {
+        "name": "采样时间",
+        "column": "时间",
+        "role": "timestamp"
+      },
+      {
+        "name": "生产批次号",
+        "column": "L3-MES-BATCH01",
+        "role": "batch_id",
+        "description": "12 小时一个生产批次"
+      },
+      {
+        "name": "产品规格代号",
+        "column": "L3-MES-SPEC01",
+        "role": "product_code"
+      }
+    ]
+  },
+  "parameter_groups": {
+    "原料与配方": [
+      "L3-DRY-DP-TE01",
+      "L3-DRY-RG-TE01",
+      "L3-MES-RECYCLE01",
+      "L3-MES-BATCH01"
+    ],
+    "挤出熔体": [
+      "L3-EX-MGT-TE01",
+      "L3-EX-PT01",
+      "L3-EX-CUR01",
+      "L3-EX-SPD01",
+      "L3-FL-DP01",
+      "L3-DIE-TE01"
+    ],
+    "铸片冷却": [
+      "L3-CR-TE01",
+      "L3-CR-CW-IN-TE01",
+      "L3-CR-CW-OUT-TE01",
+      "L3-CR-CW-FQ01",
+      "L3-CR-SPD01",
+      "L3-CW-SUP-TE01"
+    ],
+    "纵拉热辊": [
+      "L3-MDO-PH1-TE01",
+      "L3-MDO-PH2-TE01",
+      "L3-MDO-PH3-TE01",
+      "L3-MDO-ST1-TE01",
+      "L3-MDO-ST2-TE01",
+      "L3-MDO-AN-TE01",
+      "L3-MDO-V01",
+      "L3-MDO-V02",
+      "L3-MDO-TQ01"
+    ],
+    "横拉热风北侧": [
+      "L3-TDO-N-PH-TE01",
+      "L3-TDO-N-ST-Z4-TE01",
+      "L3-TDO-N-AN-Z6-TE01",
+      "L3-TDO-N-Z4-HOUT01",
+      "L3-TDO-N-FAN-HZ01",
+      "L3-TDO-N-ST-Z4-SP01"
+    ],
+    "横拉热风南侧": [
+      "L3-TDO-S-PH-TE01",
+      "L3-TDO-S-ST-Z4-TE01",
+      "L3-TDO-S-AN-Z6-TE01",
+      "L3-TDO-S-Z4-HOUT01",
+      "L3-TDO-S-FAN-HZ01"
+    ],
+    "牵引收卷": [
+      "L3-PU-TN01",
+      "L3-PU-V01",
+      "L3-WD-TN01",
+      "L3-WD-V01",
+      "L3-TDO-RAIL-W01",
+      "L3-TDO-CHAIN-I01"
+    ],
+    "环境与公用工程": [
+      "L3-ENV-TE01",
+      "L3-ENV-RH01",
+      "L3-CW-SUP-TE01"
+    ]
+  },
+  "relationships": [
+    {
+      "from": "L3-DRY-DP-TE01",
+      "to": "L3-LAB-WATER01",
+      "type": "causal",
+      "strength": "strong",
+      "mechanism": "露点劣化 → 干燥能力不足 → 切片含水率上升 → 熔体水解降解（IV 下降）",
+      "time_lag": "2-6 h",
+      "governing_equation": "含水率 ∝ 露点",
+      "predicted_functional_form": "monotonic",
+      "inferred": false
+    },
+    {
+      "from": "L3-FL-DP01",
+      "to": "L3-EX-PT01",
+      "type": "causal",
+      "strength": "moderate",
+      "mechanism": "滤网堵塞 → 管路阻力上升 → 模头前熔体压力上升/波动放大",
+      "time_lag": "< 10 min",
+      "governing_equation": "ΔP ∝ μ·Q·R_filter(t)",
+      "predicted_functional_form": "linear",
+      "inferred": false
+    },
+    {
+      "from": "L3-TDO-N-ST-Z4-TE01",
+      "to": "L3-GA-EDGE-N01",
+      "type": "causal",
+      "strength": "strong",
+      "mechanism": "北侧拉伸区风温下降 → 该侧拉伸应力上升 → 横向拉伸不足 → 北边缘厚度偏厚",
+      "time_lag": "< 30 min",
+      "governing_equation": "σ=E·ε；h ∝ 1/(拉伸比)",
+      "predicted_functional_form": "inverse",
+      "inferred": false
+    },
+    {
+      "from": "L3-TDO-N-ST-Z4-TE01",
+      "to": "L3-GA-TH-CV01",
+      "type": "causal",
+      "strength": "strong",
+      "mechanism": "横向拉伸温度南北不对称 → 横向厚度分布不对称 → 不匀率 CV 上升",
+      "time_lag": "< 30 min",
+      "governing_equation": "CV ∝ 横向温度梯度",
+      "predicted_functional_form": "linear",
+      "inferred": false
+    },
+    {
+      "from": "L3-TDO-N-Z4-HOUT01",
+      "to": "L3-TDO-N-ST-Z4-TE01",
+      "type": "control",
+      "strength": "strong",
+      "mechanism": "加热输出闭环调节风温；输出持续上升直至饱和说明加热/送风效能衰减",
+      "time_lag": "< 10 min",
+      "governing_equation": "闭环：输出 = Kp·e + Ki∫e（限幅 80%）",
+      "predicted_functional_form": "threshold",
+      "inferred": false
+    },
+    {
+      "from": "L3-TDO-N-AN-Z6-TE01",
+      "to": "L3-LAB-SHR-TD01",
+      "type": "causal",
+      "strength": "strong",
+      "mechanism": "定型区风温不足 → 取向解取向/热历史变化 → 横向热收缩率上升",
+      "time_lag": "1-3 h",
+      "governing_equation": "收缩率 ∝ (T-Tg) 热历史",
+      "predicted_functional_form": "monotonic",
+      "inferred": false
+    },
+    {
+      "from": "L3-TDO-N-ST-Z4-TE01",
+      "to": "L3-LAB-STR-TD01",
+      "type": "causal",
+      "strength": "moderate",
+      "mechanism": "拉伸温度偏低 → 取向度下降 → TD 拉伸强度略降",
+      "time_lag": "2-4 h",
+      "governing_equation": "强度 ← 取向因子 f ← 拉伸温度",
+      "predicted_functional_form": "monotonic",
+      "inferred": false
+    },
+    {
+      "from": "L3-GA-TH-CV01",
+      "to": "L3-QM-YIELD01",
+      "type": "causal",
+      "strength": "strong",
+      "mechanism": "横向不匀率与边缘偏差超差 → 分切/判定不合格 → 优品率下降（存在膜卷后处理与判定滞后）",
+      "time_lag": "4-8 h",
+      "governing_equation": "优品率 = 1 - 不合格比例（含判定滞后）",
+      "predicted_functional_form": "delayed_response",
+      "inferred": false
+    },
+    {
+      "from": "L3-MES-RECYCLE01",
+      "to": "L3-LAB-HAZE01",
+      "type": "causal",
+      "strength": "moderate",
+      "mechanism": "回料掺入比例上升 → 杂质/降解物增加 → 雾度与晶点上升",
+      "time_lag": "1-2 h",
+      "governing_equation": "雾度 ∝ 杂质浓度",
+      "predicted_functional_form": "linear",
+      "inferred": false
+    },
+    {
+      "from": "L3-MES-RECYCLE01",
+      "to": "L3-LAB-GEL01",
+      "type": "causal",
+      "strength": "moderate",
+      "mechanism": "回料凝胶点带入 → 晶点数上升",
+      "time_lag": "1-2 h",
+      "governing_equation": "晶点 ∝ 回料比例",
+      "predicted_functional_form": "linear",
+      "inferred": false
+    },
+    {
+      "from": "L3-ENV-TE01",
+      "to": "L3-TDO-N-ST-Z4-TE01",
+      "type": "correlative",
+      "strength": "weak",
+      "mechanism": "环境温度下降会增加设备散热、降低热风效率（但南北两侧应同向变化——“仅北侧单侧下偏”可用于排除该假设）",
+      "time_lag": "0-2 h",
+      "governing_equation": "热损失 ∝ (T_process - T_env)",
+      "predicted_functional_form": "monotonic",
+      "inferred": false
+    },
+    {
+      "from": "L3-CW-SUP-TE01",
+      "to": "L3-CR-TE01",
+      "type": "causal",
+      "strength": "moderate",
+      "mechanism": "循环水来水温度变化 → 急冷辊表面温度随之变化（辊温闭环可部分补偿）",
+      "time_lag": "< 30 min",
+      "governing_equation": "Q=K·A·ΔT_lm",
+      "predicted_functional_form": "linear",
+      "inferred": false
+    },
+    {
+      "from": "L3-EX-MGT-TE01",
+      "to": "L3-DIE-TE01",
+      "type": "physical",
+      "strength": "strong",
+      "mechanism": "同一熔体管路热状态连续性（温度变化同向）",
+      "time_lag": "< 10 min",
+      "governing_equation": "热平衡/热传导",
+      "predicted_functional_form": "monotonic",
+      "inferred": false
+    },
+    {
+      "from": "L3-MDO-V02",
+      "to": "L3-PU-TN01",
+      "type": "control",
+      "strength": "moderate",
+      "mechanism": "线速/拉伸比变化 → 张力闭环跟随调整",
+      "time_lag": "< 10 min",
+      "governing_equation": "张力闭环",
+      "predicted_functional_form": "monotonic",
+      "inferred": false
+    }
+  ],
+  "confounders": [
+    {
+      "variable": "L3-ENV-TE01",
+      "why": "环境温度随时间下降，与北侧风温下偏同向（需用南侧不变的“单侧不对称”判别）",
+      "controlled": false
+    },
+    {
+      "variable": "L3-MES-RECYCLE01",
+      "why": "回料比例在故障起点前一天上调，同时抬高雾度/晶点（时间上近似共线）",
+      "controlled": true
+    },
+    {
+      "variable": "L3-FL-DP01",
+      "why": "滤网堵塞随运行时间推进，放大熔体压力波动（与时间共线）",
+      "controlled": true
+    },
+    {
+      "variable": "L3-CW-SUP-TE01",
+      "why": "季节降温影响循环水温与辊温（与时间共线）",
+      "controlled": true
+    }
+  ],
+  "metadata": {
+    "units": {
+      "L3-DRY-DP-TE01": "℃",
+      "L3-DRY-RG-TE01": "℃",
+      "L3-EX-MGT-TE01": "℃",
+      "L3-EX-PT01": "bar",
+      "L3-EX-CUR01": "A",
+      "L3-EX-SPD01": "rpm",
+      "L3-FL-DP01": "bar",
+      "L3-DIE-TE01": "℃",
+      "L3-DIE-HOUT01": "%",
+      "L3-CR-TE01": "℃",
+      "L3-CR-CW-IN-TE01": "℃",
+      "L3-CR-CW-OUT-TE01": "℃",
+      "L3-CR-CW-FQ01": "m³/h",
+      "L3-CR-SPD01": "m/min",
+      "L3-CR-ES-V01": "kV",
+      "L3-MDO-PH1-TE01": "℃",
+      "L3-MDO-PH2-TE01": "℃",
+      "L3-MDO-PH3-TE01": "℃",
+      "L3-MDO-ST1-TE01": "℃",
+      "L3-MDO-ST2-TE01": "℃",
+      "L3-MDO-AN-TE01": "℃",
+      "L3-MDO-V01": "m/min",
+      "L3-MDO-V02": "m/min",
+      "L3-MDO-TQ01": "%",
+      "L3-TDO-N-PH-TE01": "℃",
+      "L3-TDO-S-PH-TE01": "℃",
+      "L3-TDO-N-ST-Z4-TE01": "℃",
+      "L3-TDO-S-ST-Z4-TE01": "℃",
+      "L3-TDO-N-AN-Z6-TE01": "℃",
+      "L3-TDO-S-AN-Z6-TE01": "℃",
+      "L3-TDO-N-ST-Z4-SP01": "℃",
+      "L3-TDO-N-Z4-HOUT01": "%",
+      "L3-TDO-S-Z4-HOUT01": "%",
+      "L3-TDO-N-FAN-HZ01": "Hz",
+      "L3-TDO-S-FAN-HZ01": "Hz",
+      "L3-TDO-RAIL-W01": "mm",
+      "L3-TDO-CHAIN-I01": "A",
+      "L3-PU-TN01": "N",
+      "L3-PU-V01": "m/min",
+      "L3-WD-TN01": "N",
+      "L3-WD-V01": "m/min",
+      "L3-GA-TH-AVG01": "μm",
+      "L3-GA-TH-CV01": "%",
+      "L3-GA-EDGE-N01": "%",
+      "L3-GA-EDGE-S01": "%",
+      "L3-QM-YIELD01": "%",
+      "L3-ENV-TE01": "℃",
+      "L3-ENV-RH01": "%",
+      "L3-CW-SUP-TE01": "℃",
+      "L3-MES-BATCH01": "-",
+      "L3-MES-SPEC01": "-",
+      "L3-MES-RECYCLE01": "%",
+      "L3-LINE-MODE01": "-",
+      "L3-LAB-HAZE01": "%",
+      "L3-LAB-GEL01": "个/㎡",
+      "L3-LAB-SHR-TD01": "%",
+      "L3-LAB-SHR-MD01": "%",
+      "L3-LAB-STR-TD01": "MPa",
+      "L3-LAB-STR-MD01": "MPa",
+      "L3-LAB-TH-AVG01": "μm",
+      "L3-LAB-WATER01": "ppm"
+    },
+    "sampling_rate": "10 分钟（主表）；2 小时（化验表）",
+    "batch_id": null,
+    "timezone": "+08:00",
+    "start_time": "2026-09-20T00:00:00",
+    "end_time": "2026-10-10T23:50:00",
+    "product_grades": [
+      {
+        "name": "GP12",
+        "key_parameter_differences": {}
+      }
+    ]
+  }
+}

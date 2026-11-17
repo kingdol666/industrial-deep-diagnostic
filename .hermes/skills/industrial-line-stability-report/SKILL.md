@@ -52,6 +52,11 @@ description: "产线运行稳定性报告 skill：给定时间段的生产数据
 |---|---|---|---|---|
 - `stability_analyzer.py analyze` 文件模式分析一个输入表；HTTP line-report 的目录模式先运行 `industrial-data-preprocessor/data_preprocessor.py --stability-single-primary --recursive`，再将其唯一主时序规范表交给 analyzer。
 - 目录模式按确定性评分选择一个 ≥50 行且时间列 ≥80% 可解析的主表；默认不跨文件合并/重采样不同采样频率。QC/检测表、维修/事件表、manifest/说明材料按角色审计；真值/答案文件不读取、不复制、不哈希。逐文件处置与 SHA-256 存入 `00_input/input_manifest.json`，摘要通过 `data.preprocessing` 进入 JSON/HTML/Markdown。
+- **多源异构数据（E-1H）**：目录含剖面/map/图像索引/时序文本时，编排层在 E-1 之后链式执行
+  `industrial-hetero-preprocessor`（`build.py --raw-path <dir> --run-dir <run>` + `quality_gate.mjs`）；
+  `status: ok` 时用 `--data <run>/07_hetero/preprocessed_data_hetero.csv` 把 `HX-*` 派生特征通道一并交本 skill 评估
+  （实测：L5 锂电涂布 55 参数中 35 个 HX 通道入评、15 条 HX 发现，门禁 11/11，本体 auto）。
+  无异构源时链式命令零行为变化。`HX-*` 通道同样受时间不变量守卫与诚实降级约束。
 - 文件夹内若存在 `ontology*.json` 且用户未显式传本体，HTTP 编排层自动将其接线为 `--ontology` 输入（`condition.ontology.path` 可追溯）。同表内的 SV（设定值）列通常近似不变，会被时间不变量通道守卫剔除评分并出 data_quality 发现；PV（实际值）列正常入评。
 
 ## Inputs / Outputs

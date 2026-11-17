@@ -1,6 +1,4 @@
 const BASE = '/api';
-const TOKEN_KEY = 'auth_token';
-const USER_KEY = 'auth_user';
 
 // The client is a plain module, so it reaches the i18n instance directly rather
 // than through a component's `useI18n()`. Locale switches are reactive: the
@@ -12,36 +10,18 @@ function msg(key, fallback) {
   return v && v !== key ? v : fallback;
 }
 
-// ─── 客户端会话管理 ───
-export function getToken() {
-  try { return localStorage.getItem(TOKEN_KEY) || ''; } catch { return ''; }
-}
-export function setToken(token) {
-  try {
-    if (token) localStorage.setItem(TOKEN_KEY, token);
-    else localStorage.removeItem(TOKEN_KEY);
-  } catch { /* ignore */ }
-}
-export function getStoredUser() {
-  try { return JSON.parse(localStorage.getItem(USER_KEY) || 'null'); } catch { return null; }
-}
-export function setStoredUser(user) {
-  try {
-    if (user) localStorage.setItem(USER_KEY, JSON.stringify(user));
-    else localStorage.removeItem(USER_KEY);
-  } catch { /* ignore */ }
-}
+// ─── 会话管理（HttpOnly cookie）───
+// 会话凭据是服务端下发的 HttpOnly `idd_session` cookie（SameSite=Strict），
+// JavaScript 读不到、也不需要读：同源的 fetch / <img> / <iframe> / WebSocket
+// 握手都会自动携带它，状态变更请求由浏览器自动附上同源 Origin。
+// 因此这里没有 getToken/setToken，也不再注入 `Authorization: Bearer`——
+// Bearer 通道仅保留给外部程序化调用的 API Token，与页面会话无关。
+// 登录态的唯一权威来源是 GET /api/auth/me（见 App.vue 的启动探针）。
 
-// 全局 401 处理：清除本地会话并通知 App 回到登录页
+// 全局 401 处理：通知 App 回到登录页。cookie 由服务端清除/过期，客户端
+// 无本地凭据可清（也不该清 —— localStorage 里的任何副本都已经不存在了）。
 function handleUnauthorized() {
-  setToken('');
-  setStoredUser(null);
   window.dispatchEvent(new CustomEvent('auth:unauthorized'));
-}
-
-export function authHeaders(extra = {}) {
-  const token = getToken();
-  return token ? { Authorization: `Bearer ${token}`, ...extra } : { ...extra };
 }
 
 /** API 错误：携带服务端 code / status / details，供调用方做分支处理（如 409 版本冲突）。 */
@@ -57,7 +37,10 @@ export class ApiError extends Error {
 
 async function request(path, options = {}) {
   const res = await fetch(`${BASE}${path}`, {
-    headers: authHeaders({ 'Content-Type': 'application/json' }),
+    // Same-origin: the browser attaches the HttpOnly session cookie and the
+    // Origin header on its own. No Authorization header is injected for
+    // in-browser session calls (Bearer is for external API tokens only).
+    headers: { 'Content-Type': 'application/json' },
     // Diagnostic state must never be served from heuristic cache: the ETag on
     // /ontology responses let a stale pre-restart payload outlive the server
     // that produced it. Revalidate every API GET.
@@ -86,8 +69,11 @@ async function request(path, options = {}) {
 
 export const api = {
   // ── Auth（register/login 为公开端点，其余需认证）──
+  // login 成功即由服务端 Set-Cookie 下发 HttpOnly 会话 cookie；响应体本身
+  // 不含会话凭据（前端随后向 /me 取权威用户对象）。logout 清 cookie。
   authRegister: (params) => request('/auth/register', { method: 'POST', body: JSON.stringify(params) }),
   authLogin: (params) => request('/auth/login', { method: 'POST', body: JSON.stringify(params) }),
+  authLogout: () => request('/auth/logout', { method: 'POST' }),
   authMe: () => request('/auth/me'),
   listTokens: () => request('/auth/tokens'),
   createToken: (params) => request('/auth/tokens', { method: 'POST', body: JSON.stringify(params) }),
@@ -106,7 +92,8 @@ export const api = {
     const query = folder ? `?folder=${encodeURIComponent(folder)}` : '';
     return fetch(`${BASE}/files/data/upload${query}`, {
       method: 'POST',
-      headers: authHeaders(),
+      // Multipart: let the browser set the boundary; the session cookie rides
+      // along same-origin.
       body: formData,
     }).then(async (r) => {
       const d = await r.json();
@@ -258,10 +245,12 @@ export const api = {
       method: 'POST',
       body: JSON.stringify(path ? { path } : {}),
     }),
-  chatStreamUrl: (chatId) => `${BASE}/chat/stream/${chatId}?token=${encodeURIComponent(getToken())}`,
+  // SSE/EventSource 与 <img>/<iframe> 一样无法携带自定义请求头，但会话现在是
+  // 同源 HttpOnly cookie —— 浏览器对这些请求自动附带，URL 里不再有 token。
+  chatStreamUrl: (chatId) => `${BASE}/chat/stream/${chatId}`,
 
   // SSE stream
-  streamUrl: (runId) => `${BASE}/diagnosis/stream/${runId}?token=${encodeURIComponent(getToken())}`,
+  streamUrl: (runId) => `${BASE}/diagnosis/stream/${runId}`,
 
   // ── Harness abstraction (engine-agnostic; Claude/OMP/Codex... all implement) ──
   listHarnesses: () => request('/harness'),
@@ -274,14 +263,10 @@ export const api = {
     request(`/harness/${id}/runs/${encodeURIComponent(name)}/artifact/${kind}`),
   harnessEnhancement: (id, name, kind) =>
     request(`/harness/${id}/runs/${encodeURIComponent(name)}/enhancement/${kind}`),
-  // Loaded as an <iframe src>, which the browser cannot attach an
-  // Authorization header to — so the session token rides as a query param,
-  // the same fallback the backend already sanctions for SSE/EventSource.
-  harnessHtmlUrl: (id, name, mode = 'baseline') => {
-    const url = `${BASE}/harness/${id}/runs/${encodeURIComponent(name)}/html?mode=${mode}`;
-    const token = getToken();
-    return token ? `${url}&token=${encodeURIComponent(token)}` : url;
-  },
+  // Loaded as an <iframe src>. The iframe is same-origin, so the browser
+  // attaches the session cookie automatically — no token in the URL.
+  harnessHtmlUrl: (id, name, mode = 'baseline') =>
+    `${BASE}/harness/${id}/runs/${encodeURIComponent(name)}/html?mode=${mode}`,
 
   // ── OMP harness bridge (legacy alias, kept for compatibility) ──
   ompHealth: () => request('/omp/health'),
@@ -295,14 +280,15 @@ export const api = {
   ompHtmlUrl: (name) => `${BASE}/omp/runs/${encodeURIComponent(name)}/html`,
   ompEnhHtmlUrl: (name) => `${BASE}/omp/runs/${encodeURIComponent(name)}/enhancement/html`,
 
-  // 说明：固定脚本分析（sentinel / line-report / doe-analysis / experience /
-  // optimizer 的 HTTP 直包端点）已从产品面退役——所有分析由集成智能体经
-  // /api/diagnosis/start（analysisIntent）真实执行。
+  // 说明：固定脚本分析（sentinel / line-report 的 HTTP 直包端点）已从产品面退役——
+  // 所有分析由集成智能体经 /api/diagnosis/start（analysisIntent）真实执行。
 };
 
-// WebSocket URL (same host, port determined at runtime) — 连接时携带 token 鉴权
+// WebSocket URL (same host, port determined at runtime).
+// The handshake is same-origin, so the browser sends the HttpOnly session
+// cookie with it automatically — no token in the URL (it used to leak into
+// access logs / proxies) and no token subprotocol to offer anymore.
 export function wsUrl() {
   const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
-  const token = encodeURIComponent(getToken());
-  return `${proto}//${location.host}/ws${token ? `?token=${token}` : ''}`;
+  return `${proto}//${location.host}/ws`;
 }

@@ -1,0 +1,71 @@
+<Slide style={{ padding: '22px 64px 18px 64px', background: '#F7F4EC' }}>
+    <Box style={{ width: 1152, height: 102, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box style={{ flexDirection: 'column' }}>
+            <Text style={{ fontSize: 36, fontWeight: 'bold', color: '#1D1B16', lineHeight: 1.25 }}>OMP 速查：五个命令 + 状态栏怎么读</Text>
+            <Text style={{ fontSize: 17, color: 'rgba(29,27,22,0.72)', marginTop: 6 }}>配好之后日常只需要这几条。状态栏永远告诉你现在用的是哪个模型、在哪跑</Text>
+        </Box>
+        <Box style={{ padding: '10px 18px', background: '#B8730F', borderRadius: 8 }}>
+            <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#FFFFFF' }}>建议截图存档</Text>
+        </Box>
+    </Box>
+    <Box style={{ width: 1152, height: 534, flexDirection: 'column', gap: 16 }}>
+        <Box style={{ height: 137, justifyContent: 'center', alignItems: 'center' }}>
+            <Image src="assets/omp_composer.png" style={{ width: 1077, height: 137, borderRadius: 10, border: '1px solid rgba(29,27,22,0.10)' }} />
+        </Box>
+        <Box style={{ height: 381 }}>
+            <Table
+                style={{ width: '100%', height: '100%' }}
+                defaultTextStyle={{ fontSize: 17, textAlign: 'left', color: '#1D1B16' }}
+                defaultCellStyle={{
+                    border: {
+                        left: { width: 1, color: '#E4DCCB' },
+                        right: { width: 1, color: '#E4DCCB' },
+                        top: { width: 1, color: '#E4DCCB' },
+                        bottom: { width: 1, color: '#E4DCCB' },
+                    },
+                }}
+                cells={[
+                    [
+                        { text: '命令', textStyle: { bold: true, color: '#FFFFFF' }, cellStyle: { background: { color: '#1D1B16' } } },
+                        { text: '作用', textStyle: { bold: true, color: '#FFFFFF' }, cellStyle: { background: { color: '#1D1B16' } } },
+                        { text: '什么时候用', textStyle: { bold: true, color: '#FFFFFF' }, cellStyle: { background: { color: '#1D1B16' } } },
+                    ],
+                    [
+                        { text: 'omp', textStyle: { bold: true, color: '#8A5608' } },
+                        '启动交互式会话',
+                        '每次要跑诊断前，先在项目目录里启动它',
+                    ],
+                    [
+                        { text: '/login', textStyle: { bold: true, color: '#8A5608' }, cellStyle: { background: { color: '#F2EDE1' } } },
+                        { text: '登录 / 更换服务商与 API Key', cellStyle: { background: { color: '#F2EDE1' } } },
+                        { text: '第一次配 DeepSeek，或 Key 失效、要换账号时', cellStyle: { background: { color: '#F2EDE1' } } },
+                    ],
+                    [
+                        { text: '/model', textStyle: { bold: true, color: '#8A5608' } },
+                        '切换模型与角色',
+                        '想换更快的、更便宜的或更强的模型时',
+                    ],
+                    [
+                        { text: '/help', textStyle: { bold: true, color: '#8A5608' }, cellStyle: { background: { color: '#F2EDE1' } } },
+                        { text: '列出全部可用命令', cellStyle: { background: { color: '#F2EDE1' } } },
+                        { text: '记不住命令时，先敲 / 看补全，再敲 /help', cellStyle: { background: { color: '#F2EDE1' } } },
+                    ],
+                    [
+                        { text: '/quit', textStyle: { bold: true, color: '#8A5608' } },
+                        '退出 OMP 会话',
+                        '跑完诊断、或者要换目录重开时',
+                    ],
+                    [
+                        { text: '状态栏', textStyle: { bold: true, color: '#8A5608' }, cellStyle: { background: { color: 'rgba(184,115,15,0.12)' } } },
+                        { text: '模型 · 目录 · 上下文占用 · 上限', cellStyle: { background: { color: 'rgba(184,115,15,0.12)' } } },
+                        { text: '随时确认"我现在用哪个模型、在哪跑"', cellStyle: { background: { color: 'rgba(184,115,15,0.12)' } } },
+                    ],
+                ]}
+            />
+        </Box>
+    </Box>
+    <Box style={{ width: 1152, height: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Text style={{ fontSize: 15, color: 'rgba(29,27,22,0.48)' }}>OMP 的配置只在第一次需要动手，之后打开就能用</Text>
+        <Text style={{ fontSize: 15, color: 'rgba(29,27,22,0.48)' }}>13 / 40</Text>
+    </Box>
+</Slide>

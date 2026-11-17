@@ -1,0 +1,25 @@
+{
+  "data_path": "workspace/bopet-skill-eval/S1_stability_winding/00_input/winding_week.csv",
+  "line_id": "BOPET-1线-收卷工段",
+  "product": "12μm光膜",
+  "time_col": "时间",
+  "start": "2026-10-01T00:00:00",
+  "end": "2026-10-07T23:00:00",
+  "inspection_cols": ["薄膜厚度", "优品率"],
+  "spec_limits": {
+    "薄膜厚度": { "lsl": 11.91, "usl": 12.09, "target": 12.0 },
+    "优品率": { "lsl": 96.0, "usl": null, "target": 98.5 }
+  },
+  "weights": {
+    "牵引入口张力": 1.5,
+    "收卷锥度张力": 1.0,
+    "展平辊压力": 1.0,
+    "收卷速度": 1.0,
+    "薄膜厚度": 2.0,
+    "优品率": 2.0
+  },
+  "preprocessing": {
+    "source_export": "workspace/bopet-skill-eval/S1_stability_winding/00_input/winding_week.csv",
+    "note": "评测夹具：确定性合成数据（seed=101），DCS 小时归档口径；本体为手写 BOPET 全线本体（bopet_line_ontology.json）拷贝"
+  }
+}

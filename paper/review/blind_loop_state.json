@@ -1,0 +1,179 @@
+{
+  "loop": "blind-review-satisfaction",
+  "started": "2026-09-20",
+  "target": "paper/main.tex (AEI submission, 54pp)",
+  "consensus_rule": "全部席位 publishable=yes 且无 blocking → 循环终止",
+  "max_rounds": 5,
+  "seat_templates": "paper/review/blind_seat_prompts.md",
+  "rounds": [
+    {
+      "round": 1,
+      "date": "2026-09-20",
+      "reports": [
+        "round28_blind/r1.md",
+        "round28_blind/r2.md",
+        "round28_blind/r3.md"
+      ],
+      "results": {
+        "R1-methodology": {
+          "publishable": "no",
+          "recommendation": "Major Revision",
+          "blocking": [
+            "B1 identifier-recall remediation not executed; minimum: co-annotate recall tier in Table 4 + abstract"
+          ]
+        },
+        "R2-domain": {
+          "publishable": "yes",
+          "recommendation": "Minor Revision",
+          "blocking": [
+            "B1 IndPenSim batch-93 ground truth sourcing + fix 'the documented process-deviation batch is 93' exclusivity wording"
+          ]
+        },
+        "R3-rigor": {
+          "publishable": "yes",
+          "recommendation": "Minor Revision",
+          "blocking": [
+            "B1 'data cannot separate' contradicts bare-LLM 9/9 ablation — unify to protocol-threshold wording",
+            "B2 cap-internal rank semantics switch — define as five-factor evidence weight, no confidence/truth meaning"
+          ]
+        }
+      },
+      "consensus": false,
+      "revisions_applied": [
+        "Table 4 Top-1 row + abstract now carry recall-possible tier (R1-B1 minimum)",
+        "IndPenSim §5.1: batches 91-100 sourced to dataset documentation quote; 'the selected scenario is batch 93' (R2-B1)",
+        "Abstract + §6.2 aggregate wording: 'no surviving hypothesis reaches the protocol's quantitative elimination threshold' (R3-B1)",
+        "Rank semantics defined once in §7.4 (five-factor evidence weights; not calibrated confidence, no truth guarantee); §9 anti-recall argument rewritten on that footing (R3-B2)",
+        "MINORs: contribution-2 family-level qualifier; n=1 blind-control softening; R3-skip-by-rule pre-registration; film-line marked unaudited; SKAB truth-source wording; FE T²-only screen sourcing; +3 classic refs (yoon2001statistical, alcala2009reconstruction, hagglund1995control); abstract restructured for readability"
+      ],
+      "recompiled": "54pp, 0 undefined citations, no float/overfull regressions"
+    },
+    {
+      "round": 2,
+      "date": "2026-09-20",
+      "reports_dir": "round29_blind/",
+      "results": {
+        "R1-methodology": {
+          "publishable": "yes",
+          "recommendation": "Minor Revision",
+          "blocking": [],
+          "minors": [
+            "CI cluster-structure qualifier on Table4/forest",
+            "in-sample tool footnote on Top-1/top-k rows",
+            "consistency criterion + Δconfidence linkage"
+          ]
+        },
+        "R2-domain": {
+          "publishable": "yes",
+          "recommendation": "Minor Revision",
+          "blocking": [
+            "B1 SKAB blind-control claim vs released brief role-field visibility — FACT-CHECKED: agent-visible user_context.json carries only user_question/process_description/truth_withheld; whitelist now documented in C1"
+          ],
+          "minors": [
+            "logged→case-definition",
+            "Table 2 label-withheld wording",
+            "Register B cite fix",
+            "+Thornhill2007/Dunia1996",
+            "readings glossary (deferred)"
+          ]
+        },
+        "R3-rigor": {
+          "publishable": "no",
+          "recommendation": "Major Revision",
+          "blocking": [
+            "B1 headline 4/9 must be explicit recall-possible upper bound with 0/9 floor — APPLIED: abstract + Table 4"
+          ],
+          "minors": [
+            "§6.2 elimination wording fixed",
+            "rank reconstruction pointer added",
+            "rubric mean excl. mis-specified check added (96.2)",
+            "anti-recall demoted to weak counter-evidence"
+          ]
+        }
+      },
+      "consensus": false,
+      "revisions_applied": [
+        "Abstract + Table 4: Top-1 4/9 now explicitly 'upper bound under identifier-recall channel, joint worst-case floor 0/9'",
+        "C1: agent-visible brief field whitelist documented (user_question/process_description/truth_withheld only)",
+        "§6.2: 'elimination did not reduce the survivors to a single mechanism and no channel separates them' (accurate cap condition)",
+        "Table 4 + forest captions: purposive/non-exchangeable corpus-level qualifier; in-sample keyword calibration footnote",
+        "§8.4: future repeats fold Δconfidence + evidence-chain depth into criterion",
+        "ReportViewer/DiagnosisView chart-name parsing unified; 'logged'→'case-definition description'; Table 2 SKAB wording; Register B cite; +2 refs (thornhill2007fault, dunia1996identification)",
+        "rubric mean 94.6 (96.2 excl. mis-specified control check); anti-recall demoted to weak counter-evidence",
+        "FIX self-introduced typo: unbalanced $ in §6.2 (math-mode leak, 5 overfull pages) — compile clean again"
+      ],
+      "recompiled": "54pp, 0 undefined, only pre-existing 0.5pt overfull"
+    },
+    {
+      "round": 3,
+      "date": "2026-09-20",
+      "reports_dir": "round30_blind/",
+      "results": {
+        "R1-methodology": {
+          "publishable": "yes",
+          "recommendation": "Minor Revision",
+          "blocking": [],
+          "minors_applied": [
+            "control-CI rounding 43.8→43.9 (Table 4 + fig_forest re-rendered)",
+            "Top-1 recall bound split into its own row (sampling CI vs tool bound kept separate)"
+          ]
+        },
+        "R2-domain": {
+          "publishable": "yes",
+          "recommendation": "Minor Revision",
+          "blocking": [
+            "B1 IndPenSim batch-93 truth alignment — RESOLVED: fault-reference channel read from released data (binary flag, 101/1050 rows flagged from 70h; no mechanism encoding); disclosed verbatim in §5.1; 'recalibrate' inapplicable (channel carries no mechanism)"
+          ],
+          "minors_applied": [
+            "cavitation monitoring cite added (alfayez2005detection, verified)",
+            "XMV caption gloss added"
+          ]
+        },
+        "R3-rigor": {
+          "publishable": "yes",
+          "recommendation": "Minor Revision",
+          "blocking": [],
+          "minors_applied": [
+            "abstract trustworthy qualifier added",
+            "top-k independence + re-run keyword-coverage note added",
+            "deployment anecdote reworded self-reported/unaudited"
+          ]
+        }
+      },
+      "consensus": "PENDING-CONFIRMATION",
+      "note": "3/3 publishable=yes; R2 blocking resolved by editorial adjudication after fact-check. Round 4 = confirmation round on final text with fresh reviewers."
+    },
+    {
+      "round": 4,
+      "date": "2026-09-20",
+      "type": "confirmation",
+      "reports_dir": "round31_confirm/",
+      "results": {
+        "R1-methodology": {
+          "publishable": "yes",
+          "recommendation": "Minor Revision",
+          "blocking": [],
+          "confidence": 4
+        },
+        "R2-domain": {
+          "publishable": "yes",
+          "recommendation": "Minor Revision",
+          "blocking": [],
+          "confidence": 4
+        },
+        "R3-rigor": {
+          "publishable": "yes",
+          "recommendation": "Minor Revision",
+          "blocking": [],
+          "confidence": 4
+        }
+      },
+      "consensus": true,
+      "in_round_fixes": [
+        "fig_forest regression from R3 43.9 re-render fixed (label clipping + legend overlap; local font override + legend 2-row relayout + svg height 660)"
+      ],
+      "residual_minor_list": "see round31_confirm/synthesis.md"
+    }
+  ],
+  "status": "TERMINATED — consensus met (3/3 publishable=yes, 0 blocking) on final text"
+}

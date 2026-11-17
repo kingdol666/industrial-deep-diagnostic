@@ -1,0 +1,6 @@
+{
+  "language": "zh",
+  "scene_name": "heat_treat_sim",
+  "data_description": "连续热处理线 10 天数据：DCS（10min 锚定）+ 带材横向温度剖面（30min）+ 炉膛温度场（2h）+ 表面检查图像（1h）+ 操作备注 + 实验室硬度（2h）",
+  "analysis_goal": "定位产线质量异常根因并给出证据链（自动模式，模拟场景）"
+}

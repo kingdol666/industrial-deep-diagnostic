@@ -1,0 +1,97 @@
+{
+  "state_version": "1.0",
+  "campaign_id": "OPT-20261116-101",
+  "objective_ref": "00_input/objective.json",
+  "objective_sha256": "59eb5c1de6b6e6f5209f296991216648a82c797230309293042749b241038b9a",
+  "phase": "exploring",
+  "round_count": 2,
+  "trial_count": 4,
+  "budget": {
+    "max_rounds": 6,
+    "max_trials": 12,
+    "deadline": null,
+    "rounds_used": 2,
+    "trials_used": 4,
+    "replicates_used": 4
+  },
+  "incumbent": {
+    "setpoints": {
+      "保压压力SP": 64.0,
+      "保压时间SP": 4.5,
+      "冷却流量SP": 15.0,
+      "料温SP": 211.0
+    },
+    "measured": {
+      "制品克重PV": {
+        "mean": 32.561125,
+        "sd": 0.019926,
+        "n": 4
+      }
+    },
+    "in_target": true,
+    "predicted_D": 0.825357,
+    "round_id": "R001"
+  },
+  "target_status": {
+    "hit_ratio_history": [
+      0.666667,
+      0.75
+    ],
+    "ci_in_limits": null,
+    "desirability_gate": null
+  },
+  "model": {
+    "kind": "gp_ard_rbf",
+    "fallback_active": false,
+    "data_n": 4,
+    "noise_source": "replicates",
+    "fit_quality": {
+      "log_ml": -4.7142577470518034,
+      "cond_K": 174.7131932080226
+    }
+  },
+  "belief": {
+    "stall_rounds": 1,
+    "max_ei_last": 0.044855877471908175,
+    "duplication_ratio": 0.0,
+    "domain_coverage": 0.0928
+  },
+  "history": [
+    {
+      "round_id": "R001",
+      "phase": "explore",
+      "method": "window_seed",
+      "n_trials": 3,
+      "best_D": 0.825357,
+      "failures": 0,
+      "notes": "duplication_ratio=0.0"
+    },
+    {
+      "round_id": "R002",
+      "phase": "explore",
+      "method": "gp_ei",
+      "n_trials": 1,
+      "best_D": 0.825357,
+      "failures": 0,
+      "notes": "duplication_ratio=0.0"
+    }
+  ],
+  "next_action": {
+    "recommendation": "continue_exploit",
+    "reasons": [
+      "exploring: accumulate space-filling data"
+    ],
+    "agent_review_required": false
+  },
+  "stop_resume": {
+    "can_pause": true,
+    "resume_hint": "ingest each round's trial_result.json"
+  },
+  "guardrail_log": [],
+  "provenance": {
+    "input_sha256": "59eb5c1de6b6e6f5209f296991216648a82c797230309293042749b241038b9a",
+    "script_version": "1.0.0",
+    "seed": 42,
+    "authored_by": "script"
+  }
+}

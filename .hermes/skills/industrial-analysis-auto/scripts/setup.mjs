@@ -41,6 +41,7 @@ const subdirs = [
 
 const pipelineSteps = [
   { step: 'setup', owner: 'main-agent' },
+  { step: 'hetero_preprocess', owner: 'main-agent' },
   { step: 'inspect', owner: 'main-agent' },
   { step: 'context_builder', owner: 'context-builder' },
   { step: 'clarification_gate', owner: 'main-agent' },

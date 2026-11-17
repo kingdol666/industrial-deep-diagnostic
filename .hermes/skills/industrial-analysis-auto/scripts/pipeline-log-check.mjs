@@ -51,6 +51,7 @@ function fastPathUsed() {
 
 const orderedSteps = [
   'setup',
+  'hetero_preprocess',
   'inspect',
   'context_builder',
   'clarification_gate',

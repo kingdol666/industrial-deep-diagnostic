@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>产线运行稳定性报告 · 注塑-3机</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<script src="https://unpkg.com/echarts@5.5.0/dist/echarts.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.5.0/echarts.min.js"></script>
+<style>
+  :root { --bg:#101418; --panel:#171d24; --line:#26303b; --tx:#dfe7ee; --mut:#8a99a8;
+          --acc:#e8a33d; --good:#22a06b; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--tx);
+        font:14px/1.65 "Segoe UI","Microsoft YaHei",sans-serif; }
+  .wrap { max-width:1180px; margin:0 auto; padding:28px 20px 60px; }
+  .hero { display:flex; gap:24px; background:var(--panel); border:1px solid var(--line);
+         border-radius:14px; padding:26px 28px; align-items:center; justify-content:space-between;
+         flex-wrap:wrap; }
+  .hero-title { font-size:24px; font-weight:700; letter-spacing:.5px; }
+  .hero-sub { margin:10px 0 12px; display:flex; gap:8px; flex-wrap:wrap; }
+  .chip { background:rgba(232,163,61,.14); color:var(--acc); border:1px solid rgba(232,163,61,.35);
+          border-radius:999px; padding:2px 12px; font-size:12px; }
+  .chip.ghost { background:transparent; color:var(--mut); border-color:var(--line); }
+  .statement { font-size:15px; max-width:640px; }
+  .hero-score { text-align:center; min-width:190px; border:1px solid var(--g);
+               border-radius:14px; padding:16px 22px; }
+  .score-num { font-size:46px; font-weight:800; color:var(--g); line-height:1.1; }
+  .score-grade { color:var(--g); font-weight:700; margin-top:4px; }
+  .score-cap { color:var(--mut); font-size:12px; margin-top:6px; }
+  h2 { font-size:17px; margin:34px 0 12px; padding-left:10px; border-left:3px solid var(--acc); }
+  .panel { background:var(--panel); border:1px solid var(--line); border-radius:12px;
+          padding:16px 18px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:14px; }
+  .finding { background:var(--panel); border:1px solid var(--line); border-left:3px solid var(--s);
+            border-radius:10px; padding:14px 16px; margin-bottom:12px; }
+  .f-head { display:flex; align-items:center; gap:10px; }
+  .pill { background:var(--s); color:#fff; border-radius:999px; padding:1px 10px;
+          font-size:12px; flex:0 0 auto; }
+  .f-title { font-weight:700; }
+  .f-id { margin-left:auto; color:var(--mut); font-size:12px; }
+  .f-detail { color:#b9c6d2; margin:8px 0; }
+  .f-mech { font-size:12.5px; color:#a8c0d8; background:rgba(90,140,190,.08);
+           border:1px dashed rgba(90,140,190,.35); border-radius:6px; padding:6px 10px; margin:6px 0; }
+  .f-conf { margin-left:auto; color:var(--mut); font-size:12px; white-space:nowrap; }
+  .f-id { color:var(--mut); font-size:12px; margin-left:10px; }
+  .derived { font-size:10px; color:var(--acc); border:1px solid rgba(232,163,61,.4);
+            border-radius:4px; padding:0 4px; margin-left:4px; }
+  table { border-collapse:collapse; width:100%; }
+  th,td { border-bottom:1px solid var(--line); padding:7px 10px; text-align:left;
+         font-size:13px; vertical-align:top; }
+  th { color:var(--mut); font-weight:600; white-space:nowrap; }
+  td.num, .num { font-variant-numeric:tabular-nums; }
+  .ev-table { margin-top:8px; }
+  .ev-table th { font-size:12px; }
+  .role-tag { margin-left:8px; font-size:11px; color:var(--mut); border:1px solid var(--line);
+             border-radius:4px; padding:0 6px; }
+  .drift-flag { margin-left:6px; color:#e0703a; font-size:11px; border:1px solid #e0703a;
+               border-radius:4px; padding:0 5px; }
+  .score-cell { display:flex; align-items:center; gap:8px; min-width:130px; }
+  .score-bar { height:8px; width:var(--w); max-width:120px; background:var(--c);
+              border-radius:4px; }
+  .chart { height:300px; background:var(--panel); border:1px solid var(--line);
+          border-radius:12px; }
+  .chart + .chart { margin-top:14px; }
+  .chart-title { padding:10px 14px 0; color:var(--mut); font-size:13px; }
+  .empty { color:var(--mut); padding:10px 4px; }
+  .static-table { max-height:220px; overflow:auto; margin-top:8px; }
+  .foot { margin-top:40px; color:var(--mut); font-size:12px; border-top:1px solid var(--line);
+         padding-top:14px; }
+  .foot b { color:#b9c6d2; }
+  code { background:#0c1013; border:1px solid var(--line); border-radius:4px;
+        padding:0 5px; font-size:12px; }
+  @media print { body { background:#fff; color:#111; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  
+    <section class="hero">
+      <div class="hero-main">
+        <div class="hero-title">产线运行稳定性报告</div>
+        <div class="hero-sub">
+          <span class="chip">注塑-3机</span>
+          <span class="chip ghost">家电外壳 PP 件</span>
+          <span class="chip ghost">时段：2026-09-08 06:00:00 ~ 2026-09-09 11:45:00</span>
+        </div>
+        <div class="statement">该产线在本时段总体运行亚稳定（82.2 分，B 级）：评估 5 个参数，检出 124 个 SPC 违规剧集、0 项显著漂移；最需关注：单件重量、保压压力。</div>
+      </div>
+      <div class="hero-score" style="--g:#d8a516">
+        <div class="score-num">82.2</div>
+        <div class="score-grade">B · 亚稳定</div>
+        <div class="score-cap">综合稳定性评分（0–100）</div>
+      </div>
+    </section>
+
+  <h2>工况理解（本体优先）</h2>
+  <div class='panel'><p style='margin:0 0 8px'>未命中本体资产（<code>00_input/ontology.json</code>、<code>01_ontology/</code>、本体资产库均未命中）——以下列角色/单位/规格为确定性启发推断（assigned_by=auto），可由 industrial-ontology-builder 先建本体后复跑以获得物理语义与控制方程级解读。</p><table></table><div style='overflow:auto;margin-top:8px'><table><thead><tr><th>参数（本体名）</th><th>单位</th><th>角色</th><th>规格/正常范围</th><th>控制方程</th><th>assigned_by</th></tr></thead><tbody><tr><td class=strong>单件重量<span class='role-tag'>单件重量</span></td><td>—</td><td>检测指标</td><td>[24.7, 25.3]（用户提供）</td><td>—</td><td><span class='role-tag'>user</span></td></tr><tr><td class=strong>保压压力<span class='role-tag'>保压压力</span></td><td>—</td><td>加工参数</td><td>—</td><td>—</td><td><span class='role-tag'>auto</span></td></tr><tr><td class=strong>熔体温度<span class='role-tag'>熔体温度</span></td><td>—</td><td>加工参数</td><td>—</td><td>—</td><td><span class='role-tag'>auto</span></td></tr><tr><td class=strong>锁模力<span class='role-tag'>锁模力</span></td><td>—</td><td>加工参数</td><td>—</td><td>—</td><td><span class='role-tag'>auto</span></td></tr><tr><td class=strong>循环时间<span class='role-tag'>循环时间</span></td><td>—</td><td>加工参数</td><td>—</td><td>—</td><td><span class='role-tag'>auto</span></td></tr></tbody></table></div><div style='margin-top:10px'><b>工况分段（sentinel C3，方法 fast；变点 0 个）</b><table><thead><tr><th>段</th><th>行范围</th><th>主导状态</th></tr></thead><tbody><tr><td>段 1</td><td class=num>行 0–119（120 行）</td><td>steady</td></tr></tbody></table></div></div>
+
+  <h2>核心发现（结论与证据）</h2>
+  
+        <div class="finding sev-high">
+          <div class="f-head">
+            <span class="pill" style="--s:#e0703a">严重</span>
+            <span class="f-title">单件重量 检出 SPC 违规</span>
+            <span class="f-conf">置信度 90</span>
+            <span class="f-id">F001</span>
+          </div>
+          <div class="f-detail">共 55 个判异剧集命中（每百点 45.8 个，规则：NELSON_R1/NELSON_R2/NELSON_R3/NELSON_R5/NELSON_R6），控制限为中心值25.011±3σ_within（σ=0.0297）。</div>
+          
+          <table class="ev-table"><thead><tr>
+            <th>证据项</th><th>数值</th><th>阈值/口径</th><th>来源</th>
+          </tr></thead><tbody><tr><td>violation_episodes</td><td class=num>55</td><td class=num>0</td><td>lstcore</td></tr><tr><td>rate_per_100</td><td class=num>45.83</td><td class=num>&lt;2 for warn; &gt;=2 for high</td><td>lstcore</td></tr><tr><td>sigma_within_mr</td><td class=num>0.0297</td><td class=num>—</td><td>lstcore</td></tr></tbody></table>
+        </div>
+        <div class="finding sev-high">
+          <div class="f-head">
+            <span class="pill" style="--s:#e0703a">严重</span>
+            <span class="f-title">保压压力 检出 SPC 违规</span>
+            <span class="f-conf">置信度 90</span>
+            <span class="f-id">F002</span>
+          </div>
+          <div class="f-detail">共 59 个判异剧集命中（每百点 49.2 个，规则：NELSON_R1/NELSON_R2/NELSON_R3/NELSON_R5/NELSON_R6），控制限为中心值68.555±3σ_within（σ=0.5274）。</div>
+          
+          <table class="ev-table"><thead><tr>
+            <th>证据项</th><th>数值</th><th>阈值/口径</th><th>来源</th>
+          </tr></thead><tbody><tr><td>violation_episodes</td><td class=num>59</td><td class=num>0</td><td>lstcore</td></tr><tr><td>rate_per_100</td><td class=num>49.17</td><td class=num>&lt;2 for warn; &gt;=2 for high</td><td>lstcore</td></tr><tr><td>sigma_within_mr</td><td class=num>0.5274</td><td class=num>—</td><td>lstcore</td></tr></tbody></table>
+        </div>
+        <div class="finding sev-high">
+          <div class="f-head">
+            <span class="pill" style="--s:#e0703a">严重</span>
+            <span class="f-title">熔体温度 检出 SPC 违规</span>
+            <span class="f-conf">置信度 90</span>
+            <span class="f-id">F003</span>
+          </div>
+          <div class="f-detail">共 4 个判异剧集命中（每百点 3.3 个，规则：NELSON_R1/NELSON_R3/NELSON_R6），控制限为中心值264.95±3σ_within（σ=0.783）。</div>
+          
+          <table class="ev-table"><thead><tr>
+            <th>证据项</th><th>数值</th><th>阈值/口径</th><th>来源</th>
+          </tr></thead><tbody><tr><td>violation_episodes</td><td class=num>4</td><td class=num>0</td><td>lstcore</td></tr><tr><td>rate_per_100</td><td class=num>3.33</td><td class=num>&lt;2 for warn; &gt;=2 for high</td><td>lstcore</td></tr><tr><td>sigma_within_mr</td><td class=num>0.783</td><td class=num>—</td><td>lstcore</td></tr></tbody></table>
+        </div>
+        <div class="finding sev-high">
+          <div class="f-head">
+            <span class="pill" style="--s:#e0703a">严重</span>
+            <span class="f-title">锁模力 检出 SPC 违规</span>
+            <span class="f-conf">置信度 90</span>
+            <span class="f-id">F004</span>
+          </div>
+          <div class="f-detail">共 4 个判异剧集命中（每百点 3.3 个，规则：NELSON_R1/NELSON_R3/NELSON_R5/NELSON_R6），控制限为中心值1080±3σ_within（σ=3.4865）。</div>
+          
+          <table class="ev-table"><thead><tr>
+            <th>证据项</th><th>数值</th><th>阈值/口径</th><th>来源</th>
+          </tr></thead><tbody><tr><td>violation_episodes</td><td class=num>4</td><td class=num>0</td><td>lstcore</td></tr><tr><td>rate_per_100</td><td class=num>3.33</td><td class=num>&lt;2 for warn; &gt;=2 for high</td><td>lstcore</td></tr><tr><td>sigma_within_mr</td><td class=num>3.4865</td><td class=num>—</td><td>lstcore</td></tr></tbody></table>
+        </div>
+        <div class="finding sev-warn">
+          <div class="f-head">
+            <span class="pill" style="--s:#d8a516">关注</span>
+            <span class="f-title">循环时间 检出 SPC 违规</span>
+            <span class="f-conf">置信度 90</span>
+            <span class="f-id">F005</span>
+          </div>
+          <div class="f-detail">共 2 个判异剧集命中（每百点 1.7 个，规则：NELSON_R2/NELSON_R6），控制限为中心值38.48±3σ_within（σ=0.1148）。</div>
+          
+          <table class="ev-table"><thead><tr>
+            <th>证据项</th><th>数值</th><th>阈值/口径</th><th>来源</th>
+          </tr></thead><tbody><tr><td>violation_episodes</td><td class=num>2</td><td class=num>0</td><td>lstcore</td></tr><tr><td>rate_per_100</td><td class=num>1.67</td><td class=num>&lt;2 for warn; &gt;=2 for high</td><td>lstcore</td></tr><tr><td>sigma_within_mr</td><td class=num>0.1148</td><td class=num>—</td><td>lstcore</td></tr></tbody></table>
+        </div>
+        <div class="finding sev-info">
+          <div class="f-head">
+            <span class="pill" style="--s:#4a7fb5">提示</span>
+            <span class="f-title">保压压力 是 单件重量 波动的主要解释项</span>
+            <span class="f-conf">置信度 50</span>
+            <span class="f-id">F006</span>
+          </div>
+          <div class="f-detail">滞后补偿后 |r|² 归一，保压压力 解释了 单件重量 约 100% 的方差（|r|=0.9662，领先 0 行）。本体未见因果边——占比仅为统计分解。置信度 50。</div>
+          <div class='f-mech'>物理机制：无本体机制支持 [MECHANISM_UNKNOWN]</div>
+          <table class="ev-table"><thead><tr>
+            <th>证据项</th><th>数值</th><th>阈值/口径</th><th>来源</th>
+          </tr></thead><tbody><tr><td>share</td><td class=num>1</td><td class=num>&gt;=0.4</td><td>lstcore <span class="derived">derived</span></td></tr><tr><td>abs_r</td><td class=num>0.9662</td><td class=num>—</td><td>lstcore <span class="derived">derived</span></td></tr><tr><td>mechanism_level</td><td class=num>unknown</td><td class=num>—</td><td>ontology</td></tr></tbody></table>
+        </div>
+        <div class="finding sev-info">
+          <div class="f-head">
+            <span class="pill" style="--s:#4a7fb5">提示</span>
+            <span class="f-title">强相关对：单件重量 ↔ 保压压力 [MECHANISM_UNKNOWN]</span>
+            <span class="f-conf">置信度 45</span>
+            <span class="f-id">F007</span>
+          </div>
+          <div class="f-detail">滞后补偿后最强 |Spearman|=0.9662（零滞后同步）；零滞后 Pearson=0.9702。本体未提供物理机制支持——仅是统计共变，不可作因果线索使用。置信度 45（统计证据充分度 × 机制支持度）。</div>
+          <div class='f-mech'>物理机制：无本体机制支持 [MECHANISM_UNKNOWN]</div>
+          <table class="ev-table"><thead><tr>
+            <th>证据项</th><th>数值</th><th>阈值/口径</th><th>来源</th>
+          </tr></thead><tbody><tr><td>best_abs_r</td><td class=num>0.9662</td><td class=num>&gt;=0.7</td><td>lstcore <span class="derived">derived</span></td></tr><tr><td>best_lag_rows</td><td class=num>0</td><td class=num>—</td><td>lstcore</td></tr><tr><td>mechanism_level</td><td class=num>unknown</td><td class=num>—</td><td>ontology</td></tr></tbody></table>
+        </div>
+
+  <h2>参数稳定性总览</h2>
+  <div class="panel" style="overflow:auto">
+    <table>
+      <thead><tr>
+        <th>参数</th><th>样本数</th><th>中位数</th><th>CV</th><th>SPC违规点</th>
+        <th>漂移/天(相对)</th><th>Cpk</th><th>基线z</th><th>评分</th>
+      </tr></thead>
+      <tbody>
+        <tr>
+          <td>单件重量<span class="role-tag">检测指标</span></td>
+          <td class=num>120</td>
+          <td class=num>25.011</td>
+          <td class=num>0.003331</td>
+          <td class=num>55</td>
+          <td class=num>0.001412</td>
+          <td class=num>3.3122</td>
+          <td class=num>—</td>
+          <td><div class="score-cell"><div class="score-bar" style="--w:63%;--c:#e0703a"></div><span style="color:#e0703a">63</span></div></td>
+        </tr>
+        <tr>
+          <td>保压压力<span class="role-tag">加工参数</span></td>
+          <td class=num>120</td>
+          <td class=num>68.555</td>
+          <td class=num>0.026536</td>
+          <td class=num>59</td>
+          <td class=num>0.005971</td>
+          <td class=num>—</td>
+          <td class=num>—</td>
+          <td><div class="score-cell"><div class="score-bar" style="--w:55%;--c:#e0703a"></div><span style="color:#e0703a">55</span></div></td>
+        </tr>
+        <tr>
+          <td>熔体温度<span class="role-tag">加工参数</span></td>
+          <td class=num>120</td>
+          <td class=num>264.95</td>
+          <td class=num>0.003372</td>
+          <td class=num>4</td>
+          <td class=num>0.002196</td>
+          <td class=num>—</td>
+          <td class=num>—</td>
+          <td><div class="score-cell"><div class="score-bar" style="--w:97%;--c:#22a06b"></div><span style="color:#22a06b">97</span></div></td>
+        </tr>
+        <tr>
+          <td>锁模力<span class="role-tag">加工参数</span></td>
+          <td class=num>120</td>
+          <td class=num>1080</td>
+          <td class=num>0.003633</td>
+          <td class=num>4</td>
+          <td class=num>0.001147</td>
+          <td class=num>—</td>
+          <td class=num>—</td>
+          <td><div class="score-cell"><div class="score-bar" style="--w:97%;--c:#22a06b"></div><span style="color:#22a06b">97</span></div></td>
+        </tr>
+        <tr>
+          <td>循环时间<span class="role-tag">加工参数</span></td>
+          <td class=num>120</td>
+          <td class=num>38.48</td>
+          <td class=num>0.003294</td>
+          <td class=num>2</td>
+          <td class=num>0.000257</td>
+          <td class=num>—</td>
+          <td class=num>—</td>
+          <td><div class="score-cell"><div class="score-bar" style="--w:99%;--c:#22a06b"></div><span style="color:#22a06b">99</span></div></td>
+        </tr></tbody>
+    </table>
+  </div>
+
+  <h2>趋势与控制限</h2>
+  <div id="trend-charts"></div>
+  <noscript><div class="panel empty">已禁用 JavaScript：请查看上方参数总览表与证据附录，
+    或使用导出的 charts.json。</div></noscript>
+
+  <h2>参数相关与波动驱动</h2>
+  <div class="grid">
+    <div class="panel" id="contrib-panel"><div class="chart-title">对检测/目标指标的方差解释占比</div>
+      <div id="contrib-chart" class="chart"></div></div>
+    <div class="panel" id="heat-panel"><div class="chart-title">参数相关热力图（滞后补偿 |Spearman|）</div>
+      <div id="heat-chart" class="chart"></div></div>
+  </div>
+
+  <h2>协同分析输入</h2>
+  <div class="panel" id="integrations"><table><tbody><tr><th>sentinel 基线对照</th><td>未启用（未提供基线）</td></tr><tr><th>tuning-memory 调优归因</th><td>未启用（未提供 action_log）</td></tr><tr><th>doe-analyzer 操作窗</th><td>未启用（未提供 doe_run_dir）</td></tr></tbody></table></div>
+
+  <h2>数据与口径（证据链附录）</h2>
+  <div class="panel">
+    <table>
+      <tr><th>数据文件</th><td>workspace/lst-teaching-kit/T3_injection_molding/00_input/shots_30h.json</td></tr>
+      <tr><th>数据指纹</th><td class="num">sha256:d01396a5e04f614d41899fe2406856e85f7f4232e28ee00047887e2ca03c8352</td></tr>
+      <tr><th>行数（原始/入评）</th><td class="num">120 / 120</td></tr>
+      <tr><th>时间列 / 采样间隔</th><td>模次时间 /
+        <span class="num">900 s</span></td></tr>
+      <tr><th>缺失率 / 覆盖率</th><td class="num">0.00% /
+        100.00%</td></tr>
+      <tr><th>评估参数</th><td>单件重量、保压压力、熔体温度、锁模力、循环时间</td></tr>
+      <tr><th>检测指标</th><td>单件重量</td></tr>
+      <tr><th>预处理溯源</th><td>{&quot;source_export&quot;: &quot;workspace/lst-teaching-kit/T3_injection_molding/00_input/shots_30h.json&quot;, &quot;note&quot;: &quot;教学夹具：MES 逐模记录导出为 JSON 行对象数组（合成数据 seed=703），每 15 分钟一模&quot;}</td></tr>
+    </table>
+    <div style='margin-top:12px'><b>方法与阈值（可复算）</b><ul><li><code>sentinelcore_nelson_episodes</code> — Nelson 判异复用 industrial-sentinel sentinelcore （R1 单点越 3σ；R2 连续 9 点同侧；R3 连续 6 点同向；R5 三点中两点越 2σ；R6 五点中四点越 1σ），单一事实源。</li><li><code>mrbar_sigma_1.128</code> — σ_within 由移动极差估计：σ = MR̄ / 1.128（与 industrial-sentinel 同口径）。</li><li><code>cpk_within_ppk_overall</code> — Cpk 用组内 σ（MR̄ 法），Ppk 用整体标准差；规格限来源：用户上下文 > 本体资产 normal_range > 不计算。</li><li><code>theil_sen_mk_drift</code> — 漂移：Theil–Sen 稳健斜率（每行斜率 ÷ 采样间隔换算每秒）+ Mann–Kendall 显著性（p&lt;0.01 且相对漂移≥0.1%/天才计入）。</li><li><code>lagged_spearman_max10</code> — 相关性：滞后 0–10 行逐行 Spearman 取最强，并记录领先行数；物理机制由本体 relationships/参数组校验（darwin 四条件）。</li><li><code>contribution_r2_share</code> — 贡献分解：目标指标上各驱动参数滞后补偿后 |r|² 归一化占比（阈值 |r|≥0.3），领先行数一并记录。</li><li><code>regime_segmentation_c3</code> — 工况分段：复用 industrial-sentinel regime_map（方差比+漂移坡道融合 + 二分分割显著变点），变点与主导状态逐段列出。</li><li><code>ontology_first_condition</code> — 本体优先：先于任何统计构建工况理解（显式路径 > 00_input/01_ontology 产物 > 本体资产库），每个推断字段带 assigned_by=ontology|user|auto。</li><li><code>weighted_penalty_score_v1</code> — 评分：每参数 100 分起，按 SPC 违规剧集率/CV/Cpk/漂移/基线偏离分档扣分，综合分为参数加权均值；A≥85 稳定，B≥70 亚稳定，C≥50 波动，D&lt;50 不稳定。</li><li><code>darwin_limitations</code> — 数据真值与局限：全部数值可由原始表复算；推导字段标记 derived；假设、混杂因子与规格覆盖显式列出（见下）。</li></ul><span style='color:var(--mut)'>python 3.12.7 · numpy 2.5.2 · pandas 3.0.5 · spc sentinelcore · input sha256:d01396a5e04f614d41899fe2406856e85f7f4232e28ee00047887e2ca03c8352</span></div>
+    
+    <div style='margin-top:16px'>
+      <b>假设与局限（darwin 数据真值条款）</b>
+      <table>
+        <tr><th>数据来源</th><td>raw (this skill never cleans or imputes; every number is recomputable from the raw table)</td></tr>
+        <tr><th>抽样</th><td>全量入评（120 行）</td></tr>
+        <tr><th>规格覆盖</th><td>用户提供：单件重量 ·
+          本体资产：无 ·
+          无规格（不评 Cpk）：保压压力、熔体温度、锁模力、循环时间</td></tr>
+      </table>
+      <div style='margin-top:6px'><b>模型假设</b><ul><li>lag-compensated Spearman window 0–10 rows (lead/lag beyond this window is invisible)</li><li>whole-period scoring assumes one dominant operating condition; use the regime table for segmented reading</li><li>Cpk treats within-sigma as MR̄/1.128 moving-range estimate</li></ul></div>
+      <div style='margin-top:6px'><b>混杂因子（本体登记）</b>
+        <table><thead><tr><th>变量</th><th>影响说明</th><th>状态</th></tr></thead>
+        <tbody><tr><td colspan=3 class=empty>本体未登记混杂因子</td></tr></tbody></table></div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <b>报告性质：</b>本报告由确定性统计脚本生成（零 LLM 参与，全部数值可复算），
+    属咨询性分析产物，不构成参数下发或控制指令；行动决策归生产线管理方。<br>
+    <b>生成物：</b>LSR-1791950427-kd5q5v ·
+    contract line-stability-report/1.0 ·
+    script v1.0.0 ·
+    2026-10-14T04:00:27Z
+  </div>
+</div>
+
+<script id="payload" type="application/json">{"report_id":"LSR-1791950427-kd5q5v","charts":{"contract_version":"line-stability-charts/1.0","trend":[{"name":"单件重量","role":"inspection","n":120,"n_plotted":120,"t":[1788847200000,1788848100000,1788849000000,1788849900000,1788850800000,1788851700000,1788852600000,1788853500000,1788854400000,1788855300000,1788856200000,1788857100000,1788858000000,1788858900000,1788859800000,1788860700000,1788861600000,1788862500000,1788863400000,1788864300000,1788865200000,1788866100000,1788867000000,1788867900000,1788868800000,1788869700000,1788870600000,1788871500000,1788872400000,1788873300000,1788874200000,1788875100000,1788876000000,1788876900000,1788877800000,1788878700000,1788879600000,1788880500000,1788881400000,1788882300000,1788883200000,1788884100000,1788885000000,1788885900000,1788886800000,1788887700000,1788888600000,1788889500000,1788890400000,1788891300000,1788892200000,1788893100000,1788894000000,1788894900000,1788895800000,1788896700000,1788897600000,1788898500000,1788899400000,1788900300000,1788901200000,1788902100000,1788903000000,1788903900000,1788904800000,1788905700000,1788906600000,1788907500000,1788908400000,1788909300000,1788910200000,1788911100000,1788912000000,1788912900000,1788913800000,1788914700000,1788915600000,1788916500000,1788917400000,1788918300000,1788919200000,1788920100000,1788921000000,1788921900000,1788922800000,1788923700000,1788924600000,1788925500000,1788926400000,1788927300000,1788928200000,1788929100000,1788930000000,1788930900000,1788931800000,1788932700000,1788933600000,1788934500000,1788935400000,1788936300000,1788937200000,1788938100000,1788939000000,1788939900000,1788940800000,1788941700000,1788942600000,1788943500000,1788944400000,1788945300000,1788946200000,1788947100000,1788948000000,1788948900000,1788949800000,1788950700000,1788951600000,1788952500000,1788953400000,1788954300000],"v":[25.007,25.038,25.068,25.102,25.134,25.117,25.112,25.063,25.088,25.041,25.008,24.989,24.947,24.969,24.895,24.893,24.935,24.953,24.942,24.939,24.986,25.006,25.083,25.058,25.093,25.083,25.133,25.138,25.095,25.054,25.015,25.045,24.972,24.902,24.855,24.915,24.943,24.882,24.9,24.918,25.014,25.05,25.079,25.091,25.115,25.158,25.121,25.08,25.108,25.056,25.02,24.977,24.957,24.933,24.918,24.891,24.869,24.918,24.966,24.964,24.988,25.039,25.051,25.127,25.12,25.082,25.12,25.106,25.03,25.039,24.979,24.985,24.926,24.952,24.867,24.893,24.887,24.867,24.917,24.933,24.998,25.052,25.062,25.07,25.086,25.095,25.094,25.085,25.071,25.028,24.988,24.923,24.88,24.884,24.889,24.902,24.937,24.912,24.913,24.968,25.02,25.036,25.115,25.135,25.106,25.107,25.14,25.086,25.102,25.015,25.049,25.017,24.946,24.927,24.856,24.922,24.91,24.904,24.942,24.956],"center":25.011,"ucl":25.099974,"lcl":24.922026,"violation_indices_in_plot":[],"spec":{"lsl":24.7,"usl":25.3,"target":25.0,"source":"user"}},{"name":"保压压力","role":"parameter","n":120,"n_plotted":120,"t":[1788847200000,1788848100000,1788849000000,1788849900000,1788850800000,1788851700000,1788852600000,1788853500000,1788854400000,1788855300000,1788856200000,1788857100000,1788858000000,1788858900000,1788859800000,1788860700000,1788861600000,1788862500000,1788863400000,1788864300000,1788865200000,1788866100000,1788867000000,1788867900000,1788868800000,1788869700000,1788870600000,1788871500000,1788872400000,1788873300000,1788874200000,1788875100000,1788876000000,1788876900000,1788877800000,1788878700000,1788879600000,1788880500000,1788881400000,1788882300000,1788883200000,1788884100000,1788885000000,1788885900000,1788886800000,1788887700000,1788888600000,1788889500000,1788890400000,1788891300000,1788892200000,1788893100000,1788894000000,1788894900000,1788895800000,1788896700000,1788897600000,1788898500000,1788899400000,1788900300000,1788901200000,1788902100000,1788903000000,1788903900000,1788904800000,1788905700000,1788906600000,1788907500000,1788908400000,1788909300000,1788910200000,1788911100000,1788912000000,1788912900000,1788913800000,1788914700000,1788915600000,1788916500000,1788917400000,1788918300000,1788919200000,1788920100000,1788921000000,1788921900000,1788922800000,1788923700000,1788924600000,1788925500000,1788926400000,1788927300000,1788928200000,1788929100000,1788930000000,1788930900000,1788931800000,1788932700000,1788933600000,1788934500000,1788935400000,1788936300000,1788937200000,1788938100000,1788939000000,1788939900000,1788940800000,1788941700000,1788942600000,1788943500000,1788944400000,1788945300000,1788946200000,1788947100000,1788948000000,1788948900000,1788949800000,1788950700000,1788951600000,1788952500000,1788953400000,1788954300000],"v":[68.65,69.31,70.03,70.73,70.93,71.01,71.31,70.3,70.18,69.05,68.13,67.8,67.16,66.74,65.74,65.43,66.29,67.13,67.02,67.44,68.3,68.8,70.51,70.27,70.97,70.46,70.95,70.56,70.66,69.51,68.46,68.25,66.95,66.13,65.53,66.25,66.3,66.32,66.56,67.39,68.31,68.98,69.91,70.44,70.8,71.13,71.14,70.47,70.32,69.6,68.9,67.47,67.63,66.96,66.35,66.19,66.06,66.5,67.7,67.95,68.26,69.37,70.2,71.08,71.32,70.91,71.39,70.68,69.87,69.25,67.99,68.14,66.74,67.09,65.93,66.19,66.14,66.33,66.77,67.63,68.84,69.98,70.14,69.82,70.72,71.02,71.11,70.7,70.26,69.11,68.91,67.91,66.77,66.46,66.01,66.15,66.25,66.07,67.27,68.03,68.98,69.5,70.52,71.36,70.84,71.2,70.71,70.22,70.6,68.85,68.99,68.33,67.7,66.89,66.16,66.36,66.04,66.42,66.84,67.61],"center":68.555,"ucl":70.137335,"lcl":66.972665,"violation_indices_in_plot":[],"spec":{"lsl":null,"usl":null,"target":null,"source":null}},{"name":"熔体温度","role":"parameter","n":120,"n_plotted":120,"t":[1788847200000,1788848100000,1788849000000,1788849900000,1788850800000,1788851700000,1788852600000,1788853500000,1788854400000,1788855300000,1788856200000,1788857100000,1788858000000,1788858900000,1788859800000,1788860700000,1788861600000,1788862500000,1788863400000,1788864300000,1788865200000,1788866100000,1788867000000,1788867900000,1788868800000,1788869700000,1788870600000,1788871500000,1788872400000,1788873300000,1788874200000,1788875100000,1788876000000,1788876900000,1788877800000,1788878700000,1788879600000,1788880500000,1788881400000,1788882300000,1788883200000,1788884100000,1788885000000,1788885900000,1788886800000,1788887700000,1788888600000,1788889500000,1788890400000,1788891300000,1788892200000,1788893100000,1788894000000,1788894900000,1788895800000,1788896700000,1788897600000,1788898500000,1788899400000,1788900300000,1788901200000,1788902100000,1788903000000,1788903900000,1788904800000,1788905700000,1788906600000,1788907500000,1788908400000,1788909300000,1788910200000,1788911100000,1788912000000,1788912900000,1788913800000,1788914700000,1788915600000,1788916500000,1788917400000,1788918300000,1788919200000,1788920100000,1788921000000,1788921900000,1788922800000,1788923700000,1788924600000,1788925500000,1788926400000,1788927300000,1788928200000,1788929100000,1788930000000,1788930900000,1788931800000,1788932700000,1788933600000,1788934500000,1788935400000,1788936300000,1788937200000,1788938100000,1788939000000,1788939900000,1788940800000,1788941700000,1788942600000,1788943500000,1788944400000,1788945300000,1788946200000,1788947100000,1788948000000,1788948900000,1788949800000,1788950700000,1788951600000,1788952500000,1788953400000,1788954300000],"v":[265.1,264.4,263.3,264.3,263.7,264.5,265.2,263.6,264.3,265.6,263.9,264.2,264.4,265.2,264.6,265.9,265.7,265.5,265.0,265.0,264.5,263.6,265.2,264.5,265.3,264.4,263.7,265.2,265.2,264.7,264.0,263.3,264.3,264.2,264.7,265.2,265.6,266.1,264.9,264.5,266.3,264.5,265.5,265.2,264.9,265.3,265.3,265.1,264.9,264.6,265.4,263.6,264.3,265.0,265.5,266.0,266.3,264.4,264.8,266.1,265.2,265.5,263.6,263.4,266.4,265.7,266.8,264.6,264.0,264.4,267.3,266.1,264.8,265.0,266.0,264.4,265.8,263.2,264.9,264.8,264.9,264.0,264.0,263.8,264.4,265.4,265.7,264.3,265.8,265.2,263.1,263.5,266.3,266.7,265.6,265.7,264.0,266.1,266.2,266.3,263.8,266.1,265.4,264.0,264.4,265.5,266.1,266.3,265.9,266.0,264.9,264.6,264.7,263.5,264.6,264.0,266.6,265.4,265.6,265.0],"center":264.95,"ucl":267.298919,"lcl":262.601081,"violation_indices_in_plot":[],"spec":{"lsl":null,"usl":null,"target":null,"source":null}},{"name":"锁模力","role":"parameter","n":120,"n_plotted":120,"t":[1788847200000,1788848100000,1788849000000,1788849900000,1788850800000,1788851700000,1788852600000,1788853500000,1788854400000,1788855300000,1788856200000,1788857100000,1788858000000,1788858900000,1788859800000,1788860700000,1788861600000,1788862500000,1788863400000,1788864300000,1788865200000,1788866100000,1788867000000,1788867900000,1788868800000,1788869700000,1788870600000,1788871500000,1788872400000,1788873300000,1788874200000,1788875100000,1788876000000,1788876900000,1788877800000,1788878700000,1788879600000,1788880500000,1788881400000,1788882300000,1788883200000,1788884100000,1788885000000,1788885900000,1788886800000,1788887700000,1788888600000,1788889500000,1788890400000,1788891300000,1788892200000,1788893100000,1788894000000,1788894900000,1788895800000,1788896700000,1788897600000,1788898500000,1788899400000,1788900300000,1788901200000,1788902100000,1788903000000,1788903900000,1788904800000,1788905700000,1788906600000,1788907500000,1788908400000,1788909300000,1788910200000,1788911100000,1788912000000,1788912900000,1788913800000,1788914700000,1788915600000,1788916500000,1788917400000,1788918300000,1788919200000,1788920100000,1788921000000,1788921900000,1788922800000,1788923700000,1788924600000,1788925500000,1788926400000,1788927300000,1788928200000,1788929100000,1788930000000,1788930900000,1788931800000,1788932700000,1788933600000,1788934500000,1788935400000,1788936300000,1788937200000,1788938100000,1788939000000,1788939900000,1788940800000,1788941700000,1788942600000,1788943500000,1788944400000,1788945300000,1788946200000,1788947100000,1788948000000,1788948900000,1788949800000,1788950700000,1788951600000,1788952500000,1788953400000,1788954300000],"v":[1088.0,1079.0,1080.0,1081.0,1083.0,1079.0,1087.0,1083.0,1078.0,1083.0,1082.0,1077.0,1074.0,1080.0,1084.0,1084.0,1081.0,1084.0,1080.0,1081.0,1083.0,1077.0,1070.0,1083.0,1079.0,1084.0,1084.0,1074.0,1087.0,1076.0,1082.0,1075.0,1083.0,1083.0,1082.0,1082.0,1080.0,1073.0,1081.0,1086.0,1083.0,1082.0,1084.0,1080.0,1082.0,1080.0,1075.0,1080.0,1076.0,1081.0,1078.0,1079.0,1082.0,1083.0,1079.0,1084.0,1077.0,1073.0,1080.0,1083.0,1077.0,1076.0,1076.0,1079.0,1071.0,1078.0,1080.0,1076.0,1078.0,1085.0,1078.0,1082.0,1077.0,1075.0,1078.0,1072.0,1084.0,1086.0,1079.0,1072.0,1075.0,1074.0,1080.0,1079.0,1078.0,1080.0,1085.0,1088.0,1091.0,1088.0,1084.0,1083.0,1078.0,1076.0,1077.0,1089.0,1078.0,1073.0,1079.0,1080.0,1081.0,1078.0,1078.0,1082.0,1080.0,1080.0,1081.0,1083.0,1075.0,1076.0,1080.0,1082.0,1081.0,1084.0,1081.0,1080.0,1078.0,1079.0,1080.0,1078.0],"center":1080.0,"ucl":1090.459503,"lcl":1069.540497,"violation_indices_in_plot":[],"spec":{"lsl":null,"usl":null,"target":null,"source":null}},{"name":"循环时间","role":"parameter","n":120,"n_plotted":120,"t":[1788847200000,1788848100000,1788849000000,1788849900000,1788850800000,1788851700000,1788852600000,1788853500000,1788854400000,1788855300000,1788856200000,1788857100000,1788858000000,1788858900000,1788859800000,1788860700000,1788861600000,1788862500000,1788863400000,1788864300000,1788865200000,1788866100000,1788867000000,1788867900000,1788868800000,1788869700000,1788870600000,1788871500000,1788872400000,1788873300000,1788874200000,1788875100000,1788876000000,1788876900000,1788877800000,1788878700000,1788879600000,1788880500000,1788881400000,1788882300000,1788883200000,1788884100000,1788885000000,1788885900000,1788886800000,1788887700000,1788888600000,1788889500000,1788890400000,1788891300000,1788892200000,1788893100000,1788894000000,1788894900000,1788895800000,1788896700000,1788897600000,1788898500000,1788899400000,1788900300000,1788901200000,1788902100000,1788903000000,1788903900000,1788904800000,1788905700000,1788906600000,1788907500000,1788908400000,1788909300000,1788910200000,1788911100000,1788912000000,1788912900000,1788913800000,1788914700000,1788915600000,1788916500000,1788917400000,1788918300000,1788919200000,1788920100000,1788921000000,1788921900000,1788922800000,1788923700000,1788924600000,1788925500000,1788926400000,1788927300000,1788928200000,1788929100000,1788930000000,1788930900000,1788931800000,1788932700000,1788933600000,1788934500000,1788935400000,1788936300000,1788937200000,1788938100000,1788939000000,1788939900000,1788940800000,1788941700000,1788942600000,1788943500000,1788944400000,1788945300000,1788946200000,1788947100000,1788948000000,1788948900000,1788949800000,1788950700000,1788951600000,1788952500000,1788953400000,1788954300000],"v":[38.55,38.67,38.41,38.38,38.25,38.49,38.66,38.58,38.62,38.49,38.59,38.26,38.38,38.44,38.58,38.69,38.68,38.53,38.29,38.59,38.47,38.34,38.52,38.56,38.52,38.5,38.68,38.38,38.42,38.45,38.63,38.66,38.44,38.24,38.26,38.37,38.29,38.32,38.44,38.42,38.34,38.47,38.47,38.45,38.33,38.74,38.53,38.63,38.66,38.41,38.3,38.45,38.44,38.76,38.68,38.38,38.2,38.49,38.47,38.52,38.39,38.48,38.4,38.42,38.48,38.31,38.45,38.55,38.74,38.48,38.48,38.29,38.44,38.6,38.46,38.54,38.52,38.69,38.47,38.58,38.48,38.61,38.55,38.67,38.48,38.41,38.52,38.59,38.77,38.58,38.36,38.32,38.54,38.41,38.62,38.44,38.33,38.26,38.48,38.72,38.61,38.56,38.29,38.5,38.59,38.67,38.37,38.45,38.48,38.37,38.47,38.53,38.55,38.47,38.64,38.3,38.46,38.43,38.5,38.5],"center":38.48,"ucl":38.824403,"lcl":38.135597,"violation_indices_in_plot":[],"spec":{"lsl":null,"usl":null,"target":null,"source":null}}],"score_bars":[{"name":"单件重量","score":63,"role":"inspection"},{"name":"保压压力","score":55,"role":"parameter"},{"name":"熔体温度","score":97,"role":"parameter"},{"name":"锁模力","score":97,"role":"parameter"},{"name":"循环时间","score":99,"role":"parameter"}],"corr_heatmap":{"labels":["单件重量","保压压力","熔体温度","锁模力","循环时间"],"matrix":[[1.0,0.96618,0.166096,0.130769,0.202943],[0.96618,1.0,0.149819,0.13142,0.180554],[0.166096,0.149819,1.0,0.241657,0.221002],[0.130769,0.13142,0.241657,1.0,0.181731],[0.202943,0.180554,0.221002,0.181731,1.0]]},"contribution_bar":[{"driver":"保压压力","target":"单件重量","abs_r":0.96618,"best_lag_rows":0,"share":1.0}]},"notAssessable":false}</script>
+<script>
+(function () {
+  var DATA = {};
+  try { DATA = JSON.parse(document.getElementById('payload').textContent); } catch (e) {}
+  function fallback() {
+    var host = document.getElementById('trend-charts');
+    var rows = [];
+    (DATA.charts.trend || []).forEach(function (s) {
+      var vs = s.v.filter(function (x) { return x !== null; });
+      var mn = Math.min.apply(null, vs), mx = Math.max.apply(null, vs);
+      var nBad = s.violation_indices_in_plot.length;
+      rows.push('<tr><td>' + s.name + '</td><td>' + vs.length + '</td><td>' +
+        mn.toFixed(4) + '</td><td>' + mx.toFixed(4) + '</td><td>' + nBad + '</td></tr>');
+    });
+    host.innerHTML = '<div class="panel"><div class="chart-title">静态模式（ECharts CDN 不可用）' +
+      '——各参数趋势摘要</div><div class="static-table"><table><thead><tr>' +
+      '<th>参数</th><th>点数</th><th>最小</th><th>最大</th><th>违规点</th></tr></thead>' +
+      '<tbody>' + rows.join('') + '</tbody></table></div></div>';
+    ['contrib-chart', 'heat-chart'].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) el.parentNode.style.display = 'none';
+    });
+  }
+  function init() {
+    if (!window.echarts) { fallback(); return; }
+    var charts = DATA.charts || {};
+    var host = document.getElementById('trend-charts');
+    (charts.trend || []).forEach(function (s) {
+      var box = document.createElement('div');
+      box.className = 'chart';
+      box.innerHTML = '<div class="chart-title">' + s.name +
+        '（中心=中位数，虚线=±3σ_within' + (s.spec && s.spec.lsl != null ? '，红线=规格限' : '') + '）</div>' +
+        '<div style="height:calc(100% - 30px)"></div>';
+      host.appendChild(box);
+      var el = box.lastChild;
+      var ch = echarts.init(el); allCharts.push(ch);
+      var series = [{ name: s.name, type: 'line', showSymbol: false,
+        data: s.t.map(function (t, i) { return [t, s.v[i]]; }),
+        lineStyle: { width: 1.2, color: '#5b8dbf' } }];
+      [['UCL', s.ucl, '#e0703a', 'dashed'], ['LCL', s.lcl, '#e0703a', 'dashed'],
+       ['LSL', s.spec && s.spec.lsl, '#c9312b', 'solid'],
+       ['USL', s.spec && s.spec.usl, '#c9312b', 'solid']].forEach(function (m) {
+        if (m[1] !== null && m[1] !== undefined)
+          series.push({ name: m[0], type: 'line', data: [[s.t[0], m[1]], [s.t[s.t.length - 1], m[1]]],
+            symbol: 'none', lineStyle: { color: m[2], type: m[3], width: 1 },
+            endLabel: { show: true, formatter: m[0], color: m[2] } });
+      });
+      var bad = s.violation_indices_in_plot || [];
+      if (bad.length)
+        series.push({ name: '违规点', type: 'scatter',
+          data: bad.map(function (i) { return [s.t[i], s.v[i]]; }),
+          itemStyle: { color: '#c9312b' }, symbolSize: 7 });
+      ch.setOption({
+        grid: { left: 60, right: 60, top: 18, bottom: 44 },
+        tooltip: { trigger: 'axis' },
+        xAxis: { type: 'time' },
+        yAxis: { type: 'value', scale: true },
+        series: series
+      });
+    });
+    if ((charts.trend || []).length === 0) {
+      host.innerHTML = '<div class="panel empty">无可绘制的趋势数据。</div>';
+    }
+    var contrib = document.getElementById('contrib-chart');
+    if (contrib && (charts.contribution_bar || []).length) {
+      var cb = echarts.init(contrib); allCharts.push(cb);
+      var items = charts.contribution_bar.slice(0, 10);
+      cb.setOption({
+        grid: { left: 90, right: 30, top: 18, bottom: 40 },
+        tooltip: {},
+        xAxis: { type: 'value', max: 1, axisLabel: { formatter: function (v) {
+          return (v * 100).toFixed(0) + '%'; } } },
+        yAxis: { type: 'category', data: items.map(function (d) {
+          return d.driver + ' → ' + d.target; }).reverse() },
+        series: [{ type: 'bar', data: items.map(function (d) {
+          return Math.round(d.share * 1000) / 10; }).reverse(),
+          itemStyle: { color: '#e8a33d' }, barMaxWidth: 18 }]
+      });
+    } else if (contrib) { contrib.parentNode.style.display = 'none'; }
+    var heat = document.getElementById('heat-chart');
+    if (heat && charts.corr_heatmap && charts.corr_heatmap.labels.length > 1) {
+      var hm = echarts.init(heat); allCharts.push(hm);
+      var pts = [];
+      charts.corr_heatmap.matrix.forEach(function (row, i) {
+        row.forEach(function (v, j) {
+          if (v !== null && i !== j)
+            pts.push([j, charts.corr_heatmap.labels.length - 1 - i, v]);
+        });
+      });
+      hm.setOption({
+        grid: { left: 110, right: 60, top: 18, bottom: 60 },
+        tooltip: { position: 'top' },
+        xAxis: { type: 'category', data: charts.corr_heatmap.labels,
+          axisLabel: { rotate: 30 } },
+        yAxis: { type: 'category', data: charts.corr_heatmap.labels.slice().reverse() },
+        visualMap: { min: 0, max: 1, calculable: true, orient: 'horizontal',
+          left: 'center', bottom: 0, inRange: { color: ['#1d2a36', '#e8a33d', '#c9312b'] } },
+        series: [{ type: 'heatmap', data: pts,
+          label: { show: charts.corr_heatmap.labels.length <= 8, formatter: function (p) {
+            return p.value[2].toFixed(2); } } }]
+      });
+    } else if (heat) { heat.parentNode.style.display = 'none'; }
+  }
+  var allCharts = [];
+  function reflowCharts() { allCharts.forEach(function (c) { try { c.resize(); } catch (e) {} }); }
+  window.addEventListener('resize', reflowCharts);
+  if (document.readyState === 'complete') init();
+  else window.addEventListener('load', init);
+  // 布局稳定后强制重测一次尺寸：在后台/延迟渲染环境下，init 时容器宽度
+  // 可能被读成 0（canvas 宽 0、图空白），双 rAF 确保 DOM 布局完成后再 resize。
+  function reflowWhenSettled() {
+    requestAnimationFrame(function () { requestAnimationFrame(reflowCharts); });
+  }
+  if (document.readyState === 'complete') reflowWhenSettled();
+  else window.addEventListener('load', reflowWhenSettled);
+  setTimeout(function () { if (!window.echarts) fallback(); }, 4000);
+})();
+</script>
+</body>
+</html>

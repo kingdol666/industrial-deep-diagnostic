@@ -401,6 +401,7 @@ export function connect() {
 
   manualClose = false;
   state.wsStatus = 'connecting';
+  // Same-origin handshake: the HttpOnly session cookie travels with it.
   socket = new WebSocket(wsUrl());
 
   socket.onopen = () => {

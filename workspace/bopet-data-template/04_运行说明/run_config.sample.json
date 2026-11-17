@@ -1,0 +1,37 @@
+{
+  "data_path": "workspace/bopet-data-template/02_data",
+  "scene_name": "BOPET_L3_优品率下滑",
+  "process_description": "BOPET（双向拉伸聚酯薄膜）生产线：PET 切片干燥 → 主挤出机熔融 → 熔体过滤 → 模头 → 铸片急冷 → 纵向拉伸(MDO) → 横向拉伸与热定型(TDO，南北两侧独立热风闭环) → 牵引 → 收卷 → 在线测厚与化验抽检。产品为 12μm 包装级光膜（规格代号 GP12），主线速约 52.9 m/min。",
+  "user_objective": "定位在线优品率由 98.6% 缓慢下滑至 96.4% 的主导原因：全幅平均厚度正常（11.98~12.02μm），但北边缘厚度偏差由 +0.35% 恶化至 +1.85%、横向厚度不匀率由 1.40% 升至 2.50%、热收缩率TD 由 1.80% 升至 2.31%（超内控 2.0%）。请给出主导原因的完整因果链与证据、排除以下候选假设（原料批次切换+回料比例 8%→12%、环境降温、过滤器压差/两次计划换网），并给出立即/短期/长期处置建议与需要的补充数据。",
+  "batch_id": "20260920-A01~20261010-A02",
+  "known_faults": [
+    "TDO 北侧拉伸区热风系统能力下降（怀疑）",
+    "原料批次切换与回料掺入比例提高（怀疑，9/27 发生）",
+    "环境降温（10/4 突发降温，怀疑）"
+  ],
+  "reference_dir": "workspace/bopet-data-template/03_映射文档",
+  "interaction_mode": "auto",
+  "analysis_constraints": {
+    "time_range": {
+      "start": "2026-09-20T00:00:00",
+      "end": "2026-10-10T23:50:00"
+    },
+    "focus_signals": [],
+    "exclude_signals": [],
+    "max_web_research_queries": 3,
+    "judge_score_threshold": 90,
+    "max_judge_iterations": 3,
+    "max_reviewer_iterations": 2,
+    "global_max_iterations": 5
+  },
+  "ontology": {
+    "mode": "auto",
+    "source": "workspace/bopet-data-template/03_映射文档/L3_bopet_ontology.json"
+  },
+  "_notes": [
+    "data_path 相对仓库根目录解析；指向数据文件夹（顶层文件所在目录），不要指向本模板包的根目录",
+    "reference_dir 指向映射文档目录：系统会把它作为参考知识读取（映射表/本体的语义来源）",
+    "known_faults 只写“怀疑方向”，不要写结论；结论由系统基于证据给出",
+    "本文件用法：复制为运行目录的 00_input/run_config.json，或直接按字段填进 Web 控制台/命令行"
+  ]
+}

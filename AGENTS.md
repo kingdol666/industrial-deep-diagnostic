@@ -6,7 +6,7 @@ This file provides guidance to AI coding agents working with code in this reposi
 
 Industrial Deep Diagnostic — an end-to-end industrial deep-diagnosis system that runs 9-stage root-cause analysis plus an E0-E8 enhancement pipeline over sensor and process data. Core architecture:
 
-1. **Skills** (`.claude/skills/`) — 23 standardized skills (discovered by OMP through the `claude` provider) × 16 dedicated agents, with JSON Schema validation + a script toolchain (incl. the standalone `industrial-doe-analyzer` and the specialist quartet `industrial-sentinel` / `industrial-tuning-memory` / `industrial-optimizer-loop` / `industrial-line-stability-report`). There are **no fixed-script HTTP analysis endpoints**: every specialist analysis is a real harness agent run dispatched via `POST /api/diagnosis/start { analysisIntent }` (ids: `deep-diagnosis` / `stability-report` / `quick-screen` / `doe-analysis` / `experience-mining` / `optimizer-campaign`), streamed live in the frontend (Analysis workbench + Specialist panels) and persisted like any diagnostic run.
+1. **Skills** (`.claude/skills/`) — 24 standardized skills (discovered by OMP through the `claude` provider) × 16 dedicated agents, with JSON Schema validation + a script toolchain (incl. the standalone `industrial-doe-analyzer`, the specialist quartet `industrial-sentinel` / `industrial-tuning-memory` / `industrial-optimizer-loop` / `industrial-line-stability-report`, and the E-1H heterogeneous-data stage `industrial-hetero-preprocessor`). There are **no fixed-script HTTP analysis endpoints**: every specialist analysis is a real harness agent run dispatched via `POST /api/diagnosis/start { analysisIntent }` (ids: `deep-diagnosis` / `stability-report` / `quick-screen` / `doe-analysis` / `experience-mining` / `optimizer-campaign`), streamed live in the frontend (Analysis workbench + Specialist panels) and persisted like any diagnostic run.
 2. **Web application** — Express.js backend (port 3210) + Vue 3 / Vite frontend (port 5180)
 3. **RAG Retrieval Engine** (`rag-retrieval-engine/`) — ChromaDB + FastAPI microservice (port 8764)
 
@@ -34,19 +34,23 @@ A diagnostic job can be driven by any one of 14 execution engines (selected in t
 - **Single source of truth**: `HARNESS_DEFS` in `app/backend/src/harness/engines.mjs` (capability surface / probing / metadata) + the `ENGINES` dispatch table in `app/backend/src/services/diagnosis.service.mjs` (unified contract: startDiagnosis/startSessionChat/parseStreamEvent/registerChild/closeQuery). Adding an engine touches only these two files plus one engine client.
 - **Strict pre-flight validation**: unknown engine → 400 `HARNESS_UNKNOWN`; registered but unavailable → 409 `HARNESS_UNAVAILABLE`. Probing and the real spawn share one code path (`engine/cli-common.mjs resolveCliBinary`); command override chain: `harness.engines.<id>.binary` → env `HARNESS_<ID>_COMMAND` → PATH.
 - **Standard event stream**: every engine client emits Claude-SDK-compatible events (system init / assistant / user tool_result / result), so the consumption loop is engine-agnostic.
-- See `docs/multi-harness.md` (engine integration cards, engineering discipline, test matrix). Backend tests: `cd app/backend && npm test` (45 cases, including a real-subprocess fake CLI / fake ACP / fake codex app-server / mock-engine HTTP e2e).
+- See `docs/multi-harness.md` (engine integration cards, engineering discipline, test matrix). Backend tests: `cd app/backend && npm test` — a real-subprocess fake CLI / fake ACP / fake codex app-server / mock-engine HTTP e2e battery, run per-push by CI (`.github/workflows/ci.yml`; the current case count is printed by the run, not pinned in prose).
 
 ## Commands
 
 ```bash
-# Start project (backend + frontend)
-ind-diag all
-ind-diag backend      # http://localhost:3210
-ind-diag frontend     # http://localhost:5180
-ind-diag build        # Production build
-ind-diag init         # Initialize (check DB / config)
-ind-diag status       # Status
+# Start project — services are selected with --all / --backend / --frontend / --rag
+ind-diag start --all --detach      # backend 3210 + frontend 5180 + RAG 8764, background
+ind-diag start --backend           # http://localhost:3210
+ind-diag start --frontend --detach # http://localhost:5180
+ind-diag stop --all                # stop everything
+ind-diag build                     # production build
+ind-diag init                      # environment check (Node / Python / DB / ports)
+ind-diag status                    # service status
 ```
+
+> `--detach` runs the services in the background (recommended); without it the CLI waits in the
+> foreground. Aliases: `up`/`down`/`ps`/`check`. `ind-diag` with no verb prints usage.
 
 ### Python venv
 ```bash
@@ -139,12 +143,13 @@ execution contract), `docs/benchmark/reproduction-guide.md` (reproduction + drif
 - **Mandatory anti-spurious-correlation (v6.4–v6.7)**: lag-compensated CCF · production-state detection + steady-state filtering · batch identifier integrity · outlier leverage leave-one-out
 - **Automatic HTML build (non-interactive)**: after CP-8 `ENDORSED`, Steps 8→8.5→9 run back to back automatically by default, with no user prompt
 
-### Skill System (23 skills)
+### Skill System (24 skills)
 
 | Skill | Trigger conditions | Model |
 |-------|---------|:----:|
 | `industrial-analysis-auto` | industrial diagnosis, root cause analysis, fault diagnosis... | default |
 | `industrial-data-preprocessor` | data preprocessing, preprocessing, multi-format data... | default |
+| `industrial-hetero-preprocessor` | profile data, vector over time, 剖面数据, 膜厚剖面, 时间×位置, 2D field, 温度场, image sequence, 图像序列, WAXS, CCD, 热成像, 操作备注, 交接班, 异构数据, 多源异构 (pipeline stage E-1H — runs chained after E-1 in Step 0.5; writes 07_hetero/** only; consumers read column_contract.json) | default |
 | `industrial-ontology-builder` | ontology building, ontology, RAG retrieval... | default |
 | `industrial-data-processor` | statistical analysis, data cleaning, data visualization... | default |
 | `industrial-diagnostician` | diagnosis, root cause, competing hypotheses... | default |
@@ -165,6 +170,7 @@ execution contract), `docs/benchmark/reproduction-guide.md` (reproduction + drif
 | `industrial-sentinel` | production sentinel, 产线监控, watch mode, fast screening, 增量快筛, SPC alerting, Nelson rules, drift projection, 漂移投影, alert storm suppression, 告警风暴 (pure-analysis standing watch; closed-loop trio with tuning-memory + optimizer-loop) | default |
 | `industrial-tuning-memory` | tuning experience, 调优经验库, action attribution, playbook retrieval, 经验检索, fault signature, 故障签名, experience feedback (advisory evidence E0-E3; dispatch policy is AWS-side) | default |
 | `industrial-optimizer-loop` | closed-loop optimization, 闭环寻优, parameter tuning campaign, trial design, 布点试验, recipe convergence, 配方收敛 (design/analysis artifacts only — never dispatches parameters) | default |
+| `industrial-line-stability-report` | line stability report, 产线稳定性评分, stability scoring, stability report (folder profile via preprocessor `--stability-single-primary --recursive`; gates 11/11; consumes LSR run dirs) | default |
 
 ### Agent Roles (16 agents)
 

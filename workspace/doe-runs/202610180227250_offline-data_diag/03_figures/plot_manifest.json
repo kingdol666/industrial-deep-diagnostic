@@ -1,0 +1,86 @@
+{
+  "generated_at": "2026-10-18T02:45:06.919252+00:00",
+  "mode": "designed",
+  "plots": [
+    {
+      "file": "pareto_part_weight_g.png",
+      "type": "pareto",
+      "title": "Pareto of standardized effects — part_weight_g",
+      "response": "part_weight_g",
+      "bytes": 33065,
+      "min_ink_ratio": 0.01,
+      "ink_ok": true,
+      "ink_detail": "ink ratio 0.1190 ok; ink ratio 11.9% across 4 quadrants"
+    },
+    {
+      "file": "residuals_part_weight_g.png",
+      "type": "residual_diagnostics",
+      "title": "Residual diagnostics — part_weight_g",
+      "response": "part_weight_g",
+      "bytes": 99751,
+      "min_ink_ratio": 0.01,
+      "ink_ok": true,
+      "ink_detail": "ink ratio 0.1158 ok; ink ratio 11.6% across 4 quadrants"
+    },
+    {
+      "file": "pareto_melt_temp_c.png",
+      "type": "pareto",
+      "title": "Pareto of standardized effects — melt_temp_c",
+      "response": "melt_temp_c",
+      "bytes": 33774,
+      "min_ink_ratio": 0.01,
+      "ink_ok": true,
+      "ink_detail": "ink ratio 0.1134 ok; ink ratio 11.3% across 4 quadrants"
+    },
+    {
+      "file": "residuals_melt_temp_c.png",
+      "type": "residual_diagnostics",
+      "title": "Residual diagnostics — melt_temp_c",
+      "response": "melt_temp_c",
+      "bytes": 101772,
+      "min_ink_ratio": 0.01,
+      "ink_ok": true,
+      "ink_detail": "ink ratio 0.1018 ok; ink ratio 10.2% across 4 quadrants"
+    },
+    {
+      "file": "pareto_injection_pressure_bar.png",
+      "type": "pareto",
+      "title": "Pareto of standardized effects — injection_pressure_bar",
+      "response": "injection_pressure_bar",
+      "bytes": 32905,
+      "min_ink_ratio": 0.01,
+      "ink_ok": true,
+      "ink_detail": "ink ratio 0.1807 ok; ink ratio 18.1% across 4 quadrants"
+    },
+    {
+      "file": "residuals_injection_pressure_bar.png",
+      "type": "residual_diagnostics",
+      "title": "Residual diagnostics — injection_pressure_bar",
+      "response": "injection_pressure_bar",
+      "bytes": 96349,
+      "min_ink_ratio": 0.01,
+      "ink_ok": true,
+      "ink_detail": "ink ratio 0.1001 ok; ink ratio 10.0% across 4 quadrants"
+    },
+    {
+      "file": "main_effects_part_weight_g.png",
+      "type": "main_effects",
+      "title": "Main effects — part_weight_g",
+      "response": "part_weight_g",
+      "bytes": 29939,
+      "min_ink_ratio": 0.01,
+      "ink_ok": true,
+      "ink_detail": "ink ratio 0.0491 ok; ink ratio 4.9% across 4 quadrants"
+    },
+    {
+      "file": "contour_part_weight_g.png",
+      "type": "contour",
+      "title": "Predicted response contour — part_weight_g (top-Pareto pair hold_pressure_sp_bar x barrel_zone1_temp_sp_c)",
+      "response": "part_weight_g",
+      "bytes": 101809,
+      "min_ink_ratio": 0.02,
+      "ink_ok": true,
+      "ink_detail": "ink ratio 0.3517 ok; ink ratio 35.2% across 4 quadrants"
+    }
+  ]
+}

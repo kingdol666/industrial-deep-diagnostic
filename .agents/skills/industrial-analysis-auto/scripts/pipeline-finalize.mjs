@@ -8,6 +8,7 @@
 //   Writes pipeline_finalize_report.json to <run_dir>.
 
 import fs from 'fs';
+import crypto from 'crypto';
 import { join } from 'path';
 import { execFileSync } from 'child_process';
 import {
@@ -143,6 +144,46 @@ function runInventory() {
     // ── Stage 1: Input ──
     check('Input Manifest', '00_input/input_manifest.json', false),
     check('User Context', '00_input/user_context.json', false),
+
+    // ── Stage 0.5b: E-1H hetero marker (conditional — deliberately NOT in
+    // required_runtime_artifacts, which would break re-audits of existing
+    // runs). A run on the E-1 path must carry the always-marker
+    // 07_hetero/hetero_manifest.json unless hetero was explicitly switched
+    // off; otherwise "stage skipped" could masquerade as "stage ran and
+    // found nothing". When the marker exists, the anchor the HX columns were
+    // joined onto must not have drifted since build.py recorded its sha256.
+    (() => {
+      const anchorExists = exists('00_input/preprocessed_data.csv');
+      const heteroOff = runConfig?.hetero?.enabled === 'off';
+      if (!anchorExists || heteroOff) {
+        return {
+          label: 'E-1H Hetero Marker', path: '07_hetero/hetero_manifest.json', critical: false,
+          status: `NOT_APPLICABLE (${!anchorExists ? 'no E-1 preprocessed table' : 'hetero.enabled=off'})`,
+        };
+      }
+      if (!exists('07_hetero/hetero_manifest.json')) {
+        return {
+          label: 'E-1H Hetero Marker', path: '07_hetero/hetero_manifest.json', critical: true,
+          status: 'MISSING (critical): E-1H marker 缺失——阶段可能被跳过',
+        };
+      }
+      const heteroManifest = readJsonIfExists('07_hetero/hetero_manifest.json');
+      const recorded = heteroManifest && heteroManifest.h7_guard && heteroManifest.h7_guard.anchor_sha256;
+      if (recorded) {
+        let current = null;
+        try {
+          current = 'sha256:' + crypto.createHash('sha256')
+            .update(fs.readFileSync(join(runDir, '00_input', 'preprocessed_data.csv'))).digest('hex');
+        } catch (_) { /* unreadable anchor: absence is reported by the checks above */ }
+        if (current && recorded !== current) {
+          return {
+            label: 'E-1H Anchor Immutability', path: '00_input/preprocessed_data.csv', critical: true,
+            status: 'INVALID (anchor sha256 drifted after E-1H recorded h7_guard.anchor_sha256 — joined HX columns no longer provably map to this anchor)',
+          };
+        }
+      }
+      return { label: 'E-1H Hetero Marker', path: '07_hetero/hetero_manifest.json', status: 'OK', critical: true };
+    })(),
 
     // ── Stage 2: Ontology ──
     check('Ontology', '01_ontology/ontology.json'),

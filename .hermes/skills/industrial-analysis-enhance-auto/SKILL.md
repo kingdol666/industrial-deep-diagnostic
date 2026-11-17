@@ -10,6 +10,10 @@ description: >
   plus the E0-E8 enhancement stages in one call.
   Trigger: enhance auto, enhanced auto, enhancement orchestration, E1-E8 pipeline,
   full-auto enhancement, auto enhance, enhance pipeline.
+  Do NOT use to run the baseline 9-stage diagnosis itself (use industrial-analysis-auto);
+  do NOT use for a single enhancement layer alone — coverage/derived features/conditional
+  analysis (use industrial-deep-analysis) or physics bridging (use industrial-physics-bridge);
+  do NOT use for format adaptation of raw data before any run exists (use industrial-data-preprocessor).
 ---
 
 # Industrial Analysis Enhancement Auto
@@ -177,6 +181,40 @@ for b in bad:
 # Status check
 print('Status:', 'READY_WITH_WARNINGS' in md)
 "
+```
+
+## Quality gate
+
+Post-hoc gate for a **completed** enhancement run — re-runs the same
+`scripts/orchestration_contract.mjs` helpers the orchestrator enforces at
+generation time (imported, not forked) against the finished run dir:
+
+```bash
+node .claude/skills/industrial-analysis-enhance-auto/scripts/quality_gate.mjs \
+  --run-dir <RUN_DIR>
+# exit 0 ok | 1 hard error (bad inputs / unreadable E8 marker) | 2 undetermined | 3 gate-fail
+```
+
+Checks: every E0-E8 artifact in the output table above exists and parses;
+`reviewIsPassing` / `reviewStatus` on `enhancement_html_review.json`;
+`resolveEnhancementStatus` recomputed from the on-disk knowledge status +
+launch state and compared against the recorded `enhancement_status.json`
+(status drift = stale/tampered artifacts); `shouldBuildAssociationGraph`
+(E3 present ⇒ `association_graph.json` must exist); `fileHash` baseline
+provenance (manifest sha256 vs `02_processed/cleaned_data.csv`);
+`isFreshBySignature` freshness of every recorded `.signature.json` input;
+`enhanced_knowledge.json` validated against
+`.claude/shared/schemas/enhanced_knowledge_schema.json`.
+
+Usage states: exit **2** when the enhancement was not run for the run dir (no
+`enhancement/` artifacts, E8 marker absent — the chain did not complete — or
+E0 recorded `BLOCKED` because baseline artifacts are missing); exit **3** when
+the chain ran but violates the contract.
+
+Gate tests (fixtures generated on the fly):
+
+```bash
+uv run --project .claude/shared/scripts python .claude/skills/industrial-analysis-enhance-auto/tests/run_tests.py
 ```
 
 ## References

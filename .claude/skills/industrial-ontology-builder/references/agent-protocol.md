@@ -50,10 +50,18 @@ Every mode finishes with: `node "$SHARED_PATH/scripts/ontology_store.mjs" publis
 
 ## Phase 1: Search Reference Directory
 
+- [ ] **1.0** Heterogeneous column contract (when present): read `RUN_DIR/07_hetero/column_contract.json` — it is the single semantic source for every `HX-*` column in the data (produced by `industrial-hetero-preprocessor` at Step 0.5); apply the merge rules in "Heterogeneous Column Contract Merge" below
 - [ ] If `REFERENCE_DIR` provided: recursively search for relevant documents
 - [ ] Extract: equipment names, process stages, variable descriptions, fault patterns, causal relationships, control logic, maintenance records
 - [ ] Write: `RUN_DIR/00_input/extracted_knowledge.json`
 - Gate: Skip if REFERENCE_DIR empty — ontology builds from RAG + first-principles
+
+### Heterogeneous Column Contract Merge (only when `07_hetero/column_contract.json` exists)
+
+- [ ] Call `heterocore.contracts.to_ontology_signals(contract)` (shared venv: `uv run --project "$SHARED_PATH/scripts" python -c "…"`, contract = parsed JSON) to get the deterministic mapping, and **merge** its `process_parameters` / `events` / `metadata_columns` into `ontology.json`.
+- [ ] `physical_meaning_confidence` of HX columns must be `KNOWN` or `INFERRED`, taken from the contract mapping verbatim — **`UNKNOWN` is forbidden** (an `UNKNOWN` parameter caps diagnosis confidence at 50, see `industrial-diagnostician/resources/execution_reference.md` §0.4a).
+- [ ] Copy `auto_inferred: true`, `inference_basis`, `formula` / `physics_basis`, `evidence_level` from the mapping verbatim — no editing, no "improvement".
+- [ ] **Never re-infer** the semantics of an `HX-*` column yourself — the contract is authoritative (data-artifact wiring only; no cross-skill code import).
 
 ## Phase 2: Optional Web Research
 

@@ -1,0 +1,26 @@
+{
+  "data_path": "workspace/lst-teaching-kit/T1_cement_mill/00_input/mill_7d.xlsx",
+  "line_id": "水泥磨-2线",
+  "product": "P·O 42.5 水泥",
+  "time_col": "时间",
+  "start": "2026-09-01T00:00:00",
+  "end": "2026-09-08T11:00:00",
+  "inspection_cols": ["比表面积", "台时产量"],
+  "spec_limits": {
+    "主轴承温度": { "lsl": null, "usl": 68.0, "target": 62.0 },
+    "比表面积": { "lsl": 3400, "usl": 3600, "target": 3500 }
+  },
+  "weights": {
+    "磨机电流": 1.0,
+    "主轴承温度": 1.5,
+    "入磨喂料量": 1.0,
+    "选粉机转速": 1.0,
+    "磨音": 1.0,
+    "比表面积": 2.0,
+    "台时产量": 2.0
+  },
+  "preprocessing": {
+    "source_export": "workspace/lst-teaching-kit/T1_cement_mill/00_input/mill_7d.xlsx",
+    "note": "教学夹具：DCS 小时归档导出为 Excel（合成数据 seed=701）；本体为手写粉磨系统本体，演示 ontology.json 放入 00_input 即被消费"
+  }
+}

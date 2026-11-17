@@ -1,5 +1,11 @@
 <template>
-  <AuthView v-if="!authed" @authed="onAuthed" />
+  <!-- 会话探针（GET /api/auth/me）未出结果前先渲染启动态：cookie 会话下
+       "已登录/未登录" 只有问过服务端才知道，直接渲染登录页会先闪一下门槛。 -->
+  <div v-if="!authReady" class="app-boot" role="status" aria-live="polite">
+    <span class="app-boot-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+    <span class="app-boot-label">{{ $t('auth.booting') }}</span>
+  </div>
+  <AuthView v-else-if="!authed" :boot-notice="authNotice" @authed="onAuthed" />
   <div v-else :class="['app-shell', { 'app-shell-collapsed': sidebarCollapsed, 'app-shell-nav-open': mobileNavOpen }]">
     <aside class="app-sidebar">
       <div class="app-brand">
@@ -178,14 +184,6 @@
           <OntologyView />
         </div>
 
-        <div v-else-if="currentTab === 'closedloop'" class="app-view-frame closedloop-frame">
-          <ClosedLoopView
-            :harness="harness"
-            @launched="onPanelLaunched"
-            @open-run="onContinueRun"
-          />
-        </div>
-
         <div v-else-if="currentTab === 'omp'" class="app-view-frame">
           <OmpRunsView
             :harness-id="harness"
@@ -196,33 +194,61 @@
       </main>
     </section>
   </div>
+
+  <!-- F1 兜底：子树（含异步加载的视图 chunk）渲染出错时，给出可操作的兜底，
+       绝不留白屏。文案刻意不走 i18n —— i18n 本身出错时它还要能显示。 -->
+  <div v-if="fatalError" class="app-fatal" role="alert">
+    <div class="app-fatal-card">
+      <div class="app-fatal-kicker">UI ERROR</div>
+      <p class="app-fatal-message">
+        界面渲染出错，受影响的部分已中止。<br>
+        Something went wrong while rendering the UI.
+      </p>
+      <pre v-if="fatalError.detail" class="app-fatal-detail">{{ fatalError.detail }}</pre>
+      <button class="app-fatal-reload" type="button" @click="reloadPage">
+        重新加载 · Reload
+      </button>
+    </div>
+  </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted, onErrorCaptured, defineAsyncComponent } from 'vue';
 import { useI18n } from 'vue-i18n';
-import DataBrowser from './components/data/DataBrowser.vue';
-import DiagnosisView from './components/diagnosis/DiagnosisView.vue';
-import ChatView from './components/chat/ChatView.vue';
-import ReportViewer from './components/reports/ReportViewer.vue';
-import HistoryList from './components/history/HistoryList.vue';
-import OmpRunsView from './components/harness/HarnessRunsView.vue';
-import OntologyView from './components/ontology/OntologyView.vue';
-import ClosedLoopView from './components/closedloop/ClosedLoopView.vue';
 import { useDiagnosisRealtimeStore } from './stores/diagnosisRealtimeStore.js';
-import { api, getToken, setToken, setStoredUser, getStoredUser } from './api/index.js';
+import { api } from './api/index.js';
 import AuthView from './components/auth/AuthView.vue';
 import { toggleLocale } from './i18n/index.js';
 
+// ─── F2b：视图级代码分割 ───
+// 每个视图独立 chunk：首屏（登录/数据页）不再为九个页面的依赖买单（ECharts
+// 只在真正打开图表视图时才下载）。AuthView 刻意保持静态导入 —— 它是所有人
+// 进入的第一道门，异步化意味着"开门"本身要先等一次网络往返，且 chunk 加载
+// 失败会连登录页都看不到；它很小，代价不值得。
+const DataBrowser = defineAsyncComponent(() => import('./components/data/DataBrowser.vue'));
+const DiagnosisView = defineAsyncComponent(() => import('./components/diagnosis/DiagnosisView.vue'));
+const ChatView = defineAsyncComponent(() => import('./components/chat/ChatView.vue'));
+const ReportViewer = defineAsyncComponent(() => import('./components/reports/ReportViewer.vue'));
+const HistoryList = defineAsyncComponent(() => import('./components/history/HistoryList.vue'));
+const OmpRunsView = defineAsyncComponent(() => import('./components/harness/HarnessRunsView.vue'));
+const OntologyView = defineAsyncComponent(() => import('./components/ontology/OntologyView.vue'));
+
 const { t } = useI18n();
 
-// ─── 认证状态门禁 ───
-const authed = ref(!!getToken());
-const authUser = ref(getStoredUser());
+// ─── 认证状态门禁（HttpOnly cookie 会话）───
+// 页面不再持有任何会话凭据：cookie 由服务端下发，JS 读不到。登录态的唯一
+// 权威来源是启动时的一次 GET /api/auth/me；用户对象只驻留内存（刷新后由
+// /me 重建，无需 localStorage 影子副本）。
+const authed = ref(false);
+const authReady = ref(false);   // /me 探针是否已出结果（false → 渲染启动态）
+const authUser = ref(null);
+const authNotice = ref('');     // 非 401 启动失败的原因，展示在登录页
+
 function onAuthed(user) {
   authUser.value = user;
   authed.value = true;
-  // 登录成功后（重）建立实时通道：携带 token 的 WS 连接
+  authNotice.value = '';
+  // 登录成功后（重）建立实时通道：cookie 会话下 WS 握手自动携带凭据
   teardown();
   init();
   refreshHarnesses();
@@ -230,14 +256,92 @@ function onAuthed(user) {
 function onUnauthorized() {
   authed.value = false;
   authUser.value = null;
+  authNotice.value = '';   // 会话过期是正常路径，登录页不需要多余解释
   teardown();
 }
-function logout() {
-  setToken('');
-  setStoredUser(null);
+async function logout() {
+  try {
+    await api.authLogout();
+  } catch (err) {
+    // HttpOnly cookie 只能由服务端清除：请求失败通常意味着后端已不可达，
+    // 本地照常退出到登录页（会话 cookie 将随后端重启/过期自然失效）。
+    console.warn('[auth] logout request failed:', err?.message || err);
+  }
   authUser.value = null;
   authed.value = false;
+  authNotice.value = '';
   teardown();
+}
+
+/**
+ * 启动探针 —— 会话的权威判定，整个生命周期只跑一次：
+ *   200 且带 user → 已登录，进入控制台；
+ *   200 但无 user / 401 → 未登录，展示登录页（登录页本身不含任何猜测）；
+ *   其他失败（后端不可达 / 5xx）→ 同样落在登录页，但把原因显示出来。
+ * 任何结果都不会触发 /me 重试 —— 不存在探针循环。
+ *
+ * AUTH_ENABLED=0 的开发模式：后端视一切请求为"未认证但放行"，/me 可能返回
+ * 401/500/空体，而普通受保护接口全部成功。因此探针失败后只做一次开放模式
+ * 判定（调一次 /api/harness）：成功 → 按开发者身份直接进入控制台（无用户
+ * 框）；失败 → 回登录页。两种模式各自最多多一次请求。
+ */
+async function detectOpenMode() {
+  try {
+    const list = await api.listHarnesses();
+    authed.value = true;
+    authUser.value = null; // 开放模式下没有用户对象，用户框/登出按钮隐藏
+    return Array.isArray(list) ? list : [];
+  } catch {
+    return null;
+  }
+}
+
+async function bootAuth() {
+  let openModeHarnesses = null;
+  let failure = null;
+  try {
+    const me = await api.authMe();
+    const user = me?.user || me || null;
+    if (user && (user.username || user.id)) {
+      authUser.value = user;
+      authed.value = true;
+    } else {
+      openModeHarnesses = await detectOpenMode();
+    }
+  } catch (err) {
+    failure = err;
+    openModeHarnesses = await detectOpenMode();
+  } finally {
+    authReady.value = true;
+  }
+  if (authed.value) {
+    refreshHarnesses(openModeHarnesses);
+    init();
+  } else if (failure && failure.status !== 401) {
+    // 401 = 正常的"未登录"，登录页无需解释；其余失败给出原因（服务端消息或
+    // 网络层不可达提示）。只提示一次，不做自动重试。
+    authNotice.value = failure.message && failure.status
+      ? failure.message
+      : t('auth.bootUnreachable');
+  }
+}
+
+// ─── F1：白屏兜底（根级捕获）───
+// 任何子树（含异步视图 chunk 加载失败）抛错都在壳内兜底展示，绝不留白屏。
+// 返回 false 阻止错误继续冒泡到 app.config.errorHandler —— 那里还有一层纯
+// DOM 兜底（main.js），专治连 App 自身渲染都失败、这份模板根本没机会渲染的
+// 极端情况。
+const fatalError = ref(null);
+onErrorCaptured((err, _instance, info) => {
+  console.error('[App] captured render error:', info, err);
+  if (!fatalError.value) {
+    fatalError.value = { detail: err?.message || String(err ?? ''), info };
+  }
+  return false;
+});
+
+function reloadPage() {
+  window.location.reload();
 }
 
 const currentTab = ref('data');
@@ -276,7 +380,6 @@ const tabs = computed(() => [
   { key: 'chat', label: t('tabs.chat.label'), icon: '⌘', kicker: t('tabs.chat.kicker'), title: t('tabs.chat.title'), description: t('tabs.chat.description'), caption: t('tabs.chat.caption') },
   { key: 'reports', label: t('tabs.reports.label'), icon: '▣', kicker: t('tabs.reports.kicker'), title: t('tabs.reports.title'), description: t('tabs.reports.description'), caption: t('tabs.reports.caption') },
   { key: 'ontology', label: t('tabs.ontology.label'), icon: '⬡', kicker: t('tabs.ontology.kicker'), title: t('tabs.ontology.title'), description: t('tabs.ontology.description'), caption: t('tabs.ontology.caption') },
-  { key: 'closedloop', label: t('tabs.closedloop.label'), icon: '∿', kicker: t('tabs.closedloop.kicker'), title: t('tabs.closedloop.title'), description: t('tabs.closedloop.description'), caption: t('tabs.closedloop.caption') },
   { key: 'history', label: t('tabs.history.label'), icon: '◌', kicker: t('tabs.history.kicker'), title: t('tabs.history.title'), description: t('tabs.history.description'), caption: t('tabs.history.caption') },
 ]);
 
@@ -308,7 +411,6 @@ const contentClass = computed(() => ({
   'app-content-chat': currentTab.value === 'chat',
   'app-content-diagnose': currentTab.value === 'diagnose',
   'app-content-ontology': currentTab.value === 'ontology',
-  'app-content-closedloop': currentTab.value === 'closedloop',
 }));
 
 const analysisTargetLabel = computed(() => {
@@ -329,9 +431,13 @@ function loadSidebarState() {
   } catch {}
 }
 
-async function refreshHarnesses() {
+/**
+ * @param {Array|null} prefetched 开放模式探针已取回的一份引擎列表（复用，
+ *   避免开发模式下启动时对 /api/harness 打两次）。
+ */
+async function refreshHarnesses(prefetched = null) {
   try {
-    const list = await api.listHarnesses();
+    const list = prefetched || await api.listHarnesses();
     harnessList.value = list;
     // Validate persisted selection against the registry
     if (!list.some((h) => h.id === harness.value)) {
@@ -460,13 +566,6 @@ function onDiagnosisStarted(runId) {
   autoOpenRunId.value = runId;
 }
 
-// Specialized-analysis panel launched a real harness run — jump to the live
-// run view so the agent process streams in front of the user.
-function onPanelLaunched(runId) {
-  autoOpenRunId.value = runId;
-  currentTab.value = 'diagnose';
-}
-
 function onContinueRun(runId) {
   autoOpenRunId.value = runId;
   currentTab.value = 'diagnose';
@@ -494,10 +593,8 @@ onMounted(() => {
   window.addEventListener('resize', onViewportResize);
   document.addEventListener('pointerdown', onGlobalPointerDown);
   document.addEventListener('keydown', onGlobalKeydown);
-  if (authed.value) {
-    refreshHarnesses();
-    init();
-  }
+  // 会话判定异步进行：探针返回前保持启动态，返回后才决定登录页 / 控制台。
+  bootAuth();
 });
 onUnmounted(() => {
   window.removeEventListener('auth:unauthorized', onUnauthorized);
@@ -510,4 +607,121 @@ onUnmounted(() => {
 
 <style>
 @import './styles/global.css';
+
+/* ─── 启动态：/me 探针进行中（与登录页同底，避免任何色彩跳变）─── */
+.app-boot {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 14px;
+  background-color: var(--bg);
+  background-image:
+    linear-gradient(var(--bg-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--bg-grid) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+.app-boot-dots {
+  display: inline-flex;
+  gap: 6px;
+}
+
+.app-boot-dots i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: app-boot-blink 1.2s ease-in-out infinite;
+}
+
+.app-boot-dots i:nth-child(2) { animation-delay: 0.18s; }
+.app-boot-dots i:nth-child(3) { animation-delay: 0.36s; }
+
+@keyframes app-boot-blink {
+  0%, 100% { opacity: 0.25; }
+  50% { opacity: 1; }
+}
+
+.app-boot-label {
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text3);
+}
+
+/* ─── F1 兜底遮罩：错误绝不等于白屏 ─── */
+.app-fatal {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: var(--bg);
+}
+
+.app-fatal-card {
+  width: 100%;
+  max-width: 460px;
+  background: var(--surface);
+  border: 1px solid var(--red-border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-lg), var(--inset-hi);
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.app-fatal-kicker {
+  font-family: var(--font-mono);
+  font-size: var(--fs-micro);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--red);
+}
+
+.app-fatal-message {
+  font-size: var(--fs-sm);
+  line-height: 1.55;
+  color: var(--text2);
+}
+
+.app-fatal-detail {
+  max-height: 160px;
+  overflow: auto;
+  margin: 0;
+  padding: 8px 10px;
+  background: var(--red-soft);
+  border: 1px solid var(--red-border);
+  border-radius: var(--radius-xs);
+  color: var(--red);
+  font-family: var(--font-mono);
+  font-size: var(--fs-micro);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.app-fatal-reload {
+  align-self: flex-start;
+  min-height: 34px;
+  padding: 0 14px;
+  border: 1px solid var(--accent-strong);
+  border-radius: var(--radius-xs);
+  background: var(--accent);
+  color: #1a1408;
+  font-family: var(--font-ui);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.14s ease, border-color 0.14s ease;
+}
+
+.app-fatal-reload:hover {
+  background: var(--accent-bright);
+  border-color: var(--accent);
+}
 </style>

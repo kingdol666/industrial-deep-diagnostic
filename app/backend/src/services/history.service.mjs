@@ -1,19 +1,25 @@
 // History Service — CRUD operations for diagnosis run history
+//
+// Tenancy (P0-6): every read/delete is viewer-scoped. `viewer` is req.user for
+// API callers (own runs, everything for an admin; legacy NULL-owner runs are
+// admin-only) and INTERNAL for trusted service-internal calls. A run the
+// viewer may not see is reported exactly like a missing one (null / 404).
 
 import { db, stmts } from '../db/database.mjs';
-import { getRunRealtimeSnapshot, listRuns } from './diagnosis.service.mjs';
+import { getRunRealtimeSnapshot, getRunStatus, listRuns } from './diagnosis.service.mjs';
+import { INTERNAL } from './tenancy.mjs';
 
-export function getAllRuns() {
-  return listRuns().map(run => ({
+export function getAllRuns(viewer = INTERNAL) {
+  return listRuns(viewer).map(run => ({
     ...run,
     liveStatus: run.engineStatus || run.status,
   }));
 }
 
-export function getRunWithLogs(runId) {
-  const snapshot = getRunRealtimeSnapshot(runId);
-  const run = snapshot?.run || stmts.getRunById.get(runId);
+export function getRunWithLogs(runId, viewer = INTERNAL) {
+  const run = getRunStatus(runId, viewer);
   if (!run) return null;
+  const snapshot = getRunRealtimeSnapshot(runId, viewer);
   const logs = stmts.getLogsByRunId.all(runId);
   return {
     ...run,
@@ -25,11 +31,12 @@ export function getRunWithLogs(runId) {
   };
 }
 
-export function deleteRun(runId) {
-  const run = stmts.getRunById.get(runId);
+export function deleteRun(runId, viewer = INTERNAL) {
+  const run = getRunStatus(runId, viewer);
   if (!run) {
     const err = new Error('Run not found');
     err.status = 404;
+    err.code = 'NOT_FOUND';
     throw err;
   }
   db.prepare('DELETE FROM diagnosis_logs WHERE run_id = ?').run(runId);

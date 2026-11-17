@@ -1,0 +1,1110 @@
+{
+  "contract_version": "line-stability-report/1.0",
+  "report_id": "LSR-1791950427-kd5q5v",
+  "generated_at": "2026-10-14T04:00:27Z",
+  "status": "ok",
+  "line": {
+    "line_id": "注塑-3机",
+    "product": "家电外壳 PP 件"
+  },
+  "period": {
+    "start": "2026-09-08 06:00:00",
+    "end": "2026-09-09 11:45:00",
+    "requested": {
+      "start": "2026-09-08T06:00:00",
+      "end": "2026-09-09T11:45:00"
+    }
+  },
+  "data": {
+    "path": "workspace/lst-teaching-kit/T3_injection_molding/00_input/shots_30h.json",
+    "sha256": "sha256:d01396a5e04f614d41899fe2406856e85f7f4232e28ee00047887e2ca03c8352",
+    "time_col": "模次时间",
+    "group_col": null,
+    "group_used": null,
+    "parameter_cols": [
+      "单件重量",
+      "保压压力",
+      "熔体温度",
+      "锁模力",
+      "循环时间"
+    ],
+    "inspection_cols": [
+      "单件重量"
+    ],
+    "ignored_cols": [],
+    "sampled": false,
+    "stride": 1,
+    "n_rows_raw": 120,
+    "n_rows_used": 120,
+    "time_span_seconds": 107100.0,
+    "sampling_interval_median_seconds": 900.0,
+    "missing_rate": 0.0,
+    "coverage_ratio": 1.0,
+    "time_invariant_channels": {
+      "count": 0,
+      "total": 5,
+      "share": 0.0,
+      "examples": []
+    },
+    "preprocessing": {
+      "source_export": "workspace/lst-teaching-kit/T3_injection_molding/00_input/shots_30h.json",
+      "note": "教学夹具：MES 逐模记录导出为 JSON 行对象数组（合成数据 seed=703），每 15 分钟一模"
+    }
+  },
+  "condition": {
+    "ontology": {
+      "mode": "auto",
+      "path": null,
+      "source": null,
+      "reason": "no ontology artifact found (auto mode)"
+    },
+    "scene": null,
+    "columns": {
+      "保压压力": {
+        "assigned_by": "auto",
+        "label": "保压压力",
+        "unit": null,
+        "role": "parameter",
+        "spec": null,
+        "normal_range": null,
+        "stage": null,
+        "equipment": null,
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null
+      },
+      "熔体温度": {
+        "assigned_by": "auto",
+        "label": "熔体温度",
+        "unit": null,
+        "role": "parameter",
+        "spec": null,
+        "normal_range": null,
+        "stage": null,
+        "equipment": null,
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null
+      },
+      "锁模力": {
+        "assigned_by": "auto",
+        "label": "锁模力",
+        "unit": null,
+        "role": "parameter",
+        "spec": null,
+        "normal_range": null,
+        "stage": null,
+        "equipment": null,
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null
+      },
+      "循环时间": {
+        "assigned_by": "auto",
+        "label": "循环时间",
+        "unit": null,
+        "role": "parameter",
+        "spec": null,
+        "normal_range": null,
+        "stage": null,
+        "equipment": null,
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null
+      },
+      "单件重量": {
+        "assigned_by": "user",
+        "label": "单件重量",
+        "unit": null,
+        "role": "inspection",
+        "spec": {
+          "lsl": 24.7,
+          "usl": 25.3,
+          "target": 25.0,
+          "source": "user"
+        },
+        "normal_range": null,
+        "stage": null,
+        "equipment": null,
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null
+      }
+    },
+    "relationships": [],
+    "regimes": {
+      "available": true,
+      "method": "fast",
+      "change_points": [],
+      "regimes": [
+        {
+          "start": 0,
+          "end": 119,
+          "label": "steady",
+          "n_rows": 120
+        }
+      ],
+      "abnormal_ratio": 0.0
+    }
+  },
+  "parameters": [
+    {
+      "name": "单件重量",
+      "role": "inspection",
+      "condition": {
+        "label": "单件重量",
+        "unit": null,
+        "assigned_by": "user",
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null,
+        "stage": null,
+        "equipment": null
+      },
+      "n": 120,
+      "row_range": [
+        0,
+        119
+      ],
+      "data_source": "raw",
+      "mu": 25.005308,
+      "median": 25.011,
+      "sigma": 0.083633,
+      "sigma_within_mr": 0.029658,
+      "cv": 0.003331,
+      "min": 24.855,
+      "max": 25.158,
+      "spec": {
+        "lsl": 24.7,
+        "usl": 25.3,
+        "target": 25.0,
+        "source": "user"
+      },
+      "capability": {
+        "cp": 3.371816,
+        "cpk": 3.312154,
+        "pp": 1.195694,
+        "ppk": 1.174537
+      },
+      "nelson": {
+        "NELSON_R1": {
+          "n_episodes": 16,
+          "indices": [
+            6,
+            15,
+            27,
+            35,
+            39,
+            46,
+            48,
+            57,
+            64,
+            67,
+            78,
+            95,
+            98,
+            106,
+            108,
+            117
+          ]
+        },
+        "NELSON_R5": {
+          "n_episodes": 12,
+          "indices": [
+            8,
+            20,
+            29,
+            40,
+            49,
+            58,
+            68,
+            80,
+            89,
+            99,
+            109,
+            119
+          ]
+        },
+        "NELSON_R2": {
+          "n_episodes": 10,
+          "indices": [
+            9,
+            18,
+            30,
+            48,
+            59,
+            69,
+            78,
+            89,
+            98,
+            108
+          ]
+        },
+        "NELSON_R6": {
+          "n_episodes": 12,
+          "indices": [
+            10,
+            20,
+            31,
+            40,
+            50,
+            60,
+            68,
+            80,
+            89,
+            100,
+            110,
+            119
+          ]
+        },
+        "NELSON_R3": {
+          "n_episodes": 5,
+          "indices": [
+            42,
+            53,
+            82,
+            90,
+            102
+          ]
+        }
+      },
+      "n_violation_points": 55,
+      "drift": {
+        "slope_per_second": -0.0,
+        "per_day_relative": 0.001412,
+        "mk_p": 0.107777,
+        "significant": false
+      },
+      "baseline_ref": null,
+      "score": 63,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -37,
+        "cv_penalty": 0,
+        "capability_penalty": 0,
+        "drift_penalty": 0,
+        "baseline_penalty": 0,
+        "total": 63
+      }
+    },
+    {
+      "name": "保压压力",
+      "role": "parameter",
+      "condition": {
+        "label": "保压压力",
+        "unit": null,
+        "assigned_by": "auto",
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null,
+        "stage": null,
+        "equipment": null
+      },
+      "n": 120,
+      "row_range": [
+        0,
+        119
+      ],
+      "data_source": "raw",
+      "mu": 68.577083,
+      "median": 68.555,
+      "sigma": 1.827368,
+      "sigma_within_mr": 0.527445,
+      "cv": 0.026536,
+      "min": 65.43,
+      "max": 71.39,
+      "spec": {
+        "lsl": null,
+        "usl": null,
+        "target": null,
+        "source": null
+      },
+      "capability": {
+        "cp": null,
+        "cpk": null,
+        "pp": null,
+        "ppk": null
+      },
+      "nelson": {
+        "NELSON_R3": {
+          "n_episodes": 9,
+          "indices": [
+            5,
+            11,
+            33,
+            39,
+            51,
+            61,
+            81,
+            91,
+            102
+          ]
+        },
+        "NELSON_R1": {
+          "n_episodes": 14,
+          "indices": [
+            8,
+            16,
+            28,
+            38,
+            48,
+            57,
+            67,
+            72,
+            78,
+            82,
+            88,
+            97,
+            108,
+            118
+          ]
+        },
+        "NELSON_R2": {
+          "n_episodes": 12,
+          "indices": [
+            8,
+            18,
+            29,
+            38,
+            49,
+            59,
+            69,
+            78,
+            88,
+            99,
+            108,
+            119
+          ]
+        },
+        "NELSON_R5": {
+          "n_episodes": 12,
+          "indices": [
+            9,
+            20,
+            29,
+            40,
+            49,
+            58,
+            69,
+            79,
+            89,
+            99,
+            109,
+            119
+          ]
+        },
+        "NELSON_R6": {
+          "n_episodes": 12,
+          "indices": [
+            9,
+            20,
+            30,
+            40,
+            50,
+            60,
+            70,
+            80,
+            90,
+            99,
+            109,
+            119
+          ]
+        }
+      },
+      "n_violation_points": 59,
+      "drift": {
+        "slope_per_second": -5e-06,
+        "per_day_relative": 0.005971,
+        "mk_p": 0.31279,
+        "significant": false
+      },
+      "baseline_ref": null,
+      "score": 55,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -39,
+        "cv_penalty": -6,
+        "capability_penalty": 0,
+        "drift_penalty": 0,
+        "baseline_penalty": 0,
+        "total": 55
+      }
+    },
+    {
+      "name": "熔体温度",
+      "role": "parameter",
+      "condition": {
+        "label": "熔体温度",
+        "unit": null,
+        "assigned_by": "auto",
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null,
+        "stage": null,
+        "equipment": null
+      },
+      "n": 120,
+      "row_range": [
+        0,
+        119
+      ],
+      "data_source": "raw",
+      "mu": 264.956667,
+      "median": 264.95,
+      "sigma": 0.89731,
+      "sigma_within_mr": 0.782973,
+      "cv": 0.003372,
+      "min": 263.1,
+      "max": 267.3,
+      "spec": {
+        "lsl": null,
+        "usl": null,
+        "target": null,
+        "source": null
+      },
+      "capability": {
+        "cp": null,
+        "cpk": null,
+        "pp": null,
+        "ppk": null
+      },
+      "nelson": {
+        "NELSON_R3": {
+          "n_episodes": 1,
+          "indices": [
+            56
+          ]
+        },
+        "NELSON_R1": {
+          "n_episodes": 1,
+          "indices": [
+            70
+          ]
+        },
+        "NELSON_R6": {
+          "n_episodes": 2,
+          "indices": [
+            101,
+            110
+          ]
+        }
+      },
+      "n_violation_points": 4,
+      "drift": {
+        "slope_per_second": 7e-06,
+        "per_day_relative": 0.002196,
+        "mk_p": 0.015401,
+        "significant": false
+      },
+      "baseline_ref": null,
+      "score": 97,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -3,
+        "cv_penalty": 0,
+        "capability_penalty": 0,
+        "drift_penalty": 0,
+        "baseline_penalty": 0,
+        "total": 97
+      }
+    },
+    {
+      "name": "锁模力",
+      "role": "parameter",
+      "condition": {
+        "label": "锁模力",
+        "unit": null,
+        "assigned_by": "auto",
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null,
+        "stage": null,
+        "equipment": null
+      },
+      "n": 120,
+      "row_range": [
+        0,
+        119
+      ],
+      "data_source": "raw",
+      "mu": 1080.033333,
+      "median": 1080.0,
+      "sigma": 3.940595,
+      "sigma_within_mr": 3.486501,
+      "cv": 0.003633,
+      "min": 1070.0,
+      "max": 1091.0,
+      "spec": {
+        "lsl": null,
+        "usl": null,
+        "target": null,
+        "source": null
+      },
+      "capability": {
+        "cp": null,
+        "cpk": null,
+        "pp": null,
+        "ppk": null
+      },
+      "nelson": {
+        "NELSON_R1": {
+          "n_episodes": 1,
+          "indices": [
+            88
+          ]
+        },
+        "NELSON_R5": {
+          "n_episodes": 1,
+          "indices": [
+            90
+          ]
+        },
+        "NELSON_R6": {
+          "n_episodes": 1,
+          "indices": [
+            91
+          ]
+        },
+        "NELSON_R3": {
+          "n_episodes": 1,
+          "indices": [
+            93
+          ]
+        }
+      },
+      "n_violation_points": 4,
+      "drift": {
+        "slope_per_second": -1.4e-05,
+        "per_day_relative": 0.001147,
+        "mk_p": 0.129249,
+        "significant": false
+      },
+      "baseline_ref": null,
+      "score": 97,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -3,
+        "cv_penalty": 0,
+        "capability_penalty": 0,
+        "drift_penalty": 0,
+        "baseline_penalty": 0,
+        "total": 97
+      }
+    },
+    {
+      "name": "循环时间",
+      "role": "parameter",
+      "condition": {
+        "label": "循环时间",
+        "unit": null,
+        "assigned_by": "auto",
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null,
+        "stage": null,
+        "equipment": null
+      },
+      "n": 120,
+      "row_range": [
+        0,
+        119
+      ],
+      "data_source": "raw",
+      "mu": 38.48675,
+      "median": 38.48,
+      "sigma": 0.127293,
+      "sigma_within_mr": 0.114801,
+      "cv": 0.003294,
+      "min": 38.2,
+      "max": 38.77,
+      "spec": {
+        "lsl": null,
+        "usl": null,
+        "target": null,
+        "source": null
+      },
+      "capability": {
+        "cp": null,
+        "cpk": null,
+        "pp": null,
+        "ppk": null
+      },
+      "nelson": {
+        "NELSON_R6": {
+          "n_episodes": 1,
+          "indices": [
+            37
+          ]
+        },
+        "NELSON_R2": {
+          "n_episodes": 1,
+          "indices": [
+            40
+          ]
+        }
+      },
+      "n_violation_points": 2,
+      "drift": {
+        "slope_per_second": 0.0,
+        "per_day_relative": 0.000257,
+        "mk_p": 0.68619,
+        "significant": false
+      },
+      "baseline_ref": null,
+      "score": 99,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -1,
+        "cv_penalty": 0,
+        "capability_penalty": 0,
+        "drift_penalty": 0,
+        "baseline_penalty": 0,
+        "total": 99
+      }
+    }
+  ],
+  "correlations": {
+    "max_lag": 10,
+    "pairs": [
+      {
+        "pearson": 0.970168,
+        "spearman": 0.96618,
+        "best_abs_r": 0.96618,
+        "best_lag_rows": 0,
+        "leader": null,
+        "pearson_at_best": 0.970168,
+        "spearman_at_best": 0.96618,
+        "a": "单件重量",
+        "b": "保压压力",
+        "n": 120
+      },
+      {
+        "pearson": -0.098928,
+        "spearman": -0.106246,
+        "best_abs_r": 0.241657,
+        "best_lag_rows": 9,
+        "leader": "熔体温度",
+        "pearson_at_best": -0.257878,
+        "spearman_at_best": -0.241657,
+        "a": "熔体温度",
+        "b": "锁模力",
+        "n": 120
+      },
+      {
+        "pearson": -0.081215,
+        "spearman": -0.077358,
+        "best_abs_r": 0.221002,
+        "best_lag_rows": 4,
+        "leader": "循环时间",
+        "pearson_at_best": -0.198723,
+        "spearman_at_best": -0.221002,
+        "a": "熔体温度",
+        "b": "循环时间",
+        "n": 120
+      },
+      {
+        "pearson": 0.136217,
+        "spearman": 0.11707,
+        "best_abs_r": 0.202943,
+        "best_lag_rows": 9,
+        "leader": "循环时间",
+        "pearson_at_best": -0.200629,
+        "spearman_at_best": -0.202943,
+        "a": "单件重量",
+        "b": "循环时间",
+        "n": 120
+      },
+      {
+        "pearson": 0.143118,
+        "spearman": 0.107124,
+        "best_abs_r": 0.181731,
+        "best_lag_rows": 9,
+        "leader": "循环时间",
+        "pearson_at_best": 0.13706,
+        "spearman_at_best": 0.181731,
+        "a": "锁模力",
+        "b": "循环时间",
+        "n": 120
+      },
+      {
+        "pearson": 0.153079,
+        "spearman": 0.145717,
+        "best_abs_r": 0.180554,
+        "best_lag_rows": 2,
+        "leader": "保压压力",
+        "pearson_at_best": 0.174932,
+        "spearman_at_best": 0.180554,
+        "a": "保压压力",
+        "b": "循环时间",
+        "n": 120
+      },
+      {
+        "pearson": -0.136579,
+        "spearman": -0.136676,
+        "best_abs_r": 0.166096,
+        "best_lag_rows": 8,
+        "leader": "熔体温度",
+        "pearson_at_best": 0.152067,
+        "spearman_at_best": 0.166096,
+        "a": "单件重量",
+        "b": "熔体温度",
+        "n": 120
+      },
+      {
+        "pearson": -0.134022,
+        "spearman": -0.125954,
+        "best_abs_r": 0.149819,
+        "best_lag_rows": 2,
+        "leader": "保压压力",
+        "pearson_at_best": -0.144075,
+        "spearman_at_best": -0.149819,
+        "a": "保压压力",
+        "b": "熔体温度",
+        "n": 120
+      },
+      {
+        "pearson": 0.017192,
+        "spearman": 0.00716,
+        "best_abs_r": 0.13142,
+        "best_lag_rows": 6,
+        "leader": "锁模力",
+        "pearson_at_best": -0.160657,
+        "spearman_at_best": -0.13142,
+        "a": "保压压力",
+        "b": "锁模力",
+        "n": 120
+      },
+      {
+        "pearson": 0.008026,
+        "spearman": -0.006188,
+        "best_abs_r": 0.130769,
+        "best_lag_rows": 4,
+        "leader": "单件重量",
+        "pearson_at_best": 0.156526,
+        "spearman_at_best": 0.130769,
+        "a": "单件重量",
+        "b": "锁模力",
+        "n": 120
+      }
+    ],
+    "contributions": [
+      {
+        "driver": "保压压力",
+        "target": "单件重量",
+        "abs_r": 0.96618,
+        "best_lag_rows": 0,
+        "share": 1.0
+      }
+    ]
+  },
+  "integrations": {
+    "sentinel_baseline": {
+      "used": false,
+      "path": null
+    },
+    "tuning_memory": {
+      "used": false
+    },
+    "doe_analyzer": {
+      "used": false
+    }
+  },
+  "degradations": [],
+  "limitations": {
+    "data_source": "raw (this skill never cleans or imputes; every number is recomputable from the raw table)",
+    "sampling": {
+      "n_rows_analyzed": 120,
+      "sampled": false,
+      "stride": 1,
+      "note": null
+    },
+    "missing_rate": 0.0,
+    "sampling_interval_seconds": 900.0,
+    "spec_coverage": {
+      "user": [
+        "单件重量"
+      ],
+      "ontology": [],
+      "none": [
+        "保压压力",
+        "熔体温度",
+        "锁模力",
+        "循环时间"
+      ]
+    },
+    "model_assumptions": [
+      "lag-compensated Spearman window 0–10 rows (lead/lag beyond this window is invisible)",
+      "whole-period scoring assumes one dominant operating condition; use the regime table for segmented reading",
+      "Cpk treats within-sigma as MR̄/1.128 moving-range estimate"
+    ],
+    "confounders": [],
+    "derived_fields": [
+      "baseline_ref.robust_z",
+      "correlations.contributions.share",
+      "correlations.pairs.best_abs_r"
+    ]
+  },
+  "provenance": {
+    "input_sha256": "sha256:d01396a5e04f614d41899fe2406856e85f7f4232e28ee00047887e2ca03c8352",
+    "script_version": "1.0.0",
+    "authored_by": "lstcore/stability_analyzer.py",
+    "zero_llm": true,
+    "spc_source": "sentinelcore",
+    "regime_method": "fast",
+    "ontology_source": null,
+    "python": "3.12.7",
+    "numpy": "2.5.2",
+    "pandas": "3.0.5",
+    "methods": [
+      "sentinelcore_nelson_episodes",
+      "mrbar_sigma_1.128",
+      "cpk_within_ppk_overall",
+      "theil_sen_mk_drift",
+      "lagged_spearman_max10",
+      "contribution_r2_share",
+      "regime_segmentation_c3",
+      "ontology_first_condition",
+      "weighted_penalty_score_v1",
+      "darwin_limitations"
+    ]
+  },
+  "findings": [
+    {
+      "finding_id": "F001",
+      "severity": "high",
+      "category": "spc",
+      "title": "单件重量 检出 SPC 违规",
+      "detail": "共 55 个判异剧集命中（每百点 45.8 个，规则：NELSON_R1/NELSON_R2/NELSON_R3/NELSON_R5/NELSON_R6），控制限为中心值25.011±3σ_within（σ=0.0297）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 55,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 45.83,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 0.029658,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "单件重量"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F002",
+      "severity": "high",
+      "category": "spc",
+      "title": "保压压力 检出 SPC 违规",
+      "detail": "共 59 个判异剧集命中（每百点 49.2 个，规则：NELSON_R1/NELSON_R2/NELSON_R3/NELSON_R5/NELSON_R6），控制限为中心值68.555±3σ_within（σ=0.5274）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 59,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 49.17,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 0.527445,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "保压压力"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F003",
+      "severity": "high",
+      "category": "spc",
+      "title": "熔体温度 检出 SPC 违规",
+      "detail": "共 4 个判异剧集命中（每百点 3.3 个，规则：NELSON_R1/NELSON_R3/NELSON_R6），控制限为中心值264.95±3σ_within（σ=0.783）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 4,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 3.33,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 0.782973,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "熔体温度"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F004",
+      "severity": "high",
+      "category": "spc",
+      "title": "锁模力 检出 SPC 违规",
+      "detail": "共 4 个判异剧集命中（每百点 3.3 个，规则：NELSON_R1/NELSON_R3/NELSON_R5/NELSON_R6），控制限为中心值1080±3σ_within（σ=3.4865）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 4,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 3.33,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 3.486501,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "锁模力"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F005",
+      "severity": "warn",
+      "category": "spc",
+      "title": "循环时间 检出 SPC 违规",
+      "detail": "共 2 个判异剧集命中（每百点 1.7 个，规则：NELSON_R2/NELSON_R6），控制限为中心值38.48±3σ_within（σ=0.1148）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 2,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 1.67,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 0.114801,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "循环时间"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F006",
+      "severity": "info",
+      "category": "driver",
+      "title": "保压压力 是 单件重量 波动的主要解释项",
+      "detail": "滞后补偿后 |r|² 归一，保压压力 解释了 单件重量 约 100% 的方差（|r|=0.9662，领先 0 行）。本体未见因果边——占比仅为统计分解。置信度 50。",
+      "evidence": [
+        {
+          "metric": "share",
+          "value": 1.0,
+          "source": "lstcore",
+          "threshold": ">=0.4",
+          "derived": true
+        },
+        {
+          "metric": "abs_r",
+          "value": 0.96618,
+          "source": "lstcore",
+          "derived": true
+        },
+        {
+          "metric": "mechanism_level",
+          "value": "unknown",
+          "source": "ontology"
+        }
+      ],
+      "affected": [
+        "保压压力",
+        "单件重量"
+      ],
+      "confidence": 50,
+      "mechanism": {
+        "level": "unknown",
+        "mechanism": null
+      }
+    },
+    {
+      "finding_id": "F007",
+      "severity": "info",
+      "category": "driver",
+      "title": "强相关对：单件重量 ↔ 保压压力 [MECHANISM_UNKNOWN]",
+      "detail": "滞后补偿后最强 |Spearman|=0.9662（零滞后同步）；零滞后 Pearson=0.9702。本体未提供物理机制支持——仅是统计共变，不可作因果线索使用。置信度 45（统计证据充分度 × 机制支持度）。",
+      "evidence": [
+        {
+          "metric": "best_abs_r",
+          "value": 0.96618,
+          "source": "lstcore",
+          "threshold": ">=0.7",
+          "derived": true
+        },
+        {
+          "metric": "best_lag_rows",
+          "value": 0,
+          "source": "lstcore"
+        },
+        {
+          "metric": "mechanism_level",
+          "value": "unknown",
+          "source": "ontology"
+        }
+      ],
+      "affected": [
+        "单件重量",
+        "保压压力"
+      ],
+      "confidence": 45,
+      "mechanism": {
+        "level": "unknown",
+        "mechanism": null,
+        "governing_equation": null
+      }
+    }
+  ],
+  "conclusion": {
+    "score": 82.2,
+    "grade": "B",
+    "grade_key": "sub_stable",
+    "label": "亚稳定",
+    "statement": "该产线在本时段总体运行亚稳定（82.2 分，B 级）：评估 5 个参数，检出 124 个 SPC 违规剧集、0 项显著漂移；最需关注：单件重量、保压压力。",
+    "n_parameters_assessed": 5,
+    "n_findings": 7,
+    "findings_by_severity": {
+      "info": 2,
+      "warn": 1,
+      "high": 4,
+      "critical": 0
+    }
+  }
+}

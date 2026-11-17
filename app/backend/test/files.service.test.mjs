@@ -3,12 +3,12 @@
 // destructive endpoints must refuse those names even when called exactly.
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync, mkdirSync } from 'fs';
+import { mkdtempSync, writeFileSync, mkdirSync, rmSync, utimesSync } from 'fs';
 import { tmpdir } from 'os';
 import { join, basename } from 'path';
 
-const { isSystemDatabaseFile, listDataDir, listDataFolder, deleteDataFolder, DATA_DIR } = await import('../src/services/files.service.mjs');
-const { config } = await import('../../../config/loader.mjs');
+const { isSystemDatabaseFile, listDataDir, listDataFolder, deleteDataFolder, getWorkspaceAsset, DATA_DIR } = await import('../src/services/files.service.mjs');
+const { config, PROJECT_ROOT } = await import('../../../config/loader.mjs');
 
 const DB_FILE = basename(config.database.path);
 
@@ -69,5 +69,84 @@ describe('deleteDataFolder — refuses the system database by exact name', () =>
       () => deleteDataFolder(`${DB_FILE}-wal`),
       (err) => err.status === 400,
     );
+  });
+});
+
+describe('getWorkspaceAsset — containment is the SERVED run dir, not the runs root', () => {
+  // The asset route takes two user-supplied fragments (runName + wildcard
+  // subpath). The cross-run vector `<runA>/../<runB>/report.md` never leaves
+  // diagnostic-runs, so a runs-root containment base served run B's report.
+  const RUNS_DIR = join(PROJECT_ROOT, config.data.workspace_dir);
+
+  test('cross-run vector → 403 Access denied; legit asset inside the run still serves', async () => {
+    const stamp = `${process.pid}-${Date.now()}`;
+    const runA = join(RUNS_DIR, `asset-guard-a-${stamp}`);
+    const runB = join(RUNS_DIR, `asset-guard-b-${stamp}`);
+    mkdirSync(join(runA, '03_figures'), { recursive: true });
+    mkdirSync(runB, { recursive: true });
+    writeFileSync(join(runA, '03_figures', 'fig.png'), 'PNG-of-run-A');
+    writeFileSync(join(runB, 'report.md'), 'SECRET of run B');
+    writeFileSync(join(runB, 'other.png'), 'PNG-of-run-B');
+    // Never let the run-dir discovery heuristics (mock engine fallback) claim
+    // these fixtures as "the newest run dir" while they exist.
+    const ancient = new Date(0);
+    utimesSync(runA, ancient, ancient);
+    utimesSync(runB, ancient, ancient);
+
+    try {
+      const runAName = basename(runA);
+      const runBName = basename(runB);
+
+      // Legit asset inside the served run → served.
+      const asset = await getWorkspaceAsset(runAName, '03_figures/fig.png');
+      assert.equal(asset.content.toString(), 'PNG-of-run-A');
+
+      // Nested-relative navigation that STAYS inside the run is still allowed.
+      const nested = await getWorkspaceAsset(runAName, '03_figures/../03_figures/fig.png');
+      assert.equal(nested.content.toString(), 'PNG-of-run-A');
+
+      // Cross-run read via the traversing subpath → Access denied (403).
+      await assert.rejects(
+        () => getWorkspaceAsset(runAName, `../${runBName}/report.md`),
+        (err) => err.status === 403 && err.message === 'Access denied',
+      );
+      await assert.rejects(
+        () => getWorkspaceAsset(runAName, `03_figures/../../${runBName}/other.png`),
+        (err) => err.status === 403,
+      );
+      // Path escaping the runs root entirely (an existing repo-root file) → also 403.
+      await assert.rejects(
+        () => getWorkspaceAsset(runAName, '../../../package.json'),
+        (err) => err.status === 403,
+      );
+      // Missing file → null (the route answers 404).
+      assert.equal(await getWorkspaceAsset(runAName, '03_figures/missing.png'), null);
+      assert.equal(await getWorkspaceAsset(runAName, `../${runBName}/missing.md`), null);
+      // Broken run name (traversal in runName itself) → null, not another run.
+      assert.equal(await getWorkspaceAsset(`../${runBName}`, 'report.md'), null);
+    } finally {
+      rmSync(runA, { recursive: true, force: true });
+      rmSync(runB, { recursive: true, force: true });
+    }
+  });
+
+  test('a junction-style runs root still serves assets (realpath on both sides)', async () => {
+    // Guard against the regression the previous comment recorded: comparing the
+    // file's realpath against an unresolved run dir 403s everything when the
+    // run dir path traverses a symlink/junction. On this platform the fixtures
+    // are plain dirs — assert the ordinary path still resolves identically.
+    const stamp = `${process.pid}-${Date.now()}`;
+    const runDir = join(RUNS_DIR, `asset-guard-c-${stamp}`);
+    mkdirSync(runDir, { recursive: true });
+    writeFileSync(join(runDir, 'report.md'), 'report of C');
+    const ancient = new Date(0);
+    utimesSync(runDir, ancient, ancient);
+    try {
+      const asset = await getWorkspaceAsset(basename(runDir), 'report.md');
+      assert.equal(asset.content.toString(), 'report of C');
+      assert.equal(asset.ext, '.md');
+    } finally {
+      rmSync(runDir, { recursive: true, force: true });
+    }
   });
 });

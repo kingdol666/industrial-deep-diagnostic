@@ -1,0 +1,1211 @@
+{
+  "contract_version": "line-stability-report/1.0",
+  "report_id": "LSR-1791977128-og6z2e",
+  "generated_at": "2026-10-14T11:25:28Z",
+  "status": "ok",
+  "line": {
+    "line_id": null,
+    "product": null
+  },
+  "period": {
+    "start": "2026-09-05 00:00:00",
+    "end": "2026-09-10 23:00:00",
+    "requested": {
+      "start": null,
+      "end": null
+    }
+  },
+  "data": {
+    "path": "workspace/lst-teaching-kit/T2_wastewater_aeration\\00_input\\aeration_6d.tsv",
+    "sha256": "sha256:157b984ca47a2b1ce020f13d1790cf5fe16a96c96017b0eb14b40483df409aca",
+    "time_col": "时间",
+    "group_col": null,
+    "group_used": null,
+    "parameter_cols": [
+      "溶解氧DO",
+      "鼓风机频率",
+      "MLSS浓度",
+      "进水COD",
+      "出水氨氮"
+    ],
+    "inspection_cols": [],
+    "ignored_cols": [],
+    "sampled": false,
+    "stride": 1,
+    "n_rows_raw": 144,
+    "n_rows_used": 144,
+    "time_span_seconds": 514800.0,
+    "sampling_interval_median_seconds": 3600.0,
+    "missing_rate": 0.0,
+    "coverage_ratio": 1.0,
+    "time_invariant_channels": {
+      "count": 0,
+      "total": 5,
+      "share": 0.0,
+      "examples": []
+    }
+  },
+  "condition": {
+    "ontology": {
+      "mode": "auto",
+      "path": null,
+      "source": null,
+      "reason": "no ontology artifact found (auto mode)"
+    },
+    "scene": null,
+    "columns": {
+      "溶解氧DO": {
+        "assigned_by": "auto",
+        "label": "溶解氧DO",
+        "unit": null,
+        "role": "parameter",
+        "spec": null,
+        "normal_range": null,
+        "stage": null,
+        "equipment": null,
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null
+      },
+      "鼓风机频率": {
+        "assigned_by": "auto",
+        "label": "鼓风机频率",
+        "unit": null,
+        "role": "parameter",
+        "spec": null,
+        "normal_range": null,
+        "stage": null,
+        "equipment": null,
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null
+      },
+      "MLSS浓度": {
+        "assigned_by": "auto",
+        "label": "MLSS浓度",
+        "unit": null,
+        "role": "parameter",
+        "spec": null,
+        "normal_range": null,
+        "stage": null,
+        "equipment": null,
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null
+      },
+      "进水COD": {
+        "assigned_by": "auto",
+        "label": "进水COD",
+        "unit": null,
+        "role": "parameter",
+        "spec": null,
+        "normal_range": null,
+        "stage": null,
+        "equipment": null,
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null
+      },
+      "出水氨氮": {
+        "assigned_by": "auto",
+        "label": "出水氨氮",
+        "unit": null,
+        "role": "parameter",
+        "spec": null,
+        "normal_range": null,
+        "stage": null,
+        "equipment": null,
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null
+      }
+    },
+    "relationships": [],
+    "regimes": {
+      "available": true,
+      "method": "fast",
+      "change_points": [
+        58,
+        74,
+        85
+      ],
+      "regimes": [
+        {
+          "start": 0,
+          "end": 58,
+          "label": "steady",
+          "n_rows": 59
+        },
+        {
+          "start": 58,
+          "end": 74,
+          "label": "transition",
+          "n_rows": 17
+        },
+        {
+          "start": 74,
+          "end": 85,
+          "label": "transition",
+          "n_rows": 12
+        },
+        {
+          "start": 85,
+          "end": 143,
+          "label": "steady",
+          "n_rows": 59
+        }
+      ],
+      "abnormal_ratio": 0.0
+    }
+  },
+  "parameters": [
+    {
+      "name": "溶解氧DO",
+      "role": "parameter",
+      "condition": {
+        "label": "溶解氧DO",
+        "unit": null,
+        "assigned_by": "auto",
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null,
+        "stage": null,
+        "equipment": null
+      },
+      "n": 144,
+      "row_range": [
+        0,
+        143
+      ],
+      "data_source": "raw",
+      "mu": 2.765917,
+      "median": 2.767,
+      "sigma": 0.263386,
+      "sigma_within_mr": 0.068355,
+      "cv": 0.094894,
+      "min": 2.208,
+      "max": 3.337,
+      "spec": {
+        "lsl": null,
+        "usl": null,
+        "target": null,
+        "source": null
+      },
+      "capability": {
+        "cp": null,
+        "cpk": null,
+        "pp": null,
+        "ppk": null
+      },
+      "nelson": {
+        "NELSON_R2": {
+          "n_episodes": 2,
+          "indices": [
+            8,
+            92
+          ]
+        },
+        "NELSON_R1": {
+          "n_episodes": 14,
+          "indices": [
+            15,
+            24,
+            29,
+            32,
+            40,
+            43,
+            91,
+            95,
+            98,
+            104,
+            110,
+            117,
+            125,
+            143
+          ]
+        },
+        "NELSON_R5": {
+          "n_episodes": 9,
+          "indices": [
+            25,
+            41,
+            47,
+            56,
+            63,
+            72,
+            92,
+            99,
+            143
+          ]
+        },
+        "NELSON_R6": {
+          "n_episodes": 5,
+          "indices": [
+            60,
+            72,
+            91,
+            99,
+            143
+          ]
+        },
+        "NELSON_R3": {
+          "n_episodes": 1,
+          "indices": [
+            104
+          ]
+        }
+      },
+      "n_violation_points": 31,
+      "drift": {
+        "slope_per_second": -2e-06,
+        "per_day_relative": 0.052232,
+        "mk_p": 0.0,
+        "significant": true
+      },
+      "baseline_ref": null,
+      "score": 36,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -17,
+        "cv_penalty": -22,
+        "capability_penalty": 0,
+        "drift_penalty": -25,
+        "baseline_penalty": 0,
+        "total": 36
+      }
+    },
+    {
+      "name": "鼓风机频率",
+      "role": "parameter",
+      "condition": {
+        "label": "鼓风机频率",
+        "unit": null,
+        "assigned_by": "auto",
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null,
+        "stage": null,
+        "equipment": null
+      },
+      "n": 144,
+      "row_range": [
+        0,
+        143
+      ],
+      "data_source": "raw",
+      "mu": 45.249028,
+      "median": 45.22,
+      "sigma": 1.880661,
+      "sigma_within_mr": 0.154491,
+      "cv": 0.041418,
+      "min": 42.06,
+      "max": 48.65,
+      "spec": {
+        "lsl": null,
+        "usl": null,
+        "target": null,
+        "source": null
+      },
+      "capability": {
+        "cp": null,
+        "cpk": null,
+        "pp": null,
+        "ppk": null
+      },
+      "nelson": {
+        "NELSON_R2": {
+          "n_episodes": 2,
+          "indices": [
+            8,
+            83
+          ]
+        },
+        "NELSON_R1": {
+          "n_episodes": 6,
+          "indices": [
+            58,
+            62,
+            69,
+            80,
+            85,
+            143
+          ]
+        },
+        "NELSON_R5": {
+          "n_episodes": 3,
+          "indices": [
+            63,
+            71,
+            143
+          ]
+        },
+        "NELSON_R6": {
+          "n_episodes": 3,
+          "indices": [
+            64,
+            70,
+            143
+          ]
+        },
+        "NELSON_R3": {
+          "n_episodes": 1,
+          "indices": [
+            138
+          ]
+        }
+      },
+      "n_violation_points": 15,
+      "drift": {
+        "slope_per_second": 1.2e-05,
+        "per_day_relative": 0.023883,
+        "mk_p": 0.0,
+        "significant": true
+      },
+      "baseline_ref": null,
+      "score": 55,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -8,
+        "cv_penalty": -12,
+        "capability_penalty": 0,
+        "drift_penalty": -25,
+        "baseline_penalty": 0,
+        "total": 55
+      }
+    },
+    {
+      "name": "MLSS浓度",
+      "role": "parameter",
+      "condition": {
+        "label": "MLSS浓度",
+        "unit": null,
+        "assigned_by": "auto",
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null,
+        "stage": null,
+        "equipment": null
+      },
+      "n": 144,
+      "row_range": [
+        0,
+        143
+      ],
+      "data_source": "raw",
+      "mu": 3.792764,
+      "median": 3.791,
+      "sigma": 0.127165,
+      "sigma_within_mr": 0.117592,
+      "cv": 0.033412,
+      "min": 3.375,
+      "max": 4.283,
+      "spec": {
+        "lsl": null,
+        "usl": null,
+        "target": null,
+        "source": null
+      },
+      "capability": {
+        "cp": null,
+        "cpk": null,
+        "pp": null,
+        "ppk": null
+      },
+      "nelson": {
+        "NELSON_R1": {
+          "n_episodes": 2,
+          "indices": [
+            57,
+            91
+          ]
+        }
+      },
+      "n_violation_points": 2,
+      "drift": {
+        "slope_per_second": -0.0,
+        "per_day_relative": 0.0,
+        "mk_p": null,
+        "significant": false,
+        "mk_skipped": "相对漂移低于 0.1%/天 门槛，Mann-Kendall 检验未执行"
+      },
+      "baseline_ref": null,
+      "score": 87,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -1,
+        "cv_penalty": -12,
+        "capability_penalty": 0,
+        "drift_penalty": 0,
+        "baseline_penalty": 0,
+        "total": 87
+      }
+    },
+    {
+      "name": "进水COD",
+      "role": "parameter",
+      "condition": {
+        "label": "进水COD",
+        "unit": null,
+        "assigned_by": "auto",
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null,
+        "stage": null,
+        "equipment": null
+      },
+      "n": 144,
+      "row_range": [
+        0,
+        143
+      ],
+      "data_source": "raw",
+      "mu": 419.930556,
+      "median": 418.0,
+      "sigma": 20.551737,
+      "sigma_within_mr": 8.343872,
+      "cv": 0.048771,
+      "min": 377.9,
+      "max": 466.0,
+      "spec": {
+        "lsl": null,
+        "usl": null,
+        "target": null,
+        "source": null
+      },
+      "capability": {
+        "cp": null,
+        "cpk": null,
+        "pp": null,
+        "ppk": null
+      },
+      "nelson": {
+        "NELSON_R1": {
+          "n_episodes": 19,
+          "indices": [
+            1,
+            8,
+            15,
+            19,
+            33,
+            57,
+            64,
+            67,
+            78,
+            91,
+            93,
+            100,
+            103,
+            111,
+            115,
+            125,
+            128,
+            130,
+            138
+          ]
+        },
+        "NELSON_R2": {
+          "n_episodes": 12,
+          "indices": [
+            8,
+            20,
+            32,
+            45,
+            56,
+            67,
+            81,
+            93,
+            106,
+            117,
+            131,
+            142
+          ]
+        },
+        "NELSON_R5": {
+          "n_episodes": 12,
+          "indices": [
+            9,
+            21,
+            35,
+            47,
+            58,
+            68,
+            80,
+            94,
+            105,
+            115,
+            130,
+            141
+          ]
+        },
+        "NELSON_R6": {
+          "n_episodes": 12,
+          "indices": [
+            9,
+            22,
+            36,
+            46,
+            58,
+            69,
+            84,
+            96,
+            104,
+            118,
+            133,
+            141
+          ]
+        },
+        "NELSON_R3": {
+          "n_episodes": 5,
+          "indices": [
+            24,
+            37,
+            77,
+            88,
+            98
+          ]
+        }
+      },
+      "n_violation_points": 60,
+      "drift": {
+        "slope_per_second": -2.2e-05,
+        "per_day_relative": 0.004579,
+        "mk_p": 0.093169,
+        "significant": false
+      },
+      "baseline_ref": null,
+      "score": 55,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -33,
+        "cv_penalty": -12,
+        "capability_penalty": 0,
+        "drift_penalty": 0,
+        "baseline_penalty": 0,
+        "total": 55
+      }
+    },
+    {
+      "name": "出水氨氮",
+      "role": "parameter",
+      "condition": {
+        "label": "出水氨氮",
+        "unit": null,
+        "assigned_by": "auto",
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null,
+        "stage": null,
+        "equipment": null
+      },
+      "n": 144,
+      "row_range": [
+        0,
+        143
+      ],
+      "data_source": "raw",
+      "mu": 4.351951,
+      "median": 4.248,
+      "sigma": 0.29652,
+      "sigma_within_mr": 0.116005,
+      "cv": 0.067898,
+      "min": 3.899,
+      "max": 5.239,
+      "spec": {
+        "lsl": null,
+        "usl": null,
+        "target": null,
+        "source": null
+      },
+      "capability": {
+        "cp": null,
+        "cpk": null,
+        "pp": null,
+        "ppk": null
+      },
+      "nelson": {
+        "NELSON_R1": {
+          "n_episodes": 6,
+          "indices": [
+            25,
+            110,
+            118,
+            123,
+            127,
+            143
+          ]
+        },
+        "NELSON_R5": {
+          "n_episodes": 6,
+          "indices": [
+            28,
+            53,
+            73,
+            77,
+            111,
+            143
+          ]
+        },
+        "NELSON_R6": {
+          "n_episodes": 4,
+          "indices": [
+            29,
+            55,
+            74,
+            143
+          ]
+        },
+        "NELSON_R2": {
+          "n_episodes": 2,
+          "indices": [
+            49,
+            114
+          ]
+        },
+        "NELSON_R3": {
+          "n_episodes": 1,
+          "indices": [
+            116
+          ]
+        }
+      },
+      "n_violation_points": 19,
+      "drift": {
+        "slope_per_second": 1e-06,
+        "per_day_relative": 0.026524,
+        "mk_p": 0.0,
+        "significant": true
+      },
+      "baseline_ref": null,
+      "score": 42,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -11,
+        "cv_penalty": -22,
+        "capability_penalty": 0,
+        "drift_penalty": -25,
+        "baseline_penalty": 0,
+        "total": 42
+      }
+    }
+  ],
+  "correlations": {
+    "max_lag": 10,
+    "pairs": [
+      {
+        "pearson": -0.941147,
+        "spearman": -0.947249,
+        "best_abs_r": 0.95234,
+        "best_lag_rows": 3,
+        "leader": "溶解氧DO",
+        "pearson_at_best": -0.946733,
+        "spearman_at_best": -0.95234,
+        "a": "溶解氧DO",
+        "b": "鼓风机频率",
+        "n": 144
+      },
+      {
+        "pearson": -0.663155,
+        "spearman": -0.605424,
+        "best_abs_r": 0.668771,
+        "best_lag_rows": 10,
+        "leader": "溶解氧DO",
+        "pearson_at_best": -0.717541,
+        "spearman_at_best": -0.668771,
+        "a": "溶解氧DO",
+        "b": "出水氨氮",
+        "n": 144
+      },
+      {
+        "pearson": 0.687151,
+        "spearman": 0.637352,
+        "best_abs_r": 0.656578,
+        "best_lag_rows": 3,
+        "leader": "鼓风机频率",
+        "pearson_at_best": 0.695848,
+        "spearman_at_best": 0.656578,
+        "a": "鼓风机频率",
+        "b": "出水氨氮",
+        "n": 144
+      },
+      {
+        "pearson": -0.252469,
+        "spearman": -0.246998,
+        "best_abs_r": 0.252976,
+        "best_lag_rows": 1,
+        "leader": "出水氨氮",
+        "pearson_at_best": -0.250944,
+        "spearman_at_best": -0.252976,
+        "a": "进水COD",
+        "b": "出水氨氮",
+        "n": 144
+      },
+      {
+        "pearson": -0.031094,
+        "spearman": -0.02794,
+        "best_abs_r": 0.190114,
+        "best_lag_rows": 5,
+        "leader": "出水氨氮",
+        "pearson_at_best": -0.147615,
+        "spearman_at_best": -0.190114,
+        "a": "MLSS浓度",
+        "b": "出水氨氮",
+        "n": 144
+      },
+      {
+        "pearson": 0.189724,
+        "spearman": 0.156173,
+        "best_abs_r": 0.170187,
+        "best_lag_rows": 3,
+        "leader": "进水COD",
+        "pearson_at_best": 0.195613,
+        "spearman_at_best": 0.170187,
+        "a": "溶解氧DO",
+        "b": "进水COD",
+        "n": 144
+      },
+      {
+        "pearson": 0.017665,
+        "spearman": 0.012167,
+        "best_abs_r": 0.165379,
+        "best_lag_rows": 3,
+        "leader": "MLSS浓度",
+        "pearson_at_best": -0.181791,
+        "spearman_at_best": -0.165379,
+        "a": "MLSS浓度",
+        "b": "进水COD",
+        "n": 144
+      },
+      {
+        "pearson": -0.149855,
+        "spearman": -0.132066,
+        "best_abs_r": 0.133646,
+        "best_lag_rows": 1,
+        "leader": "鼓风机频率",
+        "pearson_at_best": -0.152681,
+        "spearman_at_best": -0.133646,
+        "a": "鼓风机频率",
+        "b": "进水COD",
+        "n": 144
+      },
+      {
+        "pearson": 0.006185,
+        "spearman": -0.002411,
+        "best_abs_r": 0.048702,
+        "best_lag_rows": 10,
+        "leader": "溶解氧DO",
+        "pearson_at_best": 0.049296,
+        "spearman_at_best": 0.048702,
+        "a": "溶解氧DO",
+        "b": "MLSS浓度",
+        "n": 144
+      },
+      {
+        "pearson": 0.001462,
+        "spearman": -0.006965,
+        "best_abs_r": 0.046344,
+        "best_lag_rows": 8,
+        "leader": "MLSS浓度",
+        "pearson_at_best": 0.042641,
+        "spearman_at_best": 0.046344,
+        "a": "鼓风机频率",
+        "b": "MLSS浓度",
+        "n": 144
+      }
+    ],
+    "contributions": [],
+    "contributions_skipped": "未声明检测/响应指标（inspection_cols 或本体 role=response），贡献分析未执行——默认目标列不可解释"
+  },
+  "integrations": {
+    "sentinel_baseline": {
+      "used": false,
+      "path": null
+    },
+    "tuning_memory": {
+      "used": false
+    },
+    "doe_analyzer": {
+      "used": false
+    }
+  },
+  "degradations": [],
+  "limitations": {
+    "data_source": "raw (this skill never cleans or imputes; every number is recomputable from the raw table)",
+    "sampling": {
+      "n_rows_analyzed": 144,
+      "sampled": false,
+      "stride": 1,
+      "note": null
+    },
+    "missing_rate": 0.0,
+    "sampling_interval_seconds": 3600.0,
+    "spec_coverage": {
+      "user": [],
+      "ontology": [],
+      "none": [
+        "溶解氧DO",
+        "鼓风机频率",
+        "MLSS浓度",
+        "进水COD",
+        "出水氨氮"
+      ]
+    },
+    "model_assumptions": [
+      "lag-compensated Spearman window 0–10 rows (lead/lag beyond this window is invisible)",
+      "whole-period scoring assumes one dominant operating condition; use the regime table for segmented reading",
+      "Cpk treats within-sigma as MR̄/1.128 moving-range estimate"
+    ],
+    "confounders": [],
+    "derived_fields": [
+      "baseline_ref.robust_z",
+      "correlations.contributions.share",
+      "correlations.pairs.best_abs_r"
+    ]
+  },
+  "subject": {
+    "noun": "系统",
+    "display": "污水处理曝气池系统",
+    "source": "context.scenario"
+  },
+  "objective": "确认溶解氧是否持续走低、鼓风机补偿是否到位，评估出水氨氮风险",
+  "provenance": {
+    "input_sha256": "sha256:157b984ca47a2b1ce020f13d1790cf5fe16a96c96017b0eb14b40483df409aca",
+    "script_version": "1.0.0",
+    "authored_by": "lstcore/stability_analyzer.py",
+    "zero_llm": true,
+    "spc_source": "sentinelcore",
+    "regime_method": "fast",
+    "ontology_source": null,
+    "weights_source": "equal",
+    "python": "3.12.7",
+    "numpy": "2.5.2",
+    "pandas": "3.0.5",
+    "methods": [
+      "sentinelcore_nelson_episodes",
+      "mrbar_sigma_1.128",
+      "cpk_within_ppk_overall",
+      "theil_sen_mk_drift",
+      "lagged_spearman_max10",
+      "contribution_r2_share",
+      "regime_segmentation_c3",
+      "ontology_first_condition",
+      "weighted_penalty_score_v1",
+      "data_truth_limitations"
+    ]
+  },
+  "findings": [
+    {
+      "finding_id": "F001",
+      "severity": "high",
+      "category": "spc",
+      "title": "溶解氧DO 检出 SPC 违规",
+      "detail": "共 31 个判异剧集命中（每百点 21.5 个，规则：NELSON_R1/NELSON_R2/NELSON_R3/NELSON_R5/NELSON_R6），控制限为中心值2.767±3σ_within（σ=0.0684）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 31,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 21.53,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 0.068355,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "溶解氧DO"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F002",
+      "severity": "high",
+      "category": "spc",
+      "title": "鼓风机频率 检出 SPC 违规",
+      "detail": "共 15 个判异剧集命中（每百点 10.4 个，规则：NELSON_R1/NELSON_R2/NELSON_R3/NELSON_R5/NELSON_R6），控制限为中心值45.22±3σ_within（σ=0.1545）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 15,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 10.42,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 0.154491,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "鼓风机频率"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F003",
+      "severity": "high",
+      "category": "spc",
+      "title": "进水COD 检出 SPC 违规",
+      "detail": "共 60 个判异剧集命中（每百点 41.7 个，规则：NELSON_R1/NELSON_R2/NELSON_R3/NELSON_R5/NELSON_R6），控制限为中心值418±3σ_within（σ=8.3439）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 60,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 41.67,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 8.343872,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "进水COD"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F004",
+      "severity": "high",
+      "category": "spc",
+      "title": "出水氨氮 检出 SPC 违规",
+      "detail": "共 19 个判异剧集命中（每百点 13.2 个，规则：NELSON_R1/NELSON_R2/NELSON_R3/NELSON_R5/NELSON_R6），控制限为中心值4.248±3σ_within（σ=0.116）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 19,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 13.19,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 0.116005,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "出水氨氮"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F005",
+      "severity": "high",
+      "category": "drift",
+      "title": "溶解氧DO 存在显著漂移",
+      "detail": "Theil–Sen 斜率显著（Mann–Kendall p=0.0，且相对漂移≥0.1%/天才计入），相对漂移约 5.223%/天，方向对应斜率 -0/秒。",
+      "evidence": [
+        {
+          "metric": "mk_p",
+          "value": 0.0,
+          "source": "lstcore",
+          "threshold": "<0.01 且 >=0.1%/天"
+        },
+        {
+          "metric": "per_day_relative",
+          "value": 0.052232,
+          "source": "lstcore",
+          "threshold": "<0.001 ok; >=0.01 high"
+        },
+        {
+          "metric": "slope_per_second",
+          "value": -2e-06,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "溶解氧DO"
+      ],
+      "confidence": 80
+    },
+    {
+      "finding_id": "F006",
+      "severity": "high",
+      "category": "drift",
+      "title": "鼓风机频率 存在显著漂移",
+      "detail": "Theil–Sen 斜率显著（Mann–Kendall p=0.0，且相对漂移≥0.1%/天才计入），相对漂移约 2.388%/天，方向对应斜率 0/秒。",
+      "evidence": [
+        {
+          "metric": "mk_p",
+          "value": 0.0,
+          "source": "lstcore",
+          "threshold": "<0.01 且 >=0.1%/天"
+        },
+        {
+          "metric": "per_day_relative",
+          "value": 0.023883,
+          "source": "lstcore",
+          "threshold": "<0.001 ok; >=0.01 high"
+        },
+        {
+          "metric": "slope_per_second",
+          "value": 1.2e-05,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "鼓风机频率"
+      ],
+      "confidence": 80
+    },
+    {
+      "finding_id": "F007",
+      "severity": "high",
+      "category": "drift",
+      "title": "出水氨氮 存在显著漂移",
+      "detail": "Theil–Sen 斜率显著（Mann–Kendall p=0.0，且相对漂移≥0.1%/天才计入），相对漂移约 2.652%/天，方向对应斜率 0/秒。",
+      "evidence": [
+        {
+          "metric": "mk_p",
+          "value": 0.0,
+          "source": "lstcore",
+          "threshold": "<0.01 且 >=0.1%/天"
+        },
+        {
+          "metric": "per_day_relative",
+          "value": 0.026524,
+          "source": "lstcore",
+          "threshold": "<0.001 ok; >=0.01 high"
+        },
+        {
+          "metric": "slope_per_second",
+          "value": 1e-06,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "出水氨氮"
+      ],
+      "confidence": 80
+    },
+    {
+      "finding_id": "F008",
+      "severity": "warn",
+      "category": "spc",
+      "title": "MLSS浓度 检出 SPC 违规",
+      "detail": "共 2 个判异剧集命中（每百点 1.4 个，规则：NELSON_R1），控制限为中心值3.791±3σ_within（σ=0.1176）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 2,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 1.39,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 0.117592,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "MLSS浓度"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F009",
+      "severity": "warn",
+      "category": "regime",
+      "title": "工况发生结构性切换（3 个显著变点）",
+      "detail": "sentinel C3 工况分段在本时段检出 3 个显著变点（首个位于第 58 行附近）；全时段评分可能混合不同工况，请结合下方工况分段表分段解读。",
+      "evidence": [
+        {
+          "metric": "change_points",
+          "value": 3,
+          "source": "lstcore",
+          "threshold": "0",
+          "derived": true
+        },
+        {
+          "metric": "segmentation_method",
+          "value": "fast",
+          "source": "sentinel regime_map"
+        }
+      ],
+      "affected": [],
+      "confidence": 70
+    },
+    {
+      "finding_id": "F010",
+      "severity": "info",
+      "category": "driver",
+      "title": "强相关对：溶解氧DO ↔ 鼓风机频率 [MECHANISM_UNKNOWN]",
+      "detail": "滞后补偿后最强 |Spearman|=0.9523（溶解氧DO 领先 3 行）；零滞后 Pearson=-0.9411。本体未提供物理机制支持——仅是统计共变，不可作因果线索使用。置信度 45（统计证据充分度 × 机制支持度）。",
+      "evidence": [
+        {
+          "metric": "best_abs_r",
+          "value": 0.95234,
+          "source": "lstcore",
+          "threshold": ">=0.7",
+          "derived": true
+        },
+        {
+          "metric": "best_lag_rows",
+          "value": 3,
+          "source": "lstcore"
+        },
+        {
+          "metric": "mechanism_level",
+          "value": "unknown",
+          "source": "ontology"
+        }
+      ],
+      "affected": [
+        "溶解氧DO",
+        "鼓风机频率"
+      ],
+      "confidence": 45,
+      "mechanism": {
+        "level": "unknown",
+        "mechanism": null,
+        "governing_equation": null
+      }
+    }
+  ],
+  "conclusion": {
+    "score": 55.0,
+    "grade": "C",
+    "grade_key": "fluctuating",
+    "label": "波动",
+    "statement": "该系统在本时段总体运行波动（55.0 分，C 级）：评估 5 个参数，检出 127 个 SPC 违规剧集、3 项显著漂移；工况分段检出 3 个显著变点；最需关注：溶解氧DO、鼓风机频率、进水COD。",
+    "n_parameters_assessed": 5,
+    "n_findings": 10,
+    "findings_by_severity": {
+      "info": 1,
+      "warn": 2,
+      "high": 7,
+      "critical": 0
+    }
+  }
+}

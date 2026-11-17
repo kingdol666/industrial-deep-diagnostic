@@ -9,7 +9,7 @@ import { createServer } from 'net';
 import { EventEmitter } from 'events';
 import { config, PROJECT_ROOT } from '../../../../config/loader.mjs';
 import logger from '../utils/logger.mjs';
-import { resolveCliBinary, spawnResolvedCli, killTree } from './cli-common.mjs';
+import { resolveCliBinary, spawnResolvedCli, killTree, withTimeout, resolveEngineTimeoutMinutes } from './cli-common.mjs';
 import {
   resolveAnalysisTarget, buildRuntimeProtocol,
   buildPrompt as buildDataPrompt,
@@ -279,7 +279,7 @@ async function startOpenCodeRun({ turnKey, prompt, emit, result, state }) {
   }
 }
 
-function createOpenCodeQuery({ turnKey, prompt }) {
+function createOpenCodeQuery({ turnKey, prompt, timeoutMinutes = 0 }) {
   const queue = [];
   let wake = null;
   let closed = false;
@@ -296,6 +296,7 @@ function createOpenCodeQuery({ turnKey, prompt }) {
   };
   const end = () => { closed = true; if (wake) { wake(); wake = null; } };
   const result = (subtype, stopReason) => {
+    timeoutGuard.cancel();
     push({
       type: 'result',
       subtype,
@@ -313,6 +314,24 @@ function createOpenCodeQuery({ turnKey, prompt }) {
     }, 250);
   };
 
+  // Per-turn timeout — the resident serve process + SSE stream can stall
+  // silently (no session.idle, no session.error) and would otherwise hang the
+  // run forever. state.proc may not exist yet (spawned after the free-port
+  // probe), so the current handle is killed inside the handler.
+  const timeoutGuard = withTimeout({
+    minutes: resolveEngineTimeoutMinutes('opencode', timeoutMinutes),
+    label: 'opencode',
+    context: 'OpenCode',
+    turnKey,
+    onTimeout: () => {
+      if (state.finished) return;
+      state.finished = true;
+      try { state.sseAbort?.abort(); } catch { /* ignore */ }
+      result('error_during_execution', 'opencode_timeout');
+      killTree(state.proc);
+    },
+  });
+
   startOpenCodeRun({ turnKey, prompt, emit: push, result, state }).catch((e) => {
     logger.error(`[opencode] run failed: ${e.message}`, { context: 'OpenCode', turnKey });
     state.finished = true;
@@ -323,6 +342,7 @@ function createOpenCodeQuery({ turnKey, prompt }) {
     engine: 'opencode',
     sessionId: `opencode:run:${turnKey || Date.now()}`,
     close() {
+      timeoutGuard.cancel();
       try { state.sseAbort?.abort(); } catch { /* ignore */ }
       killTree(state.proc);
       closed = true;
@@ -370,11 +390,11 @@ export function startDiagnosis({
   reportLanguage, followUpMessage, sessionId = null,
   ontology = null, enhancement = null,
 }) {
-  void maxTurns; void timeoutMinutes; void sessionId;
+  void maxTurns; void sessionId;
   const built = buildOpenCodePrompt({
     analysisTarget, userQuestion, sceneName, reportLanguage, followUpMessage, ontology, enhancement,
   });
-  const query = createOpenCodeQuery({ turnKey: runId, prompt: built.prompt });
+  const query = createOpenCodeQuery({ turnKey: runId, prompt: built.prompt, timeoutMinutes });
   activeQueries.set(runId, query);
   return { query, dataPaths: built.dataPaths, prompt: built.prompt, getSessionId: () => query.sessionId, runId, isResume: false };
 }

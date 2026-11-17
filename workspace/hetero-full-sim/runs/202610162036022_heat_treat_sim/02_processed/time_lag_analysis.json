@@ -1,0 +1,25 @@
+{
+  "run_id": "lag_1792184031281",
+  "generated_at": "2026-10-16T20:53:51.281Z",
+  "sampling_interval_seconds": null,
+  "interval_source": null,
+  "lag_axis": "process_grid",
+  "step_interval_seconds": null,
+  "unit_conversion_available": false,
+  "unit_semantics": {
+    "note": "Step interval unknown for the 'process_grid' axis — all seconds fields are null and physics lag comparisons abstain (agreement='unknown_interval'). Do NOT narrate step counts as time durations.",
+    "downstream_rule": "Reports/diagnoses may convert steps to durations ONLY via step_interval_seconds recorded here. When unit_conversion_available=false, any step→time narrative is a unit error."
+  },
+  "max_lag_steps": 30,
+  "max_lag_seconds": null,
+  "pair_analyses": [],
+  "summary": {
+    "total_pairs": 0,
+    "significant_lags_found": 0,
+    "physics_consistent": 0,
+    "physics_discrepancy": 0,
+    "no_physics_prior": 0
+  },
+  "recommendations": [],
+  "physics_discrepancy_alerts": []
+}

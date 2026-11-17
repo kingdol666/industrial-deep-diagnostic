@@ -21,12 +21,17 @@ Cases (all fixture data generated here with FIXED seeds — no random draws):
 AC definitions live in tests/AC.md.
 
 All fixture/step writes use pandas/pathlib (no raw open() in this skill).
+Fixtures are written to a per-run scratch dir under the gitignored repo-level
+`tmp/` (the skill's repo-root containment guard accepts it), seeded from the
+committed `tests/fixtures/` copy (read-only seed), so a battery run never
+mutates the tracked tree.
 """
 
 import json
 import shutil
 import subprocess
 import sys
+import tempfile
 import time
 from pathlib import Path
 
@@ -38,7 +43,18 @@ SKILL = HERE.parent
 SCRIPTS = SKILL / "scripts"
 REPO = SKILL.parents[2]
 SHARED = REPO / ".claude" / "shared"
-FIXTURES = (HERE / "fixtures").resolve()
+# Per-run scratch dir: created under the gitignored repo-level tmp/ (the
+# skill's containment guard whitelists paths under REPO_ROOT only, so system
+# temp is rejected), seeded once from the committed fixtures (so a standalone
+# `tamper` run still sees the committed F1 output). Every case writes only
+# into this copy — nothing under tests/fixtures/ is ever written again.
+COMMITTED_FIXTURES = HERE / "fixtures"
+SCRATCH_ROOT = REPO / "tmp"
+SCRATCH_ROOT.mkdir(parents=True, exist_ok=True)
+FIXTURES = Path(tempfile.mkdtemp(prefix="sentinel_tests_fixtures_",
+                                 dir=str(SCRATCH_ROOT))).resolve()
+if COMMITTED_FIXTURES.is_dir():
+    shutil.copytree(COMMITTED_FIXTURES, FIXTURES, dirs_exist_ok=True)
 
 SENTINEL = SCRIPTS / "sentinel.py"
 SENTINEL_FAST = SCRIPTS / "sentinel_fast.py"
@@ -815,7 +831,9 @@ CASES = {
 
 def main(argv):
     which = argv[1] if len(argv) > 1 else "all"
+    keep = "--keep" in argv
     t0 = time.time()
+    print(f"[fixtures] per-run temp fixture dir: {FIXTURES}")
     if which == "all":
         for name, fn in CASES.items():
             try:
@@ -833,6 +851,10 @@ def main(argv):
     print(f"[RESULT] {len(RESULTS) - len(failed)}/{len(RESULTS)} checks passed"
           f" in {time.time() - t0:.1f}s"
           + (f" — FAILED: {', '.join(failed)}" if failed else " — ALL GREEN"))
+    if failed or keep:
+        print(f"[fixtures] temp fixtures kept for inspection: {FIXTURES}")
+    else:
+        shutil.rmtree(FIXTURES, ignore_errors=True)
     return 1 if failed else 0
 
 

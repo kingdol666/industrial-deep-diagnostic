@@ -1,0 +1,124 @@
+{
+  "total_rows": 3024,
+  "total_columns": 62,
+  "missing_values": {
+    "total_missing": 0
+  },
+  "outliers_iqr": {
+    "L5-SL-VSC01": {
+      "count": 24,
+      "pct": 0.79
+    },
+    "L5-CT-GAP-L01": {
+      "count": 25,
+      "pct": 0.83
+    },
+    "L5-CT-PMP-SP01": {
+      "count": 29,
+      "pct": 0.96
+    },
+    "L5-OV-Z1-TE01": {
+      "count": 19,
+      "pct": 0.63
+    },
+    "L5-OV-Z2-TE01": {
+      "count": 30,
+      "pct": 0.99
+    },
+    "L5-OV-Z3-TE01": {
+      "count": 24,
+      "pct": 0.79
+    },
+    "L5-CAL-P01": {
+      "count": 25,
+      "pct": 0.83
+    },
+    "L5-CAL-TE01": {
+      "count": 13,
+      "pct": 0.43
+    },
+    "L5-WD-TN01": {
+      "count": 40,
+      "pct": 1.32
+    },
+    "L5-LN-SPD01": {
+      "count": 33,
+      "pct": 1.09
+    },
+    "L5-GA-AD-AVG01": {
+      "count": 25,
+      "pct": 0.83
+    },
+    "L5-GA-AD-CV01": {
+      "count": 15,
+      "pct": 0.5
+    },
+    "L5-GA-EDGE-R01": {
+      "count": 10,
+      "pct": 0.33
+    },
+    "L5-GA-EDGE-L01": {
+      "count": 18,
+      "pct": 0.6
+    },
+    "L5-LINE-MODE01": {
+      "count": 12,
+      "pct": 0.4
+    },
+    "HX-PROF-L5ADSCAN30MIN-MAX": {
+      "count": 24,
+      "pct": 0.79
+    },
+    "HX-PROF-L5ADSCAN30MIN-P50": {
+      "count": 18,
+      "pct": 0.6
+    },
+    "HX-PROF-L5ADSCAN30MIN-P95": {
+      "count": 33,
+      "pct": 1.09
+    },
+    "HX-PROF-L5ADSCAN30MIN-IQR": {
+      "count": 15,
+      "pct": 0.5
+    },
+    "HX-PROF-L5ADSCAN30MIN-MAD": {
+      "count": 18,
+      "pct": 0.6
+    },
+    "HX-PROF-L5ADSCAN30MIN-ZONE-1-3-MEAN": {
+      "count": 27,
+      "pct": 0.89
+    },
+    "HX-MAP-L5CALENDERMAP2H-HOTAREA-P90": {
+      "count": 240,
+      "pct": 7.94
+    },
+    "HX-MAP-L5CALENDERMAP2H-COLDAREA-P10": {
+      "count": 48,
+      "pct": 1.59
+    },
+    "HX-MAP-L5CALENDERMAP2H-POSMAX-X": {
+      "count": 132,
+      "pct": 4.37
+    },
+    "HX-TXT-L5OPERATORNOTES-EVT-CLEANING": {
+      "count": 6,
+      "pct": 0.2
+    },
+    "HX-TXT-L5OPERATORNOTES-EVT-STOP": {
+      "count": 6,
+      "pct": 0.2
+    }
+  },
+  "time_sorted": true,
+  "sorted_strategy": "original_row_order_no_time_column",
+  "time_column": null,
+  "primary_group_column": null,
+  "derived_features": [
+    "L5-SL-VSC01_dev",
+    "L5-ENV-TE01_dev",
+    "L5-GA-AD-CV01_dev",
+    "L5-GA-EDGE-R01_dev",
+    "L5-GA-EDGE-L01_dev"
+  ]
+}

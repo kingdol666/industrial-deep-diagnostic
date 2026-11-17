@@ -1,0 +1,2988 @@
+{
+  "contract_version": "line-stability-report/1.0",
+  "report_id": "LSR-1791947159-u6vsv4",
+  "generated_at": "2026-10-14T03:05:59Z",
+  "status": "ok",
+  "line": {
+    "line_id": "bopet_demo",
+    "product": "BOPET薄膜"
+  },
+  "period": {
+    "start": "2026-10-01 00:00:00",
+    "end": "2026-10-10 23:00:00",
+    "requested": {
+      "start": "2026-10-01T00:00:00",
+      "end": "2026-10-10T23:00:00"
+    }
+  },
+  "data": {
+    "path": "workspace/line-stability-runs/20261014110439_bopet_demo/00_input/bopet_demo_actual.csv",
+    "sha256": "sha256:be49221b8ac3b1856accf02f9bd2354ba8beb347dea9f1c726c85f3dbdd2c04d",
+    "time_col": "时间",
+    "group_col": null,
+    "group_used": null,
+    "parameter_cols": [
+      "薄膜厚度",
+      "优品率",
+      "主挤计量段温度",
+      "熔体压力",
+      "模头温度",
+      "铸片辊温度",
+      "铸片辊线速",
+      "纵拉预热辊温",
+      "纵拉拉伸速度",
+      "TDO拉伸区温度CX4",
+      "TDO定型区温度CX6",
+      "TDO出口轨宽",
+      "TDO风机频率CX4",
+      "牵引入口张力"
+    ],
+    "inspection_cols": [
+      "薄膜厚度",
+      "优品率"
+    ],
+    "ignored_cols": [],
+    "sampled": false,
+    "stride": 1,
+    "n_rows_raw": 240,
+    "n_rows_used": 240,
+    "time_span_seconds": 860400,
+    "sampling_interval_median_seconds": 3600,
+    "missing_rate": 0,
+    "coverage_ratio": 1,
+    "time_invariant_channels": {
+      "count": 0,
+      "total": 14,
+      "share": 0,
+      "examples": []
+    },
+    "preprocessing": {
+      "source_export": "data/bopet_demo/bopet_demo_actual.csv",
+      "companion_files": [
+        "bopet_demo_setpoint.csv (同期设定值表，13 参数)",
+        "generation_manifest.json (数据集生成清单，seed=42)"
+      ],
+      "note": "演示数据集：由 generate_bopet_demo.py 以固定种子生成，工艺窗口取自乐凯 FW3 快照典型运行值；本报告按普通产线数据流程评估，生成脚本不参与评分"
+    }
+  },
+  "condition": {
+    "ontology": {
+      "mode": "auto",
+      "path": null,
+      "source": null,
+      "reason": "no ontology artifact found (auto mode)"
+    },
+    "scene": null,
+    "columns": {
+      "主挤计量段温度": {
+        "assigned_by": "auto",
+        "label": "主挤计量段温度",
+        "unit": null,
+        "role": "parameter",
+        "spec": null,
+        "normal_range": null,
+        "stage": null,
+        "equipment": null,
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null
+      },
+      "熔体压力": {
+        "assigned_by": "auto",
+        "label": "熔体压力",
+        "unit": null,
+        "role": "parameter",
+        "spec": null,
+        "normal_range": null,
+        "stage": null,
+        "equipment": null,
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null
+      },
+      "模头温度": {
+        "assigned_by": "auto",
+        "label": "模头温度",
+        "unit": null,
+        "role": "parameter",
+        "spec": null,
+        "normal_range": null,
+        "stage": null,
+        "equipment": null,
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null
+      },
+      "铸片辊温度": {
+        "assigned_by": "auto",
+        "label": "铸片辊温度",
+        "unit": null,
+        "role": "parameter",
+        "spec": null,
+        "normal_range": null,
+        "stage": null,
+        "equipment": null,
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null
+      },
+      "铸片辊线速": {
+        "assigned_by": "auto",
+        "label": "铸片辊线速",
+        "unit": null,
+        "role": "parameter",
+        "spec": null,
+        "normal_range": null,
+        "stage": null,
+        "equipment": null,
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null
+      },
+      "纵拉预热辊温": {
+        "assigned_by": "auto",
+        "label": "纵拉预热辊温",
+        "unit": null,
+        "role": "parameter",
+        "spec": null,
+        "normal_range": null,
+        "stage": null,
+        "equipment": null,
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null
+      },
+      "纵拉拉伸速度": {
+        "assigned_by": "auto",
+        "label": "纵拉拉伸速度",
+        "unit": null,
+        "role": "parameter",
+        "spec": null,
+        "normal_range": null,
+        "stage": null,
+        "equipment": null,
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null
+      },
+      "TDO拉伸区温度CX4": {
+        "assigned_by": "auto",
+        "label": "TDO拉伸区温度CX4",
+        "unit": null,
+        "role": "parameter",
+        "spec": null,
+        "normal_range": null,
+        "stage": null,
+        "equipment": null,
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null
+      },
+      "TDO定型区温度CX6": {
+        "assigned_by": "auto",
+        "label": "TDO定型区温度CX6",
+        "unit": null,
+        "role": "parameter",
+        "spec": null,
+        "normal_range": null,
+        "stage": null,
+        "equipment": null,
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null
+      },
+      "TDO出口轨宽": {
+        "assigned_by": "auto",
+        "label": "TDO出口轨宽",
+        "unit": null,
+        "role": "parameter",
+        "spec": null,
+        "normal_range": null,
+        "stage": null,
+        "equipment": null,
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null
+      },
+      "TDO风机频率CX4": {
+        "assigned_by": "auto",
+        "label": "TDO风机频率CX4",
+        "unit": null,
+        "role": "parameter",
+        "spec": null,
+        "normal_range": null,
+        "stage": null,
+        "equipment": null,
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null
+      },
+      "牵引入口张力": {
+        "assigned_by": "auto",
+        "label": "牵引入口张力",
+        "unit": null,
+        "role": "parameter",
+        "spec": null,
+        "normal_range": null,
+        "stage": null,
+        "equipment": null,
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null
+      },
+      "薄膜厚度": {
+        "assigned_by": "user",
+        "label": "薄膜厚度",
+        "unit": null,
+        "role": "inspection",
+        "spec": null,
+        "normal_range": null,
+        "stage": null,
+        "equipment": null,
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null
+      },
+      "优品率": {
+        "assigned_by": "user",
+        "label": "优品率",
+        "unit": null,
+        "role": "inspection",
+        "spec": null,
+        "normal_range": null,
+        "stage": null,
+        "equipment": null,
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null
+      }
+    },
+    "relationships": [],
+    "regimes": {
+      "available": true,
+      "method": "fast",
+      "change_points": [],
+      "regimes": [
+        {
+          "start": 0,
+          "end": 239,
+          "label": "steady",
+          "n_rows": 240
+        }
+      ],
+      "abnormal_ratio": 0
+    }
+  },
+  "parameters": [
+    {
+      "name": "薄膜厚度",
+      "role": "inspection",
+      "condition": {
+        "label": "薄膜厚度",
+        "unit": null,
+        "assigned_by": "user",
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null,
+        "stage": null,
+        "equipment": null
+      },
+      "n": 240,
+      "row_range": [
+        0,
+        239
+      ],
+      "data_source": "raw",
+      "mu": 11.765608,
+      "median": 11.960197,
+      "sigma": 0.284326,
+      "sigma_within_mr": 0.028267,
+      "cv": 0.024115,
+      "min": 11.332649,
+      "max": 12.090992,
+      "spec": {
+        "lsl": null,
+        "usl": null,
+        "target": null,
+        "source": null
+      },
+      "capability": {
+        "cp": null,
+        "cpk": null,
+        "pp": null,
+        "ppk": null
+      },
+      "nelson": {
+        "NELSON_R2": {
+          "n_episodes": 6,
+          "indices": [
+            8,
+            48,
+            88,
+            131,
+            143,
+            152
+          ]
+        },
+        "NELSON_R1": {
+          "n_episodes": 8,
+          "indices": [
+            21,
+            28,
+            50,
+            56,
+            75,
+            98,
+            140,
+            239
+          ]
+        },
+        "NELSON_R5": {
+          "n_episodes": 11,
+          "indices": [
+            23,
+            30,
+            45,
+            52,
+            60,
+            76,
+            85,
+            99,
+            128,
+            141,
+            239
+          ]
+        },
+        "NELSON_R6": {
+          "n_episodes": 8,
+          "indices": [
+            36,
+            46,
+            60,
+            88,
+            98,
+            128,
+            140,
+            239
+          ]
+        },
+        "NELSON_R3": {
+          "n_episodes": 2,
+          "indices": [
+            42,
+            233
+          ]
+        }
+      },
+      "n_violation_points": 35,
+      "drift": {
+        "slope_per_second": -0.000001,
+        "per_day_relative": 0.005865,
+        "mk_p": 0,
+        "significant": true
+      },
+      "baseline_ref": null,
+      "score": 67,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -12,
+        "cv_penalty": -6,
+        "capability_penalty": 0,
+        "drift_penalty": -15,
+        "baseline_penalty": 0,
+        "total": 67
+      }
+    },
+    {
+      "name": "优品率",
+      "role": "inspection",
+      "condition": {
+        "label": "优品率",
+        "unit": null,
+        "assigned_by": "user",
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null,
+        "stage": null,
+        "equipment": null
+      },
+      "n": 240,
+      "row_range": [
+        0,
+        239
+      ],
+      "data_source": "raw",
+      "mu": 97.730285,
+      "median": 98.446334,
+      "sigma": 1.101996,
+      "sigma_within_mr": 0.148618,
+      "cv": 0.011252,
+      "min": 95.402032,
+      "max": 98.937734,
+      "spec": {
+        "lsl": null,
+        "usl": null,
+        "target": null,
+        "source": null
+      },
+      "capability": {
+        "cp": null,
+        "cpk": null,
+        "pp": null,
+        "ppk": null
+      },
+      "nelson": {
+        "NELSON_R2": {
+          "n_episodes": 6,
+          "indices": [
+            21,
+            60,
+            79,
+            99,
+            125,
+            151
+          ]
+        },
+        "NELSON_R6": {
+          "n_episodes": 7,
+          "indices": [
+            50,
+            71,
+            84,
+            96,
+            109,
+            129,
+            239
+          ]
+        },
+        "NELSON_R1": {
+          "n_episodes": 2,
+          "indices": [
+            64,
+            239
+          ]
+        },
+        "NELSON_R5": {
+          "n_episodes": 4,
+          "indices": [
+            81,
+            94,
+            108,
+            239
+          ]
+        },
+        "NELSON_R3": {
+          "n_episodes": 2,
+          "indices": [
+            130,
+            214
+          ]
+        }
+      },
+      "n_violation_points": 21,
+      "drift": {
+        "slope_per_second": -0.000003,
+        "per_day_relative": 0.002968,
+        "mk_p": 0,
+        "significant": true
+      },
+      "baseline_ref": null,
+      "score": 81,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -7,
+        "cv_penalty": -6,
+        "capability_penalty": 0,
+        "drift_penalty": -6,
+        "baseline_penalty": 0,
+        "total": 81
+      }
+    },
+    {
+      "name": "主挤计量段温度",
+      "role": "parameter",
+      "condition": {
+        "label": "主挤计量段温度",
+        "unit": null,
+        "assigned_by": "auto",
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null,
+        "stage": null,
+        "equipment": null
+      },
+      "n": 240,
+      "row_range": [
+        0,
+        239
+      ],
+      "data_source": "raw",
+      "mu": 282.007479,
+      "median": 282.001646,
+      "sigma": 0.155254,
+      "sigma_within_mr": 0.094634,
+      "cv": 0.000549,
+      "min": 281.517887,
+      "max": 282.417198,
+      "spec": {
+        "lsl": null,
+        "usl": null,
+        "target": null,
+        "source": null
+      },
+      "capability": {
+        "cp": null,
+        "cpk": null,
+        "pp": null,
+        "ppk": null
+      },
+      "nelson": {
+        "NELSON_R1": {
+          "n_episodes": 13,
+          "indices": [
+            3,
+            8,
+            34,
+            70,
+            72,
+            84,
+            135,
+            145,
+            150,
+            172,
+            213,
+            224,
+            239
+          ]
+        },
+        "NELSON_R5": {
+          "n_episodes": 14,
+          "indices": [
+            4,
+            36,
+            75,
+            86,
+            97,
+            137,
+            146,
+            152,
+            173,
+            179,
+            185,
+            199,
+            216,
+            227
+          ]
+        },
+        "NELSON_R6": {
+          "n_episodes": 11,
+          "indices": [
+            6,
+            76,
+            86,
+            118,
+            138,
+            147,
+            153,
+            175,
+            181,
+            217,
+            227
+          ]
+        },
+        "NELSON_R3": {
+          "n_episodes": 8,
+          "indices": [
+            70,
+            77,
+            89,
+            119,
+            176,
+            184,
+            202,
+            228
+          ]
+        },
+        "NELSON_R2": {
+          "n_episodes": 4,
+          "indices": [
+            75,
+            117,
+            198,
+            216
+          ]
+        }
+      },
+      "n_violation_points": 50,
+      "drift": {
+        "slope_per_second": 0,
+        "per_day_relative": 0.000008,
+        "mk_p": 0.482039,
+        "significant": false
+      },
+      "baseline_ref": null,
+      "score": 83,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -17,
+        "cv_penalty": 0,
+        "capability_penalty": 0,
+        "drift_penalty": 0,
+        "baseline_penalty": 0,
+        "total": 83
+      }
+    },
+    {
+      "name": "熔体压力",
+      "role": "parameter",
+      "condition": {
+        "label": "熔体压力",
+        "unit": null,
+        "assigned_by": "auto",
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null,
+        "stage": null,
+        "equipment": null
+      },
+      "n": 240,
+      "row_range": [
+        0,
+        239
+      ],
+      "data_source": "raw",
+      "mu": 110.035407,
+      "median": 109.956203,
+      "sigma": 1.178401,
+      "sigma_within_mr": 0.574167,
+      "cv": 0.010687,
+      "min": 107.200133,
+      "max": 115.507953,
+      "spec": {
+        "lsl": null,
+        "usl": null,
+        "target": null,
+        "source": null
+      },
+      "capability": {
+        "cp": null,
+        "cpk": null,
+        "pp": null,
+        "ppk": null
+      },
+      "nelson": {
+        "NELSON_R6": {
+          "n_episodes": 12,
+          "indices": [
+            5,
+            21,
+            51,
+            67,
+            76,
+            81,
+            105,
+            166,
+            176,
+            193,
+            210,
+            220
+          ]
+        },
+        "NELSON_R1": {
+          "n_episodes": 13,
+          "indices": [
+            19,
+            25,
+            61,
+            73,
+            151,
+            163,
+            174,
+            184,
+            186,
+            189,
+            196,
+            202,
+            218
+          ]
+        },
+        "NELSON_R5": {
+          "n_episodes": 14,
+          "indices": [
+            20,
+            26,
+            46,
+            63,
+            75,
+            80,
+            104,
+            153,
+            164,
+            175,
+            185,
+            187,
+            203,
+            220
+          ]
+        },
+        "NELSON_R3": {
+          "n_episodes": 4,
+          "indices": [
+            35,
+            65,
+            78,
+            162
+          ]
+        },
+        "NELSON_R2": {
+          "n_episodes": 7,
+          "indices": [
+            50,
+            66,
+            136,
+            178,
+            193,
+            203,
+            221
+          ]
+        }
+      },
+      "n_violation_points": 50,
+      "drift": {
+        "slope_per_second": 0,
+        "per_day_relative": 0.000163,
+        "mk_p": 0.434299,
+        "significant": false
+      },
+      "baseline_ref": null,
+      "score": 77,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -17,
+        "cv_penalty": -6,
+        "capability_penalty": 0,
+        "drift_penalty": 0,
+        "baseline_penalty": 0,
+        "total": 77
+      }
+    },
+    {
+      "name": "模头温度",
+      "role": "parameter",
+      "condition": {
+        "label": "模头温度",
+        "unit": null,
+        "assigned_by": "auto",
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null,
+        "stage": null,
+        "equipment": null
+      },
+      "n": 240,
+      "row_range": [
+        0,
+        239
+      ],
+      "data_source": "raw",
+      "mu": 284.996221,
+      "median": 284.981032,
+      "sigma": 0.210064,
+      "sigma_within_mr": 0.119149,
+      "cv": 0.000736,
+      "min": 284.350543,
+      "max": 285.565825,
+      "spec": {
+        "lsl": null,
+        "usl": null,
+        "target": null,
+        "source": null
+      },
+      "capability": {
+        "cp": null,
+        "cpk": null,
+        "pp": null,
+        "ppk": null
+      },
+      "nelson": {
+        "NELSON_R5": {
+          "n_episodes": 15,
+          "indices": [
+            5,
+            28,
+            36,
+            44,
+            55,
+            64,
+            106,
+            124,
+            129,
+            157,
+            173,
+            199,
+            216,
+            225,
+            232
+          ]
+        },
+        "NELSON_R1": {
+          "n_episodes": 15,
+          "indices": [
+            19,
+            35,
+            51,
+            53,
+            104,
+            120,
+            122,
+            127,
+            155,
+            170,
+            196,
+            198,
+            213,
+            227,
+            230
+          ]
+        },
+        "NELSON_R2": {
+          "n_episodes": 5,
+          "indices": [
+            41,
+            95,
+            125,
+            213,
+            226
+          ]
+        },
+        "NELSON_R6": {
+          "n_episodes": 12,
+          "indices": [
+            45,
+            56,
+            66,
+            107,
+            130,
+            148,
+            158,
+            174,
+            199,
+            216,
+            225,
+            234
+          ]
+        },
+        "NELSON_R3": {
+          "n_episodes": 3,
+          "indices": [
+            68,
+            160,
+            174
+          ]
+        }
+      },
+      "n_violation_points": 50,
+      "drift": {
+        "slope_per_second": 0,
+        "per_day_relative": 0.000014,
+        "mk_p": 0.412867,
+        "significant": false
+      },
+      "baseline_ref": null,
+      "score": 83,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -17,
+        "cv_penalty": 0,
+        "capability_penalty": 0,
+        "drift_penalty": 0,
+        "baseline_penalty": 0,
+        "total": 83
+      }
+    },
+    {
+      "name": "铸片辊温度",
+      "role": "parameter",
+      "condition": {
+        "label": "铸片辊温度",
+        "unit": null,
+        "assigned_by": "auto",
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null,
+        "stage": null,
+        "equipment": null
+      },
+      "n": 240,
+      "row_range": [
+        0,
+        239
+      ],
+      "data_source": "raw",
+      "mu": 26.489048,
+      "median": 26.49211,
+      "sigma": 0.115341,
+      "sigma_within_mr": 0.071285,
+      "cv": 0.004345,
+      "min": 26.216898,
+      "max": 26.920819,
+      "spec": {
+        "lsl": null,
+        "usl": null,
+        "target": null,
+        "source": null
+      },
+      "capability": {
+        "cp": null,
+        "cpk": null,
+        "pp": null,
+        "ppk": null
+      },
+      "nelson": {
+        "NELSON_R6": {
+          "n_episodes": 13,
+          "indices": [
+            9,
+            32,
+            52,
+            57,
+            101,
+            127,
+            142,
+            148,
+            155,
+            187,
+            193,
+            211,
+            239
+          ]
+        },
+        "NELSON_R5": {
+          "n_episodes": 12,
+          "indices": [
+            15,
+            73,
+            99,
+            127,
+            136,
+            141,
+            154,
+            162,
+            187,
+            210,
+            228,
+            239
+          ]
+        },
+        "NELSON_R1": {
+          "n_episodes": 9,
+          "indices": [
+            30,
+            97,
+            126,
+            140,
+            152,
+            185,
+            190,
+            227,
+            236
+          ]
+        },
+        "NELSON_R3": {
+          "n_episodes": 3,
+          "indices": [
+            30,
+            65,
+            95
+          ]
+        },
+        "NELSON_R2": {
+          "n_episodes": 5,
+          "indices": [
+            47,
+            100,
+            117,
+            136,
+            184
+          ]
+        }
+      },
+      "n_violation_points": 42,
+      "drift": {
+        "slope_per_second": 0,
+        "per_day_relative": 0.000086,
+        "mk_p": 0.356623,
+        "significant": false
+      },
+      "baseline_ref": null,
+      "score": 86,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -14,
+        "cv_penalty": 0,
+        "capability_penalty": 0,
+        "drift_penalty": 0,
+        "baseline_penalty": 0,
+        "total": 86
+      }
+    },
+    {
+      "name": "铸片辊线速",
+      "role": "parameter",
+      "condition": {
+        "label": "铸片辊线速",
+        "unit": null,
+        "assigned_by": "auto",
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null,
+        "stage": null,
+        "equipment": null
+      },
+      "n": 240,
+      "row_range": [
+        0,
+        239
+      ],
+      "data_source": "raw",
+      "mu": 16.40039,
+      "median": 16.401005,
+      "sigma": 0.010087,
+      "sigma_within_mr": 0.00579,
+      "cv": 0.000614,
+      "min": 16.376561,
+      "max": 16.428725,
+      "spec": {
+        "lsl": null,
+        "usl": null,
+        "target": null,
+        "source": null
+      },
+      "capability": {
+        "cp": null,
+        "cpk": null,
+        "pp": null,
+        "ppk": null
+      },
+      "nelson": {
+        "NELSON_R5": {
+          "n_episodes": 15,
+          "indices": [
+            7,
+            36,
+            56,
+            68,
+            115,
+            121,
+            128,
+            144,
+            173,
+            184,
+            191,
+            206,
+            217,
+            232,
+            236
+          ]
+        },
+        "NELSON_R6": {
+          "n_episodes": 15,
+          "indices": [
+            7,
+            39,
+            59,
+            69,
+            99,
+            116,
+            122,
+            132,
+            144,
+            173,
+            185,
+            193,
+            206,
+            218,
+            238
+          ]
+        },
+        "NELSON_R2": {
+          "n_episodes": 8,
+          "indices": [
+            10,
+            38,
+            92,
+            103,
+            124,
+            143,
+            196,
+            218
+          ]
+        },
+        "NELSON_R1": {
+          "n_episodes": 15,
+          "indices": [
+            33,
+            55,
+            66,
+            114,
+            117,
+            127,
+            140,
+            170,
+            183,
+            200,
+            205,
+            207,
+            211,
+            216,
+            235
+          ]
+        },
+        "NELSON_R3": {
+          "n_episodes": 2,
+          "indices": [
+            60,
+            127
+          ]
+        }
+      },
+      "n_violation_points": 55,
+      "drift": {
+        "slope_per_second": 0,
+        "per_day_relative": 0.000002,
+        "mk_p": 0.915441,
+        "significant": false
+      },
+      "baseline_ref": null,
+      "score": 82,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -18,
+        "cv_penalty": 0,
+        "capability_penalty": 0,
+        "drift_penalty": 0,
+        "baseline_penalty": 0,
+        "total": 82
+      }
+    },
+    {
+      "name": "纵拉预热辊温",
+      "role": "parameter",
+      "condition": {
+        "label": "纵拉预热辊温",
+        "unit": null,
+        "assigned_by": "auto",
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null,
+        "stage": null,
+        "equipment": null
+      },
+      "n": 240,
+      "row_range": [
+        0,
+        239
+      ],
+      "data_source": "raw",
+      "mu": 77.996678,
+      "median": 78.008279,
+      "sigma": 0.162552,
+      "sigma_within_mr": 0.099842,
+      "cv": 0.00208,
+      "min": 77.460937,
+      "max": 78.447797,
+      "spec": {
+        "lsl": null,
+        "usl": null,
+        "target": null,
+        "source": null
+      },
+      "capability": {
+        "cp": null,
+        "cpk": null,
+        "pp": null,
+        "ppk": null
+      },
+      "nelson": {
+        "NELSON_R3": {
+          "n_episodes": 6,
+          "indices": [
+            7,
+            15,
+            22,
+            40,
+            71,
+            159
+          ]
+        },
+        "NELSON_R1": {
+          "n_episodes": 9,
+          "indices": [
+            18,
+            71,
+            82,
+            101,
+            106,
+            108,
+            110,
+            138,
+            238
+          ]
+        },
+        "NELSON_R5": {
+          "n_episodes": 11,
+          "indices": [
+            19,
+            42,
+            49,
+            72,
+            101,
+            111,
+            132,
+            140,
+            181,
+            219,
+            239
+          ]
+        },
+        "NELSON_R2": {
+          "n_episodes": 7,
+          "indices": [
+            20,
+            45,
+            64,
+            112,
+            142,
+            221,
+            239
+          ]
+        },
+        "NELSON_R6": {
+          "n_episodes": 11,
+          "indices": [
+            20,
+            35,
+            62,
+            74,
+            103,
+            112,
+            131,
+            140,
+            187,
+            220,
+            239
+          ]
+        }
+      },
+      "n_violation_points": 44,
+      "drift": {
+        "slope_per_second": 0,
+        "per_day_relative": 0.000066,
+        "mk_p": 0.154985,
+        "significant": false
+      },
+      "baseline_ref": null,
+      "score": 85,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -15,
+        "cv_penalty": 0,
+        "capability_penalty": 0,
+        "drift_penalty": 0,
+        "baseline_penalty": 0,
+        "total": 85
+      }
+    },
+    {
+      "name": "纵拉拉伸速度",
+      "role": "parameter",
+      "condition": {
+        "label": "纵拉拉伸速度",
+        "unit": null,
+        "assigned_by": "auto",
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null,
+        "stage": null,
+        "equipment": null
+      },
+      "n": 240,
+      "row_range": [
+        0,
+        239
+      ],
+      "data_source": "raw",
+      "mu": 53.0955,
+      "median": 52.91583,
+      "sigma": 0.24758,
+      "sigma_within_mr": 0.016178,
+      "cv": 0.004653,
+      "min": 52.824098,
+      "max": 53.453806,
+      "spec": {
+        "lsl": null,
+        "usl": null,
+        "target": null,
+        "source": null
+      },
+      "capability": {
+        "cp": null,
+        "cpk": null,
+        "pp": null,
+        "ppk": null
+      },
+      "nelson": {
+        "NELSON_R5": {
+          "n_episodes": 13,
+          "indices": [
+            18,
+            31,
+            36,
+            62,
+            68,
+            77,
+            85,
+            99,
+            108,
+            117,
+            131,
+            138,
+            239
+          ]
+        },
+        "NELSON_R6": {
+          "n_episodes": 8,
+          "indices": [
+            20,
+            31,
+            38,
+            62,
+            85,
+            118,
+            139,
+            239
+          ]
+        },
+        "NELSON_R3": {
+          "n_episodes": 3,
+          "indices": [
+            29,
+            86,
+            156
+          ]
+        },
+        "NELSON_R1": {
+          "n_episodes": 11,
+          "indices": [
+            30,
+            33,
+            55,
+            74,
+            83,
+            116,
+            124,
+            126,
+            135,
+            138,
+            239
+          ]
+        },
+        "NELSON_R2": {
+          "n_episodes": 6,
+          "indices": [
+            33,
+            53,
+            81,
+            103,
+            113,
+            152
+          ]
+        }
+      },
+      "n_violation_points": 41,
+      "drift": {
+        "slope_per_second": 0.000001,
+        "per_day_relative": 0.001073,
+        "mk_p": 0,
+        "significant": true
+      },
+      "baseline_ref": null,
+      "score": 80,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -14,
+        "cv_penalty": 0,
+        "capability_penalty": 0,
+        "drift_penalty": -6,
+        "baseline_penalty": 0,
+        "total": 80
+      }
+    },
+    {
+      "name": "TDO拉伸区温度CX4",
+      "role": "parameter",
+      "condition": {
+        "label": "TDO拉伸区温度CX4",
+        "unit": null,
+        "assigned_by": "auto",
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null,
+        "stage": null,
+        "equipment": null
+      },
+      "n": 240,
+      "row_range": [
+        0,
+        239
+      ],
+      "data_source": "raw",
+      "mu": 240.483703,
+      "median": 240.253645,
+      "sigma": 0.605369,
+      "sigma_within_mr": 0.115029,
+      "cv": 0.002512,
+      "min": 239.623376,
+      "max": 241.784498,
+      "spec": {
+        "lsl": null,
+        "usl": null,
+        "target": null,
+        "source": null
+      },
+      "capability": {
+        "cp": null,
+        "cpk": null,
+        "pp": null,
+        "ppk": null
+      },
+      "nelson": {
+        "NELSON_R1": {
+          "n_episodes": 26,
+          "indices": [
+            2,
+            16,
+            18,
+            21,
+            24,
+            32,
+            37,
+            39,
+            42,
+            47,
+            54,
+            60,
+            63,
+            66,
+            73,
+            86,
+            88,
+            92,
+            98,
+            103,
+            138,
+            143,
+            151,
+            163,
+            166,
+            239
+          ]
+        },
+        "NELSON_R2": {
+          "n_episodes": 5,
+          "indices": [
+            8,
+            86,
+            98,
+            118,
+            141
+          ]
+        },
+        "NELSON_R5": {
+          "n_episodes": 9,
+          "indices": [
+            25,
+            43,
+            61,
+            74,
+            89,
+            99,
+            105,
+            116,
+            239
+          ]
+        },
+        "NELSON_R6": {
+          "n_episodes": 5,
+          "indices": [
+            43,
+            76,
+            92,
+            120,
+            239
+          ]
+        },
+        "NELSON_R3": {
+          "n_episodes": 2,
+          "indices": [
+            82,
+            195
+          ]
+        }
+      },
+      "n_violation_points": 47,
+      "drift": {
+        "slope_per_second": 0.000002,
+        "per_day_relative": 0.000811,
+        "mk_p": 0,
+        "significant": false
+      },
+      "baseline_ref": null,
+      "score": 84,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -16,
+        "cv_penalty": 0,
+        "capability_penalty": 0,
+        "drift_penalty": 0,
+        "baseline_penalty": 0,
+        "total": 84
+      }
+    },
+    {
+      "name": "TDO定型区温度CX6",
+      "role": "parameter",
+      "condition": {
+        "label": "TDO定型区温度CX6",
+        "unit": null,
+        "assigned_by": "auto",
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null,
+        "stage": null,
+        "equipment": null
+      },
+      "n": 240,
+      "row_range": [
+        0,
+        239
+      ],
+      "data_source": "raw",
+      "mu": 190.983157,
+      "median": 191.000127,
+      "sigma": 0.175728,
+      "sigma_within_mr": 0.109961,
+      "cv": 0.000918,
+      "min": 190.496809,
+      "max": 191.473418,
+      "spec": {
+        "lsl": null,
+        "usl": null,
+        "target": null,
+        "source": null
+      },
+      "capability": {
+        "cp": null,
+        "cpk": null,
+        "pp": null,
+        "ppk": null
+      },
+      "nelson": {
+        "NELSON_R6": {
+          "n_episodes": 13,
+          "indices": [
+            14,
+            29,
+            45,
+            71,
+            77,
+            97,
+            110,
+            124,
+            141,
+            162,
+            177,
+            214,
+            223
+          ]
+        },
+        "NELSON_R3": {
+          "n_episodes": 2,
+          "indices": [
+            20,
+            138
+          ]
+        },
+        "NELSON_R2": {
+          "n_episodes": 9,
+          "indices": [
+            25,
+            45,
+            71,
+            109,
+            158,
+            177,
+            198,
+            213,
+            224
+          ]
+        },
+        "NELSON_R1": {
+          "n_episodes": 11,
+          "indices": [
+            28,
+            105,
+            107,
+            122,
+            134,
+            140,
+            152,
+            159,
+            206,
+            211,
+            222
+          ]
+        },
+        "NELSON_R5": {
+          "n_episodes": 10,
+          "indices": [
+            29,
+            34,
+            94,
+            110,
+            136,
+            141,
+            155,
+            160,
+            211,
+            224
+          ]
+        }
+      },
+      "n_violation_points": 45,
+      "drift": {
+        "slope_per_second": 0,
+        "per_day_relative": 0.000089,
+        "mk_p": 0.000008,
+        "significant": false
+      },
+      "baseline_ref": null,
+      "score": 85,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -15,
+        "cv_penalty": 0,
+        "capability_penalty": 0,
+        "drift_penalty": 0,
+        "baseline_penalty": 0,
+        "total": 85
+      }
+    },
+    {
+      "name": "TDO出口轨宽",
+      "role": "parameter",
+      "condition": {
+        "label": "TDO出口轨宽",
+        "unit": null,
+        "assigned_by": "auto",
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null,
+        "stage": null,
+        "equipment": null
+      },
+      "n": 240,
+      "row_range": [
+        0,
+        239
+      ],
+      "data_source": "raw",
+      "mu": 6330.023776,
+      "median": 6329.959581,
+      "sigma": 0.836544,
+      "sigma_within_mr": 0.492126,
+      "cv": 0.000132,
+      "min": 6327.906244,
+      "max": 6332.406493,
+      "spec": {
+        "lsl": null,
+        "usl": null,
+        "target": null,
+        "source": null
+      },
+      "capability": {
+        "cp": null,
+        "cpk": null,
+        "pp": null,
+        "ppk": null
+      },
+      "nelson": {
+        "NELSON_R1": {
+          "n_episodes": 15,
+          "indices": [
+            6,
+            24,
+            53,
+            68,
+            116,
+            128,
+            136,
+            143,
+            158,
+            176,
+            178,
+            180,
+            195,
+            200,
+            206
+          ]
+        },
+        "NELSON_R3": {
+          "n_episodes": 7,
+          "indices": [
+            6,
+            11,
+            18,
+            58,
+            106,
+            141,
+            200
+          ]
+        },
+        "NELSON_R5": {
+          "n_episodes": 15,
+          "indices": [
+            7,
+            13,
+            22,
+            54,
+            70,
+            88,
+            117,
+            129,
+            137,
+            144,
+            152,
+            163,
+            181,
+            201,
+            207
+          ]
+        },
+        "NELSON_R6": {
+          "n_episodes": 14,
+          "indices": [
+            7,
+            15,
+            28,
+            55,
+            64,
+            129,
+            138,
+            146,
+            156,
+            164,
+            182,
+            193,
+            209,
+            239
+          ]
+        },
+        "NELSON_R2": {
+          "n_episodes": 7,
+          "indices": [
+            40,
+            55,
+            66,
+            129,
+            154,
+            206,
+            238
+          ]
+        }
+      },
+      "n_violation_points": 58,
+      "drift": {
+        "slope_per_second": 0,
+        "per_day_relative": 0.000002,
+        "mk_p": 0.404655,
+        "significant": false
+      },
+      "baseline_ref": null,
+      "score": 81,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -19,
+        "cv_penalty": 0,
+        "capability_penalty": 0,
+        "drift_penalty": 0,
+        "baseline_penalty": 0,
+        "total": 81
+      }
+    },
+    {
+      "name": "TDO风机频率CX4",
+      "role": "parameter",
+      "condition": {
+        "label": "TDO风机频率CX4",
+        "unit": null,
+        "assigned_by": "auto",
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null,
+        "stage": null,
+        "equipment": null
+      },
+      "n": 240,
+      "row_range": [
+        0,
+        239
+      ],
+      "data_source": "raw",
+      "mu": 85.008509,
+      "median": 85.011602,
+      "sigma": 0.065329,
+      "sigma_within_mr": 0.040549,
+      "cv": 0.000767,
+      "min": 84.841085,
+      "max": 85.16203,
+      "spec": {
+        "lsl": null,
+        "usl": null,
+        "target": null,
+        "source": null
+      },
+      "capability": {
+        "cp": null,
+        "cpk": null,
+        "pp": null,
+        "ppk": null
+      },
+      "nelson": {
+        "NELSON_R1": {
+          "n_episodes": 16,
+          "indices": [
+            5,
+            10,
+            13,
+            20,
+            26,
+            45,
+            61,
+            63,
+            76,
+            95,
+            106,
+            153,
+            156,
+            164,
+            210,
+            214
+          ]
+        },
+        "NELSON_R2": {
+          "n_episodes": 7,
+          "indices": [
+            11,
+            65,
+            107,
+            156,
+            166,
+            189,
+            217
+          ]
+        },
+        "NELSON_R6": {
+          "n_episodes": 12,
+          "indices": [
+            13,
+            21,
+            29,
+            49,
+            67,
+            109,
+            115,
+            158,
+            164,
+            174,
+            193,
+            218
+          ]
+        },
+        "NELSON_R5": {
+          "n_episodes": 7,
+          "indices": [
+            14,
+            22,
+            67,
+            109,
+            165,
+            173,
+            216
+          ]
+        },
+        "NELSON_R3": {
+          "n_episodes": 3,
+          "indices": [
+            61,
+            68,
+            177
+          ]
+        }
+      },
+      "n_violation_points": 45,
+      "drift": {
+        "slope_per_second": 0,
+        "per_day_relative": 0.000045,
+        "mk_p": 0.012532,
+        "significant": false
+      },
+      "baseline_ref": null,
+      "score": 85,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -15,
+        "cv_penalty": 0,
+        "capability_penalty": 0,
+        "drift_penalty": 0,
+        "baseline_penalty": 0,
+        "total": 85
+      }
+    },
+    {
+      "name": "牵引入口张力",
+      "role": "parameter",
+      "condition": {
+        "label": "牵引入口张力",
+        "unit": null,
+        "assigned_by": "auto",
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null,
+        "stage": null,
+        "equipment": null
+      },
+      "n": 240,
+      "row_range": [
+        0,
+        239
+      ],
+      "data_source": "raw",
+      "mu": 2277.100288,
+      "median": 2275.349036,
+      "sigma": 11.16515,
+      "sigma_within_mr": 4.476803,
+      "cv": 0.004893,
+      "min": 2256.506543,
+      "max": 2303.942651,
+      "spec": {
+        "lsl": null,
+        "usl": null,
+        "target": null,
+        "source": null
+      },
+      "capability": {
+        "cp": null,
+        "cpk": null,
+        "pp": null,
+        "ppk": null
+      },
+      "nelson": {
+        "NELSON_R1": {
+          "n_episodes": 24,
+          "indices": [
+            3,
+            11,
+            24,
+            47,
+            52,
+            67,
+            91,
+            103,
+            112,
+            121,
+            126,
+            147,
+            151,
+            158,
+            162,
+            166,
+            179,
+            182,
+            187,
+            192,
+            204,
+            217,
+            224,
+            229
+          ]
+        },
+        "NELSON_R5": {
+          "n_episodes": 15,
+          "indices": [
+            4,
+            29,
+            54,
+            70,
+            75,
+            88,
+            92,
+            98,
+            115,
+            123,
+            127,
+            168,
+            205,
+            219,
+            230
+          ]
+        },
+        "NELSON_R6": {
+          "n_episodes": 8,
+          "indices": [
+            5,
+            31,
+            54,
+            98,
+            116,
+            127,
+            169,
+            232
+          ]
+        },
+        "NELSON_R2": {
+          "n_episodes": 6,
+          "indices": [
+            18,
+            51,
+            73,
+            97,
+            115,
+            151
+          ]
+        },
+        "NELSON_R3": {
+          "n_episodes": 3,
+          "indices": [
+            78,
+            149,
+            220
+          ]
+        }
+      },
+      "n_violation_points": 56,
+      "drift": {
+        "slope_per_second": 0.000032,
+        "per_day_relative": 0.001216,
+        "mk_p": 0,
+        "significant": true
+      },
+      "baseline_ref": null,
+      "score": 75,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -19,
+        "cv_penalty": 0,
+        "capability_penalty": 0,
+        "drift_penalty": -6,
+        "baseline_penalty": 0,
+        "total": 75
+      }
+    }
+  ],
+  "correlations": {
+    "max_lag": 10,
+    "pairs": [
+      {
+        "pearson": -0.899791,
+        "spearman": -0.738315,
+        "best_abs_r": 0.797024,
+        "best_lag_rows": 10,
+        "leader": "TDO拉伸区温度CX4",
+        "pearson_at_best": -0.902775,
+        "spearman_at_best": -0.797024,
+        "a": "优品率",
+        "b": "TDO拉伸区温度CX4",
+        "n": 240
+      },
+      {
+        "pearson": -0.955406,
+        "spearman": -0.725687,
+        "best_abs_r": 0.764984,
+        "best_lag_rows": 2,
+        "leader": "优品率",
+        "pearson_at_best": -0.945593,
+        "spearman_at_best": -0.764984,
+        "a": "优品率",
+        "b": "纵拉拉伸速度",
+        "n": 240
+      },
+      {
+        "pearson": -0.884628,
+        "spearman": -0.733054,
+        "best_abs_r": 0.763383,
+        "best_lag_rows": 9,
+        "leader": "TDO拉伸区温度CX4",
+        "pearson_at_best": -0.892331,
+        "spearman_at_best": -0.763383,
+        "a": "薄膜厚度",
+        "b": "TDO拉伸区温度CX4",
+        "n": 240
+      },
+      {
+        "pearson": 0.801951,
+        "spearman": 0.671285,
+        "best_abs_r": 0.752167,
+        "best_lag_rows": 9,
+        "leader": "牵引入口张力",
+        "pearson_at_best": 0.823609,
+        "spearman_at_best": 0.752167,
+        "a": "纵拉拉伸速度",
+        "b": "牵引入口张力",
+        "n": 240
+      },
+      {
+        "pearson": 0.733421,
+        "spearman": 0.702557,
+        "best_abs_r": 0.74351,
+        "best_lag_rows": 7,
+        "leader": "牵引入口张力",
+        "pearson_at_best": 0.771203,
+        "spearman_at_best": 0.74351,
+        "a": "TDO拉伸区温度CX4",
+        "b": "牵引入口张力",
+        "n": 240
+      },
+      {
+        "pearson": -0.988958,
+        "spearman": -0.724944,
+        "best_abs_r": 0.733673,
+        "best_lag_rows": 1,
+        "leader": "薄膜厚度",
+        "pearson_at_best": -0.982202,
+        "spearman_at_best": -0.733673,
+        "a": "薄膜厚度",
+        "b": "纵拉拉伸速度",
+        "n": 240
+      },
+      {
+        "pearson": 0.948129,
+        "spearman": 0.71038,
+        "best_abs_r": 0.730459,
+        "best_lag_rows": 1,
+        "leader": "薄膜厚度",
+        "pearson_at_best": 0.948229,
+        "spearman_at_best": 0.730459,
+        "a": "薄膜厚度",
+        "b": "优品率",
+        "n": 240
+      },
+      {
+        "pearson": -0.797304,
+        "spearman": -0.667267,
+        "best_abs_r": 0.725497,
+        "best_lag_rows": 4,
+        "leader": "牵引入口张力",
+        "pearson_at_best": -0.808522,
+        "spearman_at_best": -0.725497,
+        "a": "薄膜厚度",
+        "b": "牵引入口张力",
+        "n": 240
+      },
+      {
+        "pearson": -0.746288,
+        "spearman": -0.674522,
+        "best_abs_r": 0.724342,
+        "best_lag_rows": 9,
+        "leader": "牵引入口张力",
+        "pearson_at_best": -0.802139,
+        "spearman_at_best": -0.724342,
+        "a": "优品率",
+        "b": "牵引入口张力",
+        "n": 240
+      },
+      {
+        "pearson": 0.885598,
+        "spearman": 0.693817,
+        "best_abs_r": 0.719159,
+        "best_lag_rows": 10,
+        "leader": "TDO拉伸区温度CX4",
+        "pearson_at_best": 0.887303,
+        "spearman_at_best": 0.719159,
+        "a": "纵拉拉伸速度",
+        "b": "TDO拉伸区温度CX4",
+        "n": 240
+      }
+    ],
+    "contributions": [
+      {
+        "driver": "TDO拉伸区温度CX4",
+        "target": "薄膜厚度",
+        "abs_r": 0.763383,
+        "best_lag_rows": 9,
+        "share": 0.271029
+      },
+      {
+        "driver": "牵引入口张力",
+        "target": "薄膜厚度",
+        "abs_r": 0.725497,
+        "best_lag_rows": 4,
+        "share": 0.244795
+      },
+      {
+        "driver": "纵拉拉伸速度",
+        "target": "薄膜厚度",
+        "abs_r": 0.724944,
+        "best_lag_rows": 0,
+        "share": 0.244422
+      },
+      {
+        "driver": "优品率",
+        "target": "薄膜厚度",
+        "abs_r": 0.717989,
+        "best_lag_rows": 6,
+        "share": 0.239754
+      },
+      {
+        "driver": "TDO拉伸区温度CX4",
+        "target": "优品率",
+        "abs_r": 0.797024,
+        "best_lag_rows": 10,
+        "share": 0.283983
+      },
+      {
+        "driver": "纵拉拉伸速度",
+        "target": "优品率",
+        "abs_r": 0.737178,
+        "best_lag_rows": 6,
+        "share": 0.242937
+      },
+      {
+        "driver": "薄膜厚度",
+        "target": "优品率",
+        "abs_r": 0.730459,
+        "best_lag_rows": 1,
+        "share": 0.238529
+      },
+      {
+        "driver": "牵引入口张力",
+        "target": "优品率",
+        "abs_r": 0.724342,
+        "best_lag_rows": 9,
+        "share": 0.234551
+      }
+    ]
+  },
+  "integrations": {
+    "sentinel_baseline": {
+      "used": false,
+      "path": null
+    },
+    "tuning_memory": {
+      "used": false
+    },
+    "doe_analyzer": {
+      "used": false
+    }
+  },
+  "degradations": [],
+  "limitations": {
+    "data_source": "raw (this skill never cleans or imputes; every number is recomputable from the raw table)",
+    "sampling": {
+      "n_rows_analyzed": 240,
+      "sampled": false,
+      "stride": 1,
+      "note": null
+    },
+    "missing_rate": 0,
+    "sampling_interval_seconds": 3600,
+    "spec_coverage": {
+      "user": [],
+      "ontology": [],
+      "none": [
+        "薄膜厚度",
+        "优品率",
+        "主挤计量段温度",
+        "熔体压力",
+        "模头温度",
+        "铸片辊温度",
+        "铸片辊线速",
+        "纵拉预热辊温",
+        "纵拉拉伸速度",
+        "TDO拉伸区温度CX4",
+        "TDO定型区温度CX6",
+        "TDO出口轨宽",
+        "TDO风机频率CX4",
+        "牵引入口张力"
+      ]
+    },
+    "model_assumptions": [
+      "lag-compensated Spearman window 0–10 rows (lead/lag beyond this window is invisible)",
+      "whole-period scoring assumes one dominant operating condition; use the regime table for segmented reading",
+      "Cpk treats within-sigma as MR̄/1.128 moving-range estimate"
+    ],
+    "confounders": [],
+    "derived_fields": [
+      "baseline_ref.robust_z",
+      "correlations.contributions.share",
+      "correlations.pairs.best_abs_r"
+    ]
+  },
+  "provenance": {
+    "input_sha256": "sha256:be49221b8ac3b1856accf02f9bd2354ba8beb347dea9f1c726c85f3dbdd2c04d",
+    "script_version": "1.0.0",
+    "authored_by": "lstcore/stability_analyzer.py",
+    "zero_llm": true,
+    "spc_source": "sentinelcore",
+    "regime_method": "fast",
+    "ontology_source": null,
+    "python": "3.12.7",
+    "numpy": "2.5.2",
+    "pandas": "3.0.5",
+    "methods": [
+      "sentinelcore_nelson_episodes",
+      "mrbar_sigma_1.128",
+      "cpk_within_ppk_overall",
+      "theil_sen_mk_drift",
+      "lagged_spearman_max10",
+      "contribution_r2_share",
+      "regime_segmentation_c3",
+      "ontology_first_condition",
+      "weighted_penalty_score_v1",
+      "darwin_limitations"
+    ]
+  },
+  "findings": [
+    {
+      "finding_id": "F001",
+      "severity": "high",
+      "category": "spc",
+      "title": "薄膜厚度 检出 SPC 违规",
+      "detail": "共 35 个判异剧集命中（每百点 14.6 个，规则：NELSON_R1/NELSON_R2/NELSON_R3/NELSON_R5/NELSON_R6），控制限为中心值11.9602±3σ_within（σ=0.0283）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 35,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 14.58,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 0.028267,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "薄膜厚度"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F002",
+      "severity": "high",
+      "category": "spc",
+      "title": "优品率 检出 SPC 违规",
+      "detail": "共 21 个判异剧集命中（每百点 8.8 个，规则：NELSON_R1/NELSON_R2/NELSON_R3/NELSON_R5/NELSON_R6），控制限为中心值98.4463±3σ_within（σ=0.1486）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 21,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 8.75,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 0.148618,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "优品率"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F003",
+      "severity": "high",
+      "category": "spc",
+      "title": "主挤计量段温度 检出 SPC 违规",
+      "detail": "共 50 个判异剧集命中（每百点 20.8 个，规则：NELSON_R1/NELSON_R2/NELSON_R3/NELSON_R5/NELSON_R6），控制限为中心值282.0016±3σ_within（σ=0.0946）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 50,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 20.83,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 0.094634,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "主挤计量段温度"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F004",
+      "severity": "high",
+      "category": "spc",
+      "title": "熔体压力 检出 SPC 违规",
+      "detail": "共 50 个判异剧集命中（每百点 20.8 个，规则：NELSON_R1/NELSON_R2/NELSON_R3/NELSON_R5/NELSON_R6），控制限为中心值109.9562±3σ_within（σ=0.5742）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 50,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 20.83,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 0.574167,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "熔体压力"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F005",
+      "severity": "high",
+      "category": "spc",
+      "title": "模头温度 检出 SPC 违规",
+      "detail": "共 50 个判异剧集命中（每百点 20.8 个，规则：NELSON_R1/NELSON_R2/NELSON_R3/NELSON_R5/NELSON_R6），控制限为中心值284.981±3σ_within（σ=0.1191）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 50,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 20.83,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 0.119149,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "模头温度"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F006",
+      "severity": "high",
+      "category": "spc",
+      "title": "铸片辊温度 检出 SPC 违规",
+      "detail": "共 42 个判异剧集命中（每百点 17.5 个，规则：NELSON_R1/NELSON_R2/NELSON_R3/NELSON_R5/NELSON_R6），控制限为中心值26.4921±3σ_within（σ=0.0713）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 42,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 17.5,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 0.071285,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "铸片辊温度"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F007",
+      "severity": "high",
+      "category": "spc",
+      "title": "铸片辊线速 检出 SPC 违规",
+      "detail": "共 55 个判异剧集命中（每百点 22.9 个，规则：NELSON_R1/NELSON_R2/NELSON_R3/NELSON_R5/NELSON_R6），控制限为中心值16.401±3σ_within（σ=0.0058）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 55,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 22.92,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 0.00579,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "铸片辊线速"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F008",
+      "severity": "high",
+      "category": "spc",
+      "title": "纵拉预热辊温 检出 SPC 违规",
+      "detail": "共 44 个判异剧集命中（每百点 18.3 个，规则：NELSON_R1/NELSON_R2/NELSON_R3/NELSON_R5/NELSON_R6），控制限为中心值78.0083±3σ_within（σ=0.0998）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 44,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 18.33,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 0.099842,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "纵拉预热辊温"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F009",
+      "severity": "high",
+      "category": "spc",
+      "title": "纵拉拉伸速度 检出 SPC 违规",
+      "detail": "共 41 个判异剧集命中（每百点 17.1 个，规则：NELSON_R1/NELSON_R2/NELSON_R3/NELSON_R5/NELSON_R6），控制限为中心值52.9158±3σ_within（σ=0.0162）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 41,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 17.08,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 0.016178,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "纵拉拉伸速度"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F010",
+      "severity": "high",
+      "category": "spc",
+      "title": "TDO拉伸区温度CX4 检出 SPC 违规",
+      "detail": "共 47 个判异剧集命中（每百点 19.6 个，规则：NELSON_R1/NELSON_R2/NELSON_R3/NELSON_R5/NELSON_R6），控制限为中心值240.2536±3σ_within（σ=0.115）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 47,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 19.58,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 0.115029,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "TDO拉伸区温度CX4"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F011",
+      "severity": "high",
+      "category": "spc",
+      "title": "TDO定型区温度CX6 检出 SPC 违规",
+      "detail": "共 45 个判异剧集命中（每百点 18.8 个，规则：NELSON_R1/NELSON_R2/NELSON_R3/NELSON_R5/NELSON_R6），控制限为中心值191.0001±3σ_within（σ=0.11）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 45,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 18.75,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 0.109961,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "TDO定型区温度CX6"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F012",
+      "severity": "high",
+      "category": "spc",
+      "title": "TDO出口轨宽 检出 SPC 违规",
+      "detail": "共 58 个判异剧集命中（每百点 24.2 个，规则：NELSON_R1/NELSON_R2/NELSON_R3/NELSON_R5/NELSON_R6），控制限为中心值6329.9596±3σ_within（σ=0.4921）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 58,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 24.17,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 0.492126,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "TDO出口轨宽"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F013",
+      "severity": "high",
+      "category": "spc",
+      "title": "TDO风机频率CX4 检出 SPC 违规",
+      "detail": "共 45 个判异剧集命中（每百点 18.8 个，规则：NELSON_R1/NELSON_R2/NELSON_R3/NELSON_R5/NELSON_R6），控制限为中心值85.0116±3σ_within（σ=0.0405）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 45,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 18.75,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 0.040549,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "TDO风机频率CX4"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F014",
+      "severity": "high",
+      "category": "spc",
+      "title": "牵引入口张力 检出 SPC 违规",
+      "detail": "共 56 个判异剧集命中（每百点 23.3 个，规则：NELSON_R1/NELSON_R2/NELSON_R3/NELSON_R5/NELSON_R6），控制限为中心值2275.349±3σ_within（σ=4.4768）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 56,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 23.33,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 4.476803,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "牵引入口张力"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F015",
+      "severity": "warn",
+      "category": "drift",
+      "title": "薄膜厚度 存在显著漂移",
+      "detail": "Theil–Sen 斜率显著（Mann–Kendall p=0.0，且相对漂移≥0.1%/天才计入），相对漂移约 0.587%/天，方向对应斜率 -0/秒。",
+      "evidence": [
+        {
+          "metric": "mk_p",
+          "value": 0,
+          "source": "lstcore",
+          "threshold": "<0.01 且 >=0.1%/天"
+        },
+        {
+          "metric": "per_day_relative",
+          "value": 0.005865,
+          "source": "lstcore",
+          "threshold": "<0.001 ok; >=0.01 high"
+        },
+        {
+          "metric": "slope_per_second",
+          "value": -0.000001,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "薄膜厚度"
+      ],
+      "confidence": 80
+    },
+    {
+      "finding_id": "F016",
+      "severity": "warn",
+      "category": "drift",
+      "title": "优品率 存在显著漂移",
+      "detail": "Theil–Sen 斜率显著（Mann–Kendall p=0.0，且相对漂移≥0.1%/天才计入），相对漂移约 0.297%/天，方向对应斜率 -0/秒。",
+      "evidence": [
+        {
+          "metric": "mk_p",
+          "value": 0,
+          "source": "lstcore",
+          "threshold": "<0.01 且 >=0.1%/天"
+        },
+        {
+          "metric": "per_day_relative",
+          "value": 0.002968,
+          "source": "lstcore",
+          "threshold": "<0.001 ok; >=0.01 high"
+        },
+        {
+          "metric": "slope_per_second",
+          "value": -0.000003,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "优品率"
+      ],
+      "confidence": 80
+    },
+    {
+      "finding_id": "F017",
+      "severity": "warn",
+      "category": "drift",
+      "title": "纵拉拉伸速度 存在显著漂移",
+      "detail": "Theil–Sen 斜率显著（Mann–Kendall p=0.0，且相对漂移≥0.1%/天才计入），相对漂移约 0.107%/天，方向对应斜率 0/秒。",
+      "evidence": [
+        {
+          "metric": "mk_p",
+          "value": 0,
+          "source": "lstcore",
+          "threshold": "<0.01 且 >=0.1%/天"
+        },
+        {
+          "metric": "per_day_relative",
+          "value": 0.001073,
+          "source": "lstcore",
+          "threshold": "<0.001 ok; >=0.01 high"
+        },
+        {
+          "metric": "slope_per_second",
+          "value": 0.000001,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "纵拉拉伸速度"
+      ],
+      "confidence": 80
+    },
+    {
+      "finding_id": "F018",
+      "severity": "warn",
+      "category": "drift",
+      "title": "牵引入口张力 存在显著漂移",
+      "detail": "Theil–Sen 斜率显著（Mann–Kendall p=0.0，且相对漂移≥0.1%/天才计入），相对漂移约 0.122%/天，方向对应斜率 0/秒。",
+      "evidence": [
+        {
+          "metric": "mk_p",
+          "value": 0,
+          "source": "lstcore",
+          "threshold": "<0.01 且 >=0.1%/天"
+        },
+        {
+          "metric": "per_day_relative",
+          "value": 0.001216,
+          "source": "lstcore",
+          "threshold": "<0.001 ok; >=0.01 high"
+        },
+        {
+          "metric": "slope_per_second",
+          "value": 0.000032,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "牵引入口张力"
+      ],
+      "confidence": 80
+    },
+    {
+      "finding_id": "F019",
+      "severity": "info",
+      "category": "driver",
+      "title": "强相关对：优品率 ↔ TDO拉伸区温度CX4 [MECHANISM_UNKNOWN]",
+      "detail": "滞后补偿后最强 |Spearman|=0.797（TDO拉伸区温度CX4 领先 10 行）；零滞后 Pearson=-0.8998。本体未提供物理机制支持——仅是统计共变，不可作因果线索使用。置信度 45（统计证据充分度 × 机制支持度）。",
+      "evidence": [
+        {
+          "metric": "best_abs_r",
+          "value": 0.797024,
+          "source": "lstcore",
+          "threshold": ">=0.7",
+          "derived": true
+        },
+        {
+          "metric": "best_lag_rows",
+          "value": 10,
+          "source": "lstcore"
+        },
+        {
+          "metric": "mechanism_level",
+          "value": "unknown",
+          "source": "ontology"
+        }
+      ],
+      "affected": [
+        "优品率",
+        "TDO拉伸区温度CX4"
+      ],
+      "confidence": 45,
+      "mechanism": {
+        "level": "unknown",
+        "mechanism": null,
+        "governing_equation": null
+      }
+    },
+    {
+      "finding_id": "F020",
+      "severity": "info",
+      "category": "driver",
+      "title": "强相关对：优品率 ↔ 纵拉拉伸速度 [MECHANISM_UNKNOWN]",
+      "detail": "滞后补偿后最强 |Spearman|=0.765（优品率 领先 2 行）；零滞后 Pearson=-0.9554。本体未提供物理机制支持——仅是统计共变，不可作因果线索使用。置信度 45（统计证据充分度 × 机制支持度）。",
+      "evidence": [
+        {
+          "metric": "best_abs_r",
+          "value": 0.764984,
+          "source": "lstcore",
+          "threshold": ">=0.7",
+          "derived": true
+        },
+        {
+          "metric": "best_lag_rows",
+          "value": 2,
+          "source": "lstcore"
+        },
+        {
+          "metric": "mechanism_level",
+          "value": "unknown",
+          "source": "ontology"
+        }
+      ],
+      "affected": [
+        "优品率",
+        "纵拉拉伸速度"
+      ],
+      "confidence": 45,
+      "mechanism": {
+        "level": "unknown",
+        "mechanism": null,
+        "governing_equation": null
+      }
+    }
+  ],
+  "conclusion": {
+    "score": 81,
+    "grade": "B",
+    "grade_key": "sub_stable",
+    "label": "亚稳定",
+    "statement": "该产线在本时段总体运行亚稳定（81.0 分，B 级）：评估 14 个参数，检出 639 个 SPC 违规剧集、4 项显著漂移；最需关注：薄膜厚度。",
+    "n_parameters_assessed": 14,
+    "n_findings": 20,
+    "findings_by_severity": {
+      "info": 2,
+      "warn": 4,
+      "high": 14,
+      "critical": 0
+    }
+  },
+  "interpretation": {
+    "authored_by": "zcode",
+    "text": "总体结论：该产线 2026-10-01 至 10-10（240 个小时点）总体运行亚稳定（综合 81.0 分、B 级），14 个参数均有 SPC 违规剧集（合计 639 个）、4 项显著漂移，无 critical 级发现，工况识别为单一 steady 段、无变点。最需关注薄膜厚度：参数分 67（C 级、本期最低），SPC 违规剧集 35 个（每百点 14.6 个，F001），并存在约 0.587%/天的显著向下漂移（F015）。其次是优品率（约 0.297%/天显著下漂，F016），熔体压力（参数分 77，F004）与牵引入口张力（参数分 75，约 0.122%/天上漂，F018）亦需跟踪。相关方向线索（统计共变、待机理确认，置信度 45，仅作初筛）：优品率与 TDO拉伸区温度CX4、纵拉拉伸速度分别呈强共变（|Spearman| 0.797，F019；0.765，F020），不能当因果证据使用。建议下一步（仅分析/试验类动作）：补充薄膜厚度与优品率的规格限后重跑以获得 Cpk 能力分档；对厚度测量通道与 F019/F020 涉及的 CX4 温度通道做测量稳定性核查；需要物理语义时先用 industrial-ontology-builder 建线体本体再重跑，或加 --doe-auto 做观测工况分析。本报告仅描述发生了什么、有多稳，不构成参数下发指令。"
+  }
+}

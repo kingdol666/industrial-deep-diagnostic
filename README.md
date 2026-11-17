@@ -16,9 +16,9 @@
 <img src="https://img.shields.io/badge/Pipeline-9%20stages-e8a33d?style=flat-square" alt="9-stage pipeline">
 <img src="https://img.shields.io/badge/Engines-14%20·%20diagnose%20%2B%20chat-6ba8b8?style=flat-square" alt="14 engines">
 <img src="https://img.shields.io/badge/Benchmark-Rubric%2094.6-8fbf6a?style=flat-square" alt="Benchmark rubric 94.6">
-<img src="https://img.shields.io/badge/Backend%20tests-116%20passed-8fbf6a?style=flat-square" alt="Backend tests">
+<img src="https://github.com/kingdol666/industrial-deep-diagnostic/actions/workflows/ci.yml/badge.svg" alt="CI status">
 <img src="https://img.shields.io/badge/Setup-one%20command-f4b65a?style=flat-square" alt="One-command setup">
-<img src="https://img.shields.io/badge/Node-%E2%89%A518-339933?style=flat-square&logo=nodedotjs&logoColor=white" alt="Node">
+<img src="https://img.shields.io/badge/Node-%E2%89%A520-339933?style=flat-square&logo=nodedotjs&logoColor=white" alt="Node">
 <img src="https://img.shields.io/badge/License-MIT-success?style=flat-square" alt="License">
 
 </div>
@@ -141,7 +141,7 @@
 
 ### 🧠 Elimination-based diagnostic engine
 - **9-stage fully automated pipeline** — raw data to Chinese report, zero intervention
-- **18 standardized skills × 14 dedicated agents** working in concert
+- **24 standardized skills × 16 dedicated agents** working in concert
 - **Competing-hypotheses protocol** — hypothesize, score discriminability, then eliminate
 - **9 quality gates (CP-1 ~ CP-9)** enforced stage by stage; the pipeline blocks or rolls back
 - **Anti-spurious-correlation statistics** v6.4–v6.7: lag-compensated CCF · steady-state filtering · batch integrity · leave-one-out leverage
@@ -241,7 +241,7 @@
 
 | Dependency | Version | Verification command |
 |------|:----:|----------|
-| [Node.js](https://nodejs.org/) | ≥ 18 (22+ recommended) | `node --version` |
+| [Node.js](https://nodejs.org/) | ≥ 20 (22+ recommended) | `node --version` |
 | [npm](https://www.npmjs.com/) | ≥ 9 | `npm --version` |
 | [Python](https://www.python.org/) | ≥ 3.10 | `python --version` (for the RAG engine / venv) |
 | [uv](https://docs.astral.sh/uv/) | recommended | `uv --version` (falls back to pip) |
@@ -520,7 +520,7 @@ draw value and the resulting index so the draw is both verifiable and replayable
 
 ## 🧩 Skills & agents
 
-### 18 standardized skills
+### 24 standardized skills
 
 `.claude/skills/<name>/` is the **single skill source** (discovered by OMP through the `claude` provider at priority 80, and simultaneously serving native Claude Code discovery). `scripts/`, `schemas/`, `references/`, `resources/` and `templates/` all live together under it.
 
@@ -531,6 +531,7 @@ draw value and the resulting index so the draw is both verifiable and replayable
 |-------|------------|----------|:----:|
 | `industrial-analysis-auto` | main-agent | fully automated orchestrator | all CPs |
 | `industrial-data-preprocessor` | — | adaptive multi-format preprocessing | — |
+| `industrial-hetero-preprocessor` | — | E-1H heterogeneous sources (profiles / 2D fields / image sequences / time-anchored notes) → scalar features in `07_hetero/**` + column contract | — |
 | `industrial-ontology-builder` | context-builder | `ontology.json` · RAG deep understanding | CP-2, CP-3 |
 | `industrial-data-processor` | data-processor | `data_analysis_conclusion.json` · 9+ PNG | CP-4 |
 | `industrial-diagnostician` | diagnostician | 4 diagnostic JSONs (diagnosis/evidence/confidence/reasoning_chain) | CP-5 |
@@ -547,10 +548,20 @@ draw value and the resulting index so the draw is both verifiable and replayable
 | `rag-knowledge-builder` | — | domain knowledge graph | — |
 | `diagnostic-html-visualizer` | — | HTML design system | — |
 | `darwin-skill` | — | skill fitness evolution assessment | — |
+| `industrial-doe-analyzer` | doe-analyst | DOE effect / response-surface analysis + operating-window recommendations contract | — |
+| `industrial-sentinel` | — | SPC watch + drift projection, alert-storm suppression | — |
+| `industrial-tuning-memory` | — | action→effect attribution + local experience store (E0-E3) | — |
+| `industrial-optimizer-loop` | optimizer-pilot | DMTA trial designs + convergence (design/analysis artifacts only) | — |
+| `industrial-line-stability-report` | — | 0-100 stability score + Chinese HTML report | — |
 
 </details>
 
-### 14 dedicated agents
+Skill routing & input documentation:
+
+- **Skill routing matrix — intent → unique skill:** [`docs/skill-routing-matrix.md`](docs/skill-routing-matrix.md) — one intent, one skill (HTML family build-vs-review split, judge vs physical auditor, preprocessor vs processor vs hetero-preprocessor, the six specialist analysis intents, sentinel vs stability report vs tuning memory).
+- **Input contract — formats, row/time thresholds per stage:** [`docs/input-contract.md`](docs/input-contract.md) — CSV/TSV/JSON/Excel/Parquet adapters, the four heterogeneous shapes, time-column detection and row thresholds, each verified against the scripts (file:line).
+
+### 16 dedicated agents
 
 | Agent | Persona | Core output |
 |-------|---------|---------|
@@ -568,6 +579,8 @@ draw value and the resulting index so the draw is both verifiable and replayable
 | `enhance-orchestrator` | Enhancement Pipeline Orchestration | fully automated E0-E8 enhancement |
 | `enhanced-visualizer` | Enhanced Frontend | enhanced ECharts HTML |
 | `enhanced-html-reviewer` | Enhanced Review | enhanced HTML review |
+| `doe-analyst` | Engineer Qin · DOE & Process Data Analysis | deterministic effect/correlation/stability analysis + downstream recommendations contract |
+| `optimizer-pilot` | Luo · Small-Trial Closed-Loop Optimization Pilot | campaign rounds interpretation + Chinese optimization report (script-authored numbers only) |
 
 ---
 
@@ -786,7 +799,7 @@ industrial-deep-diagnostic/
 │   │       ├── index.mjs          # service entry point
 │   │       ├── routes/            # REST routes
 │   │       ├── services/          # business logic (incl. ENGINES dispatch table)
-│   │       ├── harness/           # 14 engine definitions (HARNESS_DEFS)
+│   │       ├── harness/           # HARNESS_DEFS: 12 engines + claude/omp in registry = 14
 │   │       ├── engine/            # diagnostic engine
 │   │       ├── transport/         # WebSocket
 │   │       └── db/                # SQLite (WAL)
@@ -799,13 +812,13 @@ industrial-deep-diagnostic/
 │           ├── i18n/              # zh / en locales
 │           └── stores/            # state management
 │
-├── .claude/skills/                # 18 skill implementations (single source)
+├── .claude/skills/                # 24 skill implementations (single source)
 │   ├── industrial-analysis-auto/  # fully automated orchestrator
 │   ├── industrial-data-processor/ # statistical analysis
 │   ├── industrial-diagnostician/  # competing-hypothesis diagnosis
 │   └── ...                        # scripts / schemas / resources
 │
-├── .omp/agents/                   # 14 OMP agent definitions
+├── .omp/agents/                   # 16 OMP agent definitions
 │   ├── context-builder.md
 │   ├── diagnostician.md
 │   └── ...
@@ -945,7 +958,7 @@ Every release-quality claim traces to a repeatable check, not to a paragraph of 
 
 | Verification | Scope | Result | Evidence |
 |------|------|------|------|
-| Backend test suite | routes · services · engine adapters · HTTP e2e (fake CLI / fake ACP / codex app-server) | **116/116 pass** | `app/backend npm test` |
+| Backend test suite | routes · services · engine adapters · HTTP e2e (fake CLI / fake ACP / codex app-server) | **enforced in CI** (`.github/workflows/ci.yml`, current count in the run log) | `app/backend npm test` |
 | End-to-end acceptance | 28 UI-driven checks across auth · data · diagnose · chat · reports · ontology · history · engines · API surface | **28/28 pass** | [`paper/workbench/e2e-acceptance-report-20260919.md`](paper/workbench/e2e-acceptance-report-20260919.md) |
 | Real-scenario multi-harness | 20 diagnosis rounds on real industrial datasets across mock / claude / codex / omp + live chats on claude / codex / omp / mock | 11/20 terminal pass first run; real-AI rounds verified down to pipeline stage artifacts | [`paper/workbench/real-scenario-test-report-20260919.md`](paper/workbench/real-scenario-test-report-20260919.md) |
 | Benchmark rerun | 12 scenarios, four-step pipeline | 12/12 · REPRODUCIBLE · rubric 94.6 | `results/benchmark/` |

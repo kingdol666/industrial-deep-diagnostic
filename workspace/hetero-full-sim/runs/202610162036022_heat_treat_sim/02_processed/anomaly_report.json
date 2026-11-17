@@ -1,0 +1,482 @@
+{
+  "targets": {
+    "FUR-OUT-TEMP": {
+      "anomaly_intervals": [],
+      "threshold_analysis": {
+        "critical_threshold": 552.62,
+        "percent_above_threshold": 0.2,
+        "threshold_crossing_index": 72
+      }
+    },
+    "FUR-YIELD": {
+      "anomaly_intervals": [],
+      "threshold_analysis": {
+        "critical_threshold": 100.23,
+        "percent_above_threshold": 0
+      }
+    },
+    "HX-PROF-L1BANDTEMPPROFILE30M-MEAN": {
+      "anomaly_intervals": [],
+      "threshold_analysis": {
+        "critical_threshold": 519.93,
+        "percent_above_threshold": 0
+      }
+    },
+    "HX-PROF-L1BANDTEMPPROFILE30M-STD": {
+      "anomaly_intervals": [],
+      "threshold_analysis": {
+        "critical_threshold": 1.94,
+        "percent_above_threshold": 0.2,
+        "threshold_crossing_index": 1272
+      }
+    },
+    "HX-PROF-L1BANDTEMPPROFILE30M-MIN": {
+      "anomaly_intervals": [],
+      "threshold_analysis": {
+        "critical_threshold": 517.87,
+        "percent_above_threshold": 0.6,
+        "threshold_crossing_index": 69
+      }
+    },
+    "HX-PROF-L1BANDTEMPPROFILE30M-MAX": {
+      "anomaly_intervals": [],
+      "threshold_analysis": {
+        "critical_threshold": 521.58,
+        "percent_above_threshold": 1.5,
+        "threshold_crossing_index": 129
+      }
+    },
+    "HX-PROF-L1BANDTEMPPROFILE30M-P05": {
+      "anomaly_intervals": [],
+      "threshold_analysis": {
+        "critical_threshold": 517.88,
+        "percent_above_threshold": 2.9,
+        "threshold_crossing_index": 69
+      }
+    },
+    "HX-PROF-L1BANDTEMPPROFILE30M-P50": {
+      "anomaly_intervals": [
+        {
+          "start_index": 600,
+          "end_index": 605,
+          "severity": "medium",
+          "max_deviation_sigma": 2.207
+        }
+      ],
+      "threshold_analysis": {
+        "critical_threshold": 520.43,
+        "percent_above_threshold": 0.4,
+        "threshold_crossing_index": 489
+      }
+    },
+    "HX-PROF-L1BANDTEMPPROFILE30M-P95": {
+      "anomaly_intervals": [],
+      "threshold_analysis": {
+        "critical_threshold": 521.38,
+        "percent_above_threshold": 0.8,
+        "threshold_crossing_index": 369
+      }
+    },
+    "HX-PROF-L1BANDTEMPPROFILE30M-RANGE": {
+      "anomaly_intervals": [],
+      "threshold_analysis": {
+        "critical_threshold": 6.33,
+        "percent_above_threshold": 1.2,
+        "threshold_crossing_index": 759
+      }
+    },
+    "HX-PROF-L1BANDTEMPPROFILE30M-IQR": {
+      "anomaly_intervals": [],
+      "threshold_analysis": {
+        "critical_threshold": 2.3,
+        "percent_above_threshold": 6.7,
+        "threshold_crossing_index": 705
+      }
+    },
+    "HX-PROF-L1BANDTEMPPROFILE30M-MAD": {
+      "anomaly_intervals": [
+        {
+          "start_index": 369,
+          "end_index": 374,
+          "severity": "medium",
+          "max_deviation_sigma": 2.808
+        }
+      ],
+      "threshold_analysis": {
+        "critical_threshold": 1.18,
+        "percent_above_threshold": 5.8,
+        "threshold_crossing_index": 708
+      }
+    },
+    "HX-PROF-L1BANDTEMPPROFILE30M-N": {
+      "anomaly_intervals": [],
+      "threshold_analysis": {
+        "critical_threshold": 12,
+        "percent_above_threshold": 0
+      }
+    },
+    "HX-PROF-L1BANDTEMPPROFILE30M-SLOPE-LSQ-PER100": {
+      "anomaly_intervals": [
+        {
+          "start_index": 841,
+          "end_index": 845,
+          "severity": "medium",
+          "max_deviation_sigma": 2.303
+        }
+      ],
+      "threshold_analysis": {
+        "critical_threshold": 2.38,
+        "percent_above_threshold": 0,
+        "threshold_crossing_index": 841
+      }
+    },
+    "HX-PROF-L1BANDTEMPPROFILE30M-CURV-LSQ": {
+      "anomaly_intervals": [],
+      "threshold_analysis": {
+        "critical_threshold": -0.02,
+        "percent_above_threshold": 1,
+        "threshold_crossing_index": 117
+      }
+    },
+    "HX-PROF-L1BANDTEMPPROFILE30M-ZONE-1-3-MEAN": {
+      "anomaly_intervals": [],
+      "threshold_analysis": {
+        "critical_threshold": 520.23,
+        "percent_above_threshold": 0.4,
+        "threshold_crossing_index": 756
+      }
+    },
+    "HX-PROF-L1BANDTEMPPROFILE30M-EDGE-L-DEV": {
+      "anomaly_intervals": [
+        {
+          "start_index": 3,
+          "end_index": 8,
+          "severity": "medium",
+          "max_deviation_sigma": 2.205
+        }
+      ],
+      "threshold_analysis": {
+        "critical_threshold": -1.08,
+        "percent_above_threshold": 0.8,
+        "threshold_crossing_index": 861
+      }
+    },
+    "HX-PROF-L1BANDTEMPPROFILE30M-EDGE-R-DEV": {
+      "anomaly_intervals": [],
+      "threshold_analysis": {
+        "critical_threshold": -1.67,
+        "percent_above_threshold": 2.1,
+        "threshold_crossing_index": 93
+      }
+    },
+    "HX-PROF-L1BANDTEMPPROFILE30M-ARGDEV-NBR": {
+      "anomaly_intervals": [
+        {
+          "start_index": 42,
+          "end_index": 47,
+          "severity": "medium",
+          "max_deviation_sigma": 2.162
+        },
+        {
+          "start_index": 338,
+          "end_index": 341,
+          "severity": "medium",
+          "max_deviation_sigma": 2.083
+        },
+        {
+          "start_index": 719,
+          "end_index": 725,
+          "severity": "medium",
+          "max_deviation_sigma": 2.183
+        },
+        {
+          "start_index": 1140,
+          "end_index": 1148,
+          "severity": "medium",
+          "max_deviation_sigma": 2.356
+        }
+      ],
+      "threshold_analysis": {
+        "critical_threshold": 16.48,
+        "percent_above_threshold": 0,
+        "threshold_crossing_index": 42
+      }
+    },
+    "HX-PROF-L1BANDTEMPPROFILE30M-SHIFT-EST": {
+      "anomaly_intervals": [],
+      "threshold_analysis": {
+        "critical_threshold": 0,
+        "percent_above_threshold": 0
+      }
+    }
+  },
+  "transition_events": [],
+  "process_parameter_fluctuation": {
+    "FUR-Z1-TEMP": {
+      "mean": 849.9978,
+      "std": 0.6964,
+      "cv": 0.0008,
+      "p05_p95_span": 2.28,
+      "abrupt_behavior": "no"
+    },
+    "FUR-Z2-TEMP": {
+      "mean": 865.0063,
+      "std": 0.6882,
+      "cv": 0.0008,
+      "p05_p95_span": 2.23,
+      "abrupt_behavior": "no"
+    },
+    "FUR-Z3-TEMP": {
+      "mean": 878.4225,
+      "std": 3.2206,
+      "cv": 0.0037,
+      "p05_p95_span": 10.25,
+      "abrupt_behavior": "no"
+    },
+    "FUR-SPEED": {
+      "mean": 11.9976,
+      "std": 0.0502,
+      "cv": 0.0042,
+      "p05_p95_span": 0.164,
+      "abrupt_behavior": "no"
+    },
+    "FUR-PRES": {
+      "mean": 38.0102,
+      "std": 0.3026,
+      "cv": 0.008,
+      "p05_p95_span": 0.973,
+      "abrupt_behavior": "no"
+    },
+    "HX-IMG-L1SURFACECCDINDEX-MEAN": {
+      "mean": 146.5674,
+      "std": 4.508,
+      "cv": 0.0308,
+      "p05_p95_span": 14.8207,
+      "abrupt_behavior": "no"
+    },
+    "HX-IMG-L1SURFACECCDINDEX-STD": {
+      "mean": 12.0886,
+      "std": 5.6467,
+      "cv": 0.4671,
+      "p05_p95_span": 17.7173,
+      "abrupt_behavior": "yes"
+    },
+    "HX-IMG-L1SURFACECCDINDEX-ENTROPY": {
+      "mean": 3.3331,
+      "std": 0.3625,
+      "cv": 0.1088,
+      "p05_p95_span": 1.1506,
+      "abrupt_behavior": "no"
+    },
+    "HX-IMG-L1SURFACECCDINDEX-SATFRAC": {
+      "mean": 0,
+      "std": 0,
+      "cv": null,
+      "p05_p95_span": 0,
+      "abrupt_behavior": "no"
+    },
+    "HX-IMG-L1SURFACECCDINDEX-DARKFRAC": {
+      "mean": 0,
+      "std": 0,
+      "cv": null,
+      "p05_p95_span": 0,
+      "abrupt_behavior": "no"
+    },
+    "HX-IMG-L1SURFACECCDINDEX-FOCUS": {
+      "mean": 1282.2783,
+      "std": 48.4075,
+      "cv": 0.0378,
+      "p05_p95_span": 146.3865,
+      "abrupt_behavior": "no"
+    },
+    "HX-MAP-L1FURNACETHERMALMAP2-MEAN": {
+      "mean": 862.1339,
+      "std": 0.6025,
+      "cv": 0.0007,
+      "p05_p95_span": 1.9995,
+      "abrupt_behavior": "no"
+    },
+    "HX-MAP-L1FURNACETHERMALMAP2-P95": {
+      "mean": 864.7243,
+      "std": 0.6538,
+      "cv": 0.0008,
+      "p05_p95_span": 2.1925,
+      "abrupt_behavior": "no"
+    },
+    "HX-MAP-L1FURNACETHERMALMAP2-HOTAREA-P90": {
+      "mean": 0.005,
+      "std": 0.0218,
+      "cv": 4.3604,
+      "p05_p95_span": 0.05,
+      "abrupt_behavior": "yes"
+    },
+    "HX-MAP-L1FURNACETHERMALMAP2-COLDAREA-P10": {
+      "mean": 0.0125,
+      "std": 0.0394,
+      "cv": 3.1528,
+      "p05_p95_span": 0.1,
+      "abrupt_behavior": "yes"
+    },
+    "HX-MAP-L1FURNACETHERMALMAP2-CENTROID-X": {
+      "mean": 2.0021,
+      "std": 0.0012,
+      "cv": 0.0006,
+      "p05_p95_span": 0.004,
+      "abrupt_behavior": "no"
+    },
+    "HX-MAP-L1FURNACETHERMALMAP2-CENTROID-Y": {
+      "mean": 1.5,
+      "std": 0.0004,
+      "cv": 0.0003,
+      "p05_p95_span": 0.0013,
+      "abrupt_behavior": "no"
+    },
+    "HX-MAP-L1FURNACETHERMALMAP2-ASYM-LR": {
+      "mean": -2.8911,
+      "std": 1.3663,
+      "cv": 0.4726,
+      "p05_p95_span": 4.3938,
+      "abrupt_behavior": "yes"
+    },
+    "HX-MAP-L1FURNACETHERMALMAP2-POSMAX-X": {
+      "mean": 3.7083,
+      "std": 0.4547,
+      "cv": 0.1226,
+      "p05_p95_span": 1,
+      "abrupt_behavior": "no"
+    },
+    "HX-MAP-L1FURNACETHERMALMAP2-POSMAX-Y": {
+      "mean": 1.5167,
+      "std": 1.1108,
+      "cv": 0.7324,
+      "p05_p95_span": 3,
+      "abrupt_behavior": "yes"
+    }
+  },
+  "dual_drive_analysis": {
+    "data_view_mode": "process_plus_inspection",
+    "group_column": null,
+    "time_column": null,
+    "per_product_analysis": {},
+    "cross_domain_links": [
+      {
+        "pair": "FUR-Z3-TEMP ~ FUR-YIELD",
+        "pearson_r": 0.8987,
+        "note": "驱动侧-质量侧相关候选（来源: 02_processed/causal_evidence_map.json / validate_report.json；expert_findings.json 分段复核 A段0.027/B段0.855/D段0.739；level-shift dominated，强度部分来自工况台阶）"
+      },
+      {
+        "pair": "FUR-Z3-TEMP ~ FUR-OUT-TEMP",
+        "pearson_r": 0.7419,
+        "note": "驱动侧-质量侧相关候选（来源: 02_processed/causal_evidence_map.json；best_lag +4 步）"
+      },
+      {
+        "pair": "HX-MAP-L1FURNACETHERMALMAP2-CENTROID-X ~ FUR-YIELD",
+        "pearson_r": 0.9559,
+        "note": "驱动侧-质量侧相关候选（来源: 02_processed/causal_evidence_map.json / validate_report.json；level-shift dominated，随工况台阶共变）"
+      },
+      {
+        "pair": "HX-MAP-L1FURNACETHERMALMAP2-MEAN ~ FUR-YIELD",
+        "pearson_r": 0.9008,
+        "note": "驱动侧-质量侧相关候选（来源: 02_processed/causal_evidence_map.json；level-shift dominated，best_lag +8）"
+      },
+      {
+        "pair": "HX-MAP-L1FURNACETHERMALMAP2-ASYM-LR ~ FUR-YIELD",
+        "pearson_r": -0.9467,
+        "note": "驱动侧-质量侧相关候选（来源: 02_processed/causal_evidence_map.json；level-shift dominated）"
+      },
+      {
+        "pair": "HX-MAP-L1FURNACETHERMALMAP2-ASYM-LR ~ HX-PROF-L1BANDTEMPPROFILE30M-EDGE-L-DEV",
+        "pearson_r": 0.6807,
+        "note": "驱动侧-检测侧相关候选（来源: 02_processed/causal_evidence_map.json / validate_report.json；Spearman 0.588，无 level-shift 告警）"
+      },
+      {
+        "pair": "HX-IMG-L1SURFACECCDINDEX-MEAN ~ FUR-YIELD",
+        "pearson_r": 0.9556,
+        "note": "驱动侧-质量侧相关候选（来源: 02_processed/causal_evidence_map.json；level-shift dominated，best_lag +3）"
+      },
+      {
+        "pair": "HX-IMG-L1SURFACECCDINDEX-STD ~ FUR-YIELD",
+        "pearson_r": -0.9431,
+        "note": "驱动侧-质量侧相关候选（来源: 02_processed/causal_evidence_map.json；level-shift dominated）"
+      },
+      {
+        "pair": "HX-MAP-L1FURNACETHERMALMAP2-CENTROID-X ~ FUR-OUT-TEMP",
+        "pearson_r": 0.7825,
+        "note": "驱动侧-质量侧相关候选（来源: 02_processed/causal_evidence_map.json；level-shift dominated，best_lag +18）"
+      },
+      {
+        "pair": "HX-MAP-L1FURNACETHERMALMAP2-P95 ~ FUR-YIELD",
+        "pearson_r": 0.6762,
+        "note": "驱动侧-质量侧相关候选（来源: 02_processed/causal_evidence_map.json）"
+      }
+    ],
+    "summary": "按无产品分组执行了工艺参数波动与检测指标异常的联合分析；已从因果证据图投影识别到10条工艺-检测联动线索（|Pearson r| 0.68-0.96，最强为 HX-MAP CENTROID-X~FUR-YIELD r=0.9559 与 FUR-Z3-TEMP~FUR-YIELD r=0.8987）；以上均为相关候选，因果方向待诊断阶段验证。"
+  },
+  "summary": {
+    "data_view_mode": "process_plus_inspection",
+    "anomaly_intervals": 8,
+    "total_transitions": 0,
+    "process_parameters_screened": 20,
+    "integrated_links": 0,
+    "normalized_from_legacy_shape": true
+  },
+  "quality_reset_analysis": {
+    "applicable": false,
+    "reason": "physics_check.py produced no quality-reset (RESET/WORSENED) classification: no discrete reset event detected on quality targets; the dominant structure is a step/plateau captured by change-point detection (window 02-06 14:30 → 02-09 07:00).",
+    "change_point_proxy": {
+      "yield_window_mean": 98.0673,
+      "yield_baseline_mean": 99.2982,
+      "z3_window_mean": 873.9145,
+      "z3_baseline_mean": 879.9996,
+      "source": "02_processed/expert_findings.json yield_cp_window_steady_idx663_977"
+    },
+    "reset_found": false,
+    "details": [
+      {
+        "transition_index": 0,
+        "quality_metric": "LAB-HRC",
+        "reset_detected": false,
+        "reset_classification": "NO_RESET",
+        "note": "per-event windows: see transition_events / event_window_analysis.json"
+      }
+    ],
+    "summary": "no quality reset observed"
+  },
+  "anomaly_onset_coincidence": [],
+  "physical_checks": {
+    "thermal_expansion": {
+      "T_range_C": [
+        864.25,
+        882.92
+      ],
+      "deviation_range": [
+        0.7996983332747579,
+        1.9448212116939245
+      ],
+      "coupling_r": -0.2365,
+      "coupling_n": 1440,
+      "note": "quantitative ΔL=α·L₀·ΔT requires material coefficient from ontology",
+      "conclusion": "THERMAL_COUPLING_NOT_DETECTED",
+      "explanation": "Deviation shows no material coupling with temperature (r=-0.237) — thermal expansion is not the dominant channel for this deviation"
+    },
+    "arrhenius_kinetics": {
+      "check": "arrhenius_kinetics",
+      "Ea_J_per_mol": 80000,
+      "R_J_per_mol_K": 8.314,
+      "T_low_C": 543,
+      "T_high_C": 882.9,
+      "predicted_rate_ratio": 32.0505,
+      "observed_rate_ratio": 1,
+      "conclusion": "ARRHENIUS_PLAUSIBLE",
+      "explanation": "Rate ratio 3.21e+01 is physically observable — temperature-driven degradation is plausible",
+      "observational_consistency": "INCONSISTENT",
+      "observational_detail": "Observed rate ratio (1.00) deviates significantly from Arrhenius prediction (3.21e+01) — other mechanisms may dominate",
+      "Ea_assumed_default": true,
+      "Ea_note": "No activation energy supplied via --ea-kj-mol/ontology — 80 kJ/mol neutral prior used; conclusion is a plausibility band, not a quantitative law"
+    }
+  },
+  "_normalization": {
+    "who": "schema_conformance.mjs (deterministic projection)",
+    "when": "2026-10-16T20:55:27.483Z"
+  }
+}

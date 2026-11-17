@@ -13,7 +13,7 @@
 // 方法名集中在一处常量表（pre-1.0 协议漂移只改这里）。审批超时/取消一律
 // fail-closed（拒绝）。进程模型：每回合一个常驻子进程，回合结束即销毁。
 
-import { spawnCli, killTree, stderrTailRef } from './cli-common.mjs';
+import { spawnCli, killTree, stderrTailRef, withTimeout, resolveEngineTimeoutMinutes } from './cli-common.mjs';
 import { createStdioJsonRpc } from './stdio-jsonrpc.mjs';
 import { config, PROJECT_ROOT } from '../../../../config/loader.mjs';
 import logger from '../utils/logger.mjs';
@@ -209,10 +209,11 @@ async function startAcpSession(id, { turnKey, prompt, label, state, emit, result
 }
 
 // ── Query wrapper: standardized async iterable over an ACP session ──
-function createAcpQuery(id, { turnKey, prompt, label }) {
+function createAcpQuery(id, { turnKey, prompt, label, timeoutMinutes = 0 }) {
   const queue = [];
   let wake = null;
   let closed = false;
+  let sawResult = false;
   let sessionId = `${id}:run:${turnKey || Date.now()}`;
   let numTurns = 0;
   let startedAt = Date.now();
@@ -227,6 +228,9 @@ function createAcpQuery(id, { turnKey, prompt, label }) {
 
   const emit = (msg) => push(msg);
   const result = (subtype, stopReason) => {
+    if (sawResult) return;
+    sawResult = true;
+    timeoutGuard.cancel();
     push({
       type: 'result',
       subtype,
@@ -244,10 +248,23 @@ function createAcpQuery(id, { turnKey, prompt, label }) {
     onEngineSession: (sid) => { if (sid) sessionId = `${id}:${sid}`; },
   });
 
+  // Per-turn timeout — a silent handshake or a stalled session/prompt would
+  // otherwise keep the run 'running' forever. state.proc is set synchronously
+  // by startAcpSession before its first await, so it is always populated here.
+  const timeoutGuard = withTimeout({
+    minutes: resolveEngineTimeoutMinutes(id, timeoutMinutes),
+    label: id,
+    context: 'Acp',
+    turnKey,
+    onTimeout: () => result('error_during_execution', `${id}_timeout`),
+    child: state.proc,
+  });
+
   return {
     engine: id,
     sessionId,
     close() {
+      timeoutGuard.cancel();
       killTree(state.proc);
       closed = true;
       if (wake) { wake(); wake = null; }
@@ -306,7 +323,7 @@ function createAcpEngineClient(id) {
     ontology = null, enhancement = null,
     analysisIntent = 'deep-diagnosis',
   }) {
-    void maxTurns; void timeoutMinutes; // turn budget enforced by abort + engine limits
+    void maxTurns; // turn budget enforced by abort + engine limits
     void sessionId; // ACP v1 无跨进程 session resume — follow-ups 走 Continue 全量重放
     const built = buildAcpPrompt({
       analysisTarget, userQuestion, sceneName, reportLanguage, followUpMessage, ontology, enhancement, analysisIntent,
@@ -315,6 +332,7 @@ function createAcpEngineClient(id) {
       turnKey: runId,
       prompt: built.prompt,
       label: `diagnosis:${runId}`,
+      timeoutMinutes,
     });
     activeQueries.set(runId, query);
     return { query, dataPaths: built.dataPaths, prompt: built.prompt, getSessionId: () => query.sessionId, runId, isResume: false };

@@ -74,6 +74,8 @@ export default {
     roleUser: '用户',
     logout: '退出',
     logoutTitle: '退出登录',
+    booting: '正在建立安全会话…',
+    bootUnreachable: '无法与服务器校验登录会话，请确认后端已启动后重试。',
   },
 
   sidebar: {
@@ -140,13 +142,6 @@ export default {
       captionPre: 'Browse',
       captionMid: 'pipeline outputs',
       runsSuffix: 'Runs',
-    },
-    closedloop: {
-      label: 'Expert Analysis',
-      kicker: 'Skill-Driven Agent Analysis',
-      title: '专项智能体分析',
-      description: '稳定性报告、哨兵快筛、经验挖掘、闭环寻优——每个面板都以所选执行引擎拉起真实智能体，按对应 skill 协议对你选定的数据文件夹做真实分析，过程实时流式展示，产物落盘可追溯。固定脚本分析已全部退役。',
-      caption: 'Agent-executed skill analysis on your folder data',
     },
   },
 
@@ -639,6 +634,7 @@ export default {
     awaiting_input: '等待回答',
     in_progress: '运行中',
     pending: '待执行',
+    queued: '待执行',
     failed: '失败',
     stopped: '已停止',
     expired: '已过期',
@@ -1014,62 +1010,6 @@ export default {
     correlationMatrix: '相关系数矩阵',
   },
 
-  closedloop: {
-    subtabs: {
-      'stability-report': '产线稳定性报告',
-      'quick-screen': '哨兵快筛',
-      'experience-mining': '经验挖掘',
-      'optimizer-campaign': '闭环寻优',
-    },
-    panels: {
-      'stability-report': {
-        title: '产线运行稳定性报告（industrial-line-stability-report）',
-        desc: '选择数据文件夹，智能体按 line-stability-report 协议真实执行：理解工况 → 稳定性评估（SPC / Cpk / 漂移 / 相关驱动）→ 评分分级 + 证据链中文报告。数字全部来自本次运行实际执行的工具。',
-      },
-      'quick-screen': {
-        title: '产线哨兵快筛（industrial-sentinel）',
-        desc: '选择数据文件夹，智能体按 sentinel 协议真实执行：从历史数据构建基线 → 对当前数据做 SPC / 漂移 / 变点筛查 → 输出告警发现与批筛报告。',
-      },
-      'experience-mining': {
-        title: '调优经验挖掘（industrial-tuning-memory）',
-        desc: '选择含动作日志的数据文件夹，智能体按 tuning-memory 协议真实执行：动作归因 → 经验条目沉淀 → 故障签名检索与历史处置效果报告。',
-      },
-      'optimizer-campaign': {
-        title: '闭环寻优（industrial-optimizer-loop）',
-        desc: '选择试验/工况数据文件夹，智能体按 optimizer-loop 协议真实执行：目标解析 → 布点设计或试验收敛分析 → 配方收敛建议报告（只做设计/分析，绝不派发参数）。',
-      },
-    },
-    launcher: {
-      up: '上级目录',
-      loading: '正在读取目录…',
-      empty: '该目录为空。',
-      folder: '文件夹',
-      selected: '分析目标',
-      none: '尚未选择文件夹',
-      questionPlaceholder: '给智能体的补充说明（可选）：关注哪些参数 / 时段 / 判定口径…',
-      note: '点击启动后，执行引擎拉起真实智能体按 {skill} 协议分析所选文件夹，过程实时展示。',
-      launch: '启动智能体分析',
-      starting: '正在拉起…',
-    },
-    runs: {
-      title: '该专项的最近运行',
-      refresh: '刷新',
-      loading: '加载中…',
-      empty: '还没有该专项的运行记录。',
-      name: '运行',
-      status: '状态',
-      time: '发起时间',
-      open: '查看过程',
-      status_completed: '已完成',
-      status_failed: '失败',
-      status_stopped: '已停止',
-      status_running: '运行中',
-      status_queued: '待执行',
-      status_awaiting: '等待输入',
-      status_expired: '已过期',
-    },
-  },
-
   workbench: {
     intentLabel: '分析任务（全部由集成智能体真实执行）',
     agentNote: '选定任务后，系统以所选执行引擎拉起真实智能体：读取数据 → 按对应技能协议执行分析 → 在运行目录产出报告。没有固定脚本分析——所有数字都来自本次运行中智能体实际执行的工具。',
@@ -1086,18 +1026,6 @@ export default {
       'quick-screen': {
         name: '数据快筛',
         desc: '智能体按 sentinel 协议构建基线并对当前数据做告警筛查',
-      },
-      'doe-analysis': {
-        name: 'DOE / 工况分析',
-        desc: '智能体按 doe-analyzer 协议做效应 / 相关 / 稳定性 / 操作窗分析',
-      },
-      'experience-mining': {
-        name: '经验挖掘',
-        desc: '智能体按 tuning-memory 协议对动作日志做归因，产出经验检索报告',
-      },
-      'optimizer-campaign': {
-        name: '闭环寻优',
-        desc: '智能体按 optimizer-loop 协议做布点设计 / 试验收敛分析并给出配方建议',
       },
     },
   },

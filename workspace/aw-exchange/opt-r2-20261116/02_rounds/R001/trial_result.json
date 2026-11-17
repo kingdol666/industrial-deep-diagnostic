@@ -1,0 +1,55 @@
+{
+  "result_version": "1.0",
+  "campaign_id": "OPT-20261116-101",
+  "round_id": "R001",
+  "trials": [
+    {
+      "trial_id": "R001-T03",
+      "status": "completed",
+      "measurements": {
+        "制品克重PV": [
+          31.788,
+          31.792499999999997,
+          31.776,
+          31.793333333333333
+        ]
+      },
+      "measured_at": "2026-11-16T12:00:23.573Z",
+      "operator_note": "current baseline, no write; simulated line"
+    },
+    {
+      "trial_id": "R001-T02",
+      "status": "completed",
+      "measurements": {
+        "制品克重PV": [
+          32.178,
+          32.215999999999994,
+          32.233999999999995,
+          32.233999999999995
+        ]
+      },
+      "measured_at": "2026-11-16T12:02:45.888Z",
+      "operator_note": "governed DCW writes: [{\"name\":\"保压压力SP\",\"from\":58,\"target\":60,\"readback\":60,\"anchorId\":\"anc-65c05dfe\"},{\"name\":\"保压时间SP\",\"from\":4,\"target\":4.5,\"readback\":4.5,\"anchorId\":\"anc-351c4e99\"},{\"name\":\"冷却流量SP\",\"from\":15,\"target\":16,\"readback\":16,\"anchorId\":\"anc-12a648fd\"},{\"name\":\"料温SP\",\"from\":208,\"target\":210,\"readback\":210,\"anchorId\":\"anc-1eabe6e2\"}]"
+    },
+    {
+      "trial_id": "R001-T01",
+      "status": "completed",
+      "measurements": {
+        "制品克重PV": [
+          32.5325,
+          32.564,
+          32.577999999999996,
+          32.57
+        ]
+      },
+      "measured_at": "2026-11-16T12:04:07.089Z",
+      "operator_note": "governed DCW writes: [{\"name\":\"保压压力SP\",\"from\":62,\"target\":64,\"readback\":64,\"anchorId\":\"anc-155c135b\"},{\"name\":\"冷却流量SP\",\"from\":16,\"target\":15,\"readback\":15,\"anchorId\":\"anc-110216ac\"},{\"name\":\"料温SP\",\"from\":210,\"target\":211,\"readback\":211,\"anchorId\":\"anc-6f16b8cd\"}]"
+    }
+  ],
+  "environment": {
+    "line_id": "ln-da75ea3d",
+    "line_kind": "five-protocol simulator shadow :4055",
+    "executor": "platform admin DCW writes (AWS/manual contract)",
+    "governance": "range+stepLimit+60s hold+journal anchors"
+  }
+}

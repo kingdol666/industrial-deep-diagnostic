@@ -8,6 +8,11 @@
 server:
   port: 3210
   body_limit: "10mb"
+  # CORS 白名单 —— 只有列出的浏览器来源会拿到 CORS 头（旧的任意来源 '*' 已废弃）。
+  # 默认覆盖 Vite 开发服务器；生产运维用 CORS_ORIGINS 环境变量（逗号分隔）覆盖。
+  cors_origins:
+    - "http://localhost:5180"
+    - "http://127.0.0.1:5180"
 
 # --- Frontend Dev Server ---
 frontend:
@@ -31,9 +36,15 @@ claude:
   output_format: "stream-json"
   verbose: true
   dangerously_skip_permissions: true
-  api_base_url: ""                          # Override Anthropic API base URL (used when env var is missing, e.g. under sudo)
-  api_key: ""                               # Override Anthropic API key (used when env var is missing)
-  api_auth_token: ""                        # Auth token for 3rd-party API providers (e.g. zhipu/glm)
+  # ── API credentials are env-only (no config slots) ────────────────────────
+  # The old api_base_url / api_key / api_auth_token slots were DEAD: nothing in
+  # the repo read config.claude.api_* (repo-wide grep, 2026-10-17), so a key
+  # pasted here silently did nothing. The engine CLIs inherit the environment
+  # of the backend process instead, so set these in the environment:
+  #   ANTHROPIC_API_KEY, ANTHROPIC_AUTH_TOKEN, ANTHROPIC_BASE_URL  (claude, omp)
+  #   DEEPSEEK_API_KEY, DEEPSEEK_BASE_URL                          (dsh)
+  # They are listed in security.allowed_env_vars below (see also
+  # docker-compose.yml, which forwards them into the container).
   allowed_tools: "Read(/**),Write(/**),Edit(/**),Bash(/**),Agent(/**),Task(/**),Skill(industrial-deep-diagnostic),WebSearch,WebFetch,NotebookEdit,Glob(/**),Grep(/**),AskUserQuestion"
   model: "claude-opus-4-7"
   max_turns: 200                             # 0 = unlimited
@@ -97,6 +108,9 @@ diagnosis:
   default_language: "zh"                     # "zh" (Chinese) or "en" (English)
   run_id_length: 8
   name_format: "{scene}_{run_id}"
+  # 并发治理（P0-5）：同时执行的诊断上限；超出者进入 FIFO 等待队列（status=queued），
+  # 有运行结束后自动开始。环境变量 MAX_CONCURRENT_RUNS 覆盖本值。
+  max_concurrent_runs: 2
 
 # --- Data Paths (relative to project root) ---
 data:
@@ -122,6 +136,24 @@ data:
 engine:
   max_event_buffer: 500
   close_run_delay_seconds: 60
+  # 慢运行看门狗（阶段 5.4）：状态为 running 且超过该分钟数没有任何新事件的
+  # 运行，会在日志里告警一次，并在该 run 的事件流上补一条 run_stalled 提示事
+  # 件；事件恢复后重新计时（同一空闲窗口只告警一次）。0 = 关闭该检测。
+  stall_warn_minutes: 10
+
+# --- Health Probes ---
+# GET /api/health       = liveness  (process up + DB reachable; Docker HEALTHCHECK)
+# GET /api/health/ready = readiness (DB + free disk + engine availability;
+#                         HTTP 503 only when a critical dependency is down,
+#                         200 + {status:"degraded", reasons:[...]} for warnings)
+health:
+  # Free space (MB) on the data dir below which readiness reports
+  # {status:"degraded", reasons:["low_disk"]} (still HTTP 200).
+  min_free_mb: 500
+  # Readiness waits at most this long for the (30s-cached) engine-availability
+  # probe; a probe that is still running reports {engines:{status:"unknown"}}
+  # instead of blocking the probe request.
+  engine_probe_timeout_ms: 2500
 
 # --- WebSocket ---
 websocket:
@@ -129,8 +161,25 @@ websocket:
   heartbeat_timeout_ms: 60000           # 60s without pong → terminate connection
 
 # --- Security ---
+# (hitl_auto_deny_seconds retired with the HITL approval registry — dangerous
+#  commands are auto-approved by the SDK and `hitl_request` is an informational
+#  notice only, so no approval ever waits on a timeout.)
 security:
-  hitl_auto_deny_seconds: 120
+  # 登录限流（P0-6）：同一 IP 在 window_ms 内最多 max 次 POST /api/auth/login，
+  # 超限返回 429 + Retry-After。进程内内存实现（零依赖），重启即清零。
+  login_rate_limit:
+    window_ms: 60000
+    max: 5
+  # 诊断启动/执行限流（P0-6）：同一用户（无身份时按 IP）在 window_ms 内最多
+  # max 次 POST /api/diagnosis/{start,execute,tasks} —— 三者都会创建真实运行。
+  start_rate_limit:
+    window_ms: 60000
+    max: 10
+  # 文件上传限流（P0-6）：同一用户（无身份时按 IP）在 window_ms 内最多 max 次
+  # POST /api/files/data/upload。AUTH_ENABLED=0（单机调试）下自动让行。
+  upload_rate_limit:
+    window_ms: 60000
+    max: 20
   allowed_env_vars:
     - PATH
     - HOME

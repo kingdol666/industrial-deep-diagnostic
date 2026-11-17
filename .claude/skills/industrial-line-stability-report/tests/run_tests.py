@@ -770,7 +770,9 @@ def main():
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     only = sys.argv[1] if len(sys.argv) > 1 else "all"
-    base = tempfile.mkdtemp(prefix="lsr-tests-", dir=os.path.join(HERE))
+    # Scratch under the system temp dir (never inside the tracked tests/ tree;
+    # removed in the finally block below).
+    base = tempfile.mkdtemp(prefix="lsr-tests-")
     try:
         rep, stable_out = scenario_stable(base)
         scenario_unstable(base)

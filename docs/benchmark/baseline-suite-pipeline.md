@@ -51,7 +51,7 @@ node scripts/benchmark/run-benchmark.mjs   # 等价：审稿人一键入口（S0
 ```bash
 node scripts/benchmark/run-benchmark-pipeline.mjs --step 2
 # 手动等价：Step 2 会自动探测/拉起套件（优先 5181，被占用时读取日志的实际端口）
-#   ind-diag all                                        # IDD：backend 3210 + frontend 5180
+#   ind-diag start --all                                # IDD：backend 3210 + frontend 5180
 #   cd baselines/baseline-suite && node node_modules/nuxt/bin/nuxt.mjs dev --port 5181
 #   node baselines/baseline-suite/scripts/run-all.mjs --base http://localhost:5181
 ```

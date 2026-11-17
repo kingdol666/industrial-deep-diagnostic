@@ -1,0 +1,886 @@
+{
+  "contract_version": "line-stability-report/1.0",
+  "report_id": "LSR-1791950618-3u3epx",
+  "generated_at": "2026-10-14T04:03:38Z",
+  "status": "ok",
+  "line": {
+    "line_id": null,
+    "product": null
+  },
+  "period": {
+    "start": "2026-09-01 00:00:00",
+    "end": "2026-09-07 23:00:00",
+    "requested": {
+      "start": null,
+      "end": null
+    }
+  },
+  "data": {
+    "path": "workspace/lst-teaching-kit/T4_food_dryer\\00_input\\dryer_7d.parquet",
+    "sha256": "sha256:7946c74d4008bdb5b3adfb936d5d7a37a68f531a39080d823889c13b71c0012e",
+    "time_col": "时间",
+    "group_col": null,
+    "group_used": null,
+    "parameter_cols": [
+      "烘干温度",
+      "排湿风机频率",
+      "网带速度",
+      "出料水分",
+      "水分活度"
+    ],
+    "inspection_cols": [],
+    "ignored_cols": [],
+    "sampled": false,
+    "stride": 1,
+    "n_rows_raw": 168,
+    "n_rows_used": 168,
+    "time_span_seconds": 601200.0,
+    "sampling_interval_median_seconds": 3600.0,
+    "missing_rate": 0.0,
+    "coverage_ratio": 1.0,
+    "time_invariant_channels": {
+      "count": 0,
+      "total": 5,
+      "share": 0.0,
+      "examples": []
+    }
+  },
+  "condition": {
+    "ontology": {
+      "mode": "auto",
+      "path": null,
+      "source": null,
+      "reason": "no ontology artifact found (auto mode)"
+    },
+    "scene": null,
+    "columns": {
+      "烘干温度": {
+        "assigned_by": "auto",
+        "label": "烘干温度",
+        "unit": null,
+        "role": "parameter",
+        "spec": null,
+        "normal_range": null,
+        "stage": null,
+        "equipment": null,
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null
+      },
+      "排湿风机频率": {
+        "assigned_by": "auto",
+        "label": "排湿风机频率",
+        "unit": null,
+        "role": "parameter",
+        "spec": null,
+        "normal_range": null,
+        "stage": null,
+        "equipment": null,
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null
+      },
+      "网带速度": {
+        "assigned_by": "auto",
+        "label": "网带速度",
+        "unit": null,
+        "role": "parameter",
+        "spec": null,
+        "normal_range": null,
+        "stage": null,
+        "equipment": null,
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null
+      },
+      "出料水分": {
+        "assigned_by": "auto",
+        "label": "出料水分",
+        "unit": null,
+        "role": "parameter",
+        "spec": null,
+        "normal_range": null,
+        "stage": null,
+        "equipment": null,
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null
+      },
+      "水分活度": {
+        "assigned_by": "auto",
+        "label": "水分活度",
+        "unit": null,
+        "role": "parameter",
+        "spec": null,
+        "normal_range": null,
+        "stage": null,
+        "equipment": null,
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null
+      }
+    },
+    "relationships": [],
+    "regimes": {
+      "available": true,
+      "method": "fast",
+      "change_points": [],
+      "regimes": [
+        {
+          "start": 0,
+          "end": 167,
+          "label": "steady",
+          "n_rows": 168
+        }
+      ],
+      "abnormal_ratio": 0.0
+    }
+  },
+  "parameters": [
+    {
+      "name": "烘干温度",
+      "role": "parameter",
+      "condition": {
+        "label": "烘干温度",
+        "unit": null,
+        "assigned_by": "auto",
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null,
+        "stage": null,
+        "equipment": null
+      },
+      "n": 168,
+      "row_range": [
+        0,
+        167
+      ],
+      "data_source": "raw",
+      "mu": 81.993869,
+      "median": 82.0,
+      "sigma": 0.160168,
+      "sigma_within_mr": 0.167378,
+      "cv": 0.001948,
+      "min": 81.61,
+      "max": 82.47,
+      "spec": {
+        "lsl": null,
+        "usl": null,
+        "target": null,
+        "source": null
+      },
+      "capability": {
+        "cp": null,
+        "cpk": null,
+        "pp": null,
+        "ppk": null
+      },
+      "nelson": {
+        "NELSON_R3": {
+          "n_episodes": 2,
+          "indices": [
+            30,
+            80
+          ]
+        }
+      },
+      "n_violation_points": 2,
+      "drift": {
+        "slope_per_second": -0.0,
+        "per_day_relative": 0.0,
+        "mk_p": 0.932197,
+        "significant": false
+      },
+      "baseline_ref": null,
+      "score": 99,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -1,
+        "cv_penalty": 0,
+        "capability_penalty": 0,
+        "drift_penalty": 0,
+        "baseline_penalty": 0,
+        "total": 99
+      }
+    },
+    {
+      "name": "排湿风机频率",
+      "role": "parameter",
+      "condition": {
+        "label": "排湿风机频率",
+        "unit": null,
+        "assigned_by": "auto",
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null,
+        "stage": null,
+        "equipment": null
+      },
+      "n": 168,
+      "row_range": [
+        0,
+        167
+      ],
+      "data_source": "raw",
+      "mu": 46.01369,
+      "median": 46.02,
+      "sigma": 0.102341,
+      "sigma_within_mr": 0.094651,
+      "cv": 0.002218,
+      "min": 45.72,
+      "max": 46.25,
+      "spec": {
+        "lsl": null,
+        "usl": null,
+        "target": null,
+        "source": null
+      },
+      "capability": {
+        "cp": null,
+        "cpk": null,
+        "pp": null,
+        "ppk": null
+      },
+      "nelson": {
+        "NELSON_R6": {
+          "n_episodes": 2,
+          "indices": [
+            24,
+            49
+          ]
+        },
+        "NELSON_R1": {
+          "n_episodes": 2,
+          "indices": [
+            94,
+            113
+          ]
+        },
+        "NELSON_R2": {
+          "n_episodes": 1,
+          "indices": [
+            143
+          ]
+        }
+      },
+      "n_violation_points": 5,
+      "drift": {
+        "slope_per_second": -0.0,
+        "per_day_relative": 3.9e-05,
+        "mk_p": 0.545814,
+        "significant": false
+      },
+      "baseline_ref": null,
+      "score": 98,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -2,
+        "cv_penalty": 0,
+        "capability_penalty": 0,
+        "drift_penalty": 0,
+        "baseline_penalty": 0,
+        "total": 98
+      }
+    },
+    {
+      "name": "网带速度",
+      "role": "parameter",
+      "condition": {
+        "label": "网带速度",
+        "unit": null,
+        "assigned_by": "auto",
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null,
+        "stage": null,
+        "equipment": null
+      },
+      "n": 168,
+      "row_range": [
+        0,
+        167
+      ],
+      "data_source": "raw",
+      "mu": 12.50119,
+      "median": 12.502,
+      "sigma": 0.020143,
+      "sigma_within_mr": 0.019599,
+      "cv": 0.001606,
+      "min": 12.449,
+      "max": 12.568,
+      "spec": {
+        "lsl": null,
+        "usl": null,
+        "target": null,
+        "source": null
+      },
+      "capability": {
+        "cp": null,
+        "cpk": null,
+        "pp": null,
+        "ppk": null
+      },
+      "nelson": {
+        "NELSON_R1": {
+          "n_episodes": 1,
+          "indices": [
+            133
+          ]
+        },
+        "NELSON_R6": {
+          "n_episodes": 1,
+          "indices": [
+            133
+          ]
+        }
+      },
+      "n_violation_points": 2,
+      "drift": {
+        "slope_per_second": -0.0,
+        "per_day_relative": 6e-06,
+        "mk_p": 0.774289,
+        "significant": false
+      },
+      "baseline_ref": null,
+      "score": 99,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -1,
+        "cv_penalty": 0,
+        "capability_penalty": 0,
+        "drift_penalty": 0,
+        "baseline_penalty": 0,
+        "total": 99
+      }
+    },
+    {
+      "name": "出料水分",
+      "role": "parameter",
+      "condition": {
+        "label": "出料水分",
+        "unit": null,
+        "assigned_by": "auto",
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null,
+        "stage": null,
+        "equipment": null
+      },
+      "n": 168,
+      "row_range": [
+        0,
+        167
+      ],
+      "data_source": "raw",
+      "mu": 7.20081,
+      "median": 7.2045,
+      "sigma": 0.033057,
+      "sigma_within_mr": 0.03072,
+      "cv": 0.004577,
+      "min": 7.104,
+      "max": 7.287,
+      "spec": {
+        "lsl": null,
+        "usl": null,
+        "target": null,
+        "source": null
+      },
+      "capability": {
+        "cp": null,
+        "cpk": null,
+        "pp": null,
+        "ppk": null
+      },
+      "nelson": {
+        "NELSON_R2": {
+          "n_episodes": 3,
+          "indices": [
+            12,
+            47,
+            119
+          ]
+        },
+        "NELSON_R1": {
+          "n_episodes": 2,
+          "indices": [
+            16,
+            72
+          ]
+        },
+        "NELSON_R5": {
+          "n_episodes": 2,
+          "indices": [
+            87,
+            167
+          ]
+        }
+      },
+      "n_violation_points": 7,
+      "drift": {
+        "slope_per_second": 0.0,
+        "per_day_relative": 0.000563,
+        "mk_p": 0.000373,
+        "significant": false
+      },
+      "baseline_ref": null,
+      "score": 97,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -3,
+        "cv_penalty": 0,
+        "capability_penalty": 0,
+        "drift_penalty": 0,
+        "baseline_penalty": 0,
+        "total": 97
+      }
+    },
+    {
+      "name": "水分活度",
+      "role": "parameter",
+      "condition": {
+        "label": "水分活度",
+        "unit": null,
+        "assigned_by": "auto",
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null,
+        "stage": null,
+        "equipment": null
+      },
+      "n": 168,
+      "row_range": [
+        0,
+        167
+      ],
+      "data_source": "raw",
+      "mu": 0.5803,
+      "median": 0.5803,
+      "sigma": 0.002377,
+      "sigma_within_mr": 0.002202,
+      "cv": 0.004084,
+      "min": 0.5714,
+      "max": 0.5864,
+      "spec": {
+        "lsl": null,
+        "usl": null,
+        "target": null,
+        "source": null
+      },
+      "capability": {
+        "cp": null,
+        "cpk": null,
+        "pp": null,
+        "ppk": null
+      },
+      "nelson": {
+        "NELSON_R1": {
+          "n_episodes": 2,
+          "indices": [
+            1,
+            38
+          ]
+        },
+        "NELSON_R5": {
+          "n_episodes": 1,
+          "indices": [
+            3
+          ]
+        },
+        "NELSON_R2": {
+          "n_episodes": 1,
+          "indices": [
+            94
+          ]
+        },
+        "NELSON_R3": {
+          "n_episodes": 1,
+          "indices": [
+            167
+          ]
+        }
+      },
+      "n_violation_points": 5,
+      "drift": {
+        "slope_per_second": 0.0,
+        "per_day_relative": 0.00018,
+        "mk_p": 0.266459,
+        "significant": false
+      },
+      "baseline_ref": null,
+      "score": 98,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -2,
+        "cv_penalty": 0,
+        "capability_penalty": 0,
+        "drift_penalty": 0,
+        "baseline_penalty": 0,
+        "total": 98
+      }
+    }
+  ],
+  "correlations": {
+    "max_lag": 10,
+    "pairs": [
+      {
+        "pearson": 0.034508,
+        "spearman": 0.059229,
+        "best_abs_r": 0.197639,
+        "best_lag_rows": 6,
+        "leader": "水分活度",
+        "pearson_at_best": 0.187234,
+        "spearman_at_best": 0.197639,
+        "a": "网带速度",
+        "b": "水分活度",
+        "n": 168
+      },
+      {
+        "pearson": 0.040184,
+        "spearman": 0.035952,
+        "best_abs_r": 0.195215,
+        "best_lag_rows": 10,
+        "leader": "烘干温度",
+        "pearson_at_best": -0.191112,
+        "spearman_at_best": -0.195215,
+        "a": "烘干温度",
+        "b": "排湿风机频率",
+        "n": 168
+      },
+      {
+        "pearson": 0.02406,
+        "spearman": 0.015925,
+        "best_abs_r": 0.186429,
+        "best_lag_rows": 3,
+        "leader": "烘干温度",
+        "pearson_at_best": -0.149861,
+        "spearman_at_best": -0.186429,
+        "a": "烘干温度",
+        "b": "出料水分",
+        "n": 168
+      },
+      {
+        "pearson": 0.163605,
+        "spearman": 0.170584,
+        "best_abs_r": 0.182405,
+        "best_lag_rows": 9,
+        "leader": "烘干温度",
+        "pearson_at_best": 0.18449,
+        "spearman_at_best": 0.182405,
+        "a": "烘干温度",
+        "b": "水分活度",
+        "n": 168
+      },
+      {
+        "pearson": 0.094779,
+        "spearman": 0.051586,
+        "best_abs_r": 0.172219,
+        "best_lag_rows": 4,
+        "leader": "烘干温度",
+        "pearson_at_best": -0.162698,
+        "spearman_at_best": -0.172219,
+        "a": "烘干温度",
+        "b": "网带速度",
+        "n": 168
+      },
+      {
+        "pearson": 0.024057,
+        "spearman": 0.00232,
+        "best_abs_r": 0.163879,
+        "best_lag_rows": 10,
+        "leader": "排湿风机频率",
+        "pearson_at_best": 0.118014,
+        "spearman_at_best": 0.163879,
+        "a": "排湿风机频率",
+        "b": "网带速度",
+        "n": 168
+      },
+      {
+        "pearson": -0.059836,
+        "spearman": -0.094828,
+        "best_abs_r": 0.151494,
+        "best_lag_rows": 2,
+        "leader": "出料水分",
+        "pearson_at_best": -0.148167,
+        "spearman_at_best": -0.151494,
+        "a": "出料水分",
+        "b": "水分活度",
+        "n": 168
+      },
+      {
+        "pearson": -0.143264,
+        "spearman": -0.111158,
+        "best_abs_r": 0.137082,
+        "best_lag_rows": 7,
+        "leader": "网带速度",
+        "pearson_at_best": 0.133005,
+        "spearman_at_best": 0.137082,
+        "a": "网带速度",
+        "b": "出料水分",
+        "n": 168
+      },
+      {
+        "pearson": -0.050608,
+        "spearman": -0.069026,
+        "best_abs_r": 0.128227,
+        "best_lag_rows": 7,
+        "leader": "排湿风机频率",
+        "pearson_at_best": 0.127471,
+        "spearman_at_best": 0.128227,
+        "a": "排湿风机频率",
+        "b": "出料水分",
+        "n": 168
+      },
+      {
+        "pearson": 0.074025,
+        "spearman": 0.065922,
+        "best_abs_r": 0.115682,
+        "best_lag_rows": 7,
+        "leader": "水分活度",
+        "pearson_at_best": 0.16154,
+        "spearman_at_best": 0.115682,
+        "a": "排湿风机频率",
+        "b": "水分活度",
+        "n": 168
+      }
+    ],
+    "contributions": [],
+    "contributions_skipped": "未声明检测/响应指标（inspection_cols 或本体 role=response），贡献分析未执行——默认目标列不可解释"
+  },
+  "integrations": {
+    "sentinel_baseline": {
+      "used": false,
+      "path": null
+    },
+    "tuning_memory": {
+      "used": false
+    },
+    "doe_analyzer": {
+      "used": false
+    }
+  },
+  "degradations": [],
+  "limitations": {
+    "data_source": "raw (this skill never cleans or imputes; every number is recomputable from the raw table)",
+    "sampling": {
+      "n_rows_analyzed": 168,
+      "sampled": false,
+      "stride": 1,
+      "note": null
+    },
+    "missing_rate": 0.0,
+    "sampling_interval_seconds": 3600.0,
+    "spec_coverage": {
+      "user": [],
+      "ontology": [],
+      "none": [
+        "烘干温度",
+        "排湿风机频率",
+        "网带速度",
+        "出料水分",
+        "水分活度"
+      ]
+    },
+    "model_assumptions": [
+      "lag-compensated Spearman window 0–10 rows (lead/lag beyond this window is invisible)",
+      "whole-period scoring assumes one dominant operating condition; use the regime table for segmented reading",
+      "Cpk treats within-sigma as MR̄/1.128 moving-range estimate"
+    ],
+    "confounders": [],
+    "derived_fields": [
+      "baseline_ref.robust_z",
+      "correlations.contributions.share",
+      "correlations.pairs.best_abs_r"
+    ]
+  },
+  "provenance": {
+    "input_sha256": "sha256:7946c74d4008bdb5b3adfb936d5d7a37a68f531a39080d823889c13b71c0012e",
+    "script_version": "1.0.0",
+    "authored_by": "lstcore/stability_analyzer.py",
+    "zero_llm": true,
+    "spc_source": "sentinelcore",
+    "regime_method": "fast",
+    "ontology_source": null,
+    "python": "3.12.7",
+    "numpy": "2.5.2",
+    "pandas": "3.0.5",
+    "methods": [
+      "sentinelcore_nelson_episodes",
+      "mrbar_sigma_1.128",
+      "cpk_within_ppk_overall",
+      "theil_sen_mk_drift",
+      "lagged_spearman_max10",
+      "contribution_r2_share",
+      "regime_segmentation_c3",
+      "ontology_first_condition",
+      "weighted_penalty_score_v1",
+      "darwin_limitations"
+    ]
+  },
+  "findings": [
+    {
+      "finding_id": "F001",
+      "severity": "high",
+      "category": "spc",
+      "title": "排湿风机频率 检出 SPC 违规",
+      "detail": "共 5 个判异剧集命中（每百点 3.0 个，规则：NELSON_R1/NELSON_R2/NELSON_R6），控制限为中心值46.02±3σ_within（σ=0.0947）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 5,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 2.98,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 0.094651,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "排湿风机频率"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F002",
+      "severity": "high",
+      "category": "spc",
+      "title": "出料水分 检出 SPC 违规",
+      "detail": "共 7 个判异剧集命中（每百点 4.2 个，规则：NELSON_R1/NELSON_R2/NELSON_R5），控制限为中心值7.2045±3σ_within（σ=0.0307）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 7,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 4.17,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 0.03072,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "出料水分"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F003",
+      "severity": "high",
+      "category": "spc",
+      "title": "水分活度 检出 SPC 违规",
+      "detail": "共 5 个判异剧集命中（每百点 3.0 个，规则：NELSON_R1/NELSON_R2/NELSON_R3/NELSON_R5），控制限为中心值0.5803±3σ_within（σ=0.0022）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 5,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 2.98,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 0.002202,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "水分活度"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F004",
+      "severity": "warn",
+      "category": "spc",
+      "title": "烘干温度 检出 SPC 违规",
+      "detail": "共 2 个判异剧集命中（每百点 1.2 个，规则：NELSON_R3），控制限为中心值82±3σ_within（σ=0.1674）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 2,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 1.19,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 0.167378,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "烘干温度"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F005",
+      "severity": "warn",
+      "category": "spc",
+      "title": "网带速度 检出 SPC 违规",
+      "detail": "共 2 个判异剧集命中（每百点 1.2 个，规则：NELSON_R1/NELSON_R6），控制限为中心值12.502±3σ_within（σ=0.0196）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 2,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 1.19,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 0.019599,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "网带速度"
+      ],
+      "confidence": 90
+    }
+  ],
+  "conclusion": {
+    "score": 98.2,
+    "grade": "A",
+    "grade_key": "stable",
+    "label": "稳定",
+    "statement": "该产线在本时段总体运行稳定（98.2 分，A 级）：评估 5 个参数，检出 21 个 SPC 违规剧集、0 项显著漂移。",
+    "n_parameters_assessed": 5,
+    "n_findings": 5,
+    "findings_by_severity": {
+      "info": 0,
+      "warn": 2,
+      "high": 3,
+      "critical": 0
+    }
+  }
+}

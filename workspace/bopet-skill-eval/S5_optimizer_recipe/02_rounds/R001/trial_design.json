@@ -1,0 +1,120 @@
+{
+  "design_version": "1.0",
+  "campaign_id": "OPT-20261014-001",
+  "round_id": "R001",
+  "phase": "explore",
+  "method": "lhs_fill",
+  "trials": [
+    {
+      "trial_id": "R001-T01",
+      "setpoints": {
+        "TDO定型区温度CX6": 187.490472,
+        "TDO拉伸区温度CX4": 244.138561,
+        "纵拉拉伸速度": 52.052522
+      },
+      "extrapolation": true,
+      "safety_checked": true,
+      "selection_reason": "space-filling LHS (exploring); lhs_fill; dup_to_existing=False; nearest_data_coded=inf"
+    },
+    {
+      "trial_id": "R001-T02",
+      "setpoints": {
+        "TDO定型区温度CX6": 192.116169,
+        "TDO拉伸区温度CX4": 238.057547,
+        "纵拉拉伸速度": 54.874608
+      },
+      "extrapolation": true,
+      "safety_checked": true,
+      "selection_reason": "space-filling LHS (exploring); lhs_fill; dup_to_existing=False; nearest_data_coded=inf"
+    },
+    {
+      "trial_id": "R001-T03",
+      "setpoints": {
+        "TDO定型区温度CX6": 195.226628,
+        "TDO拉伸区温度CX4": 240.848547,
+        "纵拉拉伸速度": 51.343503
+      },
+      "extrapolation": true,
+      "safety_checked": true,
+      "selection_reason": "space-filling LHS (exploring); lhs_fill; dup_to_existing=False; nearest_data_coded=inf"
+    },
+    {
+      "trial_id": "R001-T04",
+      "setpoints": {
+        "TDO定型区温度CX6": 190.908707,
+        "TDO拉伸区温度CX4": 243.24442,
+        "纵拉拉伸速度": 53.137229
+      },
+      "extrapolation": true,
+      "safety_checked": true,
+      "selection_reason": "space-filling LHS (exploring); lhs_fill; dup_to_existing=False; nearest_data_coded=inf"
+    },
+    {
+      "trial_id": "R001-T05",
+      "setpoints": {
+        "TDO定型区温度CX6": 194.238401,
+        "TDO拉伸区温度CX4": 236.612257,
+        "纵拉拉伸速度": 52.286027
+      },
+      "extrapolation": true,
+      "safety_checked": true,
+      "selection_reason": "space-filling LHS (exploring); lhs_fill; dup_to_existing=False; nearest_data_coded=inf"
+    },
+    {
+      "trial_id": "R001-T06",
+      "setpoints": {
+        "TDO定型区温度CX6": 189.437015,
+        "TDO拉伸区温度CX4": 240.505905,
+        "纵拉拉伸速度": 51.682755
+      },
+      "extrapolation": true,
+      "safety_checked": true,
+      "selection_reason": "space-filling LHS (exploring); lhs_fill; dup_to_existing=False; nearest_data_coded=inf"
+    },
+    {
+      "trial_id": "R001-T07",
+      "setpoints": {
+        "TDO定型区温度CX6": 193.319996,
+        "TDO拉伸区温度CX4": 242.657669,
+        "纵拉拉伸速度": 53.622728
+      },
+      "extrapolation": true,
+      "safety_checked": true,
+      "selection_reason": "space-filling LHS (exploring); lhs_fill; dup_to_existing=False; nearest_data_coded=inf"
+    },
+    {
+      "trial_id": "R001-T08",
+      "setpoints": {
+        "TDO定型区温度CX6": 188.304507,
+        "TDO拉伸区温度CX4": 235.309592,
+        "纵拉拉伸速度": 54.163041
+      },
+      "extrapolation": true,
+      "safety_checked": true,
+      "selection_reason": "space-filling LHS (exploring); lhs_fill; dup_to_existing=False; nearest_data_coded=inf"
+    },
+    {
+      "trial_id": "R001-T09",
+      "setpoints": {
+        "TDO定型区温度CX6": 186.645022,
+        "TDO拉伸区温度CX4": 238.642816,
+        "纵拉拉伸速度": 52.81112
+      },
+      "extrapolation": true,
+      "safety_checked": true,
+      "selection_reason": "space-filling LHS (exploring); lhs_fill; dup_to_existing=False; nearest_data_coded=inf"
+    }
+  ],
+  "model_summary": null,
+  "gating": {
+    "domain_ok": true,
+    "safety_ok": true,
+    "duplication_ratio": 0.0
+  },
+  "provenance": {
+    "input_sha256": "7e1fd5c59ddfd2e0219b4fb77ab8b8798a331eb67e98f5b5d51d75620126dbf9",
+    "script_version": "1.0.0",
+    "seed": 42,
+    "authored_by": "script"
+  }
+}

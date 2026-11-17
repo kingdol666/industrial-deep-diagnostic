@@ -375,6 +375,32 @@ test -f "$RUN_DIR/01_ontology/ontology.json"
 uv run --project "$SHARED_PATH/scripts" python "$SKILL_PATH/scripts/rag_client.py" health || echo "RAG offline — fallback used"
 ```
 
+## Quality Gate
+
+`scripts/quality_gate.mjs` validates a completed build against the output contract documented
+above (the five required `00_input/rag_*` artifacts) and the Blocking-Issue Checklist of
+`references/quality-verification-agent.md`. Zero dependencies (node builtins only).
+
+```bash
+node .claude/skills/rag-knowledge-builder/scripts/quality_gate.mjs --run-dir <RUN_DIR>   # checks <RUN_DIR>/00_input
+node .claude/skills/rag-knowledge-builder/scripts/quality_gate.mjs --input-dir <DIR>     # checks DIR directly
+```
+
+Exit codes (house pattern): **0** ok · **1** hard error (bad args / unreadable dir) ·
+**2** undetermined (no rag_* artifacts — the build did not run here) · **3** gate-fail.
+
+Checks: R1 the five documented artifacts exist and parse (draft + NL spec + structured data +
+scored chunks + audit log); R2 draft structural blocking rules (scene.name/domain_type non-empty,
+domain_type ≠ `generic`, `concepts.{target_concepts,related_concepts,context_dimensions}` exist,
+every concept has name/definition/definition_confidence/broader_concept, every relationship has
+from/to/type/mechanism); R3 audit verdict ∈ {PASS, CONDITIONAL, FAIL} with `checks`/`summary`
+objects (FAIL is itself a gate failure, CONDITIONAL a note); R4 structured data non-empty object;
+R5 scored chunks: `chunks` list (`[]` is a note — the documented "no KB results → evidence_gap"
+degradation path); R6 NL spec ≥200 chars with ≥1 heading; R7 provenance coverage as a note.
+Note: runs archived before the NL-spec requirement (e.g. `workspace/rag-outputs/2026-06-02*`)
+correctly fail R1 — they predate this contract.
+Test battery: `python .claude/skills/rag-knowledge-builder/tests/run_tests.py`.
+
 ## Pipeline Event Logging
 
 ```bash

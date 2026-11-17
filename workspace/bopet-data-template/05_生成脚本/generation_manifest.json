@@ -1,0 +1,81 @@
+{
+  "generator": "generate_template_data.py",
+  "seed": 20261015,
+  "generated_for": "BOPET-L3 数据模板样例（12μm 光膜）",
+  "time_window": [
+    "2026-09-20 00:00:00",
+    "2026-10-10 23:50:00"
+  ],
+  "cadence": {
+    "main": "10min",
+    "lab": "2h",
+    "profile": "10min (offset +5min)"
+  },
+  "files": {
+    "02_data\\L3_line_main_10min.csv": {
+      "rows": 3024,
+      "cols": 54,
+      "sha256": "bdd2510af7bcb42a839d7afe046348e1d5d442f6a6d5648139b8ae846b74359d"
+    },
+    "02_data\\L3_lab_quality_2h.csv": {
+      "rows": 252,
+      "cols": 9,
+      "sha256": "afddca18afc632cfdb4d31d7def856257de3fb023a5f7d1601bcf75e69b31caf"
+    },
+    "02_data\\L3_GA_TH_PROFILE_10min.csv": {
+      "rows": 3024,
+      "cols": 65,
+      "sha256": "36383ac8ff0aa98b1ad9aff97fcd62a38aae97f74e1f390e45051f487b689385",
+      "positions_mm": [
+        50,
+        6250
+      ],
+      "position_step_mm": 100
+    },
+    "03_映射文档\\tag_mapping.json": {
+      "sha256": "776739a1ba065b0b0c09f7b07941ddc5086da75e1f62120be7847f3f4fc0e572"
+    },
+    "03_映射文档\\tag_mapping.csv": {
+      "sha256": "618a2b3a5c7e61bd1ba4df618edbc5213295187c581d6e1a41891d1c3934dda1"
+    },
+    "03_映射文档\\L3_bopet_ontology.json": {
+      "sha256": "93ccc2cc84e4c692a4a4b4a6d9363effa970c22f60ab87b66d5c8a0575877f71"
+    }
+  },
+  "injected_events": [
+    {
+      "hour_offset": 176,
+      "time": "2026-09-27 08:00",
+      "type": "配方变更",
+      "detail": "原料批次切换 + 回料掺入比例 8%→12%（雾度/晶点小幅阶跃；干扰项）"
+    },
+    {
+      "hour_offset": 192,
+      "time": "2026-09-28 00:00",
+      "type": "注入故障（主）",
+      "detail": "TDO 北侧拉伸区4区热风加热能力缓慢衰减：设定值恒定 240℃，实际风温以 0.15℃/天 下偏（累计 1.95℃），加热输出由 44.5% 上升至 80% 上限（执行器饱和）；下游：北边缘厚度偏差 +0.35%→+1.85%、横向不匀率 1.40%→2.50%、定型区北侧同步下偏 0.68℃ → 热收缩率TD 1.80%→2.35%、优品率滞后 6h 下降至约 96.4%"
+    },
+    {
+      "hour_offset": 218,
+      "time": "2026-09-29 02:00",
+      "type": "计划换网",
+      "detail": "过滤器压差复位、产线降速 2 小时（非稳态段，供工况过滤演示）"
+    },
+    {
+      "hour_offset": 386,
+      "time": "2026-10-06 02:00",
+      "type": "计划换网",
+      "detail": "同上"
+    },
+    {
+      "hour_offset": 192,
+      "time": "2026-09-28 00:05",
+      "type": "注入故障（剖面同源）",
+      "detail": "独立膜厚横向剖面（63 测点）同步体现同一故障：北侧近边缘渐进增厚，末端约 +0.22 μm；中心与南侧基本不变 → 剖面左边缘偏差上升、右边缘平稳，平均厚度仍保持在 12.00 μm 附近"
+    }
+  ],
+  "notes": [
+    "全部数值为确定性合成（固定 seed），不代表任何真实产线；本样例为格式模板，产线用真实导出数据替换即可",
+    "未注入停机事件；最末累计偏差未进一步恶化（便于检验系统是否给出“趋势外推”而非“已失效”结论）"
+  ]
+}

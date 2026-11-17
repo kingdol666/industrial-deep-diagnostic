@@ -1,0 +1,72 @@
+[
+  {
+    "event_ts": "2026-09-27 10:20:00",
+    "recorded_ts": null,
+    "text": "浆料管路例行清洗 40min，未停机",
+    "tags": [
+      {
+        "tag": "清洗/清理",
+        "tag_slug": "CLEANING",
+        "method": "lexicon",
+        "matched_term": "清洗",
+        "model_derived": false
+      },
+      {
+        "tag": "停机",
+        "tag_slug": "STOP",
+        "method": "lexicon",
+        "matched_term": "停机",
+        "model_derived": false
+      }
+    ],
+    "source_id": "text-l5operatornotes",
+    "source_sha256": "sha256:71908d3f72446e28ad65ec79f8628c4243d756d3a808dc0e3067b5a574373b0c",
+    "line_no": 1,
+    "hour_of_day": 10.333333,
+    "shift_bucket": "A"
+  },
+  {
+    "event_ts": "2026-10-01 08:00:00",
+    "recorded_ts": null,
+    "text": "浆料批次切换：S-4481 → S-4492，固含量按新批次工艺卡执行",
+    "tags": [],
+    "source_id": "text-l5operatornotes",
+    "source_sha256": "sha256:71908d3f72446e28ad65ec79f8628c4243d756d3a808dc0e3067b5a574373b0c",
+    "line_no": 2,
+    "hour_of_day": 8.0,
+    "shift_bucket": "A"
+  },
+  {
+    "event_ts": "2026-10-02 23:40:00",
+    "recorded_ts": null,
+    "text": "夜班：涂布辊右端偶有周期性异响，已报设备员登记",
+    "tags": [],
+    "source_id": "text-l5operatornotes",
+    "source_sha256": "sha256:71908d3f72446e28ad65ec79f8628c4243d756d3a808dc0e3067b5a574373b0c",
+    "line_no": 3,
+    "hour_of_day": 23.666667,
+    "shift_bucket": "B"
+  },
+  {
+    "event_ts": "2026-10-08 02:00:00",
+    "recorded_ts": null,
+    "text": "计划保养：涂布/辊压降速 2h，更换刮刀密封条",
+    "tags": [],
+    "source_id": "text-l5operatornotes",
+    "source_sha256": "sha256:71908d3f72446e28ad65ec79f8628c4243d756d3a808dc0e3067b5a574373b0c",
+    "line_no": 4,
+    "hour_of_day": 2.0,
+    "shift_bucket": "C"
+  },
+  {
+    "event_ts": "2026-10-11 14:30:00",
+    "recorded_ts": null,
+    "text": "更换过滤滤芯，涂布泵入口压力恢复正常",
+    "tags": [],
+    "source_id": "text-l5operatornotes",
+    "source_sha256": "sha256:71908d3f72446e28ad65ec79f8628c4243d756d3a808dc0e3067b5a574373b0c",
+    "line_no": 5,
+    "hour_of_day": 14.5,
+    "shift_bucket": "A"
+  }
+]

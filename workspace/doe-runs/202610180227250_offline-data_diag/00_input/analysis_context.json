@@ -1,0 +1,74 @@
+{
+  "data_path": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\doe-runs\\202610180227250_offline-data_diag\\00_input\\doe_table.csv",
+  "mode_override": null,
+  "responses": [
+    {
+      "col": "part_weight_g",
+      "goal": "maximize",
+      "lsl": null,
+      "usl": null,
+      "target": null,
+      "weight": 1,
+      "unit": "g"
+    },
+    {
+      "col": "melt_temp_c",
+      "goal": null,
+      "lsl": null,
+      "usl": null,
+      "target": null,
+      "weight": 0.001,
+      "unit": "℃"
+    },
+    {
+      "col": "injection_pressure_bar",
+      "goal": null,
+      "lsl": null,
+      "usl": null,
+      "target": null,
+      "weight": 0.001,
+      "unit": "bar"
+    }
+  ],
+  "factors": [
+    {
+      "col": "hold_pressure_sp_bar",
+      "type": "numeric"
+    },
+    {
+      "col": "barrel_zone1_temp_sp_c",
+      "type": "numeric"
+    }
+  ],
+  "blocks": [],
+  "covariates": [],
+  "index_cols": [
+    "run_id",
+    "condition",
+    "cycle_time_s"
+  ],
+  "time_col": "ts_block_start",
+  "group_col": null,
+  "run_order_col": "ts_block_start",
+  "max_lag": 20,
+  "alpha": 0.05,
+  "effect_size_threshold": 0.01,
+  "constraints": [],
+  "inference": {
+    "assigned_by": "user",
+    "notes": [
+      "数据来源: AW DAQ 快照 exp-daqexp-20261018102646-fc7c64(注塑验收线·模拟4036);由 00_input/build_doe_table.py 确定性地表化,明细见 00_input/doe_table_build_report.json",
+      "分析单元 = 一个制品(=一条 part_weight_g 采样,中位间隔约 5.2 s);2 s 过程信号在每个制品区间内取均值",
+      "稳态守卫: 相对前一条件发生因子水平切换的条件,丢弃窗口前 180 s(检出权重与熔体温度在此期间的过渡过程);C1 继承试验前基线(基线 31.2435 g 对 C1 31.2473 g),无阶跃需等待",
+      "平衡: 每条件保留最后 K=37 个制品,共 185 行(2^2 全因子 4 个角点 + 1 个中心条件)",
+      "所列条件窗口为执行顺序,未随机化 → 因子与运行顺序混杂,已在 profile 中由 NON_RANDOMIZED 检查披露",
+      "用户未提供任何规格上下限(lsl/usl/target),因此窗口为方向性窗口而非规格约束窗口;part_weight_g 以 maximize 为目标(充填完整度方向),melt_temp_c / injection_pressure_bar 仅作为低权重辅助响应参与合意度(权重 0.001),不是优化目标",
+      "成型周期 cycle_time_s 在整个快照 372 个样本中恒为 15.3 s(零方差),任何因子效应都不可估,故登记为常量监测量(index)而非响应;这不影响其他响应",
+      "条件 C5 为中心点条件(48 bar / 245 ℃),用于曲率检验"
+    ]
+  },
+  "_predictor_cols": [
+    "hold_pressure_sp_bar",
+    "barrel_zone1_temp_sp_c"
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "contract_version": "1.0",
+  "campaign_id": "OPT-20261116-101",
+  "target_metric": "制品克重PV",
+  "goal": "target",
+  "target_range": [32.15, 32.85],
+  "factors": [
+    { "name": "保压压力SP", "type": "numeric", "min": 45.0, "max": 85.0, "unit": "MPa" },
+    { "name": "保压时间SP", "type": "numeric", "min": 2.0, "max": 8.0, "unit": "s" },
+    { "name": "料温SP", "type": "numeric", "min": 180.0, "max": 240.0, "unit": "℃" },
+    { "name": "冷却流量SP", "type": "numeric", "min": 10.0, "max": 30.0, "unit": "L/min" }
+  ],
+  "budget": { "max_rounds": 6, "max_trials": 12, "trials_per_round": [1, 3] },
+  "noise": { "replicates_for_sigma": 3, "known_sigma": 0.03 },
+  "constraints": [
+    { "factor": "保压压力SP", "type": "safety", "expr": "保压压力SP <= 85 MPa", "hard": true, "source": "WC-INJ-2026-1115 设备安全规程" }
+  ],
+  "prior": {},
+  "convergence_mode": "in_range",
+  "seed": 42
+}

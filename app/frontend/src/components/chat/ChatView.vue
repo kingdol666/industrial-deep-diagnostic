@@ -530,6 +530,7 @@ function selectPanel(localId) {
 function ensureSocket() {
   if (socket && (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING)) return;
   manualClose = false;
+  // Same-origin handshake: the HttpOnly session cookie travels with it.
   socket = new WebSocket(wsUrl());
 
   socket.onopen = () => {

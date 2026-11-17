@@ -1,0 +1,81 @@
+{
+  "schema_version": "1.0",
+  "ontology_version": "1.0.0",
+  "title": "BOPET双向拉伸薄膜产线本体（技能评测夹具）",
+  "scene": {
+    "name": "BOPET双向拉伸薄膜产线（12μm光膜）",
+    "process_type": "pet_film_biaxial_orientation_line",
+    "production_goal": "在厚度公差 ±0.09μm 与雾度 ≤2.0% 约束下最大化优品率与产能",
+    "equipment": ["主挤出机", "熔体滤器", "模头", "铸片辊", "纵拉机(MDO)", "横拉机(TDO)", "牵引辊组", "收卷机", "在线测厚仪"],
+    "stages": ["配料干燥", "挤出熔融", "铸片骤冷", "纵向拉伸(MDO)", "横向拉伸与定型(TDO)", "牵引收卷", "分切质检"]
+  },
+  "signals": {
+    "挤出熔融": [
+      {"column": "主挤计量段温度", "name": "主挤出机计量段熔体温度", "unit": "℃", "role": "process", "normal_range": [279.0, 285.0], "target": 282.0, "stage_ref": "挤出熔融", "equipment_ref": "主挤出机", "governing_law": "Arrhenius 粘度-温度依赖 η=A·exp(Ea/RT)", "physical_meaning": "决定熔体粘度与泵送稳定性，波动直接传导至熔体压力"},
+      {"column": "熔体压力", "name": "模头前熔体压力", "unit": "bar", "role": "process", "normal_range": [105.0, 115.0], "target": 110.0, "stage_ref": "挤出熔融", "equipment_ref": "熔体滤器", "governing_law": "计量泵输送 Q∝N/η(T)；滤器堵孔时 ΔP 上升并出现尖峰", "physical_meaning": "熔体管路阻力状态信号，滤器堵塞/粘度波动的首要观测量"},
+      {"column": "滤器压差", "name": "熔体滤器进出口压差", "unit": "bar", "role": "process", "normal_range": [0.5, 2.5], "target": 0.8, "stage_ref": "挤出熔融", "equipment_ref": "熔体滤器", "governing_law": "Darcy 渗流 ΔP∝μ·Q·R_filter(t)", "physical_meaning": "滤器寿命直接指标，持续上升=堵孔，伴随压力尖峰与晶点增多"},
+      {"column": "模头温度", "name": "模头区熔体温度", "unit": "℃", "role": "process", "normal_range": [282.0, 288.0], "target": 285.0, "stage_ref": "挤出熔融", "equipment_ref": "模头", "governing_law": "同主挤 Arrhenius 依赖", "physical_meaning": "影响模口出膜厚度横向分布"}
+    ],
+    "铸片骤冷": [
+      {"column": "铸片辊温度", "name": "铸片辊表面温度", "unit": "℃", "role": "process", "normal_range": [25.0, 28.0], "target": 26.5, "stage_ref": "铸片骤冷", "equipment_ref": "铸片辊", "governing_law": "骤冷结晶度 Xc ∝ 1/冷却速率", "physical_meaning": "决定预结晶度，影响后续拉伸的均匀性"},
+      {"column": "铸片辊线速", "name": "铸片辊线速度", "unit": "m/min", "role": "process", "normal_range": [16.0, 16.8], "target": 16.4, "stage_ref": "铸片骤冷", "equipment_ref": "铸片辊", "governing_law": "体积守恒（铸片段）", "physical_meaning": "与挤出量共同决定铸片厚度基准"}
+    ],
+    "纵向拉伸MDO": [
+      {"column": "纵拉预热辊温", "name": "纵拉预热辊温度", "unit": "℃", "role": "process", "normal_range": [75.0, 81.0], "target": 78.0, "stage_ref": "纵向拉伸(MDO)", "equipment_ref": "纵拉机(MDO)", "governing_law": "PET 玻璃化转变 Tg≈78℃，预热需贴近 Tg 保证塑性", "physical_meaning": "预热不足→拉伸不均；过高→粘辊"},
+      {"column": "纵拉拉伸速度", "name": "纵拉拉伸速度", "unit": "m/min", "role": "process", "normal_range": [50.9, 54.9], "target": 52.9, "stage_ref": "纵向拉伸(MDO)", "equipment_ref": "纵拉机(MDO)", "governing_law": "体积守恒 d1·v1≈d2·v2（等宽近似）", "physical_meaning": "提产主手段，速度提升直接拉薄厚度并提高纵向张力"},
+      {"column": "拉伸比", "name": "纵向拉伸比", "unit": "比值", "role": "process", "normal_range": [2.9, 3.5], "target": 3.2, "stage_ref": "纵向拉伸(MDO)", "equipment_ref": "纵拉机(MDO)", "governing_law": "拉伸比 λ=v2/v1", "physical_meaning": "分子取向度主控变量，影响拉伸强度与雾度"}
+    ],
+    "横向拉伸TDO": [
+      {"column": "TDO拉伸区温度CX4", "name": "TDO拉伸区温度（CX4分区）", "unit": "℃", "role": "process", "normal_range": [236.0, 244.0], "target": 240.0, "stage_ref": "横向拉伸与定型(TDO)", "equipment_ref": "横拉机(TDO)", "governing_law": "结晶速率 Avrami 方程；热收缩 ∝ (T-Tg) 热历史", "physical_meaning": "拉伸区热风温度，加热器老化/风道故障时缓慢漂移，直接影响厚度分布与优品率"},
+      {"column": "TDO定型区温度CX6", "name": "TDO定型区温度（CX6分区）", "unit": "℃", "role": "process", "normal_range": [186.0, 196.0], "target": 191.0, "stage_ref": "横向拉伸与定型(TDO)", "equipment_ref": "横拉机(TDO)", "governing_law": "定型度-尺寸稳定性平衡：定型不足热收缩超标，过定型脆化", "physical_meaning": "薄膜热收缩率与尺寸稳定性的主控变量"},
+      {"column": "TDO出口轨宽", "name": "TDO出口轨宽", "unit": "mm", "role": "process", "normal_range": [6300.0, 6360.0], "target": 6330.0, "stage_ref": "横向拉伸与定型(TDO)", "equipment_ref": "横拉机(TDO)", "governing_law": "几何守恒（横拉比×入口宽度）", "physical_meaning": "横向拉伸倍率与破膜风险的观测量"},
+      {"column": "TDO风机频率CX4", "name": "TDO拉伸区风机频率（CX4分区）", "unit": "Hz", "role": "process", "normal_range": [82.0, 88.0], "target": 85.0, "stage_ref": "横向拉伸与定型(TDO)", "equipment_ref": "横拉机(TDO)", "governing_law": "风量∝频率，对流传热 h∝Re^0.8", "physical_meaning": "拉伸区热风循环强度，与CX4温度耦合"}
+    ],
+    "牵引收卷": [
+      {"column": "牵引入口张力", "name": "牵引段入口张力", "unit": "N", "role": "process", "normal_range": [2190.0, 2350.0], "target": 2270.0, "stage_ref": "牵引收卷", "equipment_ref": "牵引辊组", "governing_law": "胡克弹性 σ=E·ε：张力波动→薄膜纵向应变→在线测厚扰动", "physical_meaning": "牵引辊轴承磨损/辊径跳动时出现周期性振荡，直接污染厚度信号"},
+      {"column": "收卷锥度张力", "name": "收卷锥度张力", "unit": "%", "role": "process", "normal_range": [16.0, 20.0], "target": 18.0, "stage_ref": "牵引收卷", "equipment_ref": "收卷机", "governing_law": "锥度张力曲线 T(r)=T0·(r0/r)^k", "physical_meaning": "决定卷端松紧与端面整齐度"},
+      {"column": "收卷速度", "name": "收卷线速度", "unit": "m/min", "role": "process", "normal_range": [310.0, 330.0], "target": 320.0, "stage_ref": "牵引收卷", "equipment_ref": "收卷机", "governing_law": "与生产线速度同步", "physical_meaning": "产能直接观测量"},
+      {"column": "展平辊压力", "name": "展平辊气缸压力", "unit": "bar", "role": "process", "normal_range": [2.2, 2.8], "target": 2.5, "stage_ref": "牵引收卷", "equipment_ref": "展平辊", "governing_law": "气压压紧力 F=P·A", "physical_meaning": "消除褶皱，不足时出现纵向褶皱缺陷"}
+    ],
+    "质量指标": [
+      {"column": "薄膜厚度", "name": "薄膜平均厚度（在线测厚）", "unit": "μm", "role": "quality", "normal_range": [11.91, 12.09], "target": 12.0, "stage_ref": "分切质检", "equipment_ref": "在线测厚仪", "governing_law": "受 MDO 拉伸比/TDO 热定型/张力应变的复合调制", "physical_meaning": "核心质量指标：厚度超差即降级"},
+      {"column": "优品率", "name": "优品率", "unit": "%", "role": "quality", "normal_range": [96.0, 100.0], "target": 98.5, "stage_ref": "分切质检", "equipment_ref": "质检系统", "governing_law": "厚度公差、晶点、热收缩的联合合格率", "physical_meaning": "最终商业指标，对 CX4 偏移与压力尖峰敏感"},
+      {"column": "雾度", "name": "薄膜雾度", "unit": "%", "role": "quality", "normal_range": [0.8, 2.0], "target": 1.2, "stage_ref": "分切质检", "equipment_ref": "雾度仪", "governing_law": "结晶度与表面粗糙度散射", "physical_meaning": "光学级产品关键指标，拉伸比过高时恶化"},
+      {"column": "拉伸强度", "name": "薄膜拉伸强度（纵向）", "unit": "MPa", "role": "quality", "normal_range": [200.0, 250.0], "target": 230.0, "stage_ref": "分切质检", "equipment_ref": "拉力试验机", "governing_law": "分子取向度双峰关系：欠取向与过拉伸均下降", "physical_meaning": "力学指标，MDO 工艺窗口优化目标"},
+      {"column": "厚度偏差", "name": "厚度2σ偏差", "unit": "nm", "role": "quality", "normal_range": [0.0, 30.0], "target": 15.0, "stage_ref": "分切质检", "equipment_ref": "在线测厚仪", "governing_law": "工艺波动积分", "physical_meaning": "厚度均匀性指标"}
+    ]
+  },
+  "parameter_groups": {
+    "挤出熔融": ["主挤计量段温度", "熔体压力", "滤器压差", "模头温度"],
+    "铸片骤冷": ["铸片辊温度", "铸片辊线速"],
+    "纵向拉伸MDO": ["纵拉预热辊温", "纵拉拉伸速度", "拉伸比"],
+    "横向拉伸TDO": ["TDO拉伸区温度CX4", "TDO定型区温度CX6", "TDO出口轨宽", "TDO风机频率CX4"],
+    "牵引收卷": ["牵引入口张力", "收卷锥度张力", "收卷速度", "展平辊压力"],
+    "质量指标": ["薄膜厚度", "优品率", "雾度", "拉伸强度", "厚度偏差"]
+  },
+  "relationships": [
+    {"from": "主挤计量段温度", "to": "熔体压力", "type": "causal", "strength": "strong", "mechanism": "熔体粘度随温度指数变化，改变计量泵输送阻力", "governing_equation": "ΔP ∝ η(T)·Q"},
+    {"from": "滤器压差", "to": "熔体压力", "type": "causal", "strength": "strong", "mechanism": "滤器堵孔使下游阻力上升，表现为压力基线抬升与再生/切换前尖峰", "governing_equation": "P_out = P_pump − ΔP_filter(t)"},
+    {"from": "滤器压差", "to": "优品率", "type": "causal", "strength": "medium", "mechanism": "堵孔末期压力脉动引起铸片厚度瞬时波动与晶点，降级品增多", "governing_equation": null},
+    {"from": "纵拉拉伸速度", "to": "薄膜厚度", "type": "causal", "strength": "strong", "mechanism": "体积守恒：速度提升即纵向拉伸倍率增大，厚度成比例减薄", "governing_equation": "d2 ≈ d1·(v1·w1)/(v2·w2)"},
+    {"from": "纵拉拉伸速度", "to": "优品率", "type": "causal", "strength": "medium", "mechanism": "提产阶跃后厚度立即偏离目标带，需重新对中；张力同步上升", "governing_equation": null},
+    {"from": "TDO拉伸区温度CX4", "to": "薄膜厚度", "type": "causal", "strength": "strong", "mechanism": "拉伸区温度改变 PET 结晶与纵向松弛量，缓慢漂移表现为厚度同向缓漂", "governing_equation": "d = d0·[1+α_th·(T_CX4−T_ref)]"},
+    {"from": "TDO拉伸区温度CX4", "to": "优品率", "type": "causal", "strength": "strong", "mechanism": "CX4 偏移使厚度/热收缩越出公差带，优品率随偏移量线性下降", "governing_equation": null},
+    {"from": "TDO定型区温度CX6", "to": "优品率", "type": "causal", "strength": "medium", "mechanism": "定型不足→热收缩超标降级；过定型→脆化破膜", "governing_equation": null},
+    {"from": "牵引入口张力", "to": "薄膜厚度", "type": "causal", "strength": "medium", "mechanism": "张力波动经弹性应变耦合进在线测厚信号，周期振荡与测厚振荡同频", "governing_equation": "ε = F/(E·A)"},
+    {"from": "纵拉预热辊温", "to": "拉伸强度", "type": "causal", "strength": "medium", "mechanism": "预热温度决定拉伸塑性窗口，偏离最优点使取向不均、强度下降", "governing_equation": null},
+    {"from": "拉伸比", "to": "雾度", "type": "causal", "strength": "strong", "mechanism": "过拉伸诱导应变结晶与表面粗糙化，雾度随拉伸比二次增长", "governing_equation": "Haze ≈ H0 + k·(λ−λ0)²"}
+  ],
+  "confounders": [
+    {"variable": "原料批次（PET切片特性粘度波动）", "why": "特性粘度±0.005 dL/g 即改变熔体粘度与可拉伸窗口，未随数据记录", "controlled": false},
+    {"variable": "环境温湿度", "why": "影响切片含水与 TDO 热损失，未控且未记录", "controlled": false},
+    {"variable": "换卷/断膜停机事件", "why": "重启过渡段数据混入稳态统计，会伪造漂移或违规", "controlled": false},
+    {"variable": "测厚仪校准漂移", "why": "在线测厚仪零漂与工艺漂移不可区分，需离线复核", "controlled": false}
+  ],
+  "metadata": {
+    "units_note": "单位以各 signal.unit 为准；normal_range 为 [LSL, USL]",
+    "basis": "工艺窗口取自乐凯 FW3 快照（data/lekai-test）典型运行值",
+    "intended_use": "仅用于技能评测夹具与产线稳定性/诊断类技能的本体优先分析，不构成工艺规程",
+    "authored_by": "agent-generated fixture ontology (hand-authored physics, deterministic)"
+  }
+}

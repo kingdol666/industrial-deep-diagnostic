@@ -11,22 +11,43 @@
 // Auth: inherited from the global authGuard — session JWT or `idd_` API token.
 // Everything delegates to the same services the web console uses; this layer
 // only shapes an integration-friendly contract.
+//
+// Tenancy (P0-6): every run-scoped endpoint binds to the TOKEN's user — a token
+// of user B must not see or act on user A's run. Foreign and missing runs both
+// answer 404 (no existence leak); only a visible-but-unavailable run keeps the
+// historical 409.
 
 import { Router } from 'express';
 
 import { listHarnesses } from '../harness/registry.mjs';
 import {
   assertRunHarnessUsable, validateDataPath, createDiagnosisRun,
-  triggerDiagnosis, stopDiagnosis, subscribeSSE, startStream,
+  triggerDiagnosis, stopDiagnosis, subscribeSSE, startStream, getRunStatus, canViewRun,
 } from '../services/diagnosis.service.mjs';
 import {
   buildExternalResult, chatWithRun, findIntent, listIntents,
   createTask, refreshTask, getTaskEntry, listTaskEntries, getTaskByRun,
 } from '../services/external.service.mjs';
+import { resolveOwnerId } from '../services/tenancy.mjs';
 import { ANALYSIS_INTENTS } from '../engine/claude-client.mjs';
+import logger from '../utils/logger.mjs';
 
 const router = Router();
 const TERMINAL = new Set(['completed', 'failed', 'stopped', 'interrupted']);
+
+// 500 responses are generic (code only); the real error goes to the log (B4).
+function sendError(res, err, fallbackCode) {
+  const status = err?.status || 500;
+  if (status >= 500) {
+    logger.error(`[external] ${err?.stack || err?.message || err}`, { context: 'External' });
+    return res.status(status).json({ success: false, code: err?.code || fallbackCode, error: '集成接口内部错误，请查看后端日志后重试' });
+  }
+  return res.status(status).json({
+    success: false,
+    code: err?.code || fallbackCode,
+    error: err?.message || '请求无效',
+  });
+}
 
 // ── GET /v1/capabilities — mode + harness discovery ────────────────────────
 router.get('/v1/capabilities', async (req, res) => {
@@ -37,12 +58,12 @@ router.get('/v1/capabilities', async (req, res) => {
       harnesses = (listHarnesses() || []).map((h) => ({
         id: h.id,
         label: h.label ?? h.name ?? h.id,
-        runs_capable: !!h.runsCapable,
+        runs_capable: Array.isArray(h.capabilities) && h.capabilities.includes('runs'),
       }));
     } catch { /* harness listing is advisory for callers */ }
     res.json({ success: true, data: { intents, harnesses } });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    sendError(res, err, 'EXTERNAL_CAPABILITIES_ERROR');
   }
 });
 
@@ -86,6 +107,8 @@ router.post('/v1/analyze', async (req, res) => {
       reportLanguage: body.reportLanguage || 'zh',
       userQuestion: body.question || '',
       maxTurns: body.maxTurns,
+      // The run belongs to the API token's user.
+      ownerUserId: resolveOwnerId(req.user),
     });
     const runId = created.runId;
     // Non-wait callers track THIS id through the task manager: the entry owns
@@ -95,7 +118,7 @@ router.post('/v1/analyze', async (req, res) => {
       intent, harness, scene: body.sceneName ?? null, objective: body.question ?? null,
     });
     try {
-      triggerDiagnosis(runId);
+      triggerDiagnosis(runId, req.user);
     } catch (execErr) {
       // launch failure leaves the run marked failed — the result view reports it
       console.warn(`[external] analyze launch failed: ${execErr.message}`);
@@ -105,10 +128,10 @@ router.post('/v1/analyze', async (req, res) => {
     const capMs = Math.max(1, Number(body.wait_timeout_minutes) || 30) * 60 * 1000;
     if (wait) {
       const deadline = Date.now() + capMs;
-      let cur = await refreshTask(task.task_id);
+      let cur = await refreshTask(task.task_id, req.user);
       while (cur && !TERMINAL.has(cur.status) && Date.now() < deadline) {
         await new Promise((r) => setTimeout(r, 2000));
-        cur = await refreshTask(task.task_id);
+        cur = await refreshTask(task.task_id, req.user);
       }
       if (cur && TERMINAL.has(cur.status)) {
         return res.json({ success: true, data: cur });
@@ -129,25 +152,26 @@ router.post('/v1/analyze', async (req, res) => {
       },
     });
   } catch (err) {
-    const status = err.status || 500;
-    res.status(status).json({
-      success: false, code: err.code || 'EXTERNAL_ANALYZE_ERROR', error: err.message,
-    });
+    sendError(res, err, 'EXTERNAL_ANALYZE_ERROR');
   }
 });
 
 // ── GET /v1/tasks — list tasks tracked by this backend instance ────────────
+// Scoped to the token's user: tasks for runs the caller may not see are absent.
 router.get('/v1/tasks', (req, res) => {
-  res.json({ success: true, data: listTaskEntries() });
+  res.json({ success: true, data: listTaskEntries(req.user) });
 });
 
 // ── GET /v1/tasks/:taskId — live progress view (poll this) ─────────────────
 router.get('/v1/tasks/:taskId', async (req, res) => {
-  const entry = await refreshTask(req.params.taskId);
+  const entry = await refreshTask(req.params.taskId, req.user);
   if (!entry) {
     // fall back to run-based lookup when the caller only knows the run id
     const byRun = getTaskByRun(req.params.taskId);
-    if (byRun) return res.json({ success: true, data: await refreshTask(byRun.task_id) });
+    if (byRun) {
+      const refreshed = await refreshTask(byRun.task_id, req.user);
+      if (refreshed) return res.json({ success: true, data: refreshed });
+    }
     return res.status(404).json({ success: false, error: 'Task not found' });
   }
   res.json({ success: true, data: entry });
@@ -157,7 +181,7 @@ router.get('/v1/tasks/:taskId', async (req, res) => {
 // Returns the manager's stored result (stable across calls): summary/score/
 // verdict/report.md plus concrete md/html file paths. 409 while still running.
 router.get('/v1/tasks/:taskId/result', async (req, res) => {
-  const entry = await refreshTask(req.params.taskId);
+  const entry = await refreshTask(req.params.taskId, req.user);
   if (!entry) return res.status(404).json({ success: false, error: 'Task not found' });
   if (!TERMINAL.has(entry.status)) {
     return res.status(409).json({
@@ -181,8 +205,9 @@ router.get('/v1/tasks/:taskId/result', async (req, res) => {
 });
 
 // ── GET /v1/analyze/:runId — unified status/result view (run-based) ────────
+// Token-scoped: a run the caller may not see answers 404 like a missing one.
 router.get('/v1/analyze/:runId', async (req, res) => {
-  const view = await buildExternalResult(req.params.runId);
+  const view = await buildExternalResult(req.params.runId, req.user);
   if (!view) return res.status(404).json({ success: false, error: 'Run not found' });
   res.json({ success: true, data: view });
 });
@@ -190,7 +215,7 @@ router.get('/v1/analyze/:runId', async (req, res) => {
 // ── GET /v1/analyze/:runId/stream — SSE; ends with a `result` event ────────
 router.get('/v1/analyze/:runId/stream', async (req, res) => {
   const { runId } = req.params;
-  const streamInfo = startStream(runId);
+  const streamInfo = startStream(runId, req.user);
   if (!streamInfo) {
     return res.status(404).json({ success: false, error: 'Run not found' });
   }
@@ -206,7 +231,7 @@ router.get('/v1/analyze/:runId/stream', async (req, res) => {
   };
 
   // Already terminal → emit the unified result immediately and close.
-  const current = await buildExternalResult(runId);
+  const current = await buildExternalResult(runId, req.user);
   if (current && TERMINAL.has(current.status)) {
     sendSSE('result', current);
     res.end();
@@ -216,7 +241,7 @@ router.get('/v1/analyze/:runId/stream', async (req, res) => {
   const unsub = subscribeSSE(runId, (event, data) => {
     if (res.destroyed) return;
     if (event === 'stream_end') {
-      buildExternalResult(runId).then((final) => {
+      buildExternalResult(runId, req.user).then((final) => {
         if (final) sendSSE('result', final);
         if (!res.destroyed) res.end();
       });
@@ -231,7 +256,7 @@ router.get('/v1/analyze/:runId/stream', async (req, res) => {
   });
 
   if (streamInfo.currentStatus === 'pending') {
-    try { triggerDiagnosis(runId); } catch { /* failed runs report via result */ }
+    try { triggerDiagnosis(runId, req.user); } catch { /* failed runs report via result */ }
   }
 });
 
@@ -244,8 +269,12 @@ router.post('/v1/chat', async (req, res) => {
       error: 'run_id and message (string) are required',
     });
   }
-  const sent = await chatWithRun(runId, message);
-  if (!sent) {
+  const result = await chatWithRun(runId, message, req.user);
+  if (result?.reason === 'not_found') {
+    // Foreign runs answer exactly like missing ones — no existence leak.
+    return res.status(404).json({ success: false, error: 'Run not found' });
+  }
+  if (!result?.ok) {
     return res.status(409).json({
       success: false,
       code: 'EXTERNAL_CHAT_UNAVAILABLE',
@@ -258,10 +287,14 @@ router.post('/v1/chat', async (req, res) => {
 // ── POST /v1/analyze/:runId/stop — stop a running analysis ─────────────────
 router.post('/v1/analyze/:runId/stop', (req, res) => {
   try {
-    stopDiagnosis(req.params.runId);
+    // Token-scoped: a run the caller may not see (or a nonexistent one) → 404.
+    if (!getRunStatus(req.params.runId, req.user)) {
+      return res.status(404).json({ success: false, error: 'Run not found' });
+    }
+    stopDiagnosis(req.params.runId, req.user);
     res.json({ success: true, data: { run_id: req.params.runId, status: 'stopped' } });
   } catch (err) {
-    res.status(err.status || 500).json({ success: false, error: err.message });
+    sendError(res, err, 'EXTERNAL_STOP_ERROR');
   }
 });
 

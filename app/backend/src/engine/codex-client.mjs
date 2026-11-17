@@ -3,7 +3,7 @@
 // server→client request (requestApproval, decision: accept/decline);
 // item/turn notifications 映射为标准事件。方法名漂移时只改 METHOD 表。
 
-import { spawnCli, killTree, stderrTailRef } from './cli-common.mjs';
+import { spawnCli, killTree, stderrTailRef, withTimeout, resolveEngineTimeoutMinutes } from './cli-common.mjs';
 import { createStdioJsonRpc } from './stdio-jsonrpc.mjs';
 import { config, PROJECT_ROOT } from '../../../../config/loader.mjs';
 import logger from '../utils/logger.mjs';
@@ -79,7 +79,7 @@ export function mapCodexNotification(method, params, ctx) {
 }
 
 // ── Query wrapper ──
-function createCodexQuery({ turnKey, prompt, model = null, approvalPolicy = null }) {
+function createCodexQuery({ turnKey, prompt, model = null, approvalPolicy = null, timeoutMinutes = 0 }) {
   const engCfg = config.harness?.engines?.codex || {};
   const queue = [];
   let wake = null;
@@ -100,6 +100,7 @@ function createCodexQuery({ turnKey, prompt, model = null, approvalPolicy = null
   const result = (subtype, stopReason) => {
     if (finished) return;
     finished = true;
+    timeoutGuard.cancel();
     push({
       type: 'result',
       subtype,
@@ -146,6 +147,18 @@ function createCodexQuery({ turnKey, prompt, model = null, approvalPolicy = null
       return {};
     },
     onNotification: (n) => mapCodexNotification(n.method, n.params, ctx),
+  });
+
+  // Per-turn timeout — 0.155+ turn/start resolves as soon as the turn is
+  // ACCEPTED, so a stalled turn (no turn/completed, no error notification)
+  // would otherwise hang the run forever.
+  const timeoutGuard = withTimeout({
+    minutes: resolveEngineTimeoutMinutes('codex', timeoutMinutes),
+    label: 'codex',
+    context: 'Codex',
+    turnKey,
+    onTimeout: () => result('error_during_execution', 'codex_timeout'),
+    child: proc,
   });
 
   (async () => {
@@ -237,7 +250,7 @@ export function startDiagnosis({
   ontology = null, enhancement = null,
   model = null, permissionMode = null,
 }) {
-  void maxTurns; void timeoutMinutes; void sessionId; // codex threads don't resume cross-process here
+  void maxTurns; void sessionId; // codex threads don't resume cross-process here
   const engCfg = config.harness?.engines?.codex || {};
   const built = buildCodexPrompt({
     analysisTarget, userQuestion, sceneName, reportLanguage, followUpMessage, ontology, enhancement,
@@ -247,6 +260,7 @@ export function startDiagnosis({
     prompt: built.prompt,
     model: model || engCfg.model || undefined,
     approvalPolicy: permissionMode || engCfg.approval_policy || undefined,
+    timeoutMinutes,
   });
   activeQueries.set(runId, query);
   return { query, dataPaths: built.dataPaths, prompt: built.prompt, getSessionId: () => query.sessionId, runId, isResume: false };

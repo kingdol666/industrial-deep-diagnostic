@@ -9,10 +9,10 @@ import engine, {
 import {
   listRuns,
   getRunRealtimeSnapshot,
+  canViewRun,
   continueDiagnosis,
   sendChatMessage as sendDiagnosisChatMessage,
 } from '../services/diagnosis.service.mjs';
-import { hitlRequests } from '../services/diagnosis.service.mjs';
 import {
   listActiveChats,
   getChatHistory,
@@ -24,13 +24,114 @@ import {
 import { websocket as wsConfig } from '../../../../config/loader.mjs';
 import logger from '../utils/logger.mjs';
 import { authenticate, isAuthEnabled, AuthError } from '../services/auth.service.mjs';
+import { sessionCookieToken } from '../middleware/auth.middleware.mjs';
+import { resolveOwnerId } from '../services/tenancy.mjs';
 
 let wss = null;
 const clientState = new WeakMap();
 
-function safeSend(ws, payload) {
-  if (!ws || ws.readyState !== ws.OPEN) return;
+// ─── Tenancy (P0-6) ─────────────────────────────────────────────────────────
+// `ws.authUser`, written by the handshake below, is the single identity source
+// for a connection: every run/chat-scoped read, subscription and action passes
+// it to the service layer as the `viewer` (the services already filter by
+// ownership). A foreign resource is handled exactly like a missing one — same
+// "not found" error frame, no subscription, no events — which is the convention
+// this file has always used for unknown ids, and it keeps existence private.
+//
+// AUTH_ENABLED=0 (single-operator dev mode): the handshake stores nothing, so
+// the viewer is `undefined`, which every service's default parameter maps to
+// the trusted INTERNAL viewer — the pre-tenancy, unfiltered behaviour the local
+// console relies on.
+function viewerOf(ws) {
+  return ws?.authUser;
+}
+
+/** Cache key for per-viewer fan-out inside one broadcast pass. */
+function viewerKey(viewer) {
+  return viewer && viewer.id !== undefined && viewer.id !== null ? `u:${viewer.id}` : 'internal';
+}
+
+/** RunIds with a live engine that this viewer may see (runId-only, still per-owner). */
+function activeRunsFor(viewer) {
+  return getActiveRuns().filter((runId) => canViewRun(runId, viewer));
+}
+
+// ─── Wire limits / backpressure ──────────────────────────────────────────────
+// Frames above the payload cap close the connection with 1009 (ws default is
+// 100MB — far too much for a browser admin console).
+const DEFAULT_MAX_PAYLOAD_BYTES = 1024 * 1024; // 1MB
+// A client whose send buffer grows past this is not keeping up: drop its
+// non-critical frames rather than buffering megabytes of stale UI updates.
+const MAX_BUFFERED_BEFORE_DROP = 4 * 1024 * 1024; // 4MB
+const backpressureWarned = new WeakSet();
+
+function resolveMaxPayload() {
+  const raw = process.env.WS_MAX_PAYLOAD_BYTES;
+  if (raw !== undefined && raw !== '') {
+    const parsed = Number(raw);
+    if (Number.isFinite(parsed) && parsed > 0) return Math.floor(parsed);
+    logger.warn(`Ignoring invalid WS_MAX_PAYLOAD_BYTES=${raw} (expected positive number)`, { context: 'WS' });
+  }
+  return DEFAULT_MAX_PAYLOAD_BYTES;
+}
+
+/**
+ * Send a frame unless the socket is closed, or unless it is non-critical and
+ * the client is too far behind. Terminal/error/auth frames pass `critical:
+ * true` so a slow client still learns the run ended (they are small and rare —
+ * drops there would leave the UI waiting forever).
+ * Exported for the transport-security test.
+ */
+export function safeSend(ws, payload, { critical = false } = {}) {
+  if (!ws || ws.readyState !== ws.OPEN) return false;
+  if (!critical && Number(ws.bufferedAmount || 0) > MAX_BUFFERED_BEFORE_DROP) {
+    if (!backpressureWarned.has(ws)) {
+      backpressureWarned.add(ws);
+      logger.warn(`Backpressure: dropping non-critical frames (bufferedAmount=${ws.bufferedAmount})`, { context: 'WS' });
+    }
+    return false;
+  }
   ws.send(JSON.stringify(payload));
+  return true;
+}
+
+// ─── Token transport ─────────────────────────────────────────────────────────
+// Preferred: the token travels as a WebSocket subprotocol offer
+//   new WebSocket(url, ['idd-token', token])
+// which browsers permit (unlike custom headers) and which keeps credentials out
+// of URLs, access logs and proxy logs.
+export const WS_TOKEN_PROTOCOL = 'idd-token';
+
+/** Read `<token>` from `Sec-WebSocket-Protocol: idd-token, <token>`. */
+function tokenFromSubprotocol(req) {
+  const header = req?.headers?.['sec-websocket-protocol'];
+  if (!header) return '';
+  const parts = String(header).split(',').map((p) => p.trim()).filter(Boolean);
+  const idx = parts.indexOf(WS_TOKEN_PROTOCOL);
+  return idx >= 0 ? (parts[idx + 1] || '') : '';
+}
+
+/**
+ * @deprecated /ws?token=<token> — kept one release for compatibility with
+ * already-deployed clients. Remove next release: URL-borne credentials leak
+ * into logs, browser history and referrers.
+ */
+function tokenFromQuery(req) {
+  try {
+    return new URL(req?.url || '/ws', 'http://localhost').searchParams.get('token') || '';
+  } catch {
+    return '';
+  }
+}
+
+/**
+ * 会话 Cookie 回退（P0-6）：登录后由 POST /api/auth/login 下发的 HttpOnly
+ * `idd_session` Cookie 会随同源握手请求自动携带（浏览器无法给 WebSocket 自定义
+ * header，URL 里放凭据又会泄漏）。仅接受会话 JWT 形态 —— API Token 保持
+ * header/subprotocol-only，与 HTTP 侧策略一致。
+ */
+function tokenFromCookie(req) {
+  return sessionCookieToken(req) || '';
 }
 
 function getOrCreateState(ws) {
@@ -93,13 +194,15 @@ function makeRunSummary(run) {
   };
 }
 
-function sendCatalogSnapshot(ws) {
-  const runs = listRuns().map(makeRunSummary);
+// `viewer` = the socket's authenticated user: the run list and the active-run
+// ids are filtered to what this viewer may see.
+function sendCatalogSnapshot(ws, viewer) {
+  const runs = listRuns(viewer).map(makeRunSummary);
   safeSend(ws, {
     type: 'catalog_snapshot',
     data: {
       runs,
-      activeRuns: getActiveRuns(),
+      activeRuns: activeRunsFor(viewer),
       sentAt: new Date().toISOString(),
     },
   });
@@ -120,8 +223,8 @@ function makeChatSummary(session) {
   };
 }
 
-function sendChatCatalogSnapshot(ws) {
-  const chats = listActiveChats().map(makeChatSummary);
+function sendChatCatalogSnapshot(ws, viewer) {
+  const chats = listActiveChats(viewer).map(makeChatSummary);
   safeSend(ws, {
     type: 'chat_catalog_snapshot',
     data: {
@@ -278,8 +381,10 @@ function mapChatMessageRowToWS(row, seq) {
   };
 }
 
-function buildChatSnapshot(chatId) {
-  const history = getChatHistory(chatId);
+// `viewer` gates the history read: a foreign chat is indistinguishable from a
+// missing one → null → the same "Chat not found" error frame.
+function buildChatSnapshot(chatId, viewer) {
+  const history = getChatHistory(chatId, viewer);
   if (history) {
     return {
       chatId,
@@ -304,13 +409,13 @@ function buildChatSnapshot(chatId) {
   return null;
 }
 
-function sendChatSnapshot(ws, chatId) {
-  const snapshot = buildChatSnapshot(chatId);
+function sendChatSnapshot(ws, chatId, viewer) {
+  const snapshot = buildChatSnapshot(chatId, viewer);
   if (!snapshot) {
     safeSend(ws, {
       type: 'error',
       data: { message: `Chat not found: ${chatId}`, chatId },
-    });
+    }, { critical: true });
     return false;
   }
 
@@ -324,10 +429,12 @@ function sendChatSnapshot(ws, chatId) {
   return true;
 }
 
-function subscribeChat(ws, state, chatId) {
+function subscribeChat(ws, state, chatId, viewer) {
   clearChatSubscription(state, chatId);
 
-  const snapshotExists = sendChatSnapshot(ws, chatId);
+  // Foreign chat → snapshot is null → refusal frame, no subscription (a
+  // subscription would otherwise stream the owner's chat events to this socket).
+  const snapshotExists = sendChatSnapshot(ws, chatId, viewer);
   if (!snapshotExists) return;
 
   const unsubscribe = subscribeChatEvents(chatId, (eventType, data) => {
@@ -338,7 +445,7 @@ function subscribeChat(ws, state, chatId) {
         event: mapChatEventForWS(eventType, data),
       },
     });
-  });
+  }, viewer);
 
   state.chatSubscriptions.set(chatId, { unsubscribe });
   safeSend(ws, {
@@ -347,13 +454,13 @@ function subscribeChat(ws, state, chatId) {
   });
 }
 
-function sendRunSnapshot(ws, runId) {
-  const snapshot = getRunRealtimeSnapshot(runId);
+function sendRunSnapshot(ws, runId, viewer) {
+  const snapshot = getRunRealtimeSnapshot(runId, viewer);
   if (!snapshot) {
     safeSend(ws, {
       type: 'error',
       data: { message: `Run not found: ${runId}`, runId },
-    });
+    }, { critical: true });
     return false;
   }
 
@@ -372,61 +479,82 @@ function sendRunSnapshot(ws, runId) {
   return true;
 }
 
+// Per-viewer fan-out: each watching socket gets only the runs it may see
+// (payload computed once per distinct viewer in this pass).
 function broadcastCatalogUpdate() {
   if (!wss) return;
-  const runs = listRuns().map(makeRunSummary);
-  const payload = {
-    type: 'catalog_update',
-    data: {
-      runs,
-      activeRuns: getActiveRuns(),
-      sentAt: new Date().toISOString(),
-    },
-  };
-
+  const byViewer = new Map();
   for (const ws of wss.clients) {
     const state = clientState.get(ws);
-    if (state?.watchCatalog) safeSend(ws, payload);
+    if (!state?.watchCatalog) continue;
+    const viewer = viewerOf(ws);
+    const key = viewerKey(viewer);
+    let data = byViewer.get(key);
+    if (!data) {
+      data = {
+        runs: listRuns(viewer).map(makeRunSummary),
+        activeRuns: activeRunsFor(viewer),
+      };
+      byViewer.set(key, data);
+    }
+    safeSend(ws, {
+      type: 'catalog_update',
+      data: {
+        runs: data.runs,
+        activeRuns: data.activeRuns,
+        sentAt: new Date().toISOString(),
+      },
+    });
   }
 }
 
 function broadcastRunStatusUpdate(runId, event) {
   if (!wss || event.type !== 'status') return;
-  const snapshot = getRunRealtimeSnapshot(runId);
-  if (!snapshot) return;
-
-  const payload = {
-    type: 'run_updated',
-    data: {
-      runId,
-      run: snapshot.run,
-      liveStatus: snapshot.liveStatus,
-      hasActiveEngineRun: snapshot.hasActiveEngineRun,
-      statusEvent: event,
-      sentAt: new Date().toISOString(),
-    },
-  };
-
+  const byViewer = new Map(); // viewer key → snapshot | null
   for (const ws of wss.clients) {
     const state = clientState.get(ws);
-    if (state?.watchCatalog) safeSend(ws, payload);
+    if (!state?.watchCatalog) continue;
+    const viewer = viewerOf(ws);
+    const key = viewerKey(viewer);
+    if (!byViewer.has(key)) byViewer.set(key, getRunRealtimeSnapshot(runId, viewer));
+    const snapshot = byViewer.get(key);
+    // null = a run this viewer may not see (foreign or gone): silence, exactly
+    // like the pre-existing missing-run branch.
+    if (!snapshot) continue;
+
+    safeSend(ws, {
+      type: 'run_updated',
+      data: {
+        runId,
+        run: snapshot.run,
+        liveStatus: snapshot.liveStatus,
+        hasActiveEngineRun: snapshot.hasActiveEngineRun,
+        statusEvent: event,
+        sentAt: new Date().toISOString(),
+      },
+    });
   }
 }
 
-function subscribeRun(ws, state, runId) {
+function subscribeRun(ws, state, runId, viewer) {
   clearRunSubscription(state, runId);
 
-  const snapshotExists = sendRunSnapshot(ws, runId);
+  // Foreign run → snapshot null → refusal frame, and crucially NO subscribe()
+  // call below: the engine's event stream must never reach this socket.
+  const snapshotExists = sendRunSnapshot(ws, runId, viewer);
   if (!snapshotExists) return;
 
   const unsubscribe = subscribe(runId, (event) => {
+    // Terminal run frames are always delivered — a dropped `complete`/`error`
+    // would leave the client waiting on a finished run.
+    const terminal = event?.type === 'complete' || event?.type === 'error' || event?.type === 'stream_end';
     safeSend(ws, {
       type: 'run_event',
       data: {
         runId,
         event,
       },
-    });
+    }, { critical: terminal });
   });
 
   state.subscriptions.set(runId, { unsubscribe });
@@ -435,13 +563,27 @@ function subscribeRun(ws, state, runId) {
     type: 'subscribed',
     data: {
       runId,
-      activeRuns: getActiveRuns(),
+      activeRuns: activeRunsFor(viewer),
     },
   });
 }
 
 export function initWebSocket(httpServer) {
-  wss = new WebSocketServer({ server: httpServer, path: '/ws' });
+  const maxPayload = resolveMaxPayload();
+  wss = new WebSocketServer({
+    server: httpServer,
+    path: '/ws',
+    maxPayload,
+    // Select the token-carrying subprotocol when the client offers it; fall
+    // back to ws' own default (first protocol offered) so clients that
+    // negotiate something else are unaffected.
+    handleProtocols: (protocols) => {
+      const offered = protocols instanceof Set ? protocols : new Set(protocols || []);
+      if (offered.has(WS_TOKEN_PROTOCOL)) return WS_TOKEN_PROTOCOL;
+      return offered.values().next().value || false;
+    },
+  });
+  logger.info(`WebSocket server ready (path /ws, maxPayload=${maxPayload}B)`, { context: 'WS' });
 
   engine.on('event', ({ runId, event }) => {
     if (event.type === 'status' || event.type === 'complete' || event.type === 'error') {
@@ -455,13 +597,14 @@ export function initWebSocket(httpServer) {
   });
 
   wss.on('connection', (ws, req) => {
-    // ─── 连接鉴权：/ws?token=<登录会话或 API Token>（与 HTTP API 同一 token 体系）───
+    // ─── 连接鉴权：subprotocol ['idd-token', <token>]（与 HTTP API 同一 token 体系）───
     if (isAuthEnabled()) {
       try {
-        const url = new URL(req?.url || '/ws', 'http://localhost');
-        const qsToken = url.searchParams.get('token') || '';
-        // WebSocket 无法自定义 header，统一以 query token 认证
-        const fakeReq = { headers: qsToken ? { authorization: `Bearer ${qsToken}` } : {} };
+        // 凭据解析顺序：subprotocol（首选，浏览器可携带且不入日志）→ query
+        // token（旧客户端过渡回退，下一版本移除）→ idd_session Cookie（同源浏览器
+        // 会话，登录后自动携带）。三者走同一 authenticate 校验路径。
+        const token = tokenFromSubprotocol(req) || tokenFromQuery(req) || tokenFromCookie(req);
+        const fakeReq = { headers: token ? { authorization: `Bearer ${token}` } : {} };
         const { user } = authenticate(fakeReq);
         ws.authUser = user;
       } catch (err) {
@@ -473,6 +616,8 @@ export function initWebSocket(httpServer) {
     }
 
     const state = getOrCreateState(ws);
+    // This connection's viewer for the whole session (undefined in dev mode).
+    const viewer = viewerOf(ws);
     const clientIp = req?.headers?.['x-forwarded-for']?.split(',')[0]?.trim() || req?.socket?.remoteAddress || 'unknown';
     logger.info(`Client connected: ${state.clientId} (IP: ${clientIp}, total: ${wss.clients.size})`, { context: 'WS' });
 
@@ -498,7 +643,7 @@ export function initWebSocket(httpServer) {
 
         switch (msg.type) {
           case 'subscribe_run': {
-            subscribeRun(ws, state, msg.runId);
+            subscribeRun(ws, state, msg.runId, viewer);
             break;
           }
 
@@ -510,37 +655,37 @@ export function initWebSocket(httpServer) {
 
           case 'watch_catalog': {
             state.watchCatalog = msg.enabled !== false;
-            sendCatalogSnapshot(ws);
+            sendCatalogSnapshot(ws, viewer);
             break;
           }
 
           case 'get_catalog': {
-            sendCatalogSnapshot(ws);
+            sendCatalogSnapshot(ws, viewer);
             break;
           }
 
           case 'get_run_snapshot': {
-            sendRunSnapshot(ws, msg.runId);
+            sendRunSnapshot(ws, msg.runId, viewer);
             break;
           }
 
           case 'list_runs': {
-            sendCatalogSnapshot(ws);
+            sendCatalogSnapshot(ws, viewer);
             break;
           }
 
           case 'watch_chats': {
-            sendChatCatalogSnapshot(ws);
+            sendChatCatalogSnapshot(ws, viewer);
             break;
           }
 
           case 'get_chat_catalog': {
-            sendChatCatalogSnapshot(ws);
+            sendChatCatalogSnapshot(ws, viewer);
             break;
           }
 
           case 'subscribe_chat': {
-            subscribeChat(ws, state, msg.chatId);
+            subscribeChat(ws, state, msg.chatId, viewer);
             break;
           }
 
@@ -551,12 +696,12 @@ export function initWebSocket(httpServer) {
           }
 
           case 'get_chat_snapshot': {
-            sendChatSnapshot(ws, msg.chatId);
+            sendChatSnapshot(ws, msg.chatId, viewer);
             break;
           }
 
           case 'chat_start': {
-            startChat(msg.payload || {})
+            startChat({ ...(msg.payload || {}), ownerUserId: resolveOwnerId(viewer) })
               .then((result) => {
                 safeSend(ws, {
                   type: 'chat_started',
@@ -571,20 +716,27 @@ export function initWebSocket(httpServer) {
                     clientRequestId: msg.clientRequestId || null,
                   },
                 });
-                sendChatCatalogSnapshot(ws);
-                subscribeChat(ws, state, result.chatId);
+                sendChatCatalogSnapshot(ws, viewer);
+                subscribeChat(ws, state, result.chatId, viewer);
               })
               .catch((err) => {
                 safeSend(ws, {
                   type: 'error',
                   data: { message: err.message || 'Failed to start chat', clientRequestId: msg.clientRequestId || null },
-                });
+                }, { critical: true });
               });
             break;
           }
 
           case 'chat_send': {
-            sendChatMessage(msg.chatId, msg.message, msg.payload || {})
+            // Mirror the HTTP route: `viewer` gates the act (a foreign chat
+            // throws CHAT_NOT_FOUND → refusal frame) and stamps ownership when
+            // this call creates the session.
+            sendChatMessage(msg.chatId, msg.message, {
+              ...(msg.payload || {}),
+              viewer,
+              ownerUserId: resolveOwnerId(viewer),
+            })
               .then((result) => {
                 safeSend(ws, {
                   type: 'chat_sent',
@@ -598,47 +750,63 @@ export function initWebSocket(httpServer) {
                     clientRequestId: msg.clientRequestId || null,
                   },
                 });
-                sendChatCatalogSnapshot(ws);
-                subscribeChat(ws, state, result.chatId);
+                sendChatCatalogSnapshot(ws, viewer);
+                subscribeChat(ws, state, result.chatId, viewer);
               })
               .catch((err) => {
                 safeSend(ws, {
                   type: 'error',
                   data: { message: err.message || 'Failed to send chat message', chatId: msg.chatId || null, clientRequestId: msg.clientRequestId || null },
-                });
+                }, { critical: true });
               });
             break;
           }
 
           case 'chat_stop': {
-            const stopped = stopChat(msg.chatId);
+            const stopped = stopChat(msg.chatId, viewer);
             safeSend(ws, {
               type: 'chat_stopped',
               data: { chatId: msg.chatId, stopped },
             });
-            sendChatCatalogSnapshot(ws);
-            if (msg.chatId) sendChatSnapshot(ws, msg.chatId);
+            sendChatCatalogSnapshot(ws, viewer);
+            if (msg.chatId) sendChatSnapshot(ws, msg.chatId, viewer);
             break;
           }
 
           case 'run_chat': {
-            const sent = sendDiagnosisChatMessage(msg.runId, msg.message || '');
-            safeSend(ws, {
-              type: 'run_chat_ack',
-              data: { runId: msg.runId, resumed: !!sent },
-            });
-            if (!sent) {
-              safeSend(ws, {
-                type: 'error',
-                data: { message: `Failed to send diagnosis chat message for run ${msg.runId}`, runId: msg.runId },
+            // sendChatMessage is async: await it before acking, otherwise
+            // `!!sent` is true for any Promise and a refused/failed send would
+            // be reported as resumed (the pre-tenancy bug this handler had).
+            Promise.resolve(sendDiagnosisChatMessage(msg.runId, msg.message || '', viewer))
+              .then((sent) => {
+                safeSend(ws, {
+                  type: 'run_chat_ack',
+                  data: { runId: msg.runId, resumed: !!sent },
+                });
+                if (!sent) {
+                  // Foreign (or unknown) run → the same refusal as a failed send.
+                  safeSend(ws, {
+                    type: 'error',
+                    data: { message: `Failed to send diagnosis chat message for run ${msg.runId}`, runId: msg.runId },
+                  }, { critical: true });
+                }
+              })
+              .catch((err) => {
+                safeSend(ws, {
+                  type: 'run_chat_ack',
+                  data: { runId: msg.runId, resumed: false },
+                });
+                safeSend(ws, {
+                  type: 'error',
+                  data: { message: err.message || `Failed to send diagnosis chat message for run ${msg.runId}`, runId: msg.runId },
+                }, { critical: true });
               });
-            }
             break;
           }
 
           case 'run_continue': {
             try {
-              const result = continueDiagnosis(msg.runId, msg.followUpMessage || null);
+              const result = continueDiagnosis(msg.runId, msg.followUpMessage || null, { viewer });
               safeSend(ws, {
                 type: 'run_continue_ack',
                 data: result,
@@ -647,7 +815,7 @@ export function initWebSocket(httpServer) {
               safeSend(ws, {
                 type: 'error',
                 data: { message: err.message || 'Failed to continue run', runId: msg.runId },
-              });
+              }, { critical: true });
             }
             break;
           }
@@ -663,36 +831,24 @@ export function initWebSocket(httpServer) {
             break;
           }
 
-          case 'hitl_respond': {
-            const { hitlId, approved } = msg;
-            const entry = hitlRequests.get(hitlId);
-            if (entry) {
-              hitlRequests.delete(hitlId);
-              entry.resolve(approved === true);
-              safeSend(ws, {
-                type: 'hitl_ack',
-                data: { hitlId, approved: approved === true },
-              });
-            } else {
-              safeSend(ws, {
-                type: 'error',
-                data: { message: `HITL request not found: ${hitlId}` },
-              });
-            }
-            break;
-          }
+          // NOTE: the old `hitl_respond` handler is gone with the HITL
+          // registry. Approval is not interactive — `hitl_request` events are
+          // informational notices emitted by the diagnosis service, and
+          // dangerous commands are auto-approved by the SDK. An unknown
+          // message type (incl. a legacy hitl_respond) gets the default error
+          // frame below.
 
           default:
             safeSend(ws, {
               type: 'error',
               data: { message: `Unknown message type: ${msg.type}` },
-            });
+            }, { critical: true });
         }
       } catch (err) {
         safeSend(ws, {
           type: 'error',
           data: { message: `Invalid message: ${err.message}` },
-        });
+        }, { critical: true });
       }
     });
 
@@ -709,14 +865,15 @@ export function initWebSocket(httpServer) {
       logger.error(`Connection error: ${err.message}`, { context: 'WS' });
     });
 
+    // Handshake result — the client cannot use the socket until it lands.
     safeSend(ws, {
       type: 'welcome',
       data: {
         version: '2.0',
-        activeRuns: getActiveRuns(),
+        activeRuns: activeRunsFor(viewer),
         capabilities: ['catalog_snapshot', 'run_snapshot', 'run_event', 'run_updated', 'chat_catalog_snapshot', 'chat_snapshot', 'chat_event'],
       },
-    });
+    }, { critical: true });
   });
 
   logger.info('Server ready on path /ws', { context: 'WebSocket' });

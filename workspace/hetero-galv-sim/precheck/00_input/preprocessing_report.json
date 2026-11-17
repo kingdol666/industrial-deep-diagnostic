@@ -1,0 +1,344 @@
+{
+  "run_name": "galv_sim",
+  "input_path": "workspace\\hetero-galv-sim\\raw",
+  "input_is_directory": true,
+  "sources": [
+    {
+      "file": "README.md",
+      "role": "no_tabular",
+      "reason": "no tabular content detected"
+    }
+  ],
+  "tables": [
+    {
+      "file": "L1_coating_profile_30min.csv",
+      "sheet": null,
+      "format": "delimited",
+      "n_rows": 144,
+      "n_cols": 11,
+      "time_column": "时间",
+      "score": 3.044,
+      "quality_flags": {
+        "exact_duplicate_rows": {
+          "count": 0,
+          "row_indices_0based": [],
+          "row_indices_truncated": false,
+          "note": "count = redundant occurrences beyond the first (dedup is NOT applied); row_indices_0based lists the rows involved in exact duplication, 0-based within the parsed table (header excluded), capped at 10"
+        },
+        "null_cell_count": 0,
+        "encoding": "utf-8-sig",
+        "delimiter": ","
+      }
+    },
+    {
+      "file": "L1_galv_pot_dcs_10min.csv",
+      "sheet": null,
+      "format": "delimited",
+      "n_rows": 432,
+      "n_cols": 8,
+      "time_column": "时间",
+      "score": 6.532,
+      "quality_flags": {
+        "exact_duplicate_rows": {
+          "count": 0,
+          "row_indices_0based": [],
+          "row_indices_truncated": false,
+          "note": "count = redundant occurrences beyond the first (dedup is NOT applied); row_indices_0based lists the rows involved in exact duplication, 0-based within the parsed table (header excluded), capped at 10"
+        },
+        "null_cell_count": 0,
+        "encoding": "utf-8-sig",
+        "delimiter": ","
+      }
+    },
+    {
+      "file": "L1_lab_coating_2h.csv",
+      "sheet": null,
+      "format": "delimited",
+      "n_rows": 36,
+      "n_cols": 2,
+      "time_column": "时间",
+      "score": 1.936,
+      "quality_flags": {
+        "exact_duplicate_rows": {
+          "count": 0,
+          "row_indices_0based": [],
+          "row_indices_truncated": false,
+          "note": "count = redundant occurrences beyond the first (dedup is NOT applied); row_indices_0based lists the rows involved in exact duplication, 0-based within the parsed table (header excluded), capped at 10"
+        },
+        "null_cell_count": 0,
+        "encoding": "utf-8-sig",
+        "delimiter": ","
+      }
+    },
+    {
+      "file": "L1_operator_notes.csv",
+      "sheet": null,
+      "format": "delimited",
+      "n_rows": 7,
+      "n_cols": 2,
+      "time_column": "时间",
+      "score": 1.407,
+      "quality_flags": {
+        "exact_duplicate_rows": {
+          "count": 0,
+          "row_indices_0based": [],
+          "row_indices_truncated": false,
+          "note": "count = redundant occurrences beyond the first (dedup is NOT applied); row_indices_0based lists the rows involved in exact duplication, 0-based within the parsed table (header excluded), capped at 10"
+        },
+        "null_cell_count": 0,
+        "encoding": "utf-8-sig",
+        "delimiter": ","
+      }
+    },
+    {
+      "file": "L1_pot_thermal_map_2h.csv",
+      "sheet": null,
+      "format": "delimited",
+      "n_rows": 720,
+      "n_cols": 4,
+      "time_column": "时间",
+      "score": 4.02,
+      "quality_flags": {
+        "exact_duplicate_rows": {
+          "count": 0,
+          "row_indices_0based": [],
+          "row_indices_truncated": false,
+          "note": "count = redundant occurrences beyond the first (dedup is NOT applied); row_indices_0based lists the rows involved in exact duplication, 0-based within the parsed table (header excluded), capped at 10"
+        },
+        "null_cell_count": 0,
+        "encoding": "utf-8-sig",
+        "delimiter": ","
+      }
+    },
+    {
+      "file": "L1_surface_defect_index.csv",
+      "sheet": null,
+      "format": "delimited",
+      "n_rows": 36,
+      "n_cols": 2,
+      "time_column": "时间",
+      "score": 1.436,
+      "quality_flags": {
+        "exact_duplicate_rows": {
+          "count": 0,
+          "row_indices_0based": [],
+          "row_indices_truncated": false,
+          "note": "count = redundant occurrences beyond the first (dedup is NOT applied); row_indices_0based lists the rows involved in exact duplication, 0-based within the parsed table (header excluded), capped at 10"
+        },
+        "null_cell_count": 0,
+        "encoding": "utf-8-sig",
+        "delimiter": ","
+      }
+    }
+  ],
+  "selected_table": {
+    "file": "L1_galv_pot_dcs_10min.csv",
+    "sheet": null,
+    "format": "delimited",
+    "n_rows": 432,
+    "n_cols": 8,
+    "time_column": "时间",
+    "score": 6.532,
+    "why": "merge abandoned (anti-bloat); largest single table"
+  },
+  "merge": {
+    "strategy": "abandoned",
+    "reason": "merged rows 1116 > 1.5x largest source (720); time keys did not align — keeping largest single table",
+    "merged_files": [
+      "L1_coating_profile_30min.csv",
+      "L1_galv_pot_dcs_10min.csv",
+      "L1_pot_thermal_map_2h.csv"
+    ]
+  },
+  "merge_exclusions": [
+    {
+      "file": "L1_lab_coating_2h.csv",
+      "sheet": null,
+      "reason_code": "below_min_rows",
+      "detail": "36 rows < 100 merge threshold"
+    },
+    {
+      "file": "L1_operator_notes.csv",
+      "sheet": null,
+      "reason_code": "below_min_rows",
+      "detail": "7 rows < 100 merge threshold"
+    },
+    {
+      "file": "L1_surface_defect_index.csv",
+      "sheet": null,
+      "reason_code": "below_min_rows",
+      "detail": "36 rows < 100 merge threshold"
+    }
+  ],
+  "quality": {
+    "missing_cell_pct": 0.0,
+    "rows": 432,
+    "cols": 8,
+    "time_column": "时间",
+    "numeric_columns": [
+      "GAL-POT-TEMP",
+      "GAL-LINE-SPEED",
+      "GAL-TENSION",
+      "GAL-AIRKNIFE-L-PRES",
+      "GAL-AIRKNIFE-R-PRES",
+      "GAL-COATING-GSM",
+      "GAL-YIELD"
+    ],
+    "note": "missing cells stay NaN; downstream cleaning handles them"
+  },
+  "context_files": [
+    "workspace\\hetero-galv-sim\\precheck\\00_input\\context\\README.md"
+  ],
+  "skipped_files": [
+    {
+      "file": "frame_000.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "frame_001.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "frame_002.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "frame_003.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "frame_004.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "frame_005.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "frame_006.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "frame_007.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "frame_008.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "frame_009.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "frame_010.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "frame_011.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "frame_012.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "frame_013.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "frame_014.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "frame_015.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "frame_016.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "frame_017.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "frame_018.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "frame_019.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "frame_020.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "frame_021.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "frame_022.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "frame_023.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "frame_024.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "frame_025.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "frame_026.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "frame_027.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "frame_028.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "frame_029.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "frame_030.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "frame_031.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "frame_032.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "frame_033.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "frame_034.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "frame_035.png",
+      "reason": "extension .png not tabular/context"
+    }
+  ],
+  "status": "ok",
+  "outputs": {
+    "preprocessed_data.csv": "workspace\\hetero-galv-sim\\precheck\\00_input\\preprocessed_data.csv",
+    "preprocessed_data.json": "workspace\\hetero-galv-sim\\precheck\\00_input\\preprocessed_data.json",
+    "context_dir": "workspace\\hetero-galv-sim\\precheck\\00_input\\context"
+  }
+}

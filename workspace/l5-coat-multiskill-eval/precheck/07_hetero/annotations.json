@@ -1,0 +1,218 @@
+[
+  {
+    "event_ts": "2026-10-01 07:55:00",
+    "recorded_ts": null,
+    "text": "交接班：运行正常，优品率 98.4% 附近，无异常记录。",
+    "tags": [],
+    "source_id": "text-l5operatornotes",
+    "source_sha256": "sha256:2e495a6fb3a327aeb71edc51c629e24ec6a23c8395598c014f94da5706dbacfa",
+    "line_no": 1,
+    "hour_of_day": 7.916667,
+    "shift_bucket": "C"
+  },
+  {
+    "event_ts": "2026-10-05 08:10:00",
+    "recorded_ts": null,
+    "text": "计划换卷，卷芯对中重新调整，降速约 1 小时。",
+    "tags": [],
+    "source_id": "text-l5operatornotes",
+    "source_sha256": "sha256:2e495a6fb3a327aeb71edc51c629e24ec6a23c8395598c014f94da5706dbacfa",
+    "line_no": 2,
+    "hour_of_day": 8.166667,
+    "shift_bucket": "A"
+  },
+  {
+    "event_ts": "2026-10-08 09:30:00",
+    "recorded_ts": null,
+    "text": "操作侧边部面密度报警 2 次，离线复测 223.9 g/m²，已通知工艺员。",
+    "tags": [
+      {
+        "tag": "报警",
+        "tag_slug": "ALARM",
+        "method": "lexicon",
+        "matched_term": "报警",
+        "model_derived": false
+      }
+    ],
+    "source_id": "text-l5operatornotes",
+    "source_sha256": "sha256:2e495a6fb3a327aeb71edc51c629e24ec6a23c8395598c014f94da5706dbacfa",
+    "line_no": 3,
+    "hour_of_day": 9.5,
+    "shift_bucket": "A"
+  },
+  {
+    "event_ts": "2026-10-10 03:20:00",
+    "recorded_ts": null,
+    "text": "烘箱三段风机有异响，已报修，频率显示正常。",
+    "tags": [],
+    "source_id": "text-l5operatornotes",
+    "source_sha256": "sha256:2e495a6fb3a327aeb71edc51c629e24ec6a23c8395598c014f94da5706dbacfa",
+    "line_no": 4,
+    "hour_of_day": 3.333333,
+    "shift_bucket": "C"
+  },
+  {
+    "event_ts": "2026-10-12 08:00:00",
+    "recorded_ts": null,
+    "text": "浆料批次 SL-2231 切换为 SL-2245，固含量化验 51.7%，换批降速 1 小时。",
+    "tags": [],
+    "source_id": "text-l5operatornotes",
+    "source_sha256": "sha256:2e495a6fb3a327aeb71edc51c629e24ec6a23c8395598c014f94da5706dbacfa",
+    "line_no": 5,
+    "hour_of_day": 8.0,
+    "shift_bucket": "A"
+  },
+  {
+    "event_ts": "2026-10-14 10:00:00",
+    "recorded_ts": null,
+    "text": "质量周会：优品率连续两周下滑，要求排查测厚仪、浆料与间隙。",
+    "tags": [],
+    "source_id": "text-l5operatornotes",
+    "source_sha256": "sha256:2e495a6fb3a327aeb71edc51c629e24ec6a23c8395598c014f94da5706dbacfa",
+    "line_no": 6,
+    "hour_of_day": 10.0,
+    "shift_bucket": "A"
+  },
+  {
+    "event_ts": "2026-10-15 09:00:00",
+    "recorded_ts": null,
+    "text": "测厚仪标准片校准完成，偏差在 0.1% 以内。",
+    "tags": [
+      {
+        "tag": "校准",
+        "tag_slug": "CALIBRATION",
+        "method": "lexicon",
+        "matched_term": "校准",
+        "model_derived": false
+      }
+    ],
+    "source_id": "text-l5operatornotes",
+    "source_sha256": "sha256:2e495a6fb3a327aeb71edc51c629e24ec6a23c8395598c014f94da5706dbacfa",
+    "line_no": 7,
+    "hour_of_day": 9.0,
+    "shift_bucket": "A"
+  },
+  {
+    "event_ts": "2026-10-17 11:40:00",
+    "recorded_ts": null,
+    "text": "操作侧边缘超差频繁，临时将内控收紧至 ±1.2% 并加严抽检。",
+    "tags": [],
+    "source_id": "text-l5operatornotes",
+    "source_sha256": "sha256:2e495a6fb3a327aeb71edc51c629e24ec6a23c8395598c014f94da5706dbacfa",
+    "line_no": 8,
+    "hour_of_day": 11.666667,
+    "shift_bucket": "A"
+  },
+  {
+    "event_ts": "2026-10-19 08:05:00",
+    "recorded_ts": null,
+    "text": "计划停机 2 小时，检查操作侧刮刀并更换，改善不明显。",
+    "tags": [
+      {
+        "tag": "停机",
+        "tag_slug": "STOP",
+        "method": "lexicon",
+        "matched_term": "停机",
+        "model_derived": false
+      }
+    ],
+    "source_id": "text-l5operatornotes",
+    "source_sha256": "sha256:2e495a6fb3a327aeb71edc51c629e24ec6a23c8395598c014f94da5706dbacfa",
+    "line_no": 9,
+    "hour_of_day": 8.083333,
+    "shift_bucket": "A"
+  },
+  {
+    "event_ts": "2026-10-21 07:50:00",
+    "recorded_ts": null,
+    "text": "交接班：优品率约 96.6%，操作侧边部仍偏厚，待深入分析。",
+    "tags": [],
+    "source_id": "text-l5operatornotes",
+    "source_sha256": "sha256:2e495a6fb3a327aeb71edc51c629e24ec6a23c8395598c014f94da5706dbacfa",
+    "line_no": 10,
+    "hour_of_day": 7.833333,
+    "shift_bucket": "C"
+  },
+  {
+    "event_ts": "2026-10-08 00:00:00",
+    "recorded_ts": null,
+    "text": "- 发现时间：2026-10-08 之后，在线优品率从 98.3% 附近持续下滑，10-21 已跌至约 96.4%～96.6%",
+    "tags": [],
+    "source_id": "text-src",
+    "source_sha256": "sha256:e463f837629f9a117ba291fc396c806ec3a2ceeea88052b0be4292f343e6e75e",
+    "line_no": 4,
+    "hour_of_day": 0.0,
+    "shift_bucket": "C"
+  },
+  {
+    "event_ts": "2026-10-05 08:00:00",
+    "recorded_ts": null,
+    "text": "- 2026-10-05 08:00：计划换卷（降速约 1 小时）",
+    "tags": [],
+    "source_id": "text-src",
+    "source_sha256": "sha256:e463f837629f9a117ba291fc396c806ec3a2ceeea88052b0be4292f343e6e75e",
+    "line_no": 13,
+    "hour_of_day": 8.0,
+    "shift_bucket": "A"
+  },
+  {
+    "event_ts": "2026-10-10 03:20:00",
+    "recorded_ts": null,
+    "text": "- 2026-10-10 03:20：烘箱三段风机异响报修（风机频率显示一直正常）",
+    "tags": [],
+    "source_id": "text-src",
+    "source_sha256": "sha256:e463f837629f9a117ba291fc396c806ec3a2ceeea88052b0be4292f343e6e75e",
+    "line_no": 14,
+    "hour_of_day": 3.333333,
+    "shift_bucket": "C"
+  },
+  {
+    "event_ts": "2026-10-12 08:00:00",
+    "recorded_ts": null,
+    "text": "- 2026-10-12 08:00：浆料批次 SL-2231 → SL-2245（固含量化验 51.7%，规格内）",
+    "tags": [],
+    "source_id": "text-src",
+    "source_sha256": "sha256:e463f837629f9a117ba291fc396c806ec3a2ceeea88052b0be4292f343e6e75e",
+    "line_no": 15,
+    "hour_of_day": 8.0,
+    "shift_bucket": "A"
+  },
+  {
+    "event_ts": "2026-10-15 09:00:00",
+    "recorded_ts": null,
+    "text": "- 2026-10-15 09:00：测厚仪标准片校准完成，偏差 0.1% 以内",
+    "tags": [
+      {
+        "tag": "校准",
+        "tag_slug": "CALIBRATION",
+        "method": "lexicon",
+        "matched_term": "校准",
+        "model_derived": false
+      }
+    ],
+    "source_id": "text-src",
+    "source_sha256": "sha256:e463f837629f9a117ba291fc396c806ec3a2ceeea88052b0be4292f343e6e75e",
+    "line_no": 16,
+    "hour_of_day": 9.0,
+    "shift_bucket": "A"
+  },
+  {
+    "event_ts": "2026-10-19 08:00:00",
+    "recorded_ts": null,
+    "text": "- 2026-10-19 08:00：计划停机 2 小时，更换操作侧刮刀，改善不明显",
+    "tags": [
+      {
+        "tag": "停机",
+        "tag_slug": "STOP",
+        "method": "lexicon",
+        "matched_term": "停机",
+        "model_derived": false
+      }
+    ],
+    "source_id": "text-src",
+    "source_sha256": "sha256:e463f837629f9a117ba291fc396c806ec3a2ceeea88052b0be4292f343e6e75e",
+    "line_no": 17,
+    "hour_of_day": 8.0,
+    "shift_bucket": "A"
+  }
+]

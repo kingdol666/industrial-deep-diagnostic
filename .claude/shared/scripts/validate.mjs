@@ -1,6 +1,16 @@
 #!/usr/bin/env node
 // validate.mjs — Runtime JSON Schema validation (zero-dependency, draft-07 subset)
 //
+// Validator family — three DIFFERENT tools, do NOT merge them:
+//   validate.mjs           ← THIS FILE: runtime JSON-Schema validator
+//                            (schema + data → JSON report, exit 0/1; spawned by
+//                            CP-2 ontology validation, pipeline finalize, skills)
+//   master-validate.mjs    ← repository health suite (skills/agents/schemas/enums)
+//   schema_conformance.mjs ← artifact normalizer (re-shapes run artifacts into the
+//                            shared-schema required shapes; cannot validate)
+// They overlap in nothing but the word "validate"; merging would couple an
+// artifact rewriter to an exit-code gate.
+//
 // Supported keywords:
 //   type (string|number|integer|array|object|boolean|null, or array of),
 //   enum, const, minimum/maximum, exclusiveMinimum/Maximum,
@@ -15,6 +25,13 @@
 //   $ref (internal "#/definitions/..." and "#/$defs/..." resolution),
 //   dependencies (property → required[] | schema),
 //   contains / minContains / maxContains.
+//
+// Null semantics (draft-07, fixed 2026-10-17): null is an ordinary value —
+// `type` must include "null" (or the value is rejected), `const` applies, and
+// `enum` must list null explicitly. `nullable: true` is a non-standard escape
+// hatch (OpenAPI style) under which null always passes. Previously a blanket
+// `value === null → return` let null slip past every enum AND made `nullable`
+// dead code.
 //
 // Errors carry {path, message, severity}. Unknown keywords are ignored
 // (forward-compatible). additionalProperties===false emits warnings, not errors,
@@ -76,6 +93,12 @@ function validateValue(value, schema, path, root) {
     return;
   }
 
+  // `nullable: true` (non-standard OpenAPI-style extension declared by a few
+  // skill schemas): null always passes THIS schema, whatever type/enum/const
+  // say. Checked before `type`/`const` so the escape hatch is actually
+  // reachable for null (it used to sit below them and was dead code).
+  if (value === null && schema.nullable) return;
+
   if (schema.const !== undefined && value !== schema.const) {
     addError(path, `Expected constant ${JSON.stringify(schema.const)}, got ${JSON.stringify(value)}`);
   }
@@ -136,8 +159,15 @@ function validateValue(value, schema, path, root) {
     }
   }
 
-  if (value === null || value === undefined) return;
-  if (schema.nullable && value === null) return;
+  // ── null / absent semantics ──
+  // `undefined` never arrives from JSON.parse (an absent property is simply not
+  // validated); keep it a pure pass-through for in-memory callers.
+  if (value === undefined) return;
+  // Null is an ordinary value from here on: `const` and `type` already ran
+  // above (a type without "null" rejects null), and `enum` below now also runs
+  // for null — an enum must list null explicitly to accept it. `nullable: true`
+  // was already handled at function entry. All later keyword blocks are
+  // type-guarded, so they are no-ops for null.
 
   // enum
   if (schema.enum && !schema.enum.includes(value)) {

@@ -1,0 +1,37 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "annotations_schema.json",
+  "title": "Time-anchored Text Annotations v1.1",
+  "description": "Events extracted from operator remarks / handover notes / lab comments. event_ts is the time the event happened; recorded_ts is when the note was written (may be later — retrospective notes must keep both and event windows stay forward-only). Lexicon tags are deterministic; LLM tags only ever appear with model_derived=true plus a verbatim quote, and default paths never produce them.",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": ["event_ts", "text", "tags", "source_id", "source_sha256", "line_no"],
+    "properties": {
+      "event_ts": { "type": ["string", "null"] },
+      "recorded_ts": { "type": ["string", "null"] },
+      "text": { "type": "string" },
+      "tags": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["tag", "tag_slug", "method"],
+          "properties": {
+            "tag": { "type": "string" },
+            "tag_slug": { "type": "string", "pattern": "^[A-Z0-9_]+$" },
+            "method": { "enum": ["lexicon", "llm"] },
+            "matched_term": { "type": ["string", "null"] },
+            "confidence": { "type": ["string", "null"], "enum": [null, "low", "medium", "high"] },
+            "model_derived": { "type": "boolean" },
+            "quote": { "type": ["string", "null"] }
+          }
+        }
+      },
+      "source_id": { "type": "string" },
+      "source_sha256": { "type": "string" },
+      "line_no": { "type": "integer" },
+      "shift_bucket": { "type": ["string", "null"] },
+      "hour_of_day": { "type": ["number", "null"] }
+    }
+  }
+}

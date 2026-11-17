@@ -1,0 +1,216 @@
+{
+  "contract_version": "1.0",
+  "audience": "downstream_agent",
+  "analysis_mode": "designed",
+  "operating_windows": [
+    {
+      "id": "OW-001",
+      "priority": 1,
+      "factor": "barrel_zone1_temp_sp_c",
+      "factor_unit": null,
+      "response": "melt_temp_c",
+      "range": [
+        240.0,
+        250.0
+      ],
+      "shape": "connected",
+      "expected_effect": {
+        "delta": 0.269279,
+        "direction_semantics": "因子 barrel_zone1_temp_sp_c 每增加 1 个原始单位，响应 melt_temp_c 变化约 0.269279（编码主效应 1.346397/半极差 5.0）",
+        "ci95": null,
+        "unit": "℃"
+      },
+      "confidence": "high",
+      "fdr_q": 3.885175992181079e-134,
+      "sample_size": 185,
+      "evidence_refs": [
+        "effect_table.json#melt_temp_c.barrel_zone1_temp_sp_c.main"
+      ],
+      "extrapolation": true,
+      "confirmation_needed": false,
+      "notes": "该窗口服务于低权重辅助响应 melt_temp_c(权重 0.001、goal 未设 → 脚本按 maximize 默认处理),不是制品重量的质量目标窗口:整个观测区间 [240,250] ℃ 都被判为可行,两端触设计边界故 extrapolation=true。下游若只关心质量目标,不应把它当作“必须调整”的动作;若要控制熔体温度,请按 PV≈SP+固定偏移(SP 240 ℃→PV≈246.7 ℃;SP 250 ℃→PV≈249.4 ℃)换算后再定温度上限。"
+    },
+    {
+      "id": "OW-002",
+      "priority": 2,
+      "factor": "hold_pressure_sp_bar",
+      "factor_unit": null,
+      "response": "part_weight_g",
+      "range": [
+        50.25,
+        51.0
+      ],
+      "shape": "disconnected",
+      "expected_effect": {
+        "delta": 0.05241,
+        "direction_semantics": "因子 hold_pressure_sp_bar 每增加 1 个原始单位，响应 part_weight_g 变化约 0.05241（编码主效应 0.15723/半极差 3.0）",
+        "ci95": null,
+        "unit": "g"
+      },
+      "confidence": "high",
+      "fdr_q": 9.037344856148682e-100,
+      "sample_size": 185,
+      "evidence_refs": [
+        "effect_table.json#part_weight_g.hold_pressure_sp_bar.main"
+      ],
+      "extrapolation": true,
+      "confirmation_needed": false,
+      "notes": "这是主目标的唯一实质窗口:保压压力 SP 提高到 [50.25, 51.0] bar 可提升制品重量,窗口上端 51 bar 即设计边界(extrapolation=true),再往上属于外推、禁止执行;可行集不连通,这里只报告含最优点的连通块。按 delta=0.05241 g/bar 的线性效应,由基线 48 bar 提升到 50.25/51 bar 预期增重约 +0.118/+0.157 g(纯线性外推,未做确认试验)。"
+    }
+  ],
+  "current_baseline": {
+    "point": {
+      "barrel_zone1_temp_sp_c": 245.0,
+      "hold_pressure_sp_bar": 48.0
+    },
+    "distance_to_window": {
+      "OW-001": 0.0,
+      "OW-002": 2.25
+    },
+    "move_instruction": "当前基线 = 中心条件 C5(hold_pressure_sp_bar=48 bar、barrel_zone1_temp_sp_c=245 ℃,制品重量均值 31.39 g,已落在 OW-001 内、距 OW-002 2.25 bar)。质量目标下的唯一实质动作是把保压压力 SP 从 48 bar 提到 OW-002 的 [50.25, 51.0] bar(建议先取 50.25 bar 作为窗内低风险点,51 bar 为设计边界、需工艺确认);barrel_zone1_temp_sp_c 保持在 [240,250] ℃ 内即可——它对制品重量的全摆幅效应只有约 0.025 g(约 0.08%),不应作为调重手段,而应按熔体温度上限/能耗约束取定。多响应合意度最优点为 A=51 bar、B≈240.1 ℃(D=0.995),其中 B 的位置由权重 0.001 的辅助响应(默认 maximize)驱动,对制品重量几乎无差别。成型周期恒为 15.3 s(零方差),本数据不提供效率代价项。"
+  },
+  "setpoints": [
+    {
+      "factor": "MULTI",
+      "value": 0.0,
+      "expected_response": {
+        "coded": {
+          "hold_pressure_sp_bar": 1.0,
+          "barrel_zone1_temp_sp_c": -0.979373
+        },
+        "D": 0.995078,
+        "raw": {
+          "hold_pressure_sp_bar": 51.0,
+          "barrel_zone1_temp_sp_c": 240.103136
+        }
+      },
+      "confidence": "medium"
+    }
+  ],
+  "interactions": [
+    {
+      "pair": [
+        "hold_pressure_sp_bar",
+        "barrel_zone1_temp_sp_c"
+      ],
+      "nature": "交互显著（q=0.006309411138379943, partial η²=0.047395），injection_pressure_bar 的因子效应随另一因子水平变化",
+      "q_value_bh": 0.006309411138379943
+    }
+  ],
+  "conflicts": [],
+  "response_specs": {
+    "part_weight_g": {
+      "lsl": null,
+      "usl": null,
+      "target": null,
+      "goal": "maximize",
+      "current": 31.390973
+    },
+    "melt_temp_c": {
+      "lsl": null,
+      "usl": null,
+      "target": null,
+      "goal": null,
+      "current": 248.016488
+    },
+    "injection_pressure_bar": {
+      "lsl": null,
+      "usl": null,
+      "target": null,
+      "goal": null,
+      "current": 51.605588
+    }
+  },
+  "confirmations": [],
+  "watchlist": [
+    {
+      "code": "DISCONNECTED_WINDOW",
+      "message": "因子 hold_pressure_sp_bar 的可行集不连通 — 仅报告含最优点的连通块",
+      "factor": "hold_pressure_sp_bar"
+    },
+    {
+      "code": "STATIONARY_POINT_WARNING",
+      "message": "响应 part_weight_g: 驻点为鞍点或落在设计域外 — 仅作警告，优化请在盒约束内进行 (W3/W5)",
+      "response": "part_weight_g"
+    },
+    {
+      "code": "STATIONARY_POINT_WARNING",
+      "message": "响应 melt_temp_c: 驻点为鞍点或落在设计域外 — 仅作警告，优化请在盒约束内进行 (W3/W5)",
+      "response": "melt_temp_c"
+    },
+    {
+      "code": "STATIONARY_POINT_WARNING",
+      "message": "响应 injection_pressure_bar: 驻点为鞍点或落在设计域外 — 仅作警告，优化请在盒约束内进行 (W3/W5)",
+      "response": "injection_pressure_bar"
+    },
+    {
+      "code": "NO_SPEC_LIMITS",
+      "message": "用户未提供任何规格上下限(lsl/usl/target):OW-001/OW-002 是方向性窗口,不可用于合格判定或 Cp/Cpk 换算;执行前须先由工艺侧补齐制品重量的规格带。",
+      "threshold": null
+    },
+    {
+      "code": "PSEUDO_REPLICATION",
+      "message": "每个条件只运行一次,条件内 37 个制品为重复测量:df_pure_error=180 被高估,p/q 与 MDE(part_weight_g 0.017482 g)偏乐观;下游确认时应按“条件”而非“制品”计独立样本,并做区组/随机化的独立重复。",
+      "threshold": null
+    },
+    {
+      "code": "RUN_ORDER_NOT_RANDOMIZED",
+      "message": "运行顺序固定为 C1→C5(未随机化),而 01_profile 的 NON_RANDOMIZED 自动检查未触发(run_order_col 为字符串时间戳,Spearman 检查被跳过):证据等级 A 只能视为条件性,执行窗口前建议用随机化/区组重复排除时间漂移。",
+      "threshold": null
+    },
+    {
+      "code": "QUADRATIC_NOT_SEPARABLE",
+      "message": "设计仅 1 个中心条件:A² 与 B² 完全共线(B² 判 aliased),单一曲率项不可归因于某一因子;且 df_lack_of_fit=0,失拟检验不可估 — 不要据 A² 行对保压压力做二次寻优。",
+      "threshold": null
+    },
+    {
+      "code": "CONSTANT_CYCLE_TIME",
+      "message": "成型周期 cycle_time_s 恒为 15.3 s(零方差),无效率响应可估:本合同只能给出质量(制品重量)单目标推荐,效率代价需另做周期敏感试验。",
+      "response": "cycle_time_s",
+      "threshold": null
+    },
+    {
+      "code": "SETPOINT_SECONDARY_DRIVEN",
+      "message": "setpoints 的 B≈240.1 ℃ 是 goal 未设、权重 0.001 的辅助响应按默认 maximize 得到的盒边界解,不是温度的工程最优;温度设定应在 [240,250] ℃ 内按熔体温度上限/能耗约束取定。",
+      "factor": "barrel_zone1_temp_sp_c",
+      "threshold": null
+    },
+    {
+      "code": "PV_SP_OFFSET",
+      "message": "熔体温度 PV 与机筒温度 SP 存在固定偏移:SP 240 ℃→PV≈246.7 ℃、SP 250 ℃→PV≈249.4 ℃(见 00_input/doe_table_build_report.json),B 只能作为设定值杠杆解释。",
+      "response": "melt_temp_c",
+      "threshold": null
+    }
+  ],
+  "constraints": [],
+  "applicability_domain": {
+    "n_rows": 185,
+    "time_span": "2026-10-18T01:55:10.942000+00:00 .. 2026-10-18T02:24:15.474000+00:00",
+    "regime": "designed region",
+    "factor_observed_ranges": {
+      "barrel_zone1_temp_sp_c": {
+        "min": 240.0,
+        "max": 250.0
+      },
+      "hold_pressure_sp_bar": {
+        "min": 45.0,
+        "max": 51.0
+      }
+    }
+  },
+  "invalidation_conditions": [
+    "任一因子越出 applicability_domain.factor_observed_ranges 的 ±20%",
+    "stability_report 变点检测触发新 regime（漂移/换产）",
+    "确认试验结果与 expected_effect 的 CI95 不相交"
+  ],
+  "usage_rules": [
+    "窗口外推端点（extrapolation=true）需工艺确认后方可执行",
+    "多响应窗口冲突以 conflicts[].chosen 为准"
+  ],
+  "provenance": {
+    "input_sha256": "7f88f53c44e25414b3479ba8faa0142500afe81713a72b6abed84fb86e307558",
+    "script_version": "1.0.0",
+    "seed": null,
+    "authored_by": "agent"
+  }
+}

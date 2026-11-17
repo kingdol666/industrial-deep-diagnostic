@@ -1,0 +1,27 @@
+{
+  "generator": "generate_bopet_demo.py",
+  "seed": 42,
+  "rows": 240,
+  "period": [
+    "2026-10-01 00:00:00",
+    "2026-10-10 23:00:00"
+  ],
+  "sampling": "1h",
+  "files": {
+    "setpoint": {
+      "path": "bopet_demo_setpoint.csv",
+      "sha256": "e83af3b8e0728b9447b8b45f1c5c7a375adf1c66d3c3809fb6b43f4cf2d9b82a"
+    },
+    "actual": {
+      "path": "bopet_demo_actual.csv",
+      "sha256": "be49221b8ac3b1856accf02f9bd2354ba8beb347dea9f1c726c85f3dbdd2c04d"
+    }
+  },
+  "events": {
+    "E1_提产改设定": "hour144 起纵拉拉伸速度设定 52.9→53.4（设定值表可见台阶；厚度 −1%、张力 +18N 跟随）",
+    "E2_加热器老化": "hour96 起 CX4 实际值漂移 +1.8℃/144h（设定值不变 → 设备性问题）",
+    "E3_滤器堵孔": "hour160-163/171-174/182-184 熔体压力尖峰 +2.6/3.8/2.9 bar",
+    "E4_质检联动": "优品率响应 CX4 偏移与压力尖峰；厚度响应速度阶跃"
+  },
+  "basis": "工艺窗口取自乐凯 FW3 快照（data/lekai-test）的典型运行值"
+}

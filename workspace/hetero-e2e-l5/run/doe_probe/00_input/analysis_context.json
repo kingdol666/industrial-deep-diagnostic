@@ -1,0 +1,332 @@
+{
+  "data_path": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\hetero-e2e-l5\\run\\07_hetero\\preprocessed_data_hetero.csv",
+  "mode_override": null,
+  "responses": [
+    {
+      "col": "HX-TXT-L5OPERATORNOTES-SHIFT-BUCKET-ID",
+      "goal": null,
+      "lsl": null,
+      "usl": null,
+      "target": null,
+      "weight": null
+    }
+  ],
+  "factors": [
+    {
+      "col": "L5-SL-SC01",
+      "type": "numeric"
+    },
+    {
+      "col": "L5-SL-VSC01",
+      "type": "numeric"
+    },
+    {
+      "col": "L5-CT-GAP-L01",
+      "type": "numeric"
+    },
+    {
+      "col": "L5-CT-GAP-R01",
+      "type": "numeric"
+    },
+    {
+      "col": "L5-CT-PMP-SP01",
+      "type": "numeric"
+    },
+    {
+      "col": "L5-OV-Z1-TE01",
+      "type": "numeric"
+    },
+    {
+      "col": "L5-OV-Z2-TE01",
+      "type": "numeric"
+    },
+    {
+      "col": "L5-OV-Z3-TE01",
+      "type": "numeric"
+    },
+    {
+      "col": "L5-CAL-P01",
+      "type": "numeric"
+    },
+    {
+      "col": "L5-CAL-TE01",
+      "type": "numeric"
+    },
+    {
+      "col": "L5-WD-TN01",
+      "type": "numeric"
+    },
+    {
+      "col": "L5-LN-SPD01",
+      "type": "numeric"
+    },
+    {
+      "col": "L5-ENV-TE01",
+      "type": "numeric"
+    },
+    {
+      "col": "L5-GA-AD-AVG01",
+      "type": "numeric"
+    },
+    {
+      "col": "L5-GA-AD-CV01",
+      "type": "numeric"
+    },
+    {
+      "col": "L5-GA-EDGE-R01",
+      "type": "numeric"
+    },
+    {
+      "col": "L5-GA-EDGE-L01",
+      "type": "numeric"
+    },
+    {
+      "col": "L5-QM-YIELD01",
+      "type": "numeric"
+    },
+    {
+      "col": "L5-MES-RECY01",
+      "type": "categorical"
+    },
+    {
+      "col": "L5-LINE-MODE01",
+      "type": "categorical"
+    },
+    {
+      "col": "HX-PROF-L5ADSCAN30MIN-MEAN",
+      "type": "numeric"
+    },
+    {
+      "col": "HX-PROF-L5ADSCAN30MIN-STD",
+      "type": "numeric"
+    },
+    {
+      "col": "HX-PROF-L5ADSCAN30MIN-MIN",
+      "type": "numeric"
+    },
+    {
+      "col": "HX-PROF-L5ADSCAN30MIN-MAX",
+      "type": "numeric"
+    },
+    {
+      "col": "HX-PROF-L5ADSCAN30MIN-P05",
+      "type": "numeric"
+    },
+    {
+      "col": "HX-PROF-L5ADSCAN30MIN-P50",
+      "type": "numeric"
+    },
+    {
+      "col": "HX-PROF-L5ADSCAN30MIN-P95",
+      "type": "numeric"
+    },
+    {
+      "col": "HX-PROF-L5ADSCAN30MIN-RANGE",
+      "type": "numeric"
+    },
+    {
+      "col": "HX-PROF-L5ADSCAN30MIN-IQR",
+      "type": "numeric"
+    },
+    {
+      "col": "HX-PROF-L5ADSCAN30MIN-MAD",
+      "type": "numeric"
+    },
+    {
+      "col": "HX-PROF-L5ADSCAN30MIN-N",
+      "type": "categorical"
+    },
+    {
+      "col": "HX-PROF-L5ADSCAN30MIN-SLOPE-LSQ-PER100",
+      "type": "numeric"
+    },
+    {
+      "col": "HX-PROF-L5ADSCAN30MIN-CURV-LSQ",
+      "type": "numeric"
+    },
+    {
+      "col": "HX-PROF-L5ADSCAN30MIN-ZONE-1-3-MEAN",
+      "type": "numeric"
+    },
+    {
+      "col": "HX-PROF-L5ADSCAN30MIN-EDGE-L-DEV",
+      "type": "numeric"
+    },
+    {
+      "col": "HX-PROF-L5ADSCAN30MIN-EDGE-R-DEV",
+      "type": "numeric"
+    },
+    {
+      "col": "HX-PROF-L5ADSCAN30MIN-ARGDEV-NBR",
+      "type": "numeric"
+    },
+    {
+      "col": "HX-PROF-L5ADSCAN30MIN-SHIFT-EST",
+      "type": "categorical"
+    },
+    {
+      "col": "HX-IMG-L5CCDINDEX-MEAN",
+      "type": "numeric"
+    },
+    {
+      "col": "HX-IMG-L5CCDINDEX-STD",
+      "type": "numeric"
+    },
+    {
+      "col": "HX-IMG-L5CCDINDEX-ENTROPY",
+      "type": "numeric"
+    },
+    {
+      "col": "HX-IMG-L5CCDINDEX-SATFRAC",
+      "type": "categorical"
+    },
+    {
+      "col": "HX-IMG-L5CCDINDEX-DARKFRAC",
+      "type": "categorical"
+    },
+    {
+      "col": "HX-IMG-L5CCDINDEX-FOCUS",
+      "type": "numeric"
+    },
+    {
+      "col": "HX-IMG-L5CCDINDEX-N",
+      "type": "categorical"
+    },
+    {
+      "col": "HX-MAP-L5CALENDERMAP2H-MEAN",
+      "type": "numeric"
+    },
+    {
+      "col": "HX-MAP-L5CALENDERMAP2H-P95",
+      "type": "numeric"
+    },
+    {
+      "col": "HX-MAP-L5CALENDERMAP2H-HOTAREA-P90",
+      "type": "categorical"
+    },
+    {
+      "col": "HX-MAP-L5CALENDERMAP2H-COLDAREA-P10",
+      "type": "categorical"
+    },
+    {
+      "col": "HX-MAP-L5CALENDERMAP2H-CENTROID-X",
+      "type": "numeric"
+    },
+    {
+      "col": "HX-MAP-L5CALENDERMAP2H-CENTROID-Y",
+      "type": "numeric"
+    },
+    {
+      "col": "HX-MAP-L5CALENDERMAP2H-ASYM-LR",
+      "type": "numeric"
+    },
+    {
+      "col": "HX-MAP-L5CALENDERMAP2H-POSMAX-X",
+      "type": "categorical"
+    },
+    {
+      "col": "HX-MAP-L5CALENDERMAP2H-POSMAX-Y",
+      "type": "categorical"
+    },
+    {
+      "col": "HX-MAP-L5CALENDERMAP2H-N",
+      "type": "categorical"
+    },
+    {
+      "col": "HX-TXT-L5OPERATORNOTES-EVT-CLEANING",
+      "type": "categorical"
+    },
+    {
+      "col": "HX-TXT-L5OPERATORNOTES-EVT-STOP",
+      "type": "categorical"
+    },
+    {
+      "col": "HX-TXT-L5OPERATORNOTES-HOUR-OF-DAY",
+      "type": "categorical"
+    },
+    {
+      "col": "HX-MAP-L5CALENDERMAP2H-GRAD-P95",
+      "type": "categorical"
+    }
+  ],
+  "blocks": [],
+  "covariates": [],
+  "index_cols": [
+    "时间"
+  ],
+  "time_col": "时间",
+  "group_col": null,
+  "run_order_col": null,
+  "max_lag": 20,
+  "alpha": 0.05,
+  "effect_size_threshold": 0.01,
+  "constraints": [],
+  "inference": {
+    "assigned_by": "auto",
+    "notes": [
+      "analysis_context.json was absent — fields auto-inferred; review responses/factors before trusting windows",
+      "time_col: '时间' accepted (name hit + parseable values, rate=1.00)"
+    ]
+  },
+  "_predictor_cols": [
+    "L5-SL-SC01",
+    "L5-SL-VSC01",
+    "L5-CT-GAP-L01",
+    "L5-CT-GAP-R01",
+    "L5-CT-PMP-SP01",
+    "L5-OV-Z1-TE01",
+    "L5-OV-Z2-TE01",
+    "L5-OV-Z3-TE01",
+    "L5-CAL-P01",
+    "L5-CAL-TE01",
+    "L5-WD-TN01",
+    "L5-LN-SPD01",
+    "L5-ENV-TE01",
+    "L5-GA-AD-AVG01",
+    "L5-GA-AD-CV01",
+    "L5-GA-EDGE-R01",
+    "L5-GA-EDGE-L01",
+    "L5-QM-YIELD01",
+    "L5-MES-RECY01",
+    "L5-LINE-MODE01",
+    "HX-PROF-L5ADSCAN30MIN-MEAN",
+    "HX-PROF-L5ADSCAN30MIN-STD",
+    "HX-PROF-L5ADSCAN30MIN-MIN",
+    "HX-PROF-L5ADSCAN30MIN-MAX",
+    "HX-PROF-L5ADSCAN30MIN-P05",
+    "HX-PROF-L5ADSCAN30MIN-P50",
+    "HX-PROF-L5ADSCAN30MIN-P95",
+    "HX-PROF-L5ADSCAN30MIN-RANGE",
+    "HX-PROF-L5ADSCAN30MIN-IQR",
+    "HX-PROF-L5ADSCAN30MIN-MAD",
+    "HX-PROF-L5ADSCAN30MIN-N",
+    "HX-PROF-L5ADSCAN30MIN-SLOPE-LSQ-PER100",
+    "HX-PROF-L5ADSCAN30MIN-CURV-LSQ",
+    "HX-PROF-L5ADSCAN30MIN-ZONE-1-3-MEAN",
+    "HX-PROF-L5ADSCAN30MIN-EDGE-L-DEV",
+    "HX-PROF-L5ADSCAN30MIN-EDGE-R-DEV",
+    "HX-PROF-L5ADSCAN30MIN-ARGDEV-NBR",
+    "HX-PROF-L5ADSCAN30MIN-SHIFT-EST",
+    "HX-IMG-L5CCDINDEX-MEAN",
+    "HX-IMG-L5CCDINDEX-STD",
+    "HX-IMG-L5CCDINDEX-ENTROPY",
+    "HX-IMG-L5CCDINDEX-SATFRAC",
+    "HX-IMG-L5CCDINDEX-DARKFRAC",
+    "HX-IMG-L5CCDINDEX-FOCUS",
+    "HX-IMG-L5CCDINDEX-N",
+    "HX-MAP-L5CALENDERMAP2H-MEAN",
+    "HX-MAP-L5CALENDERMAP2H-P95",
+    "HX-MAP-L5CALENDERMAP2H-HOTAREA-P90",
+    "HX-MAP-L5CALENDERMAP2H-COLDAREA-P10",
+    "HX-MAP-L5CALENDERMAP2H-CENTROID-X",
+    "HX-MAP-L5CALENDERMAP2H-CENTROID-Y",
+    "HX-MAP-L5CALENDERMAP2H-ASYM-LR",
+    "HX-MAP-L5CALENDERMAP2H-POSMAX-X",
+    "HX-MAP-L5CALENDERMAP2H-POSMAX-Y",
+    "HX-MAP-L5CALENDERMAP2H-N",
+    "HX-TXT-L5OPERATORNOTES-EVT-CLEANING",
+    "HX-TXT-L5OPERATORNOTES-EVT-STOP",
+    "HX-TXT-L5OPERATORNOTES-HOUR-OF-DAY",
+    "HX-MAP-L5CALENDERMAP2H-GRAD-P95"
+  ]
+}

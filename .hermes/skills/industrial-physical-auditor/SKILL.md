@@ -1,6 +1,6 @@
 ---
 name: industrial-physical-auditor
-description: "Industrial diagnostic pipeline Step 5b/7 — independent physical-truth audit. In PRE_REPORT_AUDIT mode it runs in parallel with the Judge and outputs optimizer_preflight.md; in FINAL_AUDIT mode it performs the final review of report.md and outputs optimizer.md (ENDORSED/CONDITIONAL/REJECTED). Independently verifies physical mechanisms, statistical foundations, and logical consistency. Trigger: physical audit, physics audit, pre-report audit, pre-audit, optimizer, review, physical truth, independent audit, report-reviewer."
+description: "Industrial diagnostic pipeline Step 5b/7 — independent physical-truth audit. In PRE_REPORT_AUDIT mode it runs in parallel with the Judge and outputs optimizer_preflight.md; in FINAL_AUDIT mode it performs the final review of report.md and outputs optimizer.md (ENDORSED/CONDITIONAL/REJECTED). Independently verifies physical mechanisms, statistical foundations, and logical consistency. Trigger: physical audit, physics audit, pre-report audit, pre-audit, optimizer, review, physical truth, independent audit, report-reviewer. Do NOT use for the 10-criterion quality scoring / repair routing of diagnostic artifacts (use industrial-judge); do NOT use to write report.md (use industrial-reporter) or to run the diagnosis (use industrial-diagnostician); audits physical truth of existing artifacts only — for the E1-E4 coverage/derived-feature layer use industrial-deep-analysis."
 ---
 
 # Industrial Physical Auditor
@@ -176,6 +176,21 @@ grep -Eq "PREFLIGHT_PASS|PREFLIGHT_NEEDS_REPAIR|PREFLIGHT_BLOCKED" "$RUN_DIR/05_
 test -f "$RUN_DIR/optimizer.md"
 grep -Eq "ENDORSED|CONDITIONAL|REJECTED" "$RUN_DIR/optimizer.md"
 ```
+
+## Quality gate
+
+`scripts/quality_gate.mjs` is the deterministic executor of CP-8 (final audit) and the Step 5b pre-audit checkpoint (zero-dependency Node, machine-readable JSON verdict on stdout):
+
+```bash
+node "$SKILL_PATH/scripts/quality_gate.mjs" --run-dir "$RUN_DIR"              # FINAL: gates optimizer.md
+node "$SKILL_PATH/scripts/quality_gate.mjs" --run-dir "$RUN_DIR" --pre-audit  # PRE: gates 05_review/optimizer_preflight.md
+```
+
+Exit codes: `0` = ok | `1` = hard error (bad inputs) | `2` = undetermined (the audit artifact is absent — the audit did not run) | `3` = gate-fail.
+
+Checks: artifact presence; a recognized verdict from this skill's vocabulary (FINAL `ENDORSED|CONDITIONAL|REJECTED`, PRE `PREFLIGHT_PASS|PREFLIGHT_NEEDS_REPAIR|PREFLIGHT_BLOCKED`; the JSON field `auditor_verdict` carries it); the pass verdict — FINAL `ENDORSED` (CP-8), PRE `PREFLIGHT_PASS` — repair verdicts stop the checkpoint instead of being accepted; required sections (FINAL mirrors the repository optimizer.md content contract in `pipeline-finalize.mjs` §5d: audit overview / statistical verification / physics verification / verdict, plus ≥3 evidence-grounding terms; PRE: verdict / physics-mechanism check / findings, plus concrete `repair_instruction` content whenever repair is demanded).
+
+Tests: `uv run --project .claude/shared/scripts python .claude/skills/industrial-physical-auditor/tests/run_tests.py`
 
 ## Failure Recovery
 

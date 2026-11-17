@@ -9,19 +9,40 @@
 //   import: import { computeFingerprint, findMatch, publish, reuse } from './ontology_store.mjs'
 //
 // 零依赖（对齐 validate.mjs 风格）；存储于 <PROJECT_ROOT>/data/ontology_store/。
+//
+// 并发契约（2026-10-17 加固）：
+//   - 所有索引变更（addVersion / reuse 计数 / deprecate / updateEntry /
+//     removeVersion / removeScene）在 withStoreLock() 跨进程写锁内完成
+//     read-modify-write；两个并发 publish 不再算出同一个 nextVersion。
+//   - 读路径（readIndex / findMatch / listStore / …）保持无锁：writeIndex 是
+//     tmp+rename 原子替换，读到的永远是完整的一代索引。
+//   - index.json 解析失败 / entries 非数组 → 备份为 index.json.corrupt-<ts>
+//     并抛 OntologyStoreCorruptError（绝不静默当成空库，否则下一个写者会把
+//     整库抹平成 {entries: []}）。
 
 import { createHash } from 'crypto';
 import { spawnSync } from 'child_process';
-import { existsSync, mkdirSync, readFileSync, writeFileSync, renameSync, copyFileSync, statSync, readdirSync, unlinkSync, rmdirSync } from 'fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync, renameSync, copyFileSync, statSync, readdirSync, unlinkSync, rmdirSync, openSync, closeSync, writeSync } from 'fs';
 import { join, dirname, resolve, basename, extname } from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 export const PROJECT_ROOT = resolve(__dirname, '..', '..', '..');
-export const STORE_DIR = join(PROJECT_ROOT, 'data', 'ontology_store');
+// STORE_DIR 可用环境变量 ONTOLOGY_STORE_DIR 覆盖（并发测试 / 沙箱把 store 指到
+// 隔离目录；模块加载时解析一次，因此必须在 import 前设置）。
+export const STORE_DIR = process.env.ONTOLOGY_STORE_DIR
+  ? resolve(process.env.ONTOLOGY_STORE_DIR)
+  : join(PROJECT_ROOT, 'data', 'ontology_store');
 export const INDEX_PATH = join(STORE_DIR, 'index.json');
+// 跨进程写锁文件：与 index.json 同目录的点文件。它既不是 scene 目录也不是
+// version 条目（索引里的条目只来自 index.json 的 entries[]），store 目录又位于
+// 已 gitignore 的 /data/ 下（`.gitignore:193`）——无需额外忽略规则。
+export const LOCK_PATH = join(STORE_DIR, '.index.lock');
 export const STORE_INDEX_VERSION = 1;
 const MAX_VERSIONS_PER_SCENE = 10;
+const LOCK_STALE_MS = 30000;   // 锁 mtime 超过该时长 → 持有者视为已死，接管
+const LOCK_TIMEOUT_MS = 10000; // 获取锁的最长等待
+const LOCK_RETRY_MS = 25;      // 重试退避基数（附加随机抖动，避免活锁同步）
 
 // CP-2 判据所用的唯一 schema（skill 协议 / 快路径 / 管理 API 三者必须同源）
 export const ONTOLOGY_SCHEMA_PATH = join(
@@ -130,38 +151,222 @@ function fingerprintFile(abs) {
   if (rows.length === 0) throw new Error(`Empty or unparsable CSV: ${abs}`);
   const header = rows[0].map(h => h.trim());
   const sample = rows.slice(1, 501);
-  const columns = header.map((column, position) => ({
-    column,
-    dtype: inferType(sample.map(r => r[position])),
-    position,
-  }));
+  // E-1H (07_hetero/preprocessed_data_hetero.csv) appends derived `HX-*` feature
+  // columns at the tail. They are derived FROM the anchor columns, so including
+  // them in schema_fp would make every hetero run miss the fast-reuse cache
+  // (plan v1.1 D6). Base schema = non-HX prefix columns only; HX columns are
+  // tracked separately as hetero_fp.
+  const isHx = (name) => /^HX-/.test(name);
+  const baseColumns = [];
+  const hxColumns = [];
+  header.forEach((column, position) => {
+    const entry = { column, dtype: inferType(sample.map(r => r[position])), position };
+    (isHx(column) ? hxColumns : baseColumns).push(entry);
+  });
+  const columns = baseColumns;
   const schema_fp = 'sha256:' + createHash('sha256')
-    .update(JSON.stringify(columns))
+    .update(JSON.stringify(baseColumns))
     .digest('hex');
+  const hetero_fp = hxColumns.length
+    ? 'sha256:' + createHash('sha256').update(JSON.stringify(hxColumns)).digest('hex')
+    : null;
   // 内容指纹：文件大小 + 头部内容哈希（同 schema 不同批次的检测提示，非精确）
   const content_fp = 'sha256:' + createHash('sha256')
     .update(String(size))
     .update(head.slice(0, 64 * 1024))
     .digest('hex');
-  return { schema_fp, content_fp, columns, row_sampled: sample.length, file_size: size };
+  return { schema_fp, content_fp, hetero_fp, columns, row_sampled: sample.length, file_size: size };
+}
+
+// ────────────────────────── 跨进程写锁 ──────────────────────────
+
+/** index.json 损坏（解析失败 / entries 非数组）：原文件已备份，拒绝继续读写语义。 */
+export class OntologyStoreCorruptError extends Error {
+  constructor(message, { indexPath = INDEX_PATH, backupPath = null, cause = null } = {}) {
+    super(message);
+    this.name = 'OntologyStoreCorruptError';
+    this.code = 'ONTOLOGY_STORE_CORRUPT';
+    this.indexPath = indexPath;
+    this.backupPath = backupPath;
+    if (cause) this.cause = cause;
+  }
+}
+
+/** 未能在超时内获得 store 写锁。 */
+export class OntologyStoreLockError extends Error {
+  constructor(message, { lockPath = LOCK_PATH, holder = null } = {}) {
+    super(message);
+    this.name = 'OntologyStoreLockError';
+    this.code = 'ONTOLOGY_STORE_LOCK_TIMEOUT';
+    this.lockPath = lockPath;
+    this.holder = holder;
+  }
+}
+
+// 同步睡眠（零依赖）：Atomics.wait 只阻塞当前线程，适合 CLI/短临界区。
+const sleepBuffer = new Int32Array(new SharedArrayBuffer(4));
+function sleepSync(ms) { Atomics.wait(sleepBuffer, 0, 0, ms); }
+
+function timestampSuffix() {
+  return new Date().toISOString().replace(/[:.]/g, '-'); // Windows 文件名安全
+}
+
+function readLockHolder() {
+  try { return JSON.parse(readFileSync(LOCK_PATH, 'utf-8')); } catch { return null; }
+}
+
+// openSync('wx') 的可重试失败码：EEXIST 是正常竞争；Windows 上创建文件与
+// 另一进程的 unlink 撞车时会以 EPERM/EACCES/EBUSY（pending delete）浮现，
+// 语义同样是「别人正持有/刚释放」——必须重试，绝不能当致命错误抛出。
+const LOCK_BUSY_ERRORS = new Set(['EEXIST', 'EPERM', 'EACCES', 'EBUSY', 'ENOTEMPTY']);
+
+/** 原子创建锁文件（wx = 独占创建，已存在则 EEXIST）；内容 {pid, ts, nonce}。 */
+function acquireLockFile(nonce) {
+  mkdirSync(STORE_DIR, { recursive: true });
+  let fd;
+  try {
+    fd = openSync(LOCK_PATH, 'wx');
+  } catch (e) {
+    if (LOCK_BUSY_ERRORS.has(e.code)) {
+      throw Object.assign(new Error(`ontology store lock busy (${e.code}): ${LOCK_PATH}`), { code: 'EEXIST', cause: e });
+    }
+    throw e;
+  }
+  try {
+    writeSync(fd, JSON.stringify({
+      pid: process.pid,
+      ts: new Date().toISOString(),
+      nonce,
+      op: process.argv[1] ? basename(process.argv[1]) : null,
+    }));
+  } catch (e) {
+    // 写内容失败（磁盘满等）不要留下半个空锁把别人堵 30s
+    try { closeSync(fd); } catch { /* ignore */ }
+    try { unlinkSync(LOCK_PATH); } catch { /* ignore */ }
+    throw e;
+  }
+  try { closeSync(fd); } catch { /* ignore */ }
+}
+
+/** 只释放自己的锁：持有者被判定陈旧并接管后，原持有者不得删掉新持有者的锁。 */
+function releaseLockFile(nonce) {
+  const holder = readLockHolder();
+  if (holder && holder.nonce && holder.nonce !== nonce) return; // 已被接管
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    try { unlinkSync(LOCK_PATH); return; } catch {
+      // Windows 上并发读/抢占可能瞬时拒绝 unlink —— 小退避后重试
+      sleepSync(5);
+    }
+  }
+}
+
+/**
+ * 跨进程独占写锁：openSync('wx') 原子创建 + 小步退避重试（上限 ~10s）；
+ * 持有者崩溃留下的陈旧锁（mtime 超过 LOCK_STALE_MS）会被接管并打警告到
+ * stderr；无论 fn 抛出与否，finally 必定释放。
+ *
+ * 只包住 store 侧的 read-modify-write 临界区 —— 不要在锁内跑长任务
+ * （CSV 指纹、校验子进程、拷贝等都应在锁外完成）。
+ */
+export function withStoreLock(fn) {
+  const nonce = `${process.pid}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+  const deadline = Date.now() + LOCK_TIMEOUT_MS;
+  let staleWarned = false;
+  for (;;) {
+    try {
+      acquireLockFile(nonce);
+      break;
+    } catch (e) {
+      if (e.code !== 'EEXIST') throw e;
+      let st = null;
+      try { st = statSync(LOCK_PATH); } catch { /* 锁刚好被释放：立即重试 */ }
+      if (st && Date.now() - st.mtimeMs > LOCK_STALE_MS) {
+        if (!staleWarned) {
+          staleWarned = true;
+          console.error(`WARNING: stale ontology store lock at ${LOCK_PATH} (mtime ${new Date(st.mtimeMs).toISOString()} older than ${LOCK_STALE_MS}ms, holder: ${JSON.stringify(readLockHolder())}) — taking over`);
+        }
+        try { unlinkSync(LOCK_PATH); } catch { /* 抢占失败：稍后重试 */ }
+        sleepSync(5);
+        if (Date.now() >= deadline) {
+          throw new OntologyStoreLockError(
+            `cannot acquire store lock within ${LOCK_TIMEOUT_MS}ms (stale-lock takeover did not win): ${LOCK_PATH}`,
+            { holder: readLockHolder() });
+        }
+        continue;
+      }
+      if (Date.now() >= deadline) {
+        throw new OntologyStoreLockError(
+          `cannot acquire store lock within ${LOCK_TIMEOUT_MS}ms: ${LOCK_PATH} (holder: ${JSON.stringify(readLockHolder())})`,
+          { holder: readLockHolder() });
+      }
+      sleepSync(LOCK_RETRY_MS + Math.floor(Math.random() * LOCK_RETRY_MS));
+    }
+  }
+  try {
+    return fn();
+  } finally {
+    releaseLockFile(nonce);
+  }
 }
 
 // ────────────────────────── 注册表 ──────────────────────────
 
+/** 备份损坏的 index.json；内容一致则复用同一备份（读路径反复命中不刷屏）。 */
+function backupCorruptIndex(raw) {
+  mkdirSync(STORE_DIR, { recursive: true });
+  let names = [];
+  try { names = readdirSync(STORE_DIR).filter((f) => f.startsWith('index.json.corrupt-')); } catch { /* ignore */ }
+  for (const name of names) {
+    try {
+      if (readFileSync(join(STORE_DIR, name), 'utf-8') === raw) return join(STORE_DIR, name);
+    } catch { /* ignore */ }
+  }
+  const backupPath = join(STORE_DIR, `index.json.corrupt-${timestampSuffix()}`);
+  writeFileSync(backupPath, raw);
+  return backupPath;
+}
+
+/**
+ * 读取 store 索引。
+ *  - 文件不存在 → `{version, entries: []}`（首次运行，正常）。
+ *  - 解析失败 / entries 非数组 → 备份原文件为 index.json.corrupt-<ISO ts> 并
+ *    抛 OntologyStoreCorruptError（带 backupPath）。绝不静默返回空库：那会让
+ *    下一个写者把损坏如实持久化，等于把整库清零。
+ */
 export function readIndex() {
   if (!existsSync(INDEX_PATH)) return { version: STORE_INDEX_VERSION, entries: [] };
+  let raw;
   try {
-    const idx = JSON.parse(readFileSync(INDEX_PATH, 'utf-8'));
-    if (!Array.isArray(idx.entries)) return { version: STORE_INDEX_VERSION, entries: [] };
-    return idx;
-  } catch {
-    return { version: STORE_INDEX_VERSION, entries: [] };
+    raw = readFileSync(INDEX_PATH, 'utf-8');
+  } catch (e) {
+    throw new OntologyStoreCorruptError(
+      `ontology store index unreadable at ${INDEX_PATH}: ${e.message}. Refusing to continue — a silent empty index would drop every stored version on the next write.`,
+      { cause: e });
   }
+  let idx = null;
+  try {
+    idx = JSON.parse(raw);
+  } catch (e) {
+    const backupPath = backupCorruptIndex(raw);
+    throw new OntologyStoreCorruptError(
+      `ontology store index is not valid JSON: ${INDEX_PATH} (${e.message}). Original backed up to ${backupPath}; repair or restore a backup before writing.`,
+      { backupPath, cause: e });
+  }
+  if (!idx || typeof idx !== 'object' || Array.isArray(idx) || !Array.isArray(idx.entries)) {
+    const backupPath = backupCorruptIndex(raw);
+    throw new OntologyStoreCorruptError(
+      `ontology store index has no entries[] array: ${INDEX_PATH}. Original backed up to ${backupPath}; refusing to read it as an empty store.`,
+      { backupPath });
+  }
+  return idx;
 }
 
 export function writeIndex(idx) {
   mkdirSync(STORE_DIR, { recursive: true });
-  const tmp = INDEX_PATH + '.tmp';
+  // 进程唯一 tmp 名：锁内调用之间本已串行，但绕过锁的直接调用（如后端
+  // ontology.service 的索引回填）也不该在共享 tmp 上互相截断——曾经
+  // A 写的 tmp 被 B 截断后再被 A rename，就会把半个索引换成正式文件。
+  const tmp = `${INDEX_PATH}.${process.pid}-${Math.random().toString(36).slice(2, 8)}.tmp`;
   writeFileSync(tmp, JSON.stringify(idx, null, 2));
   renameSync(tmp, INDEX_PATH);
 }
@@ -328,6 +533,9 @@ function contentHashOf(content) {
  * dedup：同 scene 下内容哈希完全一致 → 复用既有版本并返回 `deduped: true`
  * （在线编辑器保存未改动的草稿时不会产生噪声版本）。
  *
+ * 并发：整段「读索引 → 定版本号 → 落盘 → 写索引」在 withStoreLock 内，
+ * 两个并发 publish 不会算出同一个 nextVersion。指纹计算（读整个 CSV）在锁外。
+ *
  * @returns {{scene_key, version, path, deduped?, summary}}
  */
 export function addVersion({
@@ -345,6 +553,7 @@ export function addVersion({
   dataFile = null,
   runDir = null,
   updatedAt = null,
+  fingerprint = null,
 }) {
   const key = String(sceneKey || '').trim();
   if (!key || !/^[A-Za-z0-9._-]+$/.test(key)) {
@@ -355,102 +564,107 @@ export function addVersion({
     throw new Error(`ontology too small (${Buffer.byteLength(content, 'utf-8')}B < ${ONTOLOGY_MIN_BYTES}B CP-2 floor)`);
   }
 
-  const idx = readIndex();
+  // 指纹是纯计算（不读索引）→ 锁外完成，别让整文件指纹拖住写锁。
+  // 调用方（publish）可用 `fingerprint` 传预计算结果，避免重复读取。
+  let fp = fingerprint;
+  if (!fp && dataFile) {
+    try { fp = computeFingerprint(dataFile); } catch { fp = null; /* keep inherited */ }
+  }
   const hash = contentHashOf(content);
-  const deduped = idx.entries.find((e) => {
-    if (e.scene_key !== key) return false;
-    try {
-      const p = join(STORE_DIR, e.path);
-      return existsSync(p) && contentHashOf(readFileSync(p, 'utf-8')) === hash;
-    } catch { return false; }
-  });
-  if (deduped) {
-    // 指纹回填：旧条目可能在 dataFile 缺失时代入库（schema_fp=null），dedupe
-    // 复用版本时若本次带 dataFile 则就地补算——否则该条目永远无法被
-    // fast-reuse 命中（2026-10-13 fieldtest 实测）。
-    if (!deduped.schema_fp && dataFile) {
+
+  return withStoreLock(() => {
+    const idx = readIndex();
+    const deduped = idx.entries.find((e) => {
+      if (e.scene_key !== key) return false;
       try {
-        const fp = computeFingerprint(dataFile);
-        deduped.schema_fp = fp.schema_fp;
-        deduped.content_fp = fp.content_fp;
-        deduped.fingerprinted_from = resolve(dataFile);
-        deduped.fingerprinted_at = new Date().toISOString();
-        writeIndex(idx);
-      } catch { /* 指纹算不出就保持 null：publish 照常去重，reuse 继续 miss */ }
+        const p = join(STORE_DIR, e.path);
+        return existsSync(p) && contentHashOf(readFileSync(p, 'utf-8')) === hash;
+      } catch { return false; }
+    });
+    if (deduped) {
+      // 指纹回填：旧条目可能在 dataFile 缺失时代入库（schema_fp=null），dedupe
+      // 复用版本时若本次带 dataFile 则就地补算——否则该条目永远无法被
+      // fast-reuse 命中（2026-10-13 fieldtest 实测）。
+      if (!deduped.schema_fp && dataFile && fp) {
+        try {
+          deduped.schema_fp = fp.schema_fp;
+          deduped.content_fp = fp.content_fp;
+          deduped.fingerprinted_from = fp.fingerprinted_from || resolve(dataFile);
+          deduped.fingerprinted_at = new Date().toISOString();
+          writeIndex(idx);
+        } catch { /* 指纹算不出就保持 null：publish 照常去重，reuse 继续 miss */ }
+      }
+      return {
+        scene_key: key, version: deduped.version, path: join(STORE_DIR, deduped.path),
+        deduped: true, schema_fp: deduped.schema_fp || null,
+        summary: deduped.summary || summarizeOntology(parsed),
+      };
     }
-    return {
-      scene_key: key, version: deduped.version, path: join(STORE_DIR, deduped.path),
-      deduped: true, schema_fp: deduped.schema_fp || null,
-      summary: deduped.summary || summarizeOntology(parsed),
+
+    const version = nextVersion(idx, key);
+    const relDir = join(key, `v${version}`);
+    const absDir = join(STORE_DIR, relDir);
+    mkdirSync(absDir, { recursive: true });
+    const absOntologyPath = join(absDir, 'ontology.json');
+    writeFileSync(absOntologyPath, content);
+    // 写入后回读校验 UTF-8 往返无损（避免编码损伤静默入库）
+    JSON.parse(readFileSync(absOntologyPath, 'utf-8'));
+    // schema.json 边车（若来源 run 生成过）随本体同版本入库，供 reuse 对齐产物
+    if (runDir) {
+      const sidecar = join(resolve(runDir), '01_ontology', 'schema.json');
+      if (existsSync(sidecar)) copyFileSync(sidecar, join(absDir, 'schema.json'));
+    }
+
+    const now = updatedAt || new Date().toISOString();
+    const entry = {
+      scene_key: key,
+      version,
+      schema_fp: inheritFrom?.schema_fp ?? null,
+      content_fp: inheritFrom?.content_fp ?? null,
+      fingerprinted_from: inheritFrom?.fingerprinted_from ?? null,
+      build_mode: buildMode,
+      origin,
+      parent_version: parentVersion,
+      built_from_run: provenance.built_from_run ?? inheritFrom?.built_from_run ?? null,
+      title: title || parsed?.scene?.name || key,
+      tags: Array.isArray(tags) ? tags.filter((t) => typeof t === 'string' && t.trim()).map((t) => t.trim()) : [],
+      notes: typeof notes === 'string' ? notes : '',
+      quality,
+      created_at: now,
+      updated_at: now,
+      reuse_count: 0,
+      content_sha256: hash,
+      summary: summarizeOntology(parsed),
+      path: relDir.split('\\').join('/') + '/ontology.json',
     };
-  }
 
-  const version = nextVersion(idx, key);
-  const relDir = join(key, `v${version}`);
-  const absDir = join(STORE_DIR, relDir);
-  mkdirSync(absDir, { recursive: true });
-  const absOntologyPath = join(absDir, 'ontology.json');
-  writeFileSync(absOntologyPath, content);
-  // 写入后回读校验 UTF-8 往返无损（避免编码损伤静默入库）
-  JSON.parse(readFileSync(absOntologyPath, 'utf-8'));
-  // schema.json 边车（若来源 run 生成过）随本体同版本入库，供 reuse 对齐产物
-  if (runDir) {
-    const sidecar = join(resolve(runDir), '01_ontology', 'schema.json');
-    if (existsSync(sidecar)) copyFileSync(sidecar, join(absDir, 'schema.json'));
-  }
-
-  const now = updatedAt || new Date().toISOString();
-  const entry = {
-    scene_key: key,
-    version,
-    schema_fp: inheritFrom?.schema_fp ?? null,
-    content_fp: inheritFrom?.content_fp ?? null,
-    fingerprinted_from: inheritFrom?.fingerprinted_from ?? null,
-    build_mode: buildMode,
-    origin,
-    parent_version: parentVersion,
-    built_from_run: provenance.built_from_run ?? inheritFrom?.built_from_run ?? null,
-    title: title || parsed?.scene?.name || key,
-    tags: Array.isArray(tags) ? tags.filter((t) => typeof t === 'string' && t.trim()).map((t) => t.trim()) : [],
-    notes: typeof notes === 'string' ? notes : '',
-    quality,
-    created_at: now,
-    updated_at: now,
-    reuse_count: 0,
-    content_sha256: hash,
-    summary: summarizeOntology(parsed),
-    path: relDir.split('\\').join('/') + '/ontology.json',
-  };
-
-  // 指纹补齐（保持 reuse 命中能力）：显式 dataFile > 继承 > run 目录推断
-  if (dataFile) {
-    try {
-      const fp = computeFingerprint(dataFile);
+    // 指纹补齐（保持 reuse 命中能力）：显式 dataFile > 继承 > run 目录推断
+    if (fp) {
       entry.schema_fp = fp.schema_fp;
       entry.content_fp = fp.content_fp;
-      entry.fingerprinted_from = resolve(dataFile);
-    } catch { /* keep inherited */ }
-  }
+      entry.fingerprinted_from = fp.fingerprinted_from || (dataFile ? resolve(dataFile) : null);
+    }
 
-  writeFileSync(join(absDir, 'provenance.json'), JSON.stringify({
-    scene_key: key,
-    version,
-    parent_version: parentVersion,
-    origin,
-    build_mode: buildMode,
-    quality,
-    built_from_run: entry.built_from_run,
-    schema_fp: entry.schema_fp,
-    content_sha256: entry.content_sha256,
-    created_at: now,
-    reuse_history: [],
-    ...provenance,
-  }, null, 2));
+    writeFileSync(join(absDir, 'provenance.json'), JSON.stringify({
+      scene_key: key,
+      version,
+      parent_version: parentVersion,
+      origin,
+      build_mode: buildMode,
+      quality,
+      built_from_run: entry.built_from_run,
+      schema_fp: entry.schema_fp,
+      content_sha256: entry.content_sha256,
+      created_at: now,
+      reuse_history: [],
+      ...provenance,
+    }, null, 2));
 
-  idx.entries.push(entry);
-  pruneVersions(idx, key);
-  writeIndex(idx);
-  return { scene_key: key, version, path: absOntologyPath, summary: entry.summary };
+    idx.entries.push(entry);
+    pruneVersions(idx, key);
+    writeIndex(idx);
+    return { scene_key: key, version, path: absOntologyPath, summary: entry.summary };
+  });
 }
 
 /**
@@ -537,6 +751,8 @@ export function publish({ runDir, scene, buildMode = 'full', quality = 'unvalida
     // 指纹传递契约：publish 必须把已指纹化的数据文件交给 addVersion ——
     // dedupe 复用旧版本时 addVersion 靠它回填 schema_fp，否则条目永远
     // schema_fp=null、fast-reuse 永不命中（2026-10-13 fieldtest 实测）。
+    // 上面刚算过 → 以 `fingerprint` 传入，addVersion 不再重复读整文件。
+    fingerprint: fps[0] || null,
     dataFile: fps[0]?.fingerprinted_from || dataFile || null,
     runDir: absRunDir,
   });
@@ -551,6 +767,9 @@ export function publish({ runDir, scene, buildMode = 'full', quality = 'unvalida
 
 /**
  * 复用：拷贝 store 本体到 run 目录并写 pipeline 事件。
+ *
+ * 拷贝（run 侧，与索引无关）在锁外；store 侧的 reuse_count / reuse_history
+ * 读改写与 deprecate 等同属 mutator，进锁。
  */
 export function reuse({ source, runDir }) {
   const src = resolve(source);
@@ -565,30 +784,34 @@ export function reuse({ source, runDir }) {
   const sidecarSrc = join(dirname(src), 'schema.json');
   if (existsSync(sidecarSrc)) copyFileSync(sidecarSrc, join(ontologyDir, 'schema.json'));
 
-  // 更新 store 的 reuse 计数与 provenance 历史
-  const idx = readIndex();
-  const entry = idx.entries.find(e => join(STORE_DIR, e.path) === src);
-  if (entry) {
-    entry.reuse_count = (entry.reuse_count || 0) + 1;
-    const provPath = join(STORE_DIR, dirname(entry.path), 'provenance.json');
-    try {
-      const prov = JSON.parse(readFileSync(provPath, 'utf-8'));
-      prov.reuse_history.push({ run_dir: basename(absRunDir), at: new Date().toISOString() });
-      writeFileSync(provPath, JSON.stringify(prov, null, 2));
-    } catch { /* ignore */ }
-    writeIndex(idx);
-  }
+  // 更新 store 的 reuse 计数与 provenance 历史（锁内 read-modify-write）
+  withStoreLock(() => {
+    const idx = readIndex();
+    const entry = idx.entries.find(e => join(STORE_DIR, e.path) === src);
+    if (entry) {
+      entry.reuse_count = (entry.reuse_count || 0) + 1;
+      const provPath = join(STORE_DIR, dirname(entry.path), 'provenance.json');
+      try {
+        const prov = JSON.parse(readFileSync(provPath, 'utf-8'));
+        prov.reuse_history.push({ run_dir: basename(absRunDir), at: new Date().toISOString() });
+        writeFileSync(provPath, JSON.stringify(prov, null, 2));
+      } catch { /* ignore */ }
+      writeIndex(idx);
+    }
+  });
   return { copied_to: dst, bytes: statSync(dst).size };
 }
 
 export function deprecate(sceneKey, version) {
-  const idx = readIndex();
-  const entry = idx.entries.find(e => e.scene_key === sceneKey && e.version === Number(version));
-  if (!entry) throw new Error(`Entry not found: ${sceneKey} v${version}`);
-  entry.quality = 'deprecated';
-  entry.updated_at = new Date().toISOString();
-  writeIndex(idx);
-  return entry;
+  return withStoreLock(() => {
+    const idx = readIndex();
+    const entry = idx.entries.find(e => e.scene_key === sceneKey && e.version === Number(version));
+    if (!entry) throw new Error(`Entry not found: ${sceneKey} v${version}`);
+    entry.quality = 'deprecated';
+    entry.updated_at = new Date().toISOString();
+    writeIndex(idx);
+    return entry;
+  });
 }
 
 // ────────────────────────── 资产管理原语（前端本体管理页 / 控制 API） ──────────────────────────
@@ -632,52 +855,56 @@ export function readAsset(sceneKey, version) {
 
 /** 元数据补丁（title/tags/notes/quality）——不产生新版本，仅改索引与 provenance。 */
 export function updateEntry(sceneKey, version, patch = {}) {
-  const idx = readIndex();
-  const entry = idx.entries.find((e) => e.scene_key === sceneKey && e.version === Number(version));
-  if (!entry) throw new Error(`Entry not found: ${sceneKey} v${version}`);
-  if (patch.title !== undefined) entry.title = String(patch.title || entry.scene_key);
-  if (patch.tags !== undefined) {
-    entry.tags = Array.isArray(patch.tags)
-      ? patch.tags.filter((t) => typeof t === 'string' && t.trim()).map((t) => t.trim())
-      : [];
-  }
-  if (patch.notes !== undefined) entry.notes = String(patch.notes || '');
-  if (patch.quality !== undefined) {
-    if (!['unvalidated', 'endorsed', 'deprecated', 'rejected'].includes(patch.quality)) {
-      throw new Error(`invalid quality: ${patch.quality}`);
+  return withStoreLock(() => {
+    const idx = readIndex();
+    const entry = idx.entries.find((e) => e.scene_key === sceneKey && e.version === Number(version));
+    if (!entry) throw new Error(`Entry not found: ${sceneKey} v${version}`);
+    if (patch.title !== undefined) entry.title = String(patch.title || entry.scene_key);
+    if (patch.tags !== undefined) {
+      entry.tags = Array.isArray(patch.tags)
+        ? patch.tags.filter((t) => typeof t === 'string' && t.trim()).map((t) => t.trim())
+        : [];
     }
-    entry.quality = patch.quality;
-  }
-  // 场景重命名/重新打标 → 同步新版本号摘要标题
-  entry.updated_at = new Date().toISOString();
-  writeIndex(idx);
-  try {
-    const provPath = join(STORE_DIR, dirname(entry.path), 'provenance.json');
-    if (existsSync(provPath)) {
-      const prov = JSON.parse(readFileSync(provPath, 'utf-8'));
-      prov.title = entry.title;
-      prov.tags = entry.tags;
-      prov.notes = entry.notes;
-      prov.quality = entry.quality;
-      prov.updated_at = entry.updated_at;
-      writeFileSync(provPath, JSON.stringify(prov, null, 2));
+    if (patch.notes !== undefined) entry.notes = String(patch.notes || '');
+    if (patch.quality !== undefined) {
+      if (!['unvalidated', 'endorsed', 'deprecated', 'rejected'].includes(patch.quality)) {
+        throw new Error(`invalid quality: ${patch.quality}`);
+      }
+      entry.quality = patch.quality;
     }
-  } catch { /* provenance 是可选伴生文件 */ }
-  return entry;
+    // 场景重命名/重新打标 → 同步新版本号摘要标题
+    entry.updated_at = new Date().toISOString();
+    writeIndex(idx);
+    try {
+      const provPath = join(STORE_DIR, dirname(entry.path), 'provenance.json');
+      if (existsSync(provPath)) {
+        const prov = JSON.parse(readFileSync(provPath, 'utf-8'));
+        prov.title = entry.title;
+        prov.tags = entry.tags;
+        prov.notes = entry.notes;
+        prov.quality = entry.quality;
+        prov.updated_at = entry.updated_at;
+        writeFileSync(provPath, JSON.stringify(prov, null, 2));
+      }
+    } catch { /* provenance 是可选伴生文件 */ }
+    return entry;
+  });
 }
 
 /** 删除单个版本（索引 + 磁盘目录）；若场景目录随之变空，一并清除。 */
 export function removeVersion(sceneKey, version) {
-  const idx = readIndex();
-  const v = Number(version);
-  const entry = idx.entries.find((e) => e.scene_key === sceneKey && e.version === v);
-  if (!entry) throw new Error(`Entry not found: ${sceneKey} v${v}`);
-  const dir = join(STORE_DIR, entry.scene_key, `v${v}`);
-  try { if (existsSync(dir)) rmRf(dir); } catch { /* ignore */ }
-  idx.entries = idx.entries.filter((e) => e !== entry);
-  writeIndex(idx);
-  pruneEmptySceneDir(idx, sceneKey);
-  return { removed: { scene_key: sceneKey, version: v } };
+  return withStoreLock(() => {
+    const idx = readIndex();
+    const v = Number(version);
+    const entry = idx.entries.find((e) => e.scene_key === sceneKey && e.version === v);
+    if (!entry) throw new Error(`Entry not found: ${sceneKey} v${v}`);
+    const dir = join(STORE_DIR, entry.scene_key, `v${v}`);
+    try { if (existsSync(dir)) rmRf(dir); } catch { /* ignore */ }
+    idx.entries = idx.entries.filter((e) => e !== entry);
+    writeIndex(idx);
+    pruneEmptySceneDir(idx, sceneKey);
+    return { removed: { scene_key: sceneKey, version: v } };
+  });
 }
 
 /** 索引中已无该场景的版本 → 清理磁盘上残留的空目录（含孤立的 provenance）。 */
@@ -691,14 +918,16 @@ function pruneEmptySceneDir(idx, sceneKey) {
 
 /** 删除整个场景（所有版本）。索引已空但磁盘有残留时，仍然清理并如实返回。 */
 export function removeScene(sceneKey) {
-  const idx = readIndex();
-  const doomed = idx.entries.filter((e) => e.scene_key === sceneKey);
-  const dir = join(STORE_DIR, sceneKey);
-  if (doomed.length === 0 && !existsSync(dir)) throw new Error(`Scene not found: ${sceneKey}`);
-  idx.entries = idx.entries.filter((e) => e.scene_key !== sceneKey);
-  writeIndex(idx);
-  try { if (existsSync(dir)) rmRf(dir); } catch { /* ignore */ }
-  return { removed_versions: doomed.map((e) => e.version).sort((a, b) => a - b) };
+  return withStoreLock(() => {
+    const idx = readIndex();
+    const doomed = idx.entries.filter((e) => e.scene_key === sceneKey);
+    const dir = join(STORE_DIR, sceneKey);
+    if (doomed.length === 0 && !existsSync(dir)) throw new Error(`Scene not found: ${sceneKey}`);
+    idx.entries = idx.entries.filter((e) => e.scene_key !== sceneKey);
+    writeIndex(idx);
+    try { if (existsSync(dir)) rmRf(dir); } catch { /* ignore */ }
+    return { removed_versions: doomed.map((e) => e.version).sort((a, b) => a - b) };
+  });
 }
 
 /**

@@ -14,6 +14,8 @@ import {
   listStore, validateOntology, ONTOLOGY_SCHEMA_PATH, ONTOLOGY_MIN_BYTES, STORE_DIR,
 } from '../../../../.claude/shared/scripts/ontology_store.mjs';
 import { readFileSync } from 'fs';
+import { adminOnly } from '../services/tenancy.mjs';
+import logger from '../utils/logger.mjs';
 
 const router = Router();
 
@@ -24,7 +26,15 @@ function fail(res, err) {
       ...(err.details ? { details: err.details } : {}),
     });
   }
-  return res.status(500).json({ success: false, code: 'ONTOLOGY_INTERNAL_ERROR', error: err.message });
+  // B4: a 500 must not echo the internal error message — log it server-side and
+  // answer a stable code + generic message. (OntologyError above still carries
+  // its explicit code/message, including the 500 ONTOLOGY_STORE_CORRUPT case.)
+  logger.error(`[ontology] ${err?.stack || err?.message || err}`, { context: 'Ontology' });
+  return res.status(500).json({
+    success: false,
+    code: 'ONTOLOGY_INTERNAL_ERROR',
+    error: '本体服务内部错误，请查看后端日志后重试',
+  });
 }
 
 function ok(res, data, status = 200) {
@@ -208,14 +218,20 @@ router.post('/assets', (req, res) => {
 });
 
 // PATCH /api/ontology/assets/:scene/:version — 仅元数据（title/tags/notes/quality）
-router.patch('/assets/:scene/:version', (req, res) => {
+// 其中 quality=deprecated 是弃用操作（管理面），仅 admin；
+// 其余元数据编辑保持用户级（与保存新版本同级的发布权）。
+const deprecateGuard = (req, res, next) => {
+  if (req.body?.quality !== 'deprecated') return next();
+  return adminOnly(req, res, next);
+};
+router.patch('/assets/:scene/:version', deprecateGuard, (req, res) => {
   try {
     ok(res, patchAsset(req.params.scene, Number(req.params.version), req.body || {}));
   } catch (err) { fail(res, err); }
 });
 
-// POST /api/ontology/assets/:scene/:version/clone — 克隆到新场景
-router.post('/assets/:scene/:version/clone', (req, res) => {
+// POST /api/ontology/assets/:scene/:version/clone — 克隆到新场景（管理面：创建可替换的副本）
+router.post('/assets/:scene/:version/clone', adminOnly, (req, res) => {
   try {
     const body = req.body || {};
     ok(res, cloneAsset({
@@ -228,13 +244,13 @@ router.post('/assets/:scene/:version/clone', (req, res) => {
   } catch (err) { fail(res, err); }
 });
 
-// DELETE /api/ontology/assets/:scene/:version — 删除单个版本
-router.delete('/assets/:scene/:version', (req, res) => {
+// DELETE /api/ontology/assets/:scene/:version — 删除单个版本（破坏性，仅 admin）
+router.delete('/assets/:scene/:version', adminOnly, (req, res) => {
   try { ok(res, deleteVersion(req.params.scene, Number(req.params.version))); } catch (err) { fail(res, err); }
 });
 
-// DELETE /api/ontology/scenes/:scene — 删除整个场景
-router.delete('/scenes/:scene', (req, res) => {
+// DELETE /api/ontology/scenes/:scene — 删除整个场景（破坏性，仅 admin）
+router.delete('/scenes/:scene', adminOnly, (req, res) => {
   try { ok(res, deleteScene(req.params.scene)); } catch (err) { fail(res, err); }
 });
 
@@ -301,8 +317,9 @@ router.get('/candidates', (req, res) => {
   } catch (err) { fail(res, err); }
 });
 
-// POST /api/ontology/adopt — 把 run 目录本体采纳入库
-router.post('/adopt', (req, res) => {
+// POST /api/ontology/adopt — 把 run 目录本体采纳入库（管理面：直接写入 store，
+// 可能覆盖同 scene 的共享资产，仅 admin；读取/发布/复用仍是用户级）
+router.post('/adopt', adminOnly, (req, res) => {
   try {
     const body = req.body || {};
     if (!body.runDir && !body.runName && !body.run_dir && !body.run_name) {

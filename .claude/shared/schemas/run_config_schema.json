@@ -26,6 +26,20 @@
       "default": "full",
       "description": "Selects the diagnostic execution policy: fast for interactive runs with bounded optional analysis; full for benchmark or exhaustive runs. The orchestrator must record which conditional stages ran or were skipped."
     },
+    "hetero": {
+      "type": "object",
+      "description": "Heterogeneous preprocessing (E-1H, industrial-hetero-preprocessor) provenance block. Written by the Step 0.5 chain only when the stage reports status ok and the joined table is non-empty; in every other case the block is absent and DATA_PATH stays 00_input/preprocessed_data.csv.",
+      "properties": {
+        "enabled": {
+          "type": "string",
+          "enum": ["auto", "on", "off"],
+          "description": "Heterogeneous stage policy: auto=run the stage, adopt the joined table only when heterogeneous sources exist; on=force adoption; off=skip the stage entirely"
+        },
+        "anchor_path": {"type": "string", "description": "Path to the E-1 anchor table (00_input/preprocessed_data.csv) the HX feature columns were joined onto"},
+        "manifest": {"type": "string", "description": "Path to the always-marker 07_hetero/hetero_manifest.json"},
+        "anchor_sha256": {"type": "string", "description": "sha256 of the anchor table at join time (provenance fingerprint)"}
+      }
+    },
     "analysis_constraints": {
       "type": "object",
       "properties": {

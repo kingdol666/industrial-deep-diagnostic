@@ -1,0 +1,596 @@
+{
+  "generated_at": "2026-10-17",
+  "vlm_chart_count": 4,
+  "observation_mode": "direct_image_reading",
+  "chart_design_purpose": "判断带材横向剖面/炉温/质量目标的劣化是否为空间集中(横向偏移)的变冷、各通道是否同步、事件前后是否有瞬时响应——据此区分'慢性漂移 vs 事件瞬时扰动'与'单一上游驱动 vs 多重独立故障'。",
+  "time_alignment_applicable": true,
+  "primary_grouping_dimension": null,
+  "n_products": 1,
+  "n_per_product_overlays": 0,
+  "analysis_provenance": {
+    "source_agent": "vlm-visual-analyzer",
+    "stage": "final_vlm_output",
+    "skeleton_overwritten": true,
+    "context_files_read": [
+      "03_figures/plot_manifest.json",
+      "03_figures/image_captions.json",
+      ".claude/shared/schemas/visual_analysis_schema.json"
+    ],
+    "figure_inputs_attempted": [
+      "fig_hetero_profile_heatmap.png",
+      "fig_vlm_temporal_overlay.png",
+      "fig_event_response.png",
+      "fig6_causal_evidence_map.png"
+    ],
+    "figure_inputs_read_successfully": [
+      "fig_hetero_profile_heatmap.png",
+      "fig_vlm_temporal_overlay.png",
+      "fig_event_response.png",
+      "fig6_causal_evidence_map.png"
+    ],
+    "grounding_summary": "按 fast 模式任务指令读取 plot_manifest.json + image_captions.json（含统计上下文与列语义）后逐图直读 PNG；观测严格限于图面可见内容，时间窗定位按坐标轴刻度目视换算并标注近似性；ontology.json 未在本次精简读集中（fast 预算），参数物理含义取自 manifest/captions 的列语义记录。",
+    "grounding_sources": [
+      "03_figures/plot_manifest.json",
+      "03_figures/image_captions.json"
+    ]
+  },
+  "chart_inventory": [
+    {
+      "figure": "fig_hetero_profile_heatmap.png",
+      "read_status": "READ_SUCCESS",
+      "purpose": "时间×位置热图：带材横向剖面是否发生空间集中(下侧/右侧)的变冷及其时间窗与台阶形态",
+      "visual_questions": [
+        "变冷是全幅均匀还是集中在若干位点/某一侧？",
+        "暗窗的起点/终点在时间轴上相对事件时刻(检修/升温/恢复)如何？"
+      ],
+      "read_order": 1,
+      "diagnostic_weight": "CRITICAL"
+    },
+    {
+      "figure": "fig_vlm_temporal_overlay.png",
+      "read_status": "READ_SUCCESS",
+      "purpose": "10 通道 z 归一化+方向对齐共享时间轴：劣化窗内同步性、先导性与事件响应形态",
+      "visual_questions": [
+        "各通道是否在下一凹窗内同步下移/回升？",
+        "下凹是宽底平台还是尖脉冲？是否有通道明显先导？"
+      ],
+      "read_order": 2,
+      "diagnostic_weight": "CRITICAL"
+    },
+    {
+      "figure": "fig_event_response.png",
+      "read_status": "READ_SUCCESS",
+      "purpose": "维护(02-06 06:40)/升温(02-08 10:00) ±12h 相对变化：区分事件瞬时扰动与慢性漂移",
+      "visual_questions": [
+        "事件前后 12h 均值差是否有显著瞬时阶跃？",
+        "哪个指标对事件窗最敏感？"
+      ],
+      "read_order": 3,
+      "diagnostic_weight": "STRONG"
+    },
+    {
+      "figure": "fig6_causal_evidence_map.png",
+      "read_status": "READ_SUCCESS",
+      "purpose": "显著相关边网：候选上游 hub 与质量目标的共同上游汇聚点",
+      "visual_questions": [
+        "哪些节点是高连边 hub？",
+        "密集边束汇聚到哪些质量目标？是否存在负相关边？"
+      ],
+      "read_order": 4,
+      "diagnostic_weight": "STRONG"
+    }
+  ],
+  "visual_observations": [
+    {
+      "figure": "fig_hetero_profile_heatmap.png",
+      "observations": [
+        {
+          "type": "profile_shape",
+          "description": "12 位点×480 快照热图：第 1 行与第 12 行（两侧边缘位点）全程最暗（≈515-517°C），第 4-5 行与第 10-11 行全程最亮（黄，≈521°C）；边缘偏冷为全时段结构性基线而非劣化特征。",
+          "parameters_involved": [
+            "HX-PROF-L1BANDTEMPPROFILE30M-MEAN",
+            "HX-PROF-L1BANDTEMPPROFILE30M-EDGE-L-DEV",
+            "HX-PROF-L1BANDTEMPPROFILE30M-EDGE-R-DEV"
+          ],
+          "estimated_lag": "N/A — cross-sectional",
+          "confidence": "high",
+          "diagnostic_implication": "剖面劣化判定应看相对变化（位点间梯度/斜率），而非绝对边部低温——边部低温是常态基线。",
+          "ontology_context": {
+            "parameter_physical_meanings": {
+              "HX-PROF-L1BANDTEMPPROFILE30M-MEAN": "带材横向温度剖面均值（30min 快照矩阵）",
+              "HX-PROF-L1BANDTEMPPROFILE30M-EDGE-R-DEV": "剖面右边缘相对偏差"
+            },
+            "process_stage": "均热/带材横向温度场"
+          }
+        },
+        {
+          "type": "trend_morphology",
+          "description": "中段时间窗（目视 x≈100-165 h，即首快照后约第 4.2-6.9 天）出现横跨位点 2-11 的整体变暗（黄→青绿，≈516-518°C），最暗集中在 x≈105-150 h；窗内下侧半区（行 2-6）比上侧更暗，呈台阶式（step）而非斜坡起降。",
+          "parameters_involved": [
+            "HX-PROF-L1BANDTEMPPROFILE30M-MEAN",
+            "HX-PROF-L1BANDTEMPPROFILE30M-EDGE-R-DEV"
+          ],
+          "estimated_lag": "unclear",
+          "confidence": "medium",
+          "diagnostic_implication": "变冷是横向偏移型（下侧/右侧更强）而非整体降温，指向炉膛局部加热能力损失而非全局热负荷下降。",
+          "statistical_cross_reference": {
+            "source_file": "03_figures/image_captions.json",
+            "validation_note": "captions 记录水平偏移窗 02-06 14:30→02-09 07:00、YIELD 变点窗均值 98.07% vs 之前 99.30%"
+          },
+          "ontology_context": {
+            "parameter_physical_meanings": {
+              "HX-PROF-L1BANDTEMPPROFILE30M-MEAN": "带材横向温度剖面均值",
+              "HX-PROF-L1BANDTEMPPROFILE30M-EDGE-R-DEV": "右边缘偏差（右侧变冷的方向指标）"
+            },
+            "process_stage": "均热/带材横向温度场"
+          }
+        },
+        {
+          "type": "anomaly_clustering",
+          "description": "约 x≈100-112 h 处有一条几乎贯穿全部行（含边缘行 1/12）的窄暗竖带，形态接近同步台阶下移；其后至 x≈165 h 为渐进恢复区。",
+          "parameters_involved": [
+            "HX-PROF-L1BANDTEMPPROFILE30M-MEAN"
+          ],
+          "estimated_lag": "unclear",
+          "confidence": "medium",
+          "diagnostic_implication": "全场同步的台阶起点（目视 ≈100 h，若首快照≈02-02 00:00 则≈02-06 05:00，与检修通知 02-06 06:40 目视对齐）是'检修窗起点=劣化起点'的直接可视证据。",
+          "ontology_context": {
+            "parameter_physical_meanings": {
+              "HX-PROF-L1BANDTEMPPROFILE30M-MEAN": "带材横向温度剖面均值"
+            },
+            "process_stage": "均热/带材横向温度场"
+          }
+        },
+        {
+          "type": "trend_morphology",
+          "description": "约 x≈165-180 h 起中上部位点重新转亮，局部亮斑出现在 x≈175-185 h（行 3-5）与 x≈195-215 h（行 2-5、9-11，≈521°C）；恢复方向与图注所述 02-08 21:00 恢复操作一致（时间定位为目视近似）。",
+          "parameters_involved": [
+            "HX-PROF-L1BANDTEMPPROFILE30M-MEAN"
+          ],
+          "estimated_lag": "unclear",
+          "confidence": "medium",
+          "diagnostic_implication": "恢复窗晚于暗窗约 2.5-3 天，暗窗与恢复窗的先后与事件时刻目视吻合，支持时序先后链（检修后劣化→恢复操作后回升）。"
+        },
+        {
+          "type": "outlier_detection",
+          "description": "全图存在细密竖条纹（快照级噪声）；实际渲染为单幅热图+色标，未见 manifest 描述的下方 z 叠加子图，也未见图面上可辨识的操作事件竖线。",
+          "parameters_involved": [
+            "HX-PROF-L1BANDTEMPPROFILE30M-MEAN"
+          ],
+          "estimated_lag": "N/A — cross-sectional",
+          "confidence": "high",
+          "diagnostic_implication": "热图中的事件对齐为'时间轴刻度换算+图注事件时间'的推断而非图面标记直读，引用时应标注该限制。"
+        }
+      ]
+    },
+    {
+      "figure": "fig_vlm_temporal_overlay.png",
+      "observations": [
+        {
+          "type": "temporal_synchronization",
+          "description": "10 条 z 归一化+方向对齐曲线（图例含 FUR-YIELD/FUR-OUT-TEMP/FUR-Z3-TEMP/FUR-SPEED/FUR-PRES/PROF-MEAN/EDGE-R-DEV/MAP-MEAN/MAP-ASYM-LR(rev)/IMG-MEAN）高频噪声大，但存在一个多通道同步的下凹包络：约 day 5.2 起整体下移，day 6.0-6.6 最深（多条轨迹到 -2 ~ -4），day 7.0-7.5 陡峭回升，其后回到 0 附近震荡至 day 10。",
+          "parameters_involved": [
+            "FUR-Z3-TEMP",
+            "FUR-YIELD",
+            "FUR-OUT-TEMP",
+            "HX-PROF-L1BANDTEMPPROFILE30M-MEAN",
+            "HX-MAP-L1FURNACETHERMALMAP2-MEAN",
+            "HX-IMG-L1SURFACECCDINDEX-MEAN"
+          ],
+          "estimated_lag": "0 (synchronous)",
+          "confidence": "high",
+          "diagnostic_implication": "炉温、炉膛场、图像通道与质量目标在同一窗口同向运动→存在单一共同上游驱动源（目视支持，滞后量级需 CCF 统计）。",
+          "statistical_cross_reference": {
+            "correlation": 0.899,
+            "source_file": "03_figures/image_captions.json (转引 validate_report)",
+            "validation_note": "captions 记录 Z3↔YIELD r=0.899 (lag -1 step)、Z3↔OUT-TEMP r=0.742 (lag +4 step≈40min)、Z3↔PROF-MEAN r=0.858"
+          },
+          "ontology_context": {
+            "parameter_physical_meanings": {
+              "FUR-Z3-TEMP": "三区（均热段）炉温",
+              "FUR-YIELD": "良率/收得率质量目标",
+              "FUR-OUT-TEMP": "出炉温度"
+            },
+            "process_stage": "热处理炉均热段→出炉"
+          }
+        },
+        {
+          "type": "trend_morphology",
+          "description": "下凹包络为'宽底谷'（约 2 天宽），非尖脉冲；回升沿陡但连续；前期(day 0-3)与尾部(day 8-10)基线均在 0 附近。",
+          "parameters_involved": [
+            "FUR-Z3-TEMP",
+            "FUR-YIELD"
+          ],
+          "estimated_lag": "N/A — cross-sectional",
+          "confidence": "high",
+          "diagnostic_implication": "宽底平台+缓慢回升的形态与慢性漂移/持续性掉温一致，与'单次事件冲击'形态不符。"
+        },
+        {
+          "type": "outlier_detection",
+          "description": "可见个别点划（dotted）曲线的孤立尖峰：紫色反向通道在 day≈0.8 与 day≈8.5-9.5 出现 +3~+4 级孤立上冲；为单通道极值，非整体同步。",
+          "parameters_involved": [
+            "HX-MAP-L1FURNACETHERMALMAP2-ASYM-LR"
+          ],
+          "estimated_lag": "unclear",
+          "confidence": "medium",
+          "diagnostic_implication": "此类孤立尖峰不应被解读为通道间同步或事件响应证据（噪声/方向反转放大）。"
+        },
+        {
+          "type": "event_response",
+          "description": "图中未见设计规范要求的红色虚线事件标注线；按 x 轴（days from 2026-02-02）换算：下凹最深点 day 6.0-6.6 ≈ 02-08 00:00-14:00（含升温事件 02-08 10:00），回升起点 day 7.0-7.5 ≈ 02-08 24:00-02-09 12:00（略晚于图注恢复时刻 02-08 21:00）。",
+          "parameters_involved": [
+            "FUR-Z3-TEMP",
+            "FUR-OUT-TEMP",
+            "FUR-YIELD"
+          ],
+          "estimated_lag": "unclear",
+          "confidence": "low",
+          "diagnostic_implication": "目视层面只能确认'谷区覆盖升温窗、回升晚于恢复时刻'的粗略先后；精确事件对齐需以 stats/CCF 为准（本图无事件线，时间定位为刻度目视换算）。"
+        }
+      ]
+    },
+    {
+      "figure": "fig_event_response.png",
+      "observations": [
+        {
+          "type": "event_response",
+          "description": "左 panel（维护 02-06 06:40 ±12h）：z3/out/yield/pmean 柱幅度均 <0.15%（红条，几乎不可见），仅 pedger 一根大绿条 ≈+3.8%（标注 b -4.05→a -3.89）。",
+          "parameters_involved": [
+            "FUR-Z3-TEMP",
+            "FUR-OUT-TEMP",
+            "FUR-YIELD",
+            "HX-PROF-L1BANDTEMPPROFILE30M-MEAN",
+            "HX-PROF-L1BANDTEMPPROFILE30M-EDGE-R-DEV"
+          ],
+          "estimated_lag": "N/A — cross-sectional",
+          "confidence": "high",
+          "diagnostic_implication": "维护事件±12h 内炉温/质量指标几乎无瞬时阶跃→劣化不能归因于维护操作瞬间引入的扰动。",
+          "statistical_cross_reference": {
+            "source_file": "03_figures/image_captions.json",
+            "validation_note": "captions: 检修事件 Z3 880.22→879.53°C (Δ-0.69)，事件响应幅度远小于维护窗分段水平偏移 -4.93°C"
+          },
+          "ontology_context": {
+            "parameter_physical_meanings": {
+              "FUR-Z3-TEMP": "三区（均热段）炉温",
+              "FUR-YIELD": "良率/收得率"
+            },
+            "process_stage": "热处理炉均热段"
+          }
+        },
+        {
+          "type": "event_response",
+          "description": "右 panel（升温 02-08 10:00 ±12h）：z3/out/yield/pmean 为小正绿条（<0.15%），pedger 大绿条 ≈+4.3%（b -4.1→a -3.93）。",
+          "parameters_involved": [
+            "FUR-Z3-TEMP",
+            "FUR-OUT-TEMP",
+            "FUR-YIELD",
+            "HX-PROF-L1BANDTEMPPROFILE30M-EDGE-R-DEV"
+          ],
+          "estimated_lag": "N/A — cross-sectional",
+          "confidence": "high",
+          "diagnostic_implication": "升温事件窗同样无显著瞬时阶跃（幅度 ±0.1% 量级）→与'慢性掉温平台'叙事一致。"
+        },
+        {
+          "type": "direction_consistency",
+          "description": "维护 panel 四个过程/质量柱全部为负（红），升温 panel 全部为正（绿）——多数指标的方向随事件类型翻转，而 pedger 两 panel 均为大幅正条（其'相对变化'按幅值口径，与其余柱的百分比口径不同——标注 b→a 由 -4.05/-4.1 略向 -3.89/-3.93 收敛）。",
+          "parameters_involved": [
+            "FUR-Z3-TEMP",
+            "FUR-YIELD",
+            "HX-PROF-L1BANDTEMPPROFILE30M-EDGE-R-DEV"
+          ],
+          "estimated_lag": "N/A — cross-sectional",
+          "confidence": "high",
+          "diagnostic_implication": "pedger（边缘偏差）是唯一对事件窗敏感的通道，且口径特殊；引用其数值时以图注 b→a 绝对值为准，勿与其他柱的相对百分比直接比较。"
+        },
+        {
+          "type": "trend_morphology",
+          "description": "两 panel 的 y 轴尺度(0-4%)被 pedger 主导，其余柱视觉上贴近零线——事件前后 12h 均值差对炉温/质量指标而言极小。",
+          "parameters_involved": [
+            "FUR-Z3-TEMP",
+            "FUR-OUT-TEMP",
+            "FUR-YIELD",
+            "HX-PROF-L1BANDTEMPPROFILE30M-MEAN"
+          ],
+          "estimated_lag": "N/A — cross-sectional",
+          "confidence": "high",
+          "diagnostic_implication": "量化口径下事件瞬时响应（≤0.15%、除边缘偏差外）远小于分段水平偏移量级→劣化主体为慢性漂移，事件本身不是劣化主因。"
+        }
+      ]
+    },
+    {
+      "figure": "fig6_causal_evidence_map.png",
+      "observations": [
+        {
+          "type": "clustering",
+          "description": "双列布局：左列圆节点（MAP.* 炉膛场、IMG.* 相机统计、Z3-TEMP）→右列绿方块（PROF.* 剖面族、YIELD、OUT-TEMP）。红节点（≥3 条 |r|≥0.7 边的 hub）：MAP.MEAN、MAP.CENTROID-X、MAP.ASYM-LR、IMG.STD、IMG.MEAN、IMG.ENTROPY、Z3-TEMP；蓝节点（低度）：MAPPOSMAX-X、MAPP95、MAP.COLDAREA-P10、MAP.CENTROID-Y。",
+          "parameters_involved": [
+            "HX-MAP-L1FURNACETHERMALMAP2-MEAN",
+            "HX-MAP-L1FURNACETHERMALMAP2-ASYM-LR",
+            "HX-IMG-L1SURFACECCDINDEX-MEAN",
+            "FUR-Z3-TEMP"
+          ],
+          "estimated_lag": "N/A — cross-sectional",
+          "confidence": "medium",
+          "diagnostic_implication": "MAP/IMG 通道集体成为 hub 指示高度共线冗余（相机-热辐射同源或共同上游），它们不能作为独立证据重复计数。"
+        },
+        {
+          "type": "clustering",
+          "description": "最密集的红色边束（|r|≥0.7）汇聚到右列 PROF.EDGE-L-DEV、YIELD、OUT-TEMP 三个节点；中部可见边权标签 0.99/0.97/0.96/0.94/0.91/0.90/0.87 等（标签与具体边的逐一定位在渲染中难以分辨，仅确认量级）。",
+          "parameters_involved": [
+            "FUR-YIELD",
+            "FUR-OUT-TEMP",
+            "HX-PROF-L1BANDTEMPPROFILE30M-EDGE-L-DEV"
+          ],
+          "estimated_lag": "N/A — cross-sectional",
+          "confidence": "high",
+          "diagnostic_implication": "证据网以'多个上游通道 × 同一质量目标簇'的高密度形态出现，诊断焦点应落在 EDGE-L-DEV/YIELD/OUT-TEMP 的共同上游。",
+          "statistical_cross_reference": {
+            "source_file": "03_figures/image_captions.json",
+            "validation_note": "captions: IMG-MEAN↔YIELD r=0.956；MAP-ASYM-LR↔EDGE-L-DEV r=0.681；validate_report 400 对中 236 对显著"
+          }
+        },
+        {
+          "type": "direction_consistency",
+          "description": "存在一条明确的负权边标签 −0.91（红色/橙红家族），右列 PROF.IQR、PROF.CURV-LSQ、PROF.RANGE 的连边明显稀疏（细橙/灰线）。",
+          "parameters_involved": [
+            "HX-MAP-L1FURNACETHERMALMAP2-ASYM-LR",
+            "FUR-YIELD"
+          ],
+          "estimated_lag": "N/A — cross-sectional",
+          "confidence": "medium",
+          "diagnostic_implication": "并非全图同向：存在量级达 -0.91 的负相关边（几何/偏差类通道特征），相关结构符号不一，排除了'所有指标同涨同跌'的低维共模解释。"
+        },
+        {
+          "type": "clustering",
+          "description": "Z3-TEMP（左下）可见红色长边直连右下 YIELD 与 OUT-TEMP（标签区含 0.96/0.90 量级足印），与图注 r=0.899/0.742 一致。",
+          "parameters_involved": [
+            "FUR-Z3-TEMP",
+            "FUR-YIELD",
+            "FUR-OUT-TEMP"
+          ],
+          "estimated_lag": "N/A — cross-sectional",
+          "confidence": "medium",
+          "diagnostic_implication": "三区炉温与两大质量目标存在直达强边→三区加热能力是候选根因的主上游。"
+        }
+      ]
+    }
+  ],
+  "cross_parameter_temporal_alignment": {
+    "summary": "时间轴有效（热图 0-240h；叠加图 days from 2026-02-02，0-10 天）。中段（目视 ≈ day 4.2-6.9 / 100-165h）出现多通道同步劣化窗：热图剖面变冷、叠加图 10 通道共同下凹，窗宽 2-2.5 天、边界两图互差 ≤0.5 天（在目视定位误差内）。目视分辨率下各通道谷值几乎零错位，无法在图上读出可靠先导/滞后；先导性判断需以 stats/CCF（图注记载 Z3 先导 OUT-TEMP ~40min）。",
+    "synchronous_groups": [
+      {
+        "group_id": "G1_common_driver",
+        "parameters": [
+          "FUR-Z3-TEMP",
+          "FUR-OUT-TEMP",
+          "FUR-YIELD",
+          "HX-PROF-L1BANDTEMPPROFILE30M-MEAN",
+          "HX-MAP-L1FURNACETHERMALMAP2-MEAN",
+          "HX-IMG-L1SURFACECCDINDEX-MEAN"
+        ],
+        "description": "叠加图中炉温、炉膛场、图像与两大质量目标在同一窗口 (day 5.2-7.3) 同步下凹、同步回升，深谷 (-2~-4σ) 位置目视一致；热图同期整幅变冷。",
+        "estimated_group_lag": "0 (synchronous) at macro scale; 目视不能分辨 <0.5 天级滞后",
+        "synchronous_with_quality": true,
+        "group_diagnostic_implication": "质量目标与炉温/炉场/图像共享同一劣化窗→单一共同上游驱动（时间源在均热段）的可视化支持。"
+      },
+      {
+        "group_id": "G2_lateral_asymmetry",
+        "parameters": [
+          "HX-PROF-L1BANDTEMPPROFILE30M-EDGE-R-DEV",
+          "HX-MAP-L1FURNACETHERMALMAP2-ASYM-LR"
+        ],
+        "description": "横向不对称族：热图中变冷在行 2-6（下侧）与右边缘更强；事件响应图中 pedger（边缘偏差）是唯一显著事件窗敏感条。",
+        "estimated_group_lag": "unclear (横向通道在叠加图中为反向对齐虚线，时间对齐形态被噪声覆盖)",
+        "synchronous_with_quality": true,
+        "group_diagnostic_implication": "横向/边缘通道承担劣化的空间特征（右侧/下侧变冷），是'局部加热能力损失'的直接可视证据。"
+      }
+    ],
+    "precedence_signals": [
+      {
+        "earlier": "FUR-Z3-TEMP",
+        "later": "FUR-OUT-TEMP",
+        "description": "叠加图中目视无法可靠分辨先后（谷值零错位）；图注/统计记载 Z3 先导 OUT-TEMP 约 40min（lag +4 step，物理停留时间量级）。",
+        "visual_confidence": "LOW",
+        "diagnostic_implication": "先导链的证据权重应落在统计（lagged CCF）而非本目视结论上；目视仅确认同步性。"
+      }
+    ],
+    "independent_parameters": [
+      {
+        "parameters": [
+          "FUR-SPEED",
+          "FUR-PRES"
+        ],
+        "description": "速度/炉压轨迹在叠加图中无可见的事件对齐结构或封闭下凹（其方差量级不足以在任何图上形成可辨识特征；captions 记录速度-温度 r=-0.013、方差区间仅 11.83-12.16）。",
+        "diagnostic_weight": "LOW — 目视无法将其与噪声/其它轨迹区分，不能作为独立证据"
+      }
+    ]
+  },
+  "process_fluctuation_visual_findings": [
+    {
+      "parameter": "FUR-Z3-TEMP",
+      "pattern_type": "drift",
+      "time_window_or_group": "day ≈4.3-7.0（≈02-06 至 02-09）",
+      "visual_basis": "叠加图共同下凹包络深谷 + 热图整幅变冷同期出现；回升陡且连续。",
+      "diagnostic_implication": "慢性掉温平台（非事件瞬跳）是三区炉温通道的显性形态。"
+    },
+    {
+      "parameter": "HX-PROF-L1BANDTEMPPROFILE30M-MEAN",
+      "pattern_type": "threshold_regime_change",
+      "time_window_or_group": "目视 x≈100-165 h 暗窗，台阶起点 ≈100-112 h",
+      "visual_basis": "热图窄暗竖带贯穿全部行后进入渐进恢复区，呈 step/plateau 形态。",
+      "diagnostic_implication": "剖面均值的下移带台阶特征，与恒温段加热能力损失型变化的形态一致。"
+    },
+    {
+      "parameter": "FUR-SPEED",
+      "pattern_type": "stable",
+      "time_window_or_group": "全时段",
+      "visual_basis": "叠加图中速度轨迹无可见事件对齐结构；captions 明示方差不足。",
+      "diagnostic_implication": "速度通道在本数据集无检验功效，不可用于支持或反驳停留时间机理。"
+    }
+  ],
+  "dual_drive_visual_findings": [
+    {
+      "process_parameter": "FUR-Z3-TEMP",
+      "quality_indicator": "FUR-YIELD",
+      "relationship_type": "synchronous",
+      "visual_basis": "叠加图中 Z3 轨迹与 YIELD 轨迹同窗下凹、同窗回升，目视无错位；统计 r=0.899 (lag -1 step)。",
+      "diagnostic_implication": "过程驱动质量的可视化支持：三区炉温是 YIELD 劣化的同窗过程伴随变量。"
+    },
+    {
+      "process_parameter": "HX-IMG-L1SURFACECCDINDEX-MEAN",
+      "quality_indicator": "FUR-YIELD",
+      "relationship_type": "synchronous",
+      "visual_basis": "图像均值与 YIELD 在叠加图同窗运动；因果图为红 hub（IMG.MEAN↔YIELD r=0.956 据 captions）。",
+      "diagnostic_implication": "图像通道与质量同窗运动，但其与炉温的强共线使'热辐射物理通道 vs 相机自身漂移'无法用现有图面区分——不得将 IMG 通道计为独立证据。"
+    }
+  ],
+  "pipeline_warnings": [
+    {
+      "warning": "fig_vlm_temporal_overlay.png 实际渲染中未见设计规范要求的红色虚线事件标注线；事件对齐依赖 x 轴刻度换算，诊断引用事件先后时应标注'目视+图注推断'。",
+      "severity": "WARNING"
+    },
+    {
+      "warning": "fig_hetero_profile_heatmap.png 实际渲染为单幅热图+色标（无 manifest 描述的 z 叠加子图与事件竖线）；热图内事件对齐同样为刻度换算推断。",
+      "severity": "WARNING"
+    },
+    {
+      "warning": "fig_event_response.png 中 pedger（边缘偏差）柱的相对变化按其幅值口径计算，与其余指标的百分比口径不同，且其量级（±4%）主导 y 轴尺度；跨指标比较勿直接引用柱高。",
+      "severity": "WARNING"
+    },
+    {
+      "warning": "fast 模式 VLM 预算 4 图：fig2_key_scatter.png（MEDIUM）未纳入本次目视分析，其统计内容仍见 image_captions.json（Z3↔YIELD r=0.899 窄带、速度-温度 r=-0.013）。",
+      "severity": "INFO"
+    }
+  ],
+  "synthesis": "四图讲同一个故事：约第 4.2-6.9 天（≈02-06 至 02-09）出现一次横跨全部通道的同步劣化窗——热图上剖面从位点 2-11 整幅变冷且下侧/右边缘更强、台阶式起点目视对齐检修时刻；叠加图上炉温、炉膛场、图像与良率/出炉温度共同下凹（深 -2~-4σ）再共同回升，宽底平台形态指向慢性漂移而非事件冲击；事件响应图确认维护/升温 ±12h 的瞬时变化≤0.15%（除边缘偏差外），劣化主体在事件之间；因果证据图显示密集红边束汇聚到 EDGE-L-DEV/YIELD/OUT-TEMP 且 MAP/IMG 通道集体为 hub，全图指向单一共同上游（三区加热能力）而非多重独立故障。目视层面不能分辨 40min 级先导（谷值零错位），因果方向与滞后结论应引用 stats/CCF；引用事件先后时须注明叠加图无事件标注线、时间定位为刻度换算。",
+  "reading_guide": [
+    {
+      "for_agent": "diagnostician",
+      "primary_sections_to_read": [
+        "plots(fig_hetero_profile_heatmap)",
+        "plots(fig_vlm_temporal_overlay)",
+        "cross_parameter_temporal_alignment",
+        "cross_plot_consistency"
+      ],
+      "key_insights": [
+        "同步劣化窗 ≈ day 4.2-6.9（100-165h）：热图变冷窗与叠加图下凹窗互证，窗宽 ~2-2.5 天",
+        "变冷具空间选择性（行 2-6 下侧 + 右边缘更强）→ 横向偏移而非整体降温",
+        "事件 ±12h 瞬时响应 ≤0.15%（edge dev 除外）→ 慢性漂移，事件非劣化主因",
+        "因果图密集边束汇聚 EDGE-L-DEV/YIELD/OUT-TEMP，MAP/IMG 为共线 hub——共模冗余，不得重复计数"
+      ]
+    },
+    {
+      "for_agent": "judge",
+      "primary_sections_to_read": [
+        "visual_observations",
+        "pipeline_warnings"
+      ],
+      "key_insights": [
+        "observation_mode=direct_image_reading，4/4 图直读成功（vision），无 fallback",
+        "两处渲染与设计规范不符（无事件标注线/无 z 子图）已列为 WARNING，事件对齐为推断"
+      ]
+    }
+  ],
+  "plots": [
+    {
+      "plot_file": "fig_hetero_profile_heatmap.png",
+      "vlm_priority": "CRITICAL",
+      "readable": true,
+      "axes": {
+        "x": "time since first snapshot (h), ticks 0/50/100/150/200, 全域 0-240 h（≈10 天；首快照≈2026-02-02）",
+        "y": "position index 1-12（带材横向剖面位点）",
+        "color": "value（带温，°C），colorbar 刻度 515-521，viridis"
+      },
+      "observations": [
+        "位点 1 与 12（两侧边缘）全程最暗 ≈515-517°C；位点 4-5、10-11 全程最亮 ≈521°C（结构性基线）",
+        "中段目视 x≈100-165 h 出现横跨位点 2-11 的整体变暗（黄→青绿，最暗 x≈105-150），且行 2-6（下侧）比上侧更暗",
+        "≈x 100-112 h 存在几乎贯穿全部行（含边缘行）的窄暗竖带，接近同步台阶下移；其后至 ≈165 h 渐进恢复",
+        "恢复区亮斑（≈521°C）出现在 x≈175-185 h 与 x≈195-215 h，方向上与 02-08 21:00 恢复操作一致",
+        "全图细密竖条纹（快照级噪声）；无可见事件竖线，且实际渲染无 manifest 所述的下方 z 叠加子图"
+      ],
+      "key_visual_evidence": [
+        "变冷具空间选择性（下侧/右边缘更强）→ 水平偏移型劣化（right-side cooling），非整体降温",
+        "窄暗竖带 ≈100-112 h 目视对齐检修时刻 02-06 06:40（若首快照=02-02 00:00，则 100h=02-06 04:00 前后）",
+        "暗窗 → 恢复窗的时间先后（100h → 165-180h）与'检修后劣化 → 恢复操作后回升'的事件链目视吻合（时间定位为刻度换算，非图面标记）"
+      ]
+    },
+    {
+      "plot_file": "fig_vlm_temporal_overlay.png",
+      "vlm_priority": "CRITICAL",
+      "readable": true,
+      "axes": {
+        "x": "Time (days from 2026-02-02), 0-10",
+        "y": "Normalized Value (z-score, quality-degradation direction aligned), -4..+4",
+        "legend": "FUR-YIELD / FUR-OUT-TEMP / FUR-Z3-TEMP / FUR-SPEED / FUR-PRES / HX-PROF...MEAN / HX-PROF...EDGE-R-DEV / HX-MAP...MEAN / HX-MAP...ASYM-LR (rev) / HX-IMG...MEAN"
+      },
+      "observations": [
+        "10 通道高频噪声大，但存在同步下凹包络：≈day 5.2 起下移，day 6.0-6.6 最深（-2~-4σ），day 7.0-7.5 陡峭回升后回到 0 附近至 day 10",
+        "下凹为宽底谷（~2 天宽），非尖脉冲；谷内各通道深谷目视零错位（同步），无法读先导/滞后",
+        "孤立尖峰仅见于 point-dashed 轨迹（+3~+4，day≈0.8、8.5-9.5），为单通道极值，非同步信号",
+        "图中无红色虚线事件标注线；按刻度换算：最深点 ≈02-08 00:00-14:00（覆盖升温 02-08 10:00），回升起点 ≈02-08 24:00-02-09 12:00（略晚于恢复 02-08 21:00）"
+      ],
+      "key_visual_evidence": [
+        "10 通道同窗下凹再同窗回升 → 单一共同上游驱动的目视证据（与 causal map 的密集边束一致）",
+        "宽底平台形态 → 慢性漂移/持续掉温，与事件冲击形态不符",
+        "z 归一化+方向反转后各线同向，不能从符号直读各参数的物理升降方向"
+      ]
+    },
+    {
+      "plot_file": "fig_event_response.png",
+      "vlm_priority": "HIGH",
+      "readable": true,
+      "axes": {
+        "x": "指标柱（z3/out/yield/pmean/pedger，附 b→a 分段均值标注）",
+        "y": "relative change after vs before (%)，两 panel 均被 pedger 值主导尺度"
+      },
+      "observations": [
+        "维护 02-06 06:40 ±12h：z3/out/yield/pmean 均 <0.15%（红，近零不可见）；仅 pedger ≈+3.8%（b -4.05→a -3.89）",
+        "升温 02-08 10:00 ±12h：z3/out/yield/pmean 小正绿条 <0.15%（z3 871→872、yield 97.5→97.6）；pedger ≈+4.3%（b -4.1→a -3.93）",
+        "四过程/质量柱方向随事件翻转（维护红负、升温绿正）；pedger 两 panel 均为大幅正条，其口径为幅值相对变化，与其它柱不同",
+        "标注的绝对变化极小（Z3 ±1°C、YIELD ±0.1pt、PMEAN ±1°C 级）"
+      ],
+      "key_visual_evidence": [
+        "事件 ±12h 瞬时响应（≤0.15%，除 edge dev 外）远小于分段平台量级（captions: Z3 维护窗 -4.93°C）→ 目视支持'慢性漂移而非事件瞬时扰动'",
+        "pedger（边缘偏差）是唯一对事件窗敏感通道 → 与热图右边缘/横向偏移通道互证"
+      ]
+    },
+    {
+      "plot_file": "fig6_causal_evidence_map.png",
+      "vlm_priority": "HIGH",
+      "readable": true,
+      "axes": {
+        "layout": "左列=MAP.*/IMG.*/Z3-TEMP 圆节点；右列=PROF.*/YIELD/OUT-TEMP 绿方块",
+        "encoding": "红节点=hub（≥3 条 |r|≥0.7 边）；红边 |r|≥0.7、橙边 0.5-0.7；边权标签仅部分可读"
+      },
+      "observations": [
+        "红 hub（左列）：MAP.MEAN、MAP.CENTROID-X、MAP.ASYM-LR、IMG.STD、IMG.MEAN、IMG.ENTROPY、Z3-TEMP；蓝低度节点：MAPPOSMAX-X、MAPP95、MAP.COLDAREA-P10、MAP.CENTROID-Y",
+        "最密红边束汇聚右列 PROF.EDGE-L-DEV、YIELD、OUT-TEMP；中部可见标签 0.99/0.97/0.96/0.94/0.91/0.90/0.87（逐边配对准度有限）",
+        "存在一条 −0.91 负权边标签；PROF.IQR / PROF.CURV-LSQ / PROF.RANGE 连边稀疏（细橙/灰线）",
+        "Z3-TEMP 有红色长边直达 YIELD 与 OUT-TEMP（与 captions r=0.899/0.742 一致）"
+      ],
+      "key_visual_evidence": [
+        "密集红边束汇聚 EDGE-L-DEV/YIELD/OUT-TEMP → 诊断焦点=三者共同上游",
+        "MAP/IMG 通道集体为 hub（多对 |r|>0.9）→ 提示高度共线冗余/共同上游，不可作为独立证据重复计数",
+        "负边 (-0.91) 与稀疏区表明结构非单一同向共模"
+      ]
+    }
+  ],
+  "cross_plot_consistency": {
+    "summary": "四图在地理(通道)、时间窗与形态上互洽，未发现互斥证据。",
+    "items": [
+      "时间窗互证：热图暗窗（目视 ≈100-165h ≈ day 4.2-6.9）与叠加图下凹窗（day 5.2-7.3）重叠、窗宽相近（2-2.5 天），边界互差 ≤0.5 天（在目视定位误差内）",
+      "通道互证：热图边缘行偏冷 ↔ 事件响应 pedger 为唯一显著条 ↔ 因果图 PROF.EDGE-L-DEV 处密集红边束汇聚点——三图一致把'边缘/横向偏差'置于劣化特征中心",
+      "驱动结构互证：叠加图多通道同步 ↔ 因果图大范围高 |r| 边网——两图一致指向'单一共同上游 + 共线冗余'，未见多重独立故障的图形证据",
+      "形态互证：三图均未见与事件时刻精确对齐的瞬时阶跃；宽底平台/台阶形态一致支持慢性漂移/持续掉温"
+    ]
+  },
+  "limitations": [
+    "无像素级轴标定：热图暗窗边界与叠加图谷区/事件对齐为目视刻度换算，时间定位误差约 ±0.3-0.5 天",
+    "热图实际渲染为单幅热图+色标，无 manifest 描述的下方 z 叠加子图与事件竖线；叠加图亦无红色虚线事件标注线——事件先后为'刻度换算+图注时间'推断",
+    "叠加图高频噪声与点划反向通道限制细粒度读取；z 归一化+方向对齐后不能从符号直读物理升降方向，目视不能分辨 <0.5 天级先导滞后（40min 级先导结论仅来自统计）",
+    "事件响应图为相对变化（%）口径，pedger 为近零/负偏差量的幅值口径且主导 y 轴尺度，跨指标柱高不可直接比较",
+    "fast 模式 4 图预算：fig2_key_scatter.png 未纳入目视分析（其统计上下文见 image_captions.json）",
+    "图像通道（IMG.*）与热辐射的共线在本组图内无法区分'物理通道 vs 相机自身漂移'，诊断引用时应标注该不可分辨性",
+    "本次读集为 fast 精简集（plot_manifest + image_captions），未加载 ontology.json / data_analysis_conclusion.json 全文；参数物理含义取自 manifest/captions 列语义"
+  ]
+}

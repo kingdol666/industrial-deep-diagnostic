@@ -30,6 +30,11 @@ Thumbs.db
 # Config (user overrides)
 config/local.yaml
 
+# Secrets (never commit real credentials; .env.example is the template)
+.env
+.env.*
+!.env.example
+
 # Tool caches
 .omc/
 .serena/
@@ -186,3 +191,7 @@ workspace/field-tests/
 # NOTE: gitignore does not untrack already-committed files — run
 # `git rm -r --cached data/` explicitly if a full untrack is ever wanted.
 /data/
+
+# runtime sqlite (local job state, never commit)
+workspace/*.sqlite
+workspace/*.sqlite-*

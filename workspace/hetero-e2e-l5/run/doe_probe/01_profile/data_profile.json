@@ -1,0 +1,740 @@
+{
+  "generated_at": "2026-10-16T16:41:26.003019+00:00",
+  "data_path": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\hetero-e2e-l5\\run\\07_hetero\\preprocessed_data_hetero.csv",
+  "n_rows": 3024,
+  "n_cols": 62,
+  "columns": [
+    {
+      "name": "时间",
+      "dtype": "str",
+      "role": "index",
+      "role_assigned_by": "auto",
+      "n_unique": 3024,
+      "n_missing": 0,
+      "n_valid": 3024,
+      "notes": ""
+    },
+    {
+      "name": "L5-SL-SC01",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "auto",
+      "n_unique": 1077,
+      "n_missing": 0,
+      "n_valid": 3024,
+      "notes": ""
+    },
+    {
+      "name": "L5-SL-VSC01",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "auto",
+      "n_unique": 1682,
+      "n_missing": 0,
+      "n_valid": 3024,
+      "notes": ""
+    },
+    {
+      "name": "L5-CT-GAP-L01",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "auto",
+      "n_unique": 95,
+      "n_missing": 0,
+      "n_valid": 3024,
+      "notes": ""
+    },
+    {
+      "name": "L5-CT-GAP-R01",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "auto",
+      "n_unique": 159,
+      "n_missing": 0,
+      "n_valid": 3024,
+      "notes": ""
+    },
+    {
+      "name": "L5-CT-PMP-SP01",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "auto",
+      "n_unique": 242,
+      "n_missing": 0,
+      "n_valid": 3024,
+      "notes": ""
+    },
+    {
+      "name": "L5-OV-Z1-TE01",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "auto",
+      "n_unique": 316,
+      "n_missing": 0,
+      "n_valid": 3024,
+      "notes": ""
+    },
+    {
+      "name": "L5-OV-Z2-TE01",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "auto",
+      "n_unique": 355,
+      "n_missing": 0,
+      "n_valid": 3024,
+      "notes": ""
+    },
+    {
+      "name": "L5-OV-Z3-TE01",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "auto",
+      "n_unique": 311,
+      "n_missing": 0,
+      "n_valid": 3024,
+      "notes": ""
+    },
+    {
+      "name": "L5-CAL-P01",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "auto",
+      "n_unique": 1003,
+      "n_missing": 0,
+      "n_valid": 3024,
+      "notes": ""
+    },
+    {
+      "name": "L5-CAL-TE01",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "auto",
+      "n_unique": 412,
+      "n_missing": 0,
+      "n_valid": 3024,
+      "notes": ""
+    },
+    {
+      "name": "L5-WD-TN01",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "auto",
+      "n_unique": 455,
+      "n_missing": 0,
+      "n_valid": 3024,
+      "notes": ""
+    },
+    {
+      "name": "L5-LN-SPD01",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "auto",
+      "n_unique": 691,
+      "n_missing": 0,
+      "n_valid": 3024,
+      "notes": ""
+    },
+    {
+      "name": "L5-ENV-TE01",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "auto",
+      "n_unique": 480,
+      "n_missing": 0,
+      "n_valid": 3024,
+      "notes": ""
+    },
+    {
+      "name": "L5-GA-AD-AVG01",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "auto",
+      "n_unique": 558,
+      "n_missing": 0,
+      "n_valid": 3024,
+      "notes": ""
+    },
+    {
+      "name": "L5-GA-AD-CV01",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "auto",
+      "n_unique": 170,
+      "n_missing": 0,
+      "n_valid": 3024,
+      "notes": ""
+    },
+    {
+      "name": "L5-GA-EDGE-R01",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "auto",
+      "n_unique": 265,
+      "n_missing": 0,
+      "n_valid": 3024,
+      "notes": ""
+    },
+    {
+      "name": "L5-GA-EDGE-L01",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "auto",
+      "n_unique": 270,
+      "n_missing": 0,
+      "n_valid": 3024,
+      "notes": ""
+    },
+    {
+      "name": "L5-QM-YIELD01",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "auto",
+      "n_unique": 1288,
+      "n_missing": 0,
+      "n_valid": 3024,
+      "notes": ""
+    },
+    {
+      "name": "L5-MES-RECY01",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "auto",
+      "n_unique": 2,
+      "n_missing": 0,
+      "n_valid": 3024,
+      "notes": ""
+    },
+    {
+      "name": "L5-LINE-MODE01",
+      "dtype": "int64",
+      "role": "factor",
+      "role_assigned_by": "auto",
+      "n_unique": 2,
+      "n_missing": 0,
+      "n_valid": 3024,
+      "notes": ""
+    },
+    {
+      "name": "L5-MES-BATCH01",
+      "dtype": "str",
+      "role": "ignore",
+      "role_assigned_by": "auto",
+      "n_unique": 42,
+      "n_missing": 0,
+      "n_valid": 3024,
+      "notes": ""
+    },
+    {
+      "name": "HX-PROF-L5ADSCAN30MIN-MEAN",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "auto",
+      "n_unique": 885,
+      "n_missing": 0,
+      "n_valid": 3024,
+      "notes": ""
+    },
+    {
+      "name": "HX-PROF-L5ADSCAN30MIN-STD",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "auto",
+      "n_unique": 1008,
+      "n_missing": 0,
+      "n_valid": 3024,
+      "notes": ""
+    },
+    {
+      "name": "HX-PROF-L5ADSCAN30MIN-MIN",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "auto",
+      "n_unique": 525,
+      "n_missing": 0,
+      "n_valid": 3024,
+      "notes": ""
+    },
+    {
+      "name": "HX-PROF-L5ADSCAN30MIN-MAX",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "auto",
+      "n_unique": 89,
+      "n_missing": 0,
+      "n_valid": 3024,
+      "notes": ""
+    },
+    {
+      "name": "HX-PROF-L5ADSCAN30MIN-P05",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "auto",
+      "n_unique": 889,
+      "n_missing": 0,
+      "n_valid": 3024,
+      "notes": ""
+    },
+    {
+      "name": "HX-PROF-L5ADSCAN30MIN-P50",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "auto",
+      "n_unique": 142,
+      "n_missing": 0,
+      "n_valid": 3024,
+      "notes": ""
+    },
+    {
+      "name": "HX-PROF-L5ADSCAN30MIN-P95",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "auto",
+      "n_unique": 613,
+      "n_missing": 0,
+      "n_valid": 3024,
+      "notes": ""
+    },
+    {
+      "name": "HX-PROF-L5ADSCAN30MIN-RANGE",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "auto",
+      "n_unique": 605,
+      "n_missing": 0,
+      "n_valid": 3024,
+      "notes": ""
+    },
+    {
+      "name": "HX-PROF-L5ADSCAN30MIN-IQR",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "auto",
+      "n_unique": 473,
+      "n_missing": 0,
+      "n_valid": 3024,
+      "notes": ""
+    },
+    {
+      "name": "HX-PROF-L5ADSCAN30MIN-MAD",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "auto",
+      "n_unique": 258,
+      "n_missing": 0,
+      "n_valid": 3024,
+      "notes": ""
+    },
+    {
+      "name": "HX-PROF-L5ADSCAN30MIN-N",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "auto",
+      "n_unique": 1,
+      "n_missing": 0,
+      "n_valid": 3024,
+      "notes": ""
+    },
+    {
+      "name": "HX-PROF-L5ADSCAN30MIN-SLOPE-LSQ-PER100",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "auto",
+      "n_unique": 1008,
+      "n_missing": 0,
+      "n_valid": 3024,
+      "notes": ""
+    },
+    {
+      "name": "HX-PROF-L5ADSCAN30MIN-CURV-LSQ",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "auto",
+      "n_unique": 1008,
+      "n_missing": 0,
+      "n_valid": 3024,
+      "notes": ""
+    },
+    {
+      "name": "HX-PROF-L5ADSCAN30MIN-ZONE-1-3-MEAN",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "auto",
+      "n_unique": 325,
+      "n_missing": 0,
+      "n_valid": 3024,
+      "notes": ""
+    },
+    {
+      "name": "HX-PROF-L5ADSCAN30MIN-EDGE-L-DEV",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "auto",
+      "n_unique": 937,
+      "n_missing": 0,
+      "n_valid": 3024,
+      "notes": ""
+    },
+    {
+      "name": "HX-PROF-L5ADSCAN30MIN-EDGE-R-DEV",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "auto",
+      "n_unique": 979,
+      "n_missing": 0,
+      "n_valid": 3024,
+      "notes": ""
+    },
+    {
+      "name": "HX-PROF-L5ADSCAN30MIN-ARGDEV-NBR",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "auto",
+      "n_unique": 24,
+      "n_missing": 0,
+      "n_valid": 3024,
+      "notes": ""
+    },
+    {
+      "name": "HX-PROF-L5ADSCAN30MIN-SHIFT-EST",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "auto",
+      "n_unique": 2,
+      "n_missing": 0,
+      "n_valid": 3024,
+      "notes": ""
+    },
+    {
+      "name": "HX-IMG-L5CCDINDEX-MEAN",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "auto",
+      "n_unique": 60,
+      "n_missing": 47,
+      "n_valid": 2977,
+      "notes": ""
+    },
+    {
+      "name": "HX-IMG-L5CCDINDEX-STD",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "auto",
+      "n_unique": 60,
+      "n_missing": 47,
+      "n_valid": 2977,
+      "notes": ""
+    },
+    {
+      "name": "HX-IMG-L5CCDINDEX-ENTROPY",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "auto",
+      "n_unique": 60,
+      "n_missing": 47,
+      "n_valid": 2977,
+      "notes": ""
+    },
+    {
+      "name": "HX-IMG-L5CCDINDEX-SATFRAC",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "auto",
+      "n_unique": 3,
+      "n_missing": 47,
+      "n_valid": 2977,
+      "notes": ""
+    },
+    {
+      "name": "HX-IMG-L5CCDINDEX-DARKFRAC",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "auto",
+      "n_unique": 1,
+      "n_missing": 47,
+      "n_valid": 2977,
+      "notes": ""
+    },
+    {
+      "name": "HX-IMG-L5CCDINDEX-FOCUS",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "auto",
+      "n_unique": 60,
+      "n_missing": 47,
+      "n_valid": 2977,
+      "notes": ""
+    },
+    {
+      "name": "HX-IMG-L5CCDINDEX-N",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "auto",
+      "n_unique": 1,
+      "n_missing": 47,
+      "n_valid": 2977,
+      "notes": ""
+    },
+    {
+      "name": "HX-MAP-L5CALENDERMAP2H-MEAN",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "auto",
+      "n_unique": 251,
+      "n_missing": 0,
+      "n_valid": 3024,
+      "notes": ""
+    },
+    {
+      "name": "HX-MAP-L5CALENDERMAP2H-P95",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "auto",
+      "n_unique": 250,
+      "n_missing": 0,
+      "n_valid": 3024,
+      "notes": ""
+    },
+    {
+      "name": "HX-MAP-L5CALENDERMAP2H-HOTAREA-P90",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "auto",
+      "n_unique": 9,
+      "n_missing": 0,
+      "n_valid": 3024,
+      "notes": ""
+    },
+    {
+      "name": "HX-MAP-L5CALENDERMAP2H-COLDAREA-P10",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "auto",
+      "n_unique": 5,
+      "n_missing": 0,
+      "n_valid": 3024,
+      "notes": ""
+    },
+    {
+      "name": "HX-MAP-L5CALENDERMAP2H-CENTROID-X",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "auto",
+      "n_unique": 252,
+      "n_missing": 0,
+      "n_valid": 3024,
+      "notes": ""
+    },
+    {
+      "name": "HX-MAP-L5CALENDERMAP2H-CENTROID-Y",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "auto",
+      "n_unique": 252,
+      "n_missing": 0,
+      "n_valid": 3024,
+      "notes": ""
+    },
+    {
+      "name": "HX-MAP-L5CALENDERMAP2H-GRAD-P95",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "auto",
+      "n_unique": 0,
+      "n_missing": 3024,
+      "n_valid": 0,
+      "notes": ""
+    },
+    {
+      "name": "HX-MAP-L5CALENDERMAP2H-ASYM-LR",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "auto",
+      "n_unique": 249,
+      "n_missing": 0,
+      "n_valid": 3024,
+      "notes": ""
+    },
+    {
+      "name": "HX-MAP-L5CALENDERMAP2H-POSMAX-X",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "auto",
+      "n_unique": 5,
+      "n_missing": 0,
+      "n_valid": 3024,
+      "notes": ""
+    },
+    {
+      "name": "HX-MAP-L5CALENDERMAP2H-POSMAX-Y",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "auto",
+      "n_unique": 4,
+      "n_missing": 0,
+      "n_valid": 3024,
+      "notes": ""
+    },
+    {
+      "name": "HX-MAP-L5CALENDERMAP2H-N",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "auto",
+      "n_unique": 1,
+      "n_missing": 0,
+      "n_valid": 3024,
+      "notes": ""
+    },
+    {
+      "name": "HX-TXT-L5OPERATORNOTES-EVT-CLEANING",
+      "dtype": "int64",
+      "role": "factor",
+      "role_assigned_by": "auto",
+      "n_unique": 2,
+      "n_missing": 0,
+      "n_valid": 3024,
+      "notes": ""
+    },
+    {
+      "name": "HX-TXT-L5OPERATORNOTES-EVT-STOP",
+      "dtype": "int64",
+      "role": "factor",
+      "role_assigned_by": "auto",
+      "n_unique": 2,
+      "n_missing": 0,
+      "n_valid": 3024,
+      "notes": ""
+    },
+    {
+      "name": "HX-TXT-L5OPERATORNOTES-HOUR-OF-DAY",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "auto",
+      "n_unique": 5,
+      "n_missing": 494,
+      "n_valid": 2530,
+      "notes": ""
+    },
+    {
+      "name": "HX-TXT-L5OPERATORNOTES-SHIFT-BUCKET-ID",
+      "dtype": "float64",
+      "role": "response",
+      "role_assigned_by": "auto",
+      "n_unique": 3,
+      "n_missing": 494,
+      "n_valid": 2530,
+      "notes": ""
+    }
+  ],
+  "roles": {
+    "responses": [
+      "HX-TXT-L5OPERATORNOTES-SHIFT-BUCKET-ID"
+    ],
+    "factors": [
+      "L5-SL-SC01",
+      "L5-SL-VSC01",
+      "L5-CT-GAP-L01",
+      "L5-CT-GAP-R01",
+      "L5-CT-PMP-SP01",
+      "L5-OV-Z1-TE01",
+      "L5-OV-Z2-TE01",
+      "L5-OV-Z3-TE01",
+      "L5-CAL-P01",
+      "L5-CAL-TE01",
+      "L5-WD-TN01",
+      "L5-LN-SPD01",
+      "L5-ENV-TE01",
+      "L5-GA-AD-AVG01",
+      "L5-GA-AD-CV01",
+      "L5-GA-EDGE-R01",
+      "L5-GA-EDGE-L01",
+      "L5-QM-YIELD01",
+      "L5-MES-RECY01",
+      "L5-LINE-MODE01",
+      "HX-PROF-L5ADSCAN30MIN-MEAN",
+      "HX-PROF-L5ADSCAN30MIN-STD",
+      "HX-PROF-L5ADSCAN30MIN-MIN",
+      "HX-PROF-L5ADSCAN30MIN-MAX",
+      "HX-PROF-L5ADSCAN30MIN-P05",
+      "HX-PROF-L5ADSCAN30MIN-P50",
+      "HX-PROF-L5ADSCAN30MIN-P95",
+      "HX-PROF-L5ADSCAN30MIN-RANGE",
+      "HX-PROF-L5ADSCAN30MIN-IQR",
+      "HX-PROF-L5ADSCAN30MIN-MAD",
+      "HX-PROF-L5ADSCAN30MIN-N",
+      "HX-PROF-L5ADSCAN30MIN-SLOPE-LSQ-PER100",
+      "HX-PROF-L5ADSCAN30MIN-CURV-LSQ",
+      "HX-PROF-L5ADSCAN30MIN-ZONE-1-3-MEAN",
+      "HX-PROF-L5ADSCAN30MIN-EDGE-L-DEV",
+      "HX-PROF-L5ADSCAN30MIN-EDGE-R-DEV",
+      "HX-PROF-L5ADSCAN30MIN-ARGDEV-NBR",
+      "HX-PROF-L5ADSCAN30MIN-SHIFT-EST",
+      "HX-IMG-L5CCDINDEX-MEAN",
+      "HX-IMG-L5CCDINDEX-STD",
+      "HX-IMG-L5CCDINDEX-ENTROPY",
+      "HX-IMG-L5CCDINDEX-SATFRAC",
+      "HX-IMG-L5CCDINDEX-DARKFRAC",
+      "HX-IMG-L5CCDINDEX-FOCUS",
+      "HX-IMG-L5CCDINDEX-N",
+      "HX-MAP-L5CALENDERMAP2H-MEAN",
+      "HX-MAP-L5CALENDERMAP2H-P95",
+      "HX-MAP-L5CALENDERMAP2H-HOTAREA-P90",
+      "HX-MAP-L5CALENDERMAP2H-COLDAREA-P10",
+      "HX-MAP-L5CALENDERMAP2H-CENTROID-X",
+      "HX-MAP-L5CALENDERMAP2H-CENTROID-Y",
+      "HX-MAP-L5CALENDERMAP2H-ASYM-LR",
+      "HX-MAP-L5CALENDERMAP2H-POSMAX-X",
+      "HX-MAP-L5CALENDERMAP2H-POSMAX-Y",
+      "HX-MAP-L5CALENDERMAP2H-N",
+      "HX-TXT-L5OPERATORNOTES-EVT-CLEANING",
+      "HX-TXT-L5OPERATORNOTES-EVT-STOP",
+      "HX-TXT-L5OPERATORNOTES-HOUR-OF-DAY",
+      "HX-MAP-L5CALENDERMAP2H-GRAD-P95"
+    ],
+    "blocks": [],
+    "covariates": [],
+    "index": [
+      "时间"
+    ],
+    "ignore": [
+      "L5-MES-BATCH01"
+    ]
+  },
+  "design": {
+    "design_type": "observational",
+    "mode": "observational",
+    "resolution": null,
+    "generators": [],
+    "defining_relation": [],
+    "alias_chains": {},
+    "detection_notes": [
+      "too few complete rows",
+      "time_col: '时间' accepted (name hit + parseable values, rate=1.00)"
+    ]
+  },
+  "quality": {
+    "duplicate_rows": 0,
+    "constant_cols": [
+      "HX-PROF-L5ADSCAN30MIN-N",
+      "HX-IMG-L5CCDINDEX-DARKFRAC",
+      "HX-IMG-L5CCDINDEX-N",
+      "HX-MAP-L5CALENDERMAP2H-N",
+      "HX-MAP-L5CALENDERMAP2H-GRAD-P95"
+    ],
+    "high_missing_cols": [
+      "HX-MAP-L5CALENDERMAP2H-GRAD-P95"
+    ],
+    "rows_dropped_missing_targets": 0
+  },
+  "caveats": [
+    {
+      "code": "ZERO_VARIANCE_FACTORS",
+      "message": "零方差因子: ['HX-PROF-L5ADSCAN30MIN-N', 'HX-IMG-L5CCDINDEX-DARKFRAC', 'HX-IMG-L5CCDINDEX-N', 'HX-MAP-L5CALENDERMAP2H-N', 'HX-MAP-L5CALENDERMAP2H-GRAD-P95']",
+      "severity": "warn"
+    },
+    {
+      "code": "HIGH_MISSING",
+      "message": "缺失率>30% 的列: ['HX-MAP-L5CALENDERMAP2H-GRAD-P95']",
+      "severity": "warn"
+    }
+  ]
+}

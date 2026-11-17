@@ -1,0 +1,133 @@
+{
+ "schema": "evidence_pack/2.0",
+ "generated_at": "2026-10-16T20:55:27.434Z",
+ "instruction": "Index for downstream agents. Every value cites its source artifact — open that artifact for full context before relying on a number.",
+ "scenario": null,
+ "data_shape": {
+  "n_rows": null,
+  "n_columns": null,
+  "time_col": "时间",
+  "time_method": "single-source-parse",
+  "median_interval_s": 600,
+  "index_implied_only": false
+ },
+ "top_anomalies": [
+  {
+   "column": "HX-MAP-L1FURNACETHERMALMAP2-HOTAREA-P90",
+   "cv": 4.3604,
+   "abrupt": "yes"
+  },
+  {
+   "column": "HX-MAP-L1FURNACETHERMALMAP2-COLDAREA-P10",
+   "cv": 3.1528,
+   "abrupt": "yes"
+  },
+  {
+   "column": "HX-MAP-L1FURNACETHERMALMAP2-POSMAX-Y",
+   "cv": 0.7324,
+   "abrupt": "yes"
+  },
+  {
+   "column": "HX-MAP-L1FURNACETHERMALMAP2-ASYM-LR",
+   "cv": 0.4726,
+   "abrupt": "yes"
+  },
+  {
+   "column": "HX-IMG-L1SURFACECCDINDEX-STD",
+   "cv": 0.4671,
+   "abrupt": "yes"
+  }
+ ],
+ "top_correlations": [],
+ "quality_reset_verdict": null,
+ "transitions": [],
+ "event_windows": [],
+ "sensor_artifacts": [],
+ "artifact_excluded_recheck": null,
+ "lag_axis": {
+  "axis": "process_grid",
+  "step_interval_seconds": null,
+  "unit_conversion_available": false,
+  "rule": "Reports/diagnoses may convert steps to durations ONLY via step_interval_seconds recorded here. When unit_conversion_available=false, any step→time narrative is a unit error."
+ },
+ "ontology_roles": [
+  {
+   "column": "LAB-HRC",
+   "role": "target",
+   "meaning": "实验室洛氏 C 硬度抽检（2h 粒度）；未并入锚定主表，仅作外部验证参照（raw/L1_lab_hardness_2h.csv）"
+  },
+  {
+   "column": "FUR-PRES",
+   "role": "predictor",
+   "meaning": "炉膛/保护气氛压力（相对值；单位未在数据或文档中声明）"
+  },
+  {
+   "column": "FUR-OUT-TEMP",
+   "role": "target",
+   "meaning": "出料侧带材温度（DCS 实测），决定冷却起点与最终硬度"
+  },
+  {
+   "column": "FUR-YIELD",
+   "role": "target",
+   "meaning": "DCS 上报的产线收得率/良率（质量结果代理）"
+  },
+  {
+   "column": "HX-IMG-L1SURFACECCDINDEX-MEAN",
+   "role": "predictor",
+   "meaning": "整图统计量（未标定、探测器坐标系）：全图像素灰度均值，整帧亮度水平代理"
+  },
+  {
+   "column": "HX-IMG-L1SURFACECCDINDEX-STD",
+   "role": "predictor",
+   "meaning": "整图统计量（未标定、探测器坐标系）：全图像素灰度标准差（ddof=1），整帧对比度代理"
+  },
+  {
+   "column": "HX-IMG-L1SURFACECCDINDEX-ENTROPY",
+   "role": "predictor",
+   "meaning": "整图统计量（未标定、探测器坐标系）：64-bin 灰度直方图 Shannon 熵，整帧纹理/灰度分布复杂度代理"
+  },
+  {
+   "column": "HX-IMG-L1SURFACECCDINDEX-SATFRAC",
+   "role": "predictor",
+   "meaning": "整图统计量（未标定、探测器坐标系）：灰度>250 像素占比，饱和/过曝面积代理"
+  },
+  {
+   "column": "HX-IMG-L1SURFACECCDINDEX-DARKFRAC",
+   "role": "predictor",
+   "meaning": "整图统计量（未标定、探测器坐标系）：灰度<5 像素占比，欠曝/无信号面积代理"
+  },
+  {
+   "column": "HX-IMG-L1SURFACECCDINDEX-FOCUS",
+   "role": "predictor",
+   "meaning": "整图统计量（未标定、探测器坐标系）：4 邻域 Laplacian 响应方差，整帧清晰度（离焦/运动模糊）代理"
+  }
+ ],
+ "plots": [
+  {
+   "file": "fig_hetero_profile_heatmap.png",
+   "type": "profile_heatmap_over_time",
+   "status": "ok"
+  },
+  {
+   "file": "fig_vlm_temporal_overlay.png",
+   "type": "vlm_temporal_overlay",
+   "status": "ok"
+  },
+  {
+   "file": "fig_event_response.png",
+   "type": "event_response_bar",
+   "status": "ok"
+  },
+  {
+   "file": "fig2_key_scatter.png",
+   "type": "scatter_grid",
+   "status": "ok"
+  },
+  {
+   "file": "fig6_causal_evidence_map.png",
+   "type": "causal_evidence_map",
+   "status": "ok"
+  }
+ ],
+ "physics_checks": null
+}

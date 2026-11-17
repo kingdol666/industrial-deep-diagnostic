@@ -1,12 +1,58 @@
+# Docker build context exclusions.
+# Nothing listed here is needed by any Dockerfile stage — this keeps the build
+# context small and stops local secrets/state from leaking into an image layer.
+
+# Dependencies & VCS
 node_modules/
-.git/
-.gitignore
-*.md
-workspace/
-data/diagnostic.db*
 app/frontend/node_modules/
 app/backend/node_modules/
+.git/
+.gitignore
+
+# Docs / local tooling state
+*.md
 docs/
 .omc/
-.claude/
 webfrp/
+ppt_workspace/
+
+# Harness definitions & skill tree — engines/agents run on the HOST. The one
+# exception is a real runtime dependency of the backend (not an agent prompt):
+#   · .claude/shared/scripts/ontology_store.mjs — imported by
+#     app/backend/src/services/ontology.service.mjs:24, routes/ontology.routes.mjs:15
+#     and services/diagnosis.service.mjs:128 (node-only: spawns validate.mjs)
+#   · .claude/shared/schemas/** — JSON Schemas validate.mjs loads
+#   · .claude/skills/industrial-ontology-builder/** — holds
+#     schemas/ontology_schema.json, the ONTOLOGY_SCHEMA_PATH default in
+#     ontology_store.mjs:48
+# The python venv under shared/scripts is 370 MB and is NEVER shipped; the
+# .agents/.hermes/.codex trees are generated mirrors of .claude/skills.
+.claude/agents/
+.claude/launch.json
+.claude/workspace/
+.claude/worktrees/
+.claude/shared/scripts/.venv/
+.claude/skills/*
+!.claude/skills/industrial-ontology-builder/
+.omp/
+.agents/
+.hermes/
+.codex/
+
+# Local secrets & overrides: config/local.yaml may hold credentials and must
+# never be baked into an image layer. docker-compose.yml mounts the config
+# DIRECTORY at runtime (a single-file mount breaks `compose up` when the file
+# is absent), so the file is picked up from the host when it exists.
+config/local.yaml
+.env
+.env.*
+
+# Runtime state + sample data: bind-mounted by docker-compose.yml, never baked
+# into the image (the SQLite DB is created by the app on first start).
+data/
+workspace/
+logs/
+*.log
+
+# Heavy trees no build stage reads
+rag-retrieval-engine/

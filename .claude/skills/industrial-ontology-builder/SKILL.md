@@ -7,6 +7,8 @@ description: "Industrial diagnostic pipeline — domain ontology construction en
 
 Infer physical meaning from sensor column names, extract process principles from the RAG knowledge base, and confirm parameter roles from data self-description. `ontology.json` is the foundation of the entire diagnostic pipeline — this is not a template filler; let the data reveal the process type itself.
 
+> **Depends on `rag-knowledge-builder` (knowledge-base construction).** The retrieval/knowledge-base artifacts consumed here (`rag_deep_understanding.json`, scored chunks, `rag_ontology_draft.json`) are produced by the `rag-knowledge-builder` skill; this skill builds the pipeline-level `ontology.json` on top of them.
+
 ## Inputs / Outputs
 
 ### Inputs (in `RUN_DIR/00_input/`)
@@ -155,6 +157,20 @@ grep -q '"clarification_status" *: *"AUTO_RESOLVED\|USER_CONFIRMED"' \
 # Reused assets are where this pipeline's time savings come from: not publishing = a full rebuild for the same scenario next time.
 node "$SHARED_PATH/scripts/ontology_store.mjs" publish --run-dir "$RUN_DIR" --build-mode <reuse|extend|full>
 ```
+
+## Quality gate
+
+`scripts/quality_gate.mjs` is the deterministic executor of CP-2/CP-3 plus the E-1H heterogeneous-column merge rule (zero-dependency Node, machine-readable JSON verdict on stdout):
+
+```bash
+node "$SKILL_PATH/scripts/quality_gate.mjs" --run-dir "$RUN_DIR"
+```
+
+Exit codes: `0` = ok | `1` = hard error (bad inputs / run dir missing) | `2` = undetermined (`01_ontology/` absent — the stage did not run) | `3` = gate-fail.
+
+Checks: `01_ontology/ontology.json` exists, parses, is ≥1KB and schema-valid (CP-2 — either the skill authority `schemas/ontology_schema.json` or the domain-agnostic `.claude/shared/schemas/ontology_schema.json`); `signals`/`parameters` structure non-empty; `rag_deep_understanding.json` parses wherever present (`01_ontology/` or `00_input/`); CP-3 `clarification_status ∈ AUTO_RESOLVED|USER_CONFIRMED`; and — when `07_hetero/column_contract.json` exists — every `HX-*` contract column appears in the ontology with `physical_meaning_confidence` `KNOWN|INFERRED` (never `UNKNOWN`; `HX-TXT-*-EVT-*` event rows may omit the field).
+
+Tests: `uv run --project .claude/shared/scripts python .claude/skills/industrial-ontology-builder/tests/run_tests.py`
 
 ## Phase -1: Ontology Mode Dispatch (deterministic, ≤30s)
 

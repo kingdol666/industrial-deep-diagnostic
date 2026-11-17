@@ -1,0 +1,919 @@
+{
+  "contract_version": "line-stability-report/1.0",
+  "report_id": "LSR-1791977577-2b8p0s",
+  "generated_at": "2026-10-14T11:32:57Z",
+  "status": "ok",
+  "line": {
+    "line_id": null,
+    "product": null
+  },
+  "period": {
+    "start": "2026-01-05 00:00:00",
+    "end": "2026-12-28 00:00:00",
+    "requested": {
+      "start": null,
+      "end": null
+    }
+  },
+  "data": {
+    "path": "D2_service\\00_input\\service_weekly_52w.csv",
+    "sha256": "sha256:58a961f9ca8057b3f124ff51e6c461077e01ecef2f68b58975af6ff4df79a07d",
+    "time_col": "周开始日期",
+    "group_col": null,
+    "group_used": null,
+    "parameter_cols": [
+      "一次解决率",
+      "客户满意度",
+      "工单量",
+      "平均响应时长"
+    ],
+    "inspection_cols": [
+      "一次解决率",
+      "客户满意度"
+    ],
+    "ignored_cols": [],
+    "sampled": false,
+    "stride": 1,
+    "n_rows_raw": 52,
+    "n_rows_used": 52,
+    "time_span_seconds": 30844800.0,
+    "sampling_interval_median_seconds": 604800.0,
+    "missing_rate": 0.0,
+    "coverage_ratio": 1.0,
+    "time_invariant_channels": {
+      "count": 0,
+      "total": 4,
+      "share": 0.0,
+      "examples": []
+    }
+  },
+  "condition": {
+    "ontology": {
+      "mode": "auto",
+      "path": null,
+      "source": null,
+      "reason": "no ontology artifact found (auto mode)"
+    },
+    "scene": null,
+    "columns": {
+      "工单量": {
+        "assigned_by": "auto",
+        "label": "工单量",
+        "unit": null,
+        "role": "parameter",
+        "spec": null,
+        "normal_range": null,
+        "stage": null,
+        "equipment": null,
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null
+      },
+      "一次解决率": {
+        "assigned_by": "user",
+        "label": "一次解决率",
+        "unit": null,
+        "role": "inspection",
+        "spec": null,
+        "normal_range": null,
+        "stage": null,
+        "equipment": null,
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null
+      },
+      "平均响应时长": {
+        "assigned_by": "auto",
+        "label": "平均响应时长",
+        "unit": null,
+        "role": "parameter",
+        "spec": null,
+        "normal_range": null,
+        "stage": null,
+        "equipment": null,
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null
+      },
+      "客户满意度": {
+        "assigned_by": "user",
+        "label": "客户满意度",
+        "unit": null,
+        "role": "inspection",
+        "spec": {
+          "lsl": 4.2,
+          "source": "user"
+        },
+        "normal_range": null,
+        "stage": null,
+        "equipment": null,
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null
+      }
+    },
+    "relationships": [],
+    "regimes": {
+      "available": false,
+      "method": "skipped_too_few_rows_or_params",
+      "change_points": [],
+      "regimes": [],
+      "abnormal_ratio": null
+    }
+  },
+  "parameters": [
+    {
+      "name": "一次解决率",
+      "role": "inspection",
+      "condition": {
+        "label": "一次解决率",
+        "unit": null,
+        "assigned_by": "user",
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null,
+        "stage": null,
+        "equipment": null
+      },
+      "n": 52,
+      "row_range": [
+        0,
+        51
+      ],
+      "data_source": "raw",
+      "mu": 78.629808,
+      "median": 78.645,
+      "sigma": 0.461504,
+      "sigma_within_mr": 0.410409,
+      "cv": 0.005813,
+      "min": 77.17,
+      "max": 79.4,
+      "spec": {
+        "lsl": null,
+        "usl": null,
+        "target": null,
+        "source": null
+      },
+      "capability": {
+        "cp": null,
+        "cpk": null,
+        "pp": null,
+        "ppk": null
+      },
+      "nelson": {
+        "NELSON_R1": {
+          "n_episodes": 1,
+          "indices": [
+            51
+          ]
+        }
+      },
+      "n_violation_points": 1,
+      "drift": {
+        "slope_per_second": 0.0,
+        "per_day_relative": 1e-06,
+        "mk_p": null,
+        "significant": false,
+        "mk_skipped": "相对漂移低于 0.1%/天 门槛，Mann-Kendall 检验未执行"
+      },
+      "baseline_ref": null,
+      "score": 98,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -2,
+        "cv_penalty": 0,
+        "capability_penalty": 0,
+        "drift_penalty": 0,
+        "baseline_penalty": 0,
+        "total": 98
+      }
+    },
+    {
+      "name": "客户满意度",
+      "role": "inspection",
+      "condition": {
+        "label": "客户满意度",
+        "unit": null,
+        "assigned_by": "user",
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null,
+        "stage": null,
+        "equipment": null
+      },
+      "n": 52,
+      "row_range": [
+        0,
+        51
+      ],
+      "data_source": "raw",
+      "mu": 4.203904,
+      "median": 4.21,
+      "sigma": 0.140653,
+      "sigma_within_mr": 0.039164,
+      "cv": 0.033134,
+      "min": 3.95,
+      "max": 4.443,
+      "spec": {
+        "lsl": 4.2,
+        "usl": null,
+        "target": null,
+        "source": "user"
+      },
+      "capability": {
+        "cp": null,
+        "cpk": 0.033227,
+        "pp": null,
+        "ppk": 0.009252
+      },
+      "nelson": {
+        "NELSON_R1": {
+          "n_episodes": 6,
+          "indices": [
+            4,
+            12,
+            16,
+            34,
+            41,
+            51
+          ]
+        },
+        "NELSON_R2": {
+          "n_episodes": 2,
+          "indices": [
+            8,
+            36
+          ]
+        },
+        "NELSON_R5": {
+          "n_episodes": 2,
+          "indices": [
+            17,
+            51
+          ]
+        },
+        "NELSON_R6": {
+          "n_episodes": 2,
+          "indices": [
+            20,
+            51
+          ]
+        }
+      },
+      "n_violation_points": 12,
+      "drift": {
+        "slope_per_second": -0.0,
+        "per_day_relative": 0.000303,
+        "mk_p": null,
+        "significant": false,
+        "mk_skipped": "相对漂移低于 0.1%/天 门槛，Mann-Kendall 检验未执行"
+      },
+      "baseline_ref": null,
+      "score": 36,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -18,
+        "cv_penalty": -12,
+        "capability_penalty": -34,
+        "drift_penalty": 0,
+        "baseline_penalty": 0,
+        "total": 36
+      }
+    },
+    {
+      "name": "工单量",
+      "role": "parameter",
+      "condition": {
+        "label": "工单量",
+        "unit": null,
+        "assigned_by": "auto",
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null,
+        "stage": null,
+        "equipment": null
+      },
+      "n": 52,
+      "row_range": [
+        0,
+        51
+      ],
+      "data_source": "raw",
+      "mu": 1420.038462,
+      "median": 1415.0,
+      "sigma": 74.822918,
+      "sigma_within_mr": 39.163538,
+      "cv": 0.052182,
+      "min": 1283.0,
+      "max": 1614.0,
+      "spec": {
+        "lsl": null,
+        "usl": null,
+        "target": null,
+        "source": null
+      },
+      "capability": {
+        "cp": null,
+        "cpk": null,
+        "pp": null,
+        "ppk": null
+      },
+      "nelson": {
+        "NELSON_R5": {
+          "n_episodes": 7,
+          "indices": [
+            4,
+            10,
+            19,
+            30,
+            37,
+            45,
+            49
+          ]
+        },
+        "NELSON_R6": {
+          "n_episodes": 4,
+          "indices": [
+            13,
+            20,
+            45,
+            51
+          ]
+        },
+        "NELSON_R3": {
+          "n_episodes": 3,
+          "indices": [
+            15,
+            40,
+            47
+          ]
+        },
+        "NELSON_R1": {
+          "n_episodes": 2,
+          "indices": [
+            43,
+            48
+          ]
+        }
+      },
+      "n_violation_points": 16,
+      "drift": {
+        "slope_per_second": -1e-06,
+        "per_day_relative": 6.9e-05,
+        "mk_p": null,
+        "significant": false,
+        "mk_skipped": "相对漂移低于 0.1%/天 门槛，Mann-Kendall 检验未执行"
+      },
+      "baseline_ref": null,
+      "score": 53,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -25,
+        "cv_penalty": -22,
+        "capability_penalty": 0,
+        "drift_penalty": 0,
+        "baseline_penalty": 0,
+        "total": 53
+      }
+    },
+    {
+      "name": "平均响应时长",
+      "role": "parameter",
+      "condition": {
+        "label": "平均响应时长",
+        "unit": null,
+        "assigned_by": "auto",
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null,
+        "stage": null,
+        "equipment": null
+      },
+      "n": 52,
+      "row_range": [
+        0,
+        51
+      ],
+      "data_source": "raw",
+      "mu": 2.901731,
+      "median": 2.93,
+      "sigma": 0.208869,
+      "sigma_within_mr": 0.088479,
+      "cv": 0.071285,
+      "min": 2.45,
+      "max": 3.23,
+      "spec": {
+        "lsl": null,
+        "usl": null,
+        "target": null,
+        "source": null
+      },
+      "capability": {
+        "cp": null,
+        "cpk": null,
+        "pp": null,
+        "ppk": null
+      },
+      "nelson": {
+        "NELSON_R1": {
+          "n_episodes": 7,
+          "indices": [
+            4,
+            7,
+            9,
+            13,
+            46,
+            48,
+            51
+          ]
+        },
+        "NELSON_R5": {
+          "n_episodes": 3,
+          "indices": [
+            5,
+            14,
+            49
+          ]
+        },
+        "NELSON_R2": {
+          "n_episodes": 2,
+          "indices": [
+            8,
+            46
+          ]
+        },
+        "NELSON_R6": {
+          "n_episodes": 3,
+          "indices": [
+            14,
+            22,
+            51
+          ]
+        }
+      },
+      "n_violation_points": 15,
+      "drift": {
+        "slope_per_second": 0.0,
+        "per_day_relative": 0.00059,
+        "mk_p": null,
+        "significant": false,
+        "mk_skipped": "相对漂移低于 0.1%/天 门槛，Mann-Kendall 检验未执行"
+      },
+      "baseline_ref": null,
+      "score": 55,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -23,
+        "cv_penalty": -22,
+        "capability_penalty": 0,
+        "drift_penalty": 0,
+        "baseline_penalty": 0,
+        "total": 55
+      }
+    }
+  ],
+  "correlations": {
+    "max_lag": 10,
+    "pairs": [
+      {
+        "pearson": -0.845585,
+        "spearman": -0.855865,
+        "best_abs_r": 0.891756,
+        "best_lag_rows": 3,
+        "leader": "平均响应时长",
+        "pearson_at_best": -0.873273,
+        "spearman_at_best": -0.891756,
+        "a": "客户满意度",
+        "b": "平均响应时长",
+        "n": 52
+      },
+      {
+        "pearson": -0.042604,
+        "spearman": -0.119931,
+        "best_abs_r": 0.448789,
+        "best_lag_rows": 8,
+        "leader": "一次解决率",
+        "pearson_at_best": 0.375605,
+        "spearman_at_best": 0.448789,
+        "a": "一次解决率",
+        "b": "工单量",
+        "n": 52
+      },
+      {
+        "pearson": -0.005428,
+        "spearman": 0.105781,
+        "best_abs_r": 0.240482,
+        "best_lag_rows": 10,
+        "leader": "平均响应时长",
+        "pearson_at_best": 0.134174,
+        "spearman_at_best": 0.240482,
+        "a": "一次解决率",
+        "b": "平均响应时长",
+        "n": 52
+      },
+      {
+        "pearson": -0.005117,
+        "spearman": -0.058751,
+        "best_abs_r": 0.133243,
+        "best_lag_rows": 1,
+        "leader": "一次解决率",
+        "pearson_at_best": -0.121048,
+        "spearman_at_best": -0.133243,
+        "a": "一次解决率",
+        "b": "客户满意度",
+        "n": 52
+      },
+      {
+        "pearson": -0.059939,
+        "spearman": -0.107677,
+        "best_abs_r": 0.107677,
+        "best_lag_rows": 0,
+        "leader": null,
+        "pearson_at_best": -0.059939,
+        "spearman_at_best": -0.107677,
+        "a": "工单量",
+        "b": "平均响应时长",
+        "n": 52
+      },
+      {
+        "pearson": 0.055807,
+        "spearman": 0.072382,
+        "best_abs_r": 0.091512,
+        "best_lag_rows": 3,
+        "leader": "客户满意度",
+        "pearson_at_best": 0.04467,
+        "spearman_at_best": 0.091512,
+        "a": "客户满意度",
+        "b": "工单量",
+        "n": 52
+      }
+    ],
+    "contributions": [
+      {
+        "driver": "工单量",
+        "target": "一次解决率",
+        "abs_r": 0.426717,
+        "best_lag_rows": 4,
+        "share": 1.0
+      },
+      {
+        "driver": "平均响应时长",
+        "target": "客户满意度",
+        "abs_r": 0.891756,
+        "best_lag_rows": 3,
+        "share": 1.0
+      }
+    ]
+  },
+  "integrations": {
+    "sentinel_baseline": {
+      "used": false,
+      "path": null
+    },
+    "tuning_memory": {
+      "used": false
+    },
+    "doe_analyzer": {
+      "used": false
+    }
+  },
+  "degradations": [],
+  "limitations": {
+    "data_source": "raw (this skill never cleans or imputes; every number is recomputable from the raw table)",
+    "sampling": {
+      "n_rows_analyzed": 52,
+      "sampled": false,
+      "stride": 1,
+      "note": null
+    },
+    "missing_rate": 0.0,
+    "sampling_interval_seconds": 604800.0,
+    "spec_coverage": {
+      "user": [
+        "客户满意度"
+      ],
+      "ontology": [],
+      "none": [
+        "一次解决率",
+        "工单量",
+        "平均响应时长"
+      ]
+    },
+    "model_assumptions": [
+      "lag-compensated Spearman window 0–10 rows (lead/lag beyond this window is invisible)",
+      "whole-period scoring assumes one dominant operating condition; use the regime table for segmented reading",
+      "Cpk treats within-sigma as MR̄/1.128 moving-range estimate"
+    ],
+    "confounders": [],
+    "derived_fields": [
+      "baseline_ref.robust_z",
+      "correlations.contributions.share",
+      "correlations.pairs.best_abs_r"
+    ]
+  },
+  "subject": {
+    "noun": "系统",
+    "display": "客服运营管理",
+    "source": "context.scenario"
+  },
+  "objective": "定位客户满意度下滑的服务质量驱动因素",
+  "provenance": {
+    "input_sha256": "sha256:58a961f9ca8057b3f124ff51e6c461077e01ecef2f68b58975af6ff4df79a07d",
+    "script_version": "1.0.0",
+    "authored_by": "lstcore/stability_analyzer.py",
+    "zero_llm": true,
+    "spc_source": "sentinelcore",
+    "regime_method": "skipped_too_few_rows_or_params",
+    "ontology_source": null,
+    "weights_source": "role_weights",
+    "python": "3.12.7",
+    "numpy": "2.5.2",
+    "pandas": "3.0.5",
+    "methods": [
+      "sentinelcore_nelson_episodes",
+      "mrbar_sigma_1.128",
+      "cpk_within_ppk_overall",
+      "theil_sen_mk_drift",
+      "lagged_spearman_max10",
+      "contribution_r2_share",
+      "regime_segmentation_c3",
+      "ontology_first_condition",
+      "weighted_penalty_score_v1",
+      "data_truth_limitations"
+    ]
+  },
+  "findings": [
+    {
+      "finding_id": "F001",
+      "severity": "high",
+      "category": "spc",
+      "title": "客户满意度 检出 SPC 违规",
+      "detail": "共 12 个判异剧集命中（每百点 23.1 个，规则：NELSON_R1/NELSON_R2/NELSON_R5/NELSON_R6），控制限为中心值4.21±3σ_within（σ=0.0392）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 12,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 23.08,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 0.039164,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "客户满意度"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F002",
+      "severity": "high",
+      "category": "spc",
+      "title": "工单量 检出 SPC 违规",
+      "detail": "共 16 个判异剧集命中（每百点 30.8 个，规则：NELSON_R1/NELSON_R3/NELSON_R5/NELSON_R6），控制限为中心值1415±3σ_within（σ=39.1635）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 16,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 30.77,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 39.163538,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "工单量"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F003",
+      "severity": "high",
+      "category": "spc",
+      "title": "平均响应时长 检出 SPC 违规",
+      "detail": "共 15 个判异剧集命中（每百点 28.8 个，规则：NELSON_R1/NELSON_R2/NELSON_R5/NELSON_R6），控制限为中心值2.93±3σ_within（σ=0.0885）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 15,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 28.85,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 0.088479,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "平均响应时长"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F004",
+      "severity": "high",
+      "category": "capability",
+      "title": "客户满意度 规格能力不足",
+      "detail": "Cpk=0.0332（阈值：≥1.33 合格，<1.0 不足），规格界限 LSL=4.2 / USL=None（来源：用户提供）。",
+      "evidence": [
+        {
+          "metric": "cpk",
+          "value": 0.033227,
+          "source": "lstcore",
+          "threshold": ">=1.33"
+        },
+        {
+          "metric": "ppk",
+          "value": 0.009252,
+          "source": "lstcore"
+        },
+        {
+          "metric": "spec_source",
+          "value": "user",
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "客户满意度"
+      ],
+      "confidence": 85
+    },
+    {
+      "finding_id": "F005",
+      "severity": "warn",
+      "category": "spc",
+      "title": "一次解决率 检出 SPC 违规",
+      "detail": "共 1 个判异剧集命中（每百点 1.9 个，规则：NELSON_R1），控制限为中心值78.645±3σ_within（σ=0.4104）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 1,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 1.92,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 0.410409,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "一次解决率"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F006",
+      "severity": "info",
+      "category": "driver",
+      "title": "工单量 是 一次解决率 波动的主要解释项",
+      "detail": "滞后补偿后 |r|² 归一，工单量 解释了 一次解决率 约 100% 的方差（|r|=0.4267，领先 4 行）。本体未见因果边——占比仅为统计分解。置信度 50。",
+      "evidence": [
+        {
+          "metric": "share",
+          "value": 1.0,
+          "source": "lstcore",
+          "threshold": ">=0.4",
+          "derived": true
+        },
+        {
+          "metric": "abs_r",
+          "value": 0.426717,
+          "source": "lstcore",
+          "derived": true
+        },
+        {
+          "metric": "mechanism_level",
+          "value": "unknown",
+          "source": "ontology"
+        }
+      ],
+      "affected": [
+        "工单量",
+        "一次解决率"
+      ],
+      "confidence": 50,
+      "mechanism": {
+        "level": "unknown",
+        "mechanism": null
+      }
+    },
+    {
+      "finding_id": "F007",
+      "severity": "info",
+      "category": "driver",
+      "title": "平均响应时长 是 客户满意度 波动的主要解释项",
+      "detail": "滞后补偿后 |r|² 归一，平均响应时长 解释了 客户满意度 约 100% 的方差（|r|=0.8918，领先 3 行）。本体未见因果边——占比仅为统计分解。置信度 50。",
+      "evidence": [
+        {
+          "metric": "share",
+          "value": 1.0,
+          "source": "lstcore",
+          "threshold": ">=0.4",
+          "derived": true
+        },
+        {
+          "metric": "abs_r",
+          "value": 0.891756,
+          "source": "lstcore",
+          "derived": true
+        },
+        {
+          "metric": "mechanism_level",
+          "value": "unknown",
+          "source": "ontology"
+        }
+      ],
+      "affected": [
+        "平均响应时长",
+        "客户满意度"
+      ],
+      "confidence": 50,
+      "mechanism": {
+        "level": "unknown",
+        "mechanism": null
+      }
+    },
+    {
+      "finding_id": "F008",
+      "severity": "info",
+      "category": "driver",
+      "title": "强相关对：客户满意度 ↔ 平均响应时长 [MECHANISM_UNKNOWN]",
+      "detail": "滞后补偿后最强 |Spearman|=0.8918（平均响应时长 领先 3 行）；零滞后 Pearson=-0.8456。本体未提供物理机制支持——仅是统计共变，不可作因果线索使用。置信度 45（统计证据充分度 × 机制支持度）。",
+      "evidence": [
+        {
+          "metric": "best_abs_r",
+          "value": 0.891756,
+          "source": "lstcore",
+          "threshold": ">=0.7",
+          "derived": true
+        },
+        {
+          "metric": "best_lag_rows",
+          "value": 3,
+          "source": "lstcore"
+        },
+        {
+          "metric": "mechanism_level",
+          "value": "unknown",
+          "source": "ontology"
+        }
+      ],
+      "affected": [
+        "客户满意度",
+        "平均响应时长"
+      ],
+      "confidence": 45,
+      "mechanism": {
+        "level": "unknown",
+        "mechanism": null,
+        "governing_equation": null
+      }
+    }
+  ],
+  "conclusion": {
+    "score": 62.7,
+    "grade": "C",
+    "grade_key": "fluctuating",
+    "label": "波动",
+    "statement": "该系统在本时段总体运行波动（62.7 分，C 级）：评估 4 个参数，检出 44 个 SPC 违规剧集、0 项显著漂移；最需关注：客户满意度、工单量、平均响应时长。",
+    "n_parameters_assessed": 4,
+    "n_findings": 8,
+    "findings_by_severity": {
+      "info": 3,
+      "warn": 1,
+      "high": 4,
+      "critical": 0
+    }
+  }
+}

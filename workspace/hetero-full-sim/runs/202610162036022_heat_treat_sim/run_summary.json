@@ -1,0 +1,36 @@
+{
+  "run_id": "202610162036022_heat_treat_sim",
+  "scene_name": "heat_treat_sim",
+  "timestamp": "2026-10-16T20:36:02.215Z",
+  "pipeline_steps_completed": [
+    "setup",
+    "inspect",
+    "context_builder",
+    "clarification_gate",
+    "data_processor",
+    "diagnostician",
+    "judge",
+    "reporter"
+  ],
+  "diagnosis_type": "DETERMINED",
+  "primary_finding": "过程侧根因判定为三区（均热段）后段加热能力损失（加热管老化/供电劣化）：三区炉温水平下移 4.93 ℃（880.0079→875.0827）并伴随波动放大 4.8 倍（段内 std 0.7865→3.815），经炉温—带材换热与约 40 min 停留时间热输运，使出料温度下降 2.24 ℃、均热动力学速率下降约 3.5%，收得率下降 0.99 pt；空间指纹（炉膛右/下侧先失热、右边缘偏差 −1.24 ℃、剖面斜率 −2.42 ℃/100位）指向局部热源损失而非全局降温；更换三区后段加热管后 Z3/OUT/YIELD 三段均值回到基线（D−A 分别 −0.50/−0.13/−0.08），构成器件级介入—响应闭环。",
+  "judge_verdict": {
+    "score": 96,
+    "verdict": "pass"
+  },
+  "data_sources": [
+    {
+      "source": "07_hetero/preprocessed_data_hetero.csv",
+      "rows": 1440,
+      "columns": 0
+    }
+  ],
+  "figure_count": 5,
+  "report_stats": {
+    "total_lines": 409,
+    "sections_count": 10,
+    "figures_referenced": 5,
+    "file_size_bytes": 46116
+  },
+  "diagnostic_iterations": 1
+}

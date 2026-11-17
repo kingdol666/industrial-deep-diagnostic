@@ -21,7 +21,7 @@
 import { mkdtempSync, writeFileSync, rmSync } from 'fs';
 import { tmpdir } from 'os';
 import { join } from 'path';
-import { spawnCli, killTree, stderrTailRef } from './cli-common.mjs';
+import { spawnCli, killTree, stderrTailRef, withTimeout } from './cli-common.mjs';
 import logger from '../utils/logger.mjs';
 
 let argFileSeq = 0;
@@ -201,16 +201,16 @@ export function createOneShotTurn(spec, {
     logger.warn(`[${id}] prompt delivery failed: ${e.message}`, { context: 'OneShot', turnKey });
   }
 
-  // Timeout guard (timeoutMinutes; 0 = unlimited).
-  let timeoutTimer = null;
-  const timeoutMs = (timeoutMinutes || 0) * 60 * 1000;
-  if (timeoutMs > 0) {
-    timeoutTimer = setTimeout(() => {
-      logger.error(`[${id}] turn timed out after ${timeoutMs}ms — killing process tree`, { context: 'OneShot', turnKey });
-      emitResult('error_during_execution', `${id}_timeout`);
-      killTree(proc);
-    }, timeoutMs);
-  }
+  // Timeout guard (timeoutMinutes; 0 = unlimited) — shared withTimeout helper:
+  // emits the same ${id}_timeout error result then kills the process tree.
+  const timeoutGuard = withTimeout({
+    minutes: timeoutMinutes,
+    label: id,
+    context: 'OneShot',
+    turnKey,
+    onTimeout: () => emitResult('error_during_execution', `${id}_timeout`),
+    child: proc,
+  });
 
   const exitPromise = new Promise((resolve) => {
     proc.on('error', (err) => {
@@ -220,7 +220,7 @@ export function createOneShotTurn(spec, {
       resolve({ code: null, error: err.message });
     });
     proc.on('exit', (code, signal) => {
-      if (timeoutTimer) clearTimeout(timeoutTimer);
+      timeoutGuard.cancel();
       if (!sawResult) {
         if (code === 0) {
           emitResult('success', 'success');

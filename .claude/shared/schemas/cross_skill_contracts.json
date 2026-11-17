@@ -73,6 +73,46 @@
       "fallback_paths": ["alert_id"],
       "expect": "ack_within_timeout_else_unconfirmed",
       "drift_history": []
+    },
+    {
+      "id": "hetero_contract_to_ontology",
+      "description": "Ontology builder Phase 1 reads the hetero column contract and copies unit/role/physical_meaning + formula/physics_basis/evidence_level per HX-* column verbatim; every column must land KNOWN or INFERRED (physical_meaning_confidence), never UNKNOWN.",
+      "producer": "industrial-hetero-preprocessor:07_hetero/column_contract.json",
+      "consumer": "industrial-ontology-builder:references/agent-protocol.md Phase 1",
+      "primary_path": "columns[].physical_meaning",
+      "fallback_paths": ["columns[].formula", "columns[].unit"],
+      "expect": "every_column_known_or_inferred_never_unknown",
+      "drift_history": []
+    },
+    {
+      "id": "hetero_features_to_dataprocessor",
+      "description": "Data-processor Phase 1.2.5 passes only explicit_cols.json entries backed by stats_eligible=true contract columns into stats --target-cols/--predictor-cols; everything else (sparse/insufficient/model_derived/HX-IDX-*) goes to exclude_cols so R2's silent sparse-column drop stays visible via dropped_requested_columns.",
+      "producer": "industrial-hetero-preprocessor:07_hetero/explicit_cols.json",
+      "consumer": "industrial-data-processor:references/agent-protocol.md Phase 1.2.5",
+      "primary_path": "targets",
+      "fallback_paths": ["predictors", "excludes"],
+      "expect": "targets_predictors_subset_of_stats_eligible",
+      "drift_history": []
+    },
+    {
+      "id": "hetero_annotations_to_tuning_memory",
+      "description": "Tuning-memory advisory evidence (E0-E3) aligns time-anchored operator-note events (event_ts, lexicon tags) with sentinel alerts; HX-* columns never enter fault_signature.anomalous_params — annotations corroborate, they do not become signatures.",
+      "producer": "industrial-hetero-preprocessor:07_hetero/annotations.json",
+      "consumer": "industrial-tuning-memory:advisory evidence E0-E3 (alert alignment)",
+      "primary_path": "[].event_ts",
+      "fallback_paths": ["[].tags[].tag_slug", "[].shift_bucket"],
+      "expect": "event_ts_present_when_source_issued",
+      "drift_history": []
+    },
+    {
+      "id": "hetero_contract_to_optimizer",
+      "description": "Optimizer-loop response whitelist reads the column contract: model_derived=true or insufficient_data=true columns are forbidden as optimization response variables; profile responses register only as HX-PROF-<SRC>-MEAN/P95 with stats_eligible=true.",
+      "producer": "industrial-hetero-preprocessor:07_hetero/column_contract.json",
+      "consumer": "industrial-optimizer-loop:response whitelist (round design)",
+      "primary_path": "columns[].insufficient_data",
+      "fallback_paths": ["columns[].model_derived", "columns[].stats_eligible"],
+      "expect": "model_derived_or_insufficient_never_response",
+      "drift_history": []
     }
   ]
 }

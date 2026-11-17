@@ -10,6 +10,9 @@ Profiles the dataset shape and picks the chart type per column BEFORE any plotti
   multi-parameter time series (2..8 cols) -> z-normalized temporal overlay
   single time series column               -> line chart
   (all temporal charts use the aligned time axis)
+  hetero profile matrix                   -> time-x-position heatmap per PROF source
+    (07_hetero/features/PROF-*.csv: ts + pos_01..pos_N snapshots, rendered as
+     pcolormesh; anchor-frame independent — works even with no cleaned data)
 
 Time alignment (mandatory before any temporal chart):
   - detect/parse the time column (multi-format), count unparsable rows
@@ -20,6 +23,8 @@ Outputs (all written inside RUN_DIR via safe_path/safe_open containment):
   02_processed/time_alignment.json      alignment provenance
   03_figures/adaptive_chart_plan.json   per-column decision record (why this chart)
   03_figures/fig_adaptive_*.png         rendered charts
+  03_figures/fig_hetero_profile_heatmap[_<SRC>].png
+                                        time-x-position heatmaps (07_hetero only)
   03_figures/plot_manifest.json         entries appended (source=adaptive_charts.py)
 
 Usage:
@@ -32,7 +37,9 @@ Exit codes: 0 = charts written; 2 = nothing applicable (reason printed, no chart
 import argparse
 import json
 import os
+import re
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 import numpy as np
@@ -194,6 +201,250 @@ def append_plot_manifest(safe_path, safe_open, entries):
         json.dump(manifest, fh, ensure_ascii=False, indent=1)
 
 
+# -- hetero time-x-position profile heatmaps (07_hetero/features/PROF-*.csv) --
+HETERO_FEATURES_DIR = "07_hetero/features"
+HETERO_CONTRACT_PATH = "07_hetero/column_contract.json"
+MIN_HEATMAP_POSITIONS = 4
+
+
+def _position_columns(df):
+    """Position axis of a PROF feature table: pos_* columns in natural numeric
+    order, else integer-named numeric columns. Empty list when fewer than
+    MIN_HEATMAP_POSITIONS exist (derived columns like POS-DEV-MAX never match)."""
+    pos = [c for c in df.columns if re.match(r"(?i)^pos_?\d+$", str(c))]
+    if len(pos) >= MIN_HEATMAP_POSITIONS:
+        return sorted(pos, key=lambda c: int(re.search(r"(\d+)", str(c)).group(1)))
+    ints = [c for c in df.columns if str(c).strip().isdigit()]
+    if len(ints) >= MIN_HEATMAP_POSITIONS:
+        return sorted(ints, key=lambda c: int(str(c).strip()))
+    return []
+
+
+def _hetero_source_unit(safe_path, stem):
+    """Colorbar unit for a PROF source, resolved from
+    07_hetero/column_contract.json (first non-null unit among that source's HX
+    feature columns). Empty string when the contract is absent or silent —
+    the chart still renders (unit is annotation, not data)."""
+    try:
+        p = safe_path(HETERO_CONTRACT_PATH)
+    except ValueError:
+        return ""
+    if not p.is_file():
+        return ""
+    try:
+        with p.open("r", encoding="utf-8") as fh:
+            contract = json.load(fh)
+    except (OSError, json.JSONDecodeError):
+        return ""
+    cols = contract.get("columns") if isinstance(contract, dict) else None
+    if not isinstance(cols, list):
+        return ""
+    parts = stem.split("-")
+    prefixes, ids = [], {stem}
+    if len(parts) >= 2:  # PROF-DEMO -> columns look like HX-PROF-DEMO-<FEATURE>
+        prefixes.append("%s-%s-" % (parts[0], parts[1]))
+        ids.add(parts[1])
+    for c in cols:
+        if not isinstance(c, dict):
+            continue
+        name = str(c.get("column", ""))
+        if any(name.startswith(px) for px in prefixes) or str(c.get("source_id", "")) in ids:
+            unit = c.get("unit")
+            if isinstance(unit, str) and unit.strip():
+                return unit.strip()
+    return ""
+
+
+def _render_profile_heatmap(fig_dir, stem, csv_path, pos_cols, unit, multi_source):
+    """Render one time-x-position pcolormesh PNG for a PROF feature table.
+
+    x = hours since first snapshot, y = position ordinal (from the column name),
+    color = measured value (NaN masked). Returns
+    (out_path, n_snapshots, n_positions, (width_px, height_px)) or
+    (None, 0, 0, None) with a logged reason when the table is not plottable."""
+    df = pd.read_csv(csv_path)
+    if "ts" not in df.columns:
+        log("[adaptive] hetero skip %s: no ts column" % stem)
+        return None, 0, 0, None
+    ts = pd.to_datetime(df["ts"], errors="coerce", format="mixed")
+    vals = df[pos_cols].apply(pd.to_numeric, errors="coerce")
+    ok = ts.notna().to_numpy()
+    ts, vals = ts[ok].reset_index(drop=True), vals[ok].reset_index(drop=True)
+    if len(ts) < 2:
+        log("[adaptive] hetero skip %s: fewer than 2 parsable snapshots" % stem)
+        return None, 0, 0, None
+    uniq = ~ts.duplicated(keep="first").to_numpy()  # pcolormesh needs unique x
+    ts, vals = ts[uniq].reset_index(drop=True), vals[uniq].reset_index(drop=True)
+    order = np.argsort(ts.to_numpy(), kind="mergesort")
+    ts, vals = ts.iloc[order].reset_index(drop=True), vals.iloc[order].reset_index(drop=True)
+
+    grid = np.ma.masked_invalid(vals.to_numpy(float).T)  # rows = positions
+    hours = (ts - ts.iloc[0]).dt.total_seconds().to_numpy(float) / 3600.0
+    ypos = []
+    for c in pos_cols:
+        m = re.search(r"(\d+)", str(c))
+        ypos.append(int(m.group(1)) if m else len(ypos) + 1)
+
+    fig, ax = plt.subplots(figsize=(11.5, 5.4))
+    mesh = ax.pcolormesh(hours, ypos, grid, cmap=plt.get_cmap("viridis"), shading="auto")
+    bar = plt.colorbar(mesh, ax=ax, fraction=0.046, pad=0.02)
+    bar.set_label(unit or "value", fontsize=12)
+    ax.set_xlabel("time since first snapshot (h)", fontsize=12)
+    ax.set_ylabel("position index", fontsize=12)
+    title = ("%s profile heatmap (time x position, %d snapshots x %d positions)"
+             % (stem, len(hours), len(pos_cols)))
+    ax.set_title(title, fontsize=13)
+    if multi_source:
+        out = fig_dir / ("fig_hetero_profile_heatmap_%s.png" % stem)
+    else:
+        out = fig_dir / "fig_hetero_profile_heatmap.png"
+    fig.tight_layout()
+    dpi = 130
+    fig.savefig(out, dpi=dpi)
+    try:  # record the real rendered pixel size, not the canvas dpi guess
+        from PIL import Image
+        with Image.open(out) as im:
+            w, h = im.size
+    except Exception:
+        w, h = (int(v) for v in fig.get_size_inches() * dpi)
+    plt.close(fig)
+    return out, len(hours), len(pos_cols), (w, h)
+
+
+def render_hetero_profile_heatmaps(safe_path, fig_dir, max_charts=12):
+    """Time-x-position heatmaps for heterogeneous PROF feature tables.
+
+    Trigger: RUN_DIR/07_hetero/features/PROF-*.csv whose columns carry `ts`
+    plus >= MIN_HEATMAP_POSITIONS position columns (pos_* preferred, integer-
+    named numeric columns as fallback). One pcolormesh per source; the colorbar
+    unit comes from 07_hetero/column_contract.json and the title carries the
+    source id. Returns {"files", "decisions", "entries"} — all three empty with
+    ZERO writes and ZERO log output when the run has no 07_hetero features
+    (byte-identical mainline behavior)."""
+    result = {"files": [], "decisions": [], "entries": []}
+    try:
+        feat_dir = safe_path(HETERO_FEATURES_DIR)
+    except ValueError:
+        return result
+    if not feat_dir.is_dir():
+        return result
+    sources = sorted(feat_dir.glob("PROF-*.csv"))
+    if not sources:
+        return result
+    if len(sources) > max_charts:
+        log("[adaptive] hetero: %d PROF sources, rendering first %d (--max-charts)"
+            % (len(sources), max_charts))
+        sources = sources[:max_charts]
+    for src in sources:
+        stem = src.stem
+        try:
+            df = pd.read_csv(src)
+        except (OSError, ValueError) as exc:
+            log("[adaptive] hetero skip %s: unreadable CSV (%s)" % (stem, exc))
+            continue
+        pos_cols = _position_columns(df)
+        if not pos_cols:
+            log("[adaptive] hetero skip %s: fewer than %d position columns (pos_*)"
+                % (stem, MIN_HEATMAP_POSITIONS))
+            continue
+        unit = _hetero_source_unit(safe_path, stem)
+        out, n_snap, n_pos, (w, h) = _render_profile_heatmap(
+            fig_dir, stem, src, pos_cols, unit, multi_source=len(sources) > 1)
+        if out is None:
+            continue
+        title = ("%s profile heatmap (time x position, %d snapshots x %d positions)"
+                 % (stem, n_snap, n_pos))
+        result["files"].append(str(out))
+        result["decisions"].append({
+            "source": stem,
+            "features_csv": "%s/%s" % (HETERO_FEATURES_DIR, src.name),
+            "shape": "hetero_profile_matrix", "chart_type": "profile_heatmap",
+            "axes": {"x": "time since first snapshot (h)", "y": "position index"},
+            "n_snapshots": n_snap, "n_positions": n_pos, "unit": unit or None,
+            "render_method": "pcolormesh",
+            "reason": "07_hetero PROF feature table: time-x-position matrix visualization",
+        })
+        # plot_manifest_schema.json compliance notes:
+        #   figure_type uses the schema enum value "heatmap" (the precise
+        #   subtype lives in chart_type); vlm_priority uses the schema enum
+        #   "CRITICAL". generate_vlm_manifest.py must still send this chart to
+        #   VLM as MANDATORY although the filename contains "heatmap" (its
+        #   default heuristic says NOT_FOR_VLM) — the "vlm" prefix in plot_type
+        #   is that script's producer-designation rule ("chart explicitly
+        #   designed for VLM") and wins over the filename heuristic.
+        result["entries"].append({
+            "filename": out.name,
+            "figure_type": "heatmap",
+            "priority": 1,
+            "title": title,
+            "chart_type": "profile_heatmap",
+            "source": "adaptive_charts.py",
+            "source_id": stem,
+            "plot_type": "vlm_profile_heatmap",
+            "vlm_priority": "CRITICAL",
+            "path": "03_figures/%s" % out.name,
+            "parameters_shown": list(pos_cols),
+            "time_aligned": True,
+            "width_px": w, "height_px": h, "dpi": 130,
+            "generation_status": "success",
+        })
+    log("[adaptive] hetero: %d PROF source(s) -> %d profile heatmap(s)"
+        % (len(sources), len(result["files"])))
+    return result
+
+
+def append_hetero_manifest_entries(safe_path, safe_open, entries):
+    """Schema-compliant append for hetero chart entries.
+
+    Same merge semantics as append_plot_manifest, plus: guarantees the
+    top-level `metadata` block required by plot_manifest_schema.json
+    (generated_by / total_plots / generation_timestamp). Only called when
+    hetero heatmaps were actually rendered — a run without 07_hetero never
+    touches the manifest through this path."""
+    manifest = {}
+    if safe_path("03_figures/plot_manifest.json").is_file():
+        with safe_open("03_figures/plot_manifest.json", "r", encoding="utf-8") as fh:
+            try:
+                manifest = json.load(fh)
+            except json.JSONDecodeError:
+                manifest = {}
+    plots = manifest.get("plots")
+    if not isinstance(plots, list):
+        plots = []
+    by_name = {p.get("filename"): i for i, p in enumerate(plots) if isinstance(p, dict)}
+    for e in entries:
+        if e["filename"] in by_name:
+            plots[by_name[e["filename"]]] = e  # refresh on rerun
+        else:
+            plots.append(e)
+    manifest["plots"] = plots
+    metadata = manifest.get("metadata")
+    if not isinstance(metadata, dict):
+        metadata = {}
+    metadata.setdefault("generated_by", "adaptive_charts.py")
+    metadata["total_plots"] = len(plots)
+    metadata["generation_timestamp"] = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    manifest["metadata"] = metadata
+    with safe_open("03_figures/plot_manifest.json", "w", encoding="utf-8") as fh:
+        json.dump(manifest, fh, ensure_ascii=False, indent=1)
+
+
+def _write_hetero_only_plan(safe_open, het):
+    """adaptive_chart_plan.json for a hetero-only run (no anchor frame data):
+    records what WAS rendered and why no temporal charts exist. No
+    02_processed/time_alignment.json is written (nothing was aligned)."""
+    plan = {
+        "source_data": None, "time_alignment": None,
+        "decisions": [], "files": het["files"],
+        "chart_policy": ("hetero_profile_heatmaps only - no anchor frame data "
+                         "(checked --data, 02_processed/cleaned_data.csv); "
+                         "temporal overlay/line charts not applicable"),
+        "hetero_profile_heatmaps": het["decisions"],
+    }
+    with safe_open("03_figures/adaptive_chart_plan.json", "w", encoding="utf-8") as fh:
+        json.dump(plan, fh, ensure_ascii=False, indent=1)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("run_dir")
@@ -213,8 +464,19 @@ def main():
     fig_dir.mkdir(parents=True, exist_ok=True)
     (expected / "02_processed").mkdir(parents=True, exist_ok=True)
 
+    # -- hetero time-x-position profile heatmaps (07_hetero/features/PROF-*.csv).
+    #    Zero-write no-op without 07_hetero; independent of the anchor frame so
+    #    sparse profiles stay chartable even when no cleaned data is present.
+    het = render_hetero_profile_heatmaps(safe_path, fig_dir, max_charts=args.max_charts)
+
     df, source = load_frame(safe_path, args.data)
     if df is None:
+        if het["files"]:
+            _write_hetero_only_plan(safe_open, het)
+            append_hetero_manifest_entries(safe_path, safe_open, het["entries"])
+            log("[adaptive] wrote %d hetero profile heatmap(s) (hetero-only: no anchor frame data)"
+                % len(het["files"]))
+            sys.exit(0)
         log("[adaptive] NOT_APPLICABLE: no data file (checked --data, 02_processed/cleaned_data.csv)")
         sys.exit(2)
     numeric_cols = [c for c in df.columns if pd.api.types.is_numeric_dtype(df[c])]
@@ -294,18 +556,23 @@ def main():
 
     plan = {
         "source_data": source, "time_alignment": align_info,
-        "decisions": decisions, "files": files,
+        "decisions": decisions, "files": files + het["files"],
         "chart_policy": ("2d_field->contour_cloud; multi_parameter_time_series->z_overlay; "
                          "single_time_series->line; all temporal charts on the aligned axis"),
     }
+    if het["files"]:
+        plan["hetero_profile_heatmaps"] = het["decisions"]
     with safe_open("03_figures/adaptive_chart_plan.json", "w", encoding="utf-8") as fh:
         json.dump(plan, fh, ensure_ascii=False, indent=1)
     if manifest_entries:
         append_plot_manifest(safe_path, safe_open, manifest_entries)
-    if not files:
+    if het["entries"]:
+        append_hetero_manifest_entries(safe_path, safe_open, het["entries"])
+    if not files and not het["files"]:
         log("[adaptive] NOT_APPLICABLE: no mappable data shape (no 2D field, no numeric series)")
         sys.exit(2)
-    log("[adaptive] wrote %d chart(s); plan + alignment provenance recorded" % len(files))
+    log("[adaptive] wrote %d chart(s); plan + alignment provenance recorded"
+        % (len(files) + len(het["files"])))
 
 
 if __name__ == "__main__":

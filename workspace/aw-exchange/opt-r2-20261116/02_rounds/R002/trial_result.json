@@ -1,0 +1,26 @@
+{
+  "result_version": "1.0",
+  "campaign_id": "OPT-20261116-101",
+  "round_id": "R002",
+  "trials": [
+    {
+      "trial_id": "R002-T01",
+      "status": "completed",
+      "measurements": {
+        "制品克重PV": [
+          32.315999999999995,
+          32.306000000000004,
+          32.31,
+          32.32666666666667
+        ]
+      },
+      "measured_at": "2026-11-16T12:30:28.379Z",
+      "operator_note": "governed DCW writes: [{\"name\":\"保压时间SP\",\"from\":3.5,\"target\":3.399,\"readback\":3.4000000953674316,\"anchorId\":\"anc-1e14f1bb\"},{\"name\":\"冷却流量SP\",\"from\":17,\"target\":17.951,\"readback\":18,\"anchorId\":\"anc-e9193454\"}]"
+    }
+  ],
+  "environment": {
+    "line_id": "ln-da75ea3d",
+    "line_kind": "five-protocol simulator shadow :4055",
+    "executor": "platform admin DCW writes (AWS/manual contract)"
+  }
+}

@@ -1,0 +1,100 @@
+[
+  {
+    "event_ts": "2026-09-20 00:00:00",
+    "recorded_ts": null,
+    "text": "> 本文件为样例填写内容（对应 2026-09-20 ～ 2026-10-10 的数据窗口）。",
+    "tags": [],
+    "source_id": "text-src",
+    "source_sha256": "sha256:48aea61488d353a120f604c2f66ec07c771266234ef052f3ce67bd220cad9fce",
+    "line_no": 5,
+    "hour_of_day": 0.0,
+    "shift_bucket": "C"
+  },
+  {
+    "event_ts": "2026-09-28 00:00:00",
+    "recorded_ts": null,
+    "text": "- 发现时间：2026-09-28 之后，质量日报显示**在线优品率**从 98.6% 附近**缓慢下滑**，至 10 月上旬已跌至 97% 以下（10-10 当日约 96.4%）",
+    "tags": [],
+    "source_id": "text-src",
+    "source_sha256": "sha256:48aea61488d353a120f604c2f66ec07c771266234ef052f3ce67bd220cad9fce",
+    "line_no": 11,
+    "hour_of_day": 0.0,
+    "shift_bucket": "C"
+  },
+  {
+    "event_ts": "2026-09-27 08:00:00",
+    "recorded_ts": null,
+    "text": "- 2026-09-27 08:00：原料供应商切换（PET-P2 → PET-P3），同时按工艺要求把**回料掺入比例由 8% 调整为 12%**（配方变更单已归档）",
+    "tags": [
+      {
+        "tag": "配方变更",
+        "tag_slug": "RECIPE_CHANGE",
+        "method": "lexicon",
+        "matched_term": "配方变更",
+        "model_derived": false
+      }
+    ],
+    "source_id": "text-src",
+    "source_sha256": "sha256:48aea61488d353a120f604c2f66ec07c771266234ef052f3ce67bd220cad9fce",
+    "line_no": 21,
+    "hour_of_day": 8.0,
+    "shift_bucket": "A"
+  },
+  {
+    "event_ts": "2026-09-29 02:00:00",
+    "recorded_ts": null,
+    "text": "- 2026-09-29 02:00 与 2026-10-06 02:00：按计划换网各一次（压差到限触发），产线降速约 2 小时",
+    "tags": [
+      {
+        "tag": "换网",
+        "tag_slug": "SCREEN_CHANGE",
+        "method": "lexicon",
+        "matched_term": "换网",
+        "model_derived": false
+      }
+    ],
+    "source_id": "text-src",
+    "source_sha256": "sha256:48aea61488d353a120f604c2f66ec07c771266234ef052f3ce67bd220cad9fce",
+    "line_no": 22,
+    "hour_of_day": 2.0,
+    "shift_bucket": "C"
+  },
+  {
+    "event_ts": "2026-10-04 00:00:00",
+    "recorded_ts": null,
+    "text": "- 2026-10-04：突发降温，车间环境温度随之下降",
+    "tags": [
+      {
+        "tag": "降温",
+        "tag_slug": "COOLDOWN",
+        "method": "lexicon",
+        "matched_term": "降温",
+        "model_derived": false
+      }
+    ],
+    "source_id": "text-src",
+    "source_sha256": "sha256:48aea61488d353a120f604c2f66ec07c771266234ef052f3ce67bd220cad9fce",
+    "line_no": 23,
+    "hour_of_day": 0.0,
+    "shift_bucket": "C"
+  },
+  {
+    "event_ts": "2026-09-25 00:00:00",
+    "recorded_ts": null,
+    "text": "- 在线测厚仪：2026-09-25 完成月度校准，标准膜片复核合格",
+    "tags": [
+      {
+        "tag": "校准",
+        "tag_slug": "CALIBRATION",
+        "method": "lexicon",
+        "matched_term": "校准",
+        "model_derived": false
+      }
+    ],
+    "source_id": "text-src",
+    "source_sha256": "sha256:48aea61488d353a120f604c2f66ec07c771266234ef052f3ce67bd220cad9fce",
+    "line_no": 32,
+    "hour_of_day": 0.0,
+    "shift_bucket": "C"
+  }
+]

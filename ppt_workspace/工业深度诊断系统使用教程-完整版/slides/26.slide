@@ -1,0 +1,38 @@
+<Slide style={{ padding: '22px 64px 18px 64px', background: '#F7F4EC' }}>
+    <Box style={{ width: 1152, height: 102, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box style={{ flexDirection: 'column' }}>
+            <Text style={{ fontSize: 36, fontWeight: 'bold', color: '#1D1B16', lineHeight: 1.25 }}>第 5 章 · 实时监控：OMP 正在干活</Text>
+            <Text style={{ fontSize: 17, color: 'rgba(29,27,22,0.72)', marginTop: 6 }}>点进任务后你会一直盯着这一屏。下面这张就是本机用 OMP 引擎真实跑起来的样子</Text>
+        </Box>
+        <Box style={{ padding: '10px 18px', background: '#B8730F', borderRadius: 8 }}>
+            <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#FFFFFF' }}>真实运行 #61ca314b</Text>
+        </Box>
+    </Box>
+    <Box style={{ width: 1152, height: 534, flexDirection: 'column', gap: 16 }}>
+        <Box style={{ height: 470, flexDirection: 'row', gap: 22 }}>
+            <Image src="assets/omp_liverun.png" style={{ width: 700, height: 470, borderRadius: 10, border: '1px solid rgba(29,27,22,0.10)' }} />
+            <Box style={{ width: 430, height: 470, flexDirection: 'column', gap: 10 }}>
+                <Box style={{ height: 150, padding: 14, background: '#FFFFFF', borderRadius: 10, border: '1px solid rgba(29,27,22,0.10)', flexDirection: 'column' }}>
+                    <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#1D1B16' }}>② 诊断中 + 运行号</Text>
+                    <Text style={{ fontSize: 16, color: 'rgba(29,27,22,0.78)', lineHeight: 1.55, marginTop: 8 }}>状态点变绿、写出运行号，说明 OMP 已经把活接走。</Text>
+                </Box>
+                <Box style={{ height: 150, padding: 14, background: '#FFFFFF', borderRadius: 10, border: '1px solid rgba(29,27,22,0.10)', flexDirection: 'column' }}>
+                    <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#1D1B16' }}>③④ 计数器与当前工具</Text>
+                    <Text style={{ fontSize: 16, color: 'rgba(29,27,22,0.78)', lineHeight: 1.55, marginTop: 8 }}>轮次 / 工具 / 消息 / 计时；进度条下方写着这一秒在跑什么，例如「执行工具：read」。</Text>
+                </Box>
+                <Box style={{ height: 150, padding: 14, background: 'rgba(184,115,15,0.10)', borderRadius: 10, border: '1px solid rgba(184,115,15,0.42)', flexDirection: 'column' }}>
+                    <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#8A5608' }}>⑤⑥ 事件流与插话</Text>
+                    <Text style={{ fontSize: 16, color: 'rgba(29,27,22,0.80)', lineHeight: 1.55, marginTop: 8 }}>读文件、跑命令、返回结果逐条留痕；底下输入框随时能补一句引导。</Text>
+                </Box>
+            </Box>
+        </Box>
+        <Box style={{ height: 48, padding: 12, background: '#1D1B16', borderRadius: 10, flexDirection: 'row', alignItems: 'center', gap: 16 }}>
+            <Text style={{ fontSize: 17, fontWeight: 'bold', color: '#F0A93B' }}>① 停止</Text>
+            <Text style={{ fontSize: 16, color: 'rgba(247,244,236,0.84)' }}>随时可中断。真跑一次工业诊断可能几十分钟，页面刷新不会丢进度。</Text>
+        </Box>
+    </Box>
+    <Box style={{ width: 1152, height: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Text style={{ fontSize: 15, color: 'rgba(29,27,22,0.48)' }}>左下角引擎显示 OMP Engine · 就绪 —— 这条运行就是它跑的</Text>
+        <Text style={{ fontSize: 15, color: 'rgba(29,27,22,0.48)' }}>26 / 40</Text>
+    </Box>
+</Slide>

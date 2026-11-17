@@ -102,3 +102,9 @@ uv run --project .claude/shared/scripts python \
 | 连续 2 轮全失败 | 自动 `paused` + needs_human；人工排除原因后从断点续跑 |
 | safety_aborted | 自动 `aborted`，gate 强制 needs_human，人工关闭 |
 | gate FAIL | 修脚本侧产物（禁止手改数值），最多 3 轮修复 |
+
+## Heterogeneous responses (E-1H, M3)
+
+响应白名单：`07_hetero/column_contract.json` 中 `model_derived=true` 或 `insufficient_data=true`
+的列禁作响应变量；候选响应来自该 contract 的 `stats_eligible=true` 行 /
+`07_hetero/preprocessed_data_hetero.csv`。

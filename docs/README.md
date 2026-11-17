@@ -17,6 +17,7 @@
 | [dataset-experiment-research.md](dataset-experiment-research.md) | 数据集调研与实验设计依据 |
 | [ontology-management.md](ontology-management.md) | 本体模型管理（持久化/版本/复用） |
 | [agentworkshop-integration.md](agentworkshop-integration.md) | AgentWorkShop 插件集成契约 |
+| [../workspace/bopet-data-template/README.md](../workspace/bopet-data-template/README.md) | **产线数据交接模板包**（BOPET 案例）：零基础操作手册、数据导出规范、代号映射与预构建本体、可填空文档模板、可直接跑通的样例数据、场景运行说明 |
 
 ## 系统与规划
 
@@ -27,6 +28,7 @@
 | [skill-optimization-plan-v4.md](skill-optimization-plan-v4.md) | 技能系统优化计划 v4（已实施：本体资产化/提速/意图驱动） |
 | [efficiency-optimization-plan-v5.md](efficiency-optimization-plan-v5.md) | 效率优化计划 v5（已实施：确定性快路径） |
 | [process-engineer-perspective.md](process-engineer-perspective.md) | 工艺工程师视角的系统可用性设计 |
+| [plans/doe-analysis-flow-optimization-plan-2026-10-17.md](plans/doe-analysis-flow-optimization-plan-2026-10-17.md) | DOE 数据分析流程优化计划（本体优先/可执行闭环；`pending approval`） |
 
 ## 阅读顺序
 

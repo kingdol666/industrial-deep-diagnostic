@@ -1,0 +1,1505 @@
+{
+  "contract_version": "line-stability-report/1.0",
+  "report_id": "LSR-1791950390-aizuf5",
+  "generated_at": "2026-10-14T03:59:50Z",
+  "status": "ok",
+  "line": {
+    "line_id": "水泥磨-2线",
+    "product": "P·O 42.5 水泥"
+  },
+  "period": {
+    "start": "2026-09-01 00:00:00",
+    "end": "2026-09-08 11:00:00",
+    "requested": {
+      "start": "2026-09-01T00:00:00",
+      "end": "2026-09-08T11:00:00"
+    }
+  },
+  "data": {
+    "path": "workspace/lst-teaching-kit/T1_cement_mill/00_input/mill_7d.xlsx",
+    "sha256": "sha256:b987e49a77cb9b552c614c33e4a38c0c810b3239af5aeacb4532b6b88113f2b5",
+    "time_col": "时间",
+    "group_col": null,
+    "group_used": null,
+    "parameter_cols": [
+      "比表面积",
+      "台时产量",
+      "磨机电流",
+      "主轴承温度",
+      "入磨喂料量",
+      "选粉机转速",
+      "磨音"
+    ],
+    "inspection_cols": [
+      "比表面积",
+      "台时产量"
+    ],
+    "ignored_cols": [],
+    "sampled": false,
+    "stride": 1,
+    "n_rows_raw": 180,
+    "n_rows_used": 180,
+    "time_span_seconds": 644400.0,
+    "sampling_interval_median_seconds": 3600.0,
+    "missing_rate": 0.0,
+    "coverage_ratio": 1.0,
+    "time_invariant_channels": {
+      "count": 0,
+      "total": 7,
+      "share": 0.0,
+      "examples": []
+    },
+    "preprocessing": {
+      "source_export": "workspace/lst-teaching-kit/T1_cement_mill/00_input/mill_7d.xlsx",
+      "note": "教学夹具：DCS 小时归档导出为 Excel（合成数据 seed=701）；本体为手写粉磨系统本体，演示 ontology.json 放入 00_input 即被消费"
+    }
+  },
+  "condition": {
+    "ontology": {
+      "mode": "ontology",
+      "path": "workspace/lst-teaching-kit/T1_cement_mill\\00_input\\ontology.json",
+      "source": "run_dir",
+      "reason": null
+    },
+    "scene": {
+      "name": "水泥磨闭路粉磨系统（P·O 42.5）",
+      "process_type": "cement_ball_mill_closed_circuit",
+      "production_goal": "在比表面积 3400-3600 cm²/g 与主轴承温度 ≤68℃ 约束下稳定台时产量",
+      "equipment": [
+        "球磨机",
+        "主轴承（低压润滑）",
+        "选粉机",
+        "主排风机",
+        "斗式提升机"
+      ],
+      "stages": [
+        "配料喂料",
+        "粉磨",
+        "选粉分级",
+        "输送入库"
+      ]
+    },
+    "columns": {
+      "磨机电流": {
+        "assigned_by": "ontology",
+        "label": "球磨机主电机电流",
+        "unit": "A",
+        "role": "parameter",
+        "spec": {
+          "lsl": 235.0,
+          "usl": 260.0,
+          "target": 245.0,
+          "source": "ontology"
+        },
+        "normal_range": [
+          235.0,
+          260.0
+        ],
+        "stage": "粉磨",
+        "equipment": "球磨机",
+        "governing_law": "轴功率 P∝T_load·ω；轴承摩擦阻力矩增大直接抬升电流",
+        "physical_meaning": "磨机负载与摩擦状态的首要观测量",
+        "group": "粉磨系统"
+      },
+      "主轴承温度": {
+        "assigned_by": "ontology",
+        "label": "主轴承（低压侧）温度",
+        "unit": "℃",
+        "role": "parameter",
+        "spec": {
+          "lsl": null,
+          "usl": 68.0,
+          "target": 62.0,
+          "source": "user"
+        },
+        "normal_range": [
+          55.0,
+          68.0
+        ],
+        "stage": "粉磨",
+        "equipment": "主轴承（低压润滑）",
+        "governing_law": "摩擦功耗 Q=μ·F·v 转化为温升，与润滑油膜状态强相关",
+        "physical_meaning": "润滑恶化/冷却水不足时缓慢爬升，是烧瓦前兆",
+        "group": "粉磨系统"
+      },
+      "入磨喂料量": {
+        "assigned_by": "ontology",
+        "label": "入磨喂料量",
+        "unit": "t/h",
+        "role": "parameter",
+        "spec": {
+          "lsl": 120.0,
+          "usl": 136.0,
+          "target": 128.0,
+          "source": "ontology"
+        },
+        "normal_range": [
+          120.0,
+          136.0
+        ],
+        "stage": "配料喂料",
+        "equipment": "球磨机",
+        "governing_law": "球磨内存料量平衡",
+        "physical_meaning": "负荷率主控变量",
+        "group": "粉磨系统"
+      },
+      "选粉机转速": {
+        "assigned_by": "ontology",
+        "label": "选粉机转速",
+        "unit": "rpm",
+        "role": "parameter",
+        "spec": {
+          "lsl": 1120.0,
+          "usl": 1240.0,
+          "target": 1180.0,
+          "source": "ontology"
+        },
+        "normal_range": [
+          1120.0,
+          1240.0
+        ],
+        "stage": "选粉分级",
+        "equipment": "选粉机",
+        "governing_law": "分级粒径 d50∝1/n²",
+        "physical_meaning": "成品细度主控变量",
+        "group": "粉磨系统"
+      },
+      "磨音": {
+        "assigned_by": "ontology",
+        "label": "磨音（电耳）",
+        "unit": "dB",
+        "role": "parameter",
+        "spec": {
+          "lsl": 83.0,
+          "usl": 89.0,
+          "target": 86.0,
+          "source": "ontology"
+        },
+        "normal_range": [
+          83.0,
+          89.0
+        ],
+        "stage": "粉磨",
+        "equipment": "球磨机",
+        "governing_law": "存料量增大→研磨体撞击减弱→磨音下降",
+        "physical_meaning": "饱磨/空磨的声学指示",
+        "group": "粉磨系统"
+      },
+      "比表面积": {
+        "assigned_by": "user",
+        "label": "成品比表面积",
+        "unit": "cm²/g",
+        "role": "inspection",
+        "spec": {
+          "lsl": 3400,
+          "usl": 3600,
+          "target": 3500,
+          "source": "user"
+        },
+        "normal_range": [
+          3400.0,
+          3600.0
+        ],
+        "stage": "选粉分级",
+        "equipment": "选粉机",
+        "governing_law": "细度与磨温、选粉转速耦合",
+        "physical_meaning": "水泥强度等级的核心指标",
+        "group": "质量指标"
+      },
+      "台时产量": {
+        "assigned_by": "user",
+        "label": "台时产量",
+        "unit": "t/h",
+        "role": "inspection",
+        "spec": {
+          "lsl": 135.0,
+          "usl": 150.0,
+          "target": 142.0,
+          "source": "ontology"
+        },
+        "normal_range": [
+          135.0,
+          150.0
+        ],
+        "stage": "输送入库",
+        "equipment": "斗式提升机",
+        "governing_law": "闭路循环平衡",
+        "physical_meaning": "产能指标",
+        "group": "质量指标"
+      }
+    },
+    "relationships": [
+      {
+        "from": "主轴承温度",
+        "to": "磨机电流",
+        "type": "causal",
+        "strength": "strong",
+        "mechanism": "润滑恶化→油膜变薄→轴承摩擦阻力矩增大→主电机电流抬升",
+        "governing_equation": "I ∝ (T_load + μ(T_brg)·F·r)/η"
+      },
+      {
+        "from": "主轴承温度",
+        "to": "磨音",
+        "type": "causal",
+        "strength": "medium",
+        "mechanism": "磨温升高伴随存料量/料球比变化，磨音同向减弱",
+        "governing_equation": null
+      },
+      {
+        "from": "选粉机转速",
+        "to": "比表面积",
+        "type": "causal",
+        "strength": "strong",
+        "mechanism": "转速升高分级粒径减小，成品变细、比表面积上升",
+        "governing_equation": "d50 ∝ n^(-2)"
+      }
+    ],
+    "regimes": {
+      "available": true,
+      "method": "fast",
+      "change_points": [],
+      "regimes": [
+        {
+          "start": 0,
+          "end": 179,
+          "label": "steady",
+          "n_rows": 180
+        }
+      ],
+      "abnormal_ratio": 0.0
+    }
+  },
+  "parameters": [
+    {
+      "name": "比表面积",
+      "role": "inspection",
+      "condition": {
+        "label": "成品比表面积",
+        "unit": "cm²/g",
+        "assigned_by": "user",
+        "governing_law": "细度与磨温、选粉转速耦合",
+        "physical_meaning": "水泥强度等级的核心指标",
+        "group": "质量指标",
+        "stage": "选粉分级",
+        "equipment": "选粉机"
+      },
+      "n": 180,
+      "row_range": [
+        0,
+        179
+      ],
+      "data_source": "raw",
+      "mu": 3477.488889,
+      "median": 3477.0,
+      "sigma": 10.020364,
+      "sigma_within_mr": 7.731091,
+      "cv": 0.002873,
+      "min": 3449.0,
+      "max": 3504.0,
+      "spec": {
+        "lsl": 3400,
+        "usl": 3600,
+        "target": 3500,
+        "source": "user"
+      },
+      "capability": {
+        "cp": 4.311595,
+        "cpk": 3.341007,
+        "pp": 3.326559,
+        "ppk": 2.577714
+      },
+      "nelson": {
+        "NELSON_R1": {
+          "n_episodes": 6,
+          "indices": [
+            9,
+            70,
+            85,
+            108,
+            113,
+            123
+          ]
+        },
+        "NELSON_R2": {
+          "n_episodes": 2,
+          "indices": [
+            11,
+            112
+          ]
+        },
+        "NELSON_R5": {
+          "n_episodes": 3,
+          "indices": [
+            13,
+            104,
+            110
+          ]
+        },
+        "NELSON_R6": {
+          "n_episodes": 5,
+          "indices": [
+            88,
+            104,
+            111,
+            124,
+            166
+          ]
+        },
+        "NELSON_R3": {
+          "n_episodes": 2,
+          "indices": [
+            108,
+            168
+          ]
+        }
+      },
+      "n_violation_points": 18,
+      "drift": {
+        "slope_per_second": -9e-06,
+        "per_day_relative": 0.000234,
+        "mk_p": 0.011952,
+        "significant": false
+      },
+      "baseline_ref": null,
+      "score": 92,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -8,
+        "cv_penalty": 0,
+        "capability_penalty": 0,
+        "drift_penalty": 0,
+        "baseline_penalty": 0,
+        "total": 92
+      }
+    },
+    {
+      "name": "台时产量",
+      "role": "inspection",
+      "condition": {
+        "label": "台时产量",
+        "unit": "t/h",
+        "assigned_by": "user",
+        "governing_law": "闭路循环平衡",
+        "physical_meaning": "产能指标",
+        "group": "质量指标",
+        "stage": "输送入库",
+        "equipment": "斗式提升机"
+      },
+      "n": 180,
+      "row_range": [
+        0,
+        179
+      ],
+      "data_source": "raw",
+      "mu": 141.965556,
+      "median": 141.95,
+      "sigma": 1.077776,
+      "sigma_within_mr": 0.972206,
+      "cv": 0.007571,
+      "min": 139.6,
+      "max": 145.0,
+      "spec": {
+        "lsl": 135.0,
+        "usl": 150.0,
+        "target": 142.0,
+        "source": "ontology"
+      },
+      "capability": {
+        "cp": 2.571472,
+        "cpk": 2.388231,
+        "pp": 2.319592,
+        "ppk": 2.1543
+      },
+      "nelson": {
+        "NELSON_R1": {
+          "n_episodes": 1,
+          "indices": [
+            93
+          ]
+        },
+        "NELSON_R6": {
+          "n_episodes": 1,
+          "indices": [
+            121
+          ]
+        },
+        "NELSON_R5": {
+          "n_episodes": 1,
+          "indices": [
+            171
+          ]
+        }
+      },
+      "n_violation_points": 3,
+      "drift": {
+        "slope_per_second": 1e-06,
+        "per_day_relative": 0.000845,
+        "mk_p": 0.003003,
+        "significant": false
+      },
+      "baseline_ref": null,
+      "score": 99,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -1,
+        "cv_penalty": 0,
+        "capability_penalty": 0,
+        "drift_penalty": 0,
+        "baseline_penalty": 0,
+        "total": 99
+      }
+    },
+    {
+      "name": "磨机电流",
+      "role": "parameter",
+      "condition": {
+        "label": "球磨机主电机电流",
+        "unit": "A",
+        "assigned_by": "ontology",
+        "governing_law": "轴功率 P∝T_load·ω；轴承摩擦阻力矩增大直接抬升电流",
+        "physical_meaning": "磨机负载与摩擦状态的首要观测量",
+        "group": "粉磨系统",
+        "stage": "粉磨",
+        "equipment": "球磨机"
+      },
+      "n": 180,
+      "row_range": [
+        0,
+        179
+      ],
+      "data_source": "raw",
+      "mu": 248.196667,
+      "median": 247.25,
+      "sigma": 3.664184,
+      "sigma_within_mr": 1.392191,
+      "cv": 0.014722,
+      "min": 241.2,
+      "max": 258.9,
+      "spec": {
+        "lsl": 235.0,
+        "usl": 260.0,
+        "target": 245.0,
+        "source": "ontology"
+      },
+      "capability": {
+        "cp": 2.992885,
+        "cpk": 2.826082,
+        "pp": 1.137134,
+        "ppk": 1.073757
+      },
+      "nelson": {
+        "NELSON_R1": {
+          "n_episodes": 13,
+          "indices": [
+            2,
+            14,
+            36,
+            43,
+            74,
+            125,
+            130,
+            140,
+            142,
+            144,
+            156,
+            164,
+            179
+          ]
+        },
+        "NELSON_R5": {
+          "n_episodes": 9,
+          "indices": [
+            6,
+            16,
+            29,
+            45,
+            69,
+            76,
+            117,
+            122,
+            179
+          ]
+        },
+        "NELSON_R6": {
+          "n_episodes": 6,
+          "indices": [
+            6,
+            16,
+            45,
+            78,
+            128,
+            179
+          ]
+        },
+        "NELSON_R2": {
+          "n_episodes": 4,
+          "indices": [
+            8,
+            29,
+            121,
+            140
+          ]
+        }
+      },
+      "n_violation_points": 32,
+      "drift": {
+        "slope_per_second": 1.6e-05,
+        "per_day_relative": 0.005739,
+        "mk_p": 0.0,
+        "significant": true
+      },
+      "baseline_ref": null,
+      "score": 65,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -14,
+        "cv_penalty": -6,
+        "capability_penalty": 0,
+        "drift_penalty": -15,
+        "baseline_penalty": 0,
+        "total": 65
+      }
+    },
+    {
+      "name": "主轴承温度",
+      "role": "parameter",
+      "condition": {
+        "label": "主轴承（低压侧）温度",
+        "unit": "℃",
+        "assigned_by": "ontology",
+        "governing_law": "摩擦功耗 Q=μ·F·v 转化为温升，与润滑油膜状态强相关",
+        "physical_meaning": "润滑恶化/冷却水不足时缓慢爬升，是烧瓦前兆",
+        "group": "粉磨系统",
+        "stage": "粉磨",
+        "equipment": "主轴承（低压润滑）"
+      },
+      "n": 180,
+      "row_range": [
+        0,
+        179
+      ],
+      "data_source": "raw",
+      "mu": 63.568556,
+      "median": 62.925,
+      "sigma": 1.738558,
+      "sigma_within_mr": 0.312364,
+      "cv": 0.027273,
+      "min": 61.13,
+      "max": 67.4,
+      "spec": {
+        "lsl": null,
+        "usl": 68.0,
+        "target": 62.0,
+        "source": "user"
+      },
+      "capability": {
+        "cp": null,
+        "cpk": 4.728935,
+        "pp": null,
+        "ppk": 0.84964
+      },
+      "nelson": {
+        "NELSON_R1": {
+          "n_episodes": 24,
+          "indices": [
+            1,
+            3,
+            7,
+            16,
+            21,
+            27,
+            29,
+            40,
+            44,
+            49,
+            56,
+            62,
+            69,
+            71,
+            73,
+            77,
+            98,
+            102,
+            104,
+            107,
+            109,
+            113,
+            115,
+            179
+          ]
+        },
+        "NELSON_R2": {
+          "n_episodes": 3,
+          "indices": [
+            8,
+            68,
+            109
+          ]
+        },
+        "NELSON_R5": {
+          "n_episodes": 8,
+          "indices": [
+            9,
+            18,
+            52,
+            59,
+            66,
+            80,
+            98,
+            179
+          ]
+        },
+        "NELSON_R3": {
+          "n_episodes": 2,
+          "indices": [
+            19,
+            54
+          ]
+        },
+        "NELSON_R6": {
+          "n_episodes": 4,
+          "indices": [
+            53,
+            80,
+            100,
+            179
+          ]
+        }
+      },
+      "n_violation_points": 41,
+      "drift": {
+        "slope_per_second": 9e-06,
+        "per_day_relative": 0.012104,
+        "mk_p": 0.0,
+        "significant": true
+      },
+      "baseline_ref": null,
+      "score": 51,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -18,
+        "cv_penalty": -6,
+        "capability_penalty": 0,
+        "drift_penalty": -25,
+        "baseline_penalty": 0,
+        "total": 51
+      }
+    },
+    {
+      "name": "入磨喂料量",
+      "role": "parameter",
+      "condition": {
+        "label": "入磨喂料量",
+        "unit": "t/h",
+        "assigned_by": "ontology",
+        "governing_law": "球磨内存料量平衡",
+        "physical_meaning": "负荷率主控变量",
+        "group": "粉磨系统",
+        "stage": "配料喂料",
+        "equipment": "球磨机"
+      },
+      "n": 180,
+      "row_range": [
+        0,
+        179
+      ],
+      "data_source": "raw",
+      "mu": 128.225,
+      "median": 128.3,
+      "sigma": 1.747013,
+      "sigma_within_mr": 1.485796,
+      "cv": 0.013587,
+      "min": 122.9,
+      "max": 132.8,
+      "spec": {
+        "lsl": 120.0,
+        "usl": 136.0,
+        "target": 128.0,
+        "source": "ontology"
+      },
+      "capability": {
+        "cp": 1.794773,
+        "cpk": 1.744295,
+        "pp": 1.526415,
+        "ppk": 1.483485
+      },
+      "nelson": {
+        "NELSON_R5": {
+          "n_episodes": 2,
+          "indices": [
+            20,
+            163
+          ]
+        },
+        "NELSON_R1": {
+          "n_episodes": 4,
+          "indices": [
+            98,
+            130,
+            159,
+            161
+          ]
+        },
+        "NELSON_R6": {
+          "n_episodes": 2,
+          "indices": [
+            122,
+            155
+          ]
+        }
+      },
+      "n_violation_points": 8,
+      "drift": {
+        "slope_per_second": 1e-06,
+        "per_day_relative": 0.000668,
+        "mk_p": 0.14692,
+        "significant": false
+      },
+      "baseline_ref": null,
+      "score": 90,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -4,
+        "cv_penalty": -6,
+        "capability_penalty": 0,
+        "drift_penalty": 0,
+        "baseline_penalty": 0,
+        "total": 90
+      }
+    },
+    {
+      "name": "选粉机转速",
+      "role": "parameter",
+      "condition": {
+        "label": "选粉机转速",
+        "unit": "rpm",
+        "assigned_by": "ontology",
+        "governing_law": "分级粒径 d50∝1/n²",
+        "physical_meaning": "成品细度主控变量",
+        "group": "粉磨系统",
+        "stage": "选粉分级",
+        "equipment": "选粉机"
+      },
+      "n": 180,
+      "row_range": [
+        0,
+        179
+      ],
+      "data_source": "raw",
+      "mu": 1180.244444,
+      "median": 1180.0,
+      "sigma": 6.700806,
+      "sigma_within_mr": 5.368675,
+      "cv": 0.005662,
+      "min": 1166.0,
+      "max": 1196.0,
+      "spec": {
+        "lsl": 1120.0,
+        "usl": 1240.0,
+        "target": 1180.0,
+        "source": "ontology"
+      },
+      "capability": {
+        "cp": 3.725314,
+        "cpk": 3.710136,
+        "pp": 2.984715,
+        "ppk": 2.972555
+      },
+      "nelson": {
+        "NELSON_R5": {
+          "n_episodes": 6,
+          "indices": [
+            12,
+            45,
+            109,
+            117,
+            127,
+            148
+          ]
+        },
+        "NELSON_R6": {
+          "n_episodes": 5,
+          "indices": [
+            32,
+            47,
+            65,
+            117,
+            130
+          ]
+        },
+        "NELSON_R2": {
+          "n_episodes": 1,
+          "indices": [
+            80
+          ]
+        }
+      },
+      "n_violation_points": 12,
+      "drift": {
+        "slope_per_second": -5e-06,
+        "per_day_relative": 0.000373,
+        "mk_p": 0.054962,
+        "significant": false
+      },
+      "baseline_ref": null,
+      "score": 95,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -5,
+        "cv_penalty": 0,
+        "capability_penalty": 0,
+        "drift_penalty": 0,
+        "baseline_penalty": 0,
+        "total": 95
+      }
+    },
+    {
+      "name": "磨音",
+      "role": "parameter",
+      "condition": {
+        "label": "磨音（电耳）",
+        "unit": "dB",
+        "assigned_by": "ontology",
+        "governing_law": "存料量增大→研磨体撞击减弱→磨音下降",
+        "physical_meaning": "饱磨/空磨的声学指示",
+        "group": "粉磨系统",
+        "stage": "粉磨",
+        "equipment": "球磨机"
+      },
+      "n": 180,
+      "row_range": [
+        0,
+        179
+      ],
+      "data_source": "raw",
+      "mu": 85.787,
+      "median": 85.77,
+      "sigma": 0.486275,
+      "sigma_within_mr": 0.345596,
+      "cv": 0.005653,
+      "min": 84.38,
+      "max": 87.02,
+      "spec": {
+        "lsl": 83.0,
+        "usl": 89.0,
+        "target": 86.0,
+        "source": "ontology"
+      },
+      "capability": {
+        "cp": 2.893551,
+        "cpk": 2.688109,
+        "pp": 2.056449,
+        "ppk": 1.910441
+      },
+      "nelson": {
+        "NELSON_R5": {
+          "n_episodes": 9,
+          "indices": [
+            3,
+            51,
+            62,
+            81,
+            95,
+            107,
+            112,
+            158,
+            162
+          ]
+        },
+        "NELSON_R1": {
+          "n_episodes": 7,
+          "indices": [
+            8,
+            80,
+            94,
+            106,
+            125,
+            157,
+            160
+          ]
+        },
+        "NELSON_R6": {
+          "n_episodes": 5,
+          "indices": [
+            39,
+            52,
+            108,
+            123,
+            163
+          ]
+        },
+        "NELSON_R3": {
+          "n_episodes": 3,
+          "indices": [
+            40,
+            90,
+            98
+          ]
+        },
+        "NELSON_R2": {
+          "n_episodes": 2,
+          "indices": [
+            50,
+            154
+          ]
+        }
+      },
+      "n_violation_points": 26,
+      "drift": {
+        "slope_per_second": -1e-06,
+        "per_day_relative": 0.000959,
+        "mk_p": 0.0,
+        "significant": false
+      },
+      "baseline_ref": null,
+      "score": 88,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -12,
+        "cv_penalty": 0,
+        "capability_penalty": 0,
+        "drift_penalty": 0,
+        "baseline_penalty": 0,
+        "total": 88
+      }
+    }
+  ],
+  "correlations": {
+    "max_lag": 10,
+    "pairs": [
+      {
+        "pearson": 0.916802,
+        "spearman": 0.894074,
+        "best_abs_r": 0.894074,
+        "best_lag_rows": 0,
+        "leader": null,
+        "pearson_at_best": 0.916802,
+        "spearman_at_best": 0.894074,
+        "a": "磨机电流",
+        "b": "主轴承温度",
+        "n": 180
+      },
+      {
+        "pearson": -0.369922,
+        "spearman": -0.421773,
+        "best_abs_r": 0.467068,
+        "best_lag_rows": 6,
+        "leader": "磨机电流",
+        "pearson_at_best": -0.428517,
+        "spearman_at_best": -0.467068,
+        "a": "磨机电流",
+        "b": "磨音",
+        "n": 180
+      },
+      {
+        "pearson": -0.394676,
+        "spearman": -0.430796,
+        "best_abs_r": 0.438107,
+        "best_lag_rows": 2,
+        "leader": "磨音",
+        "pearson_at_best": -0.403358,
+        "spearman_at_best": -0.438107,
+        "a": "主轴承温度",
+        "b": "磨音",
+        "n": 180
+      },
+      {
+        "pearson": -0.02988,
+        "spearman": -0.024372,
+        "best_abs_r": 0.298757,
+        "best_lag_rows": 7,
+        "leader": "磨音",
+        "pearson_at_best": 0.275454,
+        "spearman_at_best": 0.298757,
+        "a": "选粉机转速",
+        "b": "磨音",
+        "n": 180
+      },
+      {
+        "pearson": 0.197476,
+        "spearman": 0.213478,
+        "best_abs_r": 0.256331,
+        "best_lag_rows": 7,
+        "leader": "选粉机转速",
+        "pearson_at_best": -0.229204,
+        "spearman_at_best": -0.256331,
+        "a": "入磨喂料量",
+        "b": "选粉机转速",
+        "n": 180
+      },
+      {
+        "pearson": 0.222788,
+        "spearman": 0.189471,
+        "best_abs_r": 0.241527,
+        "best_lag_rows": 1,
+        "leader": "磨机电流",
+        "pearson_at_best": 0.289357,
+        "spearman_at_best": 0.241527,
+        "a": "台时产量",
+        "b": "磨机电流",
+        "n": 180
+      },
+      {
+        "pearson": -0.107011,
+        "spearman": -0.106977,
+        "best_abs_r": 0.237182,
+        "best_lag_rows": 9,
+        "leader": "比表面积",
+        "pearson_at_best": -0.237243,
+        "spearman_at_best": -0.237182,
+        "a": "比表面积",
+        "b": "台时产量",
+        "n": 180
+      },
+      {
+        "pearson": -0.11547,
+        "spearman": -0.085557,
+        "best_abs_r": 0.226953,
+        "best_lag_rows": 9,
+        "leader": "台时产量",
+        "pearson_at_best": -0.263235,
+        "spearman_at_best": -0.226953,
+        "a": "台时产量",
+        "b": "磨音",
+        "n": 180
+      },
+      {
+        "pearson": 0.214534,
+        "spearman": 0.162175,
+        "best_abs_r": 0.219677,
+        "best_lag_rows": 1,
+        "leader": "主轴承温度",
+        "pearson_at_best": 0.249328,
+        "spearman_at_best": 0.219677,
+        "a": "台时产量",
+        "b": "主轴承温度",
+        "n": 180
+      },
+      {
+        "pearson": -0.133905,
+        "spearman": -0.125875,
+        "best_abs_r": 0.180031,
+        "best_lag_rows": 9,
+        "leader": "比表面积",
+        "pearson_at_best": -0.146988,
+        "spearman_at_best": -0.180031,
+        "a": "比表面积",
+        "b": "主轴承温度",
+        "n": 180
+      }
+    ],
+    "contributions": []
+  },
+  "integrations": {
+    "sentinel_baseline": {
+      "used": false,
+      "path": null
+    },
+    "tuning_memory": {
+      "used": false
+    },
+    "doe_analyzer": {
+      "used": false
+    }
+  },
+  "degradations": [],
+  "limitations": {
+    "data_source": "raw (this skill never cleans or imputes; every number is recomputable from the raw table)",
+    "sampling": {
+      "n_rows_analyzed": 180,
+      "sampled": false,
+      "stride": 1,
+      "note": null
+    },
+    "missing_rate": 0.0,
+    "sampling_interval_seconds": 3600.0,
+    "spec_coverage": {
+      "user": [
+        "比表面积",
+        "主轴承温度"
+      ],
+      "ontology": [
+        "台时产量",
+        "磨机电流",
+        "入磨喂料量",
+        "选粉机转速",
+        "磨音"
+      ],
+      "none": []
+    },
+    "model_assumptions": [
+      "lag-compensated Spearman window 0–10 rows (lead/lag beyond this window is invisible)",
+      "whole-period scoring assumes one dominant operating condition; use the regime table for segmented reading",
+      "Cpk treats within-sigma as MR̄/1.128 moving-range estimate"
+    ],
+    "confounders": [
+      {
+        "variable": "研磨体级配与衬板磨损",
+        "why": "磨损改变冲击谱与电流基线，未随数据记录",
+        "controlled": false
+      },
+      {
+        "variable": "物料易磨性（混合材配比波动）",
+        "why": "易磨性变化同时影响产量与细度，未控",
+        "controlled": false
+      },
+      {
+        "variable": "环境/冷却水温度",
+        "why": "季节性影响轴承散热，未记录",
+        "controlled": false
+      }
+    ],
+    "derived_fields": [
+      "baseline_ref.robust_z",
+      "correlations.contributions.share",
+      "correlations.pairs.best_abs_r"
+    ]
+  },
+  "provenance": {
+    "input_sha256": "sha256:b987e49a77cb9b552c614c33e4a38c0c810b3239af5aeacb4532b6b88113f2b5",
+    "script_version": "1.0.0",
+    "authored_by": "lstcore/stability_analyzer.py",
+    "zero_llm": true,
+    "spc_source": "sentinelcore",
+    "regime_method": "fast",
+    "ontology_source": "run_dir",
+    "python": "3.12.7",
+    "numpy": "2.5.2",
+    "pandas": "3.0.5",
+    "methods": [
+      "sentinelcore_nelson_episodes",
+      "mrbar_sigma_1.128",
+      "cpk_within_ppk_overall",
+      "theil_sen_mk_drift",
+      "lagged_spearman_max10",
+      "contribution_r2_share",
+      "regime_segmentation_c3",
+      "ontology_first_condition",
+      "weighted_penalty_score_v1",
+      "darwin_limitations"
+    ]
+  },
+  "findings": [
+    {
+      "finding_id": "F001",
+      "severity": "high",
+      "category": "spc",
+      "title": "比表面积 检出 SPC 违规",
+      "detail": "共 18 个判异剧集命中（每百点 10.0 个，规则：NELSON_R1/NELSON_R2/NELSON_R3/NELSON_R5/NELSON_R6），控制限为中心值3477 cm²/g±3σ_within（σ=7.7311）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 18,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 10.0,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 7.731091,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "比表面积"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F002",
+      "severity": "high",
+      "category": "spc",
+      "title": "磨机电流 检出 SPC 违规",
+      "detail": "共 32 个判异剧集命中（每百点 17.8 个，规则：NELSON_R1/NELSON_R2/NELSON_R5/NELSON_R6），控制限为中心值247.25 A±3σ_within（σ=1.3922）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 32,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 17.78,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 1.392191,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "磨机电流"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F003",
+      "severity": "high",
+      "category": "spc",
+      "title": "主轴承温度 检出 SPC 违规",
+      "detail": "共 41 个判异剧集命中（每百点 22.8 个，规则：NELSON_R1/NELSON_R2/NELSON_R3/NELSON_R5/NELSON_R6），控制限为中心值62.925 ℃±3σ_within（σ=0.3124）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 41,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 22.78,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 0.312364,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "主轴承温度"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F004",
+      "severity": "high",
+      "category": "spc",
+      "title": "入磨喂料量 检出 SPC 违规",
+      "detail": "共 8 个判异剧集命中（每百点 4.4 个，规则：NELSON_R1/NELSON_R5/NELSON_R6），控制限为中心值128.3 t/h±3σ_within（σ=1.4858）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 8,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 4.44,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 1.485796,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "入磨喂料量"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F005",
+      "severity": "high",
+      "category": "spc",
+      "title": "选粉机转速 检出 SPC 违规",
+      "detail": "共 12 个判异剧集命中（每百点 6.7 个，规则：NELSON_R2/NELSON_R5/NELSON_R6），控制限为中心值1180 rpm±3σ_within（σ=5.3687）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 12,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 6.67,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 5.368675,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "选粉机转速"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F006",
+      "severity": "high",
+      "category": "spc",
+      "title": "磨音 检出 SPC 违规",
+      "detail": "共 26 个判异剧集命中（每百点 14.4 个，规则：NELSON_R1/NELSON_R2/NELSON_R3/NELSON_R5/NELSON_R6），控制限为中心值85.77 dB±3σ_within（σ=0.3456）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 26,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 14.44,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 0.345596,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "磨音"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F007",
+      "severity": "high",
+      "category": "drift",
+      "title": "主轴承温度 存在显著漂移",
+      "detail": "Theil–Sen 斜率显著（Mann–Kendall p=0.0，且相对漂移≥0.1%/天才计入），相对漂移约 1.210%/天，方向对应斜率 0/秒。",
+      "evidence": [
+        {
+          "metric": "mk_p",
+          "value": 0.0,
+          "source": "lstcore",
+          "threshold": "<0.01 且 >=0.1%/天"
+        },
+        {
+          "metric": "per_day_relative",
+          "value": 0.012104,
+          "source": "lstcore",
+          "threshold": "<0.001 ok; >=0.01 high"
+        },
+        {
+          "metric": "slope_per_second",
+          "value": 9e-06,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "主轴承温度"
+      ],
+      "confidence": 80
+    },
+    {
+      "finding_id": "F008",
+      "severity": "warn",
+      "category": "spc",
+      "title": "台时产量 检出 SPC 违规",
+      "detail": "共 3 个判异剧集命中（每百点 1.7 个，规则：NELSON_R1/NELSON_R5/NELSON_R6），控制限为中心值141.95 t/h±3σ_within（σ=0.9722）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 3,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 1.67,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 0.972206,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "台时产量"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F009",
+      "severity": "warn",
+      "category": "drift",
+      "title": "磨机电流 存在显著漂移",
+      "detail": "Theil–Sen 斜率显著（Mann–Kendall p=0.0，且相对漂移≥0.1%/天才计入），相对漂移约 0.574%/天，方向对应斜率 0/秒。",
+      "evidence": [
+        {
+          "metric": "mk_p",
+          "value": 0.0,
+          "source": "lstcore",
+          "threshold": "<0.01 且 >=0.1%/天"
+        },
+        {
+          "metric": "per_day_relative",
+          "value": 0.005739,
+          "source": "lstcore",
+          "threshold": "<0.001 ok; >=0.01 high"
+        },
+        {
+          "metric": "slope_per_second",
+          "value": 1.6e-05,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "磨机电流"
+      ],
+      "confidence": 80
+    },
+    {
+      "finding_id": "F010",
+      "severity": "info",
+      "category": "driver",
+      "title": "强相关对：磨机电流 ↔ 主轴承温度",
+      "detail": "滞后补偿后最强 |Spearman|=0.8941（零滞后同步）；零滞后 Pearson=0.9168。本体机制佐证：润滑恶化→油膜变薄→轴承摩擦阻力矩增大→主电机电流抬升；控制方程：I ∝ (T_load + μ(T_brg)·F·r)/η。置信度 70（统计证据充分度 × 机制支持度）。",
+      "evidence": [
+        {
+          "metric": "best_abs_r",
+          "value": 0.894074,
+          "source": "lstcore",
+          "threshold": ">=0.7",
+          "derived": true
+        },
+        {
+          "metric": "best_lag_rows",
+          "value": 0,
+          "source": "lstcore"
+        },
+        {
+          "metric": "mechanism_level",
+          "value": "known",
+          "source": "ontology"
+        }
+      ],
+      "affected": [
+        "磨机电流",
+        "主轴承温度"
+      ],
+      "confidence": 70,
+      "mechanism": {
+        "level": "known",
+        "mechanism": "润滑恶化→油膜变薄→轴承摩擦阻力矩增大→主电机电流抬升",
+        "governing_equation": "I ∝ (T_load + μ(T_brg)·F·r)/η"
+      }
+    }
+  ],
+  "conclusion": {
+    "score": 83.8,
+    "grade": "B",
+    "grade_key": "sub_stable",
+    "label": "亚稳定",
+    "statement": "该产线在本时段总体运行亚稳定（83.8 分，B 级）：评估 7 个参数，检出 140 个 SPC 违规剧集、2 项显著漂移；最需关注：磨机电流、主轴承温度。",
+    "n_parameters_assessed": 7,
+    "n_findings": 10,
+    "findings_by_severity": {
+      "info": 1,
+      "warn": 2,
+      "high": 7,
+      "critical": 0
+    }
+  }
+}

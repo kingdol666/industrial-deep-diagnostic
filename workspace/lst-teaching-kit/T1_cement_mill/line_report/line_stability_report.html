@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>产线运行稳定性报告 · 水泥磨-2线</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<script src="https://unpkg.com/echarts@5.5.0/dist/echarts.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.5.0/echarts.min.js"></script>
+<style>
+  :root { --bg:#101418; --panel:#171d24; --line:#26303b; --tx:#dfe7ee; --mut:#8a99a8;
+          --acc:#e8a33d; --good:#22a06b; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--tx);
+        font:14px/1.65 "Segoe UI","Microsoft YaHei",sans-serif; }
+  .wrap { max-width:1180px; margin:0 auto; padding:28px 20px 60px; }
+  .hero { display:flex; gap:24px; background:var(--panel); border:1px solid var(--line);
+         border-radius:14px; padding:26px 28px; align-items:center; justify-content:space-between;
+         flex-wrap:wrap; }
+  .hero-title { font-size:24px; font-weight:700; letter-spacing:.5px; }
+  .hero-sub { margin:10px 0 12px; display:flex; gap:8px; flex-wrap:wrap; }
+  .chip { background:rgba(232,163,61,.14); color:var(--acc); border:1px solid rgba(232,163,61,.35);
+          border-radius:999px; padding:2px 12px; font-size:12px; }
+  .chip.ghost { background:transparent; color:var(--mut); border-color:var(--line); }
+  .statement { font-size:15px; max-width:640px; }
+  .hero-score { text-align:center; min-width:190px; border:1px solid var(--g);
+               border-radius:14px; padding:16px 22px; }
+  .score-num { font-size:46px; font-weight:800; color:var(--g); line-height:1.1; }
+  .score-grade { color:var(--g); font-weight:700; margin-top:4px; }
+  .score-cap { color:var(--mut); font-size:12px; margin-top:6px; }
+  h2 { font-size:17px; margin:34px 0 12px; padding-left:10px; border-left:3px solid var(--acc); }
+  .panel { background:var(--panel); border:1px solid var(--line); border-radius:12px;
+          padding:16px 18px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:14px; }
+  .finding { background:var(--panel); border:1px solid var(--line); border-left:3px solid var(--s);
+            border-radius:10px; padding:14px 16px; margin-bottom:12px; }
+  .f-head { display:flex; align-items:center; gap:10px; }
+  .pill { background:var(--s); color:#fff; border-radius:999px; padding:1px 10px;
+          font-size:12px; flex:0 0 auto; }
+  .f-title { font-weight:700; }
+  .f-id { margin-left:auto; color:var(--mut); font-size:12px; }
+  .f-detail { color:#b9c6d2; margin:8px 0; }
+  .f-mech { font-size:12.5px; color:#a8c0d8; background:rgba(90,140,190,.08);
+           border:1px dashed rgba(90,140,190,.35); border-radius:6px; padding:6px 10px; margin:6px 0; }
+  .f-conf { margin-left:auto; color:var(--mut); font-size:12px; white-space:nowrap; }
+  .f-id { color:var(--mut); font-size:12px; margin-left:10px; }
+  .derived { font-size:10px; color:var(--acc); border:1px solid rgba(232,163,61,.4);
+            border-radius:4px; padding:0 4px; margin-left:4px; }
+  table { border-collapse:collapse; width:100%; }
+  th,td { border-bottom:1px solid var(--line); padding:7px 10px; text-align:left;
+         font-size:13px; vertical-align:top; }
+  th { color:var(--mut); font-weight:600; white-space:nowrap; }
+  td.num, .num { font-variant-numeric:tabular-nums; }
+  .ev-table { margin-top:8px; }
+  .ev-table th { font-size:12px; }
+  .role-tag { margin-left:8px; font-size:11px; color:var(--mut); border:1px solid var(--line);
+             border-radius:4px; padding:0 6px; }
+  .drift-flag { margin-left:6px; color:#e0703a; font-size:11px; border:1px solid #e0703a;
+               border-radius:4px; padding:0 5px; }
+  .score-cell { display:flex; align-items:center; gap:8px; min-width:130px; }
+  .score-bar { height:8px; width:var(--w); max-width:120px; background:var(--c);
+              border-radius:4px; }
+  .chart { height:300px; background:var(--panel); border:1px solid var(--line);
+          border-radius:12px; }
+  .chart + .chart { margin-top:14px; }
+  .chart-title { padding:10px 14px 0; color:var(--mut); font-size:13px; }
+  .empty { color:var(--mut); padding:10px 4px; }
+  .static-table { max-height:220px; overflow:auto; margin-top:8px; }
+  .foot { margin-top:40px; color:var(--mut); font-size:12px; border-top:1px solid var(--line);
+         padding-top:14px; }
+  .foot b { color:#b9c6d2; }
+  code { background:#0c1013; border:1px solid var(--line); border-radius:4px;
+        padding:0 5px; font-size:12px; }
+  @media print { body { background:#fff; color:#111; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  
+    <section class="hero">
+      <div class="hero-main">
+        <div class="hero-title">产线运行稳定性报告</div>
+        <div class="hero-sub">
+          <span class="chip">水泥磨-2线</span>
+          <span class="chip ghost">P·O 42.5 水泥</span>
+          <span class="chip ghost">时段：2026-09-01 00:00:00 ~ 2026-09-08 11:00:00</span>
+        </div>
+        <div class="statement">该产线在本时段总体运行亚稳定（83.8 分，B 级）：评估 7 个参数，检出 140 个 SPC 违规剧集、2 项显著漂移；最需关注：磨机电流、主轴承温度。</div>
+      </div>
+      <div class="hero-score" style="--g:#d8a516">
+        <div class="score-num">83.8</div>
+        <div class="score-grade">B · 亚稳定</div>
+        <div class="score-cap">综合稳定性评分（0–100）</div>
+      </div>
+    </section>
+
+  <h2>工况理解（本体优先）</h2>
+  <div class='panel'><p style='margin:0 0 8px'>本体来源：run_dir（workspace/lst-teaching-kit/T1_cement_mill\00_input\ontology.json）。</p><table><tr><th>场景</th><td>水泥磨闭路粉磨系统（P·O 42.5）</td></tr><tr><th>过程类型</th><td>cement_ball_mill_closed_circuit</td></tr><tr><th>生产目标</th><td>在比表面积 3400-3600 cm²/g 与主轴承温度 ≤68℃ 约束下稳定台时产量</td></tr></table><div style='overflow:auto;margin-top:8px'><table><thead><tr><th>参数（本体名）</th><th>单位</th><th>角色</th><th>规格/正常范围</th><th>控制方程</th><th>assigned_by</th></tr></thead><tbody><tr><td class=strong>比表面积<span class='role-tag'>成品比表面积</span></td><td>cm²/g</td><td>检测指标</td><td>[3400, 3600]（用户提供）</td><td>细度与磨温、选粉转速耦合</td><td><span class='role-tag'>user</span></td></tr><tr><td class=strong>台时产量<span class='role-tag'>台时产量</span></td><td>t/h</td><td>检测指标</td><td>[135, 150]（本体资产）</td><td>闭路循环平衡</td><td><span class='role-tag'>user</span></td></tr><tr><td class=strong>磨机电流<span class='role-tag'>球磨机主电机电流</span></td><td>A</td><td>加工参数</td><td>[235, 260]（本体资产）</td><td>轴功率 P∝T_load·ω；轴承摩擦阻力矩增大直接抬升电流</td><td><span class='role-tag'>ontology</span></td></tr><tr><td class=strong>主轴承温度<span class='role-tag'>主轴承（低压侧）温度</span></td><td>℃</td><td>加工参数</td><td>[—, 68]（用户提供）</td><td>摩擦功耗 Q=μ·F·v 转化为温升，与润滑油膜状态强相关</td><td><span class='role-tag'>ontology</span></td></tr><tr><td class=strong>入磨喂料量<span class='role-tag'>入磨喂料量</span></td><td>t/h</td><td>加工参数</td><td>[120, 136]（本体资产）</td><td>球磨内存料量平衡</td><td><span class='role-tag'>ontology</span></td></tr><tr><td class=strong>选粉机转速<span class='role-tag'>选粉机转速</span></td><td>rpm</td><td>加工参数</td><td>[1120, 1240]（本体资产）</td><td>分级粒径 d50∝1/n²</td><td><span class='role-tag'>ontology</span></td></tr><tr><td class=strong>磨音<span class='role-tag'>磨音（电耳）</span></td><td>dB</td><td>加工参数</td><td>[83, 89]（本体资产）</td><td>存料量增大→研磨体撞击减弱→磨音下降</td><td><span class='role-tag'>ontology</span></td></tr></tbody></table></div><div style='margin-top:10px'><b>工况分段（sentinel C3，方法 fast；变点 0 个）</b><table><thead><tr><th>段</th><th>行范围</th><th>主导状态</th></tr></thead><tbody><tr><td>段 1</td><td class=num>行 0–179（180 行）</td><td>steady</td></tr></tbody></table></div></div>
+
+  <h2>核心发现（结论与证据）</h2>
+  
+        <div class="finding sev-high">
+          <div class="f-head">
+            <span class="pill" style="--s:#e0703a">严重</span>
+            <span class="f-title">比表面积 检出 SPC 违规</span>
+            <span class="f-conf">置信度 90</span>
+            <span class="f-id">F001</span>
+          </div>
+          <div class="f-detail">共 18 个判异剧集命中（每百点 10.0 个，规则：NELSON_R1/NELSON_R2/NELSON_R3/NELSON_R5/NELSON_R6），控制限为中心值3477 cm²/g±3σ_within（σ=7.7311）。</div>
+          
+          <table class="ev-table"><thead><tr>
+            <th>证据项</th><th>数值</th><th>阈值/口径</th><th>来源</th>
+          </tr></thead><tbody><tr><td>violation_episodes</td><td class=num>18</td><td class=num>0</td><td>lstcore</td></tr><tr><td>rate_per_100</td><td class=num>10</td><td class=num>&lt;2 for warn; &gt;=2 for high</td><td>lstcore</td></tr><tr><td>sigma_within_mr</td><td class=num>7.7311</td><td class=num>—</td><td>lstcore</td></tr></tbody></table>
+        </div>
+        <div class="finding sev-high">
+          <div class="f-head">
+            <span class="pill" style="--s:#e0703a">严重</span>
+            <span class="f-title">磨机电流 检出 SPC 违规</span>
+            <span class="f-conf">置信度 90</span>
+            <span class="f-id">F002</span>
+          </div>
+          <div class="f-detail">共 32 个判异剧集命中（每百点 17.8 个，规则：NELSON_R1/NELSON_R2/NELSON_R5/NELSON_R6），控制限为中心值247.25 A±3σ_within（σ=1.3922）。</div>
+          
+          <table class="ev-table"><thead><tr>
+            <th>证据项</th><th>数值</th><th>阈值/口径</th><th>来源</th>
+          </tr></thead><tbody><tr><td>violation_episodes</td><td class=num>32</td><td class=num>0</td><td>lstcore</td></tr><tr><td>rate_per_100</td><td class=num>17.78</td><td class=num>&lt;2 for warn; &gt;=2 for high</td><td>lstcore</td></tr><tr><td>sigma_within_mr</td><td class=num>1.3922</td><td class=num>—</td><td>lstcore</td></tr></tbody></table>
+        </div>
+        <div class="finding sev-high">
+          <div class="f-head">
+            <span class="pill" style="--s:#e0703a">严重</span>
+            <span class="f-title">主轴承温度 检出 SPC 违规</span>
+            <span class="f-conf">置信度 90</span>
+            <span class="f-id">F003</span>
+          </div>
+          <div class="f-detail">共 41 个判异剧集命中（每百点 22.8 个，规则：NELSON_R1/NELSON_R2/NELSON_R3/NELSON_R5/NELSON_R6），控制限为中心值62.925 ℃±3σ_within（σ=0.3124）。</div>
+          
+          <table class="ev-table"><thead><tr>
+            <th>证据项</th><th>数值</th><th>阈值/口径</th><th>来源</th>
+          </tr></thead><tbody><tr><td>violation_episodes</td><td class=num>41</td><td class=num>0</td><td>lstcore</td></tr><tr><td>rate_per_100</td><td class=num>22.78</td><td class=num>&lt;2 for warn; &gt;=2 for high</td><td>lstcore</td></tr><tr><td>sigma_within_mr</td><td class=num>0.3124</td><td class=num>—</td><td>lstcore</td></tr></tbody></table>
+        </div>
+        <div class="finding sev-high">
+          <div class="f-head">
+            <span class="pill" style="--s:#e0703a">严重</span>
+            <span class="f-title">入磨喂料量 检出 SPC 违规</span>
+            <span class="f-conf">置信度 90</span>
+            <span class="f-id">F004</span>
+          </div>
+          <div class="f-detail">共 8 个判异剧集命中（每百点 4.4 个，规则：NELSON_R1/NELSON_R5/NELSON_R6），控制限为中心值128.3 t/h±3σ_within（σ=1.4858）。</div>
+          
+          <table class="ev-table"><thead><tr>
+            <th>证据项</th><th>数值</th><th>阈值/口径</th><th>来源</th>
+          </tr></thead><tbody><tr><td>violation_episodes</td><td class=num>8</td><td class=num>0</td><td>lstcore</td></tr><tr><td>rate_per_100</td><td class=num>4.44</td><td class=num>&lt;2 for warn; &gt;=2 for high</td><td>lstcore</td></tr><tr><td>sigma_within_mr</td><td class=num>1.4858</td><td class=num>—</td><td>lstcore</td></tr></tbody></table>
+        </div>
+        <div class="finding sev-high">
+          <div class="f-head">
+            <span class="pill" style="--s:#e0703a">严重</span>
+            <span class="f-title">选粉机转速 检出 SPC 违规</span>
+            <span class="f-conf">置信度 90</span>
+            <span class="f-id">F005</span>
+          </div>
+          <div class="f-detail">共 12 个判异剧集命中（每百点 6.7 个，规则：NELSON_R2/NELSON_R5/NELSON_R6），控制限为中心值1180 rpm±3σ_within（σ=5.3687）。</div>
+          
+          <table class="ev-table"><thead><tr>
+            <th>证据项</th><th>数值</th><th>阈值/口径</th><th>来源</th>
+          </tr></thead><tbody><tr><td>violation_episodes</td><td class=num>12</td><td class=num>0</td><td>lstcore</td></tr><tr><td>rate_per_100</td><td class=num>6.67</td><td class=num>&lt;2 for warn; &gt;=2 for high</td><td>lstcore</td></tr><tr><td>sigma_within_mr</td><td class=num>5.3687</td><td class=num>—</td><td>lstcore</td></tr></tbody></table>
+        </div>
+        <div class="finding sev-high">
+          <div class="f-head">
+            <span class="pill" style="--s:#e0703a">严重</span>
+            <span class="f-title">磨音 检出 SPC 违规</span>
+            <span class="f-conf">置信度 90</span>
+            <span class="f-id">F006</span>
+          </div>
+          <div class="f-detail">共 26 个判异剧集命中（每百点 14.4 个，规则：NELSON_R1/NELSON_R2/NELSON_R3/NELSON_R5/NELSON_R6），控制限为中心值85.77 dB±3σ_within（σ=0.3456）。</div>
+          
+          <table class="ev-table"><thead><tr>
+            <th>证据项</th><th>数值</th><th>阈值/口径</th><th>来源</th>
+          </tr></thead><tbody><tr><td>violation_episodes</td><td class=num>26</td><td class=num>0</td><td>lstcore</td></tr><tr><td>rate_per_100</td><td class=num>14.44</td><td class=num>&lt;2 for warn; &gt;=2 for high</td><td>lstcore</td></tr><tr><td>sigma_within_mr</td><td class=num>0.3456</td><td class=num>—</td><td>lstcore</td></tr></tbody></table>
+        </div>
+        <div class="finding sev-high">
+          <div class="f-head">
+            <span class="pill" style="--s:#e0703a">严重</span>
+            <span class="f-title">主轴承温度 存在显著漂移</span>
+            <span class="f-conf">置信度 80</span>
+            <span class="f-id">F007</span>
+          </div>
+          <div class="f-detail">Theil–Sen 斜率显著（Mann–Kendall p=0.0，且相对漂移≥0.1%/天才计入），相对漂移约 1.210%/天，方向对应斜率 0/秒。</div>
+          
+          <table class="ev-table"><thead><tr>
+            <th>证据项</th><th>数值</th><th>阈值/口径</th><th>来源</th>
+          </tr></thead><tbody><tr><td>mk_p</td><td class=num>0</td><td class=num>&lt;0.01 且 &gt;=0.1%/天</td><td>lstcore</td></tr><tr><td>per_day_relative</td><td class=num>0.0121</td><td class=num>&lt;0.001 ok; &gt;=0.01 high</td><td>lstcore</td></tr><tr><td>slope_per_second</td><td class=num>0</td><td class=num>—</td><td>lstcore</td></tr></tbody></table>
+        </div>
+        <div class="finding sev-warn">
+          <div class="f-head">
+            <span class="pill" style="--s:#d8a516">关注</span>
+            <span class="f-title">台时产量 检出 SPC 违规</span>
+            <span class="f-conf">置信度 90</span>
+            <span class="f-id">F008</span>
+          </div>
+          <div class="f-detail">共 3 个判异剧集命中（每百点 1.7 个，规则：NELSON_R1/NELSON_R5/NELSON_R6），控制限为中心值141.95 t/h±3σ_within（σ=0.9722）。</div>
+          
+          <table class="ev-table"><thead><tr>
+            <th>证据项</th><th>数值</th><th>阈值/口径</th><th>来源</th>
+          </tr></thead><tbody><tr><td>violation_episodes</td><td class=num>3</td><td class=num>0</td><td>lstcore</td></tr><tr><td>rate_per_100</td><td class=num>1.67</td><td class=num>&lt;2 for warn; &gt;=2 for high</td><td>lstcore</td></tr><tr><td>sigma_within_mr</td><td class=num>0.9722</td><td class=num>—</td><td>lstcore</td></tr></tbody></table>
+        </div>
+        <div class="finding sev-warn">
+          <div class="f-head">
+            <span class="pill" style="--s:#d8a516">关注</span>
+            <span class="f-title">磨机电流 存在显著漂移</span>
+            <span class="f-conf">置信度 80</span>
+            <span class="f-id">F009</span>
+          </div>
+          <div class="f-detail">Theil–Sen 斜率显著（Mann–Kendall p=0.0，且相对漂移≥0.1%/天才计入），相对漂移约 0.574%/天，方向对应斜率 0/秒。</div>
+          
+          <table class="ev-table"><thead><tr>
+            <th>证据项</th><th>数值</th><th>阈值/口径</th><th>来源</th>
+          </tr></thead><tbody><tr><td>mk_p</td><td class=num>0</td><td class=num>&lt;0.01 且 &gt;=0.1%/天</td><td>lstcore</td></tr><tr><td>per_day_relative</td><td class=num>0.0057</td><td class=num>&lt;0.001 ok; &gt;=0.01 high</td><td>lstcore</td></tr><tr><td>slope_per_second</td><td class=num>0</td><td class=num>—</td><td>lstcore</td></tr></tbody></table>
+        </div>
+        <div class="finding sev-info">
+          <div class="f-head">
+            <span class="pill" style="--s:#4a7fb5">提示</span>
+            <span class="f-title">强相关对：磨机电流 ↔ 主轴承温度</span>
+            <span class="f-conf">置信度 70</span>
+            <span class="f-id">F010</span>
+          </div>
+          <div class="f-detail">滞后补偿后最强 |Spearman|=0.8941（零滞后同步）；零滞后 Pearson=0.9168。本体机制佐证：润滑恶化→油膜变薄→轴承摩擦阻力矩增大→主电机电流抬升；控制方程：I ∝ (T_load + μ(T_brg)·F·r)/η。置信度 70（统计证据充分度 × 机制支持度）。</div>
+          <div class='f-mech'>物理机制：本体因果边支持 — 润滑恶化→油膜变薄→轴承摩擦阻力矩增大→主电机电流抬升 控制方程：<code>I ∝ (T_load + μ(T_brg)·F·r)/η</code></div>
+          <table class="ev-table"><thead><tr>
+            <th>证据项</th><th>数值</th><th>阈值/口径</th><th>来源</th>
+          </tr></thead><tbody><tr><td>best_abs_r</td><td class=num>0.8941</td><td class=num>&gt;=0.7</td><td>lstcore <span class="derived">derived</span></td></tr><tr><td>best_lag_rows</td><td class=num>0</td><td class=num>—</td><td>lstcore</td></tr><tr><td>mechanism_level</td><td class=num>known</td><td class=num>—</td><td>ontology</td></tr></tbody></table>
+        </div>
+
+  <h2>参数稳定性总览</h2>
+  <div class="panel" style="overflow:auto">
+    <table>
+      <thead><tr>
+        <th>参数</th><th>样本数</th><th>中位数</th><th>CV</th><th>SPC违规点</th>
+        <th>漂移/天(相对)</th><th>Cpk</th><th>基线z</th><th>评分</th>
+      </tr></thead>
+      <tbody>
+        <tr>
+          <td>比表面积<span class="role-tag">检测指标</span></td>
+          <td class=num>180</td>
+          <td class=num>3477</td>
+          <td class=num>0.002873</td>
+          <td class=num>18</td>
+          <td class=num>0.000234</td>
+          <td class=num>3.341</td>
+          <td class=num>—</td>
+          <td><div class="score-cell"><div class="score-bar" style="--w:92%;--c:#22a06b"></div><span style="color:#22a06b">92</span></div></td>
+        </tr>
+        <tr>
+          <td>台时产量<span class="role-tag">检测指标</span></td>
+          <td class=num>180</td>
+          <td class=num>141.95</td>
+          <td class=num>0.007571</td>
+          <td class=num>3</td>
+          <td class=num>0.000845</td>
+          <td class=num>2.3882</td>
+          <td class=num>—</td>
+          <td><div class="score-cell"><div class="score-bar" style="--w:99%;--c:#22a06b"></div><span style="color:#22a06b">99</span></div></td>
+        </tr>
+        <tr>
+          <td>磨机电流<span class="role-tag">加工参数</span></td>
+          <td class=num>180</td>
+          <td class=num>247.25</td>
+          <td class=num>0.014722</td>
+          <td class=num>32</td>
+          <td class=num>0.005739<span class="drift-flag">显著</span></td>
+          <td class=num>2.8261</td>
+          <td class=num>—</td>
+          <td><div class="score-cell"><div class="score-bar" style="--w:65%;--c:#e0703a"></div><span style="color:#e0703a">65</span></div></td>
+        </tr>
+        <tr>
+          <td>主轴承温度<span class="role-tag">加工参数</span></td>
+          <td class=num>180</td>
+          <td class=num>62.925</td>
+          <td class=num>0.027273</td>
+          <td class=num>41</td>
+          <td class=num>0.012104<span class="drift-flag">显著</span></td>
+          <td class=num>4.7289</td>
+          <td class=num>—</td>
+          <td><div class="score-cell"><div class="score-bar" style="--w:51%;--c:#e0703a"></div><span style="color:#e0703a">51</span></div></td>
+        </tr>
+        <tr>
+          <td>入磨喂料量<span class="role-tag">加工参数</span></td>
+          <td class=num>180</td>
+          <td class=num>128.3</td>
+          <td class=num>0.013587</td>
+          <td class=num>8</td>
+          <td class=num>0.000668</td>
+          <td class=num>1.7443</td>
+          <td class=num>—</td>
+          <td><div class="score-cell"><div class="score-bar" style="--w:90%;--c:#22a06b"></div><span style="color:#22a06b">90</span></div></td>
+        </tr>
+        <tr>
+          <td>选粉机转速<span class="role-tag">加工参数</span></td>
+          <td class=num>180</td>
+          <td class=num>1180</td>
+          <td class=num>0.005662</td>
+          <td class=num>12</td>
+          <td class=num>0.000373</td>
+          <td class=num>3.7101</td>
+          <td class=num>—</td>
+          <td><div class="score-cell"><div class="score-bar" style="--w:95%;--c:#22a06b"></div><span style="color:#22a06b">95</span></div></td>
+        </tr>
+        <tr>
+          <td>磨音<span class="role-tag">加工参数</span></td>
+          <td class=num>180</td>
+          <td class=num>85.77</td>
+          <td class=num>0.005653</td>
+          <td class=num>26</td>
+          <td class=num>0.000959</td>
+          <td class=num>2.6881</td>
+          <td class=num>—</td>
+          <td><div class="score-cell"><div class="score-bar" style="--w:88%;--c:#22a06b"></div><span style="color:#22a06b">88</span></div></td>
+        </tr></tbody>
+    </table>
+  </div>
+
+  <h2>趋势与控制限</h2>
+  <div id="trend-charts"></div>
+  <noscript><div class="panel empty">已禁用 JavaScript：请查看上方参数总览表与证据附录，
+    或使用导出的 charts.json。</div></noscript>
+
+  <h2>参数相关与波动驱动</h2>
+  <div class="grid">
+    <div class="panel" id="contrib-panel"><div class="chart-title">对检测/目标指标的方差解释占比</div>
+      <div id="contrib-chart" class="chart"></div><div class='empty' style='padding:8px'>未声明检测/响应指标（context.inspection_cols 或本体 role=response）——贡献分析未执行，声明目标指标后启用。</div></div>
+    <div class="panel" id="heat-panel"><div class="chart-title">参数相关热力图（滞后补偿 |Spearman|）</div>
+      <div id="heat-chart" class="chart"></div></div>
+  </div>
+
+  <h2>协同分析输入</h2>
+  <div class="panel" id="integrations"><table><tbody><tr><th>sentinel 基线对照</th><td>未启用（未提供基线）</td></tr><tr><th>tuning-memory 调优归因</th><td>未启用（未提供 action_log）</td></tr><tr><th>doe-analyzer 操作窗</th><td>未启用（未提供 doe_run_dir）</td></tr></tbody></table></div>
+
+  <h2>数据与口径（证据链附录）</h2>
+  <div class="panel">
+    <table>
+      <tr><th>数据文件</th><td>workspace/lst-teaching-kit/T1_cement_mill/00_input/mill_7d.xlsx</td></tr>
+      <tr><th>数据指纹</th><td class="num">sha256:b987e49a77cb9b552c614c33e4a38c0c810b3239af5aeacb4532b6b88113f2b5</td></tr>
+      <tr><th>行数（原始/入评）</th><td class="num">180 / 180</td></tr>
+      <tr><th>时间列 / 采样间隔</th><td>时间 /
+        <span class="num">3600 s</span></td></tr>
+      <tr><th>缺失率 / 覆盖率</th><td class="num">0.00% /
+        100.00%</td></tr>
+      <tr><th>评估参数</th><td>比表面积、台时产量、磨机电流、主轴承温度、入磨喂料量、选粉机转速、磨音</td></tr>
+      <tr><th>检测指标</th><td>比表面积、台时产量</td></tr>
+      <tr><th>预处理溯源</th><td>{&quot;source_export&quot;: &quot;workspace/lst-teaching-kit/T1_cement_mill/00_input/mill_7d.xlsx&quot;, &quot;note&quot;: &quot;教学夹具：DCS 小时归档导出为 Excel（合成数据 seed=701）；本体为手写粉磨系统本体，演示 ontology.json 放入 00_input 即被消费&quot;}</td></tr>
+    </table>
+    <div style='margin-top:12px'><b>方法与阈值（可复算）</b><ul><li><code>sentinelcore_nelson_episodes</code> — Nelson 判异复用 industrial-sentinel sentinelcore （R1 单点越 3σ；R2 连续 9 点同侧；R3 连续 6 点同向；R5 三点中两点越 2σ；R6 五点中四点越 1σ），单一事实源。</li><li><code>mrbar_sigma_1.128</code> — σ_within 由移动极差估计：σ = MR̄ / 1.128（与 industrial-sentinel 同口径）。</li><li><code>cpk_within_ppk_overall</code> — Cpk 用组内 σ（MR̄ 法），Ppk 用整体标准差；规格限来源：用户上下文 > 本体资产 normal_range > 不计算。</li><li><code>theil_sen_mk_drift</code> — 漂移：Theil–Sen 稳健斜率（每行斜率 ÷ 采样间隔换算每秒）+ Mann–Kendall 显著性（p&lt;0.01 且相对漂移≥0.1%/天才计入）。</li><li><code>lagged_spearman_max10</code> — 相关性：滞后 0–10 行逐行 Spearman 取最强，并记录领先行数；物理机制由本体 relationships/参数组校验（darwin 四条件）。</li><li><code>contribution_r2_share</code> — 贡献分解：目标指标上各驱动参数滞后补偿后 |r|² 归一化占比（阈值 |r|≥0.3），领先行数一并记录。</li><li><code>regime_segmentation_c3</code> — 工况分段：复用 industrial-sentinel regime_map（方差比+漂移坡道融合 + 二分分割显著变点），变点与主导状态逐段列出。</li><li><code>ontology_first_condition</code> — 本体优先：先于任何统计构建工况理解（显式路径 > 00_input/01_ontology 产物 > 本体资产库），每个推断字段带 assigned_by=ontology|user|auto。</li><li><code>weighted_penalty_score_v1</code> — 评分：每参数 100 分起，按 SPC 违规剧集率/CV/Cpk/漂移/基线偏离分档扣分，综合分为参数加权均值；A≥85 稳定，B≥70 亚稳定，C≥50 波动，D&lt;50 不稳定。</li><li><code>darwin_limitations</code> — 数据真值与局限：全部数值可由原始表复算；推导字段标记 derived；假设、混杂因子与规格覆盖显式列出（见下）。</li></ul><span style='color:var(--mut)'>python 3.12.7 · numpy 2.5.2 · pandas 3.0.5 · spc sentinelcore · input sha256:b987e49a77cb9b552c614c33e4a38c0c810b3239af5aeacb4532b6b88113f2b5</span></div>
+    
+    <div style='margin-top:16px'>
+      <b>假设与局限（darwin 数据真值条款）</b>
+      <table>
+        <tr><th>数据来源</th><td>raw (this skill never cleans or imputes; every number is recomputable from the raw table)</td></tr>
+        <tr><th>抽样</th><td>全量入评（180 行）</td></tr>
+        <tr><th>规格覆盖</th><td>用户提供：比表面积、主轴承温度 ·
+          本体资产：台时产量、磨机电流、入磨喂料量、选粉机转速、磨音 ·
+          无规格（不评 Cpk）：无</td></tr>
+      </table>
+      <div style='margin-top:6px'><b>模型假设</b><ul><li>lag-compensated Spearman window 0–10 rows (lead/lag beyond this window is invisible)</li><li>whole-period scoring assumes one dominant operating condition; use the regime table for segmented reading</li><li>Cpk treats within-sigma as MR̄/1.128 moving-range estimate</li></ul></div>
+      <div style='margin-top:6px'><b>混杂因子（本体登记）</b>
+        <table><thead><tr><th>变量</th><th>影响说明</th><th>状态</th></tr></thead>
+        <tbody><tr><td>研磨体级配与衬板磨损</td><td>磨损改变冲击谱与电流基线，未随数据记录</td><td><b style='color:#e0703a'>未控</b></td></tr><tr><td>物料易磨性（混合材配比波动）</td><td>易磨性变化同时影响产量与细度，未控</td><td><b style='color:#e0703a'>未控</b></td></tr><tr><td>环境/冷却水温度</td><td>季节性影响轴承散热，未记录</td><td><b style='color:#e0703a'>未控</b></td></tr></tbody></table></div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <b>报告性质：</b>本报告由确定性统计脚本生成（零 LLM 参与，全部数值可复算），
+    属咨询性分析产物，不构成参数下发或控制指令；行动决策归生产线管理方。<br>
+    <b>生成物：</b>LSR-1791950390-aizuf5 ·
+    contract line-stability-report/1.0 ·
+    script v1.0.0 ·
+    2026-10-14T03:59:50Z
+  </div>
+</div>
+
+<script id="payload" type="application/json">{"report_id":"LSR-1791950390-aizuf5","charts":{"contract_version":"line-stability-charts/1.0","trend":[{"name":"比表面积","role":"inspection","n":180,"n_plotted":180,"t":[1788220800000,1788224400000,1788228000000,1788231600000,1788235200000,1788238800000,1788242400000,1788246000000,1788249600000,1788253200000,1788256800000,1788260400000,1788264000000,1788267600000,1788271200000,1788274800000,1788278400000,1788282000000,1788285600000,1788289200000,1788292800000,1788296400000,1788300000000,1788303600000,1788307200000,1788310800000,1788314400000,1788318000000,1788321600000,1788325200000,1788328800000,1788332400000,1788336000000,1788339600000,1788343200000,1788346800000,1788350400000,1788354000000,1788357600000,1788361200000,1788364800000,1788368400000,1788372000000,1788375600000,1788379200000,1788382800000,1788386400000,1788390000000,1788393600000,1788397200000,1788400800000,1788404400000,1788408000000,1788411600000,1788415200000,1788418800000,1788422400000,1788426000000,1788429600000,1788433200000,1788436800000,1788440400000,1788444000000,1788447600000,1788451200000,1788454800000,1788458400000,1788462000000,1788465600000,1788469200000,1788472800000,1788476400000,1788480000000,1788483600000,1788487200000,1788490800000,1788494400000,1788498000000,1788501600000,1788505200000,1788508800000,1788512400000,1788516000000,1788519600000,1788523200000,1788526800000,1788530400000,1788534000000,1788537600000,1788541200000,1788544800000,1788548400000,1788552000000,1788555600000,1788559200000,1788562800000,1788566400000,1788570000000,1788573600000,1788577200000,1788580800000,1788584400000,1788588000000,1788591600000,1788595200000,1788598800000,1788602400000,1788606000000,1788609600000,1788613200000,1788616800000,1788620400000,1788624000000,1788627600000,1788631200000,1788634800000,1788638400000,1788642000000,1788645600000,1788649200000,1788652800000,1788656400000,1788660000000,1788663600000,1788667200000,1788670800000,1788674400000,1788678000000,1788681600000,1788685200000,1788688800000,1788692400000,1788696000000,1788699600000,1788703200000,1788706800000,1788710400000,1788714000000,1788717600000,1788721200000,1788724800000,1788728400000,1788732000000,1788735600000,1788739200000,1788742800000,1788746400000,1788750000000,1788753600000,1788757200000,1788760800000,1788764400000,1788768000000,1788771600000,1788775200000,1788778800000,1788782400000,1788786000000,1788789600000,1788793200000,1788796800000,1788800400000,1788804000000,1788807600000,1788811200000,1788814800000,1788818400000,1788822000000,1788825600000,1788829200000,1788832800000,1788836400000,1788840000000,1788843600000,1788847200000,1788850800000,1788854400000,1788858000000,1788861600000,1788865200000],"v":[3481.0,3478.0,3477.0,3488.0,3478.0,3488.0,3485.0,3484.0,3479.0,3503.0,3484.0,3499.0,3480.0,3494.0,3479.0,3480.0,3490.0,3490.0,3488.0,3470.0,3474.0,3483.0,3480.0,3464.0,3478.0,3485.0,3487.0,3496.0,3460.0,3469.0,3474.0,3476.0,3486.0,3483.0,3482.0,3489.0,3472.0,3460.0,3467.0,3467.0,3472.0,3477.0,3479.0,3485.0,3472.0,3474.0,3468.0,3478.0,3471.0,3463.0,3456.0,3474.0,3482.0,3485.0,3477.0,3469.0,3480.0,3474.0,3460.0,3472.0,3479.0,3476.0,3477.0,3493.0,3473.0,3475.0,3488.0,3474.0,3478.0,3473.0,3502.0,3482.0,3482.0,3481.0,3467.0,3476.0,3464.0,3482.0,3462.0,3472.0,3476.0,3500.0,3488.0,3488.0,3465.0,3449.0,3465.0,3464.0,3490.0,3476.0,3492.0,3474.0,3477.0,3477.0,3490.0,3481.0,3483.0,3481.0,3479.0,3479.0,3469.0,3468.0,3457.0,3456.0,3484.0,3486.0,3487.0,3488.0,3504.0,3485.0,3493.0,3480.0,3481.0,3452.0,3463.0,3483.0,3471.0,3491.0,3482.0,3484.0,3497.0,3486.0,3488.0,3503.0,3481.0,3474.0,3472.0,3486.0,3476.0,3473.0,3467.0,3476.0,3482.0,3476.0,3487.0,3492.0,3485.0,3476.0,3467.0,3465.0,3478.0,3475.0,3476.0,3469.0,3472.0,3475.0,3479.0,3474.0,3475.0,3470.0,3465.0,3479.0,3469.0,3472.0,3475.0,3467.0,3465.0,3472.0,3472.0,3482.0,3472.0,3477.0,3468.0,3462.0,3465.0,3466.0,3477.0,3480.0,3486.0,3487.0,3486.0,3476.0,3484.0,3476.0,3473.0,3485.0,3471.0,3459.0,3465.0,3474.0],"center":3477.0,"ucl":3500.193273,"lcl":3453.806727,"violation_indices_in_plot":[],"spec":{"lsl":3400,"usl":3600,"target":3500,"source":"user"}},{"name":"台时产量","role":"inspection","n":180,"n_plotted":180,"t":[1788220800000,1788224400000,1788228000000,1788231600000,1788235200000,1788238800000,1788242400000,1788246000000,1788249600000,1788253200000,1788256800000,1788260400000,1788264000000,1788267600000,1788271200000,1788274800000,1788278400000,1788282000000,1788285600000,1788289200000,1788292800000,1788296400000,1788300000000,1788303600000,1788307200000,1788310800000,1788314400000,1788318000000,1788321600000,1788325200000,1788328800000,1788332400000,1788336000000,1788339600000,1788343200000,1788346800000,1788350400000,1788354000000,1788357600000,1788361200000,1788364800000,1788368400000,1788372000000,1788375600000,1788379200000,1788382800000,1788386400000,1788390000000,1788393600000,1788397200000,1788400800000,1788404400000,1788408000000,1788411600000,1788415200000,1788418800000,1788422400000,1788426000000,1788429600000,1788433200000,1788436800000,1788440400000,1788444000000,1788447600000,1788451200000,1788454800000,1788458400000,1788462000000,1788465600000,1788469200000,1788472800000,1788476400000,1788480000000,1788483600000,1788487200000,1788490800000,1788494400000,1788498000000,1788501600000,1788505200000,1788508800000,1788512400000,1788516000000,1788519600000,1788523200000,1788526800000,1788530400000,1788534000000,1788537600000,1788541200000,1788544800000,1788548400000,1788552000000,1788555600000,1788559200000,1788562800000,1788566400000,1788570000000,1788573600000,1788577200000,1788580800000,1788584400000,1788588000000,1788591600000,1788595200000,1788598800000,1788602400000,1788606000000,1788609600000,1788613200000,1788616800000,1788620400000,1788624000000,1788627600000,1788631200000,1788634800000,1788638400000,1788642000000,1788645600000,1788649200000,1788652800000,1788656400000,1788660000000,1788663600000,1788667200000,1788670800000,1788674400000,1788678000000,1788681600000,1788685200000,1788688800000,1788692400000,1788696000000,1788699600000,1788703200000,1788706800000,1788710400000,1788714000000,1788717600000,1788721200000,1788724800000,1788728400000,1788732000000,1788735600000,1788739200000,1788742800000,1788746400000,1788750000000,1788753600000,1788757200000,1788760800000,1788764400000,1788768000000,1788771600000,1788775200000,1788778800000,1788782400000,1788786000000,1788789600000,1788793200000,1788796800000,1788800400000,1788804000000,1788807600000,1788811200000,1788814800000,1788818400000,1788822000000,1788825600000,1788829200000,1788832800000,1788836400000,1788840000000,1788843600000,1788847200000,1788850800000,1788854400000,1788858000000,1788861600000,1788865200000],"v":[142.1,141.5,142.2,141.6,139.8,140.2,141.9,141.7,142.1,141.3,142.0,142.5,141.7,140.3,141.4,140.2,139.9,142.4,142.2,141.4,141.1,141.7,139.9,142.0,143.2,142.4,141.0,141.8,141.6,141.6,141.5,140.6,142.3,143.4,142.8,141.2,140.5,142.8,142.0,142.2,141.7,141.7,140.9,142.1,142.2,141.9,142.9,143.4,142.0,143.4,142.9,141.9,139.9,142.0,141.3,142.2,141.7,142.5,140.1,141.5,141.3,142.0,142.8,140.7,140.8,142.6,144.2,142.0,143.1,142.6,140.8,142.4,142.1,141.4,142.1,140.3,143.2,141.2,143.2,142.4,142.0,141.7,141.1,143.2,142.6,143.6,143.9,140.3,142.9,142.0,142.8,141.4,140.8,145.0,141.5,141.3,141.6,140.5,140.9,140.7,141.9,142.5,140.1,141.1,139.6,141.7,142.3,142.4,142.9,142.5,142.2,140.5,142.9,140.7,142.5,143.1,142.8,140.6,140.3,140.4,140.7,142.5,143.1,141.3,141.1,141.5,142.3,143.6,143.3,141.6,140.8,141.0,139.6,140.3,141.5,142.9,142.6,141.5,141.6,143.7,141.8,143.6,141.6,141.5,144.0,143.3,142.4,141.1,144.0,140.9,143.5,143.7,141.4,143.0,141.1,141.4,141.9,142.7,142.4,142.2,141.9,141.9,141.7,144.2,142.6,143.7,142.6,141.6,142.9,144.8,144.0,142.0,141.6,141.3,143.4,143.3,143.8,141.2,142.3,142.8],"center":141.95,"ucl":144.866618,"lcl":139.033382,"violation_indices_in_plot":[],"spec":{"lsl":135.0,"usl":150.0,"target":142.0,"source":"ontology"}},{"name":"磨机电流","role":"parameter","n":180,"n_plotted":180,"t":[1788220800000,1788224400000,1788228000000,1788231600000,1788235200000,1788238800000,1788242400000,1788246000000,1788249600000,1788253200000,1788256800000,1788260400000,1788264000000,1788267600000,1788271200000,1788274800000,1788278400000,1788282000000,1788285600000,1788289200000,1788292800000,1788296400000,1788300000000,1788303600000,1788307200000,1788310800000,1788314400000,1788318000000,1788321600000,1788325200000,1788328800000,1788332400000,1788336000000,1788339600000,1788343200000,1788346800000,1788350400000,1788354000000,1788357600000,1788361200000,1788364800000,1788368400000,1788372000000,1788375600000,1788379200000,1788382800000,1788386400000,1788390000000,1788393600000,1788397200000,1788400800000,1788404400000,1788408000000,1788411600000,1788415200000,1788418800000,1788422400000,1788426000000,1788429600000,1788433200000,1788436800000,1788440400000,1788444000000,1788447600000,1788451200000,1788454800000,1788458400000,1788462000000,1788465600000,1788469200000,1788472800000,1788476400000,1788480000000,1788483600000,1788487200000,1788490800000,1788494400000,1788498000000,1788501600000,1788505200000,1788508800000,1788512400000,1788516000000,1788519600000,1788523200000,1788526800000,1788530400000,1788534000000,1788537600000,1788541200000,1788544800000,1788548400000,1788552000000,1788555600000,1788559200000,1788562800000,1788566400000,1788570000000,1788573600000,1788577200000,1788580800000,1788584400000,1788588000000,1788591600000,1788595200000,1788598800000,1788602400000,1788606000000,1788609600000,1788613200000,1788616800000,1788620400000,1788624000000,1788627600000,1788631200000,1788634800000,1788638400000,1788642000000,1788645600000,1788649200000,1788652800000,1788656400000,1788660000000,1788663600000,1788667200000,1788670800000,1788674400000,1788678000000,1788681600000,1788685200000,1788688800000,1788692400000,1788696000000,1788699600000,1788703200000,1788706800000,1788710400000,1788714000000,1788717600000,1788721200000,1788724800000,1788728400000,1788732000000,1788735600000,1788739200000,1788742800000,1788746400000,1788750000000,1788753600000,1788757200000,1788760800000,1788764400000,1788768000000,1788771600000,1788775200000,1788778800000,1788782400000,1788786000000,1788789600000,1788793200000,1788796800000,1788800400000,1788804000000,1788807600000,1788811200000,1788814800000,1788818400000,1788822000000,1788825600000,1788829200000,1788832800000,1788836400000,1788840000000,1788843600000,1788847200000,1788850800000,1788854400000,1788858000000,1788861600000,1788865200000],"v":[244.6,244.7,241.8,245.5,243.6,246.5,244.0,245.9,247.2,245.0,245.7,249.0,245.8,245.0,241.4,243.6,246.6,248.0,247.6,244.3,248.5,246.6,244.4,244.7,246.3,245.3,245.5,243.9,243.7,245.2,246.6,245.3,245.5,244.3,244.3,244.3,241.8,244.4,244.9,243.7,243.7,243.0,242.9,243.0,243.6,246.0,246.3,244.6,244.5,245.3,246.0,247.2,245.6,246.3,246.5,247.0,246.9,245.0,244.4,247.1,247.2,245.5,245.9,247.2,247.1,249.0,245.9,244.1,245.8,244.1,246.4,248.6,246.4,243.8,241.2,244.9,244.1,244.5,247.1,247.9,244.1,249.6,246.9,246.4,247.5,245.9,246.7,247.0,248.2,248.2,247.0,245.3,248.6,246.0,249.4,247.3,248.6,246.8,247.9,247.9,247.2,246.7,246.7,246.0,248.1,247.9,248.6,251.1,248.2,249.7,249.0,247.8,246.4,248.6,248.4,250.4,250.1,248.6,248.9,250.5,250.8,251.4,249.7,248.0,249.2,251.9,249.4,249.1,247.2,248.5,252.4,246.7,248.5,249.3,248.8,249.7,251.0,250.3,250.5,249.7,253.3,250.8,251.9,249.6,251.5,250.1,250.6,251.7,253.6,252.6,253.9,252.8,253.2,252.3,254.0,252.7,253.3,250.2,252.1,252.5,252.0,252.6,254.9,255.7,252.8,250.8,256.0,256.8,255.1,254.6,252.5,255.2,258.9,254.9,256.8,254.2,255.1,258.7,255.5,256.7],"center":247.25,"ucl":251.426573,"lcl":243.073427,"violation_indices_in_plot":[],"spec":{"lsl":235.0,"usl":260.0,"target":245.0,"source":"ontology"}},{"name":"主轴承温度","role":"parameter","n":180,"n_plotted":180,"t":[1788220800000,1788224400000,1788228000000,1788231600000,1788235200000,1788238800000,1788242400000,1788246000000,1788249600000,1788253200000,1788256800000,1788260400000,1788264000000,1788267600000,1788271200000,1788274800000,1788278400000,1788282000000,1788285600000,1788289200000,1788292800000,1788296400000,1788300000000,1788303600000,1788307200000,1788310800000,1788314400000,1788318000000,1788321600000,1788325200000,1788328800000,1788332400000,1788336000000,1788339600000,1788343200000,1788346800000,1788350400000,1788354000000,1788357600000,1788361200000,1788364800000,1788368400000,1788372000000,1788375600000,1788379200000,1788382800000,1788386400000,1788390000000,1788393600000,1788397200000,1788400800000,1788404400000,1788408000000,1788411600000,1788415200000,1788418800000,1788422400000,1788426000000,1788429600000,1788433200000,1788436800000,1788440400000,1788444000000,1788447600000,1788451200000,1788454800000,1788458400000,1788462000000,1788465600000,1788469200000,1788472800000,1788476400000,1788480000000,1788483600000,1788487200000,1788490800000,1788494400000,1788498000000,1788501600000,1788505200000,1788508800000,1788512400000,1788516000000,1788519600000,1788523200000,1788526800000,1788530400000,1788534000000,1788537600000,1788541200000,1788544800000,1788548400000,1788552000000,1788555600000,1788559200000,1788562800000,1788566400000,1788570000000,1788573600000,1788577200000,1788580800000,1788584400000,1788588000000,1788591600000,1788595200000,1788598800000,1788602400000,1788606000000,1788609600000,1788613200000,1788616800000,1788620400000,1788624000000,1788627600000,1788631200000,1788634800000,1788638400000,1788642000000,1788645600000,1788649200000,1788652800000,1788656400000,1788660000000,1788663600000,1788667200000,1788670800000,1788674400000,1788678000000,1788681600000,1788685200000,1788688800000,1788692400000,1788696000000,1788699600000,1788703200000,1788706800000,1788710400000,1788714000000,1788717600000,1788721200000,1788724800000,1788728400000,1788732000000,1788735600000,1788739200000,1788742800000,1788746400000,1788750000000,1788753600000,1788757200000,1788760800000,1788764400000,1788768000000,1788771600000,1788775200000,1788778800000,1788782400000,1788786000000,1788789600000,1788793200000,1788796800000,1788800400000,1788804000000,1788807600000,1788811200000,1788814800000,1788818400000,1788822000000,1788825600000,1788829200000,1788832800000,1788836400000,1788840000000,1788843600000,1788847200000,1788850800000,1788854400000,1788858000000,1788861600000,1788865200000],"v":[62.22,61.82,62.19,61.51,62.14,62.26,62.18,61.8,62.06,62.54,62.42,62.33,61.75,61.76,61.68,61.84,61.98,62.23,62.32,62.38,62.74,61.76,62.2,61.72,61.95,61.69,61.51,61.23,62.07,61.92,62.3,62.49,62.15,61.36,61.62,61.13,61.33,61.73,61.67,61.54,61.93,62.1,61.81,61.78,61.27,62.4,62.23,62.01,62.33,61.95,62.04,62.06,62.36,62.65,62.8,62.01,61.68,62.16,62.27,63.06,62.4,62.13,61.9,62.07,62.23,62.27,62.54,62.34,62.44,61.73,62.08,61.91,62.3,61.84,62.12,61.95,61.89,61.86,62.25,62.68,62.14,62.92,62.4,62.93,62.96,63.12,62.81,63.04,63.3,62.92,62.66,62.05,62.85,62.9,62.85,63.18,63.68,63.3,64.01,63.4,62.81,63.12,64.04,63.53,64.23,63.85,63.78,63.95,63.23,63.88,63.77,63.86,63.99,64.09,63.7,63.88,63.79,63.73,64.63,64.92,65.01,65.06,64.46,63.92,64.85,64.86,64.57,64.97,64.71,64.32,64.88,64.66,64.29,64.24,65.12,65.31,64.61,65.01,65.04,65.45,65.34,65.07,65.77,65.44,65.38,65.08,64.9,65.38,66.05,65.55,65.51,64.96,65.67,66.5,65.98,65.95,65.84,66.57,66.27,65.91,65.86,65.8,66.31,66.91,66.36,65.63,66.86,66.64,66.89,66.56,66.08,67.0,67.3,67.07,67.07,67.4,67.2,67.07,66.97,67.35],"center":62.925,"ucl":63.862092,"lcl":61.987908,"violation_indices_in_plot":[],"spec":{"lsl":null,"usl":68.0,"target":62.0,"source":"user"}},{"name":"入磨喂料量","role":"parameter","n":180,"n_plotted":180,"t":[1788220800000,1788224400000,1788228000000,1788231600000,1788235200000,1788238800000,1788242400000,1788246000000,1788249600000,1788253200000,1788256800000,1788260400000,1788264000000,1788267600000,1788271200000,1788274800000,1788278400000,1788282000000,1788285600000,1788289200000,1788292800000,1788296400000,1788300000000,1788303600000,1788307200000,1788310800000,1788314400000,1788318000000,1788321600000,1788325200000,1788328800000,1788332400000,1788336000000,1788339600000,1788343200000,1788346800000,1788350400000,1788354000000,1788357600000,1788361200000,1788364800000,1788368400000,1788372000000,1788375600000,1788379200000,1788382800000,1788386400000,1788390000000,1788393600000,1788397200000,1788400800000,1788404400000,1788408000000,1788411600000,1788415200000,1788418800000,1788422400000,1788426000000,1788429600000,1788433200000,1788436800000,1788440400000,1788444000000,1788447600000,1788451200000,1788454800000,1788458400000,1788462000000,1788465600000,1788469200000,1788472800000,1788476400000,1788480000000,1788483600000,1788487200000,1788490800000,1788494400000,1788498000000,1788501600000,1788505200000,1788508800000,1788512400000,1788516000000,1788519600000,1788523200000,1788526800000,1788530400000,1788534000000,1788537600000,1788541200000,1788544800000,1788548400000,1788552000000,1788555600000,1788559200000,1788562800000,1788566400000,1788570000000,1788573600000,1788577200000,1788580800000,1788584400000,1788588000000,1788591600000,1788595200000,1788598800000,1788602400000,1788606000000,1788609600000,1788613200000,1788616800000,1788620400000,1788624000000,1788627600000,1788631200000,1788634800000,1788638400000,1788642000000,1788645600000,1788649200000,1788652800000,1788656400000,1788660000000,1788663600000,1788667200000,1788670800000,1788674400000,1788678000000,1788681600000,1788685200000,1788688800000,1788692400000,1788696000000,1788699600000,1788703200000,1788706800000,1788710400000,1788714000000,1788717600000,1788721200000,1788724800000,1788728400000,1788732000000,1788735600000,1788739200000,1788742800000,1788746400000,1788750000000,1788753600000,1788757200000,1788760800000,1788764400000,1788768000000,1788771600000,1788775200000,1788778800000,1788782400000,1788786000000,1788789600000,1788793200000,1788796800000,1788800400000,1788804000000,1788807600000,1788811200000,1788814800000,1788818400000,1788822000000,1788825600000,1788829200000,1788832800000,1788836400000,1788840000000,1788843600000,1788847200000,1788850800000,1788854400000,1788858000000,1788861600000,1788865200000],"v":[129.2,125.7,129.3,128.6,127.0,125.9,126.0,126.4,127.8,127.4,128.1,132.1,129.4,131.1,125.4,129.6,127.9,126.9,124.7,127.6,125.3,128.1,128.7,127.0,129.2,128.4,128.3,128.7,128.5,129.2,129.2,129.9,129.5,131.0,127.2,126.6,127.2,128.9,126.8,129.1,129.6,128.6,125.3,128.4,127.2,128.8,127.7,126.3,125.4,125.0,127.9,127.2,128.5,127.6,129.2,129.1,127.9,129.0,130.0,128.8,128.1,127.8,128.2,127.0,128.0,126.7,129.3,127.3,129.8,128.8,129.0,128.6,130.8,127.8,130.8,127.3,129.5,128.7,130.7,131.9,130.2,126.9,128.5,128.1,127.8,126.6,125.6,128.0,129.5,124.1,128.4,130.3,128.4,129.0,128.8,130.7,127.6,127.3,122.9,125.7,127.9,127.0,126.6,128.8,127.0,126.5,127.0,128.0,130.3,128.9,128.9,126.0,127.3,130.8,130.9,129.2,128.2,127.5,129.9,130.5,129.3,130.7,130.9,127.9,129.8,127.1,126.0,129.0,126.6,127.1,123.3,126.9,129.2,128.2,128.9,125.0,127.2,128.7,127.2,128.4,126.1,128.8,130.3,127.9,127.2,128.3,126.9,127.2,126.5,128.3,129.6,130.3,131.2,130.6,129.4,130.5,128.0,127.5,127.1,123.6,127.2,132.8,131.3,129.2,126.8,128.2,128.1,128.3,126.7,129.6,130.3,129.7,128.8,131.0,129.0,132.4,130.0,127.1,128.8,124.4],"center":128.3,"ucl":132.757388,"lcl":123.842612,"violation_indices_in_plot":[],"spec":{"lsl":120.0,"usl":136.0,"target":128.0,"source":"ontology"}},{"name":"选粉机转速","role":"parameter","n":180,"n_plotted":180,"t":[1788220800000,1788224400000,1788228000000,1788231600000,1788235200000,1788238800000,1788242400000,1788246000000,1788249600000,1788253200000,1788256800000,1788260400000,1788264000000,1788267600000,1788271200000,1788274800000,1788278400000,1788282000000,1788285600000,1788289200000,1788292800000,1788296400000,1788300000000,1788303600000,1788307200000,1788310800000,1788314400000,1788318000000,1788321600000,1788325200000,1788328800000,1788332400000,1788336000000,1788339600000,1788343200000,1788346800000,1788350400000,1788354000000,1788357600000,1788361200000,1788364800000,1788368400000,1788372000000,1788375600000,1788379200000,1788382800000,1788386400000,1788390000000,1788393600000,1788397200000,1788400800000,1788404400000,1788408000000,1788411600000,1788415200000,1788418800000,1788422400000,1788426000000,1788429600000,1788433200000,1788436800000,1788440400000,1788444000000,1788447600000,1788451200000,1788454800000,1788458400000,1788462000000,1788465600000,1788469200000,1788472800000,1788476400000,1788480000000,1788483600000,1788487200000,1788490800000,1788494400000,1788498000000,1788501600000,1788505200000,1788508800000,1788512400000,1788516000000,1788519600000,1788523200000,1788526800000,1788530400000,1788534000000,1788537600000,1788541200000,1788544800000,1788548400000,1788552000000,1788555600000,1788559200000,1788562800000,1788566400000,1788570000000,1788573600000,1788577200000,1788580800000,1788584400000,1788588000000,1788591600000,1788595200000,1788598800000,1788602400000,1788606000000,1788609600000,1788613200000,1788616800000,1788620400000,1788624000000,1788627600000,1788631200000,1788634800000,1788638400000,1788642000000,1788645600000,1788649200000,1788652800000,1788656400000,1788660000000,1788663600000,1788667200000,1788670800000,1788674400000,1788678000000,1788681600000,1788685200000,1788688800000,1788692400000,1788696000000,1788699600000,1788703200000,1788706800000,1788710400000,1788714000000,1788717600000,1788721200000,1788724800000,1788728400000,1788732000000,1788735600000,1788739200000,1788742800000,1788746400000,1788750000000,1788753600000,1788757200000,1788760800000,1788764400000,1788768000000,1788771600000,1788775200000,1788778800000,1788782400000,1788786000000,1788789600000,1788793200000,1788796800000,1788800400000,1788804000000,1788807600000,1788811200000,1788814800000,1788818400000,1788822000000,1788825600000,1788829200000,1788832800000,1788836400000,1788840000000,1788843600000,1788847200000,1788850800000,1788854400000,1788858000000,1788861600000,1788865200000],"v":[1180.0,1185.0,1173.0,1179.0,1182.0,1182.0,1178.0,1183.0,1182.0,1187.0,1196.0,1195.0,1184.0,1183.0,1178.0,1189.0,1185.0,1170.0,1182.0,1177.0,1192.0,1180.0,1184.0,1185.0,1178.0,1174.0,1172.0,1184.0,1187.0,1192.0,1188.0,1184.0,1187.0,1180.0,1190.0,1178.0,1171.0,1171.0,1176.0,1171.0,1185.0,1182.0,1186.0,1191.0,1186.0,1195.0,1186.0,1179.0,1176.0,1188.0,1180.0,1178.0,1179.0,1186.0,1188.0,1187.0,1185.0,1182.0,1185.0,1182.0,1178.0,1170.0,1170.0,1168.0,1171.0,1178.0,1184.0,1180.0,1193.0,1168.0,1178.0,1187.0,1173.0,1168.0,1179.0,1179.0,1177.0,1174.0,1174.0,1179.0,1178.0,1169.0,1182.0,1172.0,1179.0,1186.0,1184.0,1178.0,1169.0,1185.0,1189.0,1182.0,1173.0,1181.0,1176.0,1185.0,1183.0,1189.0,1181.0,1180.0,1187.0,1175.0,1173.0,1183.0,1179.0,1182.0,1170.0,1169.0,1166.0,1178.0,1182.0,1171.0,1191.0,1188.0,1187.0,1193.0,1196.0,1179.0,1183.0,1180.0,1174.0,1178.0,1190.0,1180.0,1173.0,1168.0,1168.0,1183.0,1174.0,1169.0,1170.0,1183.0,1177.0,1177.0,1187.0,1181.0,1175.0,1186.0,1190.0,1182.0,1179.0,1182.0,1180.0,1179.0,1168.0,1183.0,1168.0,1167.0,1177.0,1186.0,1178.0,1175.0,1177.0,1183.0,1182.0,1179.0,1177.0,1183.0,1180.0,1178.0,1175.0,1188.0,1187.0,1181.0,1175.0,1175.0,1175.0,1176.0,1178.0,1181.0,1173.0,1191.0,1190.0,1185.0,1183.0,1188.0,1189.0,1178.0,1177.0,1172.0],"center":1180.0,"ucl":1196.106025,"lcl":1163.893975,"violation_indices_in_plot":[],"spec":{"lsl":1120.0,"usl":1240.0,"target":1180.0,"source":"ontology"}},{"name":"磨音","role":"parameter","n":180,"n_plotted":180,"t":[1788220800000,1788224400000,1788228000000,1788231600000,1788235200000,1788238800000,1788242400000,1788246000000,1788249600000,1788253200000,1788256800000,1788260400000,1788264000000,1788267600000,1788271200000,1788274800000,1788278400000,1788282000000,1788285600000,1788289200000,1788292800000,1788296400000,1788300000000,1788303600000,1788307200000,1788310800000,1788314400000,1788318000000,1788321600000,1788325200000,1788328800000,1788332400000,1788336000000,1788339600000,1788343200000,1788346800000,1788350400000,1788354000000,1788357600000,1788361200000,1788364800000,1788368400000,1788372000000,1788375600000,1788379200000,1788382800000,1788386400000,1788390000000,1788393600000,1788397200000,1788400800000,1788404400000,1788408000000,1788411600000,1788415200000,1788418800000,1788422400000,1788426000000,1788429600000,1788433200000,1788436800000,1788440400000,1788444000000,1788447600000,1788451200000,1788454800000,1788458400000,1788462000000,1788465600000,1788469200000,1788472800000,1788476400000,1788480000000,1788483600000,1788487200000,1788490800000,1788494400000,1788498000000,1788501600000,1788505200000,1788508800000,1788512400000,1788516000000,1788519600000,1788523200000,1788526800000,1788530400000,1788534000000,1788537600000,1788541200000,1788544800000,1788548400000,1788552000000,1788555600000,1788559200000,1788562800000,1788566400000,1788570000000,1788573600000,1788577200000,1788580800000,1788584400000,1788588000000,1788591600000,1788595200000,1788598800000,1788602400000,1788606000000,1788609600000,1788613200000,1788616800000,1788620400000,1788624000000,1788627600000,1788631200000,1788634800000,1788638400000,1788642000000,1788645600000,1788649200000,1788652800000,1788656400000,1788660000000,1788663600000,1788667200000,1788670800000,1788674400000,1788678000000,1788681600000,1788685200000,1788688800000,1788692400000,1788696000000,1788699600000,1788703200000,1788706800000,1788710400000,1788714000000,1788717600000,1788721200000,1788724800000,1788728400000,1788732000000,1788735600000,1788739200000,1788742800000,1788746400000,1788750000000,1788753600000,1788757200000,1788760800000,1788764400000,1788768000000,1788771600000,1788775200000,1788778800000,1788782400000,1788786000000,1788789600000,1788793200000,1788796800000,1788800400000,1788804000000,1788807600000,1788811200000,1788814800000,1788818400000,1788822000000,1788825600000,1788829200000,1788832800000,1788836400000,1788840000000,1788843600000,1788847200000,1788850800000,1788854400000,1788858000000,1788861600000,1788865200000],"v":[85.82,86.62,86.21,86.48,85.52,85.22,85.91,86.26,86.95,85.83,85.95,85.76,85.5,85.72,85.9,85.98,85.72,85.41,85.69,86.39,86.02,85.93,85.18,85.72,85.79,86.65,86.3,86.11,85.81,86.1,86.39,86.07,85.77,86.27,86.23,86.75,86.42,86.31,86.12,86.02,85.98,85.67,86.12,85.98,86.32,85.92,86.19,85.83,86.45,86.78,86.78,86.19,85.56,85.37,86.02,85.28,85.51,85.31,85.82,86.39,86.63,86.71,85.09,85.99,86.06,85.13,85.66,85.74,85.99,86.06,85.7,85.85,86.12,86.02,86.2,85.93,85.5,85.34,85.8,86.61,87.02,85.28,85.5,85.58,85.99,85.42,85.43,85.81,85.94,86.02,86.33,86.16,85.64,84.38,84.73,85.47,85.69,85.82,86.49,85.62,85.25,85.65,85.24,85.68,86.26,86.59,86.88,86.31,85.84,85.69,86.5,86.6,86.13,85.47,85.76,85.1,85.19,85.83,85.3,85.34,85.32,85.32,85.35,86.16,86.07,84.51,85.65,85.78,85.56,86.23,85.63,85.5,86.76,85.86,85.04,85.67,85.65,85.78,85.6,85.36,85.82,85.73,85.51,85.34,85.27,85.77,85.41,85.5,84.93,85.57,85.43,85.51,85.28,85.16,85.3,84.99,85.06,84.69,85.23,85.2,84.7,84.84,85.71,85.27,85.69,86.14,85.39,86.01,85.5,86.08,85.76,85.87,85.75,85.44,85.77,85.77,85.82,85.85,85.99,85.48],"center":85.77,"ucl":86.806788,"lcl":84.733212,"violation_indices_in_plot":[],"spec":{"lsl":83.0,"usl":89.0,"target":86.0,"source":"ontology"}}],"score_bars":[{"name":"比表面积","score":92,"role":"inspection"},{"name":"台时产量","score":99,"role":"inspection"},{"name":"磨机电流","score":65,"role":"parameter"},{"name":"主轴承温度","score":51,"role":"parameter"},{"name":"入磨喂料量","score":90,"role":"parameter"},{"name":"选粉机转速","score":95,"role":"parameter"},{"name":"磨音","score":88,"role":"parameter"}],"corr_heatmap":{"labels":["比表面积","台时产量","磨机电流","主轴承温度","入磨喂料量","选粉机转速","磨音"],"matrix":[[1.0,0.237182,null,0.180031,null,null,null],[0.237182,1.0,0.241527,0.219677,null,null,0.226953],[null,0.241527,1.0,0.894074,null,null,0.467068],[0.180031,0.219677,0.894074,1.0,null,null,0.438107],[null,null,null,null,1.0,0.256331,null],[null,null,null,null,0.256331,1.0,0.298757],[null,0.226953,0.467068,0.438107,null,0.298757,1.0]]},"contribution_bar":[]},"notAssessable":false}</script>
+<script>
+(function () {
+  var DATA = {};
+  try { DATA = JSON.parse(document.getElementById('payload').textContent); } catch (e) {}
+  function fallback() {
+    var host = document.getElementById('trend-charts');
+    var rows = [];
+    (DATA.charts.trend || []).forEach(function (s) {
+      var vs = s.v.filter(function (x) { return x !== null; });
+      var mn = Math.min.apply(null, vs), mx = Math.max.apply(null, vs);
+      var nBad = s.violation_indices_in_plot.length;
+      rows.push('<tr><td>' + s.name + '</td><td>' + vs.length + '</td><td>' +
+        mn.toFixed(4) + '</td><td>' + mx.toFixed(4) + '</td><td>' + nBad + '</td></tr>');
+    });
+    host.innerHTML = '<div class="panel"><div class="chart-title">静态模式（ECharts CDN 不可用）' +
+      '——各参数趋势摘要</div><div class="static-table"><table><thead><tr>' +
+      '<th>参数</th><th>点数</th><th>最小</th><th>最大</th><th>违规点</th></tr></thead>' +
+      '<tbody>' + rows.join('') + '</tbody></table></div></div>';
+    ['contrib-chart', 'heat-chart'].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) el.parentNode.style.display = 'none';
+    });
+  }
+  function init() {
+    if (!window.echarts) { fallback(); return; }
+    var charts = DATA.charts || {};
+    var host = document.getElementById('trend-charts');
+    (charts.trend || []).forEach(function (s) {
+      var box = document.createElement('div');
+      box.className = 'chart';
+      box.innerHTML = '<div class="chart-title">' + s.name +
+        '（中心=中位数，虚线=±3σ_within' + (s.spec && s.spec.lsl != null ? '，红线=规格限' : '') + '）</div>' +
+        '<div style="height:calc(100% - 30px)"></div>';
+      host.appendChild(box);
+      var el = box.lastChild;
+      var ch = echarts.init(el); allCharts.push(ch);
+      var series = [{ name: s.name, type: 'line', showSymbol: false,
+        data: s.t.map(function (t, i) { return [t, s.v[i]]; }),
+        lineStyle: { width: 1.2, color: '#5b8dbf' } }];
+      [['UCL', s.ucl, '#e0703a', 'dashed'], ['LCL', s.lcl, '#e0703a', 'dashed'],
+       ['LSL', s.spec && s.spec.lsl, '#c9312b', 'solid'],
+       ['USL', s.spec && s.spec.usl, '#c9312b', 'solid']].forEach(function (m) {
+        if (m[1] !== null && m[1] !== undefined)
+          series.push({ name: m[0], type: 'line', data: [[s.t[0], m[1]], [s.t[s.t.length - 1], m[1]]],
+            symbol: 'none', lineStyle: { color: m[2], type: m[3], width: 1 },
+            endLabel: { show: true, formatter: m[0], color: m[2] } });
+      });
+      var bad = s.violation_indices_in_plot || [];
+      if (bad.length)
+        series.push({ name: '违规点', type: 'scatter',
+          data: bad.map(function (i) { return [s.t[i], s.v[i]]; }),
+          itemStyle: { color: '#c9312b' }, symbolSize: 7 });
+      ch.setOption({
+        grid: { left: 60, right: 60, top: 18, bottom: 44 },
+        tooltip: { trigger: 'axis' },
+        xAxis: { type: 'time' },
+        yAxis: { type: 'value', scale: true },
+        series: series
+      });
+    });
+    if ((charts.trend || []).length === 0) {
+      host.innerHTML = '<div class="panel empty">无可绘制的趋势数据。</div>';
+    }
+    var contrib = document.getElementById('contrib-chart');
+    if (contrib && (charts.contribution_bar || []).length) {
+      var cb = echarts.init(contrib); allCharts.push(cb);
+      var items = charts.contribution_bar.slice(0, 10);
+      cb.setOption({
+        grid: { left: 90, right: 30, top: 18, bottom: 40 },
+        tooltip: {},
+        xAxis: { type: 'value', max: 1, axisLabel: { formatter: function (v) {
+          return (v * 100).toFixed(0) + '%'; } } },
+        yAxis: { type: 'category', data: items.map(function (d) {
+          return d.driver + ' → ' + d.target; }).reverse() },
+        series: [{ type: 'bar', data: items.map(function (d) {
+          return Math.round(d.share * 1000) / 10; }).reverse(),
+          itemStyle: { color: '#e8a33d' }, barMaxWidth: 18 }]
+      });
+    } else if (contrib) { contrib.parentNode.style.display = 'none'; }
+    var heat = document.getElementById('heat-chart');
+    if (heat && charts.corr_heatmap && charts.corr_heatmap.labels.length > 1) {
+      var hm = echarts.init(heat); allCharts.push(hm);
+      var pts = [];
+      charts.corr_heatmap.matrix.forEach(function (row, i) {
+        row.forEach(function (v, j) {
+          if (v !== null && i !== j)
+            pts.push([j, charts.corr_heatmap.labels.length - 1 - i, v]);
+        });
+      });
+      hm.setOption({
+        grid: { left: 110, right: 60, top: 18, bottom: 60 },
+        tooltip: { position: 'top' },
+        xAxis: { type: 'category', data: charts.corr_heatmap.labels,
+          axisLabel: { rotate: 30 } },
+        yAxis: { type: 'category', data: charts.corr_heatmap.labels.slice().reverse() },
+        visualMap: { min: 0, max: 1, calculable: true, orient: 'horizontal',
+          left: 'center', bottom: 0, inRange: { color: ['#1d2a36', '#e8a33d', '#c9312b'] } },
+        series: [{ type: 'heatmap', data: pts,
+          label: { show: charts.corr_heatmap.labels.length <= 8, formatter: function (p) {
+            return p.value[2].toFixed(2); } } }]
+      });
+    } else if (heat) { heat.parentNode.style.display = 'none'; }
+  }
+  var allCharts = [];
+  function reflowCharts() { allCharts.forEach(function (c) { try { c.resize(); } catch (e) {} }); }
+  window.addEventListener('resize', reflowCharts);
+  if (document.readyState === 'complete') init();
+  else window.addEventListener('load', init);
+  // 布局稳定后强制重测一次尺寸：在后台/延迟渲染环境下，init 时容器宽度
+  // 可能被读成 0（canvas 宽 0、图空白），双 rAF 确保 DOM 布局完成后再 resize。
+  function reflowWhenSettled() {
+    requestAnimationFrame(function () { requestAnimationFrame(reflowCharts); });
+  }
+  if (document.readyState === 'complete') reflowWhenSettled();
+  else window.addEventListener('load', reflowWhenSettled);
+  setTimeout(function () { if (!window.echarts) fallback(); }, 4000);
+})();
+</script>
+</body>
+</html>

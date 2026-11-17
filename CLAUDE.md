@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Industrial Deep Diagnostic — an end-to-end industrial deep-diagnosis system that runs 9-stage root-cause analysis plus an E0-E8 enhancement pipeline over sensor and process data. Core architecture:
 
-1. **Skills** (`.claude/skills/`) — 18 standardized skills (discovered by OMP through the `claude` provider) × 14 dedicated agents, with JSON Schema validation + a script toolchain
+1. **Skills** (`.claude/skills/`) — 24 standardized skills (discovered by OMP through the `claude` provider) × 16 dedicated agents, with JSON Schema validation + a script toolchain
 2. **Web application** — Express.js backend (port 3210) + Vue 3 / Vite frontend (port 5180)
 3. **RAG Retrieval Engine** (`rag-retrieval-engine/`) — ChromaDB + FastAPI microservice (port 8764)
 
@@ -37,7 +37,8 @@ ind-diag restart --all --detach   # restart everything
 ind-diag build                    # production build
 ind-diag init                     # environment check
 ind-diag status                   # status
-ind-diag webfrp                   # Cloudflare Tunnel
+# Cloudflare Tunnel is an external tool, not part of the CLI:
+#   cloudflared tunnel --url http://localhost:5180
 ```
 
 > `--detach` = background daemon mode (recommended): the command returns immediately and logs go to `.runtime/*.log`. If omitted, the CLI waits and eventually reports `FATAL: Service manager timeout` (the service does still start).
@@ -152,13 +153,13 @@ workspace/diagnostic-runs/<timestamp>_<scene>/
 - Automatic degradation when unavailable: `parameter_to_physics.json` + web search
 
 ### Key Scripts
-- `setup.mjs` — creates the run directory + pipeline_events
-- `inspect.mjs` — data file inspection
-- `stats.mjs` / `stats_validate.mjs` — statistical analysis + robustness validation
-- `validate.mjs` — JSON Schema runtime validation
-- `artifact-check.mjs` — pipeline artifact completeness validation
-- `pipeline-log-check.mjs` — pipeline event log audit
-- `uv_env_setup.mjs` — Python venv manager
+- `.claude/skills/industrial-analysis-auto/scripts/setup.mjs` — creates the run directory + pipeline_events
+- `.claude/skills/industrial-analysis-auto/scripts/inspect.mjs` — data file inspection
+- `.claude/skills/industrial-data-processor/scripts/stats/` — deterministic statistical engine (`run.py` entry: core_stats / anti_spurious / batch_integrity — replaces the retired `stats.mjs` / `stats_validate.mjs`)
+- `.claude/shared/scripts/validate.mjs` — JSON Schema runtime validation
+- `.claude/skills/industrial-analysis-auto/scripts/pipeline-finalize.mjs` — unified finalization (artifact inventory + schema sweep + evidence closure; absorbs the retired `artifact-check.mjs`)
+- `.claude/skills/industrial-analysis-auto/scripts/pipeline-log-check.mjs` — pipeline event log audit
+- `.claude/shared/scripts/uv_env_setup.mjs` — Python venv manager
 
 ### Evidence System
 | Level | Source | Confidence |

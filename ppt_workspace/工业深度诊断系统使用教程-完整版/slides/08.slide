@@ -1,0 +1,37 @@
+<Slide style={{ padding: '22px 64px 18px 64px', background: '#F7F4EC' }}>
+    <Box style={{ width: 1152, height: 102, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box style={{ flexDirection: 'column' }}>
+            <Text style={{ fontSize: 36, fontWeight: 'bold', color: '#1D1B16', lineHeight: 1.25 }}>第 1 步 · 打开 CMD，输入 omp</Text>
+            <Text style={{ fontSize: 17, color: 'rgba(29,27,22,0.72)', marginTop: 6 }}>按 Win+R 输入 cmd 回车，或者开始菜单搜"命令提示符"。然后敲一个 omp，回车</Text>
+        </Box>
+        <Box style={{ padding: '10px 18px', background: '#1D1B16', borderRadius: 8 }}>
+            <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#B8730F' }}>只需要一个词</Text>
+        </Box>
+    </Box>
+    <Box style={{ width: 1152, height: 534, flexDirection: 'column', gap: 16 }}>
+        <Box style={{ height: 162, flexDirection: 'row', gap: 22 }}>
+            <Image src="assets/omp_cmd.png" style={{ width: 494, height: 162, borderRadius: 10, border: '1px solid rgba(29,27,22,0.10)' }} />
+            <Box style={{ width: 636, height: 162, padding: 18, background: '#FFFFFF', borderRadius: 11, border: '1px solid rgba(29,27,22,0.10)', flexDirection: 'column' }}>
+                <Text style={{ fontSize: 22, fontWeight: 'bold', color: '#1D1B16' }}>① 先把目录切到项目里</Text>
+                <Text style={{ fontSize: 18, color: 'rgba(29,27,22,0.78)', lineHeight: 1.6, marginTop: 10 }}>先 <span style={{ fontWeight: 'bold', color: '#8A5608' }}>cd /d D:/codes/myskills/industrial-deep-diagnostic</span>，再输入 omp。这样它会自动读到项目里的技能与代理定义。</Text>
+            </Box>
+        </Box>
+        <Box style={{ height: 137, justifyContent: 'center', alignItems: 'center' }}>
+            <Image src="assets/omp_composer.png" style={{ width: 1077, height: 137, borderRadius: 10, border: '1px solid rgba(29,27,22,0.10)' }} />
+        </Box>
+        <Box style={{ height: 203, flexDirection: 'row', gap: 20 }}>
+            <Box style={{ flex: 1, padding: 18, background: '#FFFFFF', borderRadius: 11, border: '1px solid rgba(29,27,22,0.10)', flexDirection: 'column' }}>
+                <Text style={{ fontSize: 22, fontWeight: 'bold', color: '#1D1B16' }}>② 状态栏会显示四件事</Text>
+                <Text style={{ fontSize: 18, color: 'rgba(29,27,22,0.78)', lineHeight: 1.62, marginTop: 10 }}>从左到右：当前模型 deepseek-flash · 工作目录 · 上下文已用 3% · 上限 1M tokens。</Text>
+            </Box>
+            <Box style={{ flex: 1, padding: 18, background: '#FFFFFF', borderRadius: 11, border: '1px solid rgba(29,27,22,0.10)', flexDirection: 'column' }}>
+                <Text style={{ fontSize: 22, fontWeight: 'bold', color: '#1D1B16' }}>③ 斜杠命令从这里开始</Text>
+                <Text style={{ fontSize: 18, color: 'rgba(29,27,22,0.78)', lineHeight: 1.62, marginTop: 10 }}>看到这个输入框就说明 OMP 起来了。所有斜杠命令都在这里输入，例如 /login、/model。</Text>
+            </Box>
+        </Box>
+    </Box>
+    <Box style={{ width: 1152, height: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Text style={{ fontSize: 15, color: 'rgba(29,27,22,0.48)' }}>想退出 OMP：输入 /quit 或按两次 Ctrl+C</Text>
+        <Text style={{ fontSize: 15, color: 'rgba(29,27,22,0.48)' }}>08 / 40</Text>
+    </Box>
+</Slide>

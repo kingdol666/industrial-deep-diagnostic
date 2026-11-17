@@ -462,14 +462,27 @@ def _score_table(df: pd.DataFrame, time_col: Optional[str]) -> float:
     n_rows, n_cols = df.shape
     if n_cols == 0:
         return -1.0
+    # Wide measurement matrices (many same-prefix position/channel columns like
+    # pos_01..pos_24) must not outrank the process backbone by raw column count:
+    # a family of >=4 same-prefix columns contributes at most 3 to the numeric
+    # term. Scenario-agnostic — pure column-name structure, no domain words.
+    fam_counts: Dict[str, int] = {}
+    for c in df.columns:
+        fam = re.sub(r"\d+$", "", str(c)).rstrip("_-# ")
+        fam_counts[fam] = fam_counts.get(fam, 0) + 1
     numeric = 0
+    fam_used: Dict[str, int] = {}
     for c in df.columns:
         try:
             if pd.to_numeric(df[c], errors="coerce").notna().mean() > 0.7:
-                numeric += 1
+                fam = re.sub(r"\d+$", "", str(c)).rstrip("_-# ")
+                if fam_used.get(fam, 0) < (3 if fam_counts[fam] >= 4 else 10**9):
+                    numeric += 1
+                    fam_used[fam] = fam_used.get(fam, 0) + 1
         except Exception:
             pass
-    score = min(n_rows / 1000.0, 3.0) + min(n_cols / 5.0, 3.0) + numeric * 0.5
+    n_families = len(fam_counts)
+    score = min(n_rows / 1000.0, 3.0) + min(n_families / 5.0, 3.0) + numeric * 0.5
     if time_col:
         score += 1.0
     return score
@@ -552,7 +565,10 @@ def _discover_sources(data_path: Path, recursive: bool = False, exclude_paths: O
         resolved = path.resolve()
         if resolved in exclude_paths:
             continue
-        if any(part.startswith('.') or part in {'node_modules', '__pycache__'} for part in path.relative_to(data_path).parts):
+        # '07_hetero' = E-1H stage outputs inside a run dir; never re-ingest them
+        # (a recursive scan over a run dir would otherwise let the derived wide
+        # table out-score the anchor and hijack single-primary selection).
+        if any(part.startswith('.') or part in {'node_modules', '__pycache__', '07_hetero'} for part in path.relative_to(data_path).parts):
             continue
         out.append(path)
     return sorted(out, key=lambda path: path.relative_to(data_path).as_posix().casefold())

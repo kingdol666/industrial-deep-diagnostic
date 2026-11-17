@@ -1,0 +1,86 @@
+{
+  "hypotheses": [
+    {
+      "id": "H1",
+      "statement": "三区（尤其后段）炉温漂移/掉温（加热管老化或热电偶漂移）使带材温度水平与出料温度下降，进而拖累收得率与剖面指标。",
+      "expect_if_true": "FUR-Z3-TEMP 与 FUR-OUT-TEMP / PROF-MEAN 显著正相关且滞后补偿后仍成立；变点时间与 02-06 检修备注/02-08 更换加热管对齐；维护窗内 Z3 与质量指标同步恶化、02-08 后恢复。",
+      "expect_if_false": "Z3 与质量指标无显著关联，或关联在去趋势/分段后消失（纯趋势混杂），或变点与事件无关。",
+      "methods": ["M1", "M2", "M5", "M6", "M7"],
+      "invocations": [
+        {"method": "M1", "tool": "stats/run.py --mode correlation --target-cols <20 quality> --predictor-cols <20 incl FUR-Z3-TEMP> --exclude-cols <7+meta> --time-col 时间 --max-lag 20 --data-view-mode process_plus_inspection"},
+        {"method": "M2", "tool": "stats/run.py --mode spurious (change-point + detrending + LOO on the M1 leads)"},
+        {"method": "M5", "tool": "production_regime_detector.py (regime segmentation + steady-state filter)"},
+        {"method": "M6", "tool": "stats lagged CCF (--time-col 时间) + time_lag_compensator.mjs --max-lag 30"},
+        {"method": "M7", "tool": "physics_check.py (direction/magnitude checks of Z3→OUT-TEMP)"}
+      ]
+    },
+    {
+      "id": "H2",
+      "statement": "维护/升温事件窗（2026-02-06 06:40 检修 → 2026-02-08 10:00 更换加热管升温 → 02-08 21:00 恢复）为非稳态 regime，使全域逐行统计被 regime 塌缩/趋势混杂污染。",
+      "expect_if_true": "稳态/非稳态分段相关方向或强度不同；事件前后均值差显著（Z3、OUT-TEMP、PROF 指标）；稳态过滤后剩余相关网更稳定。",
+      "expect_if_false": "分段相关与全域相关一致，事件窗内无非稳态偏离（事件窗内各列均值/方差与稳态无异）。",
+      "methods": ["M5", "M2", "M11", "M13"],
+      "invocations": [
+        {"method": "M5", "tool": "production_regime_detector.py → production_regime_filter.json（exclude/caution regimes）"},
+        {"method": "M2", "tool": "stats/run.py --mode spurious（change-point）"},
+        {"method": "M11", "tool": "06_scripts/expert_analysis.py 事件窗前后对比（EVT-MAINTENANCE / EVT-HEATUP 前向 1h 窗）"},
+        {"method": "M13", "tool": "06_scripts/expert_analysis.py regime-segmented correlations（维护前 / 维护-升温窗 / 恢复后）"}
+      ]
+    },
+    {
+      "id": "H3",
+      "statement": "炉膛左右不对称/场偏移（MAP ASYM-LR、CENTROID-X/Y、POSMAX-X）传导为带材横向剖面边部偏差与形状变化（PROF EDGE-L/R-DEV、SLOPE、CURV）。",
+      "expect_if_true": "ASYM-LR 与 EDGE-*-DEV 滞后 CCF 显著（分钟级~30min 量化）；CENTROID-X 偏移与 SLOPE-LSQ-PER100 同向变化；热图可见单边低温带。",
+      "expect_if_false": "ASYM-LR 与边部偏差无显著关联或方向与热流物理相反；热图边部无系统性偏差。",
+      "methods": ["M1", "M6", "M7", "M12"],
+      "invocations": [
+        {"method": "M1", "tool": "stats/run.py --mode correlation（predictors: MAP-* ; targets: PROF EDGE/SLOPE/CURV）"},
+        {"method": "M6", "tool": "lagged CCF within stats + time_lag_compensator.mjs"},
+        {"method": "M7", "tool": "physics_check.py（横向热流不对称→边部偏差 方向核对）"},
+        {"method": "M12", "tool": "场景模式：多区/剖面 + 事件标记（热图 + 事件线）"}
+      ]
+    },
+    {
+      "id": "H4",
+      "statement": "炉压异常（FUR-PRES）通过气氛/氧化通道影响表面质量（IMG DARKFRAC/SATFRAC/ENTROPY 相对漂移）。",
+      "expect_if_true": "FUR-PRES 与 DARKFRAC/SATFRAC 存在按阈值/单调的关联（原始 r），且 detrended 后不归零。",
+      "expect_if_false": "原始相关即弱（|r|<0.3）或去趋势后衰减>50%（趋势混杂），物理通道不可测。",
+      "methods": ["M1", "M2"],
+      "invocations": [
+        {"method": "M1", "tool": "stats/run.py --mode correlation（predictor FUR-PRES；targets IMG-*）"},
+        {"method": "M2", "tool": "stats/run.py --mode spurious（detrending attenuation on FUR-PRES↔DARKFRAC）"}
+      ]
+    },
+    {
+      "id": "H5",
+      "statement": "剖面形状类指标（EDGE/SLOPE/CURV）的部分变化由横向配准漂移（SHIFT-EST≠0）伪装配，而非真实工艺变化（先看 SHIFT 再解释 EDGE）。",
+      "expect_if_true": "SHIFT-EST 在部分时段非零且与形状项变化同步；按 SHIFT 校正后形状项变化减弱。",
+      "expect_if_false": "SHIFT-EST 恒为 0（配准稳定）→ 形状项变化可信；或 SHIFT 与形状项无耦合。",
+      "methods": ["M1", "M2", "M13"],
+      "invocations": [
+        {"method": "M1", "tool": "stats/run.py（SHIFT-EST 与形状项、以及 SHIFT-EST 与时间的相关）"},
+        {"method": "M2", "tool": "stats/run.py --mode spurious（trend confounding on SHIFT-EST）"},
+        {"method": "M13", "tool": "06_scripts/expert_analysis.py 快照级 SHIFT-EST 分布统计（非零占比）"}
+      ]
+    },
+    {
+      "id": "H6",
+      "statement": "CCD 相机/照明漂移（未标定）使全部 IMG 统计量协同漂移，构成跨通道候选混杂因子（解释 IMG 相关网前必须先排除）。",
+      "expect_if_true": "IMG-* 各列彼此高度相关（|r|>0.8）且与时间强相关；去除时间趋势后 IMG 内部相关仍高但对外部通道关联减弱。",
+      "expect_if_false": "IMG 各列相互独立或无时间趋势 → 相机稳定，IMG 与工艺的关联可进一步解释。",
+      "methods": ["M1", "M2"],
+      "invocations": [
+        {"method": "M1", "tool": "stats/run.py --mode correlation（IMG-* 内部及与时间的相关）"},
+        {"method": "M2", "tool": "stats/run.py --mode spurious（trend confounding / detrending attenuation）"}
+      ]
+    }
+  ],
+  "skipped": [
+    {"method": "M3", "reason": "无逐行 batch/lot 身份列（batch_id 为运行级 metadata 常量 heat_treat_sim_20260202_10d_continuous），批次完整性不适用"},
+    {"method": "M8", "reason": "无产品/牌号分组列（单产品连续生产）→ per-product 与 Simpson 分组检验不适用；替代分组 = regime 分段"},
+    {"method": "full_battery(--mode full)", "reason": "batch 模式不适用 → 仅 correlation + spurious 两模式链式执行"},
+    {"method": "LAB-HRC 相关分析", "reason": "LAB-HRC 未并入锚定主表（raw/L1_lab_hardness_2h.csv，2h 粒度），无法与 10min 行对齐 → 作为 evidence gap 写入结论"}
+  ],
+  "full_battery_justified": false,
+  "notes": "M4（anomaly）为基线方法恒执行；M5 稳态过滤结果决定 stats 输入源（cleaned_data_steady_only.csv 优先）。HX 列为后向合并阶梯常量（PROF 30min/MAP 2h/IMG 1h），伪重复放大 → M13 快照级去重复核为强制补充。"
+}

@@ -1,0 +1,19 @@
+# gitleaks configuration.
+#
+# Defaults everywhere (all default rules stay on) plus one NARROW allowlist entry
+# for the synthetic credentials the test suite asserts with — never real secrets.
+#
+# NOTE: written conservatively while no local gitleaks binary was available, so
+# this file is CI-verified. If a real finding appears, fix the finding — do NOT
+# widen the allowlist.
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "synthetic test fixtures (deliberate bad-password literals)"
+regexTarget = "match"
+regexes = [
+  # app/backend/test/tenancy-auth.test.mjs — asserts 401 on a wrong password
+  '''wrong-password-(1|after)''',
+]

@@ -1,0 +1,86 @@
+{
+  "generated_at": "2026-10-14T03:35:04.088064+00:00",
+  "mode": "designed",
+  "plots": [
+    {
+      "file": "pareto_拉伸强度.png",
+      "type": "pareto",
+      "title": "Pareto of standardized effects — 拉伸强度",
+      "response": "拉伸强度",
+      "bytes": 30842,
+      "min_ink_ratio": 0.01,
+      "ink_ok": true,
+      "ink_detail": "ink ratio 0.1075 ok; ink ratio 10.8% across 4 quadrants"
+    },
+    {
+      "file": "residuals_拉伸强度.png",
+      "type": "residual_diagnostics",
+      "title": "Residual diagnostics — 拉伸强度",
+      "response": "拉伸强度",
+      "bytes": 96536,
+      "min_ink_ratio": 0.01,
+      "ink_ok": true,
+      "ink_detail": "ink ratio 0.1108 ok; ink ratio 11.1% across 4 quadrants"
+    },
+    {
+      "file": "pareto_雾度.png",
+      "type": "pareto",
+      "title": "Pareto of standardized effects — 雾度",
+      "response": "雾度",
+      "bytes": 32402,
+      "min_ink_ratio": 0.01,
+      "ink_ok": true,
+      "ink_detail": "ink ratio 0.1053 ok; ink ratio 10.5% across 4 quadrants"
+    },
+    {
+      "file": "residuals_雾度.png",
+      "type": "residual_diagnostics",
+      "title": "Residual diagnostics — 雾度",
+      "response": "雾度",
+      "bytes": 91494,
+      "min_ink_ratio": 0.01,
+      "ink_ok": true,
+      "ink_detail": "ink ratio 0.0864 ok; ink ratio 8.6% across 4 quadrants"
+    },
+    {
+      "file": "pareto_厚度偏差.png",
+      "type": "pareto",
+      "title": "Pareto of standardized effects — 厚度偏差",
+      "response": "厚度偏差",
+      "bytes": 30180,
+      "min_ink_ratio": 0.01,
+      "ink_ok": true,
+      "ink_detail": "ink ratio 0.0968 ok; ink ratio 9.7% across 4 quadrants"
+    },
+    {
+      "file": "residuals_厚度偏差.png",
+      "type": "residual_diagnostics",
+      "title": "Residual diagnostics — 厚度偏差",
+      "response": "厚度偏差",
+      "bytes": 83913,
+      "min_ink_ratio": 0.01,
+      "ink_ok": true,
+      "ink_detail": "ink ratio 0.0842 ok; ink ratio 8.4% across 4 quadrants"
+    },
+    {
+      "file": "main_effects_拉伸强度.png",
+      "type": "main_effects",
+      "title": "Main effects — 拉伸强度 — error bars omitted (group SE not estimable)",
+      "response": "拉伸强度",
+      "bytes": 72046,
+      "min_ink_ratio": 0.01,
+      "ink_ok": true,
+      "ink_detail": "ink ratio 0.0596 ok; ink ratio 6.0% across 4 quadrants"
+    },
+    {
+      "file": "contour_拉伸强度.png",
+      "type": "contour",
+      "title": "Predicted response contour — 拉伸强度 (top-Pareto pair 预热辊温 x 拉伸速度)",
+      "response": "拉伸强度",
+      "bytes": 118654,
+      "min_ink_ratio": 0.02,
+      "ink_ok": true,
+      "ink_detail": "ink ratio 0.4699 ok; ink ratio 47.0% across 4 quadrants"
+    }
+  ]
+}

@@ -1,0 +1,118 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "hetero_manifest_schema.json",
+  "title": "Heterogeneous Preprocess Manifest (E-1H) v1.1",
+  "description": "always-marker artifact of industrial-hetero-preprocessor. Written on EVERY run: status=ok|no_hetero_sources|off. Distinguishes 'stage ran and found nothing' from 'stage was skipped' (pipeline-finalize enforces its presence when the E-1 path was taken and hetero is not disabled).",
+  "type": "object",
+  "required": ["contract_version", "status", "generated_at", "zero_llm", "anchor", "time_ingest", "alignment", "sources", "outputs", "h7_guard"],
+  "properties": {
+    "contract_version": { "const": "hetero-features/1.1" },
+    "status": { "enum": ["ok", "no_hetero_sources", "off"] },
+    "generated_at": { "type": "string" },
+    "zero_llm": { "type": "boolean" },
+    "run_dir": { "type": "string" },
+    "raw_path": { "type": ["string", "null"] },
+    "raw_path_source": { "type": ["string", "null"] },
+    "anchor": {
+      "type": "object",
+      "required": ["path", "sha256", "time_column", "n_rows"],
+      "properties": {
+        "path": { "type": ["string", "null"] },
+        "sha256": { "type": ["string", "null"] },
+        "time_column": { "type": ["string", "null"] },
+        "n_rows": { "type": "integer" },
+        "columns": { "type": ["array", "null"], "items": { "type": "string" } }
+      }
+    },
+    "time_ingest": {
+      "type": "object",
+      "required": ["formats", "tz_policy", "ambiguous"],
+      "properties": {
+        "formats": { "type": "array", "items": { "type": "string" } },
+        "tz_policy": { "type": "string" },
+        "ambiguous": { "type": "array", "items": { "type": "object" } },
+        "epoch_and_serial_detected": { "type": "integer" }
+      }
+    },
+    "alignment": {
+      "type": "object",
+      "required": ["method", "max_age_factor", "interpolation", "forward_fill"],
+      "properties": {
+        "method": { "type": "string" },
+        "max_age_factor": { "type": "number" },
+        "interpolation": { "const": "none" },
+        "forward_fill": { "const": "none" },
+        "rolling_features": { "type": "boolean" },
+        "transport_lag_s": { "type": "object" }
+      }
+    },
+    "in_control_window": {
+      "type": ["object", "null"],
+      "properties": {
+        "start": { "type": "string" },
+        "end": { "type": "string" },
+        "declared_by": { "type": "string" }
+      }
+    },
+    "sources": { "type": "array", "items": { "$ref": "#/definitions/source" } },
+    "outputs": {
+      "type": "object",
+      "required": ["contract", "explicit_cols", "features_dir"],
+      "properties": {
+        "joined_table": { "type": ["string", "null"] },
+        "contract": { "type": "string" },
+        "explicit_cols": { "type": "string" },
+        "features_dir": { "type": "string" },
+        "annotations": { "type": ["string", "null"] },
+        "objects_dir": { "type": ["string", "null"] }
+      }
+    },
+    "h7_guard": {
+      "type": "object",
+      "description": "pre-state hashes recorded by build.py before any write; quality_gate H7 recomputes and compares.",
+      "required": ["anchor_sha256", "files"],
+      "properties": {
+        "anchor_sha256": { "type": ["string", "null"] },
+        "files": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["path", "sha256"],
+            "properties": { "path": { "type": "string" }, "sha256": { "type": "string" } }
+          }
+        },
+        "written": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "notes": { "type": "array", "items": { "type": "string" } }
+  },
+  "definitions": {
+    "source": {
+      "type": "object",
+      "required": ["source_id", "path", "shape", "disposition", "reason"],
+      "properties": {
+        "source_id": { "type": "string" },
+        "path": { "type": "string" },
+        "path_sha6": { "type": "string" },
+        "slug": { "type": "string" },
+        "shape": { "enum": ["profile", "map", "image_stream", "text"] },
+        "format": { "type": "string" },
+        "n_snapshots": { "type": "integer" },
+        "cadence_s": { "type": ["number", "null"] },
+        "span_s": { "type": ["number", "null"] },
+        "ts_format": { "type": ["string", "null"] },
+        "ts_source": { "type": ["string", "null"], "enum": [null, "dcs", "camera", "manual", "filename", "index"] },
+        "tz": { "type": ["string", "null"] },
+        "duplicate_key_policy": { "type": ["string", "null"] },
+        "anchor_coverage": { "type": ["number", "null"] },
+        "effective_n": { "type": ["integer", "null"] },
+        "sparse": { "type": "boolean" },
+        "stats_eligible": { "type": "boolean" },
+        "disposition": { "enum": ["featured", "sparse_auxiliary", "skipped", "insufficient_data", "off"] },
+        "reason": { "type": "string" },
+        "features": { "type": "array", "items": { "type": "string" } },
+        "objects_dir": { "type": ["string", "null"] }
+      }
+    }
+  }
+}

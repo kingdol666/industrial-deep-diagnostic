@@ -1,0 +1,34 @@
+<Slide style={{ padding: '22px 64px 18px 64px', background: '#F7F4EC' }}>
+    <Box style={{ width: 1152, height: 102, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box style={{ flexDirection: 'column' }}>
+            <Text style={{ fontSize: 36, fontWeight: 'bold', color: '#1D1B16', lineHeight: 1.25 }}>第 0 章 · 先配好 OMP，再谈诊断</Text>
+            <Text style={{ fontSize: 17, color: 'rgba(29,27,22,0.72)', marginTop: 6 }}>OMP 是真正执行那 9 步管线的那台发动机。它没配好，界面再漂亮也跑不出结论</Text>
+        </Box>
+        <Box style={{ padding: '10px 18px', background: '#B8730F', borderRadius: 8 }}>
+            <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#FFFFFF' }}>本机 OMP 18.1.15</Text>
+        </Box>
+    </Box>
+    <Box style={{ width: 1152, height: 534, flexDirection: 'column', gap: 16 }}>
+        <Box style={{ height: 439, flexDirection: 'row', gap: 22 }}>
+            <Image src="assets/omp_welcome.png" style={{ width: 784, height: 439, borderRadius: 10, border: '1px solid rgba(29,27,22,0.10)' }} />
+            <Box style={{ width: 346, height: 439, flexDirection: 'column', gap: 15 }}>
+                <Box style={{ height: 212, padding: 20, background: '#FFFFFF', borderRadius: 11, border: '1px solid rgba(29,27,22,0.10)', flexDirection: 'column' }}>
+                    <Text style={{ fontSize: 22, fontWeight: 'bold', color: '#1D1B16' }}>① 谁在跑诊断</Text>
+                    <Text style={{ fontSize: 18, color: 'rgba(29,27,22,0.78)', lineHeight: 1.62, marginTop: 10 }}>界面上你选的执行引擎，落地就是本机的 <span style={{ fontWeight: 'bold', color: '#8A5608' }}>omp</span> 命令。九步管线的每一步、每次工具调用，都由它执行。</Text>
+                </Box>
+                <Box style={{ height: 212, padding: 20, background: 'rgba(184,115,15,0.10)', borderRadius: 11, border: '1px solid rgba(184,115,15,0.42)', flexDirection: 'column' }}>
+                    <Text style={{ fontSize: 22, fontWeight: 'bold', color: '#8A5608' }}>② 要配置两件事</Text>
+                    <Text style={{ fontSize: 18, color: 'rgba(29,27,22,0.80)', lineHeight: 1.62, marginTop: 10 }}>第一，<span style={{ fontWeight: 'bold' }}>/login</span> 告诉 OMP 用谁的 API（本教程用 DeepSeek）；第二，<span style={{ fontWeight: 'bold' }}>/model</span> 选定具体模型。</Text>
+                </Box>
+            </Box>
+        </Box>
+        <Box style={{ height: 79, padding: 16, background: '#1D1B16', borderRadius: 11, flexDirection: 'row', alignItems: 'center', gap: 16 }}>
+            <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#F0A93B' }}>左边就是配好之后的样子</Text>
+            <Text style={{ fontSize: 16, color: 'rgba(247,244,236,0.84)' }}>欢迎框里直接写着当前模型 deepseek-flash 与来源 ustc —— 状态栏也会一直显示它。</Text>
+        </Box>
+    </Box>
+    <Box style={{ width: 1152, height: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Text style={{ fontSize: 15, color: 'rgba(29,27,22,0.48)' }}>接下来的 6 页，一步一步跟着敲就行</Text>
+        <Text style={{ fontSize: 15, color: 'rgba(29,27,22,0.48)' }}>07 / 40</Text>
+    </Box>
+</Slide>

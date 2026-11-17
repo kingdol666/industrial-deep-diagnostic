@@ -1,29 +1,122 @@
-version: '3.8'
+# ============================================================
+# Industrial Deep Diagnostic — compose deployment (Compose v2: `docker compose`)
+#
+#   client ──► nginx :80 ──► backend :3210 ──► ./data (SQLite) + ./workspace (runs)
+#
+# No `version:` key on purpose: modern compose ignores/errors on it, and the
+# non-swarm resource limits used below (mem_limit/cpus) are rejected under the
+# legacy v3 schema marker.
+# ============================================================
 
 services:
   backend:
     build:
       context: .
       dockerfile: Dockerfile
+      target: runtime        # the runtime stage is the Dockerfile's default (last) target too
+    image: ind-diag-backend:local
     container_name: ind-diag-backend
+    # init: reap zombie grandchildren — the app spawns engine CLI subprocesses.
+    init: true
     ports:
-      - "3210:3210"
+      - "3210:3210"          # direct backend access (curl/probes/README workflow)
+      # nginx (below) shares THIS container's network namespace, so port 80 is
+      # where nginx listens and must be published here. See the nginx service
+      # comment for why the namespace is shared.
+      - "80:80"
     volumes:
+      # NOTE (host ownership): the container runs unprivileged as uid/gid 1000
+      # (`node`, see Dockerfile USER). Bind mounts keep their host ownership, so
+      # on a Linux host run once:  sudo chown -R 1000:1000 ./data ./workspace
       - ./data:/app/data
       - ./workspace:/app/workspace
-      - ./config/local.yaml:/app/config/local.yaml:ro
+      # config/local.yaml support WITHOUT the single-file bind-mount failure
+      # mode: mounting a FILE whose host path does not exist makes the Docker
+      # daemon create a DIRECTORY with that name, so every boot logs an
+      # unreadable local.yaml (EISDIR) and `docker compose up` "succeeds" with
+      # a silently wrong config. local.yaml is untracked → absent on a fresh
+      # clone. Mounting the config DIRECTORY instead is a no-op while the file
+      # is missing and picks it up the moment it exists.
+      # Read-only on purpose: nothing writes local.yaml at runtime
+      # (saveLocalYaml is exported but has no caller) and the container must
+      # never mutate default.yaml. Every documented knob ALSO has an
+      # environment override (config/loader.mjs applyEnvOverrides) — see the
+      # environment block, which is the recommended path for containers.
+      - ./config:/app/config:ro
     environment:
       - SERVER_PORT=3210
-      - CLAUDE_API_KEY=${CLAUDE_API_KEY:-}
-      - CLAUDE_API_BASE_URL=${CLAUDE_API_BASE_URL:-}
+      # ── Engine credentials are env-only. config.claude.api_key /
+      #    api_auth_token / api_base_url were dead slots (no reader anywhere)
+      #    and were replaced by these variables, which the engine CLIs
+      #    (claude / omp / dsh / …) inherit from this process:
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - ANTHROPIC_AUTH_TOKEN=${ANTHROPIC_AUTH_TOKEN:-}
       - ANTHROPIC_BASE_URL=${ANTHROPIC_BASE_URL:-}
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY:-}
+      - DEEPSEEK_BASE_URL=${DEEPSEEK_BASE_URL:-}
+      # (CLAUDE_API_KEY / CLAUDE_API_BASE_URL were removed: nothing in the
+      #  codebase reads them — grep evidence in config/default.yaml.)
       - LOGGING_FORMAT=json
       - LOGGING_LEVEL=info
+      # Readiness probe tuning (defaults: 500 MB free disk / 2500 ms engine probe):
+      # - READINESS_MIN_FREE_MB=500
+      # - READINESS_ENGINE_PROBE_TIMEOUT_MS=2500
+      # Behind nginx, per-IP controls (login rate limit, audit) see the proxy
+      # address instead of the client unless the backend trusts the proxy —
+      # handled in the app's security wiring (app.set('trust proxy', …)).
+      # This deployment IS behind the nginx tier below, so trust exactly one
+      # hop: TRUST_PROXY=1 → app.set('trust proxy', 1). Without it every
+      # client shares nginx's address in the per-IP rate-limit buckets.
+      - TRUST_PROXY=1
+    # Operator-tunable resource limits (non-swarm keys). 4g/2 vCPU fits the
+    # default 2-concurrent-run queue (config diagnosis.max_concurrent_runs);
+    # raise both when running more/heavier analyses in-container.
+    mem_limit: ${BACKEND_MEM_LIMIT:-4g}
+    cpus: ${BACKEND_CPUS:-2}
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3210/api/health"]
+      # Liveness only: process up + DB reachable. Readiness (dependency health)
+      # is GET /api/health/ready and is deliberately NOT the restart trigger.
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:3210/api/health"]
       interval: 30s
       timeout: 5s
       retries: 3
       start_period: 15s
+
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: web            # nginx:alpine + the built SPA at /app/frontend/dist
+    image: ind-diag-web:local
+    container_name: ind-diag-nginx
+    # WHY a shared network namespace instead of a bridge network: the repo's
+    # hardened nginx.conf hardcodes `upstream backend { server 127.0.0.1:3210; }`.
+    # Joining the backend container's namespace makes 127.0.0.1:3210 resolve to
+    # the backend, so nginx.conf is used verbatim (no runtime sed/envsubst
+    # rewriting of a security-hardened config) and $remote_addr stays the real
+    # client IP. Consequence: nginx's own `ports:` must be declared on the
+    # backend service (see above) — compose forbids `ports` here.
+    network_mode: "service:backend"
+    volumes:
+      # /etc/nginx/conf.d/default.conf is the only config nginx reads: the repo
+      # file stays the single source of truth (already hardened — static
+      # /data-files/ + /workspace-files/ aliases removed, so the web tier needs
+      # NO access to ./data or ./workspace; every file goes through the
+      # auth-guarded /api/files/*). The SPA itself is baked into this image
+      # (Dockerfile `web` stage), so no frontend volume/dist build is required
+      # on the host.
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      backend:
+        condition: service_healthy   # nginx is useless until the API answers
+    # Static files + a thin proxy: a small cap is plenty (=operator-tunable).
+    mem_limit: ${NGINX_MEM_LIMIT:-256m}
+    cpus: ${NGINX_CPUS:-0.5}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s

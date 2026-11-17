@@ -20,12 +20,16 @@ Cases:
   C10 headless e2e: init->design->ingest*N->converge (6 artifacts) + gate ALL
       PASS + zero-LLM static scan  (also covers C8 schema double-validation)
   C11 manual CSV -> trial_result.json converter + error receipts
+
+All fixture writes land in a per-run temp dir — a battery run never mutates
+the tracked tree (tests/fixtures/ is no longer written).
 """
 
 import json
 import shutil
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 import numpy as np
@@ -35,7 +39,14 @@ SKILL = HERE.parent
 SCRIPTS = SKILL / "scripts"
 REPO = SKILL.parents[2]
 SHARED = REPO / ".claude" / "shared"
-FIXTURES = (HERE / "fixtures").resolve()
+# Per-run scratch dir only (under the gitignored repo-level tmp/ — the skill's
+# repo-root containment guard whitelists paths under REPO_ROOT, so system temp
+# is rejected): every case regenerates its campaign inputs from fixed seeds, so
+# nothing under tests/fixtures/ (tracked) is written by a battery run.
+SCRATCH_ROOT = REPO / "tmp"
+SCRATCH_ROOT.mkdir(parents=True, exist_ok=True)
+FIXTURES = Path(tempfile.mkdtemp(prefix="optimizer_loop_tests_fixtures_",
+                                 dir=str(SCRATCH_ROOT))).resolve()
 
 OPTIMIZER = SCRIPTS / "optimizer.py"
 GATE = SCRIPTS / "optimizer_gate.mjs"
@@ -807,8 +818,10 @@ def main():
     global PY
     PY = sys.executable
     selector = sys.argv[1] if len(sys.argv) > 1 else "all"
+    keep = "--keep" in sys.argv
     todo = list(CASES) if selector == "all" else (
         [selector] if selector in CASES else list(CASES))
+    print(f"[fixtures] per-run temp fixture dir: {FIXTURES}")
     for name in todo:
         print(f"\n=== {name} ===")
         try:
@@ -817,23 +830,14 @@ def main():
             record(f"{name}.case_crashed", False, f"{type(exc).__name__}: {exc}")
             import traceback
             traceback.print_exc()
-    # keep artifacts small: drop run payloads but keep inputs
-    clean(keep="--keep" in sys.argv)
     failed = [r for r in RESULTS if not r[1]]
     print(f"\n[TESTS] {len(RESULTS) - len(failed)}/{len(RESULTS)} passed"
           + (f" — FAILED: {[r[0] for r in failed]}" if failed else " — ALL GREEN"))
+    if failed or keep:
+        print(f"[fixtures] temp fixtures kept for inspection: {FIXTURES}")
+    else:
+        shutil.rmtree(FIXTURES, ignore_errors=True)
     sys.exit(1 if failed else 0)
-
-
-def clean(keep=False):
-    if keep or not FIXTURES.exists():
-        return
-    for run in FIXTURES.glob("*/run"):
-        shutil.rmtree(run, ignore_errors=True)
-    for name in ("C1_tamper", "C7_tamper", "C11_csv"):
-        d = FIXTURES / name
-        if d.exists():
-            shutil.rmtree(d, ignore_errors=True)
 
 
 if __name__ == "__main__":

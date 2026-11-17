@@ -1,0 +1,16 @@
+{
+  "scenario": "生产班组管理",
+  "objective": "识别 B 班质量与执行纪律的劣化趋势及其驱动因素",
+  "group_col": "班组",
+  "group_filter": "B班",
+  "time_col": "日期",
+  "inspection_cols": [
+    "一次合格率"
+  ],
+  "spec_limits": {
+    "一次合格率": {
+      "lsl": 96,
+      "target": 97.5
+    }
+  }
+}

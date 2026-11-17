@@ -1,0 +1,47 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"/>
+<base href="file:///D:/codes/myskills/industrial-deep-diagnostic/ppt_workspace/工业深度诊断系统使用教程-完整版/"/><style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1280px;height:720px;overflow:hidden;background:#fff;
+  font-family:'Microsoft YaHei','Source Han Sans SC',sans-serif}
+body > div{width:1280px;height:720px;display:flex;flex-direction:column}
+.tx{white-space:pre-wrap}
+img{display:block}
+</style></head><body><div style="display:flex;flex-direction:column;padding:22px 64px 18px 64px;background:#F7F4EC">
+    <div style="display:flex;flex-direction:column;width:1152px;height:102px;flex-direction:row;align-items:center;justify-content:space-between">
+        <div style="display:flex;flex-direction:column;flex-direction:column">
+            <div class="tx" style="font-size:36px;font-weight:bold;color:#1D1B16;line-height:1.25">第 5 章 · 实时监控：OMP 正在干活</div>
+            <div class="tx" style="font-size:17px;color:rgba(29,27,22,0.72);margin-top:6px">点进任务后你会一直盯着这一屏。下面这张就是本机用 OMP 引擎真实跑起来的样子</div>
+        </div>
+        <div style="display:flex;flex-direction:column;padding:10px 18px;background:#B8730F;border-radius:8px">
+            <div class="tx" style="font-size:16px;font-weight:bold;color:#FFFFFF">真实运行 #61ca314b</div>
+        </div>
+    </div>
+    <div style="display:flex;flex-direction:column;width:1152px;height:534px;flex-direction:column;gap:16px">
+        <div style="display:flex;flex-direction:column;height:470px;flex-direction:row;gap:22px">
+            <img src="assets/omp_liverun.png" style="width:700px;height:470px;border-radius:10px;border:1px solid rgba(29,27,22,0.10)"/>
+            <div style="display:flex;flex-direction:column;width:430px;height:470px;flex-direction:column;gap:10px">
+                <div style="display:flex;flex-direction:column;height:150px;padding:14px;background:#FFFFFF;border-radius:10px;border:1px solid rgba(29,27,22,0.10);flex-direction:column">
+                    <div class="tx" style="font-size:20px;font-weight:bold;color:#1D1B16">② 诊断中 + 运行号</div>
+                    <div class="tx" style="font-size:16px;color:rgba(29,27,22,0.78);line-height:1.55;margin-top:8px">状态点变绿、写出运行号，说明 OMP 已经把活接走。</div>
+                </div>
+                <div style="display:flex;flex-direction:column;height:150px;padding:14px;background:#FFFFFF;border-radius:10px;border:1px solid rgba(29,27,22,0.10);flex-direction:column">
+                    <div class="tx" style="font-size:20px;font-weight:bold;color:#1D1B16">③④ 计数器与当前工具</div>
+                    <div class="tx" style="font-size:16px;color:rgba(29,27,22,0.78);line-height:1.55;margin-top:8px">轮次 / 工具 / 消息 / 计时；进度条下方写着这一秒在跑什么，例如「执行工具：read」。</div>
+                </div>
+                <div style="display:flex;flex-direction:column;height:150px;padding:14px;background:rgba(184,115,15,0.10);border-radius:10px;border:1px solid rgba(184,115,15,0.42);flex-direction:column">
+                    <div class="tx" style="font-size:20px;font-weight:bold;color:#8A5608">⑤⑥ 事件流与插话</div>
+                    <div class="tx" style="font-size:16px;color:rgba(29,27,22,0.80);line-height:1.55;margin-top:8px">读文件、跑命令、返回结果逐条留痕；底下输入框随时能补一句引导。</div>
+                </div>
+            </div>
+        </div>
+        <div style="display:flex;flex-direction:column;height:48px;padding:12px;background:#1D1B16;border-radius:10px;flex-direction:row;align-items:center;gap:16px">
+            <div class="tx" style="font-size:17px;font-weight:bold;color:#F0A93B">① 停止</div>
+            <div class="tx" style="font-size:16px;color:rgba(247,244,236,0.84)">随时可中断。真跑一次工业诊断可能几十分钟，页面刷新不会丢进度。</div>
+        </div>
+    </div>
+    <div style="display:flex;flex-direction:column;width:1152px;height:44px;flex-direction:row;align-items:center;justify-content:space-between">
+        <div class="tx" style="font-size:15px;color:rgba(29,27,22,0.48)">左下角引擎显示 OMP Engine · 就绪 —— 这条运行就是它跑的</div>
+        <div class="tx" style="font-size:15px;color:rgba(29,27,22,0.48)">26 / 40</div>
+    </div>
+</div>
+</body></html>

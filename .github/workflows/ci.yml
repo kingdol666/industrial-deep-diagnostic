@@ -1,0 +1,78 @@
+# CI — the three gates that keep this repository honest:
+#
+#   backend      app/backend `node --test` suite (routes · services · engine adapters · HTTP e2e)
+#   scripts      repo-level guards: shared-script safety, skill contract gates, harness-mirror
+#                drift, documentation-truth numbers
+#   secret-scan  gitleaks over the full history (skipped on fork PRs — no token there)
+#
+# The same guards run locally via `npm test` at the repo root (see scripts/run-all-tests.mjs,
+# which additionally runs the 18 python runtime batteries through the shared uv venv).
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: backend tests (node --test)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app/backend
+    steps:
+      - uses: actions/checkout@v4
+      # node 24: satisfies better-sqlite3@12 engines (20.x || 22.x || 23.x || 24.x || 25.x || 26.x)
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: app/backend/package-lock.json
+      - name: Install dependencies
+        run: npm ci
+      - name: Run backend test suite
+        run: npm test
+
+  scripts:
+    name: repo guards (scripts / skills / mirrors / docs)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      # The shared python env is uv-managed (.claude/shared/scripts/pyproject.toml);
+      # these four guards are node-only, uv is provisioned for the runtime batteries
+      # that `npm test` runs locally.
+      - uses: astral-sh/setup-uv@v5
+      - name: Shared-script safety tests
+        run: node scripts/test-shared-scripts.mjs
+      - name: Skill package contract gates
+        run: node scripts/test-skills.mjs
+      - name: Harness skill mirror drift guard
+        run: node scripts/sync-harness-skills.mjs --check
+      - name: Documentation-truth guard
+        run: node scripts/check-doc-numbers.mjs
+
+  secret-scan:
+    name: secret scan (gitleaks)
+    runs-on: ubuntu-latest
+    # Fork PRs get no GITHUB_TOKEN, so gitleaks-action cannot run there — skip
+    # instead of failing. Public-repo OSS mode needs no license.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

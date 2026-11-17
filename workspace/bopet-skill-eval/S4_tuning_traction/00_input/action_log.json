@@ -1,0 +1,64 @@
+[
+  {
+    "schema_version": "1.0",
+    "ts": "2026-10-02T16:00:00+08:00",
+    "actor": {
+      "actor_id": "E-wang",
+      "actor_type": "engineer",
+      "display_alias": "王工"
+    },
+    "actions": [
+      {
+        "parameter": "纵拉拉伸速度设定",
+        "from": 52.9,
+        "to": 53.4,
+        "unit": "m/min"
+      }
+    ],
+    "context": {
+      "product": "12μm光膜",
+      "machine": "BOPET-1线",
+      "regime_label": "steady"
+    },
+    "trigger": {
+      "trigger_type": "manual"
+    },
+    "outcome": null,
+    "attribution_confounds": [],
+    "ingest_meta": {
+      "source": "manual_csv",
+      "ingested_at": "2026-10-05T09:00:00Z"
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "ts": "2026-10-03T16:00:00+08:00",
+    "actor": {
+      "actor_id": "E-li",
+      "actor_type": "engineer",
+      "display_alias": "李工"
+    },
+    "actions": [
+      {
+        "parameter": "TDO拉伸区温度CX4设定",
+        "from": 240,
+        "to": 242,
+        "unit": "℃"
+      }
+    ],
+    "context": {
+      "product": "12μm光膜",
+      "machine": "BOPET-1线",
+      "regime_label": "steady"
+    },
+    "trigger": {
+      "trigger_type": "manual"
+    },
+    "outcome": null,
+    "attribution_confounds": [],
+    "ingest_meta": {
+      "source": "manual_csv",
+      "ingested_at": "2026-10-05T09:00:00Z"
+    }
+  }
+]

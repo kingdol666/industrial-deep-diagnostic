@@ -1,0 +1,165 @@
+{
+  "contract_version": "1.0",
+  "audience": "downstream_agent",
+  "analysis_mode": "designed",
+  "operating_windows": [
+    {
+      "id": "OW-001",
+      "priority": 1,
+      "factor": "拉伸速度",
+      "factor_unit": null,
+      "response": "拉伸强度",
+      "range": [
+        50.32,
+        55.36
+      ],
+      "shape": "connected",
+      "expected_effect": {
+        "delta": 3.523247,
+        "direction_semantics": "因子 拉伸速度 每增加 1 个原始单位，响应 拉伸强度 变化约 3.523247（编码主效应 11.83811/半极差 3.36）",
+        "ci95": null,
+        "unit": "response units"
+      },
+      "confidence": "high",
+      "fdr_q": 5.538914287295304e-11,
+      "sample_size": 20,
+      "evidence_refs": [
+        "effect_table.json#拉伸强度.拉伸速度.main"
+      ],
+      "extrapolation": true,
+      "confirmation_needed": false,
+      "notes": null
+    },
+    {
+      "id": "OW-002",
+      "priority": 2,
+      "factor": "预热辊温",
+      "factor_unit": null,
+      "response": "拉伸强度",
+      "range": [
+        78.0,
+        80.1025
+      ],
+      "shape": "disconnected",
+      "expected_effect": {
+        "delta": 2.214328,
+        "direction_semantics": "因子 预热辊温 每增加 1 个原始单位，响应 拉伸强度 变化约 2.214328（编码主效应 18.622495/半极差 8.41）",
+        "ci95": null,
+        "unit": "response units"
+      },
+      "confidence": "high",
+      "fdr_q": 1.235392572428667e-12,
+      "sample_size": 20,
+      "evidence_refs": [
+        "effect_table.json#拉伸强度.预热辊温.main"
+      ],
+      "extrapolation": false,
+      "confirmation_needed": false,
+      "notes": null
+    }
+  ],
+  "current_baseline": {
+    "point": {
+      "拉伸速度": 52.0,
+      "预热辊温": 78.0
+    },
+    "distance_to_window": {
+      "OW-001": 0.0,
+      "OW-002": 0.0
+    },
+    "move_instruction": "优先处理 OW-001：将 拉伸速度 调整至 [50.32, 55.36]（当前已在窗内）"
+  },
+  "setpoints": [
+    {
+      "factor": "MULTI",
+      "value": 0.0,
+      "expected_response": {
+        "coded": {
+          "预热辊温": 0.047366,
+          "拉伸速度": 0.203696
+        },
+        "D": 0.996393,
+        "raw": {
+          "预热辊温": 78.398347,
+          "拉伸速度": 52.684418,
+          "拉伸比": 3.211626
+        }
+      },
+      "confidence": "medium"
+    }
+  ],
+  "interactions": [],
+  "conflicts": [],
+  "response_specs": {
+    "拉伸强度": {
+      "lsl": 200.0,
+      "usl": null,
+      "target": 230.0,
+      "goal": "maximize",
+      "current": 184.225
+    },
+    "雾度": {
+      "lsl": null,
+      "usl": 2.0,
+      "target": 1.2,
+      "goal": "minimize",
+      "current": 1.34875
+    },
+    "厚度偏差": {
+      "lsl": null,
+      "usl": null,
+      "target": 15.0,
+      "goal": "minimize",
+      "current": 81.555
+    }
+  },
+  "confirmations": [],
+  "watchlist": [
+    {
+      "code": "DISCONNECTED_WINDOW",
+      "message": "因子 预热辊温 的可行集不连通 — 仅报告含最优点的连通块",
+      "factor": "预热辊温"
+    },
+    {
+      "code": "STATIONARY_POINT_WARNING",
+      "message": "响应 雾度: 驻点为鞍点或落在设计域外 — 仅作警告，优化请在盒约束内进行 (W3/W5)",
+      "response": "雾度"
+    },
+    {
+      "code": "STATIONARY_POINT_WARNING",
+      "message": "响应 厚度偏差: 驻点为鞍点或落在设计域外 — 仅作警告，优化请在盒约束内进行 (W3/W5)",
+      "response": "厚度偏差"
+    }
+  ],
+  "constraints": [],
+  "applicability_domain": {
+    "n_rows": 20,
+    "time_span": null,
+    "regime": "designed region",
+    "factor_observed_ranges": {
+      "拉伸速度": {
+        "min": 48.64,
+        "max": 55.36
+      },
+      "预热辊温": {
+        "min": 69.59,
+        "max": 86.41
+      }
+    }
+  },
+  "invalidation_conditions": [
+    "任一因子越出 applicability_domain.factor_observed_ranges 的 ±20%",
+    "stability_report 变点检测触发新 regime（漂移/换产）",
+    "确认试验结果与 expected_effect 的 CI95 不相交"
+  ],
+  "usage_rules": [
+    "窗口外推端点（extrapolation=true）需工艺确认后方可执行",
+    "多响应窗口冲突以 conflicts[].chosen 为准"
+  ],
+  "provenance": {
+    "input_sha256": "41def09434fb13753595352ca47c63e067df6ba2d61d586c32ffeb9551dbb7d3",
+    "script_version": "1.0.0",
+    "seed": null,
+    "authored_by": "script"
+  }
+}

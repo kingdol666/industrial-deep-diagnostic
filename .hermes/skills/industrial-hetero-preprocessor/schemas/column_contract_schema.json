@@ -1,0 +1,61 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "column_contract_schema.json",
+  "title": "Hetero Feature Column Contract v1.1",
+  "description": "Machine-readable semantics for every HX-* derived column: the ontology builder copies unit/role/physical_meaning/formula/physics_basis/evidence fields verbatim (physical_meaning_confidence must end up KNOWN or INFERRED, never UNKNOWN); the data processor consumes stats_eligible + explicit_cols.json. Single writer: industrial-hetero-preprocessor.",
+  "type": "object",
+  "required": ["contract_version", "anchor_sha256", "columns"],
+  "properties": {
+    "contract_version": { "const": "hetero-features/1.1" },
+    "generated_at": { "type": "string" },
+    "anchor_sha256": { "type": ["string", "null"] },
+    "columns": { "type": "array", "items": { "$ref": "#/definitions/column" } }
+  },
+  "definitions": {
+    "column": {
+      "type": "object",
+      "required": [
+        "column", "shape", "source_id", "source_path", "source_sha256",
+        "unit", "role", "physical_meaning", "formula", "physics_basis",
+        "evidence_level", "evidence_level_basis", "method", "method_version",
+        "n_inputs", "coverage", "effective_n", "sparse", "stats_eligible",
+        "cadence_s", "ts_source", "tz", "tag_cn", "tag_en", "model_derived",
+        "insufficient_data"
+      ],
+      "properties": {
+        "column": { "type": "string", "pattern": "^HX-(PROF|MAP|IMG|TXT|IDX)-[A-Z0-9]+-[A-Z0-9-]+$" },
+        "shape": { "enum": ["PROF", "MAP", "IMG", "TXT", "IDX"] },
+        "source_id": { "type": "string" },
+        "source_path": { "type": "string" },
+        "source_sha256": { "type": "string" },
+        "unit": { "type": ["string", "null"] },
+        "role": { "enum": ["target_candidate", "predictor_candidate", "metadata"] },
+        "physical_meaning": { "type": "string", "minLength": 8 },
+        "formula": { "type": "string" },
+        "physics_basis": { "type": ["string", "null"] },
+        "evidence_level": { "type": "integer", "minimum": 1, "maximum": 7 },
+        "evidence_level_basis": { "type": "string" },
+        "method": { "type": "string" },
+        "method_version": { "type": "string" },
+        "normal_range": { "type": ["array", "null"], "items": { "type": ["number", "null"] } },
+        "n_inputs": { "type": "integer", "minimum": 0 },
+        "coverage": { "type": "number", "minimum": 0, "maximum": 1 },
+        "effective_n": { "type": "integer", "minimum": 0 },
+        "sparse": { "type": "boolean" },
+        "stats_eligible": { "type": "boolean" },
+        "cadence_s": { "type": ["number", "null"] },
+        "ts_source": { "type": ["string", "null"] },
+        "tz": { "type": ["string", "null"] },
+        "clock_offset_s": { "type": ["number", "null"] },
+        "tag_cn": { "type": "string" },
+        "tag_en": { "type": "string" },
+        "model_derived": { "type": "boolean" },
+        "evt_window_s": { "type": ["number", "null"], "description": "TXT event-window columns only: value=1 iff event_ts <= t < event_ts + window (forward-only expiry); the join layer enforces this instead of asof carry" },
+        "_src_ts": { "type": "string" },
+        "insufficient_data": { "type": "boolean" },
+        "first_ts": { "type": ["string", "null"] },
+        "last_ts": { "type": ["string", "null"] }
+      }
+    }
+  }
+}

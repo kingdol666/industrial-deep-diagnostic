@@ -74,6 +74,8 @@ export default {
     roleUser: 'User',
     logout: 'Log out',
     logoutTitle: 'Sign out',
+    booting: 'Establishing secure session…',
+    bootUnreachable: 'Could not verify the session with the server. Make sure the backend is running, then retry.',
   },
 
   sidebar: {
@@ -140,13 +142,6 @@ export default {
       captionPre: 'Browse',
       captionMid: 'pipeline outputs',
       runsSuffix: 'Runs',
-    },
-    closedloop: {
-      label: 'Expert Analysis',
-      kicker: 'Skill-Driven Agent Analysis',
-      title: 'Specialist Agent Analysis',
-      description: 'Stability report, sentinel screen, experience mining, optimizer campaign — each panel spawns a real agent on the selected engine that analyzes your chosen data folder under the matching skill protocol, streams the process live, and persists every artifact. Fixed-script analysis is fully retired.',
-      caption: 'Agent-executed skill analysis on your folder data',
     },
   },
 
@@ -639,6 +634,7 @@ export default {
     awaiting_input: 'Awaiting answer',
     in_progress: 'Running',
     pending: 'Pending',
+    queued: 'Queued',
     failed: 'Failed',
     stopped: 'Stopped',
     expired: 'Expired',
@@ -1014,62 +1010,6 @@ export default {
     correlationMatrix: 'Correlation Matrix',
   },
 
-  closedloop: {
-    subtabs: {
-      'stability-report': 'Line stability report',
-      'quick-screen': 'Sentinel screen',
-      'experience-mining': 'Experience mining',
-      'optimizer-campaign': 'Optimizer campaign',
-    },
-    panels: {
-      'stability-report': {
-        title: 'Line stability report (industrial-line-stability-report)',
-        desc: 'Pick a data folder; the agent executes the line-stability-report protocol for real: condition understanding → stability assessment (SPC / Cpk / drift / correlation drivers) → graded score with an evidence-backed report. Every number comes from a tool run in this execution.',
-      },
-      'quick-screen': {
-        title: 'Sentinel quick screen (industrial-sentinel)',
-        desc: 'Pick a data folder; the agent executes the sentinel protocol for real: build a baseline from history → SPC / drift / change-point screening on the current data → alert findings and a watch report.',
-      },
-      'experience-mining': {
-        title: 'Tuning experience mining (industrial-tuning-memory)',
-        desc: 'Pick a folder containing action logs; the agent executes the tuning-memory protocol for real: action attribution → experience entries → fault-signature retrieval with historical handling effects.',
-      },
-      'optimizer-campaign': {
-        title: 'Optimizer campaign (industrial-optimizer-loop)',
-        desc: 'Pick a trial/condition data folder; the agent executes the optimizer-loop protocol for real: objective parsing → trial design or convergence analysis → recipe convergence advice (design/analysis only — parameters are never dispatched).',
-      },
-    },
-    launcher: {
-      up: 'Parent folder',
-      loading: 'Loading folder…',
-      empty: 'This folder is empty.',
-      folder: 'folder',
-      selected: 'Analysis target',
-      none: 'No folder selected',
-      questionPlaceholder: 'Extra instruction for the agent (optional): parameters / period / criteria to focus on…',
-      note: 'Launching spawns a real agent on the selected engine to analyze the folder under the {skill} protocol; the process streams live.',
-      launch: 'Launch agent analysis',
-      starting: 'Spawning…',
-    },
-    runs: {
-      title: 'Recent runs for this specialist task',
-      refresh: 'Refresh',
-      loading: 'Loading…',
-      empty: 'No runs for this specialist task yet.',
-      name: 'Run',
-      status: 'Status',
-      time: 'Started',
-      open: 'Open process',
-      status_completed: 'completed',
-      status_failed: 'failed',
-      status_stopped: 'stopped',
-      status_running: 'running',
-      status_queued: 'pending',
-      status_awaiting: 'awaiting input',
-      status_expired: 'expired',
-    },
-  },
-
   workbench: {
     intentLabel: 'Analysis task (always executed by a real integrated agent)',
     agentNote: 'Once you start a task, the selected engine spawns a real agent: it reads your data, executes the matching skill protocol, and produces a report in the run directory. There is no fixed-script analysis — every number comes from a tool the agent actually ran in this run.',
@@ -1086,18 +1026,6 @@ export default {
       'quick-screen': {
         name: 'Data quick screen',
         desc: 'The agent follows the sentinel protocol to build a baseline and screen the current data for alerts',
-      },
-      'doe-analysis': {
-        name: 'DOE / condition analysis',
-        desc: 'The agent follows the doe-analyzer protocol for effects / correlation / stability / operating-window analysis',
-      },
-      'experience-mining': {
-        name: 'Experience mining',
-        desc: 'The agent follows the tuning-memory protocol to attribute action logs and produce an experience retrieval report',
-      },
-      'optimizer-campaign': {
-        name: 'Optimizer campaign',
-        desc: 'The agent follows the optimizer-loop protocol for trial design / convergence analysis and recipe advice',
       },
     },
   },

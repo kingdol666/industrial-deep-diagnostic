@@ -1,0 +1,236 @@
+{
+  "run_id": "202610162036022_heat_treat_sim",
+  "created": "2026-10-16T20:36:02.215Z",
+  "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\hetero-full-sim\\runs\\202610162036022_heat_treat_sim",
+  "status": "completed",
+  "steps": [
+    {
+      "index": 0,
+      "step": "setup",
+      "owner": "main-agent",
+      "status": "completed",
+      "attempts": 1,
+      "started_at": "2026-10-16T20:36:02.215Z",
+      "completed_at": "2026-10-16T20:36:02.215Z",
+      "last_event": "run_initialized",
+      "outputs": [],
+      "notes": []
+    },
+    {
+      "index": 1,
+      "step": "hetero_preprocess",
+      "owner": "main-agent",
+      "status": "completed",
+      "attempts": 1,
+      "started_at": "2026-10-16T20:36:02.637Z",
+      "completed_at": "2026-10-16T20:36:02.714Z",
+      "last_event": "step_complete",
+      "outputs": [
+        "07_hetero/hetero_manifest.json",
+        "07_hetero/column_contract.json",
+        "07_hetero/explicit_cols.json"
+      ],
+      "notes": []
+    },
+    {
+      "index": 2,
+      "step": "inspect",
+      "owner": "main-agent",
+      "status": "completed",
+      "attempts": 0,
+      "started_at": null,
+      "completed_at": "2026-10-16T20:36:02.791Z",
+      "last_event": "step_complete",
+      "outputs": [
+        "00_input/input_manifest.json",
+        "00_input/user_context.json",
+        "00_input/run_config.json"
+      ],
+      "notes": []
+    },
+    {
+      "index": 3,
+      "step": "context_builder",
+      "owner": "context-builder",
+      "status": "completed",
+      "attempts": 1,
+      "started_at": "2026-10-16T20:39:24.077Z",
+      "completed_at": "2026-10-16T20:39:24.237Z",
+      "last_event": "step_complete",
+      "outputs": [
+        "01_ontology/ontology.json",
+        "01_ontology/schema.json",
+        "00_input/rag_deep_understanding.json",
+        "00_input/clarification_needed.json",
+        "01_ontology/rag_deep_understanding.json"
+      ],
+      "notes": []
+    },
+    {
+      "index": 4,
+      "step": "clarification_gate",
+      "owner": "main-agent",
+      "status": "pending",
+      "attempts": 0,
+      "started_at": null,
+      "completed_at": null,
+      "last_event": null,
+      "outputs": [],
+      "notes": []
+    },
+    {
+      "index": 5,
+      "step": "data_processor",
+      "owner": "data-processor",
+      "status": "completed",
+      "attempts": 2,
+      "started_at": "2026-10-16T20:39:51.535Z",
+      "completed_at": "2026-10-16T21:42:38.207Z",
+      "last_event": "step_complete",
+      "outputs": [
+        "02_processed/data_analysis_conclusion.json",
+        "02_processed/validate_report.json",
+        "02_processed/feature_summary.json",
+        "02_processed/anomaly_report.json",
+        "02_processed/expert_findings.json",
+        "02_processed/rag_validation_report.json",
+        "03_figures/plot_manifest.json",
+        "03_figures/image_captions.json",
+        "02_processed/physics_check.json",
+        "03_figures/visual_analysis.json"
+      ],
+      "notes": []
+    },
+    {
+      "index": 6,
+      "step": "diagnostician",
+      "owner": "diagnostician",
+      "status": "completed",
+      "attempts": 1,
+      "started_at": "2026-10-16T21:08:06.486Z",
+      "completed_at": "2026-10-16T21:08:06.642Z",
+      "last_event": "agent_complete",
+      "outputs": [
+        "04_diagnostics/diagnosis.json",
+        "04_diagnostics/evidence.json",
+        "04_diagnostics/confidence.json",
+        "04_diagnostics/reasoning_chain.json"
+      ],
+      "notes": []
+    },
+    {
+      "index": 7,
+      "step": "judge",
+      "owner": "judge",
+      "status": "completed",
+      "attempts": 1,
+      "started_at": "2026-10-16T21:10:29.353Z",
+      "completed_at": "2026-10-16T21:38:00.586Z",
+      "last_event": "agent_complete",
+      "outputs": [
+        "05_review/judge_feedback.json"
+      ],
+      "notes": []
+    },
+    {
+      "index": 8,
+      "step": "reporter",
+      "owner": "reporter",
+      "status": "completed",
+      "attempts": 1,
+      "started_at": "2026-10-16T21:15:39.359Z",
+      "completed_at": "2026-10-16T21:38:00.667Z",
+      "last_event": "agent_complete",
+      "outputs": [
+        "report.md",
+        "run_summary.json"
+      ],
+      "notes": []
+    },
+    {
+      "index": 9,
+      "step": "audit",
+      "owner": "report-reviewer",
+      "status": "completed",
+      "attempts": 1,
+      "started_at": "2026-10-16T21:42:38.293Z",
+      "completed_at": "2026-10-16T21:42:56.970Z",
+      "last_event": "agent_complete",
+      "outputs": [
+        "optimizer.md"
+      ],
+      "notes": []
+    },
+    {
+      "index": 10,
+      "step": "present",
+      "owner": "main-agent",
+      "status": "completed",
+      "attempts": 0,
+      "started_at": null,
+      "completed_at": "2026-10-16T21:42:58.173Z",
+      "last_event": "run_completed",
+      "outputs": [
+        "diagnostic-report.html",
+        "05_review/html_review.json"
+      ],
+      "notes": []
+    }
+  ],
+  "execution_policy": {
+    "run_mode": "fast",
+    "conditional_stages": {
+      "data_profile_prepass": "skip",
+      "vlm_analysis": "max_4_critical_or_skip",
+      "pre_report_audit": "skip"
+    },
+    "audit": {
+      "skipped_stages": [
+        {
+          "stage": "pre_report_audit",
+          "reason": "fast_mode",
+          "event": "artifact_check_complete"
+        }
+      ],
+      "dispatch_budget_advisory": true
+    }
+  },
+  "delivery_contract": {
+    "strict_pipeline_required": true,
+    "evidence_closure_required": true,
+    "required_runtime_artifacts": [
+      "00_input/run_config.json",
+      "00_input/input_manifest.json",
+      "01_ontology/ontology.json",
+      "02_processed/scenario_classification.json",
+      "02_processed/anomaly_report.json",
+      "02_processed/data_analysis_conclusion.json",
+      "03_figures/plot_manifest.json",
+      "03_figures/visual_analysis.json",
+      "03_figures/image_captions.json",
+      "04_diagnostics/diagnosis.json",
+      "04_diagnostics/evidence.json",
+      "04_diagnostics/confidence.json",
+      "04_diagnostics/reasoning_chain.json",
+      "05_review/judge_feedback.json",
+      "report.md",
+      "run_summary.json",
+      "optimizer.md",
+      "evidence_closure_report.json"
+    ]
+  },
+  "pipeline": {
+    "version": "v6.5",
+    "current_step": "audit",
+    "current_owner": "report-reviewer",
+    "diag_iters_total": 0,
+    "repair_spawn_count": 0,
+    "artifact_finalize_runs": 0,
+    "integrity": {
+      "event_log_bootstrapped": true,
+      "evidence_closure_last_status": "not_checked",
+      "last_artifact_check": "CHECKED"
+    }
+  },
+  "updated_at": "2026-10-16T21:42:58.173Z"
+}

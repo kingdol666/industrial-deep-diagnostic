@@ -75,8 +75,8 @@ for (const sf of schemaFiles) {
   });
 }
 
-// Check skill-specific schemas
-const skillDirs = readdirSync(SKILLS_DIR, { withFileTypes: true }).filter(d => d.isDirectory());
+// Check skill-specific schemas (dot-dirs are tool state, e.g. .mimosa)
+const skillDirs = readdirSync(SKILLS_DIR, { withFileTypes: true }).filter(d => d.isDirectory() && !d.name.startsWith('.'));
 for (const sd of skillDirs) {
   const skillSchemaDir = join(SKILLS_DIR, sd.name, 'schemas');
   if (existsSync(skillSchemaDir)) {
@@ -117,7 +117,7 @@ for (const af of agentFiles) {
   agents[fm.name] = { file: af, fm };
 }
 
-test('Agent count = 14 (9 baseline + 5 enhancement)', () => Object.keys(agents).length === 14 ? true : `Got ${Object.keys(agents).length}`);
+test('Agent count = 16 (9 pipeline + 5 enhancement + 2 specialist)', () => Object.keys(agents).length === 16 ? true : `Got ${Object.keys(agents).length}`);
 
 // Check required agents present
 const requiredAgents = ['context-builder', 'data-processor', 'vlm-visual-analyzer',

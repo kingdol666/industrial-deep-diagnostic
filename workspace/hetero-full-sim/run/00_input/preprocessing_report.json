@@ -1,0 +1,189 @@
+{
+  "run_name": "heat_treat_sim",
+  "input_path": "workspace\\hetero-full-sim\\raw",
+  "input_is_directory": true,
+  "sources": [
+    {
+      "file": "README.md",
+      "role": "no_tabular",
+      "reason": "no tabular content detected"
+    }
+  ],
+  "tables": [
+    {
+      "file": "L1_band_temp_profile_30min.csv",
+      "sheet": null,
+      "format": "delimited",
+      "n_rows": 480,
+      "n_cols": 13,
+      "time_column": "时间",
+      "score": 3.38,
+      "quality_flags": {
+        "exact_duplicate_rows": {
+          "count": 0,
+          "row_indices_0based": [],
+          "row_indices_truncated": false,
+          "note": "count = redundant occurrences beyond the first (dedup is NOT applied); row_indices_0based lists the rows involved in exact duplication, 0-based within the parsed table (header excluded), capped at 10"
+        },
+        "null_cell_count": 0,
+        "encoding": "utf-8-sig",
+        "delimiter": ","
+      }
+    },
+    {
+      "file": "L1_furnace_dcs_10min.csv",
+      "sheet": null,
+      "format": "delimited",
+      "n_rows": 1440,
+      "n_cols": 8,
+      "time_column": "时间",
+      "score": 7.54,
+      "quality_flags": {
+        "exact_duplicate_rows": {
+          "count": 0,
+          "row_indices_0based": [],
+          "row_indices_truncated": false,
+          "note": "count = redundant occurrences beyond the first (dedup is NOT applied); row_indices_0based lists the rows involved in exact duplication, 0-based within the parsed table (header excluded), capped at 10"
+        },
+        "null_cell_count": 0,
+        "encoding": "utf-8-sig",
+        "delimiter": ","
+      }
+    },
+    {
+      "file": "L1_furnace_thermal_map_2h.csv",
+      "sheet": null,
+      "format": "delimited",
+      "n_rows": 2400,
+      "n_cols": 4,
+      "time_column": "时间",
+      "score": 5.7,
+      "quality_flags": {
+        "exact_duplicate_rows": {
+          "count": 0,
+          "row_indices_0based": [],
+          "row_indices_truncated": false,
+          "note": "count = redundant occurrences beyond the first (dedup is NOT applied); row_indices_0based lists the rows involved in exact duplication, 0-based within the parsed table (header excluded), capped at 10"
+        },
+        "null_cell_count": 0,
+        "encoding": "utf-8-sig",
+        "delimiter": ","
+      }
+    },
+    {
+      "file": "L1_lab_hardness_2h.csv",
+      "sheet": null,
+      "format": "delimited",
+      "n_rows": 120,
+      "n_cols": 2,
+      "time_column": "时间",
+      "score": 2.02,
+      "quality_flags": {
+        "exact_duplicate_rows": {
+          "count": 0,
+          "row_indices_0based": [],
+          "row_indices_truncated": false,
+          "note": "count = redundant occurrences beyond the first (dedup is NOT applied); row_indices_0based lists the rows involved in exact duplication, 0-based within the parsed table (header excluded), capped at 10"
+        },
+        "null_cell_count": 0,
+        "encoding": "utf-8-sig",
+        "delimiter": ","
+      }
+    },
+    {
+      "file": "L1_operator_notes.csv",
+      "sheet": null,
+      "format": "delimited",
+      "n_rows": 9,
+      "n_cols": 2,
+      "time_column": "时间",
+      "score": 1.409,
+      "quality_flags": {
+        "exact_duplicate_rows": {
+          "count": 0,
+          "row_indices_0based": [],
+          "row_indices_truncated": false,
+          "note": "count = redundant occurrences beyond the first (dedup is NOT applied); row_indices_0based lists the rows involved in exact duplication, 0-based within the parsed table (header excluded), capped at 10"
+        },
+        "null_cell_count": 0,
+        "encoding": "utf-8-sig",
+        "delimiter": ","
+      }
+    },
+    {
+      "file": "L1_surface_ccd_index.csv",
+      "sheet": null,
+      "format": "delimited",
+      "n_rows": 240,
+      "n_cols": 2,
+      "time_column": "时间",
+      "score": 1.64,
+      "quality_flags": {
+        "exact_duplicate_rows": {
+          "count": 0,
+          "row_indices_0based": [],
+          "row_indices_truncated": false,
+          "note": "count = redundant occurrences beyond the first (dedup is NOT applied); row_indices_0based lists the rows involved in exact duplication, 0-based within the parsed table (header excluded), capped at 10"
+        },
+        "null_cell_count": 0,
+        "encoding": "utf-8-sig",
+        "delimiter": ","
+      }
+    }
+  ],
+  "selected_table": {
+    "file": "L1_furnace_dcs_10min.csv",
+    "sheet": null,
+    "format": "delimited",
+    "n_rows": 1440,
+    "n_cols": 8,
+    "time_column": "时间",
+    "score": 7.54,
+    "why": "merge abandoned (anti-bloat); largest single table"
+  },
+  "merge": {
+    "strategy": "abandoned",
+    "reason": "merged rows 3720 > 1.5x largest source (2400); time keys did not align — keeping largest single table",
+    "merged_files": [
+      "L1_band_temp_profile_30min.csv",
+      "L1_furnace_dcs_10min.csv",
+      "L1_furnace_thermal_map_2h.csv",
+      "L1_lab_hardness_2h.csv",
+      "L1_surface_ccd_index.csv"
+    ]
+  },
+  "merge_exclusions": [
+    {
+      "file": "L1_operator_notes.csv",
+      "sheet": null,
+      "reason_code": "below_min_rows",
+      "detail": "9 rows < 100 merge threshold"
+    }
+  ],
+  "quality": {
+    "missing_cell_pct": 0.0,
+    "rows": 1440,
+    "cols": 8,
+    "time_column": "时间",
+    "numeric_columns": [
+      "FUR-Z1-TEMP",
+      "FUR-Z2-TEMP",
+      "FUR-Z3-TEMP",
+      "FUR-SPEED",
+      "FUR-PRES",
+      "FUR-OUT-TEMP",
+      "FUR-YIELD"
+    ],
+    "note": "missing cells stay NaN; downstream cleaning handles them"
+  },
+  "context_files": [
+    "workspace\\hetero-full-sim\\run\\00_input\\context\\README.md"
+  ],
+  "skipped_files": [],
+  "status": "ok",
+  "outputs": {
+    "preprocessed_data.csv": "workspace\\hetero-full-sim\\run\\00_input\\preprocessed_data.csv",
+    "preprocessed_data.json": "workspace\\hetero-full-sim\\run\\00_input\\preprocessed_data.json",
+    "context_dir": "workspace\\hetero-full-sim\\run\\00_input\\context"
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "design_version": "1.0",
+  "campaign_id": "OPT-20261014-001",
+  "round_id": "R002",
+  "phase": "exploit",
+  "method": "gp_ei",
+  "trials": [
+    {
+      "trial_id": "R002-T01",
+      "setpoints": {
+        "TDO定型区温度CX6": 192.504952,
+        "TDO拉伸区温度CX4": 242.261024,
+        "纵拉拉伸速度": 53.018433
+      },
+      "extrapolation": false,
+      "safety_checked": true,
+      "distance_to_incumbent_coded": 0.379646,
+      "expected": {
+        "优品率": {
+          "mean": 98.887317,
+          "ci95": [
+            98.320782,
+            99.453852
+          ]
+        }
+      },
+      "predicted_D": 0.998353,
+      "selection_reason": "gp_ei pick (EI=0, path=closed_form); gp_ei; dup_to_existing=False; nearest_data_coded=0.352",
+      "ei": 0.0,
+      "ucb": 99.453852
+    }
+  ],
+  "model_summary": {
+    "kind": "gp_ard_rbf",
+    "log_ml": -11.8006,
+    "lengthscales": {
+      "x0": -1.118767,
+      "x1": -1.170908,
+      "x2": 0.187005
+    },
+    "sigma_noise": 0.02567,
+    "fallback_active": false
+  },
+  "gating": {
+    "domain_ok": true,
+    "safety_ok": true,
+    "duplication_ratio": 0.0
+  },
+  "provenance": {
+    "input_sha256": "7e1fd5c59ddfd2e0219b4fb77ab8b8798a331eb67e98f5b5d51d75620126dbf9",
+    "script_version": "1.0.0",
+    "seed": 42,
+    "authored_by": "script"
+  }
+}

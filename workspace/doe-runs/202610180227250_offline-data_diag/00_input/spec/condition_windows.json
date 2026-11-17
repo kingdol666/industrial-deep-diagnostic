@@ -1,0 +1,35 @@
+{
+  "schema": "doe.condition-windows/1",
+  "source": "user prompt (run order as executed; timestamps UTC)",
+  "factor_columns": {
+    "hold_pressure_sp_bar": "A = 保压压力 SP (bar)",
+    "barrel_zone1_temp_sp_c": "B = 机筒一区温度 SP (℃)"
+  },
+  "conditions": [
+    {"id": "C1", "hold_pressure_sp_bar": 45, "barrel_zone1_temp_sp_c": 240,
+     "start": "2026-10-18T01:54:21.268Z", "end": "2026-10-18T01:58:21.274Z"},
+    {"id": "C2", "hold_pressure_sp_bar": 51, "barrel_zone1_temp_sp_c": 240,
+     "start": "2026-10-18T01:58:21.274Z", "end": "2026-10-18T02:04:33.364Z"},
+    {"id": "C3", "hold_pressure_sp_bar": 51, "barrel_zone1_temp_sp_c": 250,
+     "start": "2026-10-18T02:04:33.364Z", "end": "2026-10-18T02:11:51.522Z"},
+    {"id": "C4", "hold_pressure_sp_bar": 45, "barrel_zone1_temp_sp_c": 250,
+     "start": "2026-10-18T02:11:51.522Z", "end": "2026-10-18T02:18:03.592Z"},
+    {"id": "C5", "hold_pressure_sp_bar": 48, "barrel_zone1_temp_sp_c": 245,
+     "start": "2026-10-18T02:18:03.592Z", "end": "2026-10-18T02:24:15.676Z"}
+  ],
+  "node_mapping": {
+    "dn-0d8d535b": {"column": "part_weight_g", "role": "response", "unit": "g"},
+    "dn-e2b16251": {"column": "cycle_time_s", "role": "response", "unit": "s"},
+    "dn-7e7e7d41": {"column": "melt_temp_c", "role": "response", "unit": "℃"},
+    "dn-7c63393d": {"column": "injection_pressure_bar", "role": "response", "unit": "bar"},
+    "dn-272e0703": {"column": "melt_pressure_bar", "role": "context_only", "unit": "bar"},
+    "dn-c24c8256": {"column": "mold_temp_c", "role": "context_only", "unit": "℃"},
+    "dn-083b4007": {"column": "coolant_temp_c", "role": "context_only", "unit": "℃"}
+  },
+  "blocking_rule": {
+    "unit": "one shot (= one part_weight_g sample; median sample interval ~5.2 s)",
+    "secondary_signal_aggregation": "mean of 2 s samples inside [shot_ts, shot_ts + 5.2 s)",
+    "settling_guard_s": 180,
+    "balance_rule": "per condition keep the LAST K shots, K = min available shots after the settling guard"
+  }
+}

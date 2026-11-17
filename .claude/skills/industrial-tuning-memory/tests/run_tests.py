@@ -5,13 +5,17 @@ Usage (from repo root, inside the uv venv):
   uv run --project .claude/shared/scripts python \
       .claude/skills/industrial-tuning-memory/tests/run_tests.py [case|all]
 
-All fixtures are synthetic time series with fixed seeds (numpy default_rng).
+All fixtures are synthetic time series with fixed seeds (numpy default_rng);
+every case writes into a per-run temp dir, so a battery run never mutates the
+tracked tree.
 AC definitions live in tests/AC.md — each case below names the AC it proves.
 """
 
 import json
+import shutil
 import subprocess
 import sys
+import tempfile
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -27,7 +31,14 @@ DOE_SCRIPTS = REPO / ".claude" / "skills" / "industrial-doe-analyzer" / "scripts
 sys.path.insert(0, str(DOE_SCRIPTS))
 from doestats._stats_util import effective_n, lag1_autocorr, welch_delta_ci  # noqa: E402
 
-FIXTURES = (HERE / "fixtures").resolve()
+# Per-run scratch dir only (under the gitignored repo-level tmp/ — the skill's
+# repo-root containment guard whitelists paths under REPO_ROOT, so system temp
+# is rejected): every case regenerates its inputs from fixed seeds, so nothing
+# under tests/fixtures/ (tracked) is written by a battery run.
+SCRATCH_ROOT = REPO / "tmp"
+SCRATCH_ROOT.mkdir(parents=True, exist_ok=True)
+FIXTURES = Path(tempfile.mkdtemp(prefix="tuning_memory_tests_fixtures_",
+                                 dir=str(SCRATCH_ROOT))).resolve()
 BASE_TS = datetime(2026, 1, 15)
 RESULTS = []
 
@@ -168,16 +179,6 @@ def hand_neff_welch(hi, lo, rho_hi=None, rho_lo=None):
     t_crit = float(sps.t.ppf(0.975, df))
     delta = float(hi.mean() - lo.mean())
     return delta, (delta - t_crit * se, delta + t_crit * se), int(n_hi), int(n_lo)
-
-
-def clean_artifacts():
-    """Keep fixture inputs; drop generated run artifacts (like doe-analyzer)."""
-    import shutil
-    if not FIXTURES.exists():
-        return
-    for run in FIXTURES.glob("*/run"):
-        shutil.rmtree(run / "06_experience", ignore_errors=True)
-        shutil.rmtree(run / "conclusions", ignore_errors=True)
 
 
 # ------------------------------------------------------------------ cases
@@ -1013,14 +1014,18 @@ CASES = {"B1": case_b1, "B2": case_b2, "B3": case_b3, "B4": case_b4, "B5": case_
 
 def main():
     selector = sys.argv[1] if len(sys.argv) > 1 else "all"
+    keep = "--keep" in sys.argv
     todo = list(CASES) if selector == "all" else ([selector] if selector in CASES else list(CASES))
+    print(f"[fixtures] per-run temp fixture dir: {FIXTURES}")
     for name in todo:
         CASES[name]()
-    if "--keep" not in sys.argv:
-        clean_artifacts()
     failed = [r for r in RESULTS if not r[1]]
     print(f"\n[TESTS] {len(RESULTS) - len(failed)}/{len(RESULTS)} passed"
           + (f" — FAILED: {[r[0] for r in failed]}" if failed else " — ALL GREEN"))
+    if failed or keep:
+        print(f"[fixtures] temp fixtures kept for inspection: {FIXTURES}")
+    else:
+        shutil.rmtree(FIXTURES, ignore_errors=True)
     sys.exit(1 if failed else 0)
 
 

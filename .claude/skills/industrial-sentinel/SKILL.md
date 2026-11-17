@@ -105,3 +105,24 @@ uv run --project .claude/shared/scripts python \
 | detector import 失败 | 自动纯 Python 回退（无变点能力），报告中注明 |
 | 全窗口 warn 刷屏 | 先调 `thresholds.r2/r3_materiality_z`（method_notes §7），不要逐条“解释掉” |
 | gate FAIL | 脚本重算，禁止手改 alert.json 数值/枚举；最多 3 轮 |
+
+## Heterogeneous features (E-1H)
+
+E-1H (`industrial-hetero-preprocessor`) appends deterministic `HX-*` feature columns to `RUN_DIR/07_hetero/preprocessed_data_hetero.csv`
+(semantics: `column_contract.json`); watch them ONLY with the explicit CLI — never `--run-dir` or `data_path.parent/watch_config.json` defaults:
+
+```bash
+# baseline = in-control segment of the joined table (no truncation flag: cut the history file first);
+# --group-col __NONE__ (non-registered => single __ALL__ group) — else the auto hint grabs TXT shift_bucket
+python scripts/build_baseline.py --history-csv baseline_history_17d.csv --time-col 时间 --group-col __NONE__ \
+  --parameters "HX-PROF-THKSCAN-MEAN,HX-PROF-THKSCAN-EDGE-R-DEV" --out watch_baseline.json
+# watch parameters come from --config (minimal watch_config.json); --data/--out-dir explicit
+echo '{"time_col": "时间", "group_col": "__NONE__", "parameters": ["HX-PROF-THKSCAN-MEAN", "HX-PROF-THKSCAN-EDGE-R-DEV"]}' > watch_config.json
+python scripts/sentinel.py watch --data watch_window_last4d.csv --time-col 时间 \
+  --baseline watch_baseline.json --config watch_config.json --out-dir sentinel_out
+```
+
+`HX-*` columns must NOT enter the baseline default parameter set (auto numeric-column pick) and are forbidden
+in `fault_signature.anomalous_params` (industrial-tuning-memory): derived features would dilute playbook matching
+below the 0.55 threshold → silent `fallback_generic`. `HX-*` baseline coverage is explicit opt-in via
+`--parameters`/config only. Verified: `industrial-hetero-preprocessor/tests/cases/test_m3.py`.

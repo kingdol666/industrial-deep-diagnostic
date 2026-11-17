@@ -1,0 +1,740 @@
+{
+ "run_id": "202610162036022_heat_treat_sim",
+ "generated_at": "2026-10-16T20:55:27.427Z",
+ "analysis_mode": "ontology_guided_plus_custom",
+ "baseline_script_results": {
+  "scripts_run": [
+   "dp_toolkit.py preprocess (1,440 rows / 48 cols → cleaned_data.csv + data_quality_report.json)",
+   "cleaning_integrity_check.py (Phase 2.2.5 four checks)",
+   "production_regime_detector.py (v6.5; steady 1367 / transition 73 rows)",
+   "stats/run.py --mode correlation (400 target×predictor pairs)",
+   "stats/run.py --mode spurious (Simpson/trend/outlier/LOO/Spearman-divergence/change-point)",
+   "dp_toolkit.py anomaly (8 intervals)",
+   "physics_check.py (2 checks: thermal_expansion, arrhenius_kinetics)",
+   "time_lag_compensator.mjs (v6.4 artifact; 0 pairs matched — step-interval unknown, see limitation)",
+   "adaptive_charts.py (chart plan; 2D-field false-positive pruned)",
+   "generate_vlm_charts.py, dp_toolkit.py visualize (5 verified plots)"
+  ],
+  "key_findings": [
+   {
+    "finding": "Steady-state pooled Pearson r for FUR-Z3-TEMP→FUR-YIELD = 0.8987, →FUR-OUT-TEMP = 0.7419 (best lag +4 steps = +40 min, consistent with residence-time transport delay), →PROF-MEAN = 0.8584 (lag 0). Detrending attenuation ≈0 → not a linear-trend artifact.",
+    "source": "02_processed/validate_report.json (validations)",
+    "evidence_rank": 3
+   },
+   {
+    "finding": "All strong correlations are level-shift dominated: e.g. Z3→YIELD r=0.8987 vs Spearman ρ=0.5098 (|r|-|ρ| gap 0.389); 50 pairs carry pair-level trend-confounded/attenuation flags while the battery aggregate reports 0 trend-confounded — the correlation mass sits in between-regime level changes (maintenance window −4.93 °C on Z3).",
+    "source": "02_processed/validate_report.json (summary + warnings)",
+    "evidence_rank": 3
+   },
+   {
+    "finding": "Change-point evidence on DCS series: FUR-OUT-TEMP segments 549.90 °C (rows 0-721) → 546.36 °C (722-933, dip) → 549.96 °C (934+); FUR-YIELD 12 change points, degradation window mean 98.07% vs 99.30% before.",
+    "source": "02_processed/validate_report.json (summary.change_point_detection)",
+    "evidence_rank": 3
+   },
+   {
+    "finding": "FUR-SPEED–FUR-OUT-TEMP expected negative correlation NOT detectable: r=-0.0125, p=0.645 (speed range 11.826–12.157 ≈ ±1.4% — insufficient variance/power).",
+    "source": "02_processed/validate_report.json",
+    "evidence_rank": 3
+   },
+   {
+    "finding": "8 anomaly intervals detected (dp_toolkit); the dominant signature is step/plateau (see change-points), not isolated point anomalies.",
+    "source": "02_processed/anomaly_report.json",
+    "evidence_rank": 3
+   },
+   {
+    "finding": "physics_check.py: THERMAL_COUPLING_NOT_DETECTED (dimensionless deviation vs temperature r=-0.2365) and ARRHENIUS_PLAUSIBLE (predicted rate ratio 32.05) — no physics-impossible configuration found.",
+    "source": "02_processed/physics_check.json",
+    "evidence_rank": 3
+   }
+  ],
+  "limitations": [
+   "Row-level p-values for HX-involving pairs are optimistic (backward-merged step-constant blocks, effective n = snapshots).",
+   "LAB-HRC not joined to the anchor table → no hardness-side validation possible (evidence gap).",
+   "FUR-SPEED / FUR-PRES units undeclared → only relative drift usable.",
+   "IMG gray statistics uncalibrated → only relative interpretation; no dark-frame data to separate camera/lighting drift from process-driven radiance change.",
+   "time_lag_compensator.mjs matched 0 pairs (it could not resolve the step interval for the 'process_grid' axis) → lag evidence comes from the stats-lag CCF (1 step = 600 s, per 02_processed/time_alignment.json median_interval_s=600).",
+   "adaptive_charts.py false-detected a 2D field (FUR-Z1-TEMP × HX-MAP-…-POSMAX-Y); its 6 contour plots were deleted and documented in plot_manifest.metadata.excluded_charts."
+  ]
+ },
+ "expert_custom_analysis": {
+  "custom_scripts_written": true,
+  "script_inventory": [
+   {
+    "script": "06_scripts/assemble_reports.mjs",
+    "purpose": "Merge correlation+spurious runs into schema-shaped validate_report.json (400 pair records) and build feature_summary.json",
+    "inputs": [
+     "02_processed/_tmp_correlation.json",
+     "02_processed/_tmp_spurious.json",
+     "02_processed/cleaned_data.csv"
+    ],
+    "outputs": [
+     "02_processed/validate_report.json",
+     "02_processed/feature_summary.json"
+    ]
+   },
+   {
+    "script": "06_scripts/expert_analysis.py",
+    "purpose": "Regime segmentation by operator-event anchors, level-shift deltas, within-segment correlations, snapshot-level dedup re-check, confounder probes, event ±12h windows; renders profile heatmap + event-response figure",
+    "inputs": [
+     "02_processed/cleaned_data.csv",
+     "07_hetero/features/PROF-L1BANDTEMPPROFILE30M.csv",
+     "02_processed/anomaly_report.json"
+    ],
+    "outputs": [
+     "02_processed/expert_findings.json",
+     "03_figures/fig_hetero_profile_heatmap.png",
+     "03_figures/fig_event_response.png"
+    ]
+   },
+   {
+    "script": "06_scripts/causal_map.py",
+    "purpose": "Causal evidence map from validate_report edges (5.7) with hub detection",
+    "inputs": [
+     "02_processed/validate_report.json"
+    ],
+    "outputs": [
+     "02_processed/causal_evidence_map.json",
+     "03_figures/fig6_causal_evidence_map.png"
+    ]
+   },
+   {
+    "script": "06_scripts/finalize_figures.mjs",
+    "purpose": "Rebuild plot_manifest (5 plots, excluded_charts documented) + numeric image_captions.json",
+    "inputs": [
+     "02_processed/expert_findings.json",
+     "02_processed/validate_report.json"
+    ],
+    "outputs": [
+     "03_figures/plot_manifest.json",
+     "03_figures/image_captions.json"
+    ]
+   }
+  ],
+  "analysis_questions": [
+   "Is the quality excursion a level shift (regime) or a within-regime co-movement — i.e. do the strong pooled r values survive conditioning on regime?",
+   "Which segment of the furnace chain (zone temp vs field asymmetry vs surface) does the excursion localize to?",
+   "Are profile shape changes (EDGE/SLOPE) real or lateral-registration artifacts (SHIFT-EST)?",
+   "Are the strong HX (profile/field/image) correlations real or pseudo-replication of backward-merged blocks?",
+   "Can the FUR-PRES→surface-oxidation channel (ontology-predicted) be tested with the available image statistics?"
+  ],
+  "custom_outputs": [
+   "02_processed/expert_findings.json",
+   "02_processed/causal_evidence_map.json",
+   "02_processed/validate_report.json (assembled)",
+   "02_processed/feature_summary.json",
+   "03_figures/fig_hetero_profile_heatmap.png",
+   "03_figures/fig_event_response.png",
+   "03_figures/fig6_causal_evidence_map.png"
+  ],
+  "why_needed": "The fixed battery (i) pools across regimes so it cannot separate level shift from tracking — the decisive question here (within-segment correlations: Z3~YIELD = 0.027 pre / 0.855 maintenance / 0.739 restored); (ii) reports undefined correlations (0.0) for constant columns; (iii) cannot evaluate registration-drift confounder (SHIFT-EST constant) or snapshot-level dedup; (iv) produced a false 2D-field chart set that had to be pruned."
+ },
+ "ontology_industry_interpretation": [
+  {
+   "parameter_or_pattern": "FUR-Z3-TEMP locked at 880.0 ± 0.79 °C pre-event, then dropping to 875.1 (维护窗) with std 3.82 °C",
+   "ontology_role": "control (三区均热炉温; operator note 2026-02-05: 三区温度波动偏大，已通知仪表检查热电偶)",
+   "industry_knowledge": "连续退火均热段温度决定组织均匀化(Arrhenius)与最终硬度；温度波动增大同时提示燃控能力下降或热电偶/回路异常",
+   "interpretation": "均热段温度水平下降 −4.93 °C 且波动放大 4.8×（std 0.79→3.82）与操作备注的“后段持续偏低、怀疑加热管老化”完全一致；足以解释出口温度 −2.24 °C 与收得率 −0.99 pt 的水平偏移。",
+   "confidence": "high"
+  },
+  {
+   "parameter_or_pattern": "HX-MAP ASYM-LR 从 −3.56（右热）→ −1.50（近对称）→ −3.41，同期 PROF EDGE-R-DEV −2.87→−4.11→−3.31、SLOPE −0.23→−2.19→+0.39",
+   "ontology_role": "predictor (炉膛场左右不对称) → target (剖面边部偏差)，ontology relationships ASYM-LR→EDGE-*-DEV",
+   "industry_knowledge": "横向热流不对称传导为带材横向温度梯度（板形/边部性能差异）",
+   "interpretation": "右半侧先失热源（不对称度向 0 塌陷同时右边缘更冷、剖面斜率为负）→ 带材右边缘相对变冷 1.24 °C；链路方向与幅值与物理一致。",
+   "confidence": "high"
+  },
+  {
+   "parameter_or_pattern": "IMG-MEAN −7.44 / IMG-STD +10.08（维护窗水平偏移），与 Z3、PROF-MEAN、YIELD 同移动",
+   "ontology_role": "predictor (未标定整帧灰度统计)",
+   "industry_knowledge": "出炉口带材辐射亮度随带温单调变化（探测器线性区）；同时照明/增益漂移会造成类似的整帧统计协同变化",
+   "interpretation": "带材变冷→灰度均值下降、空间对比度上升与辐射物理一致，倾向真实过程通道；但无暗帧/标定数据，不能排除相机-照明漂移，需按混杂处理。",
+   "confidence": "medium"
+  },
+  {
+   "parameter_or_pattern": "FUR-OUT-TEMP 平台下移 549.90→546.36→549.96 °C（下移窗 02-07 00:20–02-08 23:40，35.3 h）",
+   "ontology_role": "target (出料温度，冷却起点)",
+   "industry_knowledge": "出料温度由均热段温度与停留时间共同决定；出口温度平台下移会整体压低后续冷却起点",
+   "interpretation": "出口温度平台与均热段掉温同步，且更换加热管后回到基线（549.96 vs 549.90），构成“加热能力损失→掉温→出口降温→质量下降”的闭环证据。",
+   "confidence": "high"
+  }
+ ],
+ "adaptive_decision_audit": {
+  "data_view_mode": "process_plus_inspection",
+  "mode_justification": "DCS 过程列（FUR-*）+ 质量/检查列（FUR-YIELD、FUR-OUT-TEMP、HX-PROF-* 剖面、HX-IMG-* 表面、HX-MAP-* 炉膛场）同时存在。",
+  "data_shapes_detected": [
+   "multi_parameter_time_series_10min",
+   "profile_over_time (PROF 30min × 12 positions)",
+   "2d_field_snapshots (MAP 5×4, 2h)",
+   "image_statistics_stream (IMG 1h)",
+   "sparse_event_markers (TXT 9 notes)",
+   "step_constant_backward_merged_HX_blocks",
+   "regime_level_shifts (maintenance/heatup)"
+  ],
+  "selected_analyses": [
+   {
+    "analysis": "M1 correlation screening on explicit hetero column lists",
+    "reason": "20 显式目标 × 20 显式预测子（含 explicit_cols.targets 全量）",
+    "evidence_artifacts": [
+     "02_processed/validate_report.json"
+    ],
+    "coverage_status": "covered"
+   },
+   {
+    "analysis": "M2 anti-spurious battery (detrending/Simpson/LOO/Spearman divergence/change points)",
+    "reason": "阶梯常量 + 水平偏移 + 趋势混杂风险",
+    "evidence_artifacts": [
+     "02_processed/validate_report.json",
+     "02_processed/_tmp_spurious.json"
+    ],
+    "coverage_status": "covered"
+   },
+   {
+    "analysis": "M4 anomaly detection",
+    "reason": "基线方法",
+    "evidence_artifacts": [
+     "02_processed/anomaly_report.json"
+    ],
+    "coverage_status": "covered"
+   },
+   {
+    "analysis": "M5 regime detection + steady-state filter",
+    "reason": "v6.5 强制；事件锚定存在",
+    "evidence_artifacts": [
+     "02_processed/production_regime_filter.json",
+     "02_processed/cleaned_data_steady_only.csv"
+    ],
+    "coverage_status": "covered"
+   },
+   {
+    "analysis": "M6 lagged CCF (stats --time-col, max-lag 20)",
+    "reason": "双驱数据；物理先导滞后待验",
+    "evidence_artifacts": [
+     "02_processed/validate_report.json (best_lags/lagged_ccf)",
+     "02_processed/time_lag_analysis.json"
+    ],
+    "coverage_status": "covered"
+   },
+   {
+    "analysis": "M7 physics checks",
+    "reason": "ontology relationships 可数值化",
+    "evidence_artifacts": [
+     "02_processed/physics_check.json"
+    ],
+    "coverage_status": "covered"
+   },
+   {
+    "analysis": "M11 event-response windows (±12h)",
+    "reason": "两个事件锚（检修/升温）",
+    "evidence_artifacts": [
+     "02_processed/expert_findings.json (event_response_windows_12h)",
+     "03_figures/fig_event_response.png"
+    ],
+    "coverage_status": "covered"
+   },
+   {
+    "analysis": "M13 custom: regime-segmented correlations + snapshot-level dedup + SHIFT-EST/constant-column probes + time×position heatmap",
+    "reason": "伪重复与 regime 塌缩是本数据集两大伪相关源",
+    "evidence_artifacts": [
+     "02_processed/expert_findings.json",
+     "03_figures/fig_hetero_profile_heatmap.png"
+    ],
+    "coverage_status": "covered"
+   }
+  ],
+  "skipped_or_not_applicable": [
+   {
+    "analysis": "M3 batch integrity",
+    "status": "not_applicable",
+    "reason": "无逐行 batch/lot 身份列（batch_id 为运行级 metadata 常量）"
+   },
+   {
+    "analysis": "M8 per-product / Simpson grouping",
+    "status": "not_applicable",
+    "reason": "单产品连续生产，无产品/牌号分组列；以 regime 分段替代"
+   },
+   {
+    "analysis": "LAB-HRC 在线-离线相关",
+    "status": "skipped",
+    "reason": "LAB-HRC 未并入锚定主表（2h 粒度，raw 文件），无法建立可信时间对齐"
+   },
+   {
+    "analysis": "--mode full (batch mode included)",
+    "status": "skipped",
+    "reason": "batch 模式不适用 → 仅 correlation + spurious 链式执行（analysis_method_plan.full_battery_justified=false）"
+   }
+  ],
+  "custom_analysis_required": true,
+  "custom_analysis_reason": "固定电池无法在 regime 混杂下判定“水平偏移 vs 真实跟踪”，也无法处理阶梯常量伪重复与配准漂移混杂。",
+  "expert_review_summary": "核心判定：强相关网为一个共享的水平偏移（三区炉温掉温）所生成，而非全域连续跟踪；分段内相关显示耦合仅在维护窗与恢复段成立（Z3~YIELD 0.855/0.739），前段 A 无耦合（0.027，且 Z3 方差受限 std 0.79 vs 3.82）。"
+ },
+ "analysis_coverage_matrix": {
+  "pure_process_analysis": {
+   "status": "covered",
+   "evidence_artifacts": [
+    "02_processed/anomaly_report.json"
+   ],
+   "summary": "Screened 20 process parameters for fluctuation, drift, span, and abrupt behavior.",
+   "gaps": []
+  },
+  "process_inspection_dual_drive": {
+   "status": "partial",
+   "evidence_artifacts": [
+    "02_processed/anomaly_report.json"
+   ],
+   "summary": "Process and inspection targets exist, but no strong cross-domain link was extracted.",
+   "gaps": [
+    "Review whether target/process column selection is correct and whether timing/group windows are too sparse."
+   ]
+  },
+  "grouping_confounding": {
+   "status": "not_applicable",
+   "evidence_artifacts": [],
+   "summary": "No product/lot/batch-style grouping column was detected.",
+   "gaps": []
+  },
+  "temporal_regime_event": {
+   "status": "not_applicable",
+   "evidence_artifacts": [],
+   "summary": "No reliable time column or transition/event artifact was detected.",
+   "gaps": [
+    "Temporal order claims should not be made."
+   ]
+  },
+  "scenario_specific": {
+   "status": "covered",
+   "evidence_artifacts": [
+    "06_scripts/assemble_reports.mjs",
+    "06_scripts/build_ontology.py",
+    "06_scripts/causal_map.py",
+    "06_scripts/expert_analysis.py",
+    "06_scripts/finalize_figures.mjs"
+   ],
+   "summary": "Scenario-specific artifacts/custom scripts were generated for the detected data structure.",
+   "gaps": []
+  }
+ },
+ "analysis_boundary": {
+  "tiers": {
+   "tier_1": [
+    "FUR-Z3-TEMP",
+    "FUR-OUT-TEMP",
+    "FUR-SPEED",
+    "FUR-YIELD",
+    "HX-PROF-L1BANDTEMPPROFILE30M-MEAN",
+    "HX-PROF-L1BANDTEMPPROFILE30M-STD",
+    "HX-PROF-L1BANDTEMPPROFILE30M-EDGE-R-DEV",
+    "HX-PROF-L1BANDTEMPPROFILE30M-SHIFT-EST",
+    "HX-MAP-L1FURNACETHERMALMAP2-MEAN",
+    "HX-MAP-L1FURNACETHERMALMAP2-ASYM-LR",
+    "HX-MAP-L1FURNACETHERMALMAP2-CENTROID-X",
+    "HX-IMG-L1SURFACECCDINDEX-DARKFRAC"
+   ],
+   "tier_2": [
+    "FUR-Z1-TEMP",
+    "FUR-Z2-TEMP",
+    "FUR-PRES",
+    "HX-PROF-L1BANDTEMPPROFILE30M-* (形状/分位剩余项)",
+    "HX-MAP-L1FURNACETHERMALMAP2-* (P95/HOTAREA/COLDAREA/CENTROID-Y/POSMAX-*)",
+    "HX-IMG-L1SURFACECCDINDEX-* (MEAN/STD/ENTROPY/SATFRAC/FOCUS)"
+   ],
+   "tier_3": [],
+   "pruned": [
+    "HX-IMG-L1SURFACECCDINDEX-N",
+    "HX-MAP-L1FURNACETHERMALMAP2-GRAD-P95",
+    "HX-MAP-L1FURNACETHERMALMAP2-N",
+    "HX-TXT-L1OPERATORNOTES-EVT-MAINTENANCE",
+    "HX-TXT-L1OPERATORNOTES-EVT-HEATUP",
+    "HX-TXT-L1OPERATORNOTES-HOUR-OF-DAY",
+    "HX-TXT-L1OPERATORNOTES-SHIFT-BUCKET-ID"
+   ]
+  },
+  "pruned_pairs": [],
+  "predictor_cols": [
+   "FUR-Z1-TEMP",
+   "FUR-Z2-TEMP",
+   "FUR-Z3-TEMP",
+   "FUR-SPEED",
+   "FUR-PRES",
+   "HX-IMG-L1SURFACECCDINDEX-MEAN",
+   "HX-IMG-L1SURFACECCDINDEX-STD",
+   "HX-IMG-L1SURFACECCDINDEX-ENTROPY",
+   "HX-IMG-L1SURFACECCDINDEX-SATFRAC",
+   "HX-IMG-L1SURFACECCDINDEX-DARKFRAC",
+   "HX-IMG-L1SURFACECCDINDEX-FOCUS",
+   "HX-MAP-L1FURNACETHERMALMAP2-MEAN",
+   "HX-MAP-L1FURNACETHERMALMAP2-P95",
+   "HX-MAP-L1FURNACETHERMALMAP2-HOTAREA-P90",
+   "HX-MAP-L1FURNACETHERMALMAP2-COLDAREA-P10",
+   "HX-MAP-L1FURNACETHERMALMAP2-CENTROID-X",
+   "HX-MAP-L1FURNACETHERMALMAP2-CENTROID-Y",
+   "HX-MAP-L1FURNACETHERMALMAP2-ASYM-LR",
+   "HX-MAP-L1FURNACETHERMALMAP2-POSMAX-X",
+   "HX-MAP-L1FURNACETHERMALMAP2-POSMAX-Y"
+  ],
+  "exclude_cols": [
+   "HX-IMG-L1SURFACECCDINDEX-N",
+   "HX-MAP-L1FURNACETHERMALMAP2-GRAD-P95",
+   "HX-MAP-L1FURNACETHERMALMAP2-N",
+   "HX-TXT-L1OPERATORNOTES-EVT-MAINTENANCE",
+   "HX-TXT-L1OPERATORNOTES-EVT-HEATUP",
+   "HX-TXT-L1OPERATORNOTES-HOUR-OF-DAY",
+   "HX-TXT-L1OPERATORNOTES-SHIFT-BUCKET-ID",
+   "时间",
+   "time_hours"
+  ],
+  "derived_features": [
+   "time_hours (dp_toolkit preprocess)"
+  ]
+ },
+ "time_lag_analysis": {
+  "applicable": true,
+  "not_applicable_reason": null,
+  "sampling_interval_seconds": 600,
+  "step_interval_note": "1 lag step = 1 anchor step = 600 s (02_processed/time_alignment.json: median_interval_s=600). time_lag_compensator.mjs could not resolve the step interval for its 'process_grid' axis (unit_conversion_available=false, 0 pairs matched) — lag evidence below is from the stats-pipeline CCF (validate_report.json) with 1 step = 600 s applied here explicitly.",
+  "max_lag_searched": {
+   "steps": 20,
+   "seconds": 12000
+  },
+  "pairs_analyzed": 400,
+  "significant_lags_found": 236,
+  "physics_consistent_count": 1,
+  "physics_discrepancy_count": 0,
+  "no_physics_prior_count": 0,
+  "key_findings": [
+   {
+    "predictor": "FUR-Z3-TEMP",
+    "target": "FUR-OUT-TEMP",
+    "optimal_lag_steps": 4,
+    "optimal_lag_seconds": 2400,
+    "confidence": "high",
+    "raw_r": 0.7419,
+    "lag_compensated_r": 0.7448,
+    "r_improvement_pct": 0.4,
+    "physics_agreement": "consistent",
+    "interpretation": "Z3 先导出口温度 ~40 min，与均热段停留时间 L/v 量级一致（ontology described strong causal, predicted minutes-scale lag）。"
+   },
+   {
+    "predictor": "FUR-Z3-TEMP",
+    "target": "FUR-YIELD",
+    "optimal_lag_steps": -1,
+    "optimal_lag_seconds": -600,
+    "confidence": "medium",
+    "raw_r": 0.8987,
+    "lag_compensated_r": 0.8988,
+    "r_improvement_pct": 0.01,
+    "physics_agreement": "not_applicable_same_step",
+    "interpretation": "近似同步（≤1 步），说明质量读数是随温度水平带动的结果量；Pearson 由水平偏移主导（ρ=0.510）。"
+   },
+   {
+    "predictor": "FUR-Z3-TEMP",
+    "target": "HX-PROF-L1BANDTEMPPROFILE30M-MEAN",
+    "optimal_lag_steps": 0,
+    "optimal_lag_seconds": 0,
+    "confidence": "medium",
+    "raw_r": 0.8584,
+    "lag_compensated_r": 0.8584,
+    "r_improvement_pct": 0,
+    "physics_agreement": "consistent (same-step measurement consistency)",
+    "interpretation": "在线剖面均值与三区炉温同步（测量一致性检查符合物理预期）。"
+   },
+   {
+    "predictor": "HX-MAP-L1FURNACETHERMALMAP2-ASYM-LR",
+    "target": "HX-PROF-L1BANDTEMPPROFILE30M-EDGE-L-DEV",
+    "optimal_lag_steps": -6,
+    "optimal_lag_seconds": -3600,
+    "confidence": "medium",
+    "raw_r": 0.6807,
+    "lag_compensated_r": 0.6869,
+    "r_improvement_pct": 0.9,
+    "physics_agreement": "consistent (横向热流不对称→边部偏差)",
+    "interpretation": "滞后处于 30min 场粒度量化带内（|lag|≤6 步≈60min）；方向符合 ontology ASYM-LR→EDGE-L-DEV 链路。"
+   }
+  ],
+  "key_recommendations": [
+   {
+    "pair": "FUR-Z3-TEMP→FUR-OUT-TEMP",
+    "recommended_lag_steps": 4,
+    "recommended_lag_seconds": 2400,
+    "action": "在后续因果对比与报告引用中固定使用 +40 min 补偿；切勿以零滞后 r=0.7419 低估耦合"
+   },
+   {
+    "pair": "FUR-Z3-TEMP→FUR-YIELD",
+    "recommended_lag_steps": -1,
+    "recommended_lag_seconds": -600,
+    "action": "按近似同步处理，并附水平偏移主导声明（ρ=0.51）"
+   },
+   {
+    "pair": "HX-MAP-*-ASYM-LR→HX-PROF-*-EDGE-L-DEV",
+    "recommended_lag_steps": -6,
+    "recommended_lag_seconds": -3600,
+    "action": "在 30min 场粒度量级内视为同步耦合；避免宣称亚小时先导"
+   }
+  ],
+  "physics_discrepancy_alerts": [
+   {
+    "pair": "FUR-SPEED→FUR-OUT-TEMP",
+    "agreement": "no_signal_due_to_low_variance",
+    "message": "Ontology 预期强负相关（t_res=L/v），实测 r=-0.0125 p=0.645；速度极差 ±1.4% → 检验功效不足，属证据缺口而非物理反驳。",
+    "expected_lag_raw": "minutes (L/v scale)",
+    "observed_lag_seconds": 0,
+    "observed_lag_note": "no significant lag measurable (low-variance regressor); 0 = placeholder per schema, do not read as a measured lag"
+   }
+  ]
+ },
+ "data_cleaning_provenance": {
+  "data_source": "cleaned",
+  "data_source_reason": "cleaning_integrity_check.py: 4/4 checks passed (row count 1440/1440, type integrity OK, range fidelity 0.0 relative deviation, batch identity N/A); no repair needed.",
+  "integrity_checks": {
+   "row_count": {
+    "raw_rows": 1440,
+    "cleaned_rows": 1440,
+    "dropped": 0,
+    "drop_rate": 0
+   },
+   "type_integrity": {
+    "status": "pass",
+    "numeric_columns_checked": 44,
+    "string_leaks": 0
+   },
+   "range_fidelity": {
+    "status": "pass",
+    "max_relative_mean_deviation": 0
+   },
+   "batch_identity": {
+    "applicable": false,
+    "reason": "no per-row batch/lot column"
+   }
+  },
+  "cleaning_operations": [
+   {
+    "operation": "time_sort",
+    "target": "时间",
+    "rows_affected": 1440,
+    "rationale": "按时间列升序排序以保证时序分析/CCF 有效（原始顺序已升序，顺序未改变）"
+   },
+   {
+    "operation": "derived_feature_add",
+    "target": "time_hours",
+    "rows_affected": 1440,
+    "rationale": "相对 2026-02-02 00:00 的小时轴，供时间趋势检查使用；HX-* 列不添加派生列（E-1H contract 约束，避免污染锚定指纹）"
+   },
+   {
+    "operation": "missing_handle",
+    "target": "全部列",
+    "rows_affected": 0,
+    "rationale": "无缺失值处理：锚定表 0 缺失；HX 列按 merge_asof_backward 语义保持阶梯常量，未做任何插值/前向填充（诚实保留 30min/1h/2h 源粒度）"
+   },
+   {
+    "operation": "regime_filter",
+    "target": "02_processed/cleaned_data_steady_only.csv",
+    "rows_affected": 73,
+    "rationale": "v6.5 稳态过滤：production_regime_detector 将 73 行标为 transition（共识变点窗口），统计层输入使用 1367 行稳态子集；原始 1440 行保留于 cleaned_data.csv/cleaned_data_full.json 供异常检测与绘图（事件窗必须可见）"
+   }
+  ],
+  "repair_attempts": []
+ },
+ "data_supported_conclusions": [
+  {
+   "conclusion": "质量异常的主形态是水平平台下移：维护窗（02-06 06:40→02-08 10:00）均值相对前段 Z3 −4.93 °C、OUT-TEMP −2.24 °C、YIELD −0.99 pt、PROF-MEAN −0.41 °C、PROF-STD +0.34；更换加热管后（D 段）恢复至 Δ −0.50/−0.13/−0.08/−0.02/+0.16。",
+   "supporting_sources": [
+    "02_processed/expert_findings.json (level_shift_deltas)",
+    "02_processed/validate_report.json (change_point_detection)"
+   ],
+   "evidence_strength": "strong",
+   "diagnostic_relevance": "定位异常时间源与恢复点（维护窗与 Q4 加热管处置直接对齐）",
+   "known_caveats": [
+    "均值差包含小样本段 C（n=66）之外的全部稳定性范围"
+   ]
+  },
+  {
+   "conclusion": "强相关是水平偏移主导而非连续跟踪：稳态池化 Z3~YIELD r=0.899（ρ=0.510）、Z3~PROF-MEAN r=0.858（ρ≈0.49）、IMG-MEAN~YIELD r=0.956（ρ=0.494）；分段内相关前段 A 近零（0.027），维护窗 0.855，恢复段 0.739。",
+   "supporting_sources": [
+    "02_processed/validate_report.json (validations, warnings)",
+    "02_processed/expert_findings.json (within_segment_pearson)"
+   ],
+   "evidence_strength": "strong",
+   "diagnostic_relevance": "防止把“水位差”误读为连续机理增益；支持以平台偏移作为证据主体",
+   "known_caveats": [
+    "A 段 Z3 方差受限（std 0.79 °C）会压低相关系数，前段近零部分源于量程受限"
+   ]
+  },
+  {
+   "conclusion": "时间先导：Z3→OUT-TEMP 最优滞后 +4 步（40 min，稳态滞后窗口一致），Z3→YIELD 近似同步（−1 步）；质量响应没有独立于炉温的额外时滞。",
+   "supporting_sources": [
+    "02_processed/validate_report.json (best_lags, lag_window_consistency)"
+   ],
+   "evidence_strength": "moderate",
+   "diagnostic_relevance": "支持“均热段炉温为质量劣化时间源”，而非下游传输/冷却环节",
+   "known_caveats": [
+    "PROF/IMG 源粒度为 30min/1h，亚步级滞后不可分辨"
+   ]
+  },
+  {
+   "conclusion": "横向链路：ASYM-LR↔EDGE-L-DEV r=0.681（ρ=0.588，lag −6 步）；维护窗内右半侧失热（ASYM −3.56→−1.50）与右边缘偏差 −1.24 °C、剖面斜率 −2.42 °C/100位 同步。",
+   "supporting_sources": [
+    "02_processed/validate_report.json",
+    "02_processed/expert_findings.json (deltas, B 段相关 0.881)"
+   ],
+   "evidence_strength": "strong",
+   "diagnostic_relevance": "把“边部质量”问题绑定到炉膛横向温度场演化（右侧热源损失），支持后段加热元件缺陷假设",
+   "known_caveats": [
+    "ASYM 几何坐标语义按声明坐标系（未再推断）"
+   ]
+  },
+  {
+   "conclusion": "形状类指标非配准伪影：SHIFT-EST 全表恒为 0（480 快照 unique=1）。",
+   "supporting_sources": [
+    "02_processed/expert_findings.json (confounder_probes)"
+   ],
+   "evidence_strength": "strong",
+   "diagnostic_relevance": "排除“横向配准漂移伪装形状变化”，使 EDGE/SLOPE 变化可作为真实证据",
+   "known_caveats": [
+    "基线模板来自 in-control 中位剖面（contract 口径）"
+   ]
+  },
+  {
+   "conclusion": "炉压→表面氧化通道不可测：IMG DARKFRAC 与 SATFRAC 全表恒 0（unique=1），FUR-PRES 相关无目标可验。",
+   "supporting_sources": [
+    "02_processed/expert_findings.json (confounder_probes)",
+    "02_processed/validate_report.json"
+   ],
+   "evidence_strength": "inconclusive",
+   "diagnostic_relevance": "明确该候选通道为数据盲区，避免下游过度解读",
+   "known_caveats": [
+    "通道死亡不等于物理不存在"
+   ]
+  },
+  {
+   "conclusion": "速度-温度机理未获得数据支持也未获反驳：FUR-SPEED~OUT-TEMP r=−0.0125（p=0.645），速度极差仅 11.826–12.157。",
+   "supporting_sources": [
+    "02_processed/validate_report.json"
+   ],
+   "evidence_strength": "inconclusive",
+   "diagnostic_relevance": "排除“速度失配”成为本轮异常根因（无变异即无证据）",
+   "known_caveats": [
+    "低方差导致检验功效不足"
+   ]
+  }
+ ],
+ "handoff_to_diagnostician": {
+  "priority_hypothesis_inputs": [
+   {
+    "candidate": "三区（后段）加热能力衰减/加热管老化 → 均热温度平台下移 → 出口温度与收得率下降",
+    "why_prioritized": "唯一满足四条件（时间先导+显著+物理机理+无矛盾）的候选：水平偏移 −4.93 °C 起于 02-06 备注窗，换管后恢复；Z3 先导 OUT-TEMP 40 min。",
+    "supporting_artifacts": [
+     "02_processed/expert_findings.json",
+     "02_processed/validate_report.json",
+     "03_figures/fig_hetero_profile_heatmap.png"
+    ]
+   },
+   {
+    "candidate": "三区热电偶/温控仪表漂移（备注 2026-02-05 已通知仪表检查）",
+    "why_prioritized": "与加热管老化在读数上难分：Z3 波动放大 4.8×（std 0.79→3.82）同时出现；需以“波动结构 vs 水平偏移”区分读数漂移与真实掉温。",
+    "supporting_artifacts": [
+     "02_processed/expert_findings.json (regime_segments)",
+     "07_hetero/annotations.json"
+    ]
+   },
+   {
+    "candidate": "炉膛右半侧热损失/不对称演化（MAP ASYM-LR 塌陷 + 右边缘偏差 + 斜率反转）",
+    "why_prioritized": "横向证据链完整（r=0.681/0.881，lag 一致），是加热管问题的空间指纹，可佐证/定位后段加热元件。",
+    "supporting_artifacts": [
+     "02_processed/expert_findings.json",
+     "03_figures/fig_hetero_profile_heatmap.png"
+    ]
+   },
+   {
+    "candidate": "CCD 相机/照明漂移（IMG 统计量协同移动）",
+    "why_prioritized": "IMG-MEAN 等与全部通道强同步（快照级 r 0.90 与 Z3），热辐射解释与相机漂移均自洽，需标定数据才能裁决。",
+    "supporting_artifacts": [
+     "02_processed/expert_findings.json (snapshot_level_correlation.immean)"
+    ]
+   },
+   {
+    "candidate": "速度-温度失配",
+    "why_prioritized": "低优先级：数据无变异（±1.4%）→ 无功效；作为排除项提交。",
+    "supporting_artifacts": [
+     "02_processed/validate_report.json"
+    ]
+   }
+  ],
+  "evidence_gaps": [
+   "LAB-HRC 硬度（2h 抽检）未并入主表 → 无法做在线-离线滞后对齐与硬度侧闭环（建议将 2h 硬度表按时间锚并入锚定主表后再验）",
+   "无冷却段参数（冷却速率是硬度重要因子，未记录）",
+   "无相机暗帧/照明基准 → IMG 通道无法与过程辐射变化分离",
+   "无来料（成分/厚度）与炉膛热电偶校准记录 → 无法排除来料与仪表校准混杂",
+   "环境温度未记录"
+  ],
+  "recommended_diagnostic_focus": [
+   "以 02-06 06:40–02-08 10:00 维护窗为异常主窗，与 02-08 更换三区后段加热管、02-10 闭环备注对齐（时间链完整）",
+   "Z3 先导 OUT-TEMP 40 min → 因果方向：均热段（三区）而非传输/冷却段",
+   "横向证据（ASYM-LR/EDGE-R-DEV/SLOPE）用于区分“后段加热元件缺陷（局部/单侧）”与“热电偶读数漂移（全局）”",
+   "把 Pearson–Spearman 背离与分段内相关差异作为证据分级依据（水平偏移类证据不应升级为连续机理证据）"
+  ]
+ },
+ "hypothesis_verdicts": [
+  {
+   "id": "H1",
+   "statement": "三区（尤其后段）炉温漂移/掉温使带材温度水平与出料温度下降，进而拖累收得率。",
+   "verdict": "supported",
+   "evidence": "水平偏移 −4.93 °C（Z3）与 OUT-TEMP −2.24 °C、YIELD −0.99 pt 同窗；Z3→OUT-TEMP lag +4 step（40 min）；恢复段 D 回到基线；deterended r 不衰减且趋势混杂检查未标记。",
+   "caveat": "池化相关系数受水平偏移主导（ρ≈0.51）；前段 A 内无耦合（0.027）部分源于量程受限。"
+  },
+  {
+   "id": "H2",
+   "statement": "维护/升温事件窗为非稳态 regime，使全域统计被 regime 塌缩污染。",
+   "verdict": "supported",
+   "evidence": "分段内相关差异巨大（A 0.027 / B 0.855 / D 0.739）；稳态过滤剔除 73 行 transition；事件 ±12h 瞬时响应仅 ±0.7~1.1 °C，主体为慢性漂移平台。",
+   "caveat": "regime detector 仅检出 1 个共识变点（窗口 72 行），换管恢复窗（02-08 10:00–21:00）需以逐段统计补充识别。"
+  },
+  {
+   "id": "H3",
+   "statement": "炉膛左右不对称传导为带材横向剖面边部偏差。",
+   "verdict": "supported",
+   "evidence": "ASYM-LR↔EDGE-L-DEV r=0.681（lag −6 步）；维护窗内 ASYM 塌陷 +2.06 与 EDGE-R-DEV −1.24 °C、SLOPE −2.42 °C/100位 同步（B 段 ASYM↔EDGE-L r=0.881）。",
+   "caveat": "MAP 场为 2h 粒度，滞后分辨率有限。"
+  },
+  {
+   "id": "H4",
+   "statement": "炉压异常→表面氧化（IMG DARKFRAC/SATFRAC）。",
+   "verdict": "indeterminate",
+   "evidence": "IMG DARKFRAC 与 SATFRAC 全表恒为 0（unique=1）→ 该通道在本数据集无观测值，无法检验。",
+   "missing_data": "需要表面检查源输出非零暗区/饱和占比（或标定后的氧化指标）才能判别该通道。"
+  },
+  {
+   "id": "H5",
+   "statement": "剖面形状变化由横向配准漂移（SHIFT-EST）伪装配。",
+   "verdict": "refuted",
+   "evidence": "SHIFT-EST 恒为 0（480 快照 unique=1，min=max=0）→ 无配准漂移；EDGE/SLOPE 变化为真实剖面变化。",
+   "caveat": "SHIFT-EST 基于 in-control 中位模板，若基线模板本身漂移将不可见。"
+  },
+  {
+   "id": "H6",
+   "statement": "CCD 相机/照明漂移使 IMG 统计量协同漂移，是跨通道混杂因子。",
+   "verdict": "indeterminate",
+   "evidence": "IMG-MEAN/STD/ENTROPY 与 Z3/YIELD/PROF 强同步（快照级 r 0.90/0.94）；热辐射通道（带材变冷→变暗、对比度升）与相机漂移均自洽。",
+   "missing_data": "需要暗帧/照明基准或标定帧序列以分离相机漂移与过程辐射变化。"
+  }
+ ],
+ "analysis_method_plan_summary": {
+  "hypotheses_n": 6,
+  "methods_selected": [
+   "M1",
+   "M2",
+   "M4",
+   "M5",
+   "M6",
+   "M7",
+   "M11",
+   "M13"
+  ],
+  "skipped_methods": [
+   "M3 (no batch column)",
+   "M8 (no grouping column)",
+   "LAB-HRC correlation (not joined)",
+   "--mode full (batch mode N/A)"
+  ],
+  "full_battery_justified": false,
+  "artifact": "02_processed/analysis_method_plan.json"
+ }
+}

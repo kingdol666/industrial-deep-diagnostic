@@ -775,9 +775,17 @@ a { color: inherit; }
   padding: 16px 22px 18px;
 }
 
-.app-content-chat,
-.app-content-diagnose {
+.app-content-chat {
   overflow: hidden;
+  padding: 10px 12px 10px;
+}
+
+/* Diagnose workbench: the task list must stay reachable in short windows.
+   The view sizes to its content and the page scrolls; the run-detail mode
+   keeps its own height-constrained internal layout (see DiagnosisView). */
+.app-content-diagnose {
+  overflow-y: auto;
+  overflow-x: hidden;
   padding: 10px 12px 10px;
 }
 
@@ -794,20 +802,6 @@ a { color: inherit; }
 }
 
 .app-content-ontology .app-view-frame.ontology-frame {
-  width: 100%;
-  height: 100%;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-/* 专项分析（智能体面板）：满高独立滚动（同本体页范式） */
-.app-content-closedloop {
-  overflow: hidden;
-  padding: 8px 12px 10px;
-}
-
-.app-content-closedloop .app-view-frame.closedloop-frame {
   width: 100%;
   height: 100%;
   min-height: 0;

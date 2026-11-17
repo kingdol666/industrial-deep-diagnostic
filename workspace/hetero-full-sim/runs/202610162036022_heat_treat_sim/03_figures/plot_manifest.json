@@ -1,0 +1,90 @@
+{
+ "plots": [
+  {
+   "filename": "fig_hetero_profile_heatmap.png",
+   "figure_type": "profile_heatmap_over_time",
+   "priority": "CRITICAL",
+   "description_zh": "带材横向温度剖面 时间×位置 热图（PROF 30min，12 位点 × 480 快照）+ 关键参数 z 叠加 + 操作事件竖线",
+   "columns": [
+    "HX-PROF-L1BANDTEMPPROFILE30M-MEAN",
+    "HX-PROF-L1BANDTEMPPROFILE30M-EDGE-L-DEV",
+    "HX-PROF-L1BANDTEMPPROFILE30M-EDGE-R-DEV",
+    "FUR-Z3-TEMP",
+    "FUR-YIELD"
+   ],
+   "path": "03_figures/fig_hetero_profile_heatmap.png"
+  },
+  {
+   "filename": "fig_vlm_temporal_overlay.png",
+   "figure_type": "vlm_temporal_overlay",
+   "priority": "CRITICAL",
+   "description_zh": "8 参数 + 2 质量目标 z 归一化共享时间轴叠加（VLM MANDATORY）",
+   "columns": [
+    "FUR-Z3-TEMP",
+    "FUR-SPEED",
+    "FUR-PRES",
+    "HX-PROF-L1BANDTEMPPROFILE30M-MEAN",
+    "HX-PROF-L1BANDTEMPPROFILE30M-EDGE-R-DEV",
+    "HX-MAP-L1FURNACETHERMALMAP2-MEAN",
+    "HX-MAP-L1FURNACETHERMALMAP2-ASYM-LR",
+    "HX-IMG-L1SURFACECCDINDEX-MEAN",
+    "FUR-YIELD",
+    "FUR-OUT-TEMP"
+   ],
+   "path": "03_figures/fig_vlm_temporal_overlay.png"
+  },
+  {
+   "filename": "fig_event_response.png",
+   "figure_type": "event_response_bar",
+   "priority": "HIGH",
+   "description_zh": "维护(02-06 06:40)/升温(02-08 10:00)事件前后 ±12h 相对变化",
+   "path": "03_figures/fig_event_response.png"
+  },
+  {
+   "filename": "fig2_key_scatter.png",
+   "figure_type": "scatter_grid",
+   "priority": "MEDIUM",
+   "description_zh": "dp_toolkit 通用图：目标-参数散点网格（含 r 标注）",
+   "path": "03_figures/fig2_key_scatter.png"
+  },
+  {
+   "filename": "fig6_causal_evidence_map.png",
+   "figure_type": "causal_evidence_map",
+   "priority": "HIGH",
+   "description_zh": "因果证据图：节点=参数/目标，边=通过 validate_report 的显著相关",
+   "path": "03_figures/fig6_causal_evidence_map.png"
+  }
+ ],
+ "metadata": {
+  "generated_by": "data-processor (finalize_figures.mjs; charts from adaptive_charts/expert_analysis/generate_vlm_charts/dp_toolkit visualize)",
+  "total_plots": 5,
+  "plot_budget": "fast mode <= 8 plots — 5 kept, all hypothesis-relevant",
+  "excluded_charts": [
+   {
+    "filename": "fig_adaptive_contour_FUR-Z2-TEMP.png",
+    "reason": "false 2D-field contour (grid-inferred axes FUR-Z1-TEMP x HX-MAP-POSMAX-Y); deleted"
+   },
+   {
+    "filename": "fig_adaptive_contour_FUR-Z3-TEMP.png",
+    "reason": "false 2D-field contour; deleted"
+   },
+   {
+    "filename": "fig_adaptive_contour_FUR-SPEED.png",
+    "reason": "false 2D-field contour; deleted"
+   },
+   {
+    "filename": "fig_adaptive_contour_FUR-PRES.png",
+    "reason": "false 2D-field contour; deleted"
+   },
+   {
+    "filename": "fig_adaptive_contour_FUR-OUT-TEMP.png",
+    "reason": "false 2D-field contour; deleted"
+   },
+   {
+    "filename": "fig_adaptive_contour_FUR-YIELD.png",
+    "reason": "false 2D-field contour; deleted"
+   }
+  ],
+  "excluded_charts_note": "adaptive_charts.py false-detected a 2D field from unrelated column pairs (FUR-Z1-TEMP x HX-MAP-POSMAX-Y, 311x4 grid); 6 junk contours were deleted; no physical x/y field exists in this dataset (time x position profiles are handled by fig_hetero_profile_heatmap.png)."
+ }
+}

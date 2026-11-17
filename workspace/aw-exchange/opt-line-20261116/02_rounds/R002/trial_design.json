@@ -1,0 +1,57 @@
+{
+  "design_version": "1.0",
+  "campaign_id": "OPT-20261116-001",
+  "round_id": "R002",
+  "phase": "explore",
+  "method": "gp_ei",
+  "trials": [
+    {
+      "trial_id": "R002-T01",
+      "setpoints": {
+        "保压压力SP": 62.536698,
+        "保压时间SP": 3.398866,
+        "冷却流量SP": 17.951263,
+        "料温SP": 208.913543
+      },
+      "extrapolation": false,
+      "safety_checked": true,
+      "distance_to_incumbent_coded": 0.481676,
+      "expected": {
+        "制品克重PV": {
+          "mean": 32.423303,
+          "ci95": [
+            32.173156,
+            32.67345
+          ]
+        }
+      },
+      "predicted_D": 0.780866,
+      "selection_reason": "gp_ei pick (EI=0.02417, path=mc_desirability); gp_ei; dup_to_existing=False; nearest_data_coded=0.436",
+      "ei": 0.02417,
+      "ucb": 32.67345
+    }
+  ],
+  "model_summary": {
+    "kind": "gp_ard_rbf",
+    "log_ml": -3.682317,
+    "lengthscales": {
+      "x0": -0.673161,
+      "x1": 0.693147,
+      "x2": 0.693147,
+      "x3": 0.693147
+    },
+    "sigma_noise": 0.017377,
+    "fallback_active": false
+  },
+  "gating": {
+    "domain_ok": true,
+    "safety_ok": true,
+    "duplication_ratio": 0.0
+  },
+  "provenance": {
+    "input_sha256": "b72299190bfce4a0c3f39370ba948569d1af598b43b329891c9714ba1c3ea063",
+    "script_version": "1.0.0",
+    "seed": 42,
+    "authored_by": "script"
+  }
+}

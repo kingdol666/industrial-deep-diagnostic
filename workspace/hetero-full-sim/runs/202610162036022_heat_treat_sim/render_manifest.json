@@ -1,0 +1,183 @@
+{
+  "run_id": "202610162036022_heat_treat_sim",
+  "scene": "heat_treat_sim · 连续热处理线（模拟 10 天连续运行）",
+  "built_by": "html-visualizer (Engineer Lin) · pipeline Step 8",
+  "build_date": "2026-10-17",
+  "output_html": "diagnostic-report.html",
+  "conclusion": {
+    "type": "DETERMINED",
+    "statement": "三区（均热段）后段加热能力损失（加热管老化/供电劣化）→ 三区炉温水平下移 + 波动放大 → 出料温度/收得率下降；更换三区后段加热管后恢复。",
+    "primary_finding_source": "04_diagnostics/diagnosis.json primary_finding（步→时间换算表述按 CP-7L 移除，见 report.md §6.1 与附录 B.5）",
+    "confidence": 76,
+    "confidence_level": "MEDIUM",
+    "evidence_level": "L1",
+    "ceiling": "无额外上限（ALL_CRITERIA_VERIFIED；COMPETING_SET ≤65 因无 INDISTINGUISHABLE 对不适用）",
+    "judge": { "score": 96, "verdict": "pass", "source": "05_review/judge_feedback.json" },
+    "audit": { "verdict": "ENDORSED", "checkpoint": "CP-8", "source": "optimizer.md" }
+  },
+  "scope": {
+    "run_id": "202610162036022_heat_treat_sim",
+    "scene": "连续热处理线 · 三区炉温控制（一区 850 ℃ / 二区 865 ℃ / 三区均热 880 ℃）",
+    "diagnosis_type": "DETERMINED",
+    "confidence": "76/100（MEDIUM）",
+    "evidence_level": "L1（直接测量）",
+    "judge_score": "96/100 pass（零阻断）",
+    "audit_verdict": "CP-8 ENDORSED",
+    "data_scale": "1440 行 × 48 列（10 min 粒度，2026-02-02 → 02-11）",
+    "degradation_window": "regime B 劣化窗 02-06 06:40 → 02-08 09:50（308 行）"
+  },
+  "hypotheses": [
+    {
+      "id": "H1",
+      "name": "三区（均热段）后段加热能力损失（加热管老化/供电劣化）→ 炉温水平下移 → 带材温度与收得率下降",
+      "status": "survived",
+      "mechanism_class": "WEAR",
+      "confidence": 76,
+      "confidence_level": "MEDIUM",
+      "key_evidence": "四条件合取满足；7 环物理链 ALL_LINKS_VALIDATED；介入—响应闭环（换管后 D−A≈0）；空间指纹（右/下侧先失热）"
+    },
+    {
+      "id": "H2",
+      "name": "三区热电偶/仪表读数漂移",
+      "status": "eliminated",
+      "exclusion_type": "COMBINED",
+      "exclusion_confidence": 90,
+      "key_evidence": "非三区独立通道同窗变化（PROF-MEAN −0.4052 ℃ / OUT −2.2418 ℃ / MAP-MEAN −0.7160 ℃ / IMG-MEAN −4.98%）+ 空间选择性（单点读数偏差不能产生横向分布指纹）+ 恢复跟随物理器件更换而非仪表处理",
+      "revival_condition": "取得校准记录且显示同期 ≥2 ℃ 校准偏移 → 按“过程+读数”复合机制重评"
+    },
+    {
+      "id": "H3",
+      "name": "全局热负荷/保温整体劣化",
+      "status": "eliminated",
+      "exclusion_type": "PHYSICAL",
+      "exclusion_confidence": 92,
+      "key_evidence": "上游一区 ΔB−A=−0.0174 ℃、二区 −0.0339 ℃（≪ std≈0.69）、炉压 Δ−0.0072、速度 +0.046% 均无偏移；场均值降幅仅为三区降幅的 14.5%（≈2.9/20 格）→ 排除“整场均匀掉温”（应≈100%）",
+      "revival_condition": "发现上游被掩盖的真实偏移，或环境/冷却条件突变可推导三区非均匀响应"
+    },
+    {
+      "id": "H4",
+      "name": "速度/停留时间失配（提速未同步提温）",
+      "status": "eliminated",
+      "exclusion_type": "STATISTICAL",
+      "exclusion_confidence": 90,
+      "key_evidence": "Z3 之外唯一预期通道亦无信号（FUR-SPEED→FUR-OUT-TEMP r=−0.0125, p=0.645）；速度极差仅 ±1.4%；段均值差 +0.046% 在 t_res=L/v 下仅解释 ΔOUT 的 11%；恢复边界速度不变（A 11.9968 vs D 11.9964）",
+      "revival_condition": "覆盖 ≥±5% 速度区间后仍现速度-温度同步偏移（现数据功效不足，属证据缺口）"
+    },
+    {
+      "id": "H5",
+      "name": "CCD 相机/照明漂移（测量侧独立驱动）",
+      "status": "eliminated",
+      "exclusion_type": "COMBINED",
+      "exclusion_confidence": 90,
+      "key_evidence": "测量侧变量不能引起 DCS 炉温/收得率/炉膛场变化；辐射量级检查 −4.98% vs Wien 预测 −5.29%（比值 1.06）无需增益漂移；恢复跟随器件更换",
+      "revival_condition": "暗帧/标定帧显示同期增益或照明变化 → IMG 幅值按混杂折减（已列 moderate）"
+    },
+    {
+      "id": "H6",
+      "name": "炉压异常→表面氧化→质量损失",
+      "status": "eliminated",
+      "exclusion_type": "COMBINED",
+      "exclusion_confidence": 90,
+      "key_evidence": "预测签名不可观测（DARKFRAC/SATFRAC 全表恒 0，n=1440 unique=1，通道死亡）；推定原因无偏移（Δ−0.0072，正常范围 37.53–38.50 p05-p95 内）；FUR-PRES→YIELD r=0.0212 grade NONE",
+      "revival_condition": "标定后氧化指标非零且与炉压超差同窗（通道死亡 ≠ 物理不存在）"
+    },
+    {
+      "id": "H7",
+      "name": "维护/升温事件瞬态扰动（事件窗近因）",
+      "status": "eliminated",
+      "exclusion_type": "COMBINED",
+      "exclusion_confidence": 90,
+      "key_evidence": "幅度不符（事件 ±12h 均值差仅为平台偏移的 14.1%/15.6%/10.7%）；形态不符（2–3 天宽底平台 vs 事件瞬态 ±12h 内衰减；event_response 柱 <0.15%）",
+      "revival_condition": "发现未记录的额外操作事件恰在平台边界且具平台持续时间（备注稀疏为已知混杂）"
+    }
+  ],
+  "evidence_layers": {
+    "layer_1_statistical": { "available": true, "basis": "validate_report 400 对验证电池 / 段均值差 / 段窗内相关 / 快照级去重相关" },
+    "layer_2_physics": { "available": true, "basis": "7 环物理逻辑链 + 热平衡 Q=hA(T_f−T_s)+εσA(T_f⁴−T_s⁴) + t_res=L/v + Arrhenius + Wien 量级 + 空间指纹" },
+    "layer_3_exclusion": { "available": true, "basis": "6 对可分辨性（6/6 DISCRIMINABLE）+ 6 假说排除（置信度 90–92）+ 复活条件 + 综合判决矩阵" }
+  },
+  "charts": [
+    {
+      "id": "chart1",
+      "title": "三区（Z3）分段均值与段内波动",
+      "type": "segment_mean_std",
+      "data_source": "02_processed/validate_report.json + expert_findings.json（经 optimizer.md §2.1 独立复算）",
+      "values": { "segments": ["A 劣化前", "B 劣化窗", "D 恢复后"], "mean_z3": [880.0079, 875.0827, 879.5107], "std_z3": [0.7865, 3.815, 1.7033] }
+    },
+    {
+      "id": "chart2",
+      "title": "分段偏移 ΔB−A 与 ΔD−A（Z3 / OUT / YIELD）",
+      "type": "delta_compare",
+      "data_source": "runner: expert_findings 段均值差（report.md §6.2 链环 7；ΔOUT 与 ΔYIELD 由段均值相减）",
+      "values": { "Z3-TEMP/℃": { "dBA": -4.9252, "dDA": -0.4972 }, "OUT-TEMP/℃": { "dBA": -2.2418, "dDA": -0.1291 }, "YIELD/pt": { "dBA": -0.9896, "dDA": -0.0822 } }
+    },
+    {
+      "id": "chart3",
+      "title": "段窗内相关（Z3 ↔ YIELD）：劣化窗耦合真实存在",
+      "type": "within_segment_corr",
+      "data_source": "02_processed/validate_report.json（regime 分层相关）+ expert_findings（快照级/段窗内）",
+      "values": { "segments": ["A 段", "B 段", "D 段"], "corr_z3_yield": [0.0267, 0.8549, 0.7393] }
+    },
+    {
+      "id": "chart4",
+      "title": "原始 vs 去趋势相关对比（主力对，detrended robustness）",
+      "type": "detrend_compare",
+      "data_source": "02_processed/validate_report.json（detrended_robust 350/400；31 对 level_shift_dominated）",
+      "values": { "pairs": ["Z3→YIELD", "Z3→OUT-TEMP"], "raw": [0.8987, 0.7419], "detrended": [0.8960, 0.7372], "spearman_z3_yield": 0.5098, "lag_compensated_z3_out": 0.7448 }
+    }
+  ],
+  "process_flow": {
+    "recoverable": true,
+    "source": "01_ontology/ontology.json scene.equipment + scene.stages（无 3d_model_data.json → 3D 场景由 ontology 工段/设备按角色几何简化重建）",
+    "stages": [
+      { "id": "S1", "name": "入炉预热（一区）", "equipment": "FUR-Z1" },
+      { "id": "S2", "name": "主加热（二区）", "equipment": "FUR-Z2" },
+      { "id": "S3", "name": "均热保温（三区）", "equipment": "FUR-Z3", "anomaly": true },
+      { "id": "S4", "name": "出料与冷却", "equipment": "FUR-OUT-TEMP" },
+      { "id": "S5", "name": "在线表面检查", "equipment": "CCD-SURF-1" },
+      { "id": "S6", "name": "实验室抽检（离线）", "equipment": "LAB-HRC" }
+    ],
+    "equipment": ["FUR-Z1", "FUR-Z2", "FUR-Z3", "FUR-LINE", "THERMO-MAP-1", "PROFILE-SENSOR-1", "CCD-SURF-1", "LAB-HRC"],
+    "zones": ["一区/预热", "二区/主加热", "三区/均热（异常）", "出料与冷却", "检测（在线+离线）"],
+    "anomaly_indices": ["FUR-Z3"],
+    "flow": "带材自 S1 → S6 单向连续流动（FUR-LINE 辊道传动决定 L/v）"
+  },
+  "available_pngs": [
+    { "file": "03_figures/fig_vlm_temporal_overlay.png", "manifest_order": 2, "priority": "CRITICAL", "layer": "layer_1_statistical", "what": "10 通道 z 归一化时序叠加：同窗下凹（day 5.2–7.3）→ 同窗回升" },
+    { "file": "03_figures/fig2_key_scatter.png", "manifest_order": 4, "priority": "MEDIUM", "layer": "layer_1_statistical", "what": "目标-参数散点网格（Z3↔YIELD r=0.899；速度–温度 r=−0.013）" },
+    { "file": "03_figures/fig6_causal_evidence_map.png", "manifest_order": 5, "priority": "HIGH", "layer": "layer_1_statistical", "what": "因果证据图：红边束汇聚 EDGE-L-DEV/YIELD/OUT-TEMP；MAP/IMG 为共线 hub（不可重复计数）" },
+    { "file": "03_figures/fig_hetero_profile_heatmap.png", "manifest_order": 1, "priority": "CRITICAL", "layer": "layer_2_physics", "what": "带材横向剖面 时间×位置 热图：整体变冷、下侧/右边缘更强、台阶式起点" },
+    { "file": "03_figures/fig_event_response.png", "manifest_order": 3, "priority": "HIGH", "layer": "layer_3_exclusion", "what": "维护/升温事件 ±12h 相对变化：除 pedger 外各柱 <0.15%（H7 排除）" }
+  ],
+  "actions": [
+    { "priority": "P0", "action": "调取三区热电偶 2026-02 校准记录，比对 02-06–02-08 窗", "verify": "无 ≥2 ℃ 同期偏移 → H2 保持排除；如有 → 按“过程+读数”复合机制重评", "effect": "关闭最大残余不确定性（±10 分口径）" },
+    { "priority": "P0", "action": "为三区后段加热元件加装功率/电流采集", "verify": "换管前后功率阶跃恢复 → 器件级升为 PROVEN；功率恒定 → H1 器件机制被否证", "effect": "器件级归因闭环" },
+    { "priority": "P1", "action": "LAB-HRC（2h 硬度）按时间锚并入锚定主表，重算与 Z3/OUT 相关", "verify": "|r|≥0.2 且同向 → 硬度链闭合（+3~5 分）；|r|<0.2 反向 → 链断裂", "effect": "补齐质量终点（当前仅 L2 佐证）" },
+    { "priority": "P1", "action": "相机暗帧/照明基准标定；冷却段参数与来料成分/厚度登记；FUR-SPEED/PRES 单位声明", "verify": "标定后 IMG-MEAN 仍随带温 → H5 幅值混杂关闭；来料记录能解释 −4.93 ℃+右侧指纹 → 让位来料解释", "effect": "关闭混杂与单位歧义" },
+    { "priority": "P2", "action": "监控 Z3 段内 std（阈值 1.6 ℃≈2× 基线）、EDGE-R-DEV、ASYM-LR 纳入日常 SPC", "verify": "收敛至基线带 → 修复完全；持续偏高 → 残余仪表/回路因素复查（H2 复活条件之一）", "effect": "确认修复完全性（M3 跟踪项）" }
+  ],
+  "appendix_disclosures": [
+    { "id": "B.1", "source": "judge warnings[0]", "topic": "OUT-TEMP 下移窗端点标签不自洽 → 本页统一采用索引口径（窗内 OUT 均值 546.3626 ℃ 可复算）" },
+    { "id": "B.2", "source": "judge warnings[1]", "topic": "reasoning_chain 演化表算术不自洽 → 以 confidence.json 五因子口径为准（H1=19+20+17+11+9=76）" },
+    { "id": "B.3", "source": "judge warnings[2]", "topic": "上游双驱动契约状态：anomaly_report 修复后含 10 条投影链接（均为 level-shift dominated 相关候选，非因果判定）；summary.integrated_links=0 待归一化" },
+    { "id": "B.4", "source": "judge warnings[3]", "topic": "图件渲染偏差：overlay 无事件标注线、heatmap 无 z 叠加子图、event_response 的 pedger 口径不同 → 目视事件先后保留“刻度换算推断 ±0.3–0.5 天”限定语" },
+    { "id": "B.5", "source": "CP-7L 纪律", "topic": "步→时间口径：全文仅述步数（如 lag +4 步），不做步→时间换算；primary_finding 引文中经换算的时长表述已移除" },
+    { "id": "E1", "source": "optimizer.md §5.1", "topic": "report.md §4.2 SLOPE A 段基线符号笔误（−0.2323 应为 +0.2323）；canonical 值为正，不影响结论与阈值" },
+    { "id": "M1", "source": "optimizer.md §5.1", "topic": "run_summary.report_stats.file_size_bytes=46116 为 CP-7L 修复前快照（现报告 46862 B），终局 finalize 重新生成即可" },
+    { "id": "M2", "source": "optimizer.md §5.1", "topic": "Wien 检查 λ 取值在 confidence.json（≈0.9 µm）与派生 −5.29%（隐含 ≈1.0 µm）间存在假设差异；结论对 λ∈[0.85,1.1] 稳健" },
+    { "id": "M3", "source": "optimizer.md §5.1", "topic": "D 段未完全收敛：EDGE-R-DEV ΔD−A=−0.4446 ℃、Z3 std 1.7033 vs 0.7865（×2.17）→ 纳入 SPC 监控" },
+    { "id": "M4", "source": "optimizer.md §5.1", "topic": "anomaly_report summary.integrated_links=0 与 10 条投影链接不一致（上游簿记待归一化）；不影响结论" }
+  ],
+  "_meta": {
+    "protocol_ack": {
+      "four_part_narrative": true,
+      "data_driven_rendering": true,
+      "fallback_branches": true
+    },
+    "fallbacks_used": [
+      "3d_model_data.json 缺失 → 3D 场景由 ontology.json scene.stages/equipment 按角色几何简化重建（工艺顺序不得篡改）",
+      "fig2_key_scatter 为 fast 模式 VLM 未直读图（INFO 级披露），页面按 image_captions.json 统计内容标注"
+    ],
+    "counts": { "hypotheses": 7, "charts": 4, "evidence_layers_available": 3, "pngs": 5, "actions": 5, "hero_scope_fields": 9 }
+  }
+}

@@ -72,7 +72,7 @@ The data-processor MUST wait for `01_ontology/ontology.json` before performing a
 
 ## Phase 0: Data Exploration — Understand BEFORE Acting
 
-- [ ] **0.1** Read all available inputs: `input_manifest.json`, `user_context.json`, `ontology.json` (MANDATORY before analysis), `rag_deep_understanding.json`
+- [ ] **0.1** Read all available inputs: `input_manifest.json`, `user_context.json`, `ontology.json` (MANDATORY before analysis), `rag_deep_understanding.json`, and when present `07_hetero/explicit_cols.json` + `07_hetero/column_contract.json` (heterogeneous `HX-*` column inventory written by `industrial-hetero-preprocessor` at Step 0.5 — `column_contract` gives per-column `stats_eligible`/`sparse`/unit, `explicit_cols` gives the deterministic `{targets, predictors, excludes}` lists)
 - [ ] **0.2** Answer six diagnostic questions: physical process type, quality targets, candidate causes, temporal structure, special data structure (zones/paired/hierarchical/profiles), and what analysis would be USELESS
 - [ ] **0.3** Write `analysis_plan.md` with: detected data view mode, scenario-specific analysis plan, Adaptive Decision Audit table, Analysis Coverage Matrix, product grouping strategy (if applicable), and what you will NOT do
 - [ ] **0.4** **MANDATORY GATE — Ontology-Guided Analysis Selection.** Read `ontology.json` thoroughly. Extract: physical roles, meaningful parameter groups (by stage/domain/causal chain), pairs that MUST be analyzed, pairs to PRUNE, quality target causal maps, and analysis priority tiers (Tier 1/2/3/PRUNED). Write `analysis_parameter_selection.json` with `predictor_cols`, `exclude_cols`, `quality_targets`, tier assignments with physical justification.
@@ -116,6 +116,12 @@ The data-processor MUST wait for `01_ontology/ontology.json` before performing a
 - [ ] **1.2.4** Update `analysis_plan.md`: add a "Hypothesis-Method Map" section (H→methods→expected discriminative power), and list the traditional must-run methods that were skipped under "Deviations from default battery".
 - Gate: `analysis_method_plan.json` exists with ≥2 hypotheses and ≥1 method per hypothesis; every skipped stats mode has a reason; `full_battery_justified=true` only when the plan genuinely selects all three stats modes.
 - Escape valve: if new evidence during Phase 2/3 execution calls for adding or removing methods → **first update the plan (new hypothesis/method entries + reasons), then execute**, and record it in the Adaptive Decision Audit at the same time. Running something "on the side" outside the plan is forbidden.
+- [ ] **1.2.5** Heterogeneous columns (only when `07_hetero/explicit_cols.json` exists):
+  - The method plan MUST include `explicit_cols.targets` (when non-empty) among the quality candidates.
+  - Statistics invocations must pass the explicit column lists — `--target-cols` / `--predictor-cols` / `--exclude-cols` — with `explicit_cols.excludes` passed in full (this is how `HX-*` columns are kept visible to the stats layer instead of silently filtered).
+  - Only HX columns with `stats_eligible: true` in `column_contract.json` may enter the target/predictor lists (judging criterion: anchor-row non-empty coverage ≥0.5).
+  - Analysis surface for sparse HX columns (`stats_eligible: false` / `sparse: true`) = `07_hetero/features/*.csv` + time×position heatmap + VLM — not `core_stats`.
+  - Disclosure rule: if `core_stats` returns `dropped_requested_columns` non-empty, this MUST be written into the `data_quality` section of `data_analysis_conclusion.json` ("requested columns rejected by the stats layer due to coverage: …") — silent omission is forbidden.
 
 ---
 

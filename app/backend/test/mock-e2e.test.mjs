@@ -9,11 +9,29 @@ import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { mkdtempSync } from 'fs';
 import { tmpdir } from 'os';
+import net from 'node:net';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const backendDir = join(here, '..');
 const repoRoot = join(backendDir, '..', '..');
-const PORT = 3977;
+
+// Ephemeral port — a FIXED port (formerly 3977) collides with a stale server
+// or another suite when `node --test` runs test files concurrently. Ask the OS
+// for a free port (bind 127.0.0.1:0, read the bound port, release the socket)
+// and hand that exact port to the backend. PORT is passed as a string env:
+// index.mjs does `process.env.PORT || serverConfig.port`, so '0' would NOT be
+// an ephemeral request but a literal port/pipe name — never pass '0'.
+async function freePort() {
+  return new Promise((resolve, reject) => {
+    const srv = net.createServer();
+    srv.once('error', reject);
+    srv.listen(0, '127.0.0.1', () => {
+      const { port } = srv.address();
+      srv.close(() => resolve(port));
+    });
+  });
+}
+const PORT = await freePort();
 const BASE = `http://127.0.0.1:${PORT}`;
 const DB_PATH = join(mkdtempSync(join(tmpdir(), 'idd-e2e-')), 'e2e.db');
 

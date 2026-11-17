@@ -7,6 +7,10 @@ description: >
   physics consistency check, physics consistency.
   Reads ontology/diagnosis/evidence/confidence/reasoning_chain/visual_analysis/deep_data_analysis
   from an existing diagnostic RUN_DIR and produces physics_bridge.json.
+  Do NOT use for the E1-E4 coverage / derived-feature / conditional layer (use industrial-deep-analysis);
+  do NOT use to orchestrate E0-E8 (use industrial-analysis-enhance-auto) or to render HTML
+  (use industrial-enhanced-html-visualizer); do NOT use for the final physical-truth audit
+  verdict on report.md (use industrial-physical-auditor).
 ---
 
 # Industrial Physics Bridge
@@ -48,6 +52,20 @@ node .claude/skills/industrial-analysis-enhance-auto/scripts/enhance_orchestrato
 ```
 
 Default output: `<RUN_DIR>/enhancement/physics_bridge.json`
+
+## Quality gate
+
+`scripts/quality_gate.mjs` deterministically gates the E5 output `enhancement/physics_bridge.json` (zero-dependency Node, machine-readable JSON verdict on stdout):
+
+```bash
+node "$SKILL_PATH/scripts/quality_gate.mjs" --run-dir "$RUN_DIR"
+```
+
+Exit codes: `0` = ok | `1` = hard error (bad inputs) | `2` = undetermined (`enhancement/` absent — the E-stage did not run) | `3` = gate-fail.
+
+Checks: artifact presence + parse; schema validity against `.claude/shared/schemas/physics_bridge_schema.json`; the five-item verification enums (direction/functional_form/time_lag ∈ `MATCH|MISMATCH|UNTESTED`, magnitude ∈ `PLAUSIBLE|STRONG|IMPLAUSIBLE|UNTESTED`, state_dependence ∈ `STABLE|STATE_DEPENDENT|REVERSES|UNTESTED`); `direction=MISMATCH ⇒ overall_status=inconsistent`; mechanism chain ids `MC-NNN` unique and at least one chain per surviving hypothesis (AC-2, when `04_diagnostics/diagnosis.json` is present); and the AC-2 direction rule against the ontology (`data_direction_validated=false` ⇒ `direction=MISMATCH`).
+
+Tests: `uv run --project .claude/shared/scripts python .claude/skills/industrial-physics-bridge/tests/run_tests.py`
 
 ## E5 Verification Protocol
 

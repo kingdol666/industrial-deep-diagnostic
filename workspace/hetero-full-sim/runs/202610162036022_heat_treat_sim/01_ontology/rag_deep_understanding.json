@@ -1,0 +1,115 @@
+{
+  "rag_engine": {
+    "endpoint": "http://localhost:8764",
+    "reachable": false,
+    "probe": "HTTP 000 (connection refused/timeout, 2026-10-17)",
+    "degraded": true,
+    "degradation_path_used": "parameter_to_physics.json (skill resource) + first-principles heat-treatment physics + scene meta-knowledge",
+    "fallback_table": ".claude/skills/industrial-ontology-builder/resources/parameter_to_physics.json",
+    "fallback_table_matched_entries": [
+      "spindle_temp_C",
+      "heat_transfer_coeff",
+      "pressure_drop_bar",
+      "temperature_C",
+      "pressure_bar",
+      "spindle_speed_rpm"
+    ]
+  },
+  "r1_semantic_comprehension": {
+    "domain": "连续热处理（金属带材连续退火/均热炉线）",
+    "principles": [
+      "牛顿换热 + 辐射换热：炉温与带材温差驱动升温/降温（Q = h·A·ΔT + εσAΔT⁴）",
+      "停留时间控制：t_res = L/v，速度与吸热量反相关",
+      "退火软化动力学：硬度随均热温度/时间按 Arrhenius 型曲线下降",
+      "横向均匀性：炉膛左右不对称加热会转化为带材边部温度偏差",
+      "气氛/压力影响氧化：炉压异常影响表面质量（灰度统计的可观测渠道）"
+    ],
+    "failure_modes": [
+      "热电偶漂移/故障（操作备注 2026-02-05：三区温度波动偏大，已通知仪表检查）",
+      "温控回路能力不足（掉温/超调）",
+      "速度与炉温失配（提速未同步提温 → 欠热）",
+      "炉膛局部热斑/左右不对称",
+      "炉压异常导致氧化/表面缺陷",
+      "维护/升温事件后的过渡期扰动"
+    ],
+    "confounders": [
+      "环境温度/冷却条件（未记录）",
+      "实验室抽检延迟与稀疏性（2h、未并入主表）",
+      "CCD 图像未标定（灰度相对值）",
+      "人工操作备注稀疏（9 条/10 天）",
+      "炉膛热电偶状态（2026-02-05 备注：波动偏大、已通知仪表检查）"
+    ]
+  },
+  "r2_knowledge_data_alignment": {
+    "stage": "STAGE_1_PRECHECK",
+    "method": "锚定主表（1440×48）基础列统计预检；HX 列沿用 contract 语义；未做完整统计分析（属 data-processor / Stage 3）",
+    "claim_validations": [
+      {
+        "claim": "三区温度稳定在设定 880℃ 附近（操作备注 2026-02-02）",
+        "source": "07_hetero/annotations.json",
+        "method": "锚定表 FUR-Z3-TEMP: mean=878.4225, std=3.2206, p05=870.9295, p95=881.1705",
+        "result": "QUANTIFIED",
+        "status": "defer_to_stage2"
+      },
+      {
+        "claim": "出口温度应低于炉温（升温路径）",
+        "source": "physics",
+        "method": "mean(FUR-OUT-TEMP)=549.3018 vs mean(FUR-Z3-TEMP)=878.4225",
+        "result": "QUANTIFIED",
+        "status": "defer_to_stage2"
+      },
+      {
+        "claim": "产线速度应基本恒定（连续生产）",
+        "source": "scene",
+        "method": "FUR-SPEED: min=11.826, max=12.157, std=0.0502",
+        "result": "QUANTIFIED",
+        "status": "defer_to_stage2"
+      },
+      {
+        "claim": "硬度应在工艺窗口内小幅波动",
+        "source": "scene",
+        "method": "LAB-HRC 未并入锚定主表（raw/L1_lab_hardness_2h.csv，2h 粒度）",
+        "result": "NOT_TESTED",
+        "status": "untestable_stage1"
+      }
+    ],
+    "validation_queue": [
+      "FUR-Z3-TEMP 与 LAB-HRC 的滞后互相关（含滞后补偿）——Stage 2/3 执行",
+      "FUR-SPEED 与 FUR-OUT-TEMP 的负相关方向验证——Stage 2/3 执行",
+      "HX-MAP ASYM-LR 与 PROF EDGE-*-DEV 的横向偏差传导——Stage 2/3 执行",
+      "EVT-MAINTENANCE/HEATUP 事件窗内炉温偏离显著性——Stage 2/3 执行"
+    ]
+  },
+  "r3_physics_principle_extraction": {
+    "conservation_laws": [
+      "能量守恒（炉膛热源 = 带材吸热 + 散热）",
+      "质量守恒（连续流）"
+    ],
+    "constitutive_relations": [
+      "Newton 对流换热 Q=hAΔT",
+      "Stefan-Boltzmann 辐射 Q=εσA(T_f⁴−T_s⁴)",
+      "Arrhenius 动力学 k=k0·exp(−Ea/RT)"
+    ],
+    "scaling_laws": [
+      "t_res = L/v（停留时间反比于速度）",
+      "热扩散时间 ∝ L²/α（横向均匀性尺度）"
+    ],
+    "threshold_physics": [
+      "氧化速率随温度非线性抬升（表面质量阈值）",
+      "欠热阈值：t_res·ΔT 低于临界值时组织不合格"
+    ]
+  },
+  "r4_gap_aware_integration": {
+    "unmatched_parameters": [
+      "FUR-SPEED / FUR-PRES 单位未声明（按相对量使用）",
+      "冷却段参数未记录（冷却速率是硬度的重要因子）",
+      "来料状态（成分/厚度）未记录"
+    ],
+    "unexplained_relationships": [
+      "LAB-HRC 与在线量仅在 2h 抽检粒度上可比，未并入主表 → 需要滞后对齐",
+      "CCD 图像未标定 → IMG 统计量只能作相对漂移使用"
+    ],
+    "domain_distance": "LOW（场景与列名自描述性强；物理先验完备）",
+    "notes": "RAG 不可用时按文档化降级路径构建；所有 HX 语义来自 contract 确定性映射（未再推断）"
+  }
+}

@@ -1,0 +1,395 @@
+{
+  "contract_version": "line-stability-report/1.0",
+  "report_id": "LSR-1791950397-ftjw44",
+  "generated_at": "2026-10-14T03:59:57Z",
+  "status": "not_assessable",
+  "line": {
+    "line_id": null,
+    "product": null
+  },
+  "period": {
+    "start": "2026-09-14 08:00:00",
+    "end": "2026-09-15 13:00:00",
+    "requested": {
+      "start": null,
+      "end": null
+    }
+  },
+  "data": {
+    "path": "workspace/lst-teaching-kit/T7_coating_too_few_rows\\00_input\\coating_30rows.csv",
+    "sha256": "sha256:c2f42c5e7496c5000cfdc32e8f42d2e49c7c07d76e9bc32e2936dbdfe4f32f97",
+    "time_col": "时间",
+    "group_col": null,
+    "group_used": null,
+    "parameter_cols": [
+      "喷房温度",
+      "链速",
+      "膜厚"
+    ],
+    "inspection_cols": [],
+    "ignored_cols": [],
+    "sampled": false,
+    "stride": 1,
+    "n_rows_raw": 30,
+    "n_rows_used": 30,
+    "time_span_seconds": 104400.0,
+    "sampling_interval_median_seconds": 3600.0,
+    "missing_rate": 0.0,
+    "coverage_ratio": 1.0,
+    "time_invariant_channels": {
+      "count": 0,
+      "total": 3,
+      "share": 0.0,
+      "examples": []
+    }
+  },
+  "condition": {
+    "ontology": {
+      "mode": "auto",
+      "path": null,
+      "source": null,
+      "reason": "no ontology artifact found (auto mode)"
+    },
+    "scene": null,
+    "columns": {
+      "喷房温度": {
+        "assigned_by": "auto",
+        "label": "喷房温度",
+        "unit": null,
+        "role": "parameter",
+        "spec": null,
+        "normal_range": null,
+        "stage": null,
+        "equipment": null,
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null
+      },
+      "链速": {
+        "assigned_by": "auto",
+        "label": "链速",
+        "unit": null,
+        "role": "parameter",
+        "spec": null,
+        "normal_range": null,
+        "stage": null,
+        "equipment": null,
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null
+      },
+      "膜厚": {
+        "assigned_by": "auto",
+        "label": "膜厚",
+        "unit": null,
+        "role": "parameter",
+        "spec": null,
+        "normal_range": null,
+        "stage": null,
+        "equipment": null,
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null
+      }
+    },
+    "relationships": [],
+    "regimes": {
+      "available": false,
+      "method": "not_assessable",
+      "change_points": [],
+      "regimes": [],
+      "abnormal_ratio": null
+    }
+  },
+  "parameters": [
+    {
+      "name": "喷房温度",
+      "role": "parameter",
+      "condition": {
+        "label": "喷房温度",
+        "unit": null,
+        "assigned_by": "auto",
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null,
+        "stage": null,
+        "equipment": null
+      },
+      "n": 30,
+      "row_range": [
+        0,
+        29
+      ],
+      "data_source": "raw",
+      "mu": 23.546667,
+      "median": 23.555,
+      "sigma": 0.437622,
+      "sigma_within_mr": 0.445097,
+      "cv": 0.018273,
+      "min": 22.42,
+      "max": 24.38,
+      "spec": {
+        "lsl": null,
+        "usl": null,
+        "target": null,
+        "source": null
+      },
+      "capability": {
+        "cp": null,
+        "cpk": null,
+        "pp": null,
+        "ppk": null
+      },
+      "nelson": {},
+      "n_violation_points": 0,
+      "drift": {
+        "slope_per_second": 4e-06,
+        "per_day_relative": 0.014264,
+        "mk_p": 0.124889,
+        "significant": false
+      },
+      "baseline_ref": null,
+      "score": 94,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": 0,
+        "cv_penalty": -6,
+        "capability_penalty": 0,
+        "drift_penalty": 0,
+        "baseline_penalty": 0,
+        "total": 94
+      }
+    },
+    {
+      "name": "链速",
+      "role": "parameter",
+      "condition": {
+        "label": "链速",
+        "unit": null,
+        "assigned_by": "auto",
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null,
+        "stage": null,
+        "equipment": null
+      },
+      "n": 30,
+      "row_range": [
+        0,
+        29
+      ],
+      "data_source": "raw",
+      "mu": 3.206733,
+      "median": 3.209,
+      "sigma": 0.031368,
+      "sigma_within_mr": 0.023508,
+      "cv": 0.009617,
+      "min": 3.141,
+      "max": 3.269,
+      "spec": {
+        "lsl": null,
+        "usl": null,
+        "target": null,
+        "source": null
+      },
+      "capability": {
+        "cp": null,
+        "cpk": null,
+        "pp": null,
+        "ppk": null
+      },
+      "nelson": {
+        "NELSON_R5": {
+          "n_episodes": 1,
+          "indices": [
+            19
+          ]
+        },
+        "NELSON_R6": {
+          "n_episodes": 1,
+          "indices": [
+            19
+          ]
+        }
+      },
+      "n_violation_points": 2,
+      "drift": {
+        "slope_per_second": -0.0,
+        "per_day_relative": 0.002908,
+        "mk_p": 0.579973,
+        "significant": false
+      },
+      "baseline_ref": null,
+      "score": 95,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -5,
+        "cv_penalty": 0,
+        "capability_penalty": 0,
+        "drift_penalty": 0,
+        "baseline_penalty": 0,
+        "total": 95
+      }
+    },
+    {
+      "name": "膜厚",
+      "role": "parameter",
+      "condition": {
+        "label": "膜厚",
+        "unit": null,
+        "assigned_by": "auto",
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null,
+        "stage": null,
+        "equipment": null
+      },
+      "n": 30,
+      "row_range": [
+        0,
+        29
+      ],
+      "data_source": "raw",
+      "mu": 27.785333,
+      "median": 27.715,
+      "sigma": 0.742957,
+      "sigma_within_mr": 0.576547,
+      "cv": 0.02629,
+      "min": 26.09,
+      "max": 29.18,
+      "spec": {
+        "lsl": null,
+        "usl": null,
+        "target": null,
+        "source": null
+      },
+      "capability": {
+        "cp": null,
+        "cpk": null,
+        "pp": null,
+        "ppk": null
+      },
+      "nelson": {
+        "NELSON_R6": {
+          "n_episodes": 1,
+          "indices": [
+            4
+          ]
+        },
+        "NELSON_R5": {
+          "n_episodes": 1,
+          "indices": [
+            5
+          ]
+        }
+      },
+      "n_violation_points": 2,
+      "drift": {
+        "slope_per_second": -6e-06,
+        "per_day_relative": 0.018041,
+        "mk_p": 0.31767,
+        "significant": false
+      },
+      "baseline_ref": null,
+      "score": 89,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -5,
+        "cv_penalty": -6,
+        "capability_penalty": 0,
+        "drift_penalty": 0,
+        "baseline_penalty": 0,
+        "total": 89
+      }
+    }
+  ],
+  "correlations": {
+    "max_lag": 10,
+    "pairs": [],
+    "contributions": []
+  },
+  "integrations": {
+    "sentinel_baseline": {
+      "used": false,
+      "path": null
+    },
+    "tuning_memory": {
+      "used": false
+    },
+    "doe_analyzer": {
+      "used": false
+    }
+  },
+  "degradations": [],
+  "limitations": {
+    "data_source": "raw (this skill never cleans or imputes; every number is recomputable from the raw table)",
+    "sampling": {
+      "n_rows_analyzed": 30,
+      "sampled": false,
+      "stride": 1,
+      "note": null
+    },
+    "missing_rate": 0.0,
+    "sampling_interval_seconds": 3600.0,
+    "spec_coverage": {
+      "user": [],
+      "ontology": [],
+      "none": [
+        "喷房温度",
+        "链速",
+        "膜厚"
+      ]
+    },
+    "model_assumptions": [
+      "lag-compensated Spearman window 0–10 rows (lead/lag beyond this window is invisible)",
+      "whole-period scoring assumes one dominant operating condition; use the regime table for segmented reading",
+      "Cpk treats within-sigma as MR̄/1.128 moving-range estimate"
+    ],
+    "confounders": [],
+    "derived_fields": [
+      "baseline_ref.robust_z",
+      "correlations.contributions.share",
+      "correlations.pairs.best_abs_r"
+    ]
+  },
+  "provenance": {
+    "input_sha256": "sha256:c2f42c5e7496c5000cfdc32e8f42d2e49c7c07d76e9bc32e2936dbdfe4f32f97",
+    "script_version": "1.0.0",
+    "authored_by": "lstcore/stability_analyzer.py",
+    "zero_llm": true,
+    "spc_source": "sentinelcore",
+    "regime_method": "not_assessable",
+    "ontology_source": null,
+    "python": "3.12.7",
+    "numpy": "2.5.2",
+    "pandas": "3.0.5",
+    "methods": [
+      "sentinelcore_nelson_episodes",
+      "mrbar_sigma_1.128",
+      "cpk_within_ppk_overall",
+      "theil_sen_mk_drift",
+      "lagged_spearman_max10",
+      "contribution_r2_share",
+      "regime_segmentation_c3",
+      "ontology_first_condition",
+      "weighted_penalty_score_v1",
+      "darwin_limitations"
+    ]
+  },
+  "findings": [],
+  "conclusion": {
+    "score": null,
+    "grade": null,
+    "grade_key": "not_assessable",
+    "label": "无法评估",
+    "statement": "数据不足以产出稳定性结论：时段内仅 30 行（最少 50 行）。请补足时段数据或放宽时间过滤后重试。",
+    "n_parameters_assessed": 3,
+    "n_findings": 0,
+    "findings_by_severity": {
+      "info": 0,
+      "warn": 0,
+      "high": 0,
+      "critical": 0
+    }
+  }
+}

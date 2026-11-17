@@ -1,0 +1,20 @@
+{
+  "run_dir": "workspace/hetero-full-sim/runs/202610162036022_heat_treat_sim",
+  "checked_at": "2026-10-16T21:42:57.958Z",
+  "status": "PASS",
+  "summary": {
+    "critical_issues": 0,
+    "warnings": 0,
+    "process_fluctuation_entry_present": true,
+    "process_fluctuation_diagnosed": true,
+    "data_view_mode": "process_plus_inspection",
+    "dual_drive_applicable": true,
+    "dual_drive_entry_present": true,
+    "dual_drive_diagnosed": true,
+    "ontology_bridge_present": true,
+    "validation_carried_forward": true,
+    "visual_evidence_carried_forward": true,
+    "report_sections_present": true
+  },
+  "issues": []
+}

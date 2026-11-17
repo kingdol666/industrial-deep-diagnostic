@@ -16,9 +16,9 @@
 <img src="https://img.shields.io/badge/%E7%AE%A1%E7%BA%BF-9%20%E6%AD%A5-e8a33d?style=flat-square" alt="9 步管线">
 <img src="https://img.shields.io/badge/%E6%89%A7%E8%A1%8C%E5%BC%95%E6%93%8E-14%20%C2%B7%20%E8%AF%8A%E6%96%AD%20%2B%20%E8%81%8A%E5%A4%A9-6ba8b8?style=flat-square" alt="14 引擎">
 <img src="https://img.shields.io/badge/%E5%9F%BA%E5%87%86-Rubric%2094.6-8fbf6a?style=flat-square" alt="基准 Rubric 94.6">
-<img src="https://img.shields.io/badge/%E5%90%8E%E7%AB%AF%E6%B5%8B%E8%AF%95-116%20%E9%80%9A%E8%BF%87-8fbf6a?style=flat-square" alt="后端测试">
+<img src="https://github.com/kingdol666/industrial-deep-diagnostic/actions/workflows/ci.yml/badge.svg" alt="CI 状态">
 <img src="https://img.shields.io/badge/%E5%90%AF%E5%8A%A8-%E4%B8%80%E6%9D%A1%E5%91%BD%E4%BB%A4-f4b65a?style=flat-square" alt="一键启动">
-<img src="https://img.shields.io/badge/Node-%E2%89%A518-339933?style=flat-square&logo=nodedotjs&logoColor=white" alt="Node">
+<img src="https://img.shields.io/badge/Node-%E2%89%A520-339933?style=flat-square&logo=nodedotjs&logoColor=white" alt="Node">
 <img src="https://img.shields.io/badge/License-MIT-success?style=flat-square" alt="License">
 
 </div>
@@ -141,7 +141,7 @@
 
 ### 🧠 排除法诊断引擎
 - **9 步全自动管线** —— 从原始数据到中文报告零干预
-- **18 个标准化技能 × 14 个专职智能体** 协同作业
+- **24 个标准化技能 × 16 个专职智能体** 协同作业
 - **竞争假设协议** —— 先建假设、再评估判别力、后排除
 - **9 道质量门（CP-1 ~ CP-9）** 逐级强制校验，不通过则阻塞或回滚
 - **反虚假关联统计** v6.4–v6.7：滞后 CCF · 稳态过滤 · 批次完整性 · 留一法杠杆
@@ -240,7 +240,7 @@
 
 | 依赖 | 版本 | 验证命令 |
 |------|:----:|----------|
-| [Node.js](https://nodejs.org/) | ≥ 18（推荐 22+） | `node --version` |
+| [Node.js](https://nodejs.org/) | ≥ 20（推荐 22+） | `node --version` |
 | [npm](https://www.npmjs.com/) | ≥ 9 | `npm --version` |
 | [Python](https://www.python.org/) | ≥ 3.10 | `python --version`（RAG 引擎 / venv 使用） |
 | [uv](https://docs.astral.sh/uv/) | 推荐 | `uv --version`（未安装时回退 pip） |
@@ -514,7 +514,7 @@ RNG seed、均匀抽样值与命中索引，抽签既可验证又可精确复现
 
 ## 🧩 技能与智能体
 
-### 18 个标准化技能
+### 24 个标准化技能
 
 `.claude/skills/<name>/` 是**唯一技能源**（OMP 经 `claude` provider 以优先级 80 发现，同时服务原生 Claude Code 发现机制），`scripts/` `schemas/` `references/` `resources/` `templates/` 全部内聚于此。
 
@@ -525,6 +525,7 @@ RNG seed、均匀抽样值与命中索引，抽签既可验证又可精确复现
 |------|-----------|---------|:------:|
 | `industrial-analysis-auto` | main-agent | 全自动编排器 | 全部 CP |
 | `industrial-data-preprocessor` | — | 多格式自适应预处理 | — |
+| `industrial-hetero-preprocessor` | — | E-1H 异构源（剖面 / 2D 场 / 图像序列 / 时间锚定文本）→ `07_hetero/**` 标量特征 + column contract | — |
 | `industrial-ontology-builder` | context-builder | `ontology.json` · RAG 深度理解 | CP-2, CP-3 |
 | `industrial-data-processor` | data-processor | `data_analysis_conclusion.json` · 9+ PNG | CP-4 |
 | `industrial-diagnostician` | diagnostician | 4 份诊断 JSON（diagnosis/evidence/confidence/reasoning_chain） | CP-5 |
@@ -541,10 +542,15 @@ RNG seed、均匀抽样值与命中索引，抽签既可验证又可精确复现
 | `rag-knowledge-builder` | — | 领域知识图谱 | — |
 | `diagnostic-html-visualizer` | — | HTML 设计系统 | — |
 | `darwin-skill` | — | 技能适应度演化评估 | — |
+| `industrial-doe-analyzer` | doe-analyst | DOE 效应 / 响应面分析 + 操作窗口推荐契约 | — |
+| `industrial-sentinel` | — | SPC 值守 + 漂移投影、告警风暴抑制 | — |
+| `industrial-tuning-memory` | — | 动作→效果归因 + 本地经验库（E0-E3） | — |
+| `industrial-optimizer-loop` | optimizer-pilot | DMTA 布点设计 + 收敛判定（仅设计/分析工件） | — |
+| `industrial-line-stability-report` | — | 0-100 稳定性评分 + 中文 HTML 报告 | — |
 
 </details>
 
-### 14 个专职智能体
+### 16 个专职智能体
 
 | 智能体 | 角色人设 | 核心产出 |
 |--------|---------|---------|
@@ -562,6 +568,8 @@ RNG seed、均匀抽样值与命中索引，抽签既可验证又可精确复现
 | `enhance-orchestrator` | 增强管线编排 | 全自动 E0-E8 增强 |
 | `enhanced-visualizer` | 增强版前端 | 增强 ECharts HTML |
 | `enhanced-html-reviewer` | 增强版评审 | 增强 HTML 评审 |
+| `doe-analyst` | 秦工 · 试验设计与工艺数据分析 | 确定性效应 / 相关性 / 稳定性分析 + 下游推荐契约 |
+| `optimizer-pilot` | 骆工 · 小试闭环寻优驾驶员 | 轮次解读 + 中文寻优报告（数字仅由脚本产出） |
 
 ---
 
@@ -780,7 +788,7 @@ industrial-deep-diagnostic/
 │   │       ├── index.mjs          # 服务入口
 │   │       ├── routes/            # REST 路由
 │   │       ├── services/          # 业务逻辑（含 ENGINES 分发表）
-│   │       ├── harness/           # 14 引擎定义（HARNESS_DEFS）
+│   │       ├── harness/           # HARNESS_DEFS：12 个引擎 + registry 中 claude/omp = 14
 │   │       ├── engine/            # 诊断引擎
 │   │       ├── transport/         # WebSocket
 │   │       └── db/                # SQLite（WAL）
@@ -793,13 +801,13 @@ industrial-deep-diagnostic/
 │           ├── i18n/              # 中英双语
 │           └── stores/            # 状态管理
 │
-├── .claude/skills/                # 18 个技能实现（唯一技能源）
+├── .claude/skills/                # 24 个技能实现（唯一技能源）
 │   ├── industrial-analysis-auto/  # 全自动编排器
 │   ├── industrial-data-processor/ # 统计分析
 │   ├── industrial-diagnostician/  # 竞争假设诊断
 │   └── ...                        # scripts / schemas / resources
 │
-├── .omp/agents/                   # 14 个 OMP 智能体定义
+├── .omp/agents/                   # 16 个 OMP 智能体定义
 │   ├── context-builder.md
 │   ├── diagnostician.md
 │   └── ...
@@ -939,7 +947,7 @@ ls -la workspace/diagnostic-runs/<run>/                         # 检查各步�
 
 | 验证 | 范围 | 结果 | 证据 |
 |------|------|------|------|
-| 后端测试套件 | 路由 · 服务 · 引擎适配器 · HTTP e2e（fake CLI / fake ACP / codex app-server） | **116/116 通过** | `app/backend npm test` |
+| 后端测试套件 | 路由 · 服务 · 引擎适配器 · HTTP e2e（fake CLI / fake ACP / codex app-server） | **CI 强制执行**（`.github/workflows/ci.yml`，当前用例数见运行日志） | `app/backend npm test` |
 | 端到端验收 | 28 项 UI 驱动检查：认证 · 数据 · 诊断 · 聊天 · 报告 · 本体 · 历史 · 引擎 · API 面 | **28/28 通过** | [`paper/workbench/e2e-acceptance-report-20260919.md`](paper/workbench/e2e-acceptance-report-20260919.md) |
 | 真实场景多 Harness | 20 轮真实工业数据诊断（mock / claude / codex / omp）+ claude / codex / omp / mock 四引擎真实对话 | 首轮 11/20 终态通过；真实 AI 轮均验证到管线阶段产物 | [`paper/workbench/real-scenario-test-report-20260919.md`](paper/workbench/real-scenario-test-report-20260919.md) |
 | 基准复跑 | 12 场景 · 四步流水线 | 12/12 · REPRODUCIBLE · rubric 94.6 | `results/benchmark/` |
