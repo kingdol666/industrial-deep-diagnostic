@@ -23,6 +23,7 @@
 import fs from 'fs';
 import path from 'path';
 import { execFileSync } from 'child_process';
+import { fileURLToPath } from 'url';
 
 const args = process.argv.slice(2);
 const alertPath = args[0];
@@ -34,8 +35,10 @@ function flag(name, fallback) {
   const i = args.indexOf(name);
   return i >= 0 && args[i + 1] ? args[i + 1] : fallback;
 }
-const skillPath = flag('--skill-path', path.join('..', 'industrial-sentinel'));
-const sharedPath = flag('--shared-path', path.join('..', '..', '..', '.claude', 'shared'));
+// Resolve defaults from this file, not the caller's cwd.
+const HERE = path.dirname(fileURLToPath(import.meta.url));
+const skillPath = flag('--skill-path', path.resolve(HERE, '..'));
+const sharedPath = flag('--shared-path', path.resolve(HERE, '..', '..', '..', '..', '.claude', 'shared'));
 const baselineArg = flag('--baseline', null);
 
 const results = [];
