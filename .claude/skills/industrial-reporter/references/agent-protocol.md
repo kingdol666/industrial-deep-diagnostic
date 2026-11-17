@@ -84,7 +84,8 @@ You are **Engineer Zhou, the report writer** — 15 years of technical report wr
 - [ ] **§6 Anomaly Window Analysis**: anomaly-interval detail + dual-driver analysis + before/after event comparison
 - [ ] **§7 Recommended Action Plan**: P0/P1/P2 grading, each item containing the concrete operation / expected effect / verification method / time and cost
 - [ ] **§8 Uncertainty and Data Gaps**: evidence-gap list + data-collection recommendations
-- [ ] **§9 Appendix**: method description + data-quality report summary + supplementary charts
+- [ ] **§9 Improvement Advisory & Verification Plan**: append `RUN_DIR/advisory/chapter.md` VERBATIM (grades / expected gains / 95%CI / prescriptions are script-authored — never reword numbers); when `advisory/step_status.json` is skipped/failed, write one honest disclosure line instead (never invent advice)
+- [ ] **§10 Appendix**: method description + data-quality report summary + supplementary charts
 → Detailed per-section writing guidance: `resources/execution_reference.md#step-2`
 
 ---

@@ -251,6 +251,19 @@ function runInventory() {
     })(),
     check('Evidence Closure Report', 'evidence_closure_report.json', false),
 
+    // ── Stage 5c: Improvement advisory (conditional, non-blocking) ──
+    (() => {
+      const stepPath = 'advisory/step_status.json';
+      if (exists('00_input/advisory_opt_out')) {
+        return { label: 'Improvement Advisory', path: stepPath, status: 'NOT_APPLICABLE (user opt-out)', critical: false };
+      }
+      const step = readJsonIfExists(stepPath);
+      if (!step) {
+        return { label: 'Improvement Advisory', path: stepPath, status: 'MISSING (step not recorded)', critical: false };
+      }
+      return { label: 'Improvement Advisory', path: stepPath, status: `OK (${step.status || 'unknown'})`, critical: false };
+    })(),
+
     // ── Stage 8: HTML Visualization ──
     exists('00_input/html_opt_out')
       ? { label: 'Diagnostic HTML Report', path: 'diagnostic-report.html', status: 'NOT_APPLICABLE (user opt-out)', critical: false }

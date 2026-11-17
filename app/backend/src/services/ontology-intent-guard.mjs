@@ -13,7 +13,7 @@ export const ONTOLOGY_FIELDS = [
 ];
 
 /** Analysis intents that actually consume ontology directives. */
-export const ONTOLOGY_INTENTS = new Set(['deep-diagnosis', 'doe-analysis', 'stability-report', 'quick-screen']);
+export const ONTOLOGY_INTENTS = new Set(['deep-diagnosis', 'doe-analysis', 'stability-report', 'quick-screen', 'improvement-advisory']);
 
 export function assertOntologyIntentSupported(analysisIntent, params = {}) {
   const hasOntologyFields = ONTOLOGY_FIELDS.some((key) =>
@@ -21,7 +21,7 @@ export function assertOntologyIntentSupported(analysisIntent, params = {}) {
   if (hasOntologyFields && !ONTOLOGY_INTENTS.has(analysisIntent)) {
     const err = new Error(
       `Ontology parameters are not supported for analysisIntent=${analysisIntent}. ` +
-      'Supported intents: deep-diagnosis, doe-analysis, stability-report, quick-screen.',
+      'Supported intents: deep-diagnosis, doe-analysis, stability-report, quick-screen, improvement-advisory.',
     );
     err.status = 400;
     err.code = 'ONTOLOGY_UNSUPPORTED_INTENT';

@@ -1,0 +1,26 @@
+{
+  "contract_version": "1.0",
+  "targets": [
+    {
+      "metric": "<KPI列名，例如 废品率 或 thickness_cv>",
+      "direction": "min",
+      "target_value": null,
+      "tolerance": null,
+      "weight": 1.0
+    }
+  ],
+  "constraints": [
+    {
+      "param": "<受约束参数列名>",
+      "min": null,
+      "max": null,
+      "type": "box",
+      "hard": false
+    }
+  ],
+  "horizon": "<优化目标覆盖时段，可留空>",
+  "dead_time": "<采样步数，或 \"unknown\"；留空 = 未提供（时间先后条件将 not_assessable，建议统一 cap B）>",
+  "levers": [],
+  "kpis": [],
+  "notes": "<可选：目标背景、产线/产品信息>"
+}

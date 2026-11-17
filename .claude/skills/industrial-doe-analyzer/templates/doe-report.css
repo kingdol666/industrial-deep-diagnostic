@@ -1,0 +1,150 @@
+/* DOE report component layer — legacy section classes mapped onto the shared
+ * evidence-ledger system (`report.css`). Tokens come from report.css; this file
+ * only re-skins the DOE-specific components (hero card, charts, badges, tabs).
+ * No new colors: everything resolves to the design-authority palette.
+ */
+.rpt-scope{
+  --bg:var(--paper); --bg-alt:#f4f1e7; --bg-card:var(--panel);
+  --hairline:var(--hair); --rule:var(--hair-strong);
+  --t1:var(--ink); --t2:var(--ink-soft); --t3:var(--muted);
+  --green:#2d7d4f; --red:#c4433b; --gold:#8a6d3b;
+}
+.rpt-scope .rpt-body-grid.no-margin{grid-template-columns:56px minmax(0,1fr)}
+.rpt-scope *{box-sizing:border-box}
+.rpt-scope code,.rpt-scope .mono{font-family:var(--mono);font-size:.78rem}
+.rpt-scope .num{font-family:var(--mono);text-align:right}
+.rpt-scope .sha{word-break:break-all;font-size:.68rem;color:var(--t3)}
+.rpt-scope .body-l{font-size:1.02rem;max-width:860px}
+.rpt-scope .body-note,.rpt-scope .t3{color:var(--t3);font-size:.82rem}
+.rpt-scope .t2{color:var(--t2)}
+.rpt-scope .twocol{display:flex;gap:40px;flex-wrap:wrap}
+.rpt-scope .twocol>div{flex:1 1 340px;min-width:0}
+.rpt-scope h3.block-title{font-family:var(--serif);font-size:1.05rem;font-weight:600;
+  margin:26px 0 10px;border-bottom:1px solid var(--hairline);padding-bottom:6px}
+
+/* hero card (10 秒结论) */
+.rpt-scope .hero-card{background:var(--bg-card);border:1px solid var(--hair);
+  border-top:3px solid var(--ink);padding:20px 22px}
+.rpt-scope .hero-badges{display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  border-bottom:1px solid var(--hair);padding-bottom:12px}
+.rpt-scope .grade-badge{font-family:var(--serif);font-size:1.9rem;font-weight:600;
+  line-height:1;padding:8px 14px;border:2px solid currentColor}
+.rpt-scope .g-green{color:var(--green)}
+.rpt-scope .g-gold{color:var(--gold)}
+.rpt-scope .g-warm{color:var(--warm)}
+.rpt-scope .mode-badge{font-size:.82rem;color:var(--ink);border:1px solid var(--hair);
+  padding:3px 10px}
+.rpt-scope .hero-meta{color:var(--t3)}
+.rpt-scope .hero-grid{display:flex;gap:30px;flex-wrap:wrap;margin-top:14px}
+.rpt-scope .hero-main{flex:1 1 420px;min-width:0}
+.rpt-scope .hero-sub{font-size:.8rem;color:var(--t3);font-weight:400;
+  letter-spacing:.06em;margin:0 0 8px}
+.rpt-scope .hero-findings{list-style:none;margin:0;padding:0}
+.rpt-scope .hero-findings li{padding:8px 0;border-bottom:1px solid var(--hairline)}
+.rpt-scope .kf-id{font-family:var(--mono);font-size:.72rem;color:var(--ink);margin-right:8px}
+.rpt-scope .kf-q{color:var(--t3);margin-left:8px}
+.rpt-scope .hero-side{display:flex;flex-direction:column;gap:8px;min-width:130px}
+.rpt-scope .hero-num{display:flex;align-items:baseline;gap:10px}
+.rpt-scope .hero-num b{font-family:var(--serif);font-size:1.6rem;color:var(--ink)}
+.rpt-scope .hero-num span{color:var(--t3);font-size:.8rem}
+.rpt-scope .hero-limit{margin-top:16px;padding:10px 14px;background:#fdf7f1;
+  border-left:3px solid var(--warm);font-size:.86rem}
+
+/* charts */
+.rpt-scope .chart{background:var(--bg-card);border:1px solid var(--hair);
+  padding:14px 16px 10px;margin:16px 0}
+.rpt-scope .chart-head{display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  border-bottom:1px solid var(--hairline);padding-bottom:8px;margin-bottom:10px}
+.rpt-scope .chart-title{font-family:var(--mono);font-size:.78rem;color:var(--ink)}
+.rpt-scope .chart-note{font-size:.74rem;color:var(--t3)}
+.rpt-scope .chart-body svg{max-width:100%;height:auto;display:block}
+.rpt-scope .chart-reading{display:grid;grid-template-columns:90px 1fr;gap:3px 12px;
+  margin-top:10px;padding-top:9px;border-top:1px dashed var(--hairline);font-size:.8rem}
+.rpt-scope .cr-label{font-family:var(--mono);font-size:.7rem;color:var(--ink);
+  letter-spacing:.06em}
+
+/* tables */
+.rpt-scope .stat-table{width:100%;border-collapse:collapse;font-size:.8rem}
+.rpt-scope .stat-table thead th{text-align:left;text-transform:uppercase;
+  letter-spacing:.08em;color:var(--t3);font-size:.66rem;font-weight:600;
+  border-bottom:1px solid var(--rule);padding:6px 8px;white-space:nowrap}
+.rpt-scope .stat-table tbody td{border-bottom:1px solid var(--hairline);padding:5px 8px}
+.rpt-scope .stat-table .hi{color:var(--ink);font-weight:600}
+.rpt-scope .stat-table .lo{color:var(--t3)}
+.rpt-scope .table-wrap{overflow-x:auto}
+
+/* badges / chips */
+.rpt-scope .sev-badge{display:inline-block;padding:0 8px;font-size:.7rem;font-weight:600;
+  font-family:var(--mono);border:1px solid currentColor}
+.rpt-scope .sev-ok{color:var(--green)}
+.rpt-scope .sev-warn{color:var(--warm)}
+.rpt-scope .sev-crit{color:var(--red)}
+.rpt-scope .sev-info{color:var(--t2)}
+.rpt-scope .sev-na{color:var(--t3)}
+.rpt-scope .role-chip{display:inline-block;padding:0 7px;font-size:.68rem;
+  font-family:var(--mono);border:1px solid var(--hairline)}
+.rpt-scope .r-response{color:var(--ink);border-color:var(--ink)}
+.rpt-scope .r-factor{color:var(--green);border-color:var(--green)}
+.rpt-scope .r-block,.rpt-scope .r-covariate{color:var(--gold);border-color:var(--gold)}
+.rpt-scope .r-index,.rpt-scope .r-ignore{color:var(--t3)}
+
+/* lists */
+.rpt-scope .caveat-list{margin:8px 0;padding-left:20px}
+.rpt-scope .caveat-list li{margin:5px 0}
+.rpt-scope .mono-list{list-style:none;padding-left:0}
+.rpt-scope .mono-list li{font-size:.72rem;margin:3px 0}
+.rpt-scope .kf-list{list-style:none;padding:0}
+.rpt-scope .kf-list li{padding:9px 0;border-bottom:1px solid var(--hairline)}
+.rpt-scope .ev-ref{background:var(--bg-alt);padding:1px 7px;margin-left:8px;color:var(--gold);
+  text-decoration:none;display:inline-block;max-width:100%;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap;vertical-align:bottom;font-family:var(--mono);
+  font-size:.72rem}
+.rpt-scope .check-card{background:var(--bg-card);border:1px solid var(--hairline);
+  border-left:3px solid var(--ink);padding:11px 14px;margin:10px 0}
+.rpt-scope .check-warn{border-left-color:var(--warm)}
+.rpt-scope .check-info{border-left-color:var(--gold)}
+.rpt-scope .check-card p{margin:6px 0}
+.rpt-scope .gate-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+  gap:10px}
+.rpt-scope .gate-cell{display:flex;align-items:center;gap:10px;padding:7px 11px;
+  border:1px solid var(--hairline);font-size:.8rem}
+.rpt-scope .kpi-row{display:flex;gap:12px;flex-wrap:wrap;margin:12px 0}
+.rpt-scope .kpi{flex:1 1 150px;background:var(--bg-card);border:1px solid var(--hairline);
+  padding:9px 13px;display:flex;flex-direction:column}
+.rpt-scope .kpi-wide{flex:2 1 320px}
+.rpt-scope .kpi-label{font-family:var(--mono);font-size:.66rem;color:var(--t3);
+  letter-spacing:.08em;text-transform:uppercase}
+.rpt-scope .kpi-value{font-size:1.2rem;color:var(--ink);margin-top:2px;
+  font-family:var(--mono)}
+.rpt-scope .kpi-note{font-size:.72rem;color:var(--t2)}
+.rpt-scope .tab-bar{display:flex;gap:8px;align-items:center;margin:10px 0;flex-wrap:wrap}
+.rpt-scope .tab-btn{border:1px solid var(--rule);background:var(--bg-card);color:var(--t2);
+  padding:2px 12px;font-size:.78rem;cursor:pointer}
+.rpt-scope .tab-btn.active{background:var(--ink);border-color:var(--ink);color:#fff}
+.rpt-scope .resp-block{display:none}
+.rpt-scope .resp-block.resp-active{display:block}
+.rpt-scope .sig-only .anova-table tbody tr[data-sig="0"]{display:none}
+.rpt-scope .hide-ci .ci-el{display:none}
+.rpt-scope .toggle{font-size:.76rem;color:var(--t2);display:inline-flex;
+  align-items:center;gap:5px;cursor:pointer}
+.rpt-scope .read-layers li,.rpt-scope .chap-map li{margin:7px 0}
+.rpt-scope .chap-map{list-style:none;padding:0}
+.rpt-scope .chap-map a{color:var(--ink);text-decoration:none;
+  border-bottom:1px dotted var(--rule)}
+.rpt-scope .alias-probe summary{cursor:pointer;color:var(--ink);font-size:.84rem}
+.rpt-scope .alias-list{columns:2;font-size:.74rem}
+.rpt-scope #tooltip{position:fixed;display:none;pointer-events:none;z-index:50;
+  background:#22303f;color:#f5f2ec;font-family:var(--mono);font-size:.7rem;
+  line-height:1.5;padding:8px 11px;white-space:pre;max-width:420px}
+.rpt-scope footer.run-foot{max-width:none;margin:0;padding:16px 0 0;color:var(--t3);
+  font-size:.74rem;border-top:1px solid var(--hairline)}
+@media (max-width:900px){
+  .rpt-scope .rpt-body-grid{grid-template-columns:44px minmax(0,1fr)}
+  .rpt-scope .rpt-margin{grid-column:2;margin-top:10px}
+  .rpt-scope .rpt-page{padding:0 20px 60px}
+}
+@media print{
+  .rpt-scope .toggle,.rpt-scope .tab-bar{display:none!important}
+  .rpt-scope .resp-block{display:block!important}
+  .rpt-scope .chart,.rpt-scope .check-card,.rpt-scope .hero-card{break-inside:avoid}
+}

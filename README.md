@@ -166,7 +166,7 @@
 
 ### 🧠 Elimination-based diagnostic engine
 - **9-stage fully automated pipeline** — raw data to Chinese report, zero intervention
-- **24 standardized skills × 16 dedicated agents** working in concert
+- **25 standardized skills × 17 dedicated agents** working in concert
 - **Six analysis intents** — deep diagnosis, stability report, quick screen, DOE, experience mining, optimizer campaign; each runs its own skill protocol and reports artifact-derived score/verdict
 - **Competing-hypotheses protocol** — hypothesize, score discriminability, then eliminate
 - **9 quality gates (CP-1 ~ CP-9)** enforced stage by stage; the pipeline blocks or rolls back
@@ -206,6 +206,31 @@
 - **Incremental extension** — newly added columns trigger only an incremental build and merge, versioned over time (`provenance` traceable end to end)
 - **Intent-driven deep enhancement** — say "deep diagnosis" and the deterministic E0-E8 pipeline chains automatically (zero LLM cost, +3–5 minutes)
 - **Knowledge flywheel** — enhancement artifacts feed back into the RAG knowledge base, so it sharpens the more you use it
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top">
+
+### 🧠 Line memory — the more you run, the smarter it gets
+- **Cross-run memory per production line** — every completed analysis deterministically deposits findings (each carries `run_id` + artifact `sha256`); the same data window is one incident, so reruns deduplicate and can never inflate the memory
+- **Consensus mining with honest grades** — a claim is promoted only after **≥3 independent data windows with no directional conflict**; contradictions stay side-by-side as `competing`, strong repeated counter-evidence `refutes` a weak claim, 90-day staleness decay
+- **Injected as advisory priors (L5)** — the next run of the same line gets a consensus-first memory block and its report must reconcile every prior against fresh data — *"inconsistent with memory → the fresh data wins"* is enforced by the injected discipline itself
+- **Ontology self-refinement** — agents file `05_review/ontology_proposals.json` when the ontology mismatches reality; a deterministic validator applies **additive changes automatically**, corrections need corroboration from ≥2 independent runs, removals wait for a human — every revision lands as a new parent-linked version with full provenance and an in-ontology audit trail
+- **Human operations console** — the Memory tab shows per-line consensus with grade badges, per-observation provenance (click a run id → its report), ontology version chains, line merge, manual refute and proposal approvals
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top">
+
+### ✚ Improvement advisory — from "we know what is wrong" to "here is what to change"
+- **The missing last step** — stability reports say how stable, sentinels say what is off, diagnostics say why; the advisory skill answers **what to do next** given the data and your goal, with every action backed by *both* a data evidence chain and a physical mechanism chain
+- **Three gates, script-judged** — data gate (lever variance · dead-time-bounded lag CCF · BH-FDR · stratified/LOO robustness · regime-stable direction) · physics gate (ontology mechanism edge with direction; `[MECHANISM_UNKNOWN]` caps at C) · attribution gate (tuning-memory estimable CI excluding 0 unlocks A); soft constraints are not constraints
+- **Honest by construction** — grades A (intervention-backed, executable) / B (needs a small trial, auto `optimizer_seed.json`) / C (direction only, "unverified") / **prescription zone** (what data to collect or trial to run); expected gains always carry a 95% CI, and "not estimable" is written as `effect=null`, never invented
+- **Goal handling** — explicit `objective.json` unlocks the full path; a vague goal is deterministically inferred (deviation × transmission strength × data sufficiency), echoed back, and **capped at B until confirmed**
+- **Tamper-sealed gate** — `quality_gate.mjs` re-derives every grade and expected gain from the evidence artifacts; editing a grade, a CI bound or an evidence ref fails the gate (proven by a tamper battery)
+- **Advisory only** — never dispatches parameters, never writes optimizer state; report footer carries the consultation-boundary disclaimer
 
 </td>
 </tr>
@@ -260,6 +285,104 @@ view = get(f"/api/external/v1/results/categories/{cat['id']}/results")["data"]
 for row in view["results"]:
     print(row["result_id"], row["description"] or row["display_text"])
 ```
+
+---
+
+## 🧠 Line memory — the system learns your production line as you run
+
+> Every completed analysis **deposits what it learned** into a per-line memory; every new analysis **starts from that memory as advisory priors (L5)** and must re-verify them against fresh data. The loop — deposit → mine consensus → inject → reconcile → refine the ontology — is what makes the system sharpen with use.
+
+**The learning loop**
+
+```
+run completes ──▶ deterministic extraction (schema-validated artifacts only, zero LLM)
+                   │   every finding carries run_id + artifact sha256
+                   ▼
+       consensus mining per line ──▶ ≥3 independent windows + no conflict → CONSENSUS
+                   │                  2 → candidate · 1 → lead · conflict → competing (both kept)
+                   ▼
+new run starts ─▶ memory block injected (consensus first, ~600 tokens, L5 advisory)
+                   │
+                   ▼
+       report reconciles every prior ──▶ conflicts resolve as "the fresh data wins"
+                   │
+                   ▼
+       ontology mismatch? ─▶ agent files a proposal ─▶ tiered apply
+                            (additive auto · correction needs ≥2 corroborating runs · removal waits for a human)
+```
+
+**What actually happened in the live acceptance runs** (lekai FW3 line, real claude engine):
+- repeated analyses of the 9-day window deposited **314 findings**; SPC violations on the MD temperature channels reached **candidate** grade (2 independent windows)
+- a fresh external-API run reconciled **8 priors item by item** in its report — including 3 direction conflicts it reported as *"inconsistent with memory, the fresh data wins"*
+- on the injection-molding sibling line (`ln-b715163a`), a 3rd independent data window promoted a repeated data-quality finding to **consensus** — the same promotion path the FW3 line follows as new windows arrive; on the FW3 scene itself, a real-evidence proposal landed as ontology **v5** (`parent_version` chain + `provenance`) and the next run's brief carried the learned constraint
+
+**Use it**
+
+| Surface | How |
+|---|---|
+| **Console** | Memory tab: per-line consensus with grade badges, per-observation provenance (click a run id → its report), ontology version chains, line merge, manual refute, proposal approve/reject |
+| **Console API** | `GET /api/line-memory/lines` → `GET /api/line-memory/lines/:key` → `GET /api/line-memory/lines/:key/findings` (+ `refute` / `merge` / `consolidate` / `proposals`) |
+| **Backfill** | `node scripts/backfill-line-memory.mjs` — seeds memory from every completed real run already on disk (mock harness skipped, idempotent) |
+| **Proposals** | agents write `05_review/ontology_proposals.json` (contract `ontology-proposal/1.0`, ≤10/run, target must exist in the run data); humans approve removals in the Memory tab |
+
+**Design guarantees**
+- only numbers that already exist in schema-validated artifacts enter the memory — nothing is invented
+- the same data window is one incident: reruns deduplicate and can never inflate a claim
+- memory is **advisory (L5)** by contract — the injected block itself orders the agent to re-verify, and contradictions always resolve to the fresh data
+- failed/stopped runs are never deposited; every consensus is traceable to its runs with one click
+
+---
+
+## ✚ Improvement advisory — the missing last step from "what is wrong" to "what to change"
+
+> Stability reports say **how stable**, sentinels say **what is off**, diagnostics say **why** — the advisory skill answers **what to do next**, given your data and your goal. Every recommendation must survive **two independent kinds of support**: a data evidence chain and a physical mechanism chain. If either is missing, the system writes a prescription instead of inventing advice.
+
+**Three gates, judged by deterministic scripts — not by prompt opinion**
+
+```
+lever × target KPI
+   ├─ DATA gate   variance · lag CCF peak inside dead-time · BH-FDR (family = all lever×lag tests
+   │              inside one KPI) · stratified/LOO robustness · regime-stable direction
+   ├─ PHYSICS gate ontology mechanism edge with a declared direction; [MECHANISM_UNKNOWN] caps at C
+   └─ ATTRIBUTION gate  tuning-memory estimable CI excluding 0 (or a DESIGNED DOE window) unlocks A
+             │
+             ▼
+   A 可立即执行 (intervention evidence) · B 需小试验证 (+optimizer_seed.json) ·
+   C 仅方向参考 ("unverified") · 处方区 (what data to collect / what trial to run)
+```
+
+**Honesty machinery you can audit**
+- **Expected gains always carry a 95% CI** (dose-response binned slope → window contrast → attribution delta); when a leg cannot estimate, the field is `effect=null` with a `reason_code` — never a made-up number
+- **`dead_time` is never assumed to be 0**: missing dead-time makes the temporal-precedence condition `not_assessable`, caps affected actions at B and puts "measure dead-time" into the report
+- **Reverse causality is a hard exclusion** — when the KPI leads the lever, the parameter lands in `excluded_levers` and can never appear as advice
+- **Goal handling**: explicit `objective.json` unlocks the full path; a vague goal is inferred deterministically (deviation × transmission strength × data sufficiency), echoed back in `objective_resolved.json`, and **all advice is capped at B until the user confirms the goal**
+- **Tamper-sealed gate**: `quality_gate.mjs` re-derives every grade and expected gain from the `02_evidence/` artifacts; editing a grade, a CI bound or an evidence reference fails the gate — proven by a three-case tamper battery in the test suite
+- **Advisory only**: never dispatches parameters, never writes optimizer state; the HTML/MD footer carries the consultation-boundary disclaimer
+
+**Use it**
+
+| Surface | How |
+|---|---|
+| **Console** | Diagnose intent card **优化改善指导** or the Closed-Loop tab's **改善指导** subtab; data folder + optional `objective.json` / `action_log.json` |
+| **Agent API** | `POST /api/diagnosis/start { analysisIntent: "improvement-advisory", folderPath }` → `/execute/:runId`; the run lands `advisory/advisory_actions.json` + Chinese HTML/MD |
+| **Artifacts** | `advisory/{advisory_actions,objective_resolved,optimizer_seed,charts}.json` · `02_evidence/{dose_response,window_check}.json` · `advisory/improvement_advisory.{html,md}` · `html_selfcheck.json` |
+| **Exit semantics** | 0 actionable clean · 1 actionable with degraded legs · 2 `not_actionable` (prescriptions only — an honest terminal state) · 3 input/gate failure |
+
+**What actually happened in the live acceptance** (real paper-machine window, 600 rows, declared mechanism ontology):
+- the console API spawned a real `claude` engine run end-to-end (`start → execute`); the platform's required-artifact gate enforced `advisory/advisory_actions.json` + HTML (a run that ended without them was rejected as `failed`), the results library recorded verdict **`advisory_only · 1 action`** and the completion hook deposited **1 improvement finding** into line memory (`paper-machine-observational`, aliased from the demo scene)
+- the honest C-grade output was not a bug: the ontology declares `stock_flow → basis_weight +`, while the observed window contradicts that direction — the physics gate refuses to bill a contradicted mechanism as `known` and turns it into a prescription ("supplement the ontology or run a small trial") instead of advice
+- after the review fixes (target-direction baseline, mechanism-sign semantics, tamper-seal cross-check) the deterministic core re-ran on the same real data: **`stock_flow decrease` became an actionable B-grade action** — basis weight 80.81 → 80.00 toward the 80±0.4 target, expected gain **1.059 [1.009, 1.109]**, mechanism `known`, gate **81 checks / 0 failures**
+- provider note: a third agent re-run was blocked by the execution-provider's 3-hour spend budget (`422 ExceededBudget`) — an environment limit, not a code path; the deterministic artifacts above are produced by the same scripts the agent runs and are gate-verified
+
+**Design guarantees**
+- a single erroneous recommendation destroys operator trust — so the A-grade gate never relaxes, A-grade count per report is capped at 3 as a bug sentinel, and "no advice, here is what to measure" is a first-class outcome
+- B-grade actions serialize to an **optimizer-loop campaign seed**, so "advice" and "multi-round convergence" hand off without either skill overstepping
+- every completed advisory run deposits its actions into **line memory** — as trials confirm or refute them, the next advisory's A-grade becomes more attainable
+
+**Integrated into every main flow (2026-11-16, round 2)** — the advisory is no longer a separate intent only; it is a **built-in step of the three host pipelines**, default-on with an honest opt-out (`00_input/advisory_opt_out` or `--no-advisory`), never blocking the host run:
+- **stability-report** — the analyzer auto-runs the deterministic adapter after scoring: `advisory/` artifacts land in the run dir, `stability_report.json.advisory` carries the summary, and the HTML/MD report gains a fully styled 「改善建议与验证计划」 chapter (same design authority as the rest of the page); the delivery gate grew an **S6 advisory check** (projection contract + grade-summary consistency + A≤3 sentinel)
+- **deep-diagnosis (9-stage pipeline)** — new **Step 5c** between Judge and Reporter: the agent runs one deterministic command, the Reporter appends the script-authored chapter **verbatim** as the 10th required section (lint L5 enforces the keyword; the final auditor gets a fidelity check; the HTML design system gained `manifest.advisory` + `.adv-*` components + a 9th selfcheck item + a reviewer check `advisory_section_consistency`)
+- **DOE analysis** — `analyze.py report` runs the adapter first and §12 renders the advisory; designed runs get a unique evidence leg: **`doe_effect`** — the DOE analyzer's own first-order coefficients (coded→raw units) with their 95% CI count as **randomized-design intervention evidence**, unlocking the A-grade path observational data can never reach (randomization replaces the temporal/confound/regime conditions; the tamper-sealed gate mirrors the same rule)
 
 ---
 
@@ -602,7 +725,7 @@ draw value and the resulting index so the draw is both verifiable and replayable
 
 ## 🧩 Skills & agents
 
-### 24 standardized skills
+### 25 standardized skills
 
 `.claude/skills/<name>/` is the **single skill source** (discovered by OMP through the `claude` provider at priority 80, and simultaneously serving native Claude Code discovery). `scripts/`, `schemas/`, `references/`, `resources/` and `templates/` all live together under it.
 
@@ -632,13 +755,14 @@ draw value and the resulting index so the draw is both verifiable and replayable
 | `industrial-sentinel` | — | watch / fast-screen `alert.json` + quick-screen HTML | — |
 | `industrial-tuning-memory` | — | tuning experience / action attribution `recommendation.json` | — |
 | `industrial-optimizer-loop` | optimizer-pilot | campaign state + next design (never dispatches setpoints) | — |
+| `industrial-improvement-advisor` | improvement-advisor | graded A/B/C improvement actions + prescriptions + Chinese HTML advisory (three-gate evidence, never dispatches) | — |
 | `rag-knowledge-builder` | — | domain knowledge graph | — |
 | `diagnostic-html-visualizer` | — | HTML design system | — |
 | `darwin-skill` | — | skill fitness evolution assessment | — |
 
 </details>
 
-### 16 dedicated agents
+### 17 dedicated agents
 
 | Agent | Persona | Core output |
 |-------|---------|---------|
@@ -658,8 +782,9 @@ draw value and the resulting index so the draw is both verifiable and replayable
 | `enhanced-html-reviewer` | Enhanced Review | enhanced HTML review |
 | `doe-analyst` | Engineer Qin · DOE & Process Data Analysis | deterministic effect/correlation/stability analysis + recommendations |
 | `optimizer-pilot` | 骆工 · Closed-loop Optimization Pilot | campaign rounds interpretation + Chinese optimization report (script-authored numbers only) |
+| `improvement-advisor` | 顾工 · Improvement Advisory | graded A/B/C improvement actions + prescriptions + Chinese HTML advisory (three-gate evidence, interpretation only) |
 
-> The six analysis intents are dispatched as real agent runs; the specialist skills above are standalone and are **not** pipeline stages.
+> The seven analysis intents are dispatched as real agent runs; the specialist skills above are standalone and are **not** pipeline stages.
 
 ---
 
@@ -764,12 +889,19 @@ GET /api/health
 | | `/api/results/categories` | GET/POST | categories with per-caller result counts · create (409 on duplicates) |
 | | `/api/results/categories/:id` | PATCH/DELETE | rename · delete (clears refs, never deletes results) |
 | | `/api/results/categories/:id/results` | GET | **per-category description view** — every result's description |
+| **Line memory** | `/api/line-memory/lines` | GET | per-line memory index: findings/consensus/candidate/competing stats + latest state |
+| | `/api/line-memory/lines/:key` | GET | line detail: consensus entries (grade / independent count / directions / provenance) + proposals |
+| | `/api/line-memory/lines/:key/findings` | GET | raw findings (paged, filterable by subject / claim_type) |
+| | `/api/line-memory/lines/:key/ontology` | GET | ontology version chains for the line's scenes |
+| | `/api/line-memory/lines/:key/refute` | POST | manual refutation (audited, overrides the computed grade) |
+| | `/api/line-memory/lines/:key/merge` | POST | merge a sibling scene-line into this line (alias bridging) |
+| | `/api/line-memory/proposals/:id/approve` | POST | approve a pending proposal (removal / corroborated correction) |
 
 ### External integration API (`/api/external/v1`)
 
 | Endpoint | Method | Purpose |
 |---|:--:|---|
-| `/capabilities` | GET | 6 intents + 14 harnesses with `session_resume` / `supported_intents` + `results_index` |
+| `/capabilities` | GET | 7 intents + 14 harnesses with `session_resume` / `supported_intents` + `results_index` |
 | `/analyze` | POST | launch an analysis (harness + intent) → `task_id` / `run_id` |
 | `/analyze/:runId` | GET | unified result: status, score/verdict, artifact manifest, MD + HTML |
 | `/chat` | POST | continue a run (`mode: session` or `rebuild`) |
@@ -1085,7 +1217,7 @@ Every release-quality claim traces to a repeatable check, not to a paragraph of 
 | Verification | Scope | Result | Evidence |
 |------|------|------|------|
 | Backend test suite | routes · services · engine adapters · HTTP e2e (fake CLI / fake ACP / codex app-server) | **246/246 pass** | `app/backend npm test` |
-| Static skill design | 24 skills / 16 agents · frontmatter · protocol refs · JSON schemas · script refs | **0 failures** | `node scripts/audit/skill-design.mjs` |
+| Static skill design | 25 skills / 17 agents · frontmatter · protocol refs · JSON schemas · script refs | **0 failures** | `node scripts/audit/skill-design.mjs` |
 | API contract (GET-only) | harness · capabilities · history · bounded snapshot · report/assets · auth/404 | **22/22 pass** | `node scripts/e2e/api-contract-final.mjs` |
 | Results library API | index filters/brief/paging · detail (summary_json/sources/report_md) · PATCH rules · capabilities | **37/37 pass** | `node scripts/e2e/results-api-acceptance.mjs --base http://127.0.0.1:3210` |
 | Results library UI | native-input tour: Results tab · search · drawer · description/tags PATCH · category assign + filter · report open · History summary card | **19/19 pass** | `node scripts/e2e/results-ui-check.mjs --api http://127.0.0.1:3210 --web http://127.0.0.1:5180` |

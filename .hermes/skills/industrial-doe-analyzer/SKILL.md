@@ -91,7 +91,7 @@ Key constraints:
 - conclusions authored in Phase 3-4 are ENRICHMENTS of the script-generated baseline
   (flip authored_by "script"→"agent" only; never change computed numbers)
 - Phase 5 gate (quality_gate.mjs) must pass before reporting done; fix loop max 3
-- Phase 6: run `analyze.py report` to render report.html — the HTML is script-generated; never hand-edit it
+- Phase 6: run `analyze.py report` to render report.html — the HTML is script-generated; never hand-edit it. The report step FIRST runs the integrated improvement-advisory adapter (origin=doe, deterministic, default on; `00_input/advisory_opt_out` disables): it derives the response target from recommendations.response_specs, reuses effect_table.json first-order coefficients as **randomized design evidence** (A-grade intervention path), writes `advisory/` (graded actions + prescriptions + chapter.md + standalone HTML) and §12 renders it in report.html
 - Observational windows keep confirmation_needed:true — never flip it off
 - Output report.md in Chinese; keep JSON enums in English
 `,

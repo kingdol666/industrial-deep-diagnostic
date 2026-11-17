@@ -77,6 +77,23 @@ def write_json_strict(path, payload):
     return out
 
 
+def write_text_contained(path, text, encoding="utf-8"):
+    """Contained plain-text artifact writer (HTML/Markdown companions)."""
+    out = contained(path)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(text, encoding=encoding)
+    return out
+
+
+def append_jsonl_contained(path, payload):
+    """Contained JSONL appender (pipeline events / append-only ledgers)."""
+    out = contained(path)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    with open(out, "a", encoding="utf-8") as handle:
+        handle.write(json.dumps(payload, ensure_ascii=False) + "\n")
+    return out
+
+
 def sha256_text(text):
     return "sha256:" + hashlib.sha256(text.encode("utf-8")).hexdigest()
 

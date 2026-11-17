@@ -92,6 +92,43 @@ try {
   results.push(['S5 enums (skipped)', true]);
 }
 
+// ---- S6 integrated improvement advisory (optional step; audited when present)
+// The adapter projects advisory_actions.json beside the report (same dir) and
+// records report.advisory in stability_report.json. When the step ran we hold
+// the projection to the advisory contract; skipped/failed steps are disclosed
+// but never block the stability report.
+const advSummary = report.advisory || null;
+const advProjection = join(outDir, 'advisory_actions.json');
+if (advSummary) {
+  const status = advSummary.status;
+  results.push(['S6 advisory step recorded', ['used', 'skipped', 'failed'].includes(status)]);
+  if (status === 'used') {
+    results.push(['S6 advisory projection exists', existsSync(advProjection)]);
+    if (existsSync(advProjection)) {
+      try {
+        const adv = JSON.parse(readFileSync(advProjection, 'utf-8'));
+        results.push(['S6 advisory contract', adv.contract_version === 'improvement-advisory/1.0']);
+        results.push(['S6 advisory mode', adv.mode === 'advisory']);
+        const grades = { A: 0, B: 0, C: 0 };
+        for (const a of adv.actions || []) if (grades[a.grade] !== undefined) grades[a.grade] += 1;
+        const declared = (advSummary.summary || {}).grades || {};
+        results.push(['S6 advisory summary consistent',
+          ['A', 'B', 'C'].every((g) => (declared[g] || 0) === grades[g])]);
+        results.push(['S6 advisory A sentinel', grades.A <= 3]);
+      } catch (e) {
+        warn(`advisory projection unreadable: ${e.message}`);
+        results.push(['S6 advisory projection parse', false]);
+      }
+    }
+  } else {
+    warn(`advisory step ${status}: ${advSummary.reason || 'no reason recorded'}`);
+    results.push(['S6 advisory skipped disclosed', true]);
+  }
+} else {
+  warn('no integrated advisory step recorded (pre-integration run) — not blocking');
+  results.push(['S6 advisory absent (legacy ok)', true]);
+}
+
 let pass = true;
 for (const [name, ok] of results) {
   console.log(`  ${ok ? 'PASS' : 'FAIL'}  ${name}`);

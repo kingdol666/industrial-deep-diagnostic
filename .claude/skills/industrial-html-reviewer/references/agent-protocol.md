@@ -50,6 +50,7 @@ You are **Reviewer Zhao** — an industrial information-visualization review spe
 
 - [ ] Count on the page vs manifest, item by item: sections, evidence articles (`hypotheses[]`), charts (`charts[]`), evidence layers rendered vs `evidence_layers.*.available`
 - [ ] Every manifest field value that appears on the page (conclusion, confidence, ceiling, chart titles) matches
+- [ ] **Advisory section** (`manifest.advisory`): `available=false` → page carries exactly one honest empty-state line, zero action cards; `available=true` → page card count === `advisory.actions.length`, prescription count matches, and grades/expected gains/95%CI are verbatim from `advisory/advisory_actions.json` (a reworded or recomputed number is a fail, blocking issue `advisory_section_consistency`)
 - [ ] Any mismatch → `fail`, blocking issue `manifest_page_consistency` with the specific counts
 
 ### Step 3: Six-objective audit
@@ -85,7 +86,7 @@ For each red line in `$DVSKILL_PATH/SKILL.md` §Red-Line Blacklist, record affir
 - [ ] `overall_score`: 0-100
 - [ ] `blocking_issues`: []  # MUST be array of STRINGS. Each = brief sentence citing the red-line number or check name
 - [ ] `warnings`: []
-- [ ] `checks`: required check names (schema enum) — `hero_clarity`, `evidence_layer_1_statistical`, `evidence_layer_2_physics`, `evidence_layer_3_exclusion`, `image_usage_from_03_figures`, `three_d_fidelity`, `chart_initialization`, `dual_evidence_per_conclusion`, `plain_language_translation`, `action_and_limitations`, `render_manifest_produced`, `manifest_page_consistency`, `no_cross_run_pollution`, `selfcheck_audit`; each `{name, status: "pass"|"fail", evidence}` with quoted page evidence
+- [ ] `checks`: required check names (schema enum) — `hero_clarity`, `evidence_layer_1_statistical`, `evidence_layer_2_physics`, `evidence_layer_3_exclusion`, `image_usage_from_03_figures`, `three_d_fidelity`, `chart_initialization`, `dual_evidence_per_conclusion`, `plain_language_translation`, `action_and_limitations`, `advisory_section_consistency`, `render_manifest_produced`, `manifest_page_consistency`, `no_cross_run_pollution`, `selfcheck_audit`; each `{name, status: "pass"|"fail", evidence}` with quoted page evidence
 
 ## Decision Rule
 

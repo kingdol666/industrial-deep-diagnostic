@@ -1,0 +1,62 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "objective.schema.json",
+  "title": "Improvement objective (1.0) — advisory goal contract",
+  "description": "显式优化目标契约。缺省该文件或 targets 为空 = 模糊模式，由 improvement_analyzer.py 从数据确定性推断并写 objective_resolved.json（inferred=true, 全部建议 cap B）。字段与 industrial-optimizer-loop objective.schema.json 语义对齐，便于 optimizer_seed.json 一键升级。",
+  "type": "object",
+  "required": ["contract_version", "targets"],
+  "properties": {
+    "contract_version": { "const": "1.0" },
+    "targets": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "required": ["metric", "direction"],
+        "properties": {
+          "metric": { "type": "string", "description": "目标 KPI 列名（必须在数据或 doe 推荐窗中存在）" },
+          "direction": { "enum": ["min", "max", "target"] },
+          "target_value": { "type": ["number", "null"], "description": "direction=target 时必填" },
+          "tolerance": { "type": ["number", "null"], "description": "direction=min/max 的目标带 / target 的容差" },
+          "weight": { "type": ["number", "null"], "minimum": 0 }
+        }
+      }
+    },
+    "constraints": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "param": { "type": ["string", "null"] },
+          "min": { "type": ["number", "null"] },
+          "max": { "type": ["number", "null"] },
+          "type": { "enum": ["box", "safety", null] },
+          "hard": { "type": ["boolean", "null"], "description": "安全限绝对优先（越界建议一律进处方区）" }
+        }
+      }
+    },
+    "horizon": { "type": ["string", "null"], "description": "优化目标覆盖时段（ISO 日期或自然语言，报告展示用）" },
+    "dead_time": {
+      "oneOf": [{ "type": "number", "minimum": 0 }, { "const": "unknown" }],
+      "description": "参数动作到 KPI 响应的死区时间（采样步数）。缺省/unknown → 门A 时间先后条件 not_assessable（禁止假设 0 放行），相关动作 cap B 并下调证据水位线。"
+    },
+    "levers": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "可选：显式指定可调杠杆列子集（缺省由本体角色 + 列变异检测确定性筛选）"
+    },
+    "kpis": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "可选：显式指定候选 KPI 列（缺省由本体 role=target/inspection 或目标列推断）"
+    },
+    "notes": { "type": ["string", "null"] }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "targets": { "contains": { "properties": { "direction": { "const": "target" } }, "required": ["direction"] } } }, "required": ["targets"] },
+      "then": { "properties": { "targets": { "items": { "properties": { "target_value": { "type": "number" } } } } } }
+    }
+  ]
+}

@@ -460,6 +460,16 @@
 
 ---
 
+## 10. 改善建议与验证计划
+
+> **本节由确定性脚本生成**（`advisory/chapter.md`），必须逐字并入：分级（A/B/C）、
+> 预期收益与 95%CI、处方条目均为脚本产出，禁止改写数字。若
+> `advisory/step_status.json` 为 skipped/failed，改为一行诚实披露，绝不编造建议。
+
+{{advisory_chapter_verbatim}}
+
+---
+
 ## 附录
 
 ### A. 运行配置

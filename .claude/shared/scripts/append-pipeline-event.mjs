@@ -33,6 +33,10 @@ const VALID_EVENTS = new Set([
   // non-blocking degrade markers — never gate run_completed
   'experience_skipped',
   'enhance_skipped',
+  // integrated improvement-advisory step (Step 5c, conditional/non-blocking)
+  'advisory_step_completed',
+  'advisory_step_skipped',
+  'advisory_step_failed',
   'run_completed',
   'run_failed'
 ]);

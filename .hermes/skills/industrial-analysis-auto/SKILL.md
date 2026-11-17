@@ -87,6 +87,8 @@ Step 5a: [judge] → CP-6
     ├─ full only: Step 5b pre-report physical audit
     └─ fast: record 5b skip reason; CP-8 remains mandatory
     ↓ CP-6 pass
+Step 5c: [improvement-advisory] deterministic script → CP-5C (never blocks)
+    ↓
 Step 6: [industrial-reporter] → CP-7 + CP-7L
     ↓
 Step 7: [industrial-physical-auditor] (final) → CP-8 ENDORSED
@@ -107,6 +109,7 @@ Step 9: Finalize; only then record run_completed
 | 4 | `industrial-diagnostician` | diagnostician | CP-5 |
 | 5a | `industrial-judge` | judge | CP-6 |
 | 5b | `industrial-physical-auditor` (PRE_REPORT_AUDIT=true) | report-reviewer | CP-6 |
+| 5c | `industrial-improvement-advisor` (deterministic, no agent) | main-agent | CP-5C |
 | 6 | `industrial-reporter` | reporter | CP-7 |
 | 7 | `industrial-physical-auditor` (final) | report-reviewer | CP-8 |
 | 8 | `industrial-html-visualizer` | html-visualizer | — |
@@ -434,11 +437,38 @@ write the report draft for diagnosis transparency, but finalizer keeps run statu
 
 **Anti-Oscillation**: >70% issue-type overlap vs previous round → oscillation. 3rd oscillation → `COMPETING_SET`, confidence ≤50.
 
+### Step 5c: Improvement advisory (deterministic, non-blocking)
+
+Between CP-6 and Step 6, run the improvement-advisory adapter on the SAME run
+dir (no extra LLM, seconds). It derives the optimization target from
+`04_diagnostics/*` when the user did not supply `00_input/objective.json`,
+runs the deterministic three-gate core, and writes:
+
+```
+advisory/advisory_actions.json   graded A/B/C actions + prescriptions
+advisory/chapter.md              report chapter the Reporter appends VERBATIM
+advisory/step_status.json        {status: used|skipped|failed, exit_code, summary}
+advisory/improvement_advisory.html/.md + charts.json + objective_resolved.json (+ optimizer_seed.json)
+```
+
+```bash
+uv run --project "$SHARED_PATH/scripts" python \
+  .claude/skills/industrial-improvement-advisor/scripts/integrated_advisory.py \
+  --run-dir "$RUN_DIR" --origin diagnosis
+```
+
+**CP-5C**: `advisory/step_status.json` exists (any status). The step is
+**conditional and non-blocking by contract**: adapter failure never changes the
+run status, never blocks the Reporter, and is disclosed verbatim by the
+Reporter as a one-line honest note. Switch: `00_input/advisory_opt_out` (file)
+skips it (`status=skipped`). When a run manifest exists the adapter appends
+`advisory_step_completed|skipped|failed` to `.pipeline_events.jsonl`.
+
 ### Step 6: Reporter
 
 Read `skill://industrial-reporter` and dispatch via `Agent({subagent_type: "reporter", ...})`. **Judge-gated**: only proceed if verdict==pass ∧ score≥90 OR `judge_repair_summary` proves 3 rounds exhausted.
 
-**Section contract (inline into the dispatch prompt — lint L5 enforces it)**: report.md MUST contain 9 keyword sections — 执行摘要 / 核心证据(对齐图) / 诊断结论 / 证据全景 / 竞争假设(排除逻辑) / 详细推导(推理过程) / 推理链 / 统计(数据统计) / 行动方案(局限). Fast mode additionally caps: ≤250 lines, ≤6 embedded figures.
+**Section contract (inline into the dispatch prompt — lint L5 enforces it)**: report.md MUST contain 10 keyword sections — 执行摘要 / 核心证据(对齐图) / 诊断结论 / 证据全景 / 竞争假设(排除逻辑) / 详细推导(推理过程) / 推理链 / 统计(数据统计) / 行动方案(局限) / **改善建议与验证计划** (= the verbatim content of `advisory/chapter.md`; when the step was skipped/failed, a one-line honest disclosure instead). Fast mode additionally caps: ≤250 lines, ≤6 embedded figures.
 
 **CP-7**: `report.md` + `run_summary.json` exist
 

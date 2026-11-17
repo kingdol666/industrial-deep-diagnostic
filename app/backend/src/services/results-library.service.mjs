@@ -25,7 +25,7 @@ import logger from '../utils/logger.mjs';
 
 export const RESULT_INTENTS = [
   'deep-diagnosis', 'stability-report', 'quick-screen',
-  'doe-analysis', 'experience-mining', 'optimizer-campaign',
+  'doe-analysis', 'experience-mining', 'optimizer-campaign', 'improvement-advisory',
 ];
 const SORTS = new Set(['created_desc', 'created_asc', 'score_desc']);
 const LIST_DEFAULT_LIMIT = 50;
@@ -125,6 +125,61 @@ function summarizeStability(dir) {
       statement: `${rel}#conclusion.statement`,
       rows: `${rel}#data.n_rows_used`,
       time_range: `${rel}#period`,
+    },
+  };
+}
+
+function summarizeAdvisory(dir) {
+  const rel = 'advisory/advisory_actions.json';
+  const doc = readJson(join(dir, rel));
+  if (!doc || typeof doc !== 'object') return null;
+  const actions = Array.isArray(doc.actions) ? doc.actions : [];
+  const grades = { A: 0, B: 0, C: 0 };
+  for (const a of actions) {
+    if (grades[a.grade] !== undefined) grades[a.grade] += 1;
+  }
+  const prescriptions = Array.isArray(doc.prescriptions) ? doc.prescriptions.length : 0;
+  const top = actions[0] || null;
+  const gain = top?.expected_gain || {};
+  const water = doc.waterline || {};
+  const keyNumbers = {
+    status: doc.status ?? null,
+    goal_mode: doc.goal?.mode ?? null,
+    n_actions: actions.length,
+    grades,
+    n_prescriptions: prescriptions,
+    max_achievable_grade: water.max_achievable_grade ?? null,
+    top_lever: top?.lever_column ?? null,
+    top_direction: top?.direction ?? null,
+    top_expected_gain: asNumber(gain.point),
+    top_ci95: Array.isArray(gain.ci95) ? gain.ci95 : null,
+  };
+  const d = doc.data || {};
+  const dataProfile = {
+    rows: asNumber(d.n_rows_used),
+    levers: Array.isArray(d.levers) ? d.levers : [],
+    kpis: Array.isArray(d.kpis) ? d.kpis : [],
+    sha256: d.sha256 ?? null,
+  };
+  const gradeBits = `A ${grades.A} / B ${grades.B} / C ${grades.C}`;
+  const conclusion = actions.length
+    ? `改善建议 ${actions.length} 条（${gradeBits}，处方 ${prescriptions} 条）`
+      + (top ? `，最高优先级：${top.lever_column} ${top.direction} → ${gain.metric}` : '')
+    : `无建议（处方模式，${prescriptions} 条补数据/试验处方）`;
+  return {
+    conclusion: trunc(conclusion, 300),
+    key_numbers: keyNumbers,
+    data_profile: dataProfile,
+    artifacts: [rel, 'advisory/improvement_advisory.html', 'advisory/improvement_advisory.md',
+      'advisory/objective_resolved.json', 'advisory/optimizer_seed.json', 'report.md']
+      .filter((r) => existsSync(join(dir, r))),
+    sources: {
+      status: `${rel}#status`,
+      grades: `${rel}#actions[].grade`,
+      top_lever: `${rel}#actions[0].lever_column`,
+      expected_gain: `${rel}#actions[0].expected_gain.point`,
+      waterline: `${rel}#waterline.max_achievable_grade`,
+      rows: `${rel}#data.n_rows_used`,
     },
   };
 }
@@ -325,6 +380,7 @@ export function summarizeRun(runDir, run) {
       else if (intent === 'doe-analysis') pack = summarizeDoe(dir);
       else if (intent === 'experience-mining') pack = summarizeExperience(dir);
       else if (intent === 'optimizer-campaign') pack = summarizeOptimizer(dir);
+      else if (intent === 'improvement-advisory') pack = summarizeAdvisory(dir);
       else pack = summarizeDeepDiagnosis(dir, run);
       // Generic fallback: the intent artifact may be absent (mock engine runs
       // never execute the skill scripts) while the run still wrote report.md —

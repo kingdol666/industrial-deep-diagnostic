@@ -567,6 +567,10 @@ a { color: inherit; }
 }
 .app-userbox-info { display: flex; flex-direction: column; min-width: 0; gap: 1px; }
 .app-userbox-name {
+  border: none;
+  background: transparent;
+  padding: 0;
+  text-align: left;
   font-family: var(--font-mono);
   font-size: var(--fs-sm);
   font-weight: 500;
@@ -574,7 +578,10 @@ a { color: inherit; }
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  cursor: pointer;
+  transition: color 0.13s ease;
 }
+.app-userbox-name:hover { color: var(--accent); }
 .app-userbox-role {
   font-size: var(--fs-micro);
   letter-spacing: var(--track-label);

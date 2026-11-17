@@ -122,6 +122,20 @@ manifest schema (fill fields according to what actually exists in this run; mark
   "actions": [
     {"priority": "P0 | P1 | P2", "action": "...", "expected": "expected effect"}
   ],
+  "advisory": {
+    "available": true,
+    "status": "actionable | advisory_only | not_actionable",
+    "objective": {"mode": "explicit | inferred", "targets": [{"metric": "KPI", "direction": "min|max|target", "target_value": null}]},
+    "waterline": "A | B | C | none",
+    "actions": [
+      {"action_id": "ACT-...", "grade": "A | B | C", "lever": "parameter", "direction": "increase | decrease",
+       "kpi": "KPI", "expected_gain": 0.0, "ci95": [0.0, 0.0], "mechanism": "known | same_domain | unknown",
+       "verification": "threshold text", "rollback": "text"}
+    ],
+    "prescriptions": {"count": 2, "kinds": ["data", "experiment"]},
+    "source": "advisory/advisory_actions.json",
+    "chapter_path": "advisory/chapter.md"
+  },
   "limitations": "limitations text (including the reason for the ceiling)",
   "fallbacks_triggered": ["Fallback 4: PNG 重建", "..."]
 }
@@ -134,20 +148,23 @@ manifest schema (fill fields according to what actually exists in this run; mark
 - `evidence_layers.*.available` reflects the truth: if a layer's evidence is missing, mark it `false`, and the page renders the matching `.evidence-missing` marker
 - `conclusion.type` drives the Hero tone: `DETERMINED` asserts a root cause; `COMPETING_SET` explicitly presents the uncertainty + ceiling; `NEEDS_DATA` states that the conclusion has not yet converged
 - `process_flow.recoverable=false` → do not render 3D; take Fallback 7/8
+- `advisory.available` reflects `advisory/step_status.json`: `used` → true and the page renders EXACTLY `advisory.actions.length` action cards (grade badge + 95%CI + mechanism + verification/rollback) plus the prescriptions count; `skipped|failed|absent` → false and the page shows the honest empty-state line (never invented advice). Card-count mismatch = reviewer fail.
+- Advisory numbers (grades / expected gains / CI / prescriptions) are script-authored: render them verbatim from `advisory/advisory_actions.json`; never recompute or "improve" the wording of numbers.
 
 ### Phase 3 · Render (component assembly + visual grammar)
 
-**Visual grammar baseline: `references/report-template.html`.** It is not a fill-in-the-blank template but a **design system reference** — it provides the CSS variables, typographic hierarchy, every component class, the loader wiring, and the ECharts/Three.js multi-source loading pattern.
+**Visual grammar baseline: `references/report-template.html`.** It is not a fill-in-the-blank template but a **design system reference** — it provides the evidence-ledger shell (left chapter rail / numbered sections / three-column body / seal), every component class, the loader wiring, and the ECharts/Three.js multi-source loading pattern. The stylesheet is the shared `.claude/shared/report-design/report.css`; the template links it for preview, and **the final report must inline it into `<style>`** (single file, zero external requests).
 
-Read that file, understand the CSS variable system, the component-class contract, and the loader wiring, then assemble the page according to the manifest:
+Read that file, understand the shared tokens, the component-class contract, and the loader wiring, then assemble the page according to the manifest:
 
-1. **Reuse directly (carry over verbatim)**: the whole `<style>` block, the loader-strip DOM, the ECharts/Three.js loading infrastructure, the importmap, the @media breakpoints
+1. **Reuse directly (carry over verbatim)**: the whole `<style>` block (with `report.css` inlined), the loader-strip DOM, the ECharts/Three.js loading infrastructure, the importmap, the @media breakpoints
 2. **Select components per the manifest**:
-   - Hero always present → fill its 8 elements from `conclusion` + `scope`
+   - Masthead always present → kicker + h1 + meta + verdict + seal + 4 key cells from `conclusion` + `scope`
    - 3D only when `process_flow.recoverable=true` → build the scene from `process_flow`
    - Render one chart per entry in `charts[]` (each `.chart-panel` + a three-line `.chart-reading`)
    - Render evidence layers per `evidence_layers.*.available` (missing layers get `.evidence-missing`)
    - Render one evidence article per entry in `hypotheses[]` (each `.evidence-article`)
+   - Sections use `.rpt-sec` + `.rpt-sec-head` + `.rpt-body-grid` (`.no-margin` when no margin note)
 3. **Apply the visual grammar**: take every style class name from the design system reference; inventing new colors or components is forbidden
 4. **Bind real data**: every value / piece of copy / path comes from the manifest (whose source is the real run_dir JSON); fabrication is forbidden
 
@@ -179,7 +196,7 @@ The page's section count, card count, chart count, and evidence-layer count must
 
 ### 2. Visual grammar is inherited from the design system reference
 
-`references/report-template.html` is the only style baseline. Keep its CSS variables, typography, component classes, loader, and @media. Adding new color tokens, deleting the loader, and disturbing the four-part order are forbidden.
+`references/report-template.html` is the only style baseline. Keep the shared design tokens (inline `report.css`), typography, component classes, rail/section shell, loader, and @media. Adding new color tokens, deleting the loader, or disturbing the four-part order is forbidden.
 
 ### 3. Four-part narrative (retained from v2)
 

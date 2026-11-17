@@ -1,6 +1,6 @@
 ---
 name: industrial-html-visualizer
-description: "Industrial diagnostic pipeline Step 8 — builds the explanatory HTML visualization page from diagnostic artifacts STRICTLY via the diagnostic-html-visualizer design system: render_manifest.json is produced first (data-driven page model), the page is assembled from the design system reference per the manifest, html_selfcheck.json validates 8 items, and html-reviewer must pass. Reuses the templates, design system, and Fallback rules of the diagnostic-html-visualizer skill. The conclusion must be above the fold, charts are evidence rather than decoration, and the 3D model must tell the truth. Do NOT use without CP-8 ENDORSED optimizer.md. Trigger: HTML visualization, generate HTML, frontend page, visualization report, html visualization, diagnostic HTML, 3D scene, ECharts."
+description: "Industrial diagnostic pipeline Step 8 — builds the explanatory HTML visualization page from diagnostic artifacts STRICTLY via the diagnostic-html-visualizer design system: render_manifest.json is produced first (data-driven page model), the page is assembled from the design system reference per the manifest, html_selfcheck.json validates 9 items, and html-reviewer must pass. Reuses the templates, design system, and Fallback rules of the diagnostic-html-visualizer skill. The conclusion must be above the fold, charts are evidence rather than decoration, and the 3D model must tell the truth. Do NOT use without CP-8 ENDORSED optimizer.md. Trigger: HTML visualization, generate HTML, frontend page, visualization report, html visualization, diagnostic HTML, 3D scene, ECharts."
 ---
 
 # Industrial HTML Visualizer
@@ -30,6 +30,7 @@ The visual identity is non-negotiable: warm-white background `#fafaf8`, single i
 |------|-------------|
 | `optimizer.md` | **CP-8 ENDORSED** audit verdict (hard prerequisite) |
 | `report.md` | Diagnostic report |
+| `advisory/advisory_actions.json` · `advisory/step_status.json` | Integrated improvement advisory (nullable; feeds `render_manifest.advisory`) |
 | `04_diagnostics/diagnosis.json` | Diagnostic conclusion (conclusion type / hypotheses / confidence) |
 | `04_diagnostics/evidence.json` | Evidence list |
 | `04_diagnostics/reasoning_chain.json` | Reasoning chain |
@@ -50,7 +51,7 @@ When P0 files are missing or malformed, execute the corresponding branch of the 
 |------|-------------|:----:|
 | `render_manifest.json` | **Data-driven page model, produced FIRST** — conclusion type, hypotheses[], three-layer evidence availability, charts[], process_flow, available_pngs[], `_meta.protocol_ack` | CP-8A |
 | `diagnostic-report.html` | Single-file HTML ≥5120B assembled from the design system per the manifest | CP-9 |
-| `html_selfcheck.json` | 8-item self-check (each `{name, status: "PASS"\|"FAIL", evidence}`) | CP-8B |
+| `html_selfcheck.json` | 9-item self-check (each `{name, status: "PASS"\|"FAIL", evidence}`) | CP-8B |
 | `05_review/html_review.json` | html-reviewer independent verdict (produced by the reviewer, never by this agent) | CP-8C |
 
 **Ordering is enforced**: no `diagnostic-report.html` may exist before `render_manifest.json`; a page whose section/card/chart/evidence-layer counts do not match the manifest is a red-line fail (reviewer audits this).
@@ -111,7 +112,7 @@ VISUAL_MODE=story
 | 1 — Understand | Read builder protocol + design system + all run_dir artifacts (P0→P2 priority) | protocol_ack |
 | 2 — Model | Produce `render_manifest.json`: conclusion type, `hypotheses[]` (count = real data), `evidence_layers` availability, `charts[]` (count = real signals), `process_flow`, `available_pngs[]`, `_meta.protocol_ack` = 3× true | **CP-8A** |
 | 3 — Render | Assemble the page from the manifest wearing the design system's visual grammar: Hero (8 mandatory elements) → background + 3D (only if `process_flow.recoverable`) → reasoning (statistics table + charts with three-line readings) → evidence chain three layers → actions; conclusion-type branching (DETERMINED / COMPETING_SET / NEEDS_DATA) | — |
-| 4 — Self-check | Write `html_selfcheck.json` (8 items, each with evidence); any FAIL → fix and rewrite (max 3 fix rounds) | **CP-8B** |
+| 4 — Self-check | Write `html_selfcheck.json` (9 items, each with evidence); any FAIL → fix and rewrite (max 3 fix rounds) | **CP-8B** |
 | 5 — Review | `html-reviewer` independent review. `pass` to complete; `warn` → fix warnings and resubmit; `fail` → return to Phase 3 with blocker list (max 3 attempts) | **CP-8C** |
 | 6 — Contract | Report 11 items to the main agent | — |
 

@@ -93,6 +93,7 @@ Final audit scope:
 - Evidence completeness: evidence ranks assigned correctly
 - Falsifiability: falsification conditions concrete and executable
 - Statistical foundation: correlations passed the full anti-spurious-correlation validation
+- **Advisory chapter fidelity (conditional)**: when `advisory/advisory_actions.json` exists, the report's 「改善建议与验证计划」 chapter must match it verbatim — grades, expected gains, 95%CI bounds and prescriptions are script-authored; any reworded/recomputed number is a blocking issue. When `advisory/step_status.json` is skipped/failed, the chapter must carry the honest one-line disclosure instead of invented advice. A missing chapter when the step ran is also blocking (lint L5).
 
 Output: optimizer.md with ENDORSED / CONDITIONAL / REJECTED verdict.
 `,

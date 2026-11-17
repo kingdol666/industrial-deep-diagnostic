@@ -18,12 +18,81 @@ import subprocess
 import sys
 import time
 
-GRADE_COLORS = {"A": "#22a06b", "B": "#d8a516", "C": "#e0703a", "D": "#c9312b",
-                None: "#7a8699"}
-SEV_COLORS = {"info": "#4a7fb5", "warn": "#d8a516", "high": "#e0703a",
-              "critical": "#c9312b"}
+GRADE_COLORS = {"A": "#2d7d4f", "B": "#8a6d3b", "C": "#c2673a", "D": "#c4433b",
+                None: "#726b5f"}
+SEV_COLORS = {"info": "#41586e", "warn": "#8a6d3b", "high": "#c2673a",
+              "critical": "#c4433b"}
 SEV_LABELS = {"info": "提示", "warn": "关注", "high": "严重", "critical": "危急"}
 ROLE_LABELS = {"parameter": "加工参数", "inspection": "检测指标"}
+
+# Shared advisory renderer (single visual authority; cross-skill reuse like
+# lstcore↔sentinelcore). Absence only degrades the integrated chapter.
+_IMA_SCRIPTS = os.path.normpath(os.path.join(
+    os.path.dirname(os.path.abspath(__file__)),
+    "..", "..", "industrial-improvement-advisor", "scripts"))
+if os.path.isdir(_IMA_SCRIPTS) and _IMA_SCRIPTS not in sys.path:
+    sys.path.insert(0, _IMA_SCRIPTS)
+try:
+    from imacore import render as _ima_render  # noqa: E402
+except Exception:  # pragma: no cover - degraded host without the advisory skill
+    _ima_render = None
+
+# Shared report design system (single visual authority for every skill HTML).
+_REPORT_DESIGN = os.path.normpath(os.path.join(
+    os.path.dirname(os.path.abspath(__file__)),
+    "..", "..", "..", "..", ".claude", "shared", "report-design"))
+if os.path.isdir(_REPORT_DESIGN) and _REPORT_DESIGN not in sys.path:
+    sys.path.insert(0, _REPORT_DESIGN)
+try:
+    import report_design as _report_design  # noqa: E402
+except Exception:  # pragma: no cover
+    _report_design = None
+
+SHARED_CSS = _report_design.css_text() if _report_design is not None else ""
+# Legacy class aliases: section helpers below predate the shared system and keep
+# emitting .panel/.chart/.finding …; map them onto the ledger look rather than
+# duplicating the design tokens.
+LEGACY_CSS = """
+.rpt-scope .panel{background:var(--panel);border:1px solid var(--hair);border-radius:0;
+  padding:16px 18px}
+.rpt-scope table{border-collapse:collapse;width:100%;font-size:13px}
+.rpt-scope th,.rpt-scope td{border-bottom:1px solid var(--hair);padding:7px 10px;
+  text-align:left;vertical-align:top}
+.rpt-scope th{color:var(--muted);font-weight:600;font-size:11px;letter-spacing:.06em;
+  white-space:nowrap}
+.rpt-scope td.strong{font-weight:600}
+.rpt-scope code{background:#f2efe8;border:1px solid var(--hair);padding:0 5px;font-size:12px}
+.rpt-scope .empty{color:var(--muted);padding:10px 4px}
+.rpt-scope .num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.rpt-scope .role-tag{margin-left:8px;font-size:11px;color:var(--muted);
+  border:1px solid var(--hair);padding:0 6px}
+.rpt-scope .derived{font-size:10px;color:var(--accent);
+  border:1px solid rgba(232,163,61,.4);padding:0 4px;margin-left:4px}
+.rpt-scope .drift-flag{margin-left:6px;color:var(--warm);font-size:11px;
+  border:1px solid var(--warm);padding:0 5px}
+.rpt-scope .finding{background:var(--panel);border:1px solid var(--hair);
+  border-left:3px solid var(--s);border-radius:0;padding:14px 16px;margin-bottom:12px}
+.rpt-scope .f-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.rpt-scope .pill{background:var(--s);color:#fff;padding:1px 10px;font-size:12px}
+.rpt-scope .f-title{font-weight:700;font-family:var(--serif)}
+.rpt-scope .f-id{color:var(--muted);font-size:12px;margin-left:auto}
+.rpt-scope .f-conf{color:var(--muted);font-size:12px;white-space:nowrap}
+.rpt-scope .f-detail{color:var(--ink-soft);margin:8px 0}
+.rpt-scope .f-mech{font-size:12.5px;color:var(--ink-soft);background:rgba(30,58,84,.05);
+  border:1px dashed rgba(30,58,84,.22);padding:6px 10px;margin:6px 0}
+.rpt-scope .ev-table{margin-top:8px}
+.rpt-scope .score-cell{display:flex;align-items:center;gap:8px;min-width:130px}
+.rpt-scope .score-bar{height:8px;width:var(--w);max-width:120px;background:var(--c)}
+.rpt-scope .chart{height:300px;background:var(--panel);border:1px solid var(--hair)}
+.rpt-scope .chart+.chart{margin-top:14px}
+.rpt-scope .chart-title{padding:10px 14px 0;color:var(--muted);font-size:13px}
+.rpt-scope .static-table{max-height:220px;overflow:auto;margin-top:8px}
+.rpt-scope .foot{margin-top:40px;color:var(--muted);font-size:12px;
+  border-top:1px solid var(--hair);padding-top:14px}
+.rpt-scope .foot b{color:var(--ink-soft)}
+.rpt-scope .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+  gap:14px}
+"""
 
 
 def _esc(v) -> str:
@@ -45,7 +114,7 @@ def _period_label(period: dict) -> str:
     return f"{short(period.get('start'))} ~ {short(period.get('end'))}"
 
 
-def build(report: dict, charts: dict) -> str:
+def build(report: dict, charts: dict, advisory: dict | None = None) -> str:
     c = report["conclusion"]
     grade_color = GRADE_COLORS.get(c.get("grade"))
     not_assessable = report["status"] != "ok"
@@ -64,23 +133,27 @@ def build(report: dict, charts: dict) -> str:
     hero_title = f"{noun}运行稳定性报告" if noun in ("产线", "系统") else "运行稳定性报告"
     objective = report.get("objective")
     hero = f"""
-    <section class="hero">
-      <div class="hero-main">
-        <div class="hero-title">{_esc(hero_title)}</div>
-        <div class="hero-sub">
-          <span class="chip">{_esc(display)}</span>
-          {f'<span class="chip ghost">{_esc(report["line"].get("product"))}</span>' if report['line'].get('product') else ''}
-          <span class="chip ghost">时段：{_period_label(report['period'])}</span>
+    <header class="rpt-masthead">
+      <p class="rpt-kicker">Industrial Deep Diagnostic · 运行稳定性</p>
+      <h1>{_esc(hero_title)}</h1>
+      <div class="rpt-meta">
+        <span>对象 <b>{_esc(display)}</b></span>
+        {f'<span>产品 <b>{_esc(report["line"].get("product"))}</b></span>' if report['line'].get('product') else ''}
+        <span>时段 <b>{_period_label(report['period'])}</b></span>
+        <span>采样 <b>{_num(report['data'].get('sampling_interval_median_seconds'), 2)} s · {report['data'].get('n_rows_used')} 行</b></span>
+        <span>生成 <b>{_esc(report.get('generated_at', '')[:16].replace('T', ' '))}</b></span>
+      </div>
+      <div class="rpt-verdict">
+        <blockquote data-field="statement">{_esc(c['statement'])}</blockquote>
+        <div class="rpt-seal {'is-a' if c.get('grade') == 'A' else 'is-c' if c.get('grade') == 'C' else ''}">
+          <div class="rpt-seal-in">
+            <div class="rpt-seal-num">{_num(c.get('score'), 1) if not not_assessable else '—'}</div>
+            <div class="rpt-seal-grade">{_esc(c.get('grade') or 'N/A')} · {_esc(grade_cn)}</div>
+            <div class="rpt-seal-cap">综合稳定性 0–100</div>
+          </div>
         </div>
-        {f'<div class="hero-sub"><span class="chip ghost">分析目标：{_esc(objective)}</span></div>' if objective else ''}
-        <div class="statement">{_esc(c['statement'])}</div>
       </div>
-      <div class="hero-score" style="--g:{grade_color}">
-        <div class="score-num">{_num(c.get('score'), 1) if not not_assessable else '—'}</div>
-        <div class="score-grade">{_esc(c.get('grade') or 'N/A')} · {_esc(grade_cn)}</div>
-        <div class="score-cap">综合稳定性评分（0–100）</div>
-      </div>
-    </section>"""
+    </header>"""
 
     # ---------- findings ----------
     fc = []
@@ -117,12 +190,29 @@ def build(report: dict, charts: dict) -> str:
     findings_html = ("".join(fc) if fc
                      else '<div class="empty">本时段无分级发现。</div>')
 
+    # ---------- integrated improvement advisory (optional) ----------
+    advisory_html = ""
+    step = (report.get("advisory") or {})
+    if _ima_render is not None and isinstance(advisory, dict):
+        advisory_html = _ima_render.render_section(
+            advisory, mode="full", include_style=False, number="03",
+            anchor="s3", title="改善建议与验证计划（集成）")
+    elif step:
+        status = step.get("status") or "—"
+        advisory_html = (
+            '<section class="rpt-sec" id="s3"><div class="rpt-sec-head">'
+            '<span class="rpt-sec-no">03</span><h2>改善建议与验证计划（集成）</h2>'
+            '<div class="rpt-sec-sub">本次未生成改善建议</div></div>'
+            '<div class="rpt-panel rpt-empty">本次未生成改善建议（'
+            + _esc(str(status)) + '）：'
+            + _esc(str(step.get("reason") or "00_input/advisory_opt_out 或数据不足"))
+            + '。宿主报告不受影响。</div></section>')
+
     # ---------- parameter table ----------
     pt_rows = []
     for p in params:
         s = p.get("score")
-        color = "#22a06b" if (s or 0) >= 85 else "#d8a516" if (s or 0) >= 70 \
-            else "#e0703a" if (s or 0) >= 50 else "#c9312b"
+        color = "#c2673a" if (s or 0) < 50 else "#1e3a54"
         cap = p.get("capability") or {}
         dr = p.get("drift") or {}
         br = p.get("baseline_ref") or {}
@@ -173,111 +263,92 @@ def build(report: dict, charts: dict) -> str:
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
 <script src="https://unpkg.com/echarts@5.5.0/dist/echarts.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.5.0/echarts.min.js"></script>
-<style>
-  :root {{ --bg:#101418; --panel:#171d24; --line:#26303b; --tx:#dfe7ee; --mut:#8a99a8;
-          --acc:#e8a33d; --good:#22a06b; }}
-  * {{ box-sizing:border-box; }}
-  body {{ margin:0; background:var(--bg); color:var(--tx);
-        font:14px/1.65 "Segoe UI","Microsoft YaHei",sans-serif; }}
-  .wrap {{ max-width:1180px; margin:0 auto; padding:28px 20px 60px; }}
-  .hero {{ display:flex; gap:24px; background:var(--panel); border:1px solid var(--line);
-         border-radius:14px; padding:26px 28px; align-items:center; justify-content:space-between;
-         flex-wrap:wrap; }}
-  .hero-title {{ font-size:24px; font-weight:700; letter-spacing:.5px; }}
-  .hero-sub {{ margin:10px 0 12px; display:flex; gap:8px; flex-wrap:wrap; }}
-  .chip {{ background:rgba(232,163,61,.14); color:var(--acc); border:1px solid rgba(232,163,61,.35);
-          border-radius:999px; padding:2px 12px; font-size:12px; }}
-  .chip.ghost {{ background:transparent; color:var(--mut); border-color:var(--line); }}
-  .statement {{ font-size:15px; max-width:640px; }}
-  .hero-score {{ text-align:center; min-width:190px; border:1px solid var(--g);
-               border-radius:14px; padding:16px 22px; }}
-  .score-num {{ font-size:46px; font-weight:800; color:var(--g); line-height:1.1; }}
-  .score-grade {{ color:var(--g); font-weight:700; margin-top:4px; }}
-  .score-cap {{ color:var(--mut); font-size:12px; margin-top:6px; }}
-  h2 {{ font-size:17px; margin:34px 0 12px; padding-left:10px; border-left:3px solid var(--acc); }}
-  .panel {{ background:var(--panel); border:1px solid var(--line); border-radius:12px;
-          padding:16px 18px; }}
-  .grid {{ display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:14px; }}
-  .finding {{ background:var(--panel); border:1px solid var(--line); border-left:3px solid var(--s);
-            border-radius:10px; padding:14px 16px; margin-bottom:12px; }}
-  .f-head {{ display:flex; align-items:center; gap:10px; }}
-  .pill {{ background:var(--s); color:#fff; border-radius:999px; padding:1px 10px;
-          font-size:12px; flex:0 0 auto; }}
-  .f-title {{ font-weight:700; }}
-  .f-id {{ margin-left:auto; color:var(--mut); font-size:12px; }}
-  .f-detail {{ color:#b9c6d2; margin:8px 0; }}
-  .f-mech {{ font-size:12.5px; color:#a8c0d8; background:rgba(90,140,190,.08);
-           border:1px dashed rgba(90,140,190,.35); border-radius:6px; padding:6px 10px; margin:6px 0; }}
-  .f-conf {{ margin-left:auto; color:var(--mut); font-size:12px; white-space:nowrap; }}
-  .f-id {{ color:var(--mut); font-size:12px; margin-left:10px; }}
-  .derived {{ font-size:10px; color:var(--acc); border:1px solid rgba(232,163,61,.4);
-            border-radius:4px; padding:0 4px; margin-left:4px; }}
-  table {{ border-collapse:collapse; width:100%; }}
-  th,td {{ border-bottom:1px solid var(--line); padding:7px 10px; text-align:left;
-         font-size:13px; vertical-align:top; }}
-  th {{ color:var(--mut); font-weight:600; white-space:nowrap; }}
-  td.num, .num {{ font-variant-numeric:tabular-nums; }}
-  .ev-table {{ margin-top:8px; }}
-  .ev-table th {{ font-size:12px; }}
-  .role-tag {{ margin-left:8px; font-size:11px; color:var(--mut); border:1px solid var(--line);
-             border-radius:4px; padding:0 6px; }}
-  .drift-flag {{ margin-left:6px; color:#e0703a; font-size:11px; border:1px solid #e0703a;
-               border-radius:4px; padding:0 5px; }}
-  .score-cell {{ display:flex; align-items:center; gap:8px; min-width:130px; }}
-  .score-bar {{ height:8px; width:var(--w); max-width:120px; background:var(--c);
-              border-radius:4px; }}
-  .chart {{ height:300px; background:var(--panel); border:1px solid var(--line);
-          border-radius:12px; }}
-  .chart + .chart {{ margin-top:14px; }}
-  .chart-title {{ padding:10px 14px 0; color:var(--mut); font-size:13px; }}
-  .empty {{ color:var(--mut); padding:10px 4px; }}
-  .static-table {{ max-height:220px; overflow:auto; margin-top:8px; }}
-  .foot {{ margin-top:40px; color:var(--mut); font-size:12px; border-top:1px solid var(--line);
-         padding-top:14px; }}
-  .foot b {{ color:#b9c6d2; }}
-  code {{ background:#0c1013; border:1px solid var(--line); border-radius:4px;
-        padding:0 5px; font-size:12px; }}
-  @media print {{ body {{ background:#fff; color:#111; }} }}
-</style>
+<style>{SHARED_CSS}{LEGACY_CSS}</style>
 </head>
-<body>
-<div class="wrap">
+<body class="rpt-scope">
+<div class="rpt-page">
+<aside class="rpt-rail">
+  <div class="rpt-brand">IDD<span>证据账簿</span></div>
+  <nav class="rpt-nav">
+    <a href="#s1" class="is-on"><b>01</b>场景理解</a>
+    <a href="#s2"><b>02</b>核心发现</a>
+    <a href="#s3"><b>03</b>改善建议</a>
+    <a href="#s4"><b>04</b>参数总览</a>
+    <a href="#s5"><b>05</b>趋势控制</a>
+    <a href="#s6"><b>06</b>相关驱动</a>
+    <a href="#s7"><b>07</b>协同输入</a>
+    <a href="#s8"><b>08</b>数据口径</a>
+  </nav>
+  <div class="rpt-rail-foot">确定性脚本生成<br>数值可复算 · 分级不可手改<br>
+    <code>{_esc(report['report_id'])}</code></div>
+</aside>
+<main class="rpt-main">
   {hero}
 
-  <h2>场景理解（本体优先）</h2>
-  {condition_html}
+  <section class="rpt-sec" id="s1">
+    <div class="rpt-sec-head"><span class="rpt-sec-no">01</span><h2>场景理解（本体优先）</h2>
+      <div class="rpt-sec-sub">先于任何统计构建场景理解；每个推断字段带 assigned_by，
+        快照数据单独标注。</div></div>
+    <div class="rpt-body-grid">
+      <div class="rpt-content">{condition_html}</div>
+      <aside class="rpt-margin"><h4>读法</h4>
+        <p>先看本体来源与 spec 覆盖：没有规格时 Cpk 不参与评分，这是口径不是缺失。</p>
+        <p>单时刻导出的快照不进入时段统计，只作为瞬时值单列。</p>
+      </aside>
+    </div>
+  </section>
 
-  <h2>核心发现（结论与证据）</h2>
-  {findings_html}
+  <section class="rpt-sec" id="s2">
+    <div class="rpt-sec-head"><span class="rpt-sec-no">02</span><h2>核心发现（结论与证据）</h2>
+      <div class="rpt-sec-sub">{len(findings)} 项分级发现；全部展示，按严重度与可解释性排序。</div></div>
+    {findings_html}
+  </section>
 
-  <h2>参数稳定性总览</h2>
-  <div class="panel" style="overflow:auto">
-    <table>
-      <thead><tr>
-        <th>参数</th><th>样本数</th><th>中位数</th><th>CV</th><th>SPC违规点</th>
-        <th>漂移/天(相对)</th><th>Cpk</th><th>基线z</th><th>评分</th>
-      </tr></thead>
-      <tbody>{params_html}</tbody>
-    </table>
-  </div>
+  {advisory_html}
 
-  <h2>趋势与控制限</h2>
-  <div id="trend-charts"></div>
-  <noscript><div class="panel empty">已禁用 JavaScript：请查看上方参数总览表与证据附录，
-    或使用导出的 charts.json。</div></noscript>
+  <section class="rpt-sec" id="s4">
+    <div class="rpt-sec-head"><span class="rpt-sec-no">04</span><h2>参数稳定性总览</h2>
+      <div class="rpt-sec-sub">全部 {len(params)} 个评估参数；评分 ≈ 波动 + 违规 + 漂移的确定性加权。</div></div>
+    <div class="panel" style="overflow:auto">
+      <table>
+        <thead><tr>
+          <th>参数</th><th>样本数</th><th>中位数</th><th>CV</th><th>SPC违规点</th>
+          <th>漂移/天(相对)</th><th>Cpk</th><th>基线z</th><th>评分</th>
+        </tr></thead>
+        <tbody>{params_html}</tbody>
+      </table>
+    </div>
+  </section>
 
-  <h2>参数相关与波动驱动</h2>
-  <div class="grid">
-    <div class="panel" id="contrib-panel"><div class="chart-title">对检测/目标指标的方差解释占比</div>
-      <div id="contrib-chart" class="chart"></div>{contrib_note}</div>
-    <div class="panel" id="heat-panel"><div class="chart-title">参数相关热力图（滞后补偿 |Spearman|）</div>
-      <div id="heat-chart" class="chart"></div></div>
-  </div>
+  <section class="rpt-sec" id="s5">
+    <div class="rpt-sec-head"><span class="rpt-sec-no">05</span><h2>趋势与控制限</h2>
+      <div class="rpt-sec-sub">ECharts 交互图；CDN 不可用时自动降级为静态摘要表。</div></div>
+    <div id="trend-charts"></div>
+    <noscript><div class="panel empty">已禁用 JavaScript：请查看上方参数总览表与证据附录，
+      或使用导出的 charts.json。</div></noscript>
+  </section>
 
-  <h2>协同分析输入</h2>
-  <div class="panel" id="integrations">{_integrations_html(report)}</div>
+  <section class="rpt-sec" id="s6">
+    <div class="rpt-sec-head"><span class="rpt-sec-no">06</span><h2>参数相关与波动驱动</h2>
+      <div class="rpt-sec-sub">滞后补偿相关 + 方差贡献分解；缺失目标指标时明示未执行。</div></div>
+    <div class="grid">
+      <div class="panel" id="contrib-panel"><div class="chart-title">对检测/目标指标的方差解释占比</div>
+        <div id="contrib-chart" class="chart"></div>{contrib_note}</div>
+      <div class="panel" id="heat-panel"><div class="chart-title">参数相关热力图（滞后补偿 |Spearman|）</div>
+        <div id="heat-chart" class="chart"></div></div>
+    </div>
+  </section>
 
-  <h2>数据与口径（证据链附录）</h2>
+  <section class="rpt-sec" id="s7">
+    <div class="rpt-sec-head"><span class="rpt-sec-no">07</span><h2>协同分析输入</h2>
+      <div class="rpt-sec-sub">sentinel 基线 / tuning-memory 归因 / DOE 操作窗的启用状态与降级说明。</div></div>
+    <div class="panel" id="integrations">{_integrations_html(report)}</div>
+  </section>
+
+  <section class="rpt-sec rpt-appendix" id="s8">
+  <div class="rpt-sec-head"><span class="rpt-sec-no">08</span>
+    <h2>数据与口径（证据链附录）</h2>
+    <div class="rpt-sec-sub">数据指纹、评估口径、方法常数与假设局限；全部数值可复算。</div></div>
   <div class="panel">
     <table>
       <tr><th>数据文件</th><td>{_esc(data['path'])}</td></tr>
@@ -303,6 +374,8 @@ def build(report: dict, charts: dict) -> str:
     script v{_esc(report['provenance']['script_version'])} ·
     {report['generated_at']}
   </div>
+  </section>
+</main>
 </div>
 
 <script id="payload" type="application/json">{payload}</script>
@@ -344,10 +417,10 @@ def build(report: dict, charts: dict) -> str:
       var ch = echarts.init(el); allCharts.push(ch);
       var series = [{{ name: s.name, type: 'line', showSymbol: false,
         data: s.t.map(function (t, i) {{ return [t, s.v[i]]; }}),
-        lineStyle: {{ width: 1.2, color: '#5b8dbf' }} }}];
-      [['UCL', s.ucl, '#e0703a', 'dashed'], ['LCL', s.lcl, '#e0703a', 'dashed'],
-       ['LSL', s.spec && s.spec.lsl, '#c9312b', 'solid'],
-       ['USL', s.spec && s.spec.usl, '#c9312b', 'solid']].forEach(function (m) {{
+        lineStyle: {{ width: 1.2, color: '#1e3a54' }} }}];
+      [['UCL', s.ucl, '#c2673a', 'dashed'], ['LCL', s.lcl, '#c2673a', 'dashed'],
+       ['LSL', s.spec && s.spec.lsl, '#c4433b', 'solid'],
+       ['USL', s.spec && s.spec.usl, '#c4433b', 'solid']].forEach(function (m) {{
         if (m[1] !== null && m[1] !== undefined)
           series.push({{ name: m[0], type: 'line', data: [[s.t[0], m[1]], [s.t[s.t.length - 1], m[1]]],
             symbol: 'none', lineStyle: {{ color: m[2], type: m[3], width: 1 }},
@@ -357,7 +430,7 @@ def build(report: dict, charts: dict) -> str:
       if (bad.length)
         series.push({{ name: '违规点', type: 'scatter',
           data: bad.map(function (i) {{ return [s.t[i], s.v[i]]; }}),
-          itemStyle: {{ color: '#c9312b' }}, symbolSize: 7 }});
+          itemStyle: {{ color: '#c4433b' }}, symbolSize: 7 }});
       ch.setOption({{
         grid: {{ left: 60, right: 60, top: 18, bottom: 44 }},
         tooltip: {{ trigger: 'axis' }},
@@ -402,7 +475,7 @@ def build(report: dict, charts: dict) -> str:
           axisLabel: {{ rotate: 30 }} }},
         yAxis: {{ type: 'category', data: charts.corr_heatmap.labels.slice().reverse() }},
         visualMap: {{ min: 0, max: 1, calculable: true, orient: 'horizontal',
-          left: 'center', bottom: 0, inRange: {{ color: ['#1d2a36', '#e8a33d', '#c9312b'] }} }},
+          left: 'center', bottom: 0, inRange: {{ color: ['#1d2a36', '#e8a33d', '#c4433b'] }} }},
         series: [{{ type: 'heatmap', data: pts,
           label: {{ show: charts.corr_heatmap.labels.length <= 8, formatter: function (p) {{
             return p.value[2].toFixed(2); }} }} }}]
@@ -580,7 +653,7 @@ def _limitations_html(report: dict) -> str:
         return ""
     sampling = lim.get("sampling") or {}
     conf = lim.get("confounders") or []
-    uncontrolled = "<b style='color:#e0703a'>未控</b>"
+    uncontrolled = "<b style='color:#c2673a'>未控</b>"
     conf_rows = "".join(
         f"<tr><td>{_esc(c.get('variable'))}</td><td>{_esc(c.get('why'))}</td>"
         f"<td>{'已控' if c.get('controlled') else uncontrolled}</td></tr>"
@@ -634,7 +707,7 @@ def selfcheck(html_path: str, report: dict) -> dict:
     }
 
 
-def build_markdown(report: dict) -> str:
+def build_markdown(report: dict, advisory: dict | None = None) -> str:
     """Chinese Markdown companion report (same numbers as the HTML, data
     traceability preserved: derived marks + limitations + provenance)."""
     c = report["conclusion"]
@@ -720,6 +793,11 @@ def build_markdown(report: dict) -> str:
             dv = "（derived）" if e.get("derived") else ""
             ap(f"| {e.get('metric')} | {_num(e.get('value'))} | {e.get('threshold', '—')} | "
                f"{e.get('source', '—')}{dv} |")
+        ap("")
+
+    if _ima_render is not None and isinstance(advisory, dict):
+        ap(_ima_render.render_markdown(
+            advisory, heading="## 改善建议与验证计划（集成）"))
         ap("")
 
     ap("## 参数稳定性总览")
@@ -824,7 +902,18 @@ def main(argv=None) -> int:
         charts_data = json.load(f)
     out = args.out or os.path.join(os.path.dirname(os.path.abspath(args.report)),
                                    "line_stability_report.html")
-    doc = build(report, charts_data)
+    # Integrated advisory payload is projected next to the report by the
+    # adapter (advisory_actions.json), same directory, fixed filename.
+    advisory = None
+    adv_path = os.path.join(os.path.dirname(os.path.abspath(args.report)),
+                            "advisory_actions.json")
+    if os.path.isfile(adv_path):
+        try:
+            with open(adv_path, "r", encoding="utf-8") as f:
+                advisory = json.load(f)
+        except (OSError, ValueError):
+            advisory = None
+    doc = build(report, charts_data, advisory=advisory)
     with open(out, "w", encoding="utf-8") as f:
         f.write(doc)
     if not args.no_md:
@@ -833,7 +922,7 @@ def main(argv=None) -> int:
         md_path = os.path.join(os.path.dirname(os.path.abspath(out)),
                                "line_stability_report.md")
         with open(md_path, "w", encoding="utf-8") as f:
-            f.write(build_markdown(report))
+            f.write(build_markdown(report, advisory=advisory))
         print(f"[line-stability] md written {md_path}")
     check = selfcheck(out, report)
     check_path = os.path.join(os.path.dirname(out), "html_selfcheck.json")

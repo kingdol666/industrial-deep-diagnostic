@@ -128,7 +128,7 @@ Default outputs:
 
 - `<run_dir>/diagnostic-report.html`
 - `<run_dir>/render_manifest.json` (data-driven page model, including the `_meta.protocol_ack` protocol acknowledgement; mandatory intermediate artifact for the builder, audit baseline for the reviewer)
-- `<run_dir>/html_selfcheck.json` (Step 5 self-check, 8 items PASS/FAIL + evidence; mandatory audit input for the reviewer)
+- `<run_dir>/html_selfcheck.json` (Step 5 self-check, 9 items PASS/FAIL + evidence; mandatory audit input for the reviewer)
 
 The page must satisfy:
 
@@ -248,10 +248,11 @@ Check at minimum:
 - Whether at least one Three.js scene really rendered (canvas element exists)
 - Whether local image paths are accessible relative to the output file
 - **Whether the evidence chain is complete in all three layers, each supported by real images/data/reasoning**
+- **Whether the integrated advisory section matches `render_manifest.advisory`**: `available=false` → exactly one honest `.adv-empty` disclosure line, no invented cards; `available=true` → exactly `advisory.actions.length` `.adv-card`s (grade badge / expected gain + 95%CI / mechanism / verification / rollback) plus the prescriptions count, every number verbatim from `advisory/advisory_actions.json`
 - Whether main conclusion, key evidence, exclusion logic, action recommendations, and limitations are all present
 - Whether the user can understand "why this conclusion was reached" without statistical jargon
 
-🔴 **CHECKPOINT 4 · Self-check validation**: run the 8 checks above and produce `<run_dir>/html_selfcheck.json` (each item `{name, status: "PASS"|"FAIL", evidence}`). Any FAIL item must be fixed and the selfcheck rewritten. More than 3 fixes → return to Step 4 and re-examine the page structure. This JSON is a mandatory audit input for the reviewer.
+🔴 **CHECKPOINT 4 · Self-check validation**: run the 9 checks above and produce `<run_dir>/html_selfcheck.json` (each item `{name, status: "PASS"|"FAIL", evidence}`). Any FAIL item must be fixed and the selfcheck rewritten. More than 3 fixes → return to Step 4 and re-examine the page structure. This JSON is a mandatory audit input for the reviewer.
 
 If the environment allows previewing the page, actually open the page to verify the load status; do not judge success by statically reading the HTML source alone.
 
@@ -279,14 +280,15 @@ The first screen must directly provide:
 
 All 8 of the following elements must appear in the Hero area:
 
-1. `.hero-bar` — 36px×3px ink hairline
-2. `.display` — serif display headline, `<em>` emphasizes keywords
-3. `.hero-lede` — 3-4 sentences of plain-language explanation, ≤640px wide
-4. `.hero-meta` — diagnosis type / Judge score / confidence / focus product / sample size / anomalous section (minimum 5 items)
-5. `.key-findings` — 4-cell key findings grid (1px split border): strongest evidence / excluded / recommended action / evidence gap
-6. Each cell contains `.kl` (label) + `.kv` (value) + optional `.kd` (supplementary note)
-7. Reading-guide caption — one sentence explaining the page's top-to-bottom browsing order
-8. Every one of the 4 cells must contain a concrete value; empty strings or Lorem placeholders are not allowed
+1. `.rpt-kicker` — eyebrow label (e.g. Industrial Deep Diagnostic · 根因诊断)
+2. `h1` — serif title: line + target defect
+3. `.rpt-meta` — diagnosis type / Judge score / confidence / focus product / sample size (≥4 real fields)
+4. `.rpt-verdict blockquote` — 3-4 sentences of plain-language conclusion
+5. `.rpt-seal` — seal-style confidence + conclusion type + Judge score
+6. `.key-findings` — 4-cell key findings grid (1px split border): strongest evidence / excluded / physical mechanism / recommended action
+7. Each cell contains `.kl` (label) + `.kv` (value) + optional `.kd` (supplementary note)
+8. Reading-guide caption — one sentence explaining the page's top-to-bottom browsing order
+9. Every one of the 4 cells must contain a concrete value; empty strings or Lorem placeholders are not allowed
 
 #### 1. Background and production-line modeling
 
@@ -476,62 +478,54 @@ The following covers the complete fallback chain for 8 common failure scenarios.
 
 > **The builder agent must read this section before writing the page.** What is defined here is not "suggestions for reference" but the mandatory visual grammar of the page design. Fallback rules are in the next section; consult them when something breaks.
 
-### Default: Light Minimal Narrative
+### Default: Evidence Ledger (A skeleton)
 
-**`references/report-template.html` is this Skill's sole style baseline.** What the page conveys is not a "technical system feel" but "clear diagnostic persuasiveness".
+**`references/report-template.html` is this Skill's sole style baseline.** The page is an auditable technical dossier, not a dashboard: left chapter rail, numbered sections, three-column body (number / content / margin note), seal-style score.
+
+The stylesheet is the shared design system: `.claude/shared/report-design/report.css` (same tokens as the stability / advisory / DOE reports). The template links it for preview; **the builder MUST inline it into `<style>…</style>` in the final single-file report** (no external requests).
 
 ### Design principles
 
-1. **Warm white background** — `#fafaf8` + `#f4f3f0` secondary background
+1. **Warm paper background** — `#fafaf8` + `#fffefb` panels
 2. **Single ink color throughout** — `#1e3a54` as the only accent color (ink blue)
-3. **Serif headings + sans-serif body** — typographic hierarchy instead of decoration
-4. **Generous whitespace + hairlines** — 1px dividers instead of card shadows
-5. **Body ≤640px** — controls the reading rhythm
-6. **Warm orange marks anomalies** — `#c2673a` used only for warnings/anomalies/physical mechanisms
+3. **Serif headings + sans-serif body + mono numerals** — typographic hierarchy instead of decoration
+4. **Hairlines, no shadows** — 1px rules; no rounded card piles
+5. **Three-column body** — number column + reading column + margin notes (margin collapses <1120px)
+6. **Warm orange marks anomalies** — `#c2673a` only for warnings/anomalies/physical mechanisms; grade colors only for grades (A green / B gold / C brown)
 
-### Color system (CSS variables — from report-template.html)
+### Color system (shared CSS variables)
 
 ```
---bg: #fafaf8        primary background — warm white
---bg-alt: #f4f3f0    secondary background
---bg-card: #ffffff   card background
---hairline: rgba(0,0,0,0.06)  finest divider
---rule: rgba(0,0,0,0.10)      section divider
---t1: #111           body black
---t2: #4a4a4a        secondary text
---t3: #888           auxiliary text
---ink: #1e3a54       ink blue — primary accent
---warm: #c2673a      warm orange — anomalies
---green: #2d7d4f     deep green — pass
---red: #c4433b       dark red — excluded
---gold: #8a6d3b      dark gold — medium
+--paper #fafaf8   --panel #fffefb   --ink #1e3a54   --ink-soft #41586e
+--muted #726b5f   --hair #e3ded3    --accent #a8542c --warm #c2673a
+--good #2d7d4f    --warn #8a6d3b    --bad #c4433b    --wash #f3f1ea
 ```
 
 ### Typographic hierarchy
 
 | Class | Font | Size | Purpose |
 |------|------|------|------|
-| `.display` | serif | 2.8rem/600/-0.025em | Hero conclusion |
-| `h1` | serif | 1.9rem/600 | Main title |
-| `h2` | serif | 1.45rem/600 | Section title |
-| `.body-l` | sans | 1.08rem | Lead paragraph |
-| `.body` | sans | 0.9rem | Body text |
-| `.caption` | sans | 0.76rem | Figure caption |
-| `.mono` | mono | 0.78rem | Statistical values |
+| `h1` (masthead) | serif | 33px/600 | Report title |
+| `.rpt-verdict blockquote` | serif | 18.5px | Conclusion-first statement |
+| `.rpt-sec-head h2` | serif | 23px/600 | Section title |
+| `.rpt-kicker` | sans | 11px | Eyebrow label |
+| `.rpt-content` body | sans | 15px | Body text |
+| `.rpt-meta`, `.rpt-sec-sub` | sans | 12.5px | Metadata / subtitle |
+| `.rpt-mono` | mono | 12px | Statistical values |
 
-### Hero area specification
+### Masthead specification
 
-- Top 36px × 3px hairline decoration (`--ink`)
-- Serif display headline with `<em>` tags emphasizing keywords (`--warm` italic)
-- Lede paragraph max-width: 640px
-- Metadata row: flex-wrap + gap: 32px
-- 4-cell key findings: `grid-template-columns: repeat(4, 1fr)`, 1px split border frame
+- `.rpt-masthead`: kicker + h1 + `.rpt-meta` row + `.rpt-verdict` (statement + seal)
+- `.rpt-seal`: 2px double frame, serif number = confidence, grade line = conclusion type, cap = Judge score
+- `.key-findings`: 4 cells, 1px split frame, hairline top/bottom; each cell `kl + kv + kd`
 - Bottom caption reading guide
 
 ### Section title specification
 
-- Section numbers in monospace + `--t3` color + `letter-spacing: 0.1em`
-- h2 headings in serif
+- Every section is `<section class="rpt-sec" id="…">` with `.rpt-sec-head`
+- `.rpt-sec-no`: monospace, accent color, `01/02/03/05`
+- `.rpt-body-grid`: `56px | 1fr | 208px` (number / content / margin); add `.no-margin` when no margin note
+- Margin notes (`.rpt-margin`) are re-reading tips, never new evidence
 
 ### Evidence chain three-layer visual identity
 
@@ -597,21 +591,21 @@ The following covers the complete fallback chain for 8 common failure scenarios.
 ### Mobile adaptation (mandatory)
 
 ```css
-@media (max-width: 768px) {
-  .page { padding: 0 18px; }
-  .hero .display { font-size: 1.7rem; }
+@media (max-width: 1120px) {
+  .rpt-page { grid-template-columns: 1fr; padding: 0 24px 70px; }
+  .rpt-rail { position: static; height: auto; flex-direction: row; flex-wrap: wrap; }
+  .rpt-nav { flex-direction: row; flex-wrap: wrap; border-top: none; }
+  .rpt-body-grid, .rpt-finding { grid-template-columns: 44px minmax(0,1fr); }
+  .rpt-margin { grid-column: 2; margin-top: 10px; }
   .key-findings { grid-template-columns: repeat(2, 1fr); }
-  .threejs-stage { height: 340px; }
+  .threejs-stage { height: 320px; }
   .chart-canvas { height: 280px; }
   .chart-reading { grid-template-columns: 1fr; }
-  .section { margin: 56px 0; }
-  .reading-nav { display: none; }
   .physics-chain { flex-wrap: wrap; }
 }
 @media (max-width: 480px) {
   .key-findings { grid-template-columns: 1fr; }
   .threejs-stage { height: 260px; }
-  .hero-meta { gap: 18px; }
 }
 ```
 

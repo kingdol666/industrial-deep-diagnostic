@@ -119,6 +119,20 @@ export function extractIntentOutcome(runDir, analysisIntent) {
     };
   }
 
+  if (intent === 'improvement-advisory') {
+    const rel = 'advisory/advisory_actions.json';
+    const doc = readJson(join(dir, rel));
+    if (!doc || typeof doc !== 'object') return { ...EMPTY };
+    const status = typeof doc.status === 'string' ? doc.status : null;
+    if (!status) return { ...EMPTY };
+    const n = countOf(doc.actions);
+    return {
+      score: null,
+      verdict: parts(status, n === null ? null : `${n} ${n === 1 ? 'action' : 'actions'}`),
+      source: `${rel}#status`,
+    };
+  }
+
   // deep-diagnosis keeps its existing Judge Score extraction in the caller.
   return { ...EMPTY };
 }

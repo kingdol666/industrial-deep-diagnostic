@@ -2,9 +2,9 @@
 // Static skill / agent design audit — no diagnosis run, no engine spawn.
 //
 // Checks the architecture contract in AGENTS.md:
-//   * 24 skills, each with SKILL.md + valid frontmatter (name matches dir,
+//   * 25 skills, each with SKILL.md + valid frontmatter (name matches dir,
 //     description non-empty, body has sections);
-//   * 16 OMP task agents, each with valid frontmatter and an initialization
+//   * 17 OMP task agents, each with valid frontmatter and an initialization
 //     section that loads a skill-side protocol/framework (or inline protocol);
 //   * every JSON schema parses;
 //   * script paths mentioned in SKILL.md resolve (skill dir or repo root);
@@ -65,7 +65,7 @@ function walk(dir, pred, acc = []) {
 
 // ── Skills ─────────────────────────────────────────────────────────────
 const skillDirs = readdirSync(SKILLS).filter((d) => statSync(join(SKILLS, d)).isDirectory()).sort();
-check('skill count = 24', skillDirs.length === 24, skillDirs.length);
+check('skill count = 25', skillDirs.length === 25, skillDirs.length);
 
 const scriptRefMissing = [];
 const schemaCount = { total: 0, bad: 0 };
@@ -116,7 +116,7 @@ check('SKILL.md script references resolve', scriptRefMissing.length === 0,
 
 // ── Agents ─────────────────────────────────────────────────────────────
 const agentFiles = readdirSync(AGENTS).filter((f) => f.endsWith('.md')).sort();
-check('agent count = 16', agentFiles.length === 16, agentFiles.length);
+check('agent count = 17', agentFiles.length === 17, agentFiles.length);
 
 const protocolSkills = skillDirs.filter((d) => existsSync(join(SKILLS, d, 'references', 'agent-protocol.md')));
 check('skill-side agent protocols exist (>=16)', protocolSkills.length >= 16, protocolSkills.length);

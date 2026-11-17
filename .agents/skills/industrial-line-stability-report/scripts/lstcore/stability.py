@@ -11,6 +11,15 @@ from scipy import stats
 
 SECONDS_PER_DAY = 86400.0
 
+# scipy.stats.theilslopes materializes ALL n*(n-1)/2 pairwise slopes at once
+# (two n×n float arrays). At n=25_921 that is ~5.4 GB per array — the run
+# thrashes instead of finishing. Above this cap the series is decimated on a
+# deterministic integer grid (every `stride`-th point, original row indices
+# kept as the time axis, so the slope stays in [unit]/original-row and the
+# per-day conversion is unchanged). No randomness, no resampling, no
+# reordering: identical inputs always yield identical slopes.
+THEIL_SEN_MAX_POINTS = 4000
+
 
 def mrbar_sigma(x: np.ndarray) -> float | None:
     """sigma estimate from mean moving range (sentinel-compatible)."""
@@ -58,15 +67,28 @@ def drift(x: np.ndarray, interval_seconds: float | None) -> dict:
     gate, Mann-Kendall is SKIPPED (its p-value cannot change the verdict) and
     mk_skipped records why — kendalltau is O(n^2) and dominated wide-table
     runs. Significance outcomes are bit-identical to always computing it.
+
+    Series longer than THEIL_SEN_MAX_POINTS are decimated on a deterministic
+    grid before the slope estimate; `theil_sen_stride` records the step so the
+    report can disclose it (1 = no decimation).
     """
     clean = x[~np.isnan(x)]
     res = {"slope_per_second": None, "per_day_relative": None,
-           "mk_p": None, "significant": False}
+           "mk_p": None, "significant": False, "theil_sen_stride": 1}
     if len(clean) < 20:
         return res
-    t = np.arange(len(clean), dtype=float)
+    n = len(clean)
+    t_axis = np.arange(n, dtype=float)
+    stride = 1
+    if n > THEIL_SEN_MAX_POINTS:
+        stride = int(np.ceil(n / float(THEIL_SEN_MAX_POINTS)))
+        grid = np.arange(0, n, stride)
+        t_fit, clean_ts = t_axis[grid], clean[grid]
+    else:
+        t_fit, clean_ts = t_axis, clean
+    res["theil_sen_stride"] = stride
     try:
-        slope = stats.theilslopes(clean, t)[0]
+        slope = stats.theilslopes(clean_ts, t_fit)[0]
     except Exception:
         return res
     if not np.isfinite(slope):
@@ -86,7 +108,7 @@ def drift(x: np.ndarray, interval_seconds: float | None) -> dict:
         res["mk_skipped"] = "相对漂移低于 0.1%/天 门槛，Mann-Kendall 检验未执行"
         return res
     try:
-        mk_p = float(stats.kendalltau(t, clean).pvalue)
+        mk_p = float(stats.kendalltau(t_axis, clean).pvalue)
     except Exception:
         return res
     if not np.isfinite(mk_p):

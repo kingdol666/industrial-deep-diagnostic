@@ -149,6 +149,35 @@ export const api = {
     request(`/diagnosis/enhance/${runId}`, { method: 'POST' }),
   listOntologyStore: () => request('/ontology/store'),
 
+  // ── Line memory（产线记忆：跨 run 共性结论 / 本体提案 / 版本链）──
+  lineMemoryListLines: () => request('/line-memory/lines'),
+  lineMemoryGetLine: (key) => request(`/line-memory/lines/${encodeURIComponent(key)}`),
+  lineMemoryFindings: (key, params = {}) => {
+    const qs = new URLSearchParams(
+      Object.entries(params).filter(([, v]) => v !== undefined && v !== null && v !== ''),
+    ).toString();
+    return request(`/line-memory/lines/${encodeURIComponent(key)}/findings${qs ? `?${qs}` : ''}`);
+  },
+  lineMemoryOntology: (key) => request(`/line-memory/lines/${encodeURIComponent(key)}/ontology`),
+  lineMemoryRefute: (key, body) =>
+    request(`/line-memory/lines/${encodeURIComponent(key)}/refute`, { method: 'POST', body: JSON.stringify(body) }),
+  lineMemoryUnrefute: (key, body) =>
+    request(`/line-memory/lines/${encodeURIComponent(key)}/unrefute`, { method: 'POST', body: JSON.stringify(body) }),
+  lineMemoryMerge: (key, into) =>
+    request(`/line-memory/lines/${encodeURIComponent(key)}/merge`, { method: 'POST', body: JSON.stringify({ into }) }),
+  lineMemoryConsolidate: (key) =>
+    request(`/line-memory/lines/${encodeURIComponent(key)}/consolidate`, { method: 'POST', body: '{}' }),
+  lineMemoryProposals: (params = {}) => {
+    const qs = new URLSearchParams(
+      Object.entries(params).filter(([, v]) => v !== undefined && v !== null && v !== ''),
+    ).toString();
+    return request(`/line-memory/proposals${qs ? `?${qs}` : ''}`);
+  },
+  lineMemoryApproveProposal: (id) =>
+    request(`/line-memory/proposals/${encodeURIComponent(id)}/approve`, { method: 'POST', body: '{}' }),
+  lineMemoryRejectProposal: (id) =>
+    request(`/line-memory/proposals/${encodeURIComponent(id)}/reject`, { method: 'POST', body: '{}' }),
+
   // ── Ontology asset control plane（本体管理页：列表 / 可视化 / 编辑 / 复用 / 采纳）──
   ontologyAssets: (params = {}) => {
     const qs = new URLSearchParams(

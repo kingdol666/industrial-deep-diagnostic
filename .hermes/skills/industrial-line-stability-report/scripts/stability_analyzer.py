@@ -33,6 +33,7 @@ from __future__ import annotations
 
 import argparse
 import glob
+import datetime
 import json
 import os
 import random
@@ -103,6 +104,22 @@ def _resolve_data(args, context: dict) -> str:
             return found
     raise ValueError("no data file found (pass --data, --run-dir with 00_input/, "
                      "or data_path in report_context.json)")
+
+
+def _period_point(value, offset):
+    """Render an analyzer `_dt` value (naive UTC) in the source's declared offset.
+
+    `_dt` is naive UTC; without the offset the report would print 09:00 for a
+    17:00+08:00 window. Naive/numeric inputs pass through unchanged.
+    """
+    if offset is None:
+        return str(value)
+    try:
+        tz = datetime.timezone(offset) if isinstance(offset, datetime.timedelta) else offset
+        return (pd.Timestamp(value, tz="UTC")
+                .tz_convert(tz).isoformat())
+    except (TypeError, ValueError):
+        return str(value)
 
 
 def _run_ontology_prepare(args, context: dict) -> dict | None:
@@ -334,6 +351,7 @@ def analyze(args) -> tuple[dict, dict, int]:
                                      _repo_root())
     df_raw = _io.load_table(data_path)
     time_col_resolved = _io.pick_time_col(df_raw, time_col)
+    src_offset = _io.source_offset(df_raw, time_col_resolved)
     df, _mode = _io.parse_time(df_raw, time_col_resolved)
     df, requested = _io.slice_period(df, context.get("start"), context.get("end"))
     if context.get("group_col") and context.get("group_filter"):
@@ -515,6 +533,21 @@ def analyze(args) -> tuple[dict, dict, int]:
         entry.update(score.parameter_score(entry))
         parameters.append(entry)
 
+    # drift decimation disclosure: Theil-Sen cannot run on unbounded n (scipy
+    # materializes all pairwise slopes), so long series are read on a
+    # deterministic integer grid — say so instead of hiding the method change
+    _strides = sorted({int((p.get("drift") or {}).get("theil_sen_stride") or 1)
+                       for p in parameters} - {1})
+    if _strides:
+        _n_dec = sum(1 for p in parameters
+                     if int((p.get("drift") or {}).get("theil_sen_stride") or 1) > 1)
+        degradation.append({
+            "check": "drift_decimation",
+            "reason": (f"{_n_dec}/{len(parameters)} 个通道的 Theil–Sen 斜率在确定性整数网格上估计"
+                       f"（stride={','.join(str(s) for s in _strides)}，保留原始行号作时间轴），"
+                       "以规避 scipy 全量两两斜率的内存爆炸；趋势方向与量级不变，Mann-Kendall 仍在全长序列上计算"),
+        })
+
     status = "ok"
     if prof["n_rows_used"] < MIN_ROWS or not parameters:
         status = "not_assessable"
@@ -617,8 +650,9 @@ def analyze(args) -> tuple[dict, dict, int]:
         "status": status,
         "line": {"line_id": context.get("line_id"), "product": context.get("product")},
         "period": {
-            "start": str(df["_dt"].iloc[0]) if len(df) else None,
-            "end": str(df["_dt"].iloc[-1]) if len(df) else None,
+            "start": _period_point(df["_dt"].iloc[0], src_offset) if len(df) else None,
+            "end": _period_point(df["_dt"].iloc[-1], src_offset) if len(df) else None,
+            "tz_offset": str(src_offset) if src_offset is not None else None,
             "requested": requested,
         },
         "data": {
@@ -797,6 +831,47 @@ def _drift(clean, interval):
     return stability.drift(np.asarray(clean, dtype=float), interval)
 
 
+def _run_integrated_advisory(args):
+    """Best-effort host integration: never raises, never changes the host code.
+
+    Runs the improvement-advisory adapter (origin=stability) when the skill is
+    installed; the analysis artifacts land in <RUN_DIR>/advisory/. A missing
+    skill / opt-out / data problem only yields a skipped/failed step_status —
+    the stability report and its exit code stay untouched.
+    """
+    if not getattr(args, "run_dir", None):
+        return None
+    skill_scripts = os.path.normpath(os.path.join(
+        os.path.dirname(os.path.abspath(__file__)),
+        "..", "..", "industrial-improvement-advisor", "scripts"))
+    if not os.path.isdir(skill_scripts):
+        return {"status": "skipped", "origin": "stability", "exit_code": 0,
+                "reason": "industrial-improvement-advisor skill not installed"}
+    try:
+        if skill_scripts not in sys.path:
+            sys.path.insert(0, skill_scripts)
+        import importlib.util
+        spec = importlib.util.spec_from_file_location(
+            "ima_integrated_advisory",
+            os.path.join(skill_scripts, "integrated_advisory.py"))
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return mod.run(
+            args.run_dir, origin="stability",
+            data=getattr(args, "data", None),
+            time_col=getattr(args, "time_col", None),
+            doe_run_dir=getattr(args, "doe_run_dir", None),
+            action_log=getattr(args, "action_log", None),
+            scene=getattr(args, "scene", None))
+    except SystemExit as exc:
+        return {"status": "failed", "origin": "stability",
+                "exit_code": int(exc.code) if isinstance(exc.code, int) else 3,
+                "reason": f"adapter SystemExit: {exc}"}
+    except Exception as exc:  # noqa: BLE001 - host must never see adapter errors
+        return {"status": "failed", "origin": "stability", "exit_code": 3,
+                "reason": f"adapter error: {type(exc).__name__}: {exc}"}
+
+
 def main(argv=None) -> int:
     try:
         return _main(argv)
@@ -837,6 +912,10 @@ def _main(argv=None) -> int:
     a.add_argument("--doe-auto", action="store_true",
                    help="run industrial-doe-analyzer observational analysis when no "
                         "--doe-run-dir is given (deep leg)")
+    a.add_argument("--no-advisory", dest="no_advisory", action="store_true",
+                   help="skip the integrated improvement-advisory step (default: run it "
+                        "deterministically when a run dir is present; never blocks the "
+                        "stability report)")
     args = ap.parse_args(argv)
 
     try:
@@ -867,6 +946,26 @@ def _main(argv=None) -> int:
         "exit_code": code,
         "report": rep_path,
     })
+
+    # Integrated improvement advisory (default on; --no-advisory / opt-out file
+    # disables). Never blocks or alters the stability verdict/exit code.
+    if args.run_dir and not getattr(args, "no_advisory", False):
+        step = _run_integrated_advisory(args)
+        if step is not None:
+            report["advisory"] = {
+                "status": step.get("status"),
+                "origin": step.get("origin"),
+                "exit_code": step.get("exit_code"),
+                "objective_source": step.get("objective_source"),
+                "actions_path": "advisory/advisory_actions.json",
+                "chapter_path": "advisory/chapter.md",
+                "summary": step.get("summary") or {},
+                "reason": step.get("reason"),
+            }
+            with open(rep_path, "w", encoding="utf-8") as f:
+                json.dump(report, f, ensure_ascii=False, indent=2)
+            print(f"[line-stability] advisory {step.get('status')} "
+                  f"(objective={step.get('objective_source')})")
 
     c = report["conclusion"]
     print(f"[line-stability] {report['status']} score={c['score']} grade={c['grade']} "

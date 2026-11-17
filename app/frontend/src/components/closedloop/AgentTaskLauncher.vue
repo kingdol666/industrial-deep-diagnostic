@@ -94,7 +94,7 @@ const { t } = useI18n();
 
 // Intents whose runs consume an ontology directive — mirrors ONTOLOGY_INTENTS
 // in the backend guard (ontology-intent-guard.mjs).
-const ONTOLOGY_INTENTS = new Set(['deep-diagnosis', 'doe-analysis', 'stability-report', 'quick-screen']);
+const ONTOLOGY_INTENTS = new Set(['deep-diagnosis', 'doe-analysis', 'stability-report', 'quick-screen', 'improvement-advisory']);
 const ontologyCapable = computed(() => ONTOLOGY_INTENTS.has(props.intent));
 
 const entries = ref([]);

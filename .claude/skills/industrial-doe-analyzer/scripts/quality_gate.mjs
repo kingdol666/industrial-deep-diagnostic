@@ -33,6 +33,7 @@ import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
 import { execFileSync } from 'child_process';
+import { fileURLToPath } from 'url';
 
 const args = process.argv.slice(2);
 const runDir = args[0];
@@ -44,8 +45,10 @@ function flag(name, fallback) {
   const i = args.indexOf(name);
   return i >= 0 && args[i + 1] ? args[i + 1] : fallback;
 }
-const skillPath = flag('--skill-path', path.join('..', 'industrial-doe-analyzer'));
-const sharedPath = flag('--shared-path', path.join('..', '..', '..', '.claude', 'shared'));
+// Resolve defaults from this file, not from the caller's cwd.
+const HERE = path.dirname(fileURLToPath(import.meta.url));
+const skillPath = flag('--skill-path', path.resolve(HERE, '..'));
+const sharedPath = flag('--shared-path', path.resolve(HERE, '..', '..', '..', 'shared'));
 
 const results = [];
 function check(id, ok, detail) {
@@ -267,7 +270,9 @@ const REPORT_PATHS = ['00_input/analysis_context.json', '01_profile/data_profile
   '03_figures/plot_manifest.json', 'conclusions/doe_conclusion.json',
   'conclusions/recommendations.json',
   // v1.1: §11 renders these two, so they legitimately appear in report meta
-  '01_ontology/ontology_brief.json', 'conclusions/next_design.json'];
+  '01_ontology/ontology_brief.json', 'conclusions/next_design.json',
+  // §12 integrated advisory: hashed like every other rendered artifact
+  'advisory/advisory_actions.json', 'advisory/step_status.json'];
 const MODE_REQUIRED_ARTIFACTS = mode === 'designed'
   ? ['00_input/analysis_context.json', '01_profile/data_profile.json',
      '02_analysis/effect_table.json', '02_analysis/model.json',

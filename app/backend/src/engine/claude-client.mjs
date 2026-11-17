@@ -66,9 +66,10 @@ export function buildOntologyDirective(ontology) {
   // P1-6: the DOE intent carries profile="doe" and gets its own directive. The
   // diagnosis rendering below stays byte-identical for every other run.
   if (ontology.profile === 'doe') return buildDoeOntologyDirective(ontology);
-  // Plan v2 P1.5/P2.4: watch-family profiles carry their own deterministic
-  // ontology stage (the skill's ontology_prepare.py) ahead of the analysis.
-  if (ontology.profile === 'stability' || ontology.profile === 'sentinel') {
+  // Plan v2 P1.5/P2.4 + improvement advisory (2026-11-16): watch-family and
+  // improvement profiles carry a deterministic ontology stage ahead of analysis.
+  if (ontology.profile === 'stability' || ontology.profile === 'sentinel'
+      || ontology.profile === 'improvement') {
     return buildWatchOntologyDirective(ontology);
   }
   const mode = ontology.mode || 'full';
@@ -86,6 +87,16 @@ export function buildOntologyDirective(ontology) {
   lines.push(`Execute Phase -1 of the ontology-builder protocol exactly according to this mode. CP-2 validation is mandatory in every mode; after it passes, publish the ontology to the store:`);
   lines.push(`node .claude/shared/scripts/ontology_store.mjs publish --run-dir "<RUN_DIR>"${ontology.scene_key ? ` --scene ${ontology.scene_key}` : ''} --build-mode ${mode}`);
   return lines.join('\n') + '\n';
+}
+
+// ── Line memory directive — cross-run consensus priors (2026-11-03) ─────
+// Advisory only (evidence level L5): the agent must re-verify every prior
+// against the current data and flag contradictions. Injected for all analysis
+// intents when the line has stored memory; budget-capped upstream (~600 tokens).
+export function buildLineMemoryDirective(lineMemory) {
+  const text = lineMemory && typeof lineMemory === 'object' && lineMemory.text ? String(lineMemory.text) : '';
+  if (!text.trim()) return '';
+  return '\n\n' + text.trim() + '\n';
 }
 
 // ── Ontology directive, DOE profile (P1-6) ──────────────────────────────
@@ -125,9 +136,12 @@ export function buildDoeOntologyDirective(ontology) {
 export function buildWatchOntologyDirective(ontology) {
   const mode = ontology.mode || 'auto';
   const isStability = ontology.profile === 'stability';
+  const isSentinel = ontology.profile === 'sentinel';
   const prepareScript = isStability
     ? '.claude/skills/industrial-line-stability-report/scripts/ontology_prepare.py'
-    : '.claude/skills/industrial-sentinel/scripts/sentinel_ontology_prepare.py';
+    : (isSentinel
+      ? '.claude/skills/industrial-sentinel/scripts/sentinel_ontology_prepare.py'
+      : '.claude/skills/industrial-improvement-advisor/scripts/ontology_prepare.py');
   const lines = ['', '## Ontology Directive (watch profile)', '',
     `- ONTOLOGY_PROFILE: ${ontology.profile}`,
     `- ONTOLOGY_MODE: ${mode}`];
@@ -137,7 +151,7 @@ export function buildWatchOntologyDirective(ontology) {
   lines.push(`Run the deterministic ontology stage FIRST (fingerprint → store lookup by profile=${ontology.profile} + scene_key + context_fp → reuse on an exact hit / extend on a changed context / otherwise build a declared-prior ontology — declarations only, no RAG, no web, never invented units):`);
   lines.push(`uv run --project .claude/shared/scripts python ${prepareScript} --run-dir "<RUN_DIR>" --mode ${mode}${ontology.scene_key ? ` --scene ${ontology.scene_key}` : ''}${ontology.source ? ` --ontology "${ontology.source}"` : ''}`);
   lines.push(`Then READ 01_ontology/ontology_brief.json (+ .md) before any analysis step — units, roles, specs and their sources (user declaration vs shipped dictionary reference band) come from the brief; a column without a declared unit is reported as "单位未声明 (unit undeclared)".`);
-  if (!isStability) {
+  if (isSentinel) {
     lines.push('For watch windows: build the baseline with --ontology pointing at 01_ontology/ontology.json — declared windows carry window_source="ontology_declared" and confirmation_needed=true (severity capped at warn, never high/critical). Never feed ontology values into indicators.');
   }
   lines.push('Ontology assets are published with profile=' + ontology.profile + ' + context_fp so the next run of the same scene/context reuses them in seconds with zero RAG/web calls.');
@@ -197,6 +211,12 @@ export const ANALYSIS_INTENTS = {
   'doe-analysis': { skill: 'industrial-doe-analyzer' },
   'experience-mining': { skill: 'industrial-tuning-memory' },
   'optimizer-campaign': { skill: 'industrial-optimizer-loop' },
+  'improvement-advisory': {
+    skill: 'industrial-improvement-advisor',
+    // Deterministic HTML landing page step (three-gate graded advisory reports).
+    htmlStep: 'uv run --project .claude/shared/scripts python .claude/skills/industrial-improvement-advisor/scripts/report_builder.py --advisory "<RUN_DIR>/advisory/advisory_actions.json" --charts "<RUN_DIR>/advisory/charts.json" --out "<RUN_DIR>/advisory"',
+    unitRule: true,
+  },
 };
 
 export function resolveAnalysisIntent(value) {
@@ -436,6 +456,7 @@ export function startDiagnosis({
   analysisIntent = 'deep-diagnosis',
   preprocessingMode = null,
   model = null, permissionMode = null,
+  lineMemory = null,
 }) {
   if (!sdkAvailable || !queryFn) {
     throw new Error('Claude Agent SDK not available. Install with: npm install @anthropic-ai/claude-agent-sdk');
@@ -466,7 +487,8 @@ export function startDiagnosis({
     : buildPrompt(sceneName, userQuestion, promptTarget, lang, followUpMessage)
       + buildIntentDirective(analysisIntent, sceneName, { preprocessingMode })
       + buildOntologyDirective(ontology)
-      + buildEnhancementDirective(enhancement);
+      + buildEnhancementDirective(enhancement)
+      + buildLineMemoryDirective(lineMemory);
 
   // Build SDK options — model and permissionMode are per-run switchable
   // (validated against the harness catalog upstream). bypassPermissions is

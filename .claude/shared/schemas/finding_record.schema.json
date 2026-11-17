@@ -1,0 +1,50 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "finding_record.v1",
+  "title": "Finding Record v1.0 — line memory (cross-run)",
+  "description": "Deterministic record extracted from a completed run's schema-validated artifacts. Zero-LLM extraction: only numbers that already exist in artifacts may enter the store.",
+  "type": "object",
+  "required": [
+    "contract_version", "finding_id", "line_key", "intent", "run_id",
+    "observed_at", "subject", "claim_type", "evidence_level"
+  ],
+  "properties": {
+    "contract_version": { "const": "finding-record/1.0" },
+    "finding_id": { "type": "string", "pattern": "^F-[a-z0-9]+-[a-f0-9]{8}$" },
+    "line_key": { "type": "string", "pattern": "^[A-Za-z0-9._-]+$" },
+    "scene_key": { "type": ["string", "null"] },
+    "intent": {
+      "enum": ["deep-diagnosis", "stability-report", "quick-screen", "doe-analysis", "experience-mining", "optimizer-campaign", "improvement-advisory"]
+    },
+    "run_id": { "type": "string", "minLength": 1 },
+    "observed_at": { "type": "string", "minLength": 10 },
+    "data_window": {
+      "type": ["object", "null"],
+      "properties": {
+        "start": { "type": ["string", "null"] },
+        "end": { "type": ["string", "null"] }
+      },
+      "additionalProperties": false
+    },
+    "subject": { "type": "string", "minLength": 1, "maxLength": 120 },
+    "claim_type": { "type": "string", "minLength": 1, "maxLength": 60 },
+    "direction": { "enum": ["up", "down", null] },
+    "severity": { "enum": ["info", "warn", "high", "critical", null] },
+    "confidence": { "type": ["number", "null"] },
+    "evidence_level": { "type": "string", "pattern": "^L[1-7]$" },
+    "detail": { "type": "string", "maxLength": 600 },
+    "payload": { "type": "object" },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "sha256"],
+        "properties": {
+          "path": { "type": "string" },
+          "sha256": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" }
+        },
+        "additionalProperties": false
+      }
+    }
+  }
+}

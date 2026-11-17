@@ -131,7 +131,12 @@ def prepare_mahalanobis(cols, corr_flat, cholesky_lower, variances=None,
     # L1 — ill-conditioning: iteratively drop worst-correlated columns
     for _ in range(len(kept)):
         sub = corr[np.ix_(kept, kept)]
-        max_r = np.nanmax(np.abs(sub - np.eye(sub.shape[0]) * 10)) if sub.shape[0] > 1 else 0.0
+        if sub.shape[0] > 1:
+            off = np.abs(sub).copy()              # a diagonal of 1.0 is not a
+            np.fill_diagonal(off, 0.0)            # correlation pair; mask it
+            max_r = float(np.nanmax(off))
+        else:
+            max_r = 0.0
         cond = np.linalg.cond(sub) if sub.shape[0] > 1 else 1.0
         if cond <= cfg["cond_max"] and max_r <= cfg["r_max"]:
             break

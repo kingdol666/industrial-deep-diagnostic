@@ -82,10 +82,12 @@ const { t } = useI18n();
 
 // Panel → analysisIntent (ids mirror ANALYSIS_INTENTS in the backend) and
 // the skill whose protocol the agent will follow.
-const subtabs = ['stability-report', 'quick-screen', 'experience-mining', 'optimizer-campaign'];
+const subtabs = ['stability-report', 'quick-screen', 'improvement-advisory',
+  'experience-mining', 'optimizer-campaign'];
 const PANEL_SKILL = {
   'stability-report': 'industrial-line-stability-report',
   'quick-screen': 'industrial-sentinel',
+  'improvement-advisory': 'industrial-improvement-advisor',
   'experience-mining': 'industrial-tuning-memory',
   'optimizer-campaign': 'industrial-optimizer-loop',
 };

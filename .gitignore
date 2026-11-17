@@ -199,3 +199,6 @@ workspace/field-tests/
 
 # Acceptance evidence (screenshots + audit.json); regenerate with scripts/e2e
 workspace/acceptance/
+doe_auto_run/
+.tmp-line-memory-store-*/
+.tmp-line-memory-empty-*/

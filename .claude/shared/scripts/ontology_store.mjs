@@ -35,7 +35,7 @@ const MAX_VERSIONS_PER_SCENE = 10;
 // Legacy index entries without a `profile` field are read as `diagnosis` —
 // never re-written.
 export const DEFAULT_PROFILE = 'diagnosis';
-export const KNOWN_PROFILES = ['diagnosis', 'doe', 'stability', 'sentinel'];
+export const KNOWN_PROFILES = ['diagnosis', 'doe', 'stability', 'sentinel', 'improvement'];
 
 /** Read an index entry's profile (legacy entries default to diagnosis). */
 export function entryProfile(entry) {

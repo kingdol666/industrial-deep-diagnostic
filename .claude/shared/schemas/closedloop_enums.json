@@ -11,6 +11,8 @@
     "tuning_experience": "1.0",
     "recommendation": "1.0",
     "objective": "1.0",
+    "improvement_objective": "1.0",
+    "advisory_actions": "improvement-advisory/1.0",
     "trial_design": "1.0",
     "trial_result": "1.0",
     "optimizer_state": "1.0",
@@ -55,6 +57,31 @@
     "next_actions": ["await_results", "continue_exploit", "enter_confirm", "resume_exploit", "stop", "needs_human"],
     "convergence": "dual gate (USER DECISION 2026-10-01): m>=3 confirm replicates all inside target_range AND one-sided 95% CI within limits AND desirability D(x)>=0.8*D_max",
     "constants": { "epsilon_ei_frac": 0.005, "stall_rounds": 2, "delta_confirm_coded": 0.05, "domain_coverage_duplication_ratio_max": 0.5, "neighborhood_coded": 0.8 }
+  },
+  "improvement_advisor": {
+    "grades": ["A", "B", "C"],
+    "grade_rule": "A = gates.data all pass (temporal_ok=true) AND physics=known AND (attribution estimable with CI95 excluding 0 OR designed_window) AND not inferred/conflict/extrapolated/dead_time_missing; B = data gate pass (temporal may be not_assessable) AND physics in {known,same_domain} AND CI excludes 0 AND not A; C = data gate pass but mechanism unknown / attribution degraded / CI crosses 0 / inferred objective / conflict / extrapolation; prescription zone = any prescription trigger hit (no action emitted)",
+    "status": ["actionable", "advisory_only", "not_actionable"],
+    "gate_names": ["data", "physics", "attribution"],
+    "not_estimable_reason_codes": ["lever_no_variance", "no_significant_relation", "window_truncated", "confound_unresolvable", "reuse_leg_unavailable"],
+    "prescription_kinds": ["data", "experiment", "dead_time", "ontology"],
+    "excluded_lever_reasons": ["reverse_causality", "no_variance", "insufficient_data", "user_excluded"],
+    "directions": ["increase", "decrease"],
+    "exit_codes": { "0": "actionable_gate_pass", "1": "actionable_with_degradations", "2": "not_actionable_prescriptions_only", "3": "input_objective_or_gate_fail" },
+    "constants": {
+      "min_analysis_rows": 50,
+      "min_relation_points": 10,
+      "dose_bins_min": 5,
+      "dose_bins_max": 8,
+      "dose_bin_min_n": 8,
+      "min_effect_r": 0.2,
+      "fdr_q": 0.05,
+      "monotonicity_alpha": 0.05,
+      "extrapolation_coded_distance": 0.8,
+      "max_actions": 12,
+      "html_c_shown": 6,
+      "a_grade_sentinel": 3
+    }
   },
   "ack": {
     "statuses": ["received", "executed", "rejected"],

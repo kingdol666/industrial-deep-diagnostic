@@ -1,11 +1,11 @@
 ---
 name: industrial-reporter
-description: "Industrial diagnostic pipeline Step 6 — generates the 9-section pyramid-structure Chinese diagnostic report (report.md) and the structured summary (run_summary.json) from diagnostic artifacts. Judge-gated: may start only after the Judge verdict is pass with score >= 90 (or all 3 rounds exhausted). Trigger: write report, diagnostic report, report generation, generate report, report writing."
+description: "Industrial diagnostic pipeline Step 6 — generates the 10-section pyramid-structure Chinese diagnostic report (report.md) and the structured summary (run_summary.json) from diagnostic artifacts. Judge-gated: may start only after the Judge verdict is pass with score >= 90 (or all 3 rounds exhausted). Trigger: write report, diagnostic report, report generation, generate report, report writing."
 ---
 
 # Industrial Reporter
 
-Generates the 9-section pyramid-structure Chinese diagnostic report `report.md` and the structured summary `run_summary.json` from diagnostic artifacts. Judge-gated: may start only after the Judge verdict is pass with score ≥ 90 (or all 3 rounds exhausted).
+Generates the 10-section pyramid-structure Chinese diagnostic report `report.md` and the structured summary `run_summary.json` from diagnostic artifacts. Judge-gated: may start only after the Judge verdict is pass with score ≥ 90 (or all 3 rounds exhausted).
 
 ## Inputs / Outputs
 
@@ -27,7 +27,7 @@ Generates the 9-section pyramid-structure Chinese diagnostic report `report.md` 
 
 | File | Description |
 |------|-------------|
-| `report.md` | 9-section pyramid-structure Chinese diagnostic report |
+| `report.md` | 10-section pyramid-structure Chinese diagnostic report |
 | `run_summary.json` | Structured summary (schema-valid) |
 
 ## 9-Section Report Structure
@@ -86,7 +86,7 @@ Step 0: Read all diagnostic products from RUN_DIR:
 - RUN_DIR/02_processed/data_analysis_conclusion.json
 - RUN_DIR/05_review/judge_feedback.json
 
-Step 1: Generate 9-section pyramid report. Use $SKILL_PATH/templates/report_template.md as structure guide.
+Step 1: Generate 10-section pyramid report. Use $SKILL_PATH/templates/report_template.md as structure guide.
 - Every chart must be embedded: ![title](03_figures/filename.png)
 - visual_analysis.json is the primary source for VLM visual insights
 - Section 4 (Statistical Analysis Findings) is mandatory, not an appendix
@@ -115,7 +115,7 @@ Full protocol in `references/agent-protocol.md`. On-demand references at `resour
 | Step | Purpose |
 |------|---------|
 | 0 | Read all diagnostic artifacts (diagnosis/evidence/confidence/reasoning_chain/visual_analysis/plot_manifest/ontology/data_analysis_conclusion/judge_feedback) |
-| 1 | Generate report.md following the 9-section pyramid structure, embedding all figures |
+| 1 | Generate report.md following the 10-section pyramid structure, embedding all figures; section 10 appends `advisory/chapter.md` **verbatim** (script-authored numbers; a skipped/failed advisory step is disclosed in one honest line) |
 | 2 | Generate the run_summary.json structured summary according to the schema |
 | 3 | Post-processing: summary synthesis + section completeness check |
 | 4 | Validation: schema validation + file existence check |
@@ -129,6 +129,7 @@ Full protocol in `references/agent-protocol.md`. On-demand references at `resour
 - Report written in Chinese; technical terms may be in English
 - Chinese double quotes must be escaped
 - **Verbatim conclusion fields (B4)**: `primary_finding`, conclusion type and confidence in `run_summary.json` and report.md MUST be copied verbatim from `diagnosis.json` — never reworded, never recomputed. `pre_audit_lint.mjs` (CP-7L) blocks the final audit on any drift.
+- **Advisory chapter is script-authored (B5)**: when `advisory/chapter.md` exists, append its content verbatim as section 「改善建议与验证计划」 (you may add a heading level but must not reword numbers, grades, CI bounds or prescriptions). When `advisory/step_status.json` says skipped/failed, write one honest line stating the step status and reason — never invent recommendations, never omit the section (lint L5 requires its keyword).
 - **Steps are not time**: when citing lag steps, convert to durations only via `time_lag_analysis.json` `step_interval_seconds`; when `unit_conversion_available=false`, narrate steps as steps — never invent a minutes/hours figure (the "≈38min" class of unit error).
 
 ## Data Truth Mandate

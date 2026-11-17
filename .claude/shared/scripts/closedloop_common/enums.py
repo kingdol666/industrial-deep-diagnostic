@@ -48,3 +48,16 @@ OPTIMIZER_CONSTANTS = _E["optimizer"]["constants"]
 
 ACK_STATUSES = list(_E["ack"]["statuses"])
 INBOX_TYPES = list(_E["inbox"]["types"])
+
+# improvement advisor (2026-11-16)
+IMPROVEMENT_GRADES = list(_E["improvement_advisor"]["grades"])
+IMPROVEMENT_STATUS = list(_E["improvement_advisor"]["status"])
+IMPROVEMENT_GATE_NAMES = list(_E["improvement_advisor"]["gate_names"])
+IMPROVEMENT_NOT_ESTIMABLE_REASONS = list(
+    _E["improvement_advisor"]["not_estimable_reason_codes"])
+IMPROVEMENT_PRESCRIPTION_KINDS = list(_E["improvement_advisor"]["prescription_kinds"])
+IMPROVEMENT_EXCLUDED_LEVER_REASONS = list(
+    _E["improvement_advisor"]["excluded_lever_reasons"])
+IMPROVEMENT_DIRECTIONS = list(_E["improvement_advisor"]["directions"])
+IMPROVEMENT_EXIT_CODES = _E["improvement_advisor"]["exit_codes"]
+IMPROVEMENT_CONSTANTS = _E["improvement_advisor"]["constants"]

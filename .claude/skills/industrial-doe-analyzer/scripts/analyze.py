@@ -804,8 +804,46 @@ def _run_observational(run_dir, ctx, profile, df, fig_dir):
 
 # ------------------------------------------------------------------ report
 
+def _run_integrated_advisory(run_dir):
+    """Best-effort host integration (origin=doe). Never raises, never blocks.
+
+    The adapter derives the response target from recommendations.json
+    response_specs and passes this run dir as --doe-run-dir, so published
+    operating windows can count as DESIGNED intervention evidence (A-grade).
+    The 00_input/advisory_opt_out file is honored INSIDE the adapter (which
+    then writes an honest skipped step_status) — the host never pre-empts it.
+    """
+    ima_scripts = os.path.normpath(os.path.join(
+        str(SKILL_DIR), "..", "industrial-improvement-advisor", "scripts"))
+    if not os.path.isdir(ima_scripts):
+        return None
+    try:
+        if ima_scripts not in sys.path:
+            sys.path.insert(0, ima_scripts)
+        import importlib.util
+        spec = importlib.util.spec_from_file_location(
+            "ima_integrated_advisory",
+            os.path.join(ima_scripts, "integrated_advisory.py"))
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return mod.run(run_dir, origin="doe")
+    except Exception as exc:  # noqa: BLE001 - report rendering must continue
+        print(f"[report] advisory step failed (non-blocking): "
+              f"{type(exc).__name__}: {exc}")
+        return None
+
+
 def cmd_report(run_dir):
-    """Phase R: deterministic single-file HTML report from the 9 artifacts."""
+    """Phase R: deterministic single-file HTML report from the artifacts.
+
+    Runs the integrated improvement-advisory step first (default on, opt-out
+    via 00_input/advisory_opt_out), then renders the page; §12 shows the
+    advisory when the step produced artifacts.
+    """
+    step = _run_integrated_advisory(run_dir)
+    if step:
+        print(f"[report] advisory {step.get('status')} "
+              f"(objective={step.get('objective_source')})")
     from doestats.report_html import build as build_report
     out = build_report(run_dir)
     print(f"[report] wrote {out} ({out.stat().st_size} bytes, "

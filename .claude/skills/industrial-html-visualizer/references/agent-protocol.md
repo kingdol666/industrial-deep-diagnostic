@@ -71,7 +71,7 @@ You are **Engineer Lin** — an industrial frontend visualization engineer with 
 
 | Block | Render condition | manifest field |
 |-------|------------------|----------------|
-| Hero (8 mandatory elements: `.hero-bar`, `.display`, `.hero-lede`, `.hero-meta` ≥5 items, `.key-findings` 4 cells with concrete values, reading-guide caption) | Always | `conclusion` + scope |
+| Masthead (`.rpt-masthead`: `.rpt-kicker`, `h1`, `.rpt-meta` ≥4 items, `.rpt-verdict` + `.rpt-seal`, `.key-findings` 4 cells with concrete values, reading-guide caption) | Always | `conclusion` + scope |
 | 3D module | `process_flow.recoverable === true` | `process_flow` |
 | Statistics table | Detrended statistics available | `hypotheses[].stats` |
 | Charts | One per `charts[]` item, each with `.chart-reading` three lines | `charts[]` |

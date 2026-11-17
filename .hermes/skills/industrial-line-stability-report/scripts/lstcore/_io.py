@@ -146,16 +146,49 @@ def parse_time(df: pd.DataFrame, time_col: str) -> tuple[pd.DataFrame, str]:
     return out, mode
 
 
+def source_offset(df: pd.DataFrame, time_col: str):
+    """Declared UTC offset of a tz-aware time column (None for naive/numeric input).
+
+    `_dt` is normalized to naive UTC, so report labels must be converted back
+    with this offset or the printed period silently shifts by the offset.
+    """
+    raw = df[time_col]
+    if pd.api.types.is_numeric_dtype(raw):
+        return None
+    parsed = pd.to_datetime(raw, errors="coerce")
+    if not isinstance(parsed.dtype, pd.DatetimeTZDtype):
+        return None
+    valid = parsed.dropna()
+    if valid.empty:
+        return None
+    return valid.iloc[0].utcoffset()
+
+
+def _bound(value):
+    """Parse a period bound into the naive-UTC convention of `_dt`.
+
+    `_dt` is naive UTC (see parse_time), so a tz-aware bound must be converted
+    the same way or the comparison raises TypeError (dtype=datetime64 vs
+    Timestamp).
+    """
+    ts = pd.to_datetime(value, errors="coerce")
+    if ts is pd.NaT or pd.isna(ts):
+        return None
+    if isinstance(ts, pd.Timestamp) and ts.tzinfo is not None:
+        ts = ts.tz_convert("UTC").tz_localize(None)
+    return ts
+
+
 def slice_period(df: pd.DataFrame, start, end) -> tuple[pd.DataFrame, dict]:
     """Slice rows to [start, end] (either may be None). Returns (df, requested)."""
     requested = {"start": start, "end": end}
     if start is not None:
-        s = pd.to_datetime(start, errors="coerce")
-        if s is not pd.NaT and not pd.isna(s):
+        s = _bound(start)
+        if s is not None:
             df = df[df["_dt"] >= s]
     if end is not None:
-        e = pd.to_datetime(end, errors="coerce")
-        if e is not pd.NaT and not pd.isna(e):
+        e = _bound(end)
+        if e is not None:
             df = df[df["_dt"] <= e]
     return df.reset_index(drop=True), requested
 

@@ -68,3 +68,15 @@ uv run --project .claude/shared/scripts python \
 | exit 3 / gate FAIL | 重跑脚本而非手改；检查是否误改了枚举/追加未声明键 |
 | 全是 warn 告警 | 先查 `r2/r3_materiality_z` 配置（§method_notes 7），不要逐条“解释掉” |
 | detector import 失败 | 脚本自动落纯 Python 回退（无变点能力）；在报告中如实注明 |
+
+---
+
+## Line Memory 先验纪律（跨 run 产线记忆，2026-11-03 起生效）
+
+运行上下文中若出现 `## 产线记忆（跨 run 共识…）` 块（或 `00_input/context/line_memory.json` 存在），它来自本产线历史多次独立观测的确定性沉淀——**先验级别 L5，仅作参考**：
+
+1. **必须用本次数据重新验证**每一条先验；禁止直接复制旧结论或旧数字。
+2. 先验与本次数据冲突时，以本次数据为准，并在报告/结论中明确标注「与历史记忆不一致」。
+3. `[共性]`（≥3 次独立观测且无方向矛盾）可作强先验；`[候选]`（2 次）作弱先验；`[线索]`（1 次）只作排查方向；`[警示]`（竞争/反证/陈旧）必须当作反例对待。
+4. 若发现本体模型与现实不符（参数归类/单位/物理分组/缺失参数），写 `05_review/ontology_proposals.json`（契约 `ontology-proposal/1.0`，schema：`.claude/shared/schemas/ontology_proposal.schema.json`，每次 ≤10 条，target 必须存在于本次数据列）。分级生效：新增自动、修正需 ≥2 次独立佐证、移除需人工审批（完成钩子校验，无需你自行修改本体）。
+5. quick-screen 的 alert.json（告警分组/多变量离群/状态）会被完成钩子确定性抽取入产线记忆；同一数据窗的重复快筛只计一次独立观测。

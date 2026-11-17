@@ -23,12 +23,12 @@ import { createOneShotEngineClient } from './one-shot.mjs';
 import {
   resolveAnalysisTarget, buildRuntimeProtocol,
   buildPrompt as buildDataPrompt,
-  buildOntologyDirective, buildEnhancementDirective,
+  buildOntologyDirective, buildEnhancementDirective, buildLineMemoryDirective,
   ANALYSIS_INTENTS, resolveAnalysisIntent, buildIntentDirective,
 } from './claude-client.mjs';
 
 // ── Shared prompt assembly (mirrors omp-client startDiagnosis) ──
-function buildEnginePrompt({ analysisTarget, userQuestion, sceneName, reportLanguage, followUpMessage, ontology, enhancement, analysisIntent, preprocessingMode }) {
+function buildEnginePrompt({ analysisTarget, userQuestion, sceneName, reportLanguage, followUpMessage, ontology, enhancement, analysisIntent, preprocessingMode, lineMemory }) {
   const lang = reportLanguage || config.diagnosis.default_language;
   const { dataPaths, promptTarget } = resolveAnalysisTarget(analysisTarget);
 
@@ -51,7 +51,7 @@ function buildEnginePrompt({ analysisTarget, userQuestion, sceneName, reportLang
 
 ${skillRef}
 
-${buildDataPrompt(sceneName, userQuestion, promptTarget, lang, followUpMessage)}${buildIntentDirective(analysisIntent, sceneName, { preprocessingMode })}${buildOntologyDirective(ontology)}${buildEnhancementDirective(enhancement)}`;
+${buildDataPrompt(sceneName, userQuestion, promptTarget, lang, followUpMessage)}${buildIntentDirective(analysisIntent, sceneName, { preprocessingMode })}${buildOntologyDirective(ontology)}${buildEnhancementDirective(enhancement)}${buildLineMemoryDirective(lineMemory)}`;
 
   return { dataPaths, prompt };
 }

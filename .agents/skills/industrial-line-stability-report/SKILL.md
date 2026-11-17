@@ -26,6 +26,9 @@ description: "产线运行稳定性报告 skill：给定时间段的生产数据
         <out>/charts.json                 图表数据束 line-stability-charts/1.0
         <out>/line_stability_report.html  自包含中文落地页（结论先行+证据链附录）
         <out>/line_stability_report.md    中文 Markdown 伴随报告（默认产出，gate 检查）
+        <run>/advisory/                  集成改善建议（默认自动；--no-advisory / 00_input/advisory_opt_out 关闭）：
+                                         advisory_actions.json(分级动作+处方) · chapter.md · step_status.json
+                                         · improvement_advisory.html(独立页) · optimizer_seed.json(可选)
         <out>/html_selfcheck.json         HTML 自检
         <run>/01_ontology/                本体四件套（ontology.json / ontology_brief.json / ontology_brief.md / ontology_coverage.json，Phase 0.5 制备）
 退出码：0 ok | 1 有发现（报告完整） | 2 not_assessable（数据不足，诚实降级） | 3 输入/门禁失败

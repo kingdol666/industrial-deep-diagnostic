@@ -125,6 +125,7 @@ import {
 } from './session-integrity.service.mjs';
 import { extractIntentOutcome, enrichRunOutcome } from './intent-outcome.service.mjs';
 import { upsertResultFromRun } from './results-library.service.mjs';
+import { buildStartMemory, ingestCompletedRun as ingestLineMemory } from './line-memory.service.mjs';
 import { classifyProviderError, tagProviderError } from './provider-error.service.mjs';
 import {
   config, diagnosis as diagConfig, security as secConfig,
@@ -300,7 +301,8 @@ function resolveWatchOntologyDirective({ profile, ontologyMode, ontologyScene, o
   const mode = DOE_ONTOLOGY_MODES.includes(requested) ? requested : 'auto';
   return {
     profile, mode, scene_key: sceneKey, data_stage: 'collected', source, hit: 'pending',
-    reason: `${profile === 'stability' ? 'stability-report' : 'quick-screen'} intent — `
+    reason: `${profile === 'stability' ? 'stability-report'
+      : (profile === 'improvement' ? 'improvement-advisory' : 'quick-screen')} intent — `
       + 'ontology-first policy (prepare → analyze/watch)',
   };
 }
@@ -371,9 +373,11 @@ export function createDiagnosisRun(params) {
             ontologyDataStage: params.ontologyDataStage,
             ontologyDevOverride: params.ontologyDevOverride,
           })
-        : (analysisIntent === 'stability-report' || analysisIntent === 'quick-screen')
+        : (analysisIntent === 'stability-report' || analysisIntent === 'quick-screen'
+          || analysisIntent === 'improvement-advisory')
           ? resolveWatchOntologyDirective({
-              profile: analysisIntent === 'stability-report' ? 'stability' : 'sentinel',
+              profile: analysisIntent === 'stability-report' ? 'stability'
+                : (analysisIntent === 'improvement-advisory' ? 'improvement' : 'sentinel'),
               ontologyMode: params.ontologyMode,
               ontologyScene: params.ontologyScene,
               ontologySource: params.ontologySource,
@@ -717,6 +721,7 @@ export function getPendingHITL(runId) {
 const REQUIRED_ARTIFACTS = {
   'stability-report': ['line_report/stability_report.json', 'line_report/line_stability_report.html'],
   'quick-screen': ['sentinel/alert.json', 'sentinel/quick_screen_report.html'],
+  'improvement-advisory': ['advisory/advisory_actions.json', 'advisory/improvement_advisory.html'],
 };
 
 function missingRequiredArtifacts(runDir, analysisIntent, harness = null) {
@@ -1186,6 +1191,19 @@ async function executeDiagnosis(runId, run, isRetry = false) {
 
     const engine = resolveEngine(run.harness);
     const runIntent = meta.analysisIntent || 'deep-diagnosis';
+    // Line memory (2026-11-03): cross-run consensus priors for this line.
+    // Advisory L5 only — retrieval failures must never block the run.
+    // Resume sessions already carry their context in the transcript, so memory
+    // is only injected on fresh spawns (the resume prompt never includes it).
+    let lineMemory = null;
+    if (!resumeSessionId) {
+      try {
+        lineMemory = buildStartMemory(run, { ontology: meta.ontology || null });
+        if (!lineMemory || !lineMemory.text) lineMemory = null;
+      } catch (e) {
+        logger.warn(`line-memory retrieve failed for ${runId}: ${e.message}`, { context: 'LineMemory', runId });
+      }
+    }
     const result = engine.startDiagnosis({
       analysisTarget,
       userQuestion: run.user_question,
@@ -1199,12 +1217,14 @@ async function executeDiagnosis(runId, run, isRetry = false) {
       reportLanguage: run.report_language || diagConfig.default_language,
       followUpMessage,
       sessionId,
-      ontology: ['deep-diagnosis', 'doe-analysis', 'stability-report', 'quick-screen'].includes(runIntent)
+      ontology: ['deep-diagnosis', 'doe-analysis', 'stability-report', 'quick-screen',
+        'improvement-advisory'].includes(runIntent)
         ? (meta.ontology || null)
         : null,
       enhancement: runIntent === 'deep-diagnosis' ? (meta.enhancement || null) : null,
       analysisIntent: runIntent,
       preprocessingMode: meta.preprocessingMode || 'single_primary',
+      lineMemory,
       // Forward ONLY an explicitly selected model — run.model is display data
       // (may hold a legacy claude default) and must not reach other engines.
       model: meta.model || null,
@@ -1420,6 +1440,12 @@ async function executeDiagnosis(runId, run, isRetry = false) {
               // terminal state — upsertResultFromRun catches its own errors.
               try { upsertResultFromRun(runId); } catch (e) {
                 logger.warn(`Results-library upsert failed for ${runId}: ${e.message}`, { context: 'Results', runId });
+              }
+              // Line memory (2026-11-03): deterministic findings ingestion +
+              // consensus re-mining + tiered ontology proposals. Same choke-point
+              // contract as the results library: failures only warn.
+              try { ingestLineMemory(runId); } catch (e) {
+                logger.warn(`Line-memory ingest failed for ${runId}: ${e.message}`, { context: 'LineMemory', runId });
               }
             }
           } else {

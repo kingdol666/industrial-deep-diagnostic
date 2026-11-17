@@ -1,0 +1,17 @@
+{
+  "contract_version": "1.0",
+  "targets": [
+    {
+      "metric": "thickness",
+      "direction": "min"
+    }
+  ],
+  "constraints": [
+    {
+      "param": "temp",
+      "min": 150,
+      "max": 210,
+      "type": "box"
+    }
+  ]
+}

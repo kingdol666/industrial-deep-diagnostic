@@ -437,8 +437,10 @@ describe('continue/chat routing — rebuild fallback + honest HTTP semantics', (
       assert.equal(byId[id].session_resume, false, id);
     }
     for (const h of json.data.harnesses) {
-      assert.equal(h.supported_intents.length, 6, `${h.id} intents`);
+      // 7 specialist intents since improvement-advisory (2026-11-16).
+      assert.equal(h.supported_intents.length, 7, `${h.id} intents`);
       assert.ok(h.supported_intents.includes('stability-report'));
+      assert.ok(h.supported_intents.includes('improvement-advisory'));
     }
   });
 

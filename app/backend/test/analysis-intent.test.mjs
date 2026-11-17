@@ -240,12 +240,12 @@ const { engineSupportsSessionChat, RESUMABLE_HARNESSES } = await import('../src/
 describe('intent capability matrix', () => {
   test('every registered intent is present in the matrix', () => {
     assert.deepEqual([...ALL_INTENTS].sort(), [
-      'deep-diagnosis', 'doe-analysis', 'experience-mining',
+      'deep-diagnosis', 'doe-analysis', 'experience-mining', 'improvement-advisory',
       'optimizer-campaign', 'quick-screen', 'stability-report',
     ]);
   });
 
-  test('all 14 engines support all 6 intents (no silent wrong-skill path)', () => {
+  test('all 14 engines support all 7 intents (no silent wrong-skill path)', () => {
     const ids = [...HARNESS_DEFS.map((d) => d.id), 'claude', 'omp'];
     assert.equal(ids.length, 14);
     for (const id of ids) {

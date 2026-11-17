@@ -1,0 +1,20 @@
+{
+  "scene": {"name": "fixture-conflict", "process_type": "fixture"},
+  "signals": {
+    "inspection_signals": [
+      {"name": "thickness", "column": "thickness", "role": "target", "physical_meaning": "厚度", "knowledge_source": "user_provided", "physical_meaning_confidence": "KNOWN"},
+      {"name": "yield_rate", "column": "yield_rate", "role": "target", "physical_meaning": "良率", "knowledge_source": "user_provided", "physical_meaning_confidence": "KNOWN"}
+    ],
+    "process_parameters": [
+      {"name": "temp", "column": "temp", "role": "predictor", "physical_meaning": "工艺温度", "knowledge_source": "user_provided", "physical_meaning_confidence": "KNOWN"}
+    ],
+    "control_variables": [],
+    "events": [],
+    "metadata_columns": [{"name": "t", "column": "t", "role": "timestamp"}]
+  },
+  "relationships": [
+    {"from": "temp", "to": "thickness", "type": "causal", "expected_sign": "-", "mechanism": "温度升高使厚度下降（fixture 声明）"},
+    {"from": "temp", "to": "yield_rate", "type": "causal", "expected_sign": "-", "mechanism": "温度升高使良率下降（fixture 声明）"}
+  ],
+  "metadata": {"units": {}}
+}

@@ -1,0 +1,23 @@
+{
+  "contract_version": "1.0",
+  "targets": [
+    {
+      "metric": "thickness",
+      "direction": "min",
+      "target_value": null,
+      "tolerance": null,
+      "weight": 1.0
+    }
+  ],
+  "constraints": [
+    {
+      "param": "temp",
+      "min": 150,
+      "max": 210,
+      "type": "box",
+      "hard": false
+    }
+  ],
+  "horizon": "fixture-period",
+  "dead_time": 2
+}

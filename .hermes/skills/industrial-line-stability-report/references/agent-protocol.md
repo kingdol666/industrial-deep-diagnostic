@@ -58,11 +58,13 @@ uv run --project .claude/shared/scripts python \
   --run-dir "$RUN_DIR" \
   [--ontology <ontology.json>] [--scene <scene-key>] \
   [--time-col t] [--baseline <watch_baseline.json>] \
-  [--action-log <action_log.json>] [--doe-run-dir <doe_run>] [--doe-auto]
+  [--action-log <action_log.json>] [--doe-run-dir <doe_run>] [--doe-auto] \
+  [--no-advisory]
 ```
 
 - 期望退出码 0（无发现）或 1（有发现）；2 = 数据不足（向用户说明缺什么，停止后续 Phase）；3 = 输入错误（按 SKILL.md Failure Recovery 排查后重试）。
 - 产出：`<RUN_DIR>/line_report/stability_report.json` + `charts.json`。
+- **集成改善建议步骤（默认自动）**：分析完成后确定性运行 improvement-advisory 适配器（origin=stability，秒级、零额外 LLM），产出 `<RUN_DIR>/advisory/`（graded 动作 + 处方 + `chapter.md` + 独立 HTML）并把摘要写进 `stability_report.json.advisory`。该步骤**绝不改变稳定性退出码**；`--no-advisory` 或 `00_input/advisory_opt_out` 文件可关闭；`advisory/step_status.json` 如实记录 used|skipped|failed。
 - 自检本体命中情况：`condition.ontology.mode`；prepare 的动作与本体制备溯源在 `provenance.ontology`（action/scene_key/rag_used/brief_summary）。若为 auto 且资产库存在近似 scene，提示用户可指定 `--scene` 复用。
 
 ## Phase 2 — HTML 落地页 + 门禁
@@ -108,3 +110,15 @@ node "$SKILL_PATH/scripts/quality_gate.mjs" \
 4. 报告是咨询产物，措辞避免任何"已自动调整/下发"类表述。
 5. 退化输入是数据事实，不是可隐藏的瑕疵：时间不变量通道（快照导出/死点）由脚本剔除并发 data_quality 发现，agent 必须向用户如实转述，绝不把“无波动”解读为“稳定”。
 6. **单位不得发明**：报告/解读中出现的单位只能来自 `report_context`、本体、或数据列声明；任一单位缺失或不确定时，写“单位未声明（unit undeclared）”，禁止根据产品名/经验猜写 mm、µm、°C 等。`drift_quantify.json` 等 agent 生成的 JSON 中每个信号必须带 `unit`（可为 null）与 `unit_status`（`declared|undeclared`）。
+
+---
+
+## Line Memory 先验纪律（跨 run 产线记忆，2026-11-03 起生效）
+
+运行上下文中若出现 `## 产线记忆（跨 run 共识…）` 块（或 `00_input/context/line_memory.json` 存在），它来自本产线历史多次独立观测的确定性沉淀——**先验级别 L5，仅作参考**：
+
+1. **必须用本次数据重新验证**每一条先验；禁止直接复制旧结论或旧数字。
+2. 先验与本次数据冲突时，以本次数据为准，并在报告/结论中明确标注「与历史记忆不一致」。
+3. `[共性]`（≥3 次独立观测且无方向矛盾）可作强先验；`[候选]`（2 次）作弱先验；`[线索]`（1 次）只作排查方向；`[警示]`（竞争/反证/陈旧）必须当作反例对待。
+4. 若发现本体模型与现实不符（参数归类/单位/物理分组/缺失参数），写 `05_review/ontology_proposals.json`（契约 `ontology-proposal/1.0`，schema：`.claude/shared/schemas/ontology_proposal.schema.json`，每次 ≤10 条，target 必须存在于本次数据列）。分级生效：新增自动、修正需 ≥2 次独立佐证、移除需人工审批（完成钩子校验，无需你自行修改本体）。
+5. 稳定性报告的 findings[]（SPC 判异）与 parameters[].drift.significant（漂移）会被完成钩子确定性抽取入产线记忆；同一产线的重复分析（数据窗重叠 >50%）只计一次独立观测，不要把它当作“新证据”。

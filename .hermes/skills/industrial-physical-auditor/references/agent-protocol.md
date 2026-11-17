@@ -79,6 +79,13 @@ optimizer.md is not an "audit opinion" — it is an "action plan" that line tech
 - [ ] Are confidence reductions proportional to identified gaps?
 - [ ] Is uncertainty explicit about what could change conclusions?
 
+## Step 4.5: Advisory Chapter Fidelity (conditional, FINAL_AUDIT)
+
+- [ ] `advisory/step_status.json` exists? (Step 5c ran — any status)
+- [ ] If status=used: the report's 「改善建议与验证计划」 chapter matches `advisory/advisory_actions.json` verbatim — grades, expected gains, 95%CI bounds and prescriptions unchanged; a reworded/recomputed number is a blocking issue
+- [ ] If status=skipped/failed: exactly one honest disclosure line, no invented advice
+- [ ] If the step never ran (pre-integration run): record "advisory step absent" and continue — never fail the audit for it
+
 ## Step 5: Write Optimizer Output
 
 - [ ] Final mode: Write `RUN_DIR/optimizer.md` with verdict + scenario-specific improvement plan + next-step confirmation plan

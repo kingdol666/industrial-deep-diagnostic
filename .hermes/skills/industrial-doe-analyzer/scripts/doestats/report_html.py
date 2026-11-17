@@ -37,6 +37,30 @@ sys.path.insert(0, str(SCRIPT_DIR))
 from doestats import VERSION  # noqa: E402
 from doestats import effects_anova  # noqa: E402
 
+# Integrated improvement advisory renderer (single visual authority; the
+# section is additive and degrades to a disclosure note when the skill is absent).
+IMA_SCRIPTS = REPO_ROOT / ".claude" / "skills" / "industrial-improvement-advisor" / "scripts"
+try:
+    if str(IMA_SCRIPTS) not in sys.path:
+        sys.path.insert(0, str(IMA_SCRIPTS))
+    from imacore import render as ima_render  # noqa: E402
+except Exception:  # pragma: no cover - degraded host
+    ima_render = None
+
+# Shared report design system (evidence-ledger skeleton).
+_DESIGN_DIR = REPO_ROOT / ".claude" / "shared" / "report-design"
+DOE_CSS_PATH = SKILL_DIR / "templates" / "doe-report.css"
+try:
+    if str(_DESIGN_DIR) not in sys.path:
+        sys.path.insert(0, str(_DESIGN_DIR))
+    import report_design  # noqa: E402
+    REPORT_CSS = report_design.css_text()
+except Exception:  # pragma: no cover
+    report_design = None
+    REPORT_CSS = ""
+
+DOE_CSS = DOE_CSS_PATH.read_text(encoding="utf-8") if DOE_CSS_PATH.exists() else ""
+
 ARTIFACTS = [
     "00_input/analysis_context.json",
     "01_profile/data_profile.json",
@@ -50,6 +74,9 @@ ARTIFACTS = [
     # v1.1 (optional): ontology + next design, rendered by §11 when present
     "01_ontology/ontology_brief.json",
     "conclusions/next_design.json",
+    # optional: integrated improvement advisory (Step §12 renders when present)
+    "advisory/advisory_actions.json",
+    "advisory/step_status.json",
 ]
 REQUIRED_BY_MODE = {
     "designed": ["00_input/analysis_context.json", "01_profile/data_profile.json",
@@ -233,6 +260,25 @@ def _chart(fig_id, kind, key, title, reading, note=None):
 
 # ------------------------------------------------------------------ builder
 
+# Margin notes per section (A ledger skeleton). Only where a re-reading tip is
+# genuinely useful; sections without an entry render a two-column body.
+SECTION_MARGINS = {
+    "sec-hero": "<h4>怎么用这一页</h4><p>等级是上限，不是结论：先看等级与三条发现，"
+                "再顺着左侧章节读证据。每张图都带三行读图。</p>",
+    "sec-4": "<h4>怎么读效应</h4><p>编码系数是「因子从中心到 ±1 编码单位」的响应变化，"
+             "不是原始单位；原始单位效应在关键发现里给出。</p>"
+             "<p>二次项显著 → 响应面弯曲，最优值可能在区间内部，不要线性外推。</p>",
+    "sec-5": "<h4>模型可信度</h4><p>R² 看解释力，Q² LOO 看外推，失拟 p&gt;0.05 才不拒绝模型；"
+             "三者必须一起看。</p>",
+    "sec-8": "<h4>窗口边界</h4><p>窗口是在设计包络内求解的；外推端点（extrapolation=true）"
+             "必须工艺确认后才可执行。</p>",
+    "sec-10": "<h4>确认实验</h4><p>本页列出的确认实验是结论闭环的最低条件；"
+              "未做确认实验的窗口只算「推荐」。</p>",
+    "sec-advisory": "<h4>分级口径</h4><p>A ＝ 干预性证据；B ＝ 观察性证据需小试；"
+                    "C ＝ 仅方向。收益一律 95%CI。</p>",
+}
+
+
 class ReportBuilder:
     def __init__(self, run_dir):
         self.run_dir = _contained(run_dir)
@@ -269,12 +315,17 @@ class ReportBuilder:
     # ---------------- helpers
     def add_section(self, sec_id, num, title, body, in_nav=True):
         self.rendered.add(sec_id)
+        margin = SECTION_MARGINS.get(sec_id, "")
+        grid = "rpt-body-grid" if margin else "rpt-body-grid no-margin"
+        aside = f'<aside class="rpt-margin">{margin}</aside>' if margin else ""
         self.sections.append(
-            f'<section class="sec" id="{sec_id}">'
-            f'<h2><span class="sec-num">{num}</span>{esc(title)}</h2>'
-            f'{body}</section>')
+            f'<section class="rpt-sec" id="{sec_id}">'
+            f'<div class="rpt-sec-head"><span class="rpt-sec-no">{esc(num)}</span>'
+            f'<h2>{esc(title)}</h2></div>'
+            f'<div class="{grid}"><div class="rpt-content">{body}</div>{aside}</div>'
+            f'</section>')
         if in_nav:
-            self.nav.append((sec_id, title))
+            self.nav.append((sec_id, num, title))
 
     def add_chart(self, kind, data, title, reading_triplet, note=None, key=None):
         self.n_charts += 1
@@ -283,6 +334,40 @@ class ReportBuilder:
         self.charts[key] = data
         seen, means, matters = reading_triplet
         return _chart(cid, kind, key, title, _reading(seen, means, matters), note)
+
+    # ---------------- integrated improvement advisory (§12, optional)
+    def sec_advisory(self):
+        adv_path = self.run_dir / "advisory" / "advisory_actions.json"
+        step_path = self.run_dir / "advisory" / "step_status.json"
+        if not adv_path.exists():
+            if step_path.exists():
+                try:
+                    step = json.loads(step_path.read_text(encoding="utf-8"))
+                except (OSError, ValueError):
+                    step = {}
+                self.add_section(
+                    "sec-advisory", "§12", "改善建议与验证计划",
+                    f'<p class="notes">本次未生成改善建议（'
+                    f'{esc(str(step.get("status") or "unknown"))}：'
+                    f'{esc(str(step.get("reason") or "数据不足"))}）。'
+                    f'宿主报告其余部分不受影响。</p>')
+            return
+        try:
+            adv = json.loads(adv_path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            return
+        if ima_render is None:  # degraded host: never fabricate a substitute
+            self.add_section(
+                "sec-advisory", "§12", "改善建议与验证计划",
+                '<p class="notes">改善建议已生成，但共享渲染器不可用'
+                '（industrial-improvement-advisor skill 缺失）。'
+                '原始数据见 advisory/advisory_actions.json。</p>')
+            self.rendered.add("sec-advisory")
+            return
+        body = ima_render.render_section(
+            adv, mode="full", include_style=False,
+            anchor="sec-advisory-body", title="")
+        self.add_section("sec-advisory", "§12", "改善建议与验证计划", body)
 
     # ---------------- load raw data (read-only, for §7 series)
     def load_raw(self):
@@ -357,7 +442,7 @@ class ReportBuilder:
 </div>"""
         sec = (f'<section class="sec" id="sec-0"><h2><span class="sec-num">§0</span>导读</h2>{body}</section>')
         self.sections.append(sec)
-        self.nav.append(("sec-0", "导读"))
+        self.nav.append(("sec-0", "§0", "导读"))
         self.rendered.add("sec-0")
 
     # ---------------- §1 数据概貌
@@ -1307,6 +1392,8 @@ class ReportBuilder:
             if sid == "sec-6" and not self._has_rsm():
                 continue
             plan.append((sid, title))
+        if (self.run_dir / "advisory" / "advisory_actions.json").exists():
+            plan.append(("sec-advisory", "改善建议与验证计划"))
         return plan
 
     def build(self):
@@ -1340,20 +1427,47 @@ class ReportBuilder:
         self.sec_9()
         self.sec_10()
         self.sec_11()
+        self.sec_advisory()
         self.sec_appendix()
 
         payload = {"mode": self.mode, "charts": self.charts}
         meta_json = _json_for_script(self.meta)
         payload_json = _json_for_script(payload)
         nav_html = "".join(
-            f'<a href="#{sid}">{esc(title)}</a>'
-            for sid, title in self.nav if sid in self.rendered)
+            f'<a href="#{sid}"><b>{esc(num)}</b>{esc(title)}</a>'
+            for sid, num, title in self.nav if sid in self.rendered)
+        conc = self.conclusion or {}
+        grade = conc.get("evidence_grade") or "—"
+        kf = conc.get("key_findings") or []
+        statement = (kf[0].get("statement") or "").split("。")[0] + "。" if kf else "—"
+        design = str(self.meta.get("design_type") or "—")
+        design_cn = DESIGN_TYPE_CN.get(design, design)
+        responses = [c for c in (self.profile.get("columns") or [])
+                     if c.get("role") == "response"]
+        n_rows = self.profile.get("n_rows") or "—"
+        seal_cls = "is-a" if grade == "A" else "is-c" if grade == "C" else ""
+        masthead = (
+            f'<header class="rpt-masthead">'
+            f'<p class="rpt-kicker">Industrial Deep Diagnostic · DOE Analysis</p>'
+            f'<h1>DOE 试验分析报告 · {esc(design_cn)}</h1>'
+            f'<div class="rpt-meta"><span>设计 <b>{esc(design_cn)}</b></span>'
+            f'<span>模式 <b>{esc(self.mode)}</b></span>'
+            f'<span>试验点 <b>{esc(n_rows)}</b></span>'
+            f'<span>响应 <b>{len(responses)}</b></span>'
+            f'<span>生成 <b>{esc(str(self.meta.get("generated_at") or "")[:16].replace("T", " "))}</b></span></div>'
+            f'<div class="rpt-verdict"><blockquote>{esc(statement)}</blockquote>'
+            f'<div class="rpt-seal {seal_cls}"><div class="rpt-seal-in">'
+            f'<div class="rpt-seal-num">{esc(grade)}</div>'
+            f'<div class="rpt-seal-grade">证据等级</div>'
+            f'<div class="rpt-seal-cap">{esc(design_cn)}</div>'
+            f'</div></div></div></header>')
         tmpl = _Tmpl(TEMPLATE_PATH.read_text(encoding="utf-8"))
         out_html = tmpl.substitute(
             TITLE=f"DOE 工况分析报告 — {esc(self.run_dir.name)}",
-            MODE=self.mode, DESIGN_TYPE=esc(str(self.meta.get("design_type") or "—")),
+            MODE=self.mode, DESIGN_TYPE=esc(design),
             META_JSON=meta_json, PAYLOAD_JSON=payload_json,
             NAV=nav_html, SECTIONS="".join(self.sections),
+            REPORT_CSS=REPORT_CSS, DOE_CSS=DOE_CSS, MASTHEAD=masthead,
             SCRIPT_VERSION=esc(VERSION), GENERATED_AT=esc(self.meta["generated_at"][:19]),
         )
         out = self.run_dir / "report.html"

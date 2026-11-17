@@ -1,0 +1,39 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "ontology_proposal.v1",
+  "title": "Ontology Proposal v1.0 — agent-authored ontology revision proposals",
+  "description": "Written by a diagnosing agent at 05_review/ontology_proposals.json. The completion hook validates deterministically (parameter existence / unit sanity / size limits) and applies per tier: additive auto, correction needs >=2 independent corroborating runs, removal awaits human approval.",
+  "type": "object",
+  "required": ["contract_version", "run_id", "scene_key", "proposals"],
+  "properties": {
+    "contract_version": { "const": "ontology-proposal/1.0" },
+    "run_id": { "type": "string", "minLength": 1 },
+    "scene_key": { "type": "string", "pattern": "^[A-Za-z0-9._-]+$" },
+    "proposals": {
+      "type": "array",
+      "maxItems": 10,
+      "items": {
+        "type": "object",
+        "required": ["id", "op", "target", "rationale"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1, "maxLength": 40 },
+          "op": {
+            "enum": [
+              "add_missing_parameter", "add_physical_meaning", "add_class",
+              "add_note", "add_group_member",
+              "correct_unit", "correct_group", "correct_stage", "reclassify",
+              "deprecate", "remove"
+            ]
+          },
+          "target": { "type": "string", "minLength": 1, "maxLength": 120 },
+          "field": { "type": ["string", "null"], "maxLength": 60 },
+          "from": { "type": ["string", "number", "object", "null"] },
+          "to": { "type": ["string", "number", "object", "null"] },
+          "rationale": { "type": "string", "minLength": 1, "maxLength": 400 },
+          "confidence": { "type": ["number", "null"] },
+          "evidence_level": { "type": "string", "pattern": "^L[1-7]$" }
+        }
+      }
+    }
+  }
+}

@@ -50,7 +50,7 @@
       <div class="app-sidebar-footer">
         <div v-if="authUser" class="app-userbox">
           <div class="app-userbox-info">
-            <span class="app-userbox-name">{{ authUser.username }}</span>
+            <button class="app-userbox-name" type="button" data-testid="open-settings" :title="$t('tabs.settings.title')" @click="selectTab('settings')">{{ authUser.username }}</button>
             <span class="app-userbox-role">{{ authUser.role === 'admin' ? $t('auth.roleAdmin') : $t('auth.roleUser') }}</span>
           </div>
           <button class="app-userbox-logout" data-testid="logout" type="button" :title="$t('auth.logoutTitle')" @click="logout">{{ $t('auth.logout') }}</button>
@@ -172,6 +172,10 @@
           <ResultsLibrary @open-report="onOpenReport" />
         </div>
 
+        <div v-else-if="currentTab === 'memory'" class="app-view-frame">
+          <LineMemoryPanel @open-report="onOpenReport" @open-run="onOpenRun" />
+        </div>
+
         <div v-else-if="currentTab === 'history'" class="app-view-frame">
           <HistoryList
             @open-report="onOpenReport"
@@ -198,6 +202,10 @@
             :capabilities="activeHarnessMeta.capabilities || []"
           />
         </div>
+
+        <div v-else-if="currentTab === 'settings'" class="app-view-frame">
+          <SettingsView />
+        </div>
       </main>
     </section>
   </div>
@@ -212,9 +220,11 @@ import ChatView from './components/chat/ChatView.vue';
 import ReportViewer from './components/reports/ReportViewer.vue';
 import HistoryList from './components/history/HistoryList.vue';
 import ResultsLibrary from './components/results/ResultsLibrary.vue';
+import LineMemoryPanel from './components/memory/LineMemoryPanel.vue';
 import OmpRunsView from './components/harness/HarnessRunsView.vue';
 import OntologyView from './components/ontology/OntologyView.vue';
 import ClosedLoopView from './components/closedloop/ClosedLoopView.vue';
+import SettingsView from './components/settings/SettingsView.vue';
 import { useDiagnosisRealtimeStore } from './stores/diagnosisRealtimeStore.js';
 import { api, getToken, setToken, setStoredUser, getStoredUser } from './api/index.js';
 import AuthView from './components/auth/AuthView.vue';
@@ -282,9 +292,11 @@ const tabs = computed(() => [
   { key: 'chat', label: t('tabs.chat.label'), icon: '⌘', kicker: t('tabs.chat.kicker'), title: t('tabs.chat.title'), description: t('tabs.chat.description'), caption: t('tabs.chat.caption') },
   { key: 'reports', label: t('tabs.reports.label'), icon: '▣', kicker: t('tabs.reports.kicker'), title: t('tabs.reports.title'), description: t('tabs.reports.description'), caption: t('tabs.reports.caption') },
   { key: 'results', label: t('tabs.results.label'), icon: '▤', kicker: t('tabs.results.kicker'), title: t('tabs.results.title'), description: t('tabs.results.description'), caption: t('tabs.results.caption') },
+  { key: 'memory', label: t('tabs.memory.label'), icon: '◈', kicker: t('tabs.memory.kicker'), title: t('tabs.memory.title'), description: t('tabs.memory.description'), caption: t('tabs.memory.caption') },
   { key: 'ontology', label: t('tabs.ontology.label'), icon: '⬡', kicker: t('tabs.ontology.kicker'), title: t('tabs.ontology.title'), description: t('tabs.ontology.description'), caption: t('tabs.ontology.caption') },
   { key: 'closedloop', label: t('tabs.closedloop.label'), icon: '∿', kicker: t('tabs.closedloop.kicker'), title: t('tabs.closedloop.title'), description: t('tabs.closedloop.description'), caption: t('tabs.closedloop.caption') },
   { key: 'history', label: t('tabs.history.label'), icon: '◌', kicker: t('tabs.history.kicker'), title: t('tabs.history.title'), description: t('tabs.history.description'), caption: t('tabs.history.caption') },
+  { key: 'settings', label: t('tabs.settings.label'), icon: '⚙', kicker: t('tabs.settings.kicker'), title: t('tabs.settings.title'), description: t('tabs.settings.description'), caption: t('tabs.settings.caption') },
 ]);
 
 // OMP harness tab — visible only when the selected engine supports runs
@@ -494,6 +506,12 @@ function onViewReport(reportPath) {
 
 function onOpenReport(reportPath) {
   if (reportPath) openReportPath.value = runDirFromReportPath(reportPath);
+  currentTab.value = 'reports';
+}
+
+// 产线记忆 → 溯源 run:直接用 runId 打开 Reports（ReportViewer 的 auto-run-id）。
+function onOpenRun(runId) {
+  if (runId) autoOpenRunId.value = runId;
   currentTab.value = 'reports';
 }
 

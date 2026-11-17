@@ -1,0 +1,10 @@
+{
+  "contract_version": "1.0",
+  "targets": [
+    {
+      "metric": "thickness",
+      "direction": "min"
+    }
+  ],
+  "dead_time": 2
+}

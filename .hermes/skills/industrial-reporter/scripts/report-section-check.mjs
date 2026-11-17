@@ -42,6 +42,7 @@ const REQUIRED_SECTIONS = [
   { keywords: ['推理链', 'Reasoning Chain'], label: '推理链/Reasoning Chain' },
   { keywords: ['统计', '数据统计', 'Data', '数据与统计'], label: '统计验证/数据统计' },
   { keywords: ['行动方案', '局限', 'Action', '下一步'], label: '行动方案/局限性' },
+  { keywords: ['改善建议', 'Improvement Advisory', '验证计划'], label: '改善建议与验证计划' },
 ];
 
 const foundSections = [];

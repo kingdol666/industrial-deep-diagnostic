@@ -10,7 +10,7 @@ import logger from '../utils/logger.mjs';
 import {
   resolveAnalysisTarget, buildRuntimeProtocol,
   buildPrompt as buildDataPrompt,
-  buildOntologyDirective, buildEnhancementDirective,
+  buildOntologyDirective, buildEnhancementDirective, buildLineMemoryDirective,
   ANALYSIS_INTENTS, resolveAnalysisIntent, buildIntentDirective,
 } from './claude-client.mjs';
 import { existsSync } from 'fs';
@@ -214,7 +214,7 @@ function createCodexQuery({ turnKey, prompt, model = null, approvalPolicy = null
 
 // ── Shared prompt assembly (exported for the intent-injection contract test) ──
 export function buildCodexPrompt({
-  analysisTarget, userQuestion, sceneName, reportLanguage, followUpMessage, ontology, enhancement,
+  analysisTarget, userQuestion, sceneName, reportLanguage, followUpMessage, ontology, enhancement, lineMemory,
   analysisIntent = 'deep-diagnosis', preprocessingMode = null,
 }) {
   const lang = reportLanguage || config.diagnosis.default_language;
@@ -237,7 +237,7 @@ export function buildCodexPrompt({
 
 ${skillRef}
 
-${buildDataPrompt(sceneName, userQuestion, promptTarget, lang, followUpMessage)}${buildIntentDirective(analysisIntent, sceneName, { preprocessingMode })}${buildOntologyDirective(ontology)}${buildEnhancementDirective(enhancement)}`;
+${buildDataPrompt(sceneName, userQuestion, promptTarget, lang, followUpMessage)}${buildIntentDirective(analysisIntent, sceneName, { preprocessingMode })}${buildOntologyDirective(ontology)}${buildEnhancementDirective(enhancement)}${buildLineMemoryDirective(lineMemory)}`;
   return { dataPaths, prompt };
 }
 
@@ -251,11 +251,12 @@ export function startDiagnosis({
   ontology = null, enhancement = null,
   model = null, permissionMode = null,
   analysisIntent = 'deep-diagnosis', preprocessingMode = null,
+  lineMemory = null,
 }) {
   void maxTurns; void timeoutMinutes; void sessionId; // codex threads don't resume cross-process here
   const engCfg = config.harness?.engines?.codex || {};
   const built = buildCodexPrompt({
-    analysisTarget, userQuestion, sceneName, reportLanguage, followUpMessage, ontology, enhancement,
+    analysisTarget, userQuestion, sceneName, reportLanguage, followUpMessage, ontology, enhancement, lineMemory,
     analysisIntent, preprocessingMode,
   });
   const query = createCodexQuery({

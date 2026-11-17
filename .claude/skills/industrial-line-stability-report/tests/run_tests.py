@@ -1096,6 +1096,68 @@ def scenario_pipeline_events(base):
     check("events.crash_contract", "CRASH:" in src and "return 4" in src)
 
 
+def scenario_tz_aware_contract(base):
+    print("[S24] tz-aware input: offset-aware bounds slice correctly and the "
+          "period is labelled in the source offset")
+    run_dir = os.path.join(base, "tz")
+    out = os.path.join(run_dir, "line_report")
+    os.makedirs(os.path.join(run_dir, "00_input"), exist_ok=True)
+    rng = np.random.default_rng(83)
+    n = 120
+    t0 = datetime(2026, 10, 31, 17, 0, 0)
+    t = [(t0 + timedelta(seconds=5 * i)).strftime("%Y-%m-%dT%H:%M:%S+08:00")
+         for i in range(n)]
+    pd.DataFrame({
+        "timestamp": t,
+        "weight_g": 32.19 + rng.normal(0, 0.02, n),
+    }).to_csv(os.path.join(run_dir, "00_input", "data.csv"), index=False)
+    ctx = {
+        "time_col": "timestamp",
+        # offset-aware bounds must be compared in the same (naive-UTC) space as
+        # the analyzer's _dt, not raise TypeError or slice everything away
+        "start": "2026-10-31T17:00:00+08:00",
+        "end": "2026-10-31T17:10:00+08:00",
+        "spec_limits": {"weight_g": {"lsl": 32.15, "usl": 32.85, "target": 32.5}},
+        "ontology": {"mode": "off"},
+    }
+    with open(os.path.join(run_dir, "00_input", "report_context.json"), "w",
+              encoding="utf-8") as f:
+        json.dump(ctx, f)
+    r = run_analyze(run_dir)
+    check("tz.analyze_runs", r.returncode in (0, 1), (r.stderr or r.stdout)[-300:])
+    rep = load_report(out)
+    # 17:00:00..17:10:00 inclusive at 5 s == 121 points, of which 120 exist
+    check("tz.rows_kept", rep["data"]["n_rows_used"] == n,
+          str(rep["data"]["n_rows_used"]))
+    check("tz.period_local_start",
+          rep["period"]["start"] == "2026-10-31T17:00:00+08:00",
+          str(rep["period"]["start"]))
+    check("tz.period_local_end",
+          str(rep["period"]["end"]).startswith("2026-10-31T17:09:5"),
+          str(rep["period"]["end"]))
+    check("tz.offset_recorded", rep["period"].get("tz_offset") == "8:00:00",
+          str(rep["period"].get("tz_offset")))
+
+
+def scenario_naive_period_label_unshifted(base):
+    print("[S25] naive input keeps the period label unshifted (no offset applied)")
+    run_dir = os.path.join(base, "naive-label")
+    out = os.path.join(run_dir, "line_report")
+    os.makedirs(os.path.join(run_dir, "00_input"), exist_ok=True)
+    write_stable_csv(os.path.join(run_dir, "00_input", "data.csv"), n=120, seed=85)
+    with open(os.path.join(run_dir, "00_input", "report_context.json"), "w",
+              encoding="utf-8") as f:
+        json.dump({"ontology": {"mode": "off"}}, f)
+    r = run_analyze(run_dir)
+    check("tz.naive_runs", r.returncode in (0, 1), r.stderr[-300:])
+    rep = load_report(out)
+    check("tz.naive_start_unshifted",
+          rep["period"]["start"].startswith("2026-10-01 08:00:00"),
+          str(rep["period"]["start"]))
+    check("tz.naive_offset_null", rep["period"].get("tz_offset") is None,
+          str(rep["period"].get("tz_offset")))
+
+
 def main():
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -1131,6 +1193,8 @@ def main():
         scenario_units_and_dictionary(base)
         scenario_bare_zero_declaration(base)
         scenario_pipeline_events(base)
+        scenario_tz_aware_contract(base)
+        scenario_naive_period_label_unshifted(base)
     finally:
         shutil.rmtree(base, ignore_errors=True)
     total = len(CHECKS)

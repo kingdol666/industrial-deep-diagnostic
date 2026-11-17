@@ -13,7 +13,7 @@ import { resolveCliBinary, spawnResolvedCli, killTree } from './cli-common.mjs';
 import {
   resolveAnalysisTarget, buildRuntimeProtocol,
   buildPrompt as buildDataPrompt,
-  buildOntologyDirective, buildEnhancementDirective,
+  buildOntologyDirective, buildEnhancementDirective, buildLineMemoryDirective,
   ANALYSIS_INTENTS, resolveAnalysisIntent, buildIntentDirective,
 } from './claude-client.mjs';
 import { existsSync } from 'fs';
@@ -143,6 +143,56 @@ async function startOpenCodeRun({ turnKey, prompt, emit, result, state }) {
 
   emit({ type: 'system', subtype: 'session_ready', data: { engine: 'opencode', sessionId } });
 
+  // Shared event context. MUST live in the outer turn scope: the SSE handler AND
+  // the completion paths below (sync endpoint success / no endpoint delivered /
+  // SSE idle close) all call makeCtx(). Declared inside the SSE IIFE it was
+  // invisible to those outer calls — every success path threw ReferenceError,
+  // which the endpoint loop's catch swallowed as "delivered" (latent since the
+  // client was written; surfaced by ESLint no-undef 2026-11-03).
+  function makeCtx() {
+    return {
+      text(partId, text) { state.textParts.set(partId, text); },
+      flushText(partId, text) {
+        if (text) emit({ type: 'assistant', message: { role: 'assistant', content: [{ type: 'text', text }] } });
+        state.textParts.delete(partId);
+      },
+      flushAll() {
+        for (const [partId, text] of state.textParts) {
+          if (text) emit({ type: 'assistant', message: { role: 'assistant', content: [{ type: 'text', text }] } });
+          state.textParts.delete(partId);
+        }
+      },
+      toolUse: (t) => emit({ type: 'assistant', message: { role: 'assistant', content: [{ type: 'tool_use', id: t.id || 'tool', name: t.name || 'tool', input: t.input || {} }] } }),
+      toolResult: (t) => emit({
+        type: 'user',
+        message: {
+          role: 'user',
+          content: [{ type: 'tool_result', tool_use_id: t.toolUseId || '', content: String(t.content ?? ''), is_error: t.isError === true }],
+        },
+      }),
+      permissionAsked: async (props) => {
+        const autoApprove = engCfg.auto_approve !== false;
+        logger.info(`[opencode] permission.asked → ${autoApprove ? 'once (auto_approve)' : 'reject (fail-closed)'}`, { context: 'OpenCode', turnKey });
+        emit({ type: 'system', subtype: 'permission_request', data: { engine: 'opencode', autoApprove } });
+        const permId = props.id || props.permissionID;
+        const sid = props.sessionID || sessionId;
+        if (permId) {
+          fetch(`${baseUrl}/session/${sid}/permissions/${permId}`, {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ response: autoApprove ? 'once' : 'reject' }),
+          }).catch(() => {});
+        }
+      },
+      result: (subtype, reason) => {
+        if (state.finished) return;
+        state.finished = true;
+        result(subtype, reason);
+      },
+      unknown: () => {},
+    };
+  }
+
   // 2) SSE first, then prompt
   const controller = new AbortController();
   state.sseAbort = controller;
@@ -160,50 +210,6 @@ async function startOpenCodeRun({ turnKey, prompt, emit, result, state }) {
         logger.warn(`[opencode] event mapping error (counted): ${e.message}`, { context: 'OpenCode', turnKey });
       }
     });
-
-    function makeCtx() {
-      return {
-        text(partId, text) { state.textParts.set(partId, text); },
-        flushText(partId, text) {
-          if (text) emit({ type: 'assistant', message: { role: 'assistant', content: [{ type: 'text', text }] } });
-          state.textParts.delete(partId);
-        },
-        flushAll() {
-          for (const [partId, text] of state.textParts) {
-            if (text) emit({ type: 'assistant', message: { role: 'assistant', content: [{ type: 'text', text }] } });
-            state.textParts.delete(partId);
-          }
-        },
-        toolUse: (t) => emit({ type: 'assistant', message: { role: 'assistant', content: [{ type: 'tool_use', id: t.id || 'tool', name: t.name || 'tool', input: t.input || {} }] } }),
-        toolResult: (t) => emit({
-          type: 'user',
-          message: {
-            role: 'user',
-            content: [{ type: 'tool_result', tool_use_id: t.toolUseId || '', content: String(t.content ?? ''), is_error: t.isError === true }],
-          },
-        }),
-        permissionAsked: async (props) => {
-          const autoApprove = engCfg.auto_approve !== false;
-          logger.info(`[opencode] permission.asked → ${autoApprove ? 'once (auto_approve)' : 'reject (fail-closed)'}`, { context: 'OpenCode', turnKey });
-          emit({ type: 'system', subtype: 'permission_request', data: { engine: 'opencode', autoApprove } });
-          const permId = props.id || props.permissionID;
-          const sid = props.sessionID || sessionId;
-          if (permId) {
-            fetch(`${baseUrl}/session/${sid}/permissions/${permId}`, {
-              method: 'POST',
-              headers: { 'content-type': 'application/json' },
-              body: JSON.stringify({ response: autoApprove ? 'once' : 'reject' }),
-            }).catch(() => {});
-          }
-        },
-        result: (subtype, reason) => {
-          if (state.finished) return;
-          state.finished = true;
-          result(subtype, reason);
-        },
-        unknown: () => {},
-      };
-    }
 
     const onSseEvent = (raw) => {
       for (const line of raw.split(/\r?\n/)) {
@@ -349,7 +355,7 @@ function createOpenCodeQuery({ turnKey, prompt }) {
 // ── Shared prompt assembly ──
 // ── Shared prompt assembly (exported for the intent-injection contract test) ──
 export function buildOpenCodePrompt({
-  analysisTarget, userQuestion, sceneName, reportLanguage, followUpMessage, ontology, enhancement,
+  analysisTarget, userQuestion, sceneName, reportLanguage, followUpMessage, ontology, enhancement, lineMemory,
   analysisIntent = 'deep-diagnosis', preprocessingMode = null,
 }) {
   const lang = reportLanguage || config.diagnosis.default_language;
@@ -372,7 +378,7 @@ export function buildOpenCodePrompt({
 
 ${skillRef}
 
-${buildDataPrompt(sceneName, userQuestion, promptTarget, lang, followUpMessage)}${buildIntentDirective(analysisIntent, sceneName, { preprocessingMode })}${buildOntologyDirective(ontology)}${buildEnhancementDirective(enhancement)}`;
+${buildDataPrompt(sceneName, userQuestion, promptTarget, lang, followUpMessage)}${buildIntentDirective(analysisIntent, sceneName, { preprocessingMode })}${buildOntologyDirective(ontology)}${buildEnhancementDirective(enhancement)}${buildLineMemoryDirective(lineMemory)}`;
   return { dataPaths, prompt };
 }
 
@@ -385,10 +391,11 @@ export function startDiagnosis({
   reportLanguage, followUpMessage, sessionId = null,
   ontology = null, enhancement = null,
   analysisIntent = 'deep-diagnosis', preprocessingMode = null,
+  lineMemory = null,
 }) {
   void maxTurns; void timeoutMinutes; void sessionId;
   const built = buildOpenCodePrompt({
-    analysisTarget, userQuestion, sceneName, reportLanguage, followUpMessage, ontology, enhancement,
+    analysisTarget, userQuestion, sceneName, reportLanguage, followUpMessage, ontology, enhancement, lineMemory,
     analysisIntent, preprocessingMode,
   });
   const query = createOpenCodeQuery({ turnKey: runId, prompt: built.prompt });

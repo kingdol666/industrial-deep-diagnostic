@@ -21,7 +21,7 @@ import { existsSync, mkdirSync, rmSync, readFileSync, readdirSync, statSync } fr
 import { join, isAbsolute } from 'path';
 import {
   buildRuntimeProtocol, buildPrompt, resolveAnalysisTarget,
-  isDangerousCommand, buildOntologyDirective, buildEnhancementDirective,
+  isDangerousCommand, buildOntologyDirective, buildEnhancementDirective, buildLineMemoryDirective,
   ANALYSIS_INTENTS, resolveAnalysisIntent, buildIntentDirective,
   DATA_DIR, WORKSPACE_DIR,
 } from './claude-client.mjs';
@@ -365,6 +365,7 @@ export function startDiagnosis({
   ontology = null, enhancement = null,
   analysisIntent = 'deep-diagnosis',
   preprocessingMode = null,
+  lineMemory = null,
 }) {
   const lang = reportLanguage || config.diagnosis.default_language;
   const ompSession = parseOmpSessionId(sessionId);
@@ -402,7 +403,7 @@ export function startDiagnosis({
 
 ${skillRef}
 
-${buildPrompt(sceneName, userQuestion, promptTarget, lang, followUpMessage)}${buildIntentDirective(analysisIntent, sceneName, { preprocessingMode })}${buildOntologyDirective(ontology)}${buildEnhancementDirective(enhancement)}`;
+${buildPrompt(sceneName, userQuestion, promptTarget, lang, followUpMessage)}${buildIntentDirective(analysisIntent, sceneName, { preprocessingMode })}${buildOntologyDirective(ontology)}${buildEnhancementDirective(enhancement)}${buildLineMemoryDirective(lineMemory)}`;
   }
 
   query.sendPrompt(prompt).catch(err => {

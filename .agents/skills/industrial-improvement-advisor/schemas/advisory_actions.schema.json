@@ -1,0 +1,252 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "advisory_actions.schema.json",
+  "title": "Improvement advisory actions (improvement-advisory/1.0)",
+  "description": "产线优化改善建议清单。所有数值与分级由 imacore 确定性脚本产出（authored_by=script）；agent 只能追加 actions[].interpretation。quality_gate.mjs 从 02_evidence/ 重算 grade 与 expected_gain 并比对（防篡改密封）。",
+  "type": "object",
+  "required": ["contract_version", "report_id", "generated_at", "mode", "status",
+               "goal", "data", "waterline", "actions", "prescriptions",
+               "excluded_levers", "degradations", "provenance", "limitations"],
+  "additionalProperties": true,
+  "properties": {
+    "contract_version": { "const": "improvement-advisory/1.0" },
+    "report_id": { "type": "string", "pattern": "^IMA-[0-9]{8,}-[0-9a-f]{4,}$" },
+    "generated_at": { "type": "string" },
+    "mode": { "const": "advisory" },
+    "status": { "enum": ["actionable", "advisory_only", "not_actionable"] },
+    "goal": {
+      "type": "object",
+      "required": ["mode", "targets"],
+      "properties": {
+        "mode": { "enum": ["explicit", "inferred"] },
+        "targets": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["metric", "direction"],
+            "properties": {
+              "metric": { "type": "string" },
+              "direction": { "enum": ["min", "max", "target"] },
+              "target_value": { "type": ["number", "null"] },
+              "tolerance": { "type": ["number", "null"] },
+              "weight": { "type": ["number", "null"] }
+            }
+          }
+        },
+        "conflicts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["lever", "target_a", "target_b", "direction_a", "direction_b"],
+            "properties": {
+              "lever": { "type": "string" },
+              "target_a": { "type": "string" },
+              "target_b": { "type": "string" },
+              "direction_a": { "enum": ["increase", "decrease"] },
+              "direction_b": { "enum": ["increase", "decrease"] },
+              "resolution": { "const": "user_decision_required" }
+            }
+          }
+        },
+        "inferred_rationale": { "type": ["string", "null"] }
+      }
+    },
+    "data": {
+      "type": "object",
+      "required": ["path", "sha256", "n_rows", "n_rows_used", "time_col", "levers"],
+      "properties": {
+        "path": { "type": "string" },
+        "sha256": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+        "n_rows": { "type": "integer", "minimum": 0 },
+        "n_rows_used": { "type": "integer", "minimum": 0 },
+        "time_col": { "type": ["string", "null"] },
+        "period": { "type": ["object", "null"] },
+        "levers": { "type": "array", "items": { "type": "string" } },
+        "kpis": { "type": "array", "items": { "type": "string" } },
+        "sampled": { "type": "boolean" }
+      }
+    },
+    "waterline": {
+      "type": "object",
+      "required": ["max_achievable_grade", "factors", "note"],
+      "properties": {
+        "max_achievable_grade": { "enum": ["A", "B", "C", "none"] },
+        "factors": {
+          "type": "object",
+          "properties": {
+            "attribution_available": { "type": "boolean" },
+            "mechanism_edges": { "type": "integer", "minimum": 0 },
+            "dead_time_provided": { "type": "boolean" },
+            "designed_window_available": { "type": "boolean" },
+            "objective_confirmed": { "type": "boolean" }
+          }
+        },
+        "note": { "type": "string" }
+      }
+    },
+    "actions": {
+      "type": "array",
+      "maxItems": 12,
+      "items": {
+        "type": "object",
+        "required": ["action_id", "lever_param", "lever_column", "direction",
+                     "magnitude", "expected_gain", "evidence_refs", "mechanism_chain",
+                     "affected_kpis", "grade", "grade_reasons", "priority_score",
+                     "risk", "preconditions", "side_effects", "verification_plan",
+                     "rollback_condition", "prescription_tags", "advisory"],
+        "additionalProperties": true,
+        "properties": {
+          "action_id": { "type": "string", "pattern": "^ACT-[A-Za-z0-9_-]+-[0-9]{3}$" },
+          "lever_param": { "type": "string" },
+          "lever_column": { "type": "string" },
+          "direction": { "enum": ["increase", "decrease"] },
+          "magnitude": {
+            "type": "object",
+            "required": ["from", "to", "delta", "unit"],
+            "properties": {
+              "from": { "type": "number" },
+              "to": { "type": "number" },
+              "delta": { "type": "number" },
+              "unit": { "type": ["string", "null"] }
+            }
+          },
+          "expected_gain": {
+            "type": "object",
+            "required": ["metric", "point", "ci95", "method", "verified"],
+            "properties": {
+              "metric": { "type": "string" },
+              "current": {
+                "type": ["number", "null"],
+                "description": "KPI 在本次数据窗的中位数（t0 状态；target 方向判定的基准，gate 重算 want 用它而非杠杆值）"
+              },
+              "point": { "type": ["number", "null"], "description": "不可估时 null（effect=null），绝不编造" },
+              "ci95": {
+                "type": ["array", "null"],
+                "items": { "type": "number" },
+                "minItems": 2,
+                "maxItems": 2
+              },
+              "method": { "enum": ["dose_response", "window_contrast", "attribution_delta", "doe_effect", "none"] },
+              "verified": { "type": "boolean", "description": "false = 外推越包络/复用腿缺席（未验证）" },
+              "not_estimable_reason": { "type": ["string", "null"] }
+            }
+          },
+          "evidence_refs": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": ["type", "source_file"],
+              "properties": {
+                "type": { "enum": ["dose_response", "window_contrast", "attribution", "memory", "doe_effect"] },
+                "source_file": { "type": "string" },
+                "finding_id": { "type": ["string", "null"] },
+                "stat": { "type": ["object", "null"] }
+              }
+            }
+          },
+          "mechanism_chain": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["step", "ontology_ref"],
+              "properties": {
+                "step": { "type": "string" },
+                "ontology_ref": { "type": "string" }
+              }
+            }
+          },
+          "mechanism_status": { "enum": ["known", "same_domain", "unknown"] },
+          "affected_kpis": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["metric", "direction", "significant"],
+              "properties": {
+                "metric": { "type": "string" },
+                "direction": { "enum": ["increase", "decrease", "unchanged"] },
+                "significant": { "type": "boolean" }
+              }
+            }
+          },
+          "grade": { "enum": ["A", "B", "C"] },
+          "grade_reasons": { "type": "array", "items": { "type": "string" } },
+          "priority_score": { "type": "number" },
+          "risk": {
+            "type": "object",
+            "required": ["assumptions", "confidence_cap"],
+            "properties": {
+              "assumptions": { "type": "array", "items": { "type": "string" } },
+              "confidence_cap": { "type": "integer", "minimum": 0, "maximum": 100 }
+            }
+          },
+          "preconditions": { "type": "array", "items": { "type": "string" } },
+          "side_effects": { "type": "array", "items": { "type": "string" } },
+          "verification_plan": {
+            "type": "object",
+            "required": ["metric", "window", "threshold"],
+            "properties": {
+              "metric": { "type": "string" },
+              "window": { "type": "string" },
+              "threshold": { "type": "string" }
+            }
+          },
+          "rollback_condition": { "type": "string" },
+          "prescription_tags": { "type": "array", "items": { "type": "string" } },
+          "advisory": { "const": true },
+          "interpretation": { "type": ["object", "null"] },
+          "grade_inputs": { "type": "object", "description": "grade 判定输入快照（gate 重算比对用）" }
+        }
+      }
+    },
+    "prescriptions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["prescription_id", "kind", "detail"],
+        "properties": {
+          "prescription_id": { "type": "string" },
+          "kind": { "enum": ["data", "experiment", "dead_time", "ontology"] },
+          "detail": { "type": "string" },
+          "addresses": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "excluded_levers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["param", "reason"],
+        "properties": {
+          "param": { "type": "string" },
+          "reason": { "enum": ["reverse_causality", "no_variance", "insufficient_data", "user_excluded"] },
+          "detail": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "degradations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["leg", "status", "reason"],
+        "properties": {
+          "leg": { "type": "string" },
+          "status": { "enum": ["used", "skipped", "failed", "not_estimable"] },
+          "reason": { "type": "string" }
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "required": ["authored_by", "engine"],
+      "properties": {
+        "authored_by": { "type": "string" },
+        "engine": { "type": "string" },
+        "ontology": { "type": ["object", "null"] },
+        "reuses": { "type": "array", "items": { "type": "string" } },
+        "data_source": { "const": "raw" }
+      }
+    },
+    "limitations": { "type": "array", "items": { "type": "string" } }
+  }
+}

@@ -13,6 +13,7 @@ import harnessRoutes from './routes/harness.routes.mjs';
 import authRoutes from './routes/auth.routes.mjs';
 import externalRoutes from './routes/external.routes.mjs';
 import resultsRoutes from './routes/results.routes.mjs';
+import lineMemoryRoutes from './routes/line-memory.routes.mjs';
 import { authGuard } from './middleware/auth.middleware.mjs';
 import { initWebSocket, closeWebSocket } from './transport/ws-server.mjs';
 import { initDB, stmts, db } from './db/database.mjs';
@@ -116,6 +117,7 @@ app.use('/api/chat', chatRoutes);
 app.use('/api/omp', ompRoutes);
 app.use('/api/harness', harnessRoutes);
 app.use('/api/ontology', ontologyRoutes);
+app.use('/api/line-memory', lineMemoryRoutes);
 
 // 专项分析（稳定性/快筛/经验/寻优）已全部改为 harness 真实执行：前端经
 // POST /api/diagnosis/start { analysisIntent } 拉起对应 skill 的智能体运行。

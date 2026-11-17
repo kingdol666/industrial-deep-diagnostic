@@ -376,10 +376,12 @@ const INTENTS = [
   { id: 'doe-analysis', icon: '⚗' },
   { id: 'experience-mining', icon: '☰' },
   { id: 'optimizer-campaign', icon: '⇄' },
+  { id: 'improvement-advisory', icon: '✚' },
 ];
 // Intents whose runs consume an ontology directive — mirrors ONTOLOGY_INTENTS
 // in the backend guard (ontology-intent-guard.mjs).
-const ONTOLOGY_INTENTS = ['deep-diagnosis', 'doe-analysis', 'stability-report', 'quick-screen'];
+const ONTOLOGY_INTENTS = ['deep-diagnosis', 'doe-analysis', 'stability-report', 'quick-screen',
+  'improvement-advisory'];
 const analysisIntent = ref('deep-diagnosis');
 const elapsed = ref('0:00');
 const currentPhase = ref('');

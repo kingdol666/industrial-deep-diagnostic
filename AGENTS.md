@@ -114,7 +114,8 @@ execution contract), `docs/benchmark/reproduction-guide.md` (reproduction + drif
 | Step 4: Diagnose | **diagnostician** | `industrial-diagnostician` | default | diagnosis, evidence, confidence, reasoning_chain |
 | Step 5a: Judge | **judge** | `industrial-judge` | default | judge_feedback.json |
 | Step 5b: Pre-Audit | **report-reviewer** | `industrial-physical-auditor` | default | optimizer_preflight.md |
-| Step 6: Report | **reporter** | `industrial-reporter` | default | report.md, run_summary.json |
+| Step 5c: 改善建议 | main-agent (deterministic) | `industrial-improvement-advisor` (`integrated_advisory.py --origin diagnosis`) | — | advisory/{advisory_actions.json,chapter.md,step_status.json} |
+| Step 6: Report | **reporter** | `industrial-reporter` | default | report.md (10 sections incl. 改善建议与验证计划 = chapter.md verbatim), run_summary.json |
 | Step 7: Final Audit | **report-reviewer** | `industrial-physical-auditor` | default | optimizer.md (ENDORSED) |
 | Step 8: HTML Viz | **html-visualizer** | `industrial-html-visualizer` | default | diagnostic-report.html |
 | Step 8.5: HTML Review | **html-reviewer** | `industrial-html-reviewer` | default | html_review.json |
@@ -125,6 +126,8 @@ execution contract), `docs/benchmark/reproduction-guide.md` (reproduction + drif
 **Checkpoints 🛑 CP-1 ~ CP-9**: every checkpoint has an exact bash verification command; if it is not satisfied, the pipeline blocks or rolls back. See the orchestrator SKILL.md.
 
 **Step 5a/5b run in parallel**: the Judge and the report-reviewer pre-audit are the **only two parallel** steps in the pipeline.
+
+**Step 5c — integrated improvement advisory (2026-11-16)**: a conditional, non-blocking deterministic step between CP-6 and the Reporter (`advisory/step_status.json` must exist, any status; `advisory_step_completed|skipped|failed` pipeline events). The Reporter appends `advisory/chapter.md` **verbatim** as the 10th required section; the final auditor checks fidelity; the HTML design system renders `manifest.advisory` with `.adv-*` components (9-item selfcheck + reviewer check `advisory_section_consistency`). Opt-out: `00_input/advisory_opt_out`. The same adapter is embedded default-on in **stability-report** (`stability_analyzer.py` post-hook → `report.advisory` summary + HTML/MD chapter + gate S6) and **DOE** (`analyze.py report` pre-step → report.html §12 + `doe_effect` randomized-design evidence leg that can unlock A-grade). Host runs never fail because advisory did.
 
 ### Four Independent Numbering Schemes
 | Scheme | Scope | Example |
@@ -143,7 +146,7 @@ execution contract), `docs/benchmark/reproduction-guide.md` (reproduction + drif
 - **Mandatory anti-spurious-correlation (v6.4–v6.7)**: lag-compensated CCF · production-state detection + steady-state filtering · batch identifier integrity · outlier leverage leave-one-out
 - **Automatic HTML build (non-interactive)**: after CP-8 `ENDORSED`, Steps 8→8.5→9 run back to back automatically by default, with no user prompt
 
-### Skill System (24 skills)
+### Skill System (25 skills)
 
 | Skill | Trigger conditions | Model |
 |-------|---------|:----:|
@@ -171,8 +174,9 @@ execution contract), `docs/benchmark/reproduction-guide.md` (reproduction + drif
 | `industrial-sentinel` | production sentinel, 产线监控, watch mode, fast screening, 增量快筛, SPC alerting, Nelson rules, drift projection, 漂移投影, alert storm suppression, 告警风暴 (pure-analysis standing watch; closed-loop trio with tuning-memory + optimizer-loop) | default |
 | `industrial-tuning-memory` | tuning experience, 调优经验库, action attribution, playbook retrieval, 经验检索, fault signature, 故障签名, experience feedback (advisory evidence E0-E3; dispatch policy is AWS-side) | default |
 | `industrial-optimizer-loop` | closed-loop optimization, 闭环寻优, parameter tuning campaign, trial design, 布点试验, recipe convergence, 配方收敛 (design/analysis artifacts only — never dispatches parameters) | default |
+| `industrial-improvement-advisor` | 优化建议, 改善建议, 产线改善, 怎么调参数, 优化方案, 提升良率, 降低能耗, improvement advice, actionable tuning guidance, what should we do next (three-gate graded A/B/C advisory: data + mechanism backing, 95%CI gains, verification/rollback clauses; pure advisory — never dispatches) | default |
 
-### Agent Roles (16 agents)
+### Agent Roles (17 agents)
 
 | Agent | Persona | Core output |
 |-------|------|---------|
@@ -192,6 +196,7 @@ execution contract), `docs/benchmark/reproduction-guide.md` (reproduction + drif
 | enhanced-html-reviewer | Enhanced Review | Enhanced HTML review |
 | doe-analyst | Engineer Qin · DOE & Process Data Analysis | Deterministic effect/correlation/stability analysis + downstream recommendations contract |
 | optimizer-pilot | 骆工 · 小试闭环寻优驾驶员 | Campaign rounds interpretation + Chinese optimization report (script-authored numbers only) |
+| improvement-advisor | 顾工 · 产线改善指导顾问 | Graded A/B/C advisory actions + prescriptions + Chinese HTML advisory (three-gate evidence; interpretation only) |
 
 ### Diagnostic Output Directory Structure
 ```
@@ -212,6 +217,8 @@ workspace/diagnostic-runs/<timestamp>_<scene>/
 - **Backend** (`app/backend/`): Express.js + SQLite (WAL mode) + WebSocket, event-bus architecture
 - **Frontend** (`app/frontend/`): Vue 3 + Vite + tabbed layout (Data / Diagnose / Reports / Results / History), SSE live stream + WebSocket
 - **Analysis results library (2026-10-25)**: flat `analysis_results` table (`result_id = run_id`) — deterministic per-intent auto-summary written by the completion chokepoint (`upsertResultFromRun`, never disturbs the run's terminal state), idempotent insert-only startup backfill, read-time `derived:true` fallback. `summary`/`summary_json` are system-managed with per-number `sources`; `description`/`tags` are user-editable. Two-level Agent API `GET /api/external/v1/results` (brief index) → `/results/:id` (detail) → `PATCH`; category management on the results surface (`GET/POST /results/categories`, `PATCH/DELETE /:id`, per-category description view `GET /results/categories/:id/results`) delegates to the history service — one implementation, console + external mounts. title/category/soft-delete stay on `diagnostic_runs` (reads JOIN the run row — single source of truth). UI Results tab (category column + inline create + drawer editors) + History summary card.
+- **Line memory & ontology self-refinement (2026-11-03)**: deterministic cross-run memory per production line — `.claude/shared/scripts/line_memory.mjs` (zero-LLM extract/consolidate/retrieve/validate; store `data/line_memory/<line_key>/{findings.jsonl,consensus.json,state.json,overrides.json}` + `lines.json` alias registry). Completion chokepoint (`ingestCompletedRun` beside `upsertResultFromRun`) extracts findings from completed runs' schema-validated artifacts (stability findings+drift, sentinel alerts, deep-diagnosis conclusions/hypotheses, DOE effects, tuning-memory attributions, campaign state), appends idempotently (finding_id) and re-mines consensus: **≥3 independent observations (different runs with non-overlapping data windows / ≥7-day separation) + no directional conflict → consensus**; 2 → candidate; 1 → singleton (lead only); opposite directions → competing (both kept); stronger repeated counter-evidence refutes a weak single side; 90-day staleness decay; same-incident windows (>50% overlap) count once; `line_state` snapshots never enter consensus (latest_state only). Every run whose scene aliases a known line gets an advisory **L5** prompt block (budget ~600 tokens, consensus-first: top8 consensus + top4 candidates + leads + warnings) injected at engine spawn for every analysis intent (claude/omp/codex/opencode/acp/oneshot prompt builders) and snapshotted to `00_input/context/line_memory.json` at completion. Ontology revisions: agents write `05_review/ontology_proposals.json` (contract `ontology-proposal/1.0`, schema `.claude/shared/schemas/ontology_proposal.schema.json`, ≤10/run, target must exist in the run data) → deterministic validator → **tiered apply: additive auto / correction needs ≥2 independent corroborating runs / removal awaits human approval** via `ontology_store.addVersion` (parent_version chain + provenance + ontology `memory_revisions` audit + `ontology_revised` pipeline event). Console API `/api/line-memory/*` (lines, detail, findings, ontology versions, merge, refute/unrefute, consolidate, proposals, approve/reject) + UI **Memory** tab (consensus badges, provenance drawer with run links, proposal approval, ontology version chain, line merge). Backfill: `node scripts/backfill-line-memory.mjs` (completed real runs only; mock harness skipped). Tests: `app/backend/test/line-memory.test.mjs`.
+- **Improvement advisory (2026-11-16)**: `industrial-improvement-advisor` (intent `improvement-advisory`, agent `improvement-advisor` · 顾工) turns "data + goal" into a graded advisory action list — `.claude/skills/industrial-improvement-advisor/scripts/imacore/` (zero-LLM orchestration: objective/inference, levers, evidence, chains, actions, rank, charts; **no new statistics** — reuse `core_stats.full_lag_ccf`, `doestats.bh_adjust/welch_delta_ci/ols_fit`, `tune_stats.attribute` called in-process, lstcore table IO). **Three gates script-judged**: data gate (lever variance · dead-time-bounded lag CCF — `dead_time` missing → `not_assessable`, never assume 0, cap B · BH-FDR family = all lever×lag tests inside one KPI · stratified/LOO robustness · regime-stable direction) · physics gate (ontology mechanism edge with direction; unknown caps C) · attribution gate (estimable CI∌0 or **designed** DOE window unlocks A; observational windows never do). Grades A/B/C + prescription zone (8 triggers; `not_actionable` exit 2 is honest); expected gains always 95% CI, `effect=null` when not estimable; vague goals inferred deterministically (deviation × transmission × data sufficiency), echoed to `objective_resolved.json` and capped at B until confirmed; B top-1 serialized to `optimizer_seed.json` (optimizer-loop O-G1 seed). `quality_gate.mjs` S1-S5 **re-derives every grade and expected gain from `02_evidence/` and fails on mismatch** (tamper-sealed), enforces A≤3 sentinel, excluded-lever disjointness, advisory boundary. Wiring: `ANALYSIS_INTENTS['improvement-advisory']` (claude-client.mjs) — capabilities/external API derive from it automatically; `REQUIRED_ARTIFACTS` + ontology-intent lists (backend guard + frontend) + intent card/closed-loop subtab + zh/en i18n; `line_memory.EXTRACTORS['improvement-advisory']` deposits `improvement_action` / `goal_conflict` findings; results-library `summarizeAdvisory` + intent-outcome verdict. Pure advisory: never dispatches parameters, never writes optimizer_state. Tests: `tests/run_tests.py all` (47 checks incl. tamper battery) + backend suites updated to 7 intents.
 
 ### RAG Retrieval Engine (`rag-retrieval-engine/`)
 - FastAPI + ChromaDB vector retrieval + web search
