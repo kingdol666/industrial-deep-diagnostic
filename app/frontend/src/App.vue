@@ -202,7 +202,7 @@
         </div>
 
         <div v-else-if="currentTab === 'settings'" class="app-view-frame">
-          <SettingsView />
+          <SettingsView :user="authUser" />
         </div>
       </main>
     </section>

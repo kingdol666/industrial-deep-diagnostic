@@ -198,7 +198,7 @@
         <div v-if="htmlFiles.length" class="results-html-links">
           <span class="detail-label">{{ $t('results.htmlFiles') }}</span>
           <div v-for="h in htmlFiles" :key="h.path" class="results-html-link">
-            <a :href="h.url + assetToken" target="_blank" rel="noopener">{{ h.path }}</a>
+            <a :href="h.url" target="_blank" rel="noopener">{{ h.path }}</a>
             <span class="muted">（{{ h.bytes ?? '--' }} B）</span>
           </div>
         </div>
@@ -216,7 +216,7 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { api, getToken } from '../../api/index.js';
+import { api } from '../../api/index.js';
 import ResultSummaryCard from './ResultSummaryCard.vue';
 
 const { t } = useI18n();
@@ -245,10 +245,6 @@ const maxPage = computed(() => Math.max(1, Math.ceil(total.value / pageSize)));
 const selected = computed(() => results.value.find((r) => r.result_id === selectedId.value) || null);
 const htmlFiles = computed(() => detailMeta.value?.files?.html || []);
 const sourceEntries = computed(() => Object.entries(detailMeta.value?.summary_json?.sources || {}).slice(0, 10));
-const assetToken = computed(() => {
-  const token = getToken();
-  return token ? `?token=${encodeURIComponent(token)}` : '';
-});
 
 function intentLabel(intent) {
   const key = `results.intentNames.${intent}`;

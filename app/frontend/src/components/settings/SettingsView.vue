@@ -129,12 +129,18 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { api, getStoredUser } from '../../api/index.js';
+import { api } from '../../api/index.js';
 import { formatTime } from '../../utils/time.js';
 
 const { t } = useI18n();
 
-const account = ref(getStoredUser());
+// Identity comes from the app shell (cookie session — /api/auth/me is the
+// authority, App.vue owns the user object); there is no JS-readable stored user.
+const props = defineProps({
+  user: { type: Object, default: null },
+});
+
+const account = computed(() => props.user);
 const authType = ref('');
 const tokens = ref([]);
 const newName = ref('');
