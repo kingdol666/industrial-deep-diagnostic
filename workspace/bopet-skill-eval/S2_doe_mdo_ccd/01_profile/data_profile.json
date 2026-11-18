@@ -1,0 +1,124 @@
+{
+  "generated_at": "2026-10-14T03:35:02.294614+00:00",
+  "data_path": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\bopet-skill-eval\\S2_doe_mdo_ccd\\00_input\\mdo_ccd_trials.csv",
+  "n_rows": 20,
+  "n_cols": 7,
+  "columns": [
+    {
+      "name": "试验顺序",
+      "dtype": "int64",
+      "role": "ignore",
+      "role_assigned_by": "user",
+      "n_unique": 20,
+      "n_missing": 0,
+      "n_valid": 20,
+      "notes": ""
+    },
+    {
+      "name": "预热辊温",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 5,
+      "n_missing": 0,
+      "n_valid": 20,
+      "notes": ""
+    },
+    {
+      "name": "拉伸速度",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 5,
+      "n_missing": 0,
+      "n_valid": 20,
+      "notes": ""
+    },
+    {
+      "name": "拉伸比",
+      "dtype": "float64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 5,
+      "n_missing": 0,
+      "n_valid": 20,
+      "notes": ""
+    },
+    {
+      "name": "拉伸强度",
+      "dtype": "float64",
+      "role": "response",
+      "role_assigned_by": "user",
+      "n_unique": 20,
+      "n_missing": 0,
+      "n_valid": 20,
+      "notes": ""
+    },
+    {
+      "name": "雾度",
+      "dtype": "float64",
+      "role": "response",
+      "role_assigned_by": "user",
+      "n_unique": 19,
+      "n_missing": 0,
+      "n_valid": 20,
+      "notes": ""
+    },
+    {
+      "name": "厚度偏差",
+      "dtype": "float64",
+      "role": "response",
+      "role_assigned_by": "user",
+      "n_unique": 20,
+      "n_missing": 0,
+      "n_valid": 20,
+      "notes": ""
+    }
+  ],
+  "roles": {
+    "responses": [
+      "拉伸强度",
+      "雾度",
+      "厚度偏差"
+    ],
+    "factors": [
+      "预热辊温",
+      "拉伸速度",
+      "拉伸比"
+    ],
+    "blocks": [],
+    "covariates": [],
+    "index": [],
+    "ignore": [
+      "试验顺序"
+    ]
+  },
+  "design": {
+    "n_runs": 20,
+    "n_factor_cols": 3,
+    "n_distinct_combos": 15,
+    "balanced": false,
+    "balance_ratio": 0.1667,
+    "max_abs_factor_corr": null,
+    "resolution": null,
+    "generators": [],
+    "defining_relation": [],
+    "alias_chains": {},
+    "center_points": 6,
+    "axial_points": 6,
+    "alpha_axial": 1.0,
+    "replicates": null,
+    "detection_notes": [
+      "6 center points + 6 axial points (alpha=1.0)"
+    ],
+    "design_type": "rsm_ccd",
+    "mode": "designed"
+  },
+  "quality": {
+    "duplicate_rows": 0,
+    "constant_cols": [],
+    "high_missing_cols": [],
+    "rows_dropped_missing_targets": 0
+  },
+  "caveats": []
+}

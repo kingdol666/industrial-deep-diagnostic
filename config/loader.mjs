@@ -8,13 +8,33 @@ const __dirname = dirname(__filename);
 
 const PROJECT_ROOT = resolve(__dirname, '..');
 
+// Strict mode: every config problem is fatal instead of a warning (opt-in, so
+// existing deployments and the Vite build are unaffected by default).
+const STRICT = process.env.CONFIG_STRICT === '1';
+
+// ${VAR} references that had no environment value. The old behaviour silently
+// substituted '' (a typo in default.yaml/local.yaml or a forgotten export just
+// produced an empty setting). Now each missing name is reported once per
+// process, and CONFIG_STRICT=1 turns it into a hard failure naming the variable.
+const missingEnvVars = new Set();
+
+function interpolateEnvVars(raw) {
+  return raw.replace(/\$\{(\w+)\}/g, (_, name) => {
+    const value = process.env[name];
+    if (value === undefined || value === '') {
+      missingEnvVars.add(name);
+      return '';
+    }
+    return value;
+  });
+}
+
 // Load YAML file, return {} if missing or unparseable
 function loadYAML(filePath) {
   if (!existsSync(filePath)) return {};
   try {
     const raw = readFileSync(filePath, 'utf-8');
-    const interpolated = raw.replace(/\$\{(\w+)\}/g, (_, name) => process.env[name] || '');
-    return load(interpolated) || {};
+    return load(interpolateEnvVars(raw)) || {};
   } catch (err) {
     console.warn(`[config] Failed to parse ${filePath}: ${err.message}`);
     return {};
@@ -111,7 +131,9 @@ function applyEnvOverrides(config) {
     ['DATA_MAX_FILE_SIZE_MB', 'data.upload.max_file_size_mb', Number],
     ['ENGINE_MAX_EVENT_BUFFER', 'engine.max_event_buffer', Number],
     ['ENGINE_CLOSE_RUN_DELAY', 'engine.close_run_delay_seconds', Number],
-    ['SECURITY_HITL_TIMEOUT', 'security.hitl_auto_deny_seconds', Number],
+    // Health probes (GET /api/health/ready) — see config/default.yaml `health:`.
+    ['READINESS_MIN_FREE_MB', 'health.min_free_mb', Number],
+    ['READINESS_ENGINE_PROBE_TIMEOUT_MS', 'health.engine_probe_timeout_ms', Number],
   ];
 
   for (const [envKey, configPath, Coerce] of envMap) {
@@ -130,11 +152,121 @@ function applyEnvOverrides(config) {
   return config;
 }
 
+// ─── Light schema validation (type/range only, no new dependency) ────────────
+// Guards the MERGED config (default.yaml → local.yaml → env overrides) against
+// the classic deployment accidents: a string port, a typo'd language, a
+// negative timeout. Only known keys are checked — unknown/new keys are never
+// flagged (forward compatible). All violations are reported together.
+//
+// Behaviour: warnings by default (existing deployments keep booting);
+// CONFIG_STRICT=1 makes every violation (and every missing ${VAR}) fatal.
+const LANGUAGE_VALUES = ['zh', 'en']; // diagnosis.default_language — read as `=== 'zh'` elsewhere
+const SIZE_PATTERN = /^\d+(\.\d+)?\s*(b|kb|mb|gb)?$/i; // express body-parser size, e.g. "10mb"
+
+function describe(value) {
+  if (Array.isArray(value)) return 'an array';
+  if (value === null) return 'null';
+  if (typeof value === 'number' && Number.isNaN(value)) return 'NaN (check the environment override)';
+  return `${typeof value} ${JSON.stringify(value)}`;
+}
+
+function validateConfig(cfg) {
+  const problems = [];
+
+  const checkNumber = (dotPath, { integer = false, min, max } = {}) => {
+    const value = getKey(cfg, dotPath);
+    if (value === undefined || value === null) return; // absent → the default applies, not an error
+    if (typeof value !== 'number' || Number.isNaN(value)) {
+      problems.push(`${dotPath}: expected a number, got ${describe(value)}`);
+      return;
+    }
+    if (integer && !Number.isInteger(value)) {
+      problems.push(`${dotPath}: expected an integer, got ${value}`);
+      return;
+    }
+    if (min !== undefined && value < min) problems.push(`${dotPath}: expected >= ${min}, got ${value}`);
+    if (max !== undefined && value > max) problems.push(`${dotPath}: expected <= ${max}, got ${value}`);
+  };
+
+  const checkString = (dotPath, pattern) => {
+    const value = getKey(cfg, dotPath);
+    if (value === undefined || value === null) return;
+    if (typeof value !== 'string') {
+      problems.push(`${dotPath}: expected a string, got ${describe(value)}`);
+      return;
+    }
+    if (pattern && !pattern.test(value)) {
+      problems.push(`${dotPath}: "${value}" does not match ${pattern} (expected e.g. "10mb")`);
+    }
+  };
+
+  const checkEnum = (dotPath, allowed) => {
+    const value = getKey(cfg, dotPath);
+    if (value === undefined || value === null) return;
+    if (!allowed.includes(value)) {
+      problems.push(`${dotPath}: expected one of [${allowed.join(', ')}], got ${describe(value)}`);
+    }
+  };
+
+  // HTTP server
+  checkNumber('server.port', { integer: true, min: 1, max: 65535 });
+  checkString('server.body_limit', SIZE_PATTERN);
+  // Diagnosis defaults
+  checkEnum('diagnosis.default_language', LANGUAGE_VALUES);
+  // Engine budgets (0 is explicitly "unlimited" only where documented; the
+  // Claude turn timeout must be a positive number of minutes)
+  checkNumber('claude.timeout_minutes', { min: 1 });
+  // Readiness probes (GET /api/health/ready)
+  checkNumber('health.min_free_mb', { min: 0 });
+  checkNumber('health.engine_probe_timeout_ms', { min: 1 });
+  // Security: known numeric knobs + any *percent*-named value must be a sane
+  // 0-100 percentage (keys owned by the security wave are only checked by name,
+  // never rewritten).
+  checkNumber('security.login_rate_limit.window_ms', { integer: true, min: 1 });
+  checkNumber('security.login_rate_limit.max', { integer: true, min: 1 });
+  for (const [key, value] of Object.entries(cfg.security || {})) {
+    if (typeof value === 'number' && /(percent|pct)/i.test(key) && (value < 0 || value > 100)) {
+      problems.push(`security.${key}: expected a percentage between 0 and 100, got ${value}`);
+    }
+  }
+
+  return problems;
+}
+
+/** Report missing ${VAR} names + validation violations (see STRICT above). */
+function reportConfigProblems(cfg) {
+  const fatal = [];
+
+  const missing = [...missingEnvVars].sort();
+  if (missing.length > 0) {
+    // Printed once per variable per process (Set-backed, one line in total).
+    console.warn(`[config] WARNING: missing environment variable(s) — ${missing.join(', ')} — each \${VAR} reference to them was substituted with ''`);
+    fatal.push(`missing environment variable(s): ${missing.join(', ')}`);
+  }
+
+  const violations = validateConfig(cfg);
+  if (violations.length > 0) {
+    if (STRICT) {
+      fatal.push(...violations);
+    } else {
+      console.warn(`[config] WARNING: ${violations.length} configuration value(s) failed validation (warn-only — set CONFIG_STRICT=1 to make these fatal):`);
+      for (const problem of violations) console.warn(`  - ${problem}`);
+    }
+  }
+
+  if (STRICT && fatal.length > 0) {
+    console.error('[config] FATAL: CONFIG_STRICT=1 — refusing to start with an invalid configuration:');
+    for (const problem of fatal) console.error(`  - ${problem}`);
+    process.exit(1);
+  }
+}
+
 // ─── Load and export config ─────────────────────────────────────
 const defaults = loadYAML(join(__dirname, 'default.yaml'));
 const local = loadYAML(join(__dirname, 'local.yaml'));
 const merged = deepMerge(defaults, local);
 applyEnvOverrides(merged);
+reportConfigProblems(merged);
 
 // Re-export PROJECT_ROOT for convenience
 export { PROJECT_ROOT };

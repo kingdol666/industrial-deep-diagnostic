@@ -16,7 +16,9 @@ import { BaseHarness } from './base.mjs';
 import { probeCliBinary } from '../engine/cli-common.mjs';
 import { config } from '../../../../config/loader.mjs';
 
-// ── The 14-engine table ─────────────────────────────────────────────
+// ── HARNESS_DEFS — the 12-engine definition table ───────────────────
+// claude/omp are NOT in this table: they are registered directly in
+// registry.mjs (richer, project-native implementations) — 12 + 2 = 14 engines total.
 // processModel: 'inprocess' | 'resident' (常驻会话型) | 'oneshot' (一次性回合型)
 export const HARNESS_DEFS = [
   {

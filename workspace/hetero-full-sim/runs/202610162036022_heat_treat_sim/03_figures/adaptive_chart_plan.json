@@ -1,0 +1,108 @@
+{
+ "source_data": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\hetero-full-sim\\runs\\202610162036022_heat_treat_sim\\02_processed\\cleaned_data.csv",
+ "time_alignment": {
+  "time_col": "时间",
+  "method": "single-source-parse",
+  "merged_sources": [],
+  "n_rows_total": 1440,
+  "n_rows_dropped_unparsable": 0,
+  "monotonic_after_sort": true,
+  "median_interval_s": 600.0,
+  "span_s": 863400.0
+ },
+ "decisions": [
+  {
+   "target": "FUR-Z2-TEMP",
+   "shape": "2d_field",
+   "chart_type": "contour_cloud",
+   "axes": {
+    "x": "FUR-Z1-TEMP",
+    "y": "HX-MAP-L1FURNACETHERMALMAP2-POSMAX-Y"
+   },
+   "render_method": "pivot-grid contourf",
+   "reason": "grid-inferred (311 x 4 grid, 64% coverage)"
+  },
+  {
+   "target": "FUR-Z3-TEMP",
+   "shape": "2d_field",
+   "chart_type": "contour_cloud",
+   "axes": {
+    "x": "FUR-Z1-TEMP",
+    "y": "HX-MAP-L1FURNACETHERMALMAP2-POSMAX-Y"
+   },
+   "render_method": "pivot-grid contourf",
+   "reason": "grid-inferred (311 x 4 grid, 64% coverage)"
+  },
+  {
+   "target": "FUR-SPEED",
+   "shape": "2d_field",
+   "chart_type": "contour_cloud",
+   "axes": {
+    "x": "FUR-Z1-TEMP",
+    "y": "HX-MAP-L1FURNACETHERMALMAP2-POSMAX-Y"
+   },
+   "render_method": "pivot-grid contourf",
+   "reason": "grid-inferred (311 x 4 grid, 64% coverage)"
+  },
+  {
+   "target": "FUR-PRES",
+   "shape": "2d_field",
+   "chart_type": "contour_cloud",
+   "axes": {
+    "x": "FUR-Z1-TEMP",
+    "y": "HX-MAP-L1FURNACETHERMALMAP2-POSMAX-Y"
+   },
+   "render_method": "pivot-grid contourf",
+   "reason": "grid-inferred (311 x 4 grid, 64% coverage)"
+  },
+  {
+   "target": "FUR-OUT-TEMP",
+   "shape": "2d_field",
+   "chart_type": "contour_cloud",
+   "axes": {
+    "x": "FUR-Z1-TEMP",
+    "y": "HX-MAP-L1FURNACETHERMALMAP2-POSMAX-Y"
+   },
+   "render_method": "pivot-grid contourf",
+   "reason": "grid-inferred (311 x 4 grid, 64% coverage)"
+  },
+  {
+   "target": "FUR-YIELD",
+   "shape": "2d_field",
+   "chart_type": "contour_cloud",
+   "axes": {
+    "x": "FUR-Z1-TEMP",
+    "y": "HX-MAP-L1FURNACETHERMALMAP2-POSMAX-Y"
+   },
+   "render_method": "pivot-grid contourf",
+   "reason": "grid-inferred (311 x 4 grid, 64% coverage)"
+  }
+ ],
+ "files": [
+  "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\hetero-full-sim\\runs\\202610162036022_heat_treat_sim\\03_figures\\fig_adaptive_contour_FUR-Z2-TEMP.png",
+  "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\hetero-full-sim\\runs\\202610162036022_heat_treat_sim\\03_figures\\fig_adaptive_contour_FUR-Z3-TEMP.png",
+  "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\hetero-full-sim\\runs\\202610162036022_heat_treat_sim\\03_figures\\fig_adaptive_contour_FUR-SPEED.png",
+  "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\hetero-full-sim\\runs\\202610162036022_heat_treat_sim\\03_figures\\fig_adaptive_contour_FUR-PRES.png",
+  "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\hetero-full-sim\\runs\\202610162036022_heat_treat_sim\\03_figures\\fig_adaptive_contour_FUR-OUT-TEMP.png",
+  "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\hetero-full-sim\\runs\\202610162036022_heat_treat_sim\\03_figures\\fig_adaptive_contour_FUR-YIELD.png",
+  "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\hetero-full-sim\\runs\\202610162036022_heat_treat_sim\\03_figures\\fig_hetero_profile_heatmap.png"
+ ],
+ "chart_policy": "2d_field->contour_cloud; multi_parameter_time_series->z_overlay; single_time_series->line; all temporal charts on the aligned axis",
+ "hetero_profile_heatmaps": [
+  {
+   "source": "PROF-L1BANDTEMPPROFILE30M",
+   "features_csv": "07_hetero/features/PROF-L1BANDTEMPPROFILE30M.csv",
+   "shape": "hetero_profile_matrix",
+   "chart_type": "profile_heatmap",
+   "axes": {
+    "x": "time since first snapshot (h)",
+    "y": "position index"
+   },
+   "n_snapshots": 480,
+   "n_positions": 12,
+   "unit": null,
+   "render_method": "pcolormesh",
+   "reason": "07_hetero PROF feature table: time-x-position matrix visualization"
+  }
+ ]
+}

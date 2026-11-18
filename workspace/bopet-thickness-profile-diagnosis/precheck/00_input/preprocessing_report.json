@@ -1,0 +1,182 @@
+{
+  "run_name": "bopet_profile_precheck",
+  "input_path": "data\\L3_GP12_20260920-20261010_profile",
+  "input_is_directory": true,
+  "sources": [
+    {
+      "file": "参数代号对照说明.md",
+      "role": "no_tabular",
+      "reason": "no tabular content detected"
+    },
+    {
+      "file": "工艺背景与设备说明.md",
+      "role": "no_tabular",
+      "reason": "no tabular content detected"
+    },
+    {
+      "file": "异常现象与已做排查.md",
+      "role": "no_tabular",
+      "reason": "no tabular content detected"
+    },
+    {
+      "file": "膜厚剖面数据说明.md",
+      "role": "no_tabular",
+      "reason": "no tabular content detected"
+    }
+  ],
+  "tables": [
+    {
+      "file": "L3_GA_TH_PROFILE_10min.csv",
+      "sheet": null,
+      "format": "delimited",
+      "n_rows": 3024,
+      "n_cols": 65,
+      "time_column": "时间",
+      "score": 6.1,
+      "quality_flags": {
+        "exact_duplicate_rows": {
+          "count": 0,
+          "row_indices_0based": [],
+          "row_indices_truncated": false,
+          "note": "count = redundant occurrences beyond the first (dedup is NOT applied); row_indices_0based lists the rows involved in exact duplication, 0-based within the parsed table (header excluded), capped at 10"
+        },
+        "null_cell_count": 0,
+        "encoding": "utf-8-sig",
+        "delimiter": ","
+      }
+    },
+    {
+      "file": "L3_lab_quality_2h.csv",
+      "sheet": null,
+      "format": "delimited",
+      "n_rows": 252,
+      "n_cols": 9,
+      "time_column": "时间",
+      "score": 7.052,
+      "quality_flags": {
+        "exact_duplicate_rows": {
+          "count": 0,
+          "row_indices_0based": [],
+          "row_indices_truncated": false,
+          "note": "count = redundant occurrences beyond the first (dedup is NOT applied); row_indices_0based lists the rows involved in exact duplication, 0-based within the parsed table (header excluded), capped at 10"
+        },
+        "null_cell_count": 0,
+        "encoding": "utf-8-sig",
+        "delimiter": ","
+      }
+    },
+    {
+      "file": "L3_line_main_10min.csv",
+      "sheet": null,
+      "format": "delimited",
+      "n_rows": 3024,
+      "n_cols": 54,
+      "time_column": "时间",
+      "score": 32.5,
+      "quality_flags": {
+        "exact_duplicate_rows": {
+          "count": 0,
+          "row_indices_0based": [],
+          "row_indices_truncated": false,
+          "note": "count = redundant occurrences beyond the first (dedup is NOT applied); row_indices_0based lists the rows involved in exact duplication, 0-based within the parsed table (header excluded), capped at 10"
+        },
+        "null_cell_count": 0,
+        "encoding": "utf-8-sig",
+        "delimiter": ","
+      }
+    }
+  ],
+  "selected_table": {
+    "file": "L3_line_main_10min.csv",
+    "sheet": null,
+    "format": "delimited",
+    "n_rows": 3024,
+    "n_cols": 54,
+    "time_column": "时间",
+    "score": 32.5,
+    "why": "merge abandoned (anti-bloat); largest single table"
+  },
+  "merge": {
+    "strategy": "abandoned",
+    "reason": "merged rows 6048 > 1.5x largest source (3024); time keys did not align — keeping largest single table",
+    "merged_files": [
+      "L3_GA_TH_PROFILE_10min.csv",
+      "L3_lab_quality_2h.csv",
+      "L3_line_main_10min.csv"
+    ]
+  },
+  "merge_exclusions": [],
+  "quality": {
+    "missing_cell_pct": 0.0,
+    "rows": 3024,
+    "cols": 54,
+    "time_column": "时间",
+    "numeric_columns": [
+      "L3-DRY-DP-TE01",
+      "L3-DRY-RG-TE01",
+      "L3-EX-MGT-TE01",
+      "L3-EX-PT01",
+      "L3-EX-CUR01",
+      "L3-EX-SPD01",
+      "L3-FL-DP01",
+      "L3-DIE-TE01",
+      "L3-DIE-HOUT01",
+      "L3-CR-TE01",
+      "L3-CR-CW-IN-TE01",
+      "L3-CR-CW-OUT-TE01",
+      "L3-CR-CW-FQ01",
+      "L3-CR-SPD01",
+      "L3-CR-ES-V01",
+      "L3-MDO-PH1-TE01",
+      "L3-MDO-PH2-TE01",
+      "L3-MDO-PH3-TE01",
+      "L3-MDO-ST1-TE01",
+      "L3-MDO-ST2-TE01",
+      "L3-MDO-AN-TE01",
+      "L3-MDO-V01",
+      "L3-MDO-V02",
+      "L3-MDO-TQ01",
+      "L3-TDO-N-PH-TE01",
+      "L3-TDO-S-PH-TE01",
+      "L3-TDO-N-ST-Z4-TE01",
+      "L3-TDO-S-ST-Z4-TE01",
+      "L3-TDO-N-AN-Z6-TE01",
+      "L3-TDO-S-AN-Z6-TE01",
+      "L3-TDO-N-ST-Z4-SP01",
+      "L3-TDO-N-Z4-HOUT01",
+      "L3-TDO-S-Z4-HOUT01",
+      "L3-TDO-N-FAN-HZ01",
+      "L3-TDO-S-FAN-HZ01",
+      "L3-TDO-RAIL-W01",
+      "L3-TDO-CHAIN-I01",
+      "L3-PU-TN01",
+      "L3-PU-V01",
+      "L3-WD-TN01",
+      "L3-WD-V01",
+      "L3-GA-TH-AVG01",
+      "L3-GA-TH-CV01",
+      "L3-GA-EDGE-N01",
+      "L3-GA-EDGE-S01",
+      "L3-QM-YIELD01",
+      "L3-ENV-TE01",
+      "L3-ENV-RH01",
+      "L3-CW-SUP-TE01",
+      "L3-MES-RECYCLE01",
+      "L3-LINE-MODE01"
+    ],
+    "note": "missing cells stay NaN; downstream cleaning handles them"
+  },
+  "context_files": [
+    "workspace\\bopet-thickness-profile-diagnosis\\precheck\\00_input\\context\\参数代号对照说明.md",
+    "workspace\\bopet-thickness-profile-diagnosis\\precheck\\00_input\\context\\工艺背景与设备说明.md",
+    "workspace\\bopet-thickness-profile-diagnosis\\precheck\\00_input\\context\\异常现象与已做排查.md",
+    "workspace\\bopet-thickness-profile-diagnosis\\precheck\\00_input\\context\\膜厚剖面数据说明.md"
+  ],
+  "skipped_files": [],
+  "status": "ok",
+  "outputs": {
+    "preprocessed_data.csv": "workspace\\bopet-thickness-profile-diagnosis\\precheck\\00_input\\preprocessed_data.csv",
+    "preprocessed_data.json": "workspace\\bopet-thickness-profile-diagnosis\\precheck\\00_input\\preprocessed_data.json",
+    "context_dir": "workspace\\bopet-thickness-profile-diagnosis\\precheck\\00_input\\context"
+  }
+}

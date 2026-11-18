@@ -1,0 +1,1039 @@
+{
+  "contract_version": "sentinel-alert/1.0",
+  "alert_id": "ALT-20261014-033546-000",
+  "mode": "watch",
+  "status": "alert",
+  "group_scope": null,
+  "generated_at": "2026-10-14T03:35:46.382452+00:00",
+  "source": {
+    "data_path": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\bopet-skill-eval\\S3_sentinel_tdo_watch\\00_input\\tdo_watch_5d.csv",
+    "sha256": "ab9b25b9c3b05f2a22364bd57651587b829e49a68ac6df082fae7bb9c8ff79a9",
+    "window_start": "2026-10-11T00:00:00",
+    "window_end": "2026-10-15T23:00:00",
+    "n_rows": 120,
+    "time_col": "时间",
+    "group_col": null
+  },
+  "baseline": {
+    "path": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\bopet-skill-eval\\S3_sentinel_tdo_watch\\baselines\\watch_baseline.json",
+    "baseline_version": "v1.0.0",
+    "mode": "prior",
+    "generated_from": null
+  },
+  "checks_summary": {
+    "spc": {
+      "n_triggered": 23,
+      "rules_hit": {
+        "NELSON_R1": 6,
+        "NELSON_R5": 8,
+        "NELSON_R6": 6,
+        "NELSON_R2": 2,
+        "NELSON_R3": 1
+      }
+    },
+    "window_projection": {
+      "n_triggered": 0
+    },
+    "regime": {
+      "labels": {
+        "__ALL__": {
+          "steady": 120
+        }
+      },
+      "n_change_points_new": 0
+    },
+    "multivariate": {
+      "n_outliers": 6,
+      "max_d2": null
+    },
+    "rows_skipped": 0,
+    "checks_skipped": [
+      {
+        "check": "window_projection",
+        "reason": "C2 drift projection disabled: no operating_windows in baseline (build with --doe-run-dir to enable)"
+      }
+    ],
+    "event_count": 8,
+    "events_by_parameter": {
+      "spc|TDO定型区温度CX6": {
+        "count": 1,
+        "alerts": 7
+      },
+      "spc|铸片辊温度": {
+        "count": 1,
+        "alerts": 4
+      },
+      "spc|TDO拉伸区温度CX4": {
+        "count": 1,
+        "alerts": 3
+      },
+      "spc|牵引入口张力": {
+        "count": 1,
+        "alerts": 3
+      },
+      "spc|熔体压力": {
+        "count": 1,
+        "alerts": 3
+      },
+      "spc|纵拉预热辊温": {
+        "count": 1,
+        "alerts": 3
+      },
+      "regime|TDO定型区温度CX6": {
+        "count": 1,
+        "alerts": 1
+      },
+      "multivariate|TDO定型区温度CX6": {
+        "count": 1,
+        "alerts": 1
+      }
+    }
+  },
+  "alerts": [
+    {
+      "alert_id": "ALT-20261014-033546-001",
+      "check_type": "multivariate",
+      "rule_name": "ROBUST_Z_OUTLIER",
+      "parameter": "TDO定型区温度CX6",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 196.15,
+        "statistic": 4.206294416666725,
+        "index": 64,
+        "run_length": 2
+      },
+      "threshold": {
+        "bound": 3.5
+      },
+      "evidence": {
+        "n_points": 2
+      },
+      "suggested_check": "TDO定型区温度CX6 稳健 z 分数 |4.21| 超过 3.5，疑似离群点，请核对该行原始记录",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|multivariate|ROBUST_Z_OUTLIER|TDO定型区温度CX6",
+      "repeat_count": 6
+    },
+    {
+      "alert_id": "ALT-20261014-033546-002",
+      "check_type": "spc",
+      "rule_name": "NELSON_R1",
+      "parameter": "TDO定型区温度CX6",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 193.99,
+        "statistic": 4.522789876183944,
+        "index": 22,
+        "timestamp": "row 22",
+        "run_length": 1
+      },
+      "threshold": {
+        "bound": 2.090358,
+        "sigma_level": 3.0
+      },
+      "evidence": {
+        "n_points": 1
+      },
+      "suggested_check": "TDO定型区温度CX6 出现超过 3σ 的单点突变，请核对传感器量程与该时刻的工况记录",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R1|TDO定型区温度CX6",
+      "repeat_count": 4
+    },
+    {
+      "alert_id": "ALT-20261014-033546-003",
+      "check_type": "spc",
+      "rule_name": "NELSON_R1",
+      "parameter": "TDO定型区温度CX6",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 197.8,
+        "statistic": 9.99075278014585,
+        "index": 119,
+        "timestamp": "row 119",
+        "run_length": 74
+      },
+      "threshold": {
+        "bound": 2.090358,
+        "sigma_level": 3.0
+      },
+      "evidence": {
+        "n_points": 74
+      },
+      "suggested_check": "TDO定型区温度CX6 出现超过 3σ 的单点突变，请核对传感器量程与该时刻的工况记录",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R1|TDO定型区温度CX6",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261014-033546-004",
+      "check_type": "spc",
+      "rule_name": "NELSON_R1",
+      "parameter": "TDO拉伸区温度CX4",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 237.93,
+        "statistic": -3.0425520600858413,
+        "index": 11,
+        "timestamp": "row 11",
+        "run_length": 1
+      },
+      "threshold": {
+        "bound": 2.0742455265734883,
+        "sigma_level": 3.0
+      },
+      "evidence": {
+        "n_points": 1
+      },
+      "suggested_check": "TDO拉伸区温度CX4 出现超过 3σ 的单点突变，请核对传感器量程与该时刻的工况记录",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R1|TDO拉伸区温度CX4",
+      "repeat_count": 2
+    },
+    {
+      "alert_id": "ALT-20261014-033546-005",
+      "check_type": "spc",
+      "rule_name": "NELSON_R1",
+      "parameter": "熔体压力",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 114.35,
+        "statistic": 3.8232915695971768,
+        "index": 54,
+        "timestamp": "row 54",
+        "run_length": 1
+      },
+      "threshold": {
+        "bound": 3.4200569749844236,
+        "sigma_level": 3.0
+      },
+      "evidence": {
+        "n_points": 1
+      },
+      "suggested_check": "熔体压力 出现超过 3σ 的单点突变，请核对传感器量程与该时刻的工况记录",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R1|熔体压力",
+      "repeat_count": 3
+    },
+    {
+      "alert_id": "ALT-20261014-033546-006",
+      "check_type": "spc",
+      "rule_name": "NELSON_R1",
+      "parameter": "纵拉预热辊温",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 76.66,
+        "statistic": -3.1106695967167393,
+        "index": 105,
+        "timestamp": "row 105",
+        "run_length": 1
+      },
+      "threshold": {
+        "bound": 1.295541,
+        "sigma_level": 3.0
+      },
+      "evidence": {
+        "n_points": 1
+      },
+      "suggested_check": "纵拉预热辊温 出现超过 3σ 的单点突变，请核对传感器量程与该时刻的工况记录",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R1|纵拉预热辊温",
+      "repeat_count": 2
+    },
+    {
+      "alert_id": "ALT-20261014-033546-007",
+      "check_type": "spc",
+      "rule_name": "NELSON_R1",
+      "parameter": "铸片辊温度",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 25.73,
+        "statistic": -3.087027012948356,
+        "index": 48,
+        "timestamp": "row 48",
+        "run_length": 1
+      },
+      "threshold": {
+        "bound": 0.7476853912579008,
+        "sigma_level": 3.0
+      },
+      "evidence": {
+        "n_points": 1
+      },
+      "suggested_check": "铸片辊温度 出现超过 3σ 的单点突变，请核对传感器量程与该时刻的工况记录",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R1|铸片辊温度",
+      "repeat_count": 3
+    },
+    {
+      "alert_id": "ALT-20261014-033546-008",
+      "check_type": "spc",
+      "rule_name": "NELSON_R5",
+      "parameter": "TDO定型区温度CX6",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 192.21,
+        "statistic": 1.9682035326006895,
+        "index": 27,
+        "timestamp": "row 27",
+        "run_length": 11
+      },
+      "threshold": {
+        "bound": 1.393572,
+        "sigma_level": 2.0
+      },
+      "evidence": {
+        "n_points": 11
+      },
+      "suggested_check": "TDO定型区温度CX6 短窗口内多点超出 2σ，波动加剧，建议检查控制回路与扰动源",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R5|TDO定型区温度CX6",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261014-033546-009",
+      "check_type": "spc",
+      "rule_name": "NELSON_R5",
+      "parameter": "TDO定型区温度CX6",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 197.8,
+        "statistic": 9.99075278014585,
+        "index": 119,
+        "timestamp": "row 119",
+        "run_length": 92
+      },
+      "threshold": {
+        "bound": 1.393572,
+        "sigma_level": 2.0
+      },
+      "evidence": {
+        "n_points": 92
+      },
+      "suggested_check": "TDO定型区温度CX6 短窗口内多点超出 2σ，波动加剧，建议检查控制回路与扰动源",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R5|TDO定型区温度CX6",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261014-033546-010",
+      "check_type": "spc",
+      "rule_name": "NELSON_R5",
+      "parameter": "TDO拉伸区温度CX4",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 240.8,
+        "statistic": 1.1083548068669564,
+        "index": 19,
+        "timestamp": "row 19",
+        "run_length": 4
+      },
+      "threshold": {
+        "bound": 1.382830351048992,
+        "sigma_level": 2.0
+      },
+      "evidence": {
+        "n_points": 4
+      },
+      "suggested_check": "TDO拉伸区温度CX4 短窗口内多点超出 2σ，波动加剧，建议检查控制回路与扰动源",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R5|TDO拉伸区温度CX4",
+      "repeat_count": 2
+    },
+    {
+      "alert_id": "ALT-20261014-033546-011",
+      "check_type": "spc",
+      "rule_name": "NELSON_R5",
+      "parameter": "TDO拉伸区温度CX4",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 241.65,
+        "statistic": 2.3377174678111543,
+        "index": 108,
+        "timestamp": "row 108",
+        "run_length": 3
+      },
+      "threshold": {
+        "bound": 1.382830351048992,
+        "sigma_level": 2.0
+      },
+      "evidence": {
+        "n_points": 3
+      },
+      "suggested_check": "TDO拉伸区温度CX4 短窗口内多点超出 2σ，波动加剧，建议检查控制回路与扰动源",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R5|TDO拉伸区温度CX4",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261014-033546-012",
+      "check_type": "spc",
+      "rule_name": "NELSON_R5",
+      "parameter": "牵引入口张力",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 2209.2,
+        "statistic": -2.8558146528301784,
+        "index": 39,
+        "timestamp": "row 39",
+        "run_length": 5
+      },
+      "threshold": {
+        "bound": 42.560506,
+        "sigma_level": 2.0
+      },
+      "evidence": {
+        "n_points": 5
+      },
+      "suggested_check": "牵引入口张力 短窗口内多点超出 2σ，波动加剧，建议检查控制回路与扰动源",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R5|牵引入口张力",
+      "repeat_count": 3
+    },
+    {
+      "alert_id": "ALT-20261014-033546-013",
+      "check_type": "spc",
+      "rule_name": "NELSON_R5",
+      "parameter": "纵拉预热辊温",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 77.66,
+        "statistic": -0.7950346611955941,
+        "index": 106,
+        "timestamp": "row 106",
+        "run_length": 4
+      },
+      "threshold": {
+        "bound": 0.863694,
+        "sigma_level": 2.0
+      },
+      "evidence": {
+        "n_points": 4
+      },
+      "suggested_check": "纵拉预热辊温 短窗口内多点超出 2σ，波动加剧，建议检查控制回路与扰动源",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R5|纵拉预热辊温",
+      "repeat_count": 2
+    },
+    {
+      "alert_id": "ALT-20261014-033546-014",
+      "check_type": "spc",
+      "rule_name": "NELSON_R5",
+      "parameter": "铸片辊温度",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 26.17,
+        "statistic": -1.321578583122484,
+        "index": 30,
+        "timestamp": "row 30",
+        "run_length": 4
+      },
+      "threshold": {
+        "bound": 0.4984569275052672,
+        "sigma_level": 2.0
+      },
+      "evidence": {
+        "n_points": 4
+      },
+      "suggested_check": "铸片辊温度 短窗口内多点超出 2σ，波动加剧，建议检查控制回路与扰动源",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R5|铸片辊温度",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261014-033546-015",
+      "check_type": "spc",
+      "rule_name": "NELSON_R5",
+      "parameter": "铸片辊温度",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 27.44,
+        "statistic": 3.774147566602176,
+        "index": 119,
+        "timestamp": "row 119",
+        "run_length": 3
+      },
+      "threshold": {
+        "bound": 0.4984569275052672,
+        "sigma_level": 2.0
+      },
+      "evidence": {
+        "n_points": 3
+      },
+      "suggested_check": "铸片辊温度 短窗口内多点超出 2σ，波动加剧，建议检查控制回路与扰动源",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R5|铸片辊温度",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261014-033546-016",
+      "check_type": "spc",
+      "rule_name": "NELSON_R6",
+      "parameter": "TDO定型区温度CX6",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 191.76,
+        "statistic": 1.322381142368944,
+        "index": 7,
+        "timestamp": "row 7",
+        "run_length": 5
+      },
+      "threshold": {
+        "bound": 0.696786,
+        "sigma_level": 1.0
+      },
+      "evidence": {
+        "n_points": 5
+      },
+      "suggested_check": "TDO定型区温度CX6 窗口内多点超出 1σ 同侧，离散度升高，建议关注",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R6|TDO定型区温度CX6",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261014-033546-017",
+      "check_type": "spc",
+      "rule_name": "NELSON_R6",
+      "parameter": "TDO定型区温度CX6",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 197.8,
+        "statistic": 9.99075278014585,
+        "index": 119,
+        "timestamp": "row 119",
+        "run_length": 104
+      },
+      "threshold": {
+        "bound": 0.696786,
+        "sigma_level": 1.0
+      },
+      "evidence": {
+        "n_points": 104
+      },
+      "suggested_check": "TDO定型区温度CX6 窗口内多点超出 1σ 同侧，离散度升高，建议关注",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R6|TDO定型区温度CX6",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261014-033546-018",
+      "check_type": "spc",
+      "rule_name": "NELSON_R6",
+      "parameter": "熔体压力",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 108.34,
+        "statistic": -1.4485504294917684,
+        "index": 114,
+        "timestamp": "row 114",
+        "run_length": 6
+      },
+      "threshold": {
+        "bound": 1.1400189916614745,
+        "sigma_level": 1.0
+      },
+      "evidence": {
+        "n_points": 6
+      },
+      "suggested_check": "熔体压力 窗口内多点超出 1σ 同侧，离散度升高，建议关注",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R6|熔体压力",
+      "repeat_count": 2
+    },
+    {
+      "alert_id": "ALT-20261014-033546-019",
+      "check_type": "spc",
+      "rule_name": "NELSON_R6",
+      "parameter": "牵引入口张力",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 2253.43,
+        "statistic": -0.7773619201488509,
+        "index": 11,
+        "timestamp": "row 11",
+        "run_length": 6
+      },
+      "threshold": {
+        "bound": 21.280253,
+        "sigma_level": 1.0
+      },
+      "evidence": {
+        "n_points": 6
+      },
+      "suggested_check": "牵引入口张力 窗口内多点超出 1σ 同侧，离散度升高，建议关注",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R6|牵引入口张力",
+      "repeat_count": 4
+    },
+    {
+      "alert_id": "ALT-20261014-033546-020",
+      "check_type": "spc",
+      "rule_name": "NELSON_R6",
+      "parameter": "纵拉预热辊温",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 78.49,
+        "statistic": 1.1269423352869525,
+        "index": 68,
+        "timestamp": "row 68",
+        "run_length": 5
+      },
+      "threshold": {
+        "bound": 0.431847,
+        "sigma_level": 1.0
+      },
+      "evidence": {
+        "n_points": 5
+      },
+      "suggested_check": "纵拉预热辊温 窗口内多点超出 1σ 同侧，离散度升高，建议关注",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R6|纵拉预热辊温",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261014-033546-021",
+      "check_type": "spc",
+      "rule_name": "NELSON_R6",
+      "parameter": "铸片辊温度",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "high",
+      "urgency": "same_shift",
+      "observed": {
+        "value": 26.22,
+        "statistic": -1.120959443369556,
+        "index": 51,
+        "timestamp": "row 51",
+        "run_length": 5
+      },
+      "threshold": {
+        "bound": 0.2492284637526336,
+        "sigma_level": 1.0
+      },
+      "evidence": {
+        "n_points": 5
+      },
+      "suggested_check": "铸片辊温度 窗口内多点超出 1σ 同侧，离散度升高，建议关注",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R6|铸片辊温度",
+      "repeat_count": 3
+    },
+    {
+      "alert_id": "ALT-20261014-033546-022",
+      "check_type": "regime",
+      "rule_name": "VARIANCE_RATIO_HIGH",
+      "parameter": "TDO定型区温度CX6",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 2.2498873532336883,
+        "statistic": 2.7642174015551295
+      },
+      "threshold": {
+        "bound": 2.0
+      },
+      "evidence": {
+        "ratio": 2.7642174015551295
+      },
+      "suggested_check": "TDO定型区温度CX6 稳态段标准差为基线的 2.8 倍，离散度显著升高，建议检查波动来源",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|regime|VARIANCE_RATIO_HIGH|TDO定型区温度CX6",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261014-033546-023",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "TDO定型区温度CX6",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 192.75,
+        "statistic": 2.7431904008787433,
+        "index": 21,
+        "timestamp": "row 21",
+        "run_length": 107
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 107
+      },
+      "suggested_check": "TDO定型区温度CX6 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|TDO定型区温度CX6",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261014-033546-024",
+      "check_type": "spc",
+      "rule_name": "NELSON_R2",
+      "parameter": "牵引入口张力",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 2285.88,
+        "statistic": 0.7475259653476362,
+        "index": 64,
+        "timestamp": "row 64",
+        "run_length": 9
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 9
+      },
+      "suggested_check": "牵引入口张力 连续多点偏离中心线同一侧，存在均值漂移趋势，建议检查上下游工况",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R2|牵引入口张力",
+      "repeat_count": 1
+    },
+    {
+      "alert_id": "ALT-20261014-033546-025",
+      "check_type": "spc",
+      "rule_name": "NELSON_R3",
+      "parameter": "熔体压力",
+      "indicator": null,
+      "group": "__ALL__",
+      "severity": "warn",
+      "urgency": "routine",
+      "observed": {
+        "value": 108.83,
+        "statistic": -1.0187330285677152,
+        "index": 66,
+        "timestamp": "row 66",
+        "run_length": 5
+      },
+      "threshold": {
+        "bound": null,
+        "sigma_level": null
+      },
+      "evidence": {
+        "n_points": 5
+      },
+      "suggested_check": "熔体压力 连续单调上升/下降，存在趋势性漂移，建议排查慢变量（结垢、磨损、环境温度）",
+      "suggested_next_skill": "industrial-diagnostician",
+      "advisory": false,
+      "suppression_key": "__ALL__|spc|NELSON_R3|熔体压力",
+      "repeat_count": 1
+    }
+  ],
+  "events": [
+    {
+      "family": "regime",
+      "parameter": "TDO定型区温度CX6",
+      "group": "__ALL__",
+      "severity_peak": "warn",
+      "first_index": null,
+      "last_index": null,
+      "span_rows": 0,
+      "alert_count": 1,
+      "rules": [
+        "VARIANCE_RATIO_HIGH"
+      ],
+      "max_abs_statistic": 2.7642174015551295,
+      "suppression_key": "__ALL__|regime|VARIANCE_RATIO_HIGH|TDO定型区温度CX6",
+      "event_id": "EVT-20261014033546-001"
+    },
+    {
+      "family": "spc",
+      "parameter": "TDO定型区温度CX6",
+      "group": "__ALL__",
+      "severity_peak": "high",
+      "first_index": 7,
+      "last_index": 119,
+      "span_rows": 112,
+      "alert_count": 7,
+      "rules": [
+        "NELSON_R6",
+        "NELSON_R2",
+        "NELSON_R1",
+        "NELSON_R5"
+      ],
+      "max_abs_statistic": 9.99075278014585,
+      "suppression_key": "__ALL__|spc|NELSON_R6|TDO定型区温度CX6",
+      "event_id": "EVT-20261014033546-002"
+    },
+    {
+      "family": "spc",
+      "parameter": "TDO拉伸区温度CX4",
+      "group": "__ALL__",
+      "severity_peak": "high",
+      "first_index": 11,
+      "last_index": 108,
+      "span_rows": 97,
+      "alert_count": 3,
+      "rules": [
+        "NELSON_R1",
+        "NELSON_R5"
+      ],
+      "max_abs_statistic": 3.0425520600858413,
+      "suppression_key": "__ALL__|spc|NELSON_R1|TDO拉伸区温度CX4",
+      "event_id": "EVT-20261014033546-003"
+    },
+    {
+      "family": "spc",
+      "parameter": "牵引入口张力",
+      "group": "__ALL__",
+      "severity_peak": "high",
+      "first_index": 11,
+      "last_index": 64,
+      "span_rows": 53,
+      "alert_count": 3,
+      "rules": [
+        "NELSON_R6",
+        "NELSON_R5",
+        "NELSON_R2"
+      ],
+      "max_abs_statistic": 2.8558146528301784,
+      "suppression_key": "__ALL__|spc|NELSON_R6|牵引入口张力",
+      "event_id": "EVT-20261014033546-004"
+    },
+    {
+      "family": "spc",
+      "parameter": "铸片辊温度",
+      "group": "__ALL__",
+      "severity_peak": "high",
+      "first_index": 30,
+      "last_index": 119,
+      "span_rows": 89,
+      "alert_count": 4,
+      "rules": [
+        "NELSON_R5",
+        "NELSON_R1",
+        "NELSON_R6"
+      ],
+      "max_abs_statistic": 3.774147566602176,
+      "suppression_key": "__ALL__|spc|NELSON_R5|铸片辊温度",
+      "event_id": "EVT-20261014033546-005"
+    },
+    {
+      "family": "spc",
+      "parameter": "熔体压力",
+      "group": "__ALL__",
+      "severity_peak": "high",
+      "first_index": 54,
+      "last_index": 114,
+      "span_rows": 60,
+      "alert_count": 3,
+      "rules": [
+        "NELSON_R1",
+        "NELSON_R3",
+        "NELSON_R6"
+      ],
+      "max_abs_statistic": 3.8232915695971768,
+      "suppression_key": "__ALL__|spc|NELSON_R1|熔体压力",
+      "event_id": "EVT-20261014033546-006"
+    },
+    {
+      "family": "multivariate",
+      "parameter": "TDO定型区温度CX6",
+      "group": "__ALL__",
+      "severity_peak": "high",
+      "first_index": 64,
+      "last_index": 64,
+      "span_rows": 0,
+      "alert_count": 1,
+      "rules": [
+        "ROBUST_Z_OUTLIER"
+      ],
+      "max_abs_statistic": 4.206294416666725,
+      "suppression_key": "__ALL__|multivariate|ROBUST_Z_OUTLIER|TDO定型区温度CX6",
+      "event_id": "EVT-20261014033546-007"
+    },
+    {
+      "family": "spc",
+      "parameter": "纵拉预热辊温",
+      "group": "__ALL__",
+      "severity_peak": "high",
+      "first_index": 68,
+      "last_index": 106,
+      "span_rows": 38,
+      "alert_count": 3,
+      "rules": [
+        "NELSON_R6",
+        "NELSON_R1",
+        "NELSON_R5"
+      ],
+      "max_abs_statistic": 3.1106695967167393,
+      "suppression_key": "__ALL__|spc|NELSON_R6|纵拉预热辊温",
+      "event_id": "EVT-20261014033546-008"
+    }
+  ],
+  "regime_summary": {
+    "__ALL__": {
+      "labels": {
+        "steady": 120
+      }
+    }
+  },
+  "projection_summary": null,
+  "suppression": {
+    "applied": [
+      {
+        "suppression_key": "__ALL__|multivariate|ROBUST_Z_OUTLIER|TDO定型区温度CX6",
+        "repeat_count": 6
+      },
+      {
+        "suppression_key": "__ALL__|spc|NELSON_R1|TDO定型区温度CX6",
+        "repeat_count": 5
+      },
+      {
+        "suppression_key": "__ALL__|spc|NELSON_R1|TDO拉伸区温度CX4",
+        "repeat_count": 2
+      },
+      {
+        "suppression_key": "__ALL__|spc|NELSON_R1|熔体压力",
+        "repeat_count": 3
+      },
+      {
+        "suppression_key": "__ALL__|spc|NELSON_R1|纵拉预热辊温",
+        "repeat_count": 2
+      },
+      {
+        "suppression_key": "__ALL__|spc|NELSON_R1|铸片辊温度",
+        "repeat_count": 3
+      },
+      {
+        "suppression_key": "__ALL__|spc|NELSON_R5|TDO定型区温度CX6",
+        "repeat_count": 2
+      },
+      {
+        "suppression_key": "__ALL__|spc|NELSON_R5|TDO拉伸区温度CX4",
+        "repeat_count": 3
+      },
+      {
+        "suppression_key": "__ALL__|spc|NELSON_R5|牵引入口张力",
+        "repeat_count": 3
+      },
+      {
+        "suppression_key": "__ALL__|spc|NELSON_R5|纵拉预热辊温",
+        "repeat_count": 2
+      },
+      {
+        "suppression_key": "__ALL__|spc|NELSON_R5|铸片辊温度",
+        "repeat_count": 2
+      },
+      {
+        "suppression_key": "__ALL__|spc|NELSON_R6|TDO定型区温度CX6",
+        "repeat_count": 2
+      },
+      {
+        "suppression_key": "__ALL__|spc|NELSON_R6|熔体压力",
+        "repeat_count": 2
+      },
+      {
+        "suppression_key": "__ALL__|spc|NELSON_R6|牵引入口张力",
+        "repeat_count": 4
+      },
+      {
+        "suppression_key": "__ALL__|spc|NELSON_R6|铸片辊温度",
+        "repeat_count": 3
+      }
+    ],
+    "config": {
+      "suppress_window_minutes": 60,
+      "hysteresis_points": 5,
+      "post_changepoint_quiet_rows": 30
+    }
+  },
+  "provenance": {
+    "input_sha256": "ab9b25b9c3b05f2a22364bd57651587b829e49a68ac6df082fae7bb9c8ff79a9",
+    "script_version": "1.0.0",
+    "duration_ms": 13,
+    "zero_llm": true,
+    "authored_by": "script"
+  }
+}

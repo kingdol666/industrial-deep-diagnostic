@@ -12,6 +12,7 @@ import * as ompClient from '../engine/omp-client.mjs';
 import { getEngineClient } from '../harness/engines.mjs';
 import { hasHarness } from '../harness/registry.mjs';
 import { validateEngineOption } from '../harness/engine-options.mjs';
+import { canView, resolveOwnerId, INTERNAL } from './tenancy.mjs';
 
 let queryFn = null;
 try {
@@ -45,6 +46,18 @@ function normalizeChatHarness(value) {
   err.status = 400;
   err.code = 'CHAT_HARNESS_UNSUPPORTED';
   throw err;
+}
+
+// ── Tenancy (P0-6) ──────────────────────────────────────────────────────────
+// A chat session is visible/administrable to its owner (or an admin); a NULL
+// owner (created while AUTH_ENABLED=0) is admin-only. Every read/act below
+// answers a foreign session exactly like a missing one (null / false → 404);
+// `viewer` is req.user for API callers and INTERNAL for trusted internal calls.
+
+/** May `viewer` see/act on this stored chat row? (No row → true: new chat.) */
+function canViewChat(viewer, stored) {
+  if (!stored) return true; // no persisted session yet — creation is allowed
+  return canView(viewer, stored.owner_user_id);
 }
 
 // A stored chat is OMP-backed when its harness column says so or its
@@ -161,9 +174,12 @@ function deleteClaudeSessionArtifacts(sessionIds = []) {
 
 /**
  * Start a chat session with full streaming support.
+ * `params.ownerUserId` (a user object or an id) is persisted as the session's
+ * owner_user_id; absent/null → NULL row (unowned, admin-only with auth on).
  * Returns { chatId, emitter } — the emitter fires SSE-compatible events.
  */
 export async function startChat(params = {}) {
+  const ownerUserId = resolveOwnerId(params.ownerUserId);
   const requestedChatId = params.chatId;
   const earlyChatId = requestedChatId || `chat_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
   const earlyStored = stmts.getChatSessionByChatId.get(earlyChatId);
@@ -197,6 +213,7 @@ export async function startChat(params = {}) {
       prompt: params.prompt,
       stored: earlyStored,
       title: params.title,
+      ownerUserId,
     });
   }
 
@@ -209,6 +226,7 @@ export async function startChat(params = {}) {
       title: params.title,
       harness,
       model: params.model || null,
+      ownerUserId,
     });
   }
 
@@ -307,6 +325,7 @@ export async function startChat(params = {}) {
       permissionMode: normalizedPermissionMode,
       cwd: normalizedCwd,
       harness: 'claude',
+      ownerUserId,
     });
   }
   stmts.insertChatMessage.run({
@@ -541,7 +560,7 @@ export async function startChat(params = {}) {
  * OMP harness chat — spawns omp --mode=rpc and adapts its event stream
  * into the same SSE event names the Claude path emits.
  */
-function startOmpChat({ chatId, prompt, stored, title }) {
+function startOmpChat({ chatId, prompt, stored, title, ownerUserId = null }) {
   if (!prompt || typeof prompt !== 'string') {
     throw new Error('prompt is required');
   }
@@ -584,6 +603,7 @@ function startOmpChat({ chatId, prompt, stored, title }) {
       permissionMode,
       cwd,
       harness: 'omp',
+      ownerUserId,
     });
   }
   stmts.insertChatMessage.run({
@@ -746,7 +766,7 @@ function buildReplayPrompt(chatId, message, { maxTurns = 12 } = {}) {
  * use native session resume when the engine supports it, transcript replay
  * when it does not. Engine-side failures propagate honestly (no fallback).
  */
-async function startGenericEngineChat({ chatId, prompt, stored, title, harness, model = null }) {
+async function startGenericEngineChat({ chatId, prompt, stored, title, harness, model = null, ownerUserId = null }) {
   if (!prompt || typeof prompt !== 'string') {
     throw new Error('prompt is required');
   }
@@ -787,6 +807,7 @@ async function startGenericEngineChat({ chatId, prompt, stored, title, harness, 
     stmts.insertChatSession.run({
       chatId, title: title || prompt.slice(0, 60), sessionId, originSessionId: sessionId,
       status: 'active', model: harness, permissionMode: null, cwd, harness,
+      ownerUserId,
     });
   }
   stmts.insertChatMessage.run({
@@ -803,9 +824,11 @@ async function startGenericEngineChat({ chatId, prompt, stored, title, harness, 
 }
 
 /**
- * Stop an active chat session.
+ * Stop an active chat session. Refuses (false) a chat the viewer may not see.
  */
-export function stopChat(chatId) {
+export function stopChat(chatId, viewer = INTERNAL) {
+  const stored = stmts.getChatSessionByChatId.get(chatId);
+  if (stored && !canViewChat(viewer, stored)) return false;
   const entry = activeChats.get(chatId);
   if (!entry) return false;
   try { entry.query.close(); } catch {}
@@ -825,12 +848,14 @@ export function stopChat(chatId) {
 }
 
 /**
- * Get active chat session info.
+ * Get active chat session info. A chat the viewer may not see → null
+ * (route answers the same as for an unknown chat).
  */
-export function getChatInfo(chatId) {
+export function getChatInfo(chatId, viewer = INTERNAL) {
   const entry = activeChats.get(chatId);
   const stored = stmts.getChatSessionByChatId.get(chatId);
   if (!entry && !stored) return null;
+  if (!canViewChat(viewer, stored)) return null;
   return {
     chatId,
     active: !!entry,
@@ -846,10 +871,13 @@ export function getChatInfo(chatId) {
 }
 
 /**
- * List all active chat sessions.
+ * List all chat sessions the viewer may see (own chats; every chat for an
+ * admin; NULL-owner chats are admin-only).
  */
-export function listActiveChats() {
-  return stmts.getAllChatSessions.all().map(row => ({
+export function listActiveChats(viewer = INTERNAL) {
+  return stmts.getAllChatSessions.all()
+    .filter((row) => canViewChat(viewer, row))
+    .map(row => ({
     chatId: row.chat_id,
     sessionId: getEffectiveResumeSessionId(row),
     currentSessionId: row.session_id,
@@ -866,9 +894,20 @@ export function listActiveChats() {
 
 /**
  * Send a follow-up message to an existing chat session (resume).
+ * `params.viewer` (default INTERNAL) gates the act: a chat the viewer may not
+ * see is a 404 — same answer as an unknown chat. `params.ownerUserId` stamps
+ * ownership when this call creates the session (first message of a new chat).
  */
 export async function sendChatMessage(chatId, followUpMessage, params = {}) {
+  const viewer = params.viewer ?? INTERNAL;
+  const ownerUserId = resolveOwnerId(params.ownerUserId);
   const stored = stmts.getChatSessionByChatId.get(chatId);
+  if (stored && !canViewChat(viewer, stored)) {
+    const err = new Error('Chat session not found');
+    err.status = 404;
+    err.code = 'CHAT_NOT_FOUND';
+    throw err;
+  }
 
   // ── OMP harness: continue the chat's own OMP session ──
   const ompRequested = storedChatIsOmp(stored)
@@ -884,6 +923,7 @@ export async function sendChatMessage(chatId, followUpMessage, params = {}) {
       prompt: followUpMessage,
       stored,
       title: stored?.title || followUpMessage.slice(0, 60),
+      ownerUserId,
     });
   }
 
@@ -903,6 +943,7 @@ export async function sendChatMessage(chatId, followUpMessage, params = {}) {
       title: stored.title || followUpMessage.slice(0, 60),
       harness: stored.harness,
       model: stored.model || null,
+      ownerUserId,
     });
   }
 
@@ -950,14 +991,22 @@ export async function sendChatMessage(chatId, followUpMessage, params = {}) {
 }
 
 /**
- * Get emitter for SSE streaming.
+ * Get emitter for SSE streaming. A chat the viewer may not see → null (the
+ * route then falls through to the replay path, which is gated too).
  */
-export function getChatEmitter(chatId) {
+export function getChatEmitter(chatId, viewer = INTERNAL) {
+  const stored = stmts.getChatSessionByChatId.get(chatId);
+  if (stored && !canViewChat(viewer, stored)) return null;
   return activeChats.get(chatId)?.emitter || null;
 }
 
-export function subscribeChatEvents(chatId, callback) {
-  const emitter = getChatEmitter(chatId);
+export function subscribeChatEvents(chatId, callback, viewer = INTERNAL) {
+  // WS subscription seam: the transport passes the connection's authenticated
+  // user here (ws.authUser) — without it the legacy INTERNAL default keeps the
+  // pre-tenancy behaviour rather than silently disabling every subscription.
+  const stored = stmts.getChatSessionByChatId.get(chatId);
+  if (stored && !canViewChat(viewer, stored)) return () => {};
+  const emitter = getChatEmitter(chatId, viewer);
   if (!emitter || typeof callback !== 'function') {
     return () => {};
   }
@@ -972,9 +1021,11 @@ export function subscribeChatEvents(chatId, callback) {
   };
 }
 
-export function getChatSession(chatId) {
+/** Single chat session view; null when missing OR not visible to `viewer`. */
+export function getChatSession(chatId, viewer = INTERNAL) {
   const row = stmts.getChatSessionByChatId.get(chatId);
   if (!row) return null;
+  if (!canViewChat(viewer, row)) return null;
   return {
     chatId: row.chat_id,
     sessionId: getEffectiveResumeSessionId(row),
@@ -990,9 +1041,10 @@ export function getChatSession(chatId) {
   };
 }
 
-export function getChatHistory(chatId) {
+export function getChatHistory(chatId, viewer = INTERNAL) {
   const session = stmts.getChatSessionByChatId.get(chatId);
   if (!session) return null;
+  if (!canViewChat(viewer, session)) return null;
   const messages = stmts.getChatMessagesByChatId.all(chatId);
   return {
     session: {
@@ -1012,8 +1064,8 @@ export function getChatHistory(chatId) {
   };
 }
 
-export function getChatReplay(chatId) {
-  const history = getChatHistory(chatId);
+export function getChatReplay(chatId, viewer = INTERNAL) {
+  const history = getChatHistory(chatId, viewer);
   if (!history) return null;
 
   const { session, messages } = history;
@@ -1168,16 +1220,18 @@ function mapStoredMessageToSSE(row) {
   return null;
 }
 
-export function renameChatSession(chatId, title) {
+export function renameChatSession(chatId, title, viewer = INTERNAL) {
   const session = stmts.getChatSessionByChatId.get(chatId);
   if (!session) return null;
+  if (!canViewChat(viewer, session)) return null;
   stmts.renameChatSession.run({ chatId, title });
-  return getChatSession(chatId);
+  return getChatSession(chatId, viewer);
 }
 
-export function updateChatSessionConfig(chatId, { title = null, permissionMode, cwd } = {}) {
+export function updateChatSessionConfig(chatId, { title = null, permissionMode, cwd } = {}, viewer = INTERNAL) {
   const session = stmts.getChatSessionByChatId.get(chatId);
   if (!session) return null;
+  if (!canViewChat(viewer, session)) return null;
   const nextPermissionMode = permissionMode == null
     ? null
     : normalizePermissionMode(permissionMode, normalizePermissionMode(session.permission_mode, 'default'));
@@ -1194,12 +1248,14 @@ export function updateChatSessionConfig(chatId, { title = null, permissionMode, 
     permissionMode: nextPermissionMode,
     cwd: nextCwd,
   });
-  return getChatSession(chatId);
+  return getChatSession(chatId, viewer);
 }
 
-export async function deleteChatSession(chatId) {
+/** Delete a chat session. A chat the viewer may not see → false (route 404). */
+export async function deleteChatSession(chatId, viewer = INTERNAL) {
   const session = stmts.getChatSessionByChatId.get(chatId);
   if (!session) return false;
+  if (!canViewChat(viewer, session)) return false;
   const entry = activeChats.get(chatId);
   if (entry) {
     try { entry.query.close(); } catch {}

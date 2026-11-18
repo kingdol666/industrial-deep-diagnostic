@@ -156,13 +156,6 @@ export default {
       captionMid: 'pipeline outputs',
       runsSuffix: 'Runs',
     },
-    closedloop: {
-      label: 'Expert Analysis',
-      kicker: 'Skill-Driven Agent Analysis',
-      title: 'Specialist Agent Analysis',
-      description: 'Stability report, sentinel screen, experience mining, optimizer campaign — each panel spawns a real agent on the selected engine that analyzes your chosen data folder under the matching skill protocol, streams the process live, and persists every artifact. Fixed-script analysis is fully retired.',
-      caption: 'Agent-executed skill analysis on your folder data',
-    },
     settings: {
       label: 'Account',
       kicker: 'Identity & Access',
@@ -1191,67 +1184,6 @@ export default {
     correlationMatrix: 'Correlation Matrix',
   },
 
-  closedloop: {
-    subtabs: {
-      'stability-report': 'Line stability report',
-      'quick-screen': 'Sentinel screen',
-      'improvement-advisory': 'Improvement advisory',
-      'experience-mining': 'Experience mining',
-      'optimizer-campaign': 'Optimizer campaign',
-    },
-    panels: {
-      'stability-report': {
-        title: 'Line stability report (industrial-line-stability-report)',
-        desc: 'Pick a data folder; the agent executes the line-stability-report protocol for real: condition understanding → stability assessment (SPC / Cpk / drift / correlation drivers) → graded score with an evidence-backed report. Every number comes from a tool run in this execution.',
-      },
-      'quick-screen': {
-        title: 'Sentinel quick screen (industrial-sentinel)',
-        desc: 'Pick a data folder; the agent executes the sentinel protocol for real: build a baseline from history → SPC / drift / change-point screening on the current data → alert findings and a watch report.',
-      },
-      'improvement-advisory': {
-        title: 'Improvement advisory (industrial-improvement-advisor)',
-        desc: 'Pick a data folder (optionally with objective.json and action_log); the agent executes the improvement-advisor protocol for real: goal resolution/inference → three-gate evidence (dose-response / operating window / action attribution) → graded A/B/C improvement actions + prescription zone + Chinese HTML advisory report. Every action carries a data evidence chain, physical mechanism chain, 95% CI expected gain, verification and rollback clauses; advisory only — parameters are never dispatched.',
-      },
-      'experience-mining': {
-        title: 'Tuning experience mining (industrial-tuning-memory)',
-        desc: 'Pick a folder containing action logs; the agent executes the tuning-memory protocol for real: action attribution → experience entries → fault-signature retrieval with historical handling effects.',
-      },
-      'optimizer-campaign': {
-        title: 'Optimizer campaign (industrial-optimizer-loop)',
-        desc: 'Pick a trial/condition data folder; the agent executes the optimizer-loop protocol for real: objective parsing → trial design or convergence analysis → recipe convergence advice (design/analysis only — parameters are never dispatched).',
-      },
-    },
-    launcher: {
-      up: 'Parent folder',
-      loading: 'Loading folder…',
-      empty: 'This folder is empty.',
-      folder: 'folder',
-      selected: 'Analysis target',
-      none: 'No folder selected',
-      questionPlaceholder: 'Extra instruction for the agent (optional): parameters / period / criteria to focus on…',
-      ontologyScene: 'Reuse scene',
-      note: 'Launching spawns a real agent on the selected engine to analyze the folder under the {skill} protocol; the process streams live.',
-      launch: 'Launch agent analysis',
-      starting: 'Spawning…',
-    },
-    runs: {
-      title: 'Recent runs for this specialist task',
-      refresh: 'Refresh',
-      loading: 'Loading…',
-      empty: 'No runs for this specialist task yet.',
-      name: 'Run',
-      status: 'Status',
-      time: 'Started',
-      open: 'Open process',
-      status_completed: 'completed',
-      status_failed: 'failed',
-      status_stopped: 'stopped',
-      status_running: 'running',
-      status_queued: 'pending',
-      status_awaiting: 'awaiting input',
-      status_expired: 'expired',
-    },
-  },
 
   workbench: {
     intentLabel: 'Analysis task (always executed by a real integrated agent)',

@@ -28,7 +28,7 @@ export function getEffectiveRunStatus(run) {
  * Statuses not in the map fall back to 'unknown'.
  */
 function statusKey(status) {
-  const keys = ['completed', 'running', 'awaiting_input', 'pending', 'failed', 'stopped', 'expired', 'in_progress', 'draft', 'active'];
+  const keys = ['completed', 'running', 'awaiting_input', 'pending', 'queued', 'failed', 'stopped', 'expired', 'in_progress', 'draft', 'active'];
   return keys.includes(status) ? status : 'unknown';
 }
 
@@ -48,11 +48,13 @@ export function getRunStatusBadgeClass(runOrStatus) {
     case 'completed': return 'badge-green';
     case 'running': return 'badge-blue';
     case 'awaiting_input': return 'badge-purple';
-    // pending / stopped / expired are not warnings: a queued run, a deliberate
-    // stop and an orphaned never-executed run all stay neutral so amber keeps
-    // its meaning (live) and red keeps failure. Before this, a 100-row task
-    // list rendered twenty amber PENDING chips and the accent meant nothing.
+    // pending / queued / stopped / expired are not warnings: a queued run (concurrency
+    // FIFO), a deliberate stop and an orphaned never-executed run all stay
+    // neutral so amber keeps its meaning (live) and red keeps failure. Before
+    // this, a 100-row task list rendered twenty amber PENDING chips and the
+    // accent meant nothing.
     case 'pending': return 'badge-neutral';
+    case 'queued': return 'badge-neutral';
     case 'failed': return 'badge-red';
     case 'stopped': return 'badge-neutral';
     case 'expired': return 'badge-neutral';

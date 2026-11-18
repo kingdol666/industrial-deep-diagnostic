@@ -1,0 +1,701 @@
+{
+  "run_id": "202610162036022_heat_treat_sim",
+  "reasoning_chains": [
+    {
+      "step_id": 1,
+      "step_name": "R1 数据特征化与场景界定",
+      "step_question": "数据是什么形状、什么工艺场景、哪些通道可信、哪些通道已死亡？",
+      "inputs": [
+        {
+          "source": "02_processed/stage_digest.json",
+          "content_summary": "1440 行 / 时间列 `时间`（10 min，median_interval_s=600）、8 个异常区间、data_view_mode=process_plus_inspection、top 异常通道为 HX-MAP-*/IMG-* 的 cv 排序",
+          "evidence_rank": 3
+        },
+        {
+          "source": "01_ontology/ontology.json",
+          "content_summary": "场景=连续热处理线（模拟 10 天）；三区炉线（Z1 850/ Z2 865/ Z3 设定 880 ℃）+ 传输速度 + 炉压；stages S1-S6；relationships 含 Z3→OUT-TEMP、SPEED→OUT-TEMP、ASYM-LR→EDGE-*-DEV、Z3→MAP-MEAN、OUT-TEMP→LAB-HRC 等；confounders 列明环境/抽检延迟/CCD 未标定/备注稀疏/热电偶状态",
+          "evidence_rank": 5
+        },
+        {
+          "source": "02_processed/scenario_classification.json",
+          "content_summary": "scene_type=continuous_heat_treatment_line_monitoring，confidence=high；expected_physics（换热/停留时间/Arrhenius/横向均匀性/炉压氧化/测量一致性）；degradation_candidates 含'三区后段加热管老化'与'热电偶漂移'",
+          "evidence_rank": 5
+        },
+        {
+          "source": "02_processed/feature_summary.json（columns）",
+          "content_summary": "48 列统计画像：Z3 std 3.22 / min 864.25；OUT std 1.66；YIELD 97.0-99.71；SHIFT-EST、SATFRAC、DARKFRAC unique=1（常量）；HX 列为阶梯块（hetero_note）",
+          "evidence_rank": 3
+        },
+        {
+          "source": "07_hetero/column_contract.json + explicit_cols.json",
+          "content_summary": "40 个 HX 列的确定性语义映射（PROF 18 / MAP 15 / IMG 7）；targets 与 predictors 显式清单；excludes 含 EVT-MAINTENANCE / EVT-HEATUP / HOUR-OF-DAY / SHIFT-BUCKET-ID（事件与班次协变量不进相关筛查）",
+          "evidence_rank": 2
+        },
+        {
+          "source": "00_input/user_context.json + 00_input/clarification_needed.json",
+          "content_summary": "分析目标=定位产线质量异常根因；clarification=AUTO_RESOLVED（场景完整；FUR-SPEED/PRES 单位未声明按相对量使用；三区设定 880 ℃ 来自备注）",
+          "evidence_rank": 2
+        },
+        {
+          "source": "02_processed/time_alignment.json + time_lag_analysis.json",
+          "content_summary": "median_interval_s=600（1 步=600 s 的唯一合法换算来源）；time_lag_compensator 因 process_grid 步长无法解析而 0 对匹配、unit_conversion_available=false",
+          "evidence_rank": 3
+        }
+      ],
+      "reasoning": {
+        "applied_logic": "数据形状与测量链路清单化：把 48 列拆为 (a) DCS 锚定过程/质量列（10 min 真采样）、(b) 多源 HX 阶梯块（30min/1h/2h，有效 n=快照数）、(c) 事件/班次协变量（不进筛查）、(d) 死亡/常量通道。",
+        "step_by_step": "1) 时间轴：1440 行 × 10 min = 10 天连续，时间升序（后续 R3 由 validate_report 复核）；2) 双驱结构：过程列（FUR-*）+ 质量/检查列（YIELD / OUT-TEMP / PROF / IMG / MAP）同时存在 → 适用 process_plus_inspection 视图；3) 常量/死亡通道：SHIFT-EST≡0（排除配准漂移混杂的前提）、DARKFRAC/SATFRAC≡0（炉压→氧化链不可观测）、PROF-N≡12、MAP-N≡20；4) 事件锚：9 条操作备注（含 02-05 波动、02-06 检修、02-06 22:15 右边缘+硬度、02-08 换管升温、02-10 闭环）；5) 单产品连续生产、无分组列 → 以 A/B/C/D regime 分段替代分组；6) 场景确认：连续热处理线，三区=均热段（设定 880 ℃）。",
+        "assumptions": [
+          "HX 列按 column_contract 的确定性语义使用（零再推断）",
+          "操作备注时刻即事件时刻（recorded_ts 均为 null）",
+          "FUR-SPEED / FUR-PRES 单位未声明 → 仅作相对量"
+        ]
+      },
+      "outputs": [
+        {
+          "finding": "场景=连续热处理线（均热段三区设定 880 ℃）；可用证据分四层：L1 直接测量（DCS+HX 快照）、L2 操作备注与契约语义、L3 统计、L4 目视；死亡通道 3 个、常量通道 3 个",
+          "confidence": 95,
+          "supported_by": ["01_ontology/ontology.json", "02_processed/scenario_classification.json", "07_hetero/column_contract.json"]
+        },
+        {
+          "finding": "双驱数据视图成立（过程列 + 质量/检查列并存），但无产品分组列 → 以事件锚定 regime 分段替代（A 616 / B 308 / C 66 / D 450 行）",
+          "confidence": 90,
+          "supported_by": ["02_processed/expert_findings.json regime_segments", "02_processed/validate_report.json metadata"]
+        }
+      ],
+      "alternatives_considered": [
+        {
+          "alternative": "把 HX 阶梯块按 1440 行当作独立样本做行级统计",
+          "why_ruled_out": "HX 为 backward-merged 阶梯常量（PROF 480 / MAP 120 / IMG 240 快照），行级 p 值为伪重复 —— 一律改用快照级/窗内统计复核"
+        },
+        {
+          "alternative": "把 EVT-MAINTENANCE / EVT-HEATUP 当作预测子参与相关筛查",
+          "why_ruled_out": "事件列为干预标记而非过程量，进入筛查会产生'事件→一切'的伪因果；契约已将其列入 excludes，诊断中只用作时间锚"
+        }
+      ],
+      "uncertainty": {
+        "aleatory": "10 min 采样 + 多源粒度差异带来的量化抖动",
+        "epistemic": "LAB-HRC 未并入主表；FUR-SPEED/PRES 单位未声明；无来料/环境记录",
+        "impact_on_conclusion": "不改变过程侧定位，但限制质量侧（硬度）的量化闭环与速度臂的可检验性"
+      },
+      "falsification_condition": "若时间列非升序或采样间隔非均匀（median_interval 不成立），则全部滞后结论与 regime 边界失效 —— 本步结论依赖 time_alignment/validate_report 的排序与间隔证据"
+    },
+    {
+      "step_id": 2,
+      "step_name": "R2 统计发现与融合证据（含 VLM 目视）",
+      "step_question": "哪些相关性/异常结构与质量目标同窗？目视证据是否与统计同向？",
+      "inputs": [
+        {
+          "source": "02_processed/validate_report.json (summary)",
+          "content_summary": "400 对：236 显著；Z3→YIELD r=0.8987 / Z3→OUT r=0.7419（lag +4）/ Z3→PROF-MEAN r=0.8584；IMG/MAP 通道 r 0.90-0.96",
+          "evidence_rank": 3
+        },
+        {
+          "source": "02_processed/anomaly_report.json",
+          "content_summary": "8 个异常区间（多在 PROF 族，medium 级 2.1-2.8σ）；process_parameter_fluctuation 中 Z3/MAP-ASYM/HOTAREA/COLDAREA/IMG-STD 标 abrupt=yes；quality_reset_analysis applicable=false（无离散 reset）；dual_drive_analysis.cross_domain_links=[]",
+          "evidence_rank": 3
+        },
+        {
+          "source": "02_processed/expert_findings.json",
+          "content_summary": "regime 分段统计（A/B/C/D）；level_shift_deltas；within_segment_pearson；snapshot_level_correlation；confounder_probes（SHIFT-EST/DARKFRAC/SATFRAC 恒 0）；event_response_windows_12h",
+          "evidence_rank": 3
+        },
+        {
+          "source": "03_figures/visual_analysis.json（VLM 直读 4 图）",
+          "content_summary": "同步组 G1（Z3/OUT/YIELD/PROF-MEAN/MAP-MEAN/IMG-MEAN 同窗下凹）、G2（EDGE-R-DEV/MAP-ASYM-LR 横向族）；变冷具横向选择性；事件 ±12h ≤0.15%；MAP/IMG 为共线 hub",
+          "evidence_rank": 4
+        },
+        {
+          "source": "03_figures/image_captions.json（captions 数值）",
+          "content_summary": "三段水平与变点窗数值、ASYM↔EDGE-L 0.681、IMG-MEAN↔YIELD 0.956、速度-温度 r=−0.013",
+          "evidence_rank": 4
+        }
+      ],
+      "reasoning": {
+        "applied_logic": "统计先行 + 目视交叉验证：相关网络 → 同步组 → 共同上游候选；同时用 confounder_probes 与快照级去重剔除伪相关来源。",
+        "step_by_step": "1) 相关网络显示 Z3 与三/四个质量目标强连（0.74-0.90），IMG/MAP 通道同样强连 → 存在疑似共同上游；2) VLM 独立给出 10 通道同步下凹包络（day 5.2-7.3）与横向变冷选择性 → 统计与目视同向（+5 视作 VISUALLY_CONFIRMED）；3) 但 VLM 明确指出 MAP/IMG 通道集体为 hub = 高度共线冗余，不得作为独立证据重复计数（避免把'相机-热辐射同源'计成多重独立故障）；4) confounder_probes 排除了配准漂移（SHIFT-EST≡0）与表面氧化通道（恒 0）；5) 快照级去重后相关仍强（0.86-0.95）但 Spearman 显著低于 Pearson（0.44-0.58）→ 相关系数质量集中在段间水平变化。",
+        "assumptions": [
+          "VLM 目视同步性判断（谷值零错位）可靠到 ±0.5 天，不用于判断 40 min 级先导",
+          "快照级相关（n=120-480）的显著性足以支撑方向性结论"
+        ]
+      },
+      "outputs": [
+        {
+          "finding": "存在一个跨越炉温/炉膛场/图像/质量的共同劣化窗（≈02-06 至 02-09），窗内为宽底平台（-2~-4σ），非尖脉冲；MAP/IMG 通道为共线 hub，不能计为独立证据",
+          "confidence": 85,
+          "supported_by": ["03_figures/visual_analysis.json", "02_processed/expert_findings.json"]
+        },
+        {
+          "finding": "相关网络的质量集中在段间水平变化（Pearson≫Spearman），但窗内耦合（B 0.8549 / D 0.7393）真实存在 → 证据应按'平台偏移类'计分而以窗内相关佐证机理",
+          "confidence": 80,
+          "supported_by": ["02_processed/expert_findings.json within_segment_pearson", "02_processed/validate_report.json warnings"]
+        }
+      ],
+      "alternatives_considered": [
+        {
+          "alternative": "把 IMG/MAP 的多条高 r 边计为多个独立故障通道",
+          "why_ruled_out": "VLM（fig6）与合同语义共同显示其为共线 hub；且 IMG 与带温在物理上同源（辐射）"
+        },
+        {
+          "alternative": "把强 Pearson（0.90+）当作连续跟踪机理增益",
+          "why_ruled_out": "Spearman 仅 0.44-0.58；31 对 marked level_shift_dominated；分段内相关在 A 段近零"
+        }
+      ],
+      "uncertainty": {
+        "aleatory": "快照级噪声与轴刻度目视换算误差（±0.3-0.5 天）",
+        "epistemic": "IMG 未标定、LAB-HRC 缺失；双驱动上游联动层为空（cross_domain_links=[]）",
+        "impact_on_conclusion": "限制证据等级与权重分配，不改变共同上游的存在性判断"
+      },
+      "falsification_condition": "若快照级去重后相关崩溃（|r|<0.3）或 VLM 与统计出现方向矛盾，则'共同上游 + 同窗平台'的结构判断失效"
+    },
+    {
+      "step_id": 3,
+      "step_name": "R3 验证过滤与异常标注",
+      "step_question": "哪些相关通过反伪相关电池？异常区间/阈值/事件窗如何标注？",
+      "inputs": [
+        {
+          "source": "02_processed/validate_report.json (summary + metadata)",
+          "content_summary": "simpson_safe 400/400（无分组列，检查不适用）；detrended_robust 350/400；trend_confounded 50；level_shift_dominated 31；LOO 400/400；样本=steady_only 1367 行；HX 伪重复声明",
+          "evidence_rank": 3
+        },
+        {
+          "source": "02_processed/production_regime_filter.json（1367/1440 稳态，73 行 transition）",
+          "content_summary": "v6.5 稳态过滤；73 行过渡态不入统计层，但保留在 cleaned_data.csv 供事件窗与绘图",
+          "evidence_rank": 3
+        },
+        {
+          "source": "02_processed/anomaly_report.json (targets/anomaly_intervals + quality_reset_analysis)",
+          "content_summary": "8 个区间；quality_reset_analysis applicable=false（未检出离散 reset）；阈值分析：OUT-TEMP 临界 552.62（0.2% 以上）、YIELD 临界 100.23（0 超限）",
+          "evidence_rank": 3
+        },
+        {
+          "source": "02_processed/expert_findings.json（change-point 窗口与事件 ±12h）",
+          "content_summary": "OUT-TEMP 三段平台与下移窗（35.33 h）；YIELD 变点窗（98.0673 vs 99.2982）；事件 ±12h 幅度 ≤0.7-1.1 ℃",
+          "evidence_rank": 3
+        }
+      ],
+      "reasoning": {
+        "applied_logic": "按 validate_report 的四类约束（排序/Simpson/趋势/离群/变点）逐项过滤，再以 regime 分层复核；对'无自动 reset 事件'的情形，用操作锚 + 段均值逆转构造 reset 等效证据并显式降级为 L2+L3 复合。",
+        "step_by_step": "1) 排序：time_sorted 成立（清洗仅排序，行序未变）→ 滞后结论有效；2) Simpson：无分组列 → 不可检验，改以 regime 分段替代（A/B/D 三段的窗内相关分别 0.03/0.85/0.74）；3) 趋势混杂：50/400 对超标（含 Z2→YIELD 衰减 110.2%）→ 这些对降级；主力对（Z3→YIELD/OUT/PROF）衰减≈0 → 保留；4) 离群：LOO 400/400 通过 → 无离群驱动；5) 变点：OUT 三段、YIELD 12 变点 → 相关须按段解释；6) 自动 reset：quality_reset_analysis applicable=false 且 LAB-HRC NO_RESET（因未并入主表）→ 明确标注'本诊断的 reset 等效证据为操作锚（L2）+ 段均值逆转（L3）'，不作 L1 声明；7) VLM 一致性：事件响应图与统计同向（事件瞬态 <0.15%）。",
+        "assumptions": [
+          "regime 边界取操作事件锚时刻（02-06 06:40 / 02-08 10:00 / 02-08 21:00）",
+          "steady_only 子集（1367 行）作为统计层输入是合适的（过渡态 73 行已剔除）"
+        ]
+      },
+      "outputs": [
+        {
+          "finding": "主力相关对通过全部适用检验（detrend/LOO/排序）；但 31 对为水平偏移主导、50 对趋势混杂、HX 行级 p 值伪重复 → 证据分级为'平台偏移类（L3）'而非'连续机理类'",
+          "confidence": 85,
+          "supported_by": ["02_processed/validate_report.json", "02_processed/expert_findings.json"]
+        },
+        {
+          "finding": "自动质量 reset 分析不适用（无离散 reset 检出）→ 以 02-06 检修锚 + 02-08 换管升温锚 + A→B→D 段均值逆转作为 reset 等效证据（L2+L3）",
+          "confidence": 80,
+          "supported_by": ["02_processed/anomaly_report.json quality_reset_analysis", "07_hetero/annotations.json"]
+        }
+      ],
+      "alternatives_considered": [
+        {
+          "alternative": "把 quality_reset_analysis 的 applicable=false 解读为'无异常'",
+          "why_ruled_out": "其 NO_RESET 结论基于 LAB-HRC（未并入主表）与离散 reset 判据；本数据集异常形态是平台而非离散跳变，需以变点+分段替代判据"
+        },
+        {
+          "alternative": "以 Z2→YIELD（衰减 110.2%、trend_confounded=true）作为质量链成员",
+          "why_ruled_out": "趋势混杂标记 → 按 R3 规则降级/剔除"
+        }
+      ],
+      "uncertainty": {
+        "aleatory": "平台边界（变点）本身的定位误差",
+        "epistemic": "无分组列 → Simpson 不可检验；LAB-HRC 缺失使 reset 判据退化",
+        "impact_on_conclusion": "使'统计强度'因子被扣分（19/25），不改变过程侧定位"
+      },
+      "falsification_condition": "若发现排序被破坏或 regime 边界与真实事件错位（备注漏记），则滞后与段均值比较需重算"
+    },
+    {
+      "step_id": 4,
+      "step_name": "R4 竞争假说生成与因果链构建（含本体-数据-物理证明与目视证据）",
+      "step_question": "有哪些互斥机制可以解释同一数据形态？每条链的每一环是否有数据与物理支撑？",
+      "inputs": [
+        {
+          "source": "02_processed/data_analysis_conclusion.json（handoff）",
+          "content_summary": "priority_hypothesis_inputs 5 条（加热管老化 / 热电偶漂移 / 右侧不对称演化 / 相机漂移 / 速度失配）；数据支持结论 7 条；limitations 6 条；evidence_gaps 5 条",
+          "evidence_rank": 3
+        },
+        {
+          "source": "01_ontology/ontology.json (relationships + confounders)",
+          "content_summary": "Z3→OUT-TEMP（Q=h·A·ΔT+εσA·ΔT⁴）、SPEED→OUT（t_res=L/v）、ASYM-LR→EDGE-*-DEV、Z3→MAP-MEAN、OUT-TEMP→LAB-HRC、PRES→DARKFRAC；confounders 列明环境/抽检/CCD/备注/热电偶",
+          "evidence_rank": 5
+        },
+        {
+          "source": "resources/parameter_to_physics.json（模式库）",
+          "content_summary": "温度→Arrhenius/换热、压力→氧化、速度→停留时间、剖面→横向热流的机制模板",
+          "evidence_rank": 5
+        },
+        {
+          "source": "03_figures/visual_analysis.json + image_captions.json",
+          "content_summary": "同步组/选择性变冷/事件无阶跃/共线 hub",
+          "evidence_rank": 4
+        },
+        {
+          "source": "02_processed/physics_check.json",
+          "content_summary": "THERMAL_COUPLING_NOT_DETECTED（r=−0.2365）；ARRHENIUS_PLAUSIBLE（Ea 默认 80 kJ/mol；predicted 32.05 vs observed 1.0 → INCONSISTENT，自述为 plausibility band）",
+          "evidence_rank": 3
+        },
+        {
+          "source": "00_input/clarification_needed.json",
+          "content_summary": "AUTO_RESOLVED，无 UNKNOWN 物理含义参数（FUR-SPEED/PRES 仅单位未声明）→ 不施加 [PARAM_AMBIGUITY] 上限",
+          "evidence_rank": 2
+        }
+      ],
+      "reasoning": {
+        "applied_logic": "由数据形态（哪三个物理量异常、在哪个时间窗、向哪个方向、什么空间结构）反推可能的物理机制族，逐一写成可证伪假说；对每条因果链的每一箭头做 STEP A2 链环验证（端点可解析 / 相关显著 / 方向一致 / 量级可行）。",
+        "step_by_step": "1) 形态清单：仅 Z3 水平−4.93 ℃ 且波动×4.85；Z1/Z2/SPEED/PRES 平稳；空间选择性（右/下侧）；跨界 2-3 天平台；换管后恢复；2) 机制族穷举：热源侧（三区后段元件）、读数侧（热电偶）、全局侧（热损失/负荷）、输运侧（速度）、测量侧（相机）、气氛侧（炉压氧化）、扰动侧（事件瞬态）→ H1-H7；3) 链环验证：H1 接受链 5 环全部 ALL_LINKS_VALIDATED（Z3→OUT 0.7419/lag+4；Z3→YIELD 0.8987；Z3→PROF 0.8584；ASYM→EDGE-L 0.6807；Z3→MAP-MEAN）；速度臂（r=−0.0125）与硬度臂（未并入）在链中被剔除并登记于 inference_gaps（CORRELATION_ABSENT / DATA_LINK_MISSING）；4) 本体-数据-物理证明（Phase 1.5）：形态 MATCH（平台/比例）、滞后 MATCH（2400 s ≈ L/v）、方向 MATCH、量级 PLAUSIBLE（以 Ea 先验计算 −3.52% vs 实测 −1.00%，比值 0.28）→ STRONG_EVIDENCE；5) 目视绑定：G1 同步组、G2 横向族、事件无阶跃。",
+        "assumptions": [
+          "元件级功率为潜在（latent）中间量，允许存在于链中但必须登记",
+          "Ea=80 kJ/mol 中立先验用于量级带判断",
+          "ASYM-LR 几何语义按声明坐标系（左−右半场均值差）"
+        ]
+      },
+      "outputs": [
+        {
+          "finding": "生成 7 个竞争假说 H1-H7，每个含物理链（守恒律/本构关系）、证伪条件与预测可观测量",
+          "confidence": 90,
+          "supported_by": ["diagnosis.json hypotheses", "01_ontology/ontology.json relationships"]
+        },
+        {
+          "finding": "H1 接受链全部链环通过 STEP A2 验证；速度臂（CORRELATION_ABSENT）与硬度臂（DATA_LINK_MISSING）被剔除并登记于 inference_gaps，未静默删除",
+          "confidence": 85,
+          "supported_by": ["diagnosis.json hypotheses.surviving[0].chain_link_validation", "02_processed/validate_report.json"]
+        }
+      ],
+      "alternatives_considered": [
+        {
+          "alternative": "把'水平偏移主导'视为纯统计伪影、不建立任何机理假说",
+          "why_ruled_out": "窗内耦合（B 0.8549/D 0.7393）+ 器件更换后恢复 + 空间选择性 → 存在真实机理，只是证据等级为'平台偏移类'"
+        },
+        {
+          "alternative": "将 MAP/IMG 通道也列为主因候选",
+          "why_ruled_out": "其为测量通道（炉膛场/表面图像），不构成质量损失的物理源；且为共线 hub，独立信息量低"
+        }
+      ],
+      "uncertainty": {
+        "aleatory": "器件级电学量的不可观测性",
+        "epistemic": "热偶校准、来料、冷却段、硬度数据的缺失",
+        "impact_on_conclusion": "阻止 proof 升级为 PROVEN；不阻止 DETERMINED（器件级细节非诊断必需）"
+      },
+      "falsification_condition": "若任一假说无法写出证伪条件，则该假说不成立（本步要求：7 个假说全部给出可证伪条件）"
+    },
+    {
+      "step_id": 5,
+      "step_name": "R5 可分辨性评估（判别矩阵）",
+      "step_question": "H1 与各竞争假说能否由现有数据相互区分？区分信号是什么？",
+      "inputs": [
+        {
+          "source": "02_processed/expert_findings.json（分段/快照级/事件窗）",
+          "content_summary": "B/D 段耦合、空间选择性、事件 ±12h 幅度",
+          "evidence_rank": 3
+        },
+        {
+          "source": "02_processed/validate_report.json (validations 逐对)",
+          "content_summary": "Z1/Z2/SPEED/PRES → YIELD 全部 grade NONE；Z3 → YIELD 0.8987",
+          "evidence_rank": 3
+        },
+        {
+          "source": "02_processed/physics_check.json + derived 量级校核",
+          "content_summary": "Arrhenius 扰动 −3.52%；停留时间臂 11%；场定位 14.5%；辐射一致性 1.06",
+          "evidence_rank": 3
+        },
+        {
+          "source": "03_figures/visual_analysis.json",
+          "content_summary": "同步组/横向族/事件无阶跃/共线 hub",
+          "evidence_rank": 4
+        }
+      ],
+      "reasoning": {
+        "applied_logic": "对每一对假说寻找'一个假说预测而另一个不预测'的直接观测（判别信号），并检查该信号在本数据集是否可获得。",
+        "step_by_step": "1) H1 vs H2：判别信号=非三区测温通道是否同步变化 + 是否具空间选择性 + 恢复是否跟随物理器件 → 三者皆可得且皆指向 H1 → DISCRIMINABLE；2) H1 vs H3：判别信号=上游区温/炉压/场均匀性 → 上游 Δ<0.04 ℃、场降幅 14.5% → DISCRIMINABLE；3) H1 vs H4：判别信号=速度-温度相关与量级份额 → r=−0.0125、份额 11% → DISCRIMINABLE；4) H1 vs H5：判别信号=DCS/炉膛场是否同步（测量侧不能致病）+ 辐射量级 → DISCRIMINABLE（保留幅值混杂披露）；5) H1 vs H6：判别信号=炉压偏移与氧化签名 → 无 → DISCRIMINABLE；6) H1 vs H7：判别信号=事件窗幅度与形态 → 10.7-15.6% 且平台形态 → DISCRIMINABLE；7) 无 INDISTINGUISHABLE 对 → 不施加 ≤65 天花板。",
+        "assumptions": [
+          "判别信号的定义以'物理上互斥的预测差异'为准，而非统计显著性差异"
+        ]
+      },
+      "outputs": [
+        {
+          "finding": "6 对比较全部为 DISCRIMINABLE（ONE_SIDE_EXCLUDED），无 INDISTINGUISHABLE 对 → 结论可走 DETERMINED 路径；不施加 COMPETING_SET 天花板（≤65）",
+          "confidence": 85,
+          "supported_by": ["diagnosis.json discriminability_matrix"]
+        },
+        {
+          "finding": "最关键的判别信号是'介入—响应'（更换加热管后多通道回归基线）与'空间选择性'（右侧/后段）——前者否定仪表/相机/事件型解释，后者否定全局型解释",
+          "confidence": 90,
+          "supported_by": ["07_hetero/annotations.json", "02_processed/expert_findings.json level_shift_deltas", "03_figures/visual_analysis.json"]
+        }
+      ],
+      "alternatives_considered": [
+        {
+          "alternative": "把 H1 与 H2 判为 PARTIALLY_DISCRIMINABLE（因仪表分量不可直接测量）",
+          "why_ruled_out": "读数为伪影的核心预测（其他独立通道不变）被明确否证；残余的仪表分量只影响'波动放大'的归因份额，不影响结论类型 —— 该残余已写入 H2 的 revival_condition 与不确定性清单"
+        }
+      ],
+      "uncertainty": {
+        "aleatory": "无（判别信号为定性互斥预测）",
+        "epistemic": "仪表分量与元件分量的定量分割不可得",
+        "impact_on_conclusion": "无 INDISTINGUISHABLE 对 → 不触发天花板；但保守体现于五因子扣分"
+      },
+      "falsification_condition": "若出现一个新的假说与 H1 预测完全相同的可观测量集合（例如同时预测右/后侧局域热损失 + 器件更换后恢复 + 波动放大），则应降级为 COMPETING_SET"
+    },
+    {
+      "step_id": 6,
+      "step_name": "R6 排除验证",
+      "step_question": "哪些假说被排除？排除依据的量级/物理/统计证据是什么？",
+      "inputs": [
+        {
+          "source": "diagnosis.json discriminability_matrix",
+          "content_summary": "6 对 DISCRIMINABLE 的判别信号",
+          "evidence_rank": 3
+        },
+        {
+          "source": "02_processed/validate_report.json + expert_findings.json + physics_check.json",
+          "content_summary": "逐假说的否证数字（见 specific_evidence）",
+          "evidence_rank": 3
+        }
+      ],
+      "reasoning": {
+        "applied_logic": "按物理排除（量级不可行/物理不可能）、统计排除（无显著相关/方向矛盾）、组合排除（多证据合取否证）三类逐一给出排除结论与排除置信度，并写明复活条件。",
+        "step_by_step": "1) H2（读数伪影）→ COMBINED：非三区通道同步（PROF/OUT/MAP/IMG）+ 空间选择性 + 恢复跟随物理器件 → 90；2) H3（全局热损失）→ PHYSICAL：上游无响应、场局域性 14.5% → 92；3) H4（速度失配）→ STATISTICAL：无显著相关 + 份额 11% + 恢复边界速度不变 → 90；4) H5（相机漂移）→ COMBINED：测量侧不能致病 + 辐射量级自洽 → 90；5) H6（炉压氧化）→ COMBINED：签名通道死亡 + 炉压无偏移 + 与 YIELD 无耦合 → 90；6) H7（事件瞬态）→ COMBINED：幅度 10.7-15.6% + 平台形态 → 90。排除数 6 ≥ 2（满足门槛）。",
+        "assumptions": [
+          "排除置信度按'多条独立证据合取'给分，单条证据不足以排除（如仅靠事件窗幅度不足以排除 H7）"
+        ]
+      },
+      "outputs": [
+        {
+          "finding": "6 个假说被排除（H2 90 / H3 92 / H4 90 / H5 90 / H6 90 / H7 90），全部附复活条件；无 [WEAK_EXCLUSION]（均 ≥ 80）",
+          "confidence": 90,
+          "supported_by": ["diagnosis.json hypotheses.eliminated"]
+        }
+      ],
+      "alternatives_considered": [
+        {
+          "alternative": "把 H6（炉压→氧化）标为 NEEDS_DATA 而非排除",
+          "why_ruled_out": "除通道死亡外，原因侧（FUR-PRES）亦无任何偏移且与 YIELD 无耦合 → 在'本次异常'的语境下可排除；通道死亡与复活条件已显式保留，未隐藏数据盲区"
+        }
+      ],
+      "uncertainty": {
+        "aleatory": "n/a",
+        "epistemic": "部分排除依赖不可观测性的论证（H6）与未标定通道（H5 幅值）",
+        "impact_on_conclusion": "排除结论稳健；其残余不确定性已转化为复活条件"
+      },
+      "falsification_condition": "若某被排除假说获得其复活条件所指的新证据（校准记录、元件功率、标定后表面指标），则须重新评估"
+    },
+    {
+      "step_id": 7,
+      "step_name": "R7 诊断结论与证伪条件",
+      "step_question": "最终诊断类型、主结论、置信度与证据等级是什么？",
+      "inputs": [
+        {
+          "source": "R4-R6 输出（假说/判别/排除）",
+          "content_summary": "H1 存活、6 假说排除、6 对 DISCRIMINABLE",
+          "evidence_rank": 3
+        },
+        {
+          "source": "04_diagnostics/confidence.json（五因子）",
+          "content_summary": "19/20/17/11/9 = 76",
+          "evidence_rank": 3
+        },
+        {
+          "source": "07_hetero/annotations.json（操作闭环）",
+          "content_summary": "02-08 换管 → 02-10 温度与硬度恢复、问题闭环",
+          "evidence_rank": 2
+        }
+      ],
+      "reasoning": {
+        "applied_logic": "四条件合取（时间先导 + 统计显著 + 物理机理 + 无矛盾）检验 H1；证据等级取结论所依赖的最低等级；输出类型按存活假说数与可分辨性判定。",
+        "step_by_step": "1) 时间先导：02-05 波动先导 → 02-06 06:40 过程侧水平偏移人工锚 → YIELD 变点窗 02-06 14:30 起（≈8 h 后）→ 满足；2) 统计显著：Z3→YIELD 0.8987（通过 detrend/LOO）、Z3→OUT 0.7419（lag +4 物理一致）；3) 物理机理：炉膛热平衡 + 换热 + t_res=L/v + Arrhenius，量级校核 PLAUSIBLE；4) 无矛盾：一/二区/速度/炉压/配准/表面通道均无相反证据，且 D 段恢复与机制一致；5) 证据等级：主结论由 L1 直接测量（DCS + 快照）承担，硬度侧仅 L2、统计推断为 L3 → 结论等级 L1（受最弱环节限制项已在 gaps 中声明）；6) 输出类型：单一存活 + 全部对 DISCRIMINABLE + ≥2 排除 → DETERMINED。",
+        "assumptions": [
+          "结论限定于本次 10 天连续运行的异常窗，不外推为长期趋势",
+          "器件级归因（后段加热元件）以操作记录与介入响应为准，非直接电学测量"
+        ]
+      },
+      "outputs": [
+        {
+          "finding": "diagnosis_type=DETERMINED：三区（均热段）后段加热能力损失 → 炉温水平下移（−4.93 ℃）+ 波动放大（×4.85）→ 出料温度 −2.24 ℃、收得率 −0.99 pt；置信度 76（MEDIUM），证据等级 L1（直接测量），器件级归因为 STRONG_EVIDENCE（非 PROVEN）",
+          "confidence": 76,
+          "supported_by": ["diagnosis.json", "confidence.json", "evidence.json", "reasoning_chain.json"]
+        }
+      ],
+      "alternatives_considered": [
+        {
+          "alternative": "COMPETING_SET（把 H1 与 H2 并列）",
+          "why_ruled_out": "H2 的核心预测被否证（独立通道不变），残余仪表分量只影响波动份额的归因而非结论类型；已以复活条件与不确定性披露保留其可复活性"
+        },
+        {
+          "alternative": "NEEDS_DATA（因无元件功率/硬度数据而拒绝下结论）",
+          "why_ruled_out": "四条件已合取满足且有介入—响应闭环；缺项属'增强证据'而非'前置条件'，故以 DETERMINED + 显式 gaps 呈现"
+        }
+      ],
+      "uncertainty": {
+        "aleatory": "10 min 采样与多源粒度量化",
+        "epistemic": "元件电气量、热偶校准、硬度、来料、环境、冷却段数据缺失",
+        "impact_on_conclusion": "置信度封顶于 76；不改变结论类型与主结论方向"
+      },
+      "falsification_condition": "若热偶校准记录显示 ≥2 ℃ 级同期校准偏移，或 LAB-HRC 并入后显示硬度与均热温度无同向关系，或元件功率记录显示功率恒定 —— 任一成立则主结论须降级或改写"
+    },
+    {
+      "step_id": 8,
+      "step_name": "R8 不确定性界定与建议测量",
+      "step_question": "结论的不确定性边界在哪里？需要补哪些测量才能升级证据？",
+      "inputs": [
+        {
+          "source": "04_diagnostics/confidence.json（五因子与假设残差）",
+          "content_summary": "扣分项：31 对水平偏移主导、HX 伪重复、Ea 未标定、D 段残余波动、硬度未闭环",
+          "evidence_rank": 3
+        },
+        {
+          "source": "02_processed/data_analysis_conclusion.json evidence_gaps",
+          "content_summary": "LAB-HRC 未并入、无冷却段参数、无暗帧、无来料/校准、无环境温度",
+          "evidence_rank": 3
+        },
+        {
+          "source": "diagnosis.json inference_gaps",
+          "content_summary": "4 条链环缺口（硬度臂、速度臂、氧化臂、元件功率潜在量）",
+          "evidence_rank": 3
+        }
+      ],
+      "reasoning": {
+        "applied_logic": "把不确定性分为 aleatory（不可约）、epistemic（可通过补数据降低）、model（方法学）；对 epistemic 项给出可执行的最小补充测量清单及预期对置信度的影响。",
+        "step_by_step": "1) aleatory：10 min/多源粒度量化不可约；2) epistemic：热偶校准记录（可直接裁决 H2）、元件功率/电流记录（可把器件级归因升级为 PROVEN）、LAB-HRC 并入（补齐硬度终点）、暗帧/照明基准（IMG 幅值标定）、来料与环境记录（关闭来料/环境混杂）、冷却段参数（硬度链第二因子）；3) model：线性换热/线性吸热近似、Pearson 对水平偏移敏感（已用 Spearman/分段/快照级三重交叉）；4) 残余现象：D 段 Z3 波动 std 1.7033 仍高于 A 段 0.7865 → 提示修复不完全或存在残余仪表/回路因素，作为 H2 复活条件之一；5) 结论变更触发条件明确写入 what_would_change_conclusions。",
+        "assumptions": [
+          "补充测量的可行性按现有产线仪表条件估计（未做成本评估）"
+        ]
+      },
+      "outputs": [
+        {
+          "finding": "待补测量优先级：① 三区热电偶校准记录（裁决 H2，影响 ±10 分）② 三区后段元件功率/电流记录（可把器件级升级为 PROVEN，+5~10 分）③ LAB-HRC 并入锚定表（硬度闭环，+3~5 分）④ 暗帧/照明基准（IMG 幅值标定，+2~3 分）",
+          "confidence": 85,
+          "supported_by": ["diagnosis.json data_gaps/inference_gaps", "confidence.json evidence_gaps"]
+        },
+        {
+          "finding": "残余异常现象需跟踪：D 段三区波动放大未完全恢复（std 1.7033 vs 0.7865）——建议在闭环观察期内监测其是否收敛",
+          "confidence": 80,
+          "supported_by": ["02_processed/expert_findings.json regime_segments D_restored"]
+        }
+      ],
+      "alternatives_considered": [
+        {
+          "alternative": "以'无元件功率数据'为由将结论降为 NEEDS_DATA 并要求停产取数",
+          "why_ruled_out": "四条件与介入—响应已足够支撑 DETERMINED；补数据用于升级证据等级而非改变结论方向"
+        }
+      ],
+      "uncertainty": {
+        "aleatory": "n/a（本步为不确定性归集）",
+        "epistemic": "见上（6 项可降低项）",
+        "impact_on_conclusion": "给出置信度上限 76 与可升级路径；不改写结论"
+      },
+      "falsification_condition": "若补充测量显示主结论的任一必要条件不成立（元件功率恒定 / 热偶校准偏移 / 硬度与温度无关系），则本诊断须按 R7 的证伪条件重写"
+    }
+  ],
+  "hypothesis_evolution": [
+    {
+      "hypothesis_id": "H1",
+      "initial_confidence": 60,
+      "final_confidence": 76,
+      "confidence_adjustments": [
+        {
+          "adjustment_reason": "器件级介入—响应闭环（更换加热管后各通道回归基线）",
+          "adjustment_points": 5,
+          "triggered_by": "R5-R6（判别矩阵：介入—响应作为 H1 vs H2/H5/H7 的判别信号）"
+        },
+        {
+          "adjustment_reason": "多通道独立复现（非热偶链路四源同窗变化与恢复）",
+          "adjustment_points": 5,
+          "triggered_by": "R2/R5"
+        },
+        {
+          "adjustment_reason": "统计结构为水平偏移主导（31 对 level_shift_dominated）",
+          "adjustment_points": -6,
+          "triggered_by": "R3"
+        },
+        {
+          "adjustment_reason": "量级校核依赖未标定的 Ea 先验；器件级功率无测点",
+          "adjustment_points": -5,
+          "triggered_by": "R4（Phase 1.5 证明）"
+        },
+        {
+          "adjustment_reason": "HX 通道 backward-merged 伪重复，有效样本量下降",
+          "adjustment_points": -4,
+          "triggered_by": "R3"
+        }
+      ],
+      "survival_path": "四条件合取满足（时间先导 8 h + 统计显著 + 物理机理量级自洽 + 无矛盾），且 6 个竞争假说逐一被判别信号排除（DISCRIMINABLE），无 INDISTINGUISHABLE 对 → 单一存活，走 DETERMINED"
+    },
+    {
+      "hypothesis_id": "H2",
+      "initial_confidence": 55,
+      "final_confidence": 42,
+      "confidence_adjustments": [
+        {
+          "adjustment_reason": "02-05 波动备注先于水平偏移（时间结构支持读数/元件两类皆可）",
+          "adjustment_points": 5,
+          "triggered_by": "R2"
+        },
+        {
+          "adjustment_reason": "非三区测温通道同步变化（PROF/OUT/MAP/IMG）否证纯读数预测",
+          "adjustment_points": -15,
+          "triggered_by": "R5"
+        },
+        {
+          "adjustment_reason": "空间选择性（右/后侧）无法由单点读数偏差产生",
+          "adjustment_points": -10,
+          "triggered_by": "R5-R6"
+        },
+        {
+          "adjustment_reason": "恢复跟随物理器件更换而非仪表处理",
+          "adjustment_points": -5,
+          "triggered_by": "R6"
+        },
+        {
+          "adjustment_reason": "D 段残余波动（std 1.7033 vs A 0.7865）保留仪表分量可能性",
+          "adjustment_points": 12,
+          "triggered_by": "R8（残余现象）"
+        }
+      ],
+      "survival_path": "未存活：作为根因排除（exclusion_confidence 90），但保留复活条件（热偶校准记录）与残余不确定性（波动分量归因）"
+    },
+    {
+      "hypothesis_id": "H3",
+      "initial_confidence": 35,
+      "final_confidence": 35,
+      "confidence_adjustments": [
+        {
+          "adjustment_reason": "上游区温与炉压无响应（Δ<0.04 ℃ / −0.0072）",
+          "adjustment_points": -20,
+          "triggered_by": "R3"
+        },
+        {
+          "adjustment_reason": "场均值降幅仅为三区降幅的 14.5%（局域性证据）",
+          "adjustment_points": -15,
+          "triggered_by": "R5"
+        },
+        {
+          "adjustment_reason": "最初因'整线环境/保温'类机制先验而给予的基准确认",
+          "adjustment_points": 35,
+          "triggered_by": "R4（假说生成）"
+        }
+      ],
+      "survival_path": "未存活：物理排除（exclusion_confidence 92）"
+    },
+    {
+      "hypothesis_id": "H4",
+      "initial_confidence": 40,
+      "final_confidence": 26,
+      "confidence_adjustments": [
+        {
+          "adjustment_reason": "速度-温度无显著相关（r=−0.0125, p=0.645）且方差受限",
+          "adjustment_points": -14,
+          "triggered_by": "R3"
+        },
+        {
+          "adjustment_reason": "量级份额仅 11%（derived 校核）",
+          "adjustment_points": -10,
+          "triggered_by": "R5"
+        }
+      ],
+      "survival_path": "未存活：统计排除（exclusion_confidence 90）；因功效不足，复活条件保留"
+    },
+    {
+      "hypothesis_id": "H5",
+      "initial_confidence": 45,
+      "final_confidence": 29,
+      "confidence_adjustments": [
+        {
+          "adjustment_reason": "测量侧变量不能引起 DCS/炉膛场变化",
+          "adjustment_points": -12,
+          "triggered_by": "R5"
+        },
+        {
+          "adjustment_reason": "辐射量级一致性检查（−4.98% vs 预测 −5.29%）",
+          "adjustment_points": -4,
+          "triggered_by": "R4/R5"
+        }
+      ],
+      "survival_path": "未存活：组合排除（exclusion_confidence 90）；IMG 幅值的标定混杂已披露（权重 moderate）"
+    },
+    {
+      "hypothesis_id": "H6",
+      "initial_confidence": 30,
+      "final_confidence": 23,
+      "confidence_adjustments": [
+        {
+          "adjustment_reason": "签名通道死亡（DARKFRAC/SATFRAC≡0）且炉压无偏移",
+          "adjustment_points": -7,
+          "triggered_by": "R3/R6"
+        }
+      ],
+      "survival_path": "未存活：组合排除（exclusion_confidence 90）"
+    },
+    {
+      "hypothesis_id": "H7",
+      "initial_confidence": 50,
+      "final_confidence": 40,
+      "confidence_adjustments": [
+        {
+          "adjustment_reason": "事件 ±12h 幅度仅为平台偏移的 10.7%-15.6%",
+          "adjustment_points": -6,
+          "triggered_by": "R2/R5"
+        },
+        {
+          "adjustment_reason": "形态为宽底平台（VLM）而非事件瞬态",
+          "adjustment_points": -4,
+          "triggered_by": "R2"
+        }
+      ],
+      "survival_path": "未存活：组合排除（exclusion_confidence 90）；作为统计混杂已由 regime 分段 + 稳态过滤处理"
+    }
+  ],
+  "uncertainty_summary": {
+    "epistemic_gaps": [
+      "三区热电偶校准记录缺失 → 无法直接量化读数分量（H2 复活条件）",
+      "三区后段加热元件功率/电流/电阻记录缺失 → 器件级机制不可直测（阻止 PROVEN）",
+      "LAB-HRC 未并入锚定主表 → 硬度终点不可量化闭环（仅 L2 人工记录佐证）",
+      "相机暗帧/照明基准缺失 → IMG 幅值未标定（增益混杂不可排除）",
+      "来料成分/厚度与炉膛环境温度未记录 → 来料型/环境型混杂不可完全关闭",
+      "冷却段参数未记录 → 硬度链第二关键因子缺失",
+      "上游契约缺项：anomaly_report.dual_drive_analysis.cross_domain_links 为空且无 dual_drive_diagnostic_layer → 双驱动链路由诊断者自建（已披露）"
+    ],
+    "aleatory_limits": [
+      "DCS 10 min 采样与 HX 源粒度（30min/1h/2h）的量化不确定性不可约",
+      "MAP 场 5×4=20 格 @2h → 空间定位分辨率不可约（≈15% 场面积只能给到 ≈3 格量级）",
+      "40 min 级先导滞后无法由 VLM 目视分辨（只能由 CCF 统计给出）",
+      "收得率作为统计量的固有抖动与硬度抽检的 2h 稀疏性"
+    ],
+    "overall_confidence_ceiling": 76,
+    "what_would_change_conclusions": [
+      "取得三区热电偶校准记录并显示同期 ≥2 ℃ 级偏移 → H2 复活，主结论降级为'过程+读数复合'",
+      "取得三区后段元件功率记录且显示功率恒定 → H1 的器件级机制被否证，须转向其他热源侧解释",
+      "LAB-HRC 并入后显示硬度与均热温度无同向关系（|r|<0.2 或方向相反）→ 均热温度→性能链断裂，结论须收窄为'过程侧温度异常'而非质量根因",
+      "发现来料（成分/厚度）变更记录且可解释 −4.93 ℃ 与右侧空间指纹 → 让位于来料型解释",
+      "发现未记录的额外操作事件恰在平台边界且具平台持续时间 → H7 复活评估"
+    ],
+    "reasoning_weaknesses": [
+      {
+        "weakness": "核心相关（Z3→YIELD 0.8987）的 Pearson 由段间水平偏移主导（ρ=0.5098），易被误读为连续机理增益",
+        "mitigation": "以分段内相关（B 0.8549 / D 0.7393）、快照级去重相关与 Spearman 三重交叉；证据按'平台偏移类'计分并写入 contradicting_evidence",
+        "residual_risk": "若 B 段窗内相关本身仍被窗内单调斜坡驱动，则'机理耦合'的强度会被高估（方向不受影响）"
+      },
+      {
+        "weakness": "四类独立通道的'独立性'受共线性削弱（VLM 指出 MAP/IMG 为共线 hub；IMG 与带温物理同源）",
+        "mitigation": "只把带材剖面（PROF，独立测量技术的带材温度）与 DCS 出料测温（OUT-TEMP）计为独立复现，MAP/IMG 计为同源/共线通道（证据权重 moderate）",
+        "residual_risk": "若 PROF 与 OUT 也存在共同标定偏移，则'独立复现'的强度下降（但空间选择性仍独立成立）"
+      },
+      {
+        "weakness": "器件级归因依赖操作备注（L2）与介入响应，非直接电学测量",
+        "mitigation": "登记为潜在中间量（inference_gaps）并将证明强度限制为 STRONG_EVIDENCE；给出证伪条件（功率记录）",
+        "residual_risk": "若检修同窗还做了未记录的仪表/回路处理，则'器件级'归因的排他性下降"
+      },
+      {
+        "weakness": "regime 边界取自稀疏操作备注（9 条/10 天），存在事件漏记风险",
+        "mitigation": "分段统计与稳态过滤并用；事件窗灵敏度（±12h 幅度 <16%）显示边界错位不足以翻转结论",
+        "residual_risk": "若存在一整段未记录的工艺调整（持续 2-3 天），则部分归因需修正"
+      }
+    ]
+  }
+}

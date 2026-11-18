@@ -1,0 +1,113 @@
+{
+  "verdict": "pass",
+  "overall_score": 93,
+  "blocking_issues": [],
+  "warnings": [
+    "fig_event_response 图注升温窗 pedger 柱标“≈+4.3%”，按 02_processed/expert_findings.json 口径应为 +4.37%（0.1793/4.1045）；0.07pp 舍入差，建议随上游图件生成脚本修复时统一口径（不影响 H7 排除结论）。",
+    "B.1 的 OUT-TEMP 窗端点：页面已按 Judge warnings[0] 建议采用索引口径（02-07 00:20 → ≈02-08 11:30，35.33 h，窗内均值 546.3626 ℃ 可复算且 Judge 已独立复核）——页面处理正确；但 canonical expert_findings.json / diagnosis.json 仍保留 02-08 23:40 旧端点，建议终局 finalize 前同步修正上游工件以消除双口径。",
+    "fig2_key_scatter 未纳入 fast 模式 VLM 4 图直读预算（页面已 INFO 级披露，统计内容取自 image_captions.json/validate_report）——如需要完整目视闭环可在 full 模式重跑图件（非本页缺陷）。"
+  ],
+  "checks": [
+    {
+      "name": "hero_clarity",
+      "status": "pass",
+      "evidence": "首屏结论先行：.display“三区（均热段）后段的局部加热能力损失——加热管老化的过程侧根因”；.hero-lede 含具体值“水平下移 4.93 ℃（880.0079 → 875.0827 ℃）并伴随波动放大 4.85 倍（段内 std 0.7865 → 3.815）”“出料温度下降 2.24 ℃、收得率下降 0.99 pt”“D−A：Z3 −0.50 ℃ / OUT −0.13 ℃ / YIELD −0.08 pt”；8 元素齐（.hero-bar/.display/.hero-lede/.hero-meta 9 项/.hero-badges DETERMINED·76·L1·Judge 96 pass·CP-8 ENDORSED/.key-findings 4 格均为具体值/阅读指引 caption），无空值占位。结论与 report.md 执行摘要、diagnosis.json primary_finding 一致。10 秒内可读出结论+位置+置信度。"
+    },
+    {
+      "name": "evidence_layer_1_statistical",
+      "status": "pass",
+      "evidence": "统计层闭合：CHART 03 段窗内相关“A 0.0267 / B 0.8549 / D 0.7393”与 expert_findings.within_segment_pearson 逐位一致；CHART 04 原始 vs 去趋势“0.8987→0.8960、0.7419→0.7372”与 validate_report 一致；Spearman ρ=0.5098 背离如实披露；快照级去重 0.8579（n=480）；关键相关表含 ρ=0.5730、滞补 0.7448、ASYM↔EDGE-L 0.6807/0.6869/ρ 0.5881（validate_report 对逐位一致）；证据强度“4/5”明示；Layer Ⅰ 内嵌 3 张真实 PNG（overlay/scatter/causal map）+ ECharts 重建图，fig2 未直读已 INFO 披露。"
+    },
+    {
+      "name": "evidence_layer_2_physics",
+      "status": "pass",
+      "evidence": "物理层闭合：7 环 .physics-chain 逐环量化（V²/R、−4.93 ℃/×4.85、MAP −0.7160 与 14.5%≈2.9/20 格、Q=hA(T_f−T_s)+εσA(T_f⁴−T_s⁴)、t_res=L/v 与 +4 步/−2.2418 ℃/ΔOUT/ΔZ3=0.4552、Arrhenius 0.9648 与观测/预测 0.2835、换管恢复）；量级校核表 4 项（MATCH/排除全局型/PLAUSIBLE/无需增益漂移）；剖面热图 PNG 给出下侧更暗+右边缘指纹+空间一致性说明（SHIFT-EST 全表恒 0、ASYM-LR −3.5572→−1.4991、左边缘 −2.9891→−2.3384）；强度 4/5 与 INFERRED 约束（STRONG_EVIDENCE 非 PROVEN）明示。"
+    },
+    {
+      "name": "evidence_layer_3_exclusion",
+      "status": "pass",
+      "evidence": "排除层闭合：7 篇假说文章（H1 存活 + H2–H7 排除，各含原始/去趋势或量化量级 + 排除理由 + 复活条件）；综合判决矩阵排除置信度 90/92/90/90/90/90 与 diagnosis.json hypotheses.eliminated 一致，6/6 DISCRIMINABLE、无 INDISTINGUISHABLE 对、无 WEAK_EXCLUSION；event_response PNG 支撑 H7 排除（除 pedger 外各柱 <0.15%）；五因子表 19+20+17+11+9=76 与 confidence.json 逐项一致；实证文“6 个竞争假说全部排除”可核对。三层全 available:true → 无需 .evidence-missing 标注（页面零处）。"
+    },
+    {
+      "name": "image_usage_from_03_figures",
+      "status": "pass",
+      "evidence": "5 张 <img> 均为 03_figures 本 run 真实 PNG 且相对路径实存（fig_vlm_temporal_overlay / fig2_key_scatter / fig6_causal_evidence_map / fig_hetero_profile_heatmap / fig_event_response，逐个核验文件存在）；每图配图注+生成来源与渲染偏差限定语（B.4：无事件标注线/无 z 叠加子图/pedger 口径差异）；onerror=imgFallback() 以文字替代，杜绝 404 破图；无 stock/装饰图。"
+    },
+    {
+      "name": "three_d_fidelity",
+      "status": "pass",
+      "evidence": "#threejsContainer + WebGLRenderer 真实 canvas；工段 S1–S6 顺序与设备取自 01_ontology/ontology.json scene.stages（S3 均热=异常位），FUR-LINE 辊道阵列、带材流向连续管 S1→S6、异常落点 FUR-Z3 红环+“异常位置 FUR-Z3 后段”标注；仅在 manifest.process_flow.recoverable=true 时渲染；无 3d_model_data.json 的几何简化已显式披露（工艺顺序与落点不得出错——均正确）；Three.js/OrbitControls 双源失败 → fallback3D() 三行说明+降级类。"
+    },
+    {
+      "name": "chart_initialization",
+      "status": "pass",
+      "evidence": "4 个 .chart-canvas；ECharts 三源顺序加载（jsdelivr→unpkg→cdnjs）+ 每图 mount() 内 echarts.getInstanceByDom(dom) 判定 okCount===need，全失败 → degrade()；图表数值来自 manifest.charts[].values 且与 validate_report/expert_findings 一致（如 chart3 0.0267/0.8549/0.7393、chart4 0.8987/0.8960/0.7419/0.7372）；每图配三行解读（看到什么/说明什么/为什么重要）；CDN 全失败时正文静态回退表 4 张（body.degraded 显示），无空白无假成功。"
+    },
+    {
+      "name": "dual_evidence_per_conclusion",
+      "status": "pass",
+      "evidence": "H1 主结论具备统计（r=0.8987/去趋势 0.8960/LOO 400/400/段窗内 0.8549）+ 物理（7 环链条 + 四项量级校核）+ 排除（H2–H7 三重判别与复活条件）三独立证据；每篇排除文章均写明“为什么排除”的判别信号（介入—响应/空间选择性/签名不可观测等），无仅统计无物理解释的结论。"
+    },
+    {
+      "name": "plain_language_translation",
+      "status": "pass",
+      "evidence": "术语即译：std＝“标准差＝波动的离散程度”；Pearson r＝“线性同步度（1 为完全同向）”、Spearman ρ＝“只看排名的同步度（对极端值/平台更稳健）”；滞后（步）＝“谁先动，正号表示左列先动”；z 归一化＝“把不同量纲的曲线拉到同一尺度比较形状”；§02 白话方法段（先统计找“谁和谁一起变”→物理检查因果链→排除法检查别的解释）；全文中文，枚举保持英文。"
+    },
+    {
+      "name": "action_and_limitations",
+      "status": "pass",
+      "evidence": "action-block 行动表 5 行 = manifest.actions 5 条（P0 校准记录/P0 功率采集/P1 LAB-HRC 并入/P1 标定与登记/P2 SPC 监控），各带验证判据与预期效果；limitations 五类诚实清单（数据盲区/方法模型/不可约/未控混杂/契约缺项）+ 结论范围限定（不外推、器件级为 STRONG_EVIDENCE 非 PROVEN）；行动时标“本周内”与 report.md 行动方案一致。"
+    },
+    {
+      "name": "render_manifest_produced",
+      "status": "pass",
+      "evidence": "render_manifest.json 存在（14,213 B，先于 HTML 生成；counts = {hypotheses:7, charts:4, evidence_layers:3, pngs:5, actions:5, hero_scope_fields:9}）；页面关键数字全部可回溯本 run 工件：0.8987/0.5098/31 对/350 detrended/236 显著（validate_report.summary 400/236/400/350/50/31/400 逐项一致）、14.5%、90–92、0.9648、−4.98% vs −5.29%、546.3626 等；manifest 无 run_dir 之外的值。"
+    },
+    {
+      "name": "manifest_page_consistency",
+      "status": "pass",
+      "evidence": "程序化计数独立复算一致：.chart-canvas=4=manifest.charts[4]；.evidence-article=7=manifest.hypotheses[7]；<img>=5=available_pngs[5]；行动表行=5=actions[5]；.hero-meta-item=9=Object.keys(scope)；.evidence-layer=3=available:true 层数（无 available:false 层）；3D 段序/设备数/异常落点=process_flow；结论“三区后段加热能力损失”、76/MEDIUM、L1、Judge 96/CP-8 ENDORSED、图表标题与 manifest 字段全部一致。"
+    },
+    {
+      "name": "no_cross_run_pollution",
+      "status": "pass",
+      "evidence": "页面未出现本 run 数据无法解释的值/设备/假说名：工段 S1–S6、FUR-Z3 后段异常落点、H1–H7 假说族均出自本 run ontology/diagnosis；抽查 ≥13 组数字全部落在本 run 工件；judge_feedback 确认“本工作区无同场景既往 run（heat_treat_sim 首次执行）”，无历史 run 残留特征。"
+    },
+    {
+      "name": "selfcheck_audit",
+      "status": "pass",
+      "evidence": "html_selfcheck.json 8 项全 PASS，独立复核成立：manifest 先于 HTML（mtime 05:29 < 05:33）；元素计数复算一致（4/7/5/9/3）；5 PNG 实存；页面零处“2400 / 40 min”步→时间换算（grep=0，CP-7L 合规，B.5 显式披露且与 time_alignment.json 1 步=600 s 元数据引用一致）；hero 8 元素核实；05_review 原仅含 judge_feedback/pre_audit_lint，本 html_review.json 由本 reviewer 首次写入（无代写）。"
+    }
+  ],
+  "red_line_audit": [
+    {"id": 1, "check": "flat_card_pile", "result": "cleared", "note": "页面为五段叙事结构（hero/01 定位/02 推理/03 三层证据/04 附录），非卡片平铺"},
+    {"id": 2, "check": "no_real_pngs", "result": "cleared", "note": "5 张 03_figures 真实 PNG 嵌入且实存"},
+    {"id": 3, "check": "statistics_without_physics", "result": "cleared", "note": "Layer Ⅱ 7 环物理链 + 热平衡/停留时间/Arrhenius/Wien 量级校核"},
+    {"id": 4, "check": "no_exclusion_grounds", "result": "cleared", "note": "H2–H7 每篇含排除理由与复活条件 + 综合判决矩阵"},
+    {"id": 5, "check": "generic_factory_3d", "result": "cleared", "note": "3D 由本 run ontology 工段重建，S3 异常高亮，非通用模型"},
+    {"id": 6, "check": "charts_without_text", "result": "cleared", "note": "4 图各配三行解读 + 图注 + 数据源行"},
+    {"id": 7, "check": "no_first_screen_conclusion", "result": "cleared", "note": "hero 首屏即结论 + 4 格关键发现"},
+    {"id": 8, "check": "untranslated_jargon", "result": "cleared", "note": "std/Pearson/Spearman/滞后/z 归一化等随文白话翻译"},
+    {"id": 9, "check": "404_images", "result": "cleared", "note": "5 图路径实存 + onerror 文字回退"},
+    {"id": 10, "check": "section_count_contradicts_scene", "result": "cleared", "note": "章节数与场景一致（单产物连续线，无批次分组叙事混淆）"},
+    {"id": 11, "check": "fabricated_data", "result": "cleared", "note": "抽检 ≥13 组数字全部回溯 canonical 工件，无凭空值"},
+    {"id": 12, "check": "reviewer_not_run", "result": "cleared", "note": "本审查由 html-reviewer 独立执行并首次写入本例工件"},
+    {"id": 13, "check": "dark_industrial_style", "result": "cleared", "note": "浅色衬线编辑风（#fafaf8 底），非深色工业风"},
+    {"id": 14, "check": "manifest_missing_or_mismatch", "result": "cleared", "note": "manifest 齐备且 6 项计数/字段逐项一致（见 manifest_page_consistency）"},
+    {"id": 15, "check": "cross_run_contamination", "result": "cleared", "note": "无跨 run 值/设备/假说（见 no_cross_run_pollution）"}
+  ],
+  "spot_checks": [
+    {"page_text": "Z3 炉温 A/B/D 均值 880.0079 / 875.0827 / 879.5107 ℃，ΔB−A −4.9252（关键数值面板+CHART01）", "artifact": "expert_findings.json regime_segments/level_shift_deltas.z3（880.0079/875.0827/879.5107/−4.9252）", "result": "match"},
+    {"page_text": "Z3 段内 std 0.7865 → 3.815 → 1.7033（×4.851）（关键数值面板）", "artifact": "expert_findings.json z3 std A 0.7865 / B 3.815 / D 1.7033（3.815/0.7865=4.851）", "result": "match"},
+    {"page_text": "OUT 549.9952 → 547.7534 → 549.8661（Δ−2.2418）；YIELD 99.3009 → 98.3113 → 99.2187（Δ−0.9896）（关键数值面板+CHART02）", "artifact": "expert_findings.json level_shift_deltas.out / .yield（逐位一致）", "result": "match"},
+    {"page_text": "EDGE-R-DEV ΔB−A −1.2406 ℃；SLOPE +0.2323 → −2.1919 → +0.3902（Δ−2.4242）；ASYM-LR −3.5572 → −1.4991（Δ+2.0581）；左边缘 −2.9891 → −2.3384（关键数值面板+物理链+空间一致性段）", "artifact": "expert_findings.json pedger/pslope/masym/pedgel（逐位一致；E1 符号更正与 canonical +0.2323 一致）", "result": "match"},
+    {"page_text": "IMG-MEAN −4.98%（149.4762 → 142.0397 → 147.3273）；Wien 预测 −5.29%（比值 1.06）；场降幅 14.5%≈2.9/20 格（H2/H5/H3 证据文+物理校核表）", "artifact": "expert_findings.json immean + evidence.json derived（−7.4365/149.4762=−4.975%；19.42×2.2418/823.15=5.29%；0.7160/4.9252=14.5%）", "result": "match"},
+    {"page_text": "相关值 0.8987/0.8960、0.7419/0.7372（滞补 0.7448）、0.5098、0.0267/0.8549/0.7393、0.8584（快照 0.8579, n=480）、0.6807（滞补 0.6869, ρ 0.5881, −6 步）、IMG→YIELD 0.956（快照 0.9524, n=240）、−0.0125（p=0.645）（关键相关表+图表解读）", "artifact": "validate_report.json pairs + expert_findings（within_segment/snapshot）+ evidence.json（逐位一致；ASYM↔EDGE-L 对 spearman_rho 0.5881、best_lag −6、lag_r 0.6869 均核对）", "result": "match"},
+    {"page_text": "400 对验证电池 236 显著、detrended_robust 350/400、31 对 level_shift_dominated、LOO 400/400（Layer Ⅰ 证据文+CHART04 数据源行）", "artifact": "validate_report.json summary（400/236/400/350/50/31/400 逐项一致）", "result": "match"},
+    {"page_text": "置信度 76（五因子 19+20+17+11+9）；排除置信度 90/92/90/90/90/90；H3 上游一区 Δ−0.0174/二区 −0.0339 ℃、速度 +0.046%、炉压 −0.0072、H6 炉压 r=0.0212（五因子表+判决矩阵+H3/H4/H6 证据文）", "artifact": "confidence.json five_factor_breakdown（19/20/17/11/9）+ diagnosis.json eliminated exclusion_confidence（90/92/90/90/90/90）+ expert_findings（z1/z2/speed/pres 段均值差；PRES→YIELD 0.0212）", "result": "match"},
+    {"page_text": "事件 ±12h：检修 Z3 −0.6931/OUT −0.3492/YIELD −0.1057；升温 Z3 +1.1181/OUT +0.3657/YIELD +0.0885；幅度仅平台偏移的 10.7%–15.6%（H7 证据文+event 图注）", "artifact": "expert_findings.json event_response_windows_12h（逐位一致）", "result": "match"},
+    {"page_text": "Judge 96/100 pass（零阻断）；CP-8 ENDORSED（hero 徽章+附录）；稳态过滤 1367/1440；OUT 窗均值 546.3626 ℃（35.33 h）（§02 方法段+B.1）", "artifact": "judge_feedback.json overall_score 96 / blocking_issues []（裁判独立复算 1367 与 546.3626 亦一致）；optimizer.md CP-8 ENDORSED", "result": "match"},
+    {"page_text": "物理校核：ΔOUT/ΔZ3=0.4552；Arrhenius k_B/k_A=0.9648（−3.52%）、观测/预测 0.2835；速度臂预测 −0.241 ℃ 仅实测 11%（物理校核表+H4 证据文）", "artifact": "evidence.json derived（0.4552；0.9648；0.28≈0.2835；11%）+ judge spot_check 复算一致", "result": "match"},
+    {"page_text": "炉压 normal_range 37.53–38.50（p05-p95）、abrupt=no、cv=0.008；DARKFRAC/SATFRAC 全表恒 0（n=1440, unique=1）（H6 证据文）", "artifact": "diagnosis.json H6 段（normal_range 37.53-38.50 p05-p95）+ anomaly_report.json（cv 0.008 / abrupt no / span 0.973）+ expert_findings confounder_probes（unique=1）", "result": "match"}
+  ]
+}

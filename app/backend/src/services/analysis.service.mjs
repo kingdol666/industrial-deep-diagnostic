@@ -1,12 +1,17 @@
 import { existsSync, readdirSync, readFileSync } from 'fs';
 import { join } from 'path';
 import { WORKSPACE_DIR } from '../engine/claude-client.mjs';
+import { canViewWorkspaceRun } from './files.service.mjs';
+import { INTERNAL } from './tenancy.mjs';
 
 /**
  * Extract chart-ready data from a completed diagnostic run workspace.
  * Returns structured data for each chart type, or null if unavailable.
+ * Viewer-scoped: a run directory the caller may not see yields null exactly
+ * like a missing one (the route answers 200 + null data either way).
  */
-export function getRunChartData(runDirName) {
+export function getRunChartData(runDirName, viewer = INTERNAL) {
+  if (!canViewWorkspaceRun(viewer, runDirName)) return null;
   const runDir = join(WORKSPACE_DIR, runDirName);
   if (!existsSync(runDir)) return null;
 

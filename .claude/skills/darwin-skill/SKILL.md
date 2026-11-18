@@ -1,6 +1,6 @@
 ---
 name: darwin-skill
-description: "Darwin evolutionary skill evaluation tracker — tracks skill quality scores across dimensions over time. Used for internal skill fitness assessment and evolution tracking. Trigger: skill fitness, skill evaluation, skill quality, evolutionary tracking, skill evolution."
+description: "Darwin evolutionary skill evaluation tracker — tracks skill quality scores across dimensions over time. Used for internal skill fitness assessment and evolution tracking. Trigger: skill fitness, skill evaluation, skill quality, evolutionary tracking, skill evolution. Do NOT use for scoring one diagnostic run's artifacts (use industrial-judge — the pipeline quality gate), for building domain ontologies or knowledge bases (use rag-knowledge-builder / industrial-ontology-builder), or for analysis of industrial process data (use industrial-analysis-auto and its sub-skills); this is an internal OMP meta-skill for skill governance only."
 ---
 
 # Darwin Skill — Evolutionary Skill Quality Tracker
@@ -22,7 +22,7 @@ Evaluation results are stored in `results.tsv`:
 | skill | Skill being evaluated |
 | old_score | Previous score (or `-` for baseline) |
 | new_score | Current evaluation score |
-| status | baseline / improved / regressed |
+| status | baseline / improved / regressed / optimized (later entries also record e.g. `ecosystem_fix` / `independence_audit`; any lowercase slug is tolerated and reported as vocabulary drift by the gate) |
 | dimension | Evaluation dimension affected |
 | note | Free-text evaluation notes |
 | eval_mode | dry_run / live |
@@ -72,6 +72,27 @@ cat .claude/skills/darwin-skill/results.tsv
 # Append a new evaluation
 echo "$(date -Iseconds)\t<commit>\t<skill-name>\t<old>\t<new>\t<status>\t<dim>\t<note>\tdry_run" >> .claude/skills/darwin-skill/results.tsv
 ```
+
+## Quality Gate
+
+`scripts/quality_gate.mjs` validates the evaluation log against the table above —
+the artifact contract of this skill. Zero dependencies (node builtins only).
+
+```bash
+node .claude/skills/darwin-skill/scripts/quality_gate.mjs                      # validates results.tsv
+node .claude/skills/darwin-skill/scripts/quality_gate.mjs --file <other.tsv>   # explicit file
+```
+
+Exit codes (house pattern): **0** ok · **1** hard error (file missing/unreadable, bad args) ·
+**2** undetermined (header present, zero evaluations recorded) · **3** gate-fail.
+
+Checks: D1 exact 9-column header; D2 nine tab-separated fields per data line; D3 timestamp
+`YYYY-MM-DDTHH:MM[:SS][+HH:MM]`; D4 scores `-` or integer 0..999 (the historical scale is 0-100-ish;
+later entries legitimately record >100); D5 status is a lowercase slug (unknown slugs → drift note),
+dimension non-empty, commit non-empty, skill a kebab-ish slug; D6 eval_mode ∈ {dry_run, live};
+D7 monotonic sanity when both scores are numeric (improved/optimized ⇒ new ≥ old, regressed ⇒ new ≤ old).
+Comment lines starting with `#` and blank lines are skipped (the log's own history contains one
+mid-file phase comment). Test battery: `python .claude/skills/darwin-skill/tests/run_tests.py`.
 
 ## Integration
 

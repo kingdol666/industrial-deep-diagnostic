@@ -156,13 +156,6 @@ export default {
       captionMid: 'pipeline outputs',
       runsSuffix: 'Runs',
     },
-    closedloop: {
-      label: 'Expert Analysis',
-      kicker: 'Skill-Driven Agent Analysis',
-      title: '专项智能体分析',
-      description: '稳定性报告、哨兵快筛、经验挖掘、闭环寻优——每个面板都以所选执行引擎拉起真实智能体，按对应 skill 协议对你选定的数据文件夹做真实分析，过程实时流式展示，产物落盘可追溯。固定脚本分析已全部退役。',
-      caption: 'Agent-executed skill analysis on your folder data',
-    },
     settings: {
       label: 'Account',
       kicker: 'Identity & Access',
@@ -1191,67 +1184,6 @@ export default {
     correlationMatrix: '相关系数矩阵',
   },
 
-  closedloop: {
-    subtabs: {
-      'stability-report': '产线稳定性报告',
-      'quick-screen': '哨兵快筛',
-      'improvement-advisory': '改善指导',
-      'experience-mining': '经验挖掘',
-      'optimizer-campaign': '闭环寻优',
-    },
-    panels: {
-      'stability-report': {
-        title: '产线运行稳定性报告（industrial-line-stability-report）',
-        desc: '选择数据文件夹，智能体按 line-stability-report 协议真实执行：理解工况 → 稳定性评估（SPC / Cpk / 漂移 / 相关驱动）→ 评分分级 + 证据链中文报告。数字全部来自本次运行实际执行的工具。',
-      },
-      'quick-screen': {
-        title: '产线哨兵快筛（industrial-sentinel）',
-        desc: '选择数据文件夹，智能体按 sentinel 协议真实执行：从历史数据构建基线 → 对当前数据做 SPC / 漂移 / 变点筛查 → 输出告警发现与批筛报告。',
-      },
-      'improvement-advisory': {
-        title: '产线优化改善指导（industrial-improvement-advisor）',
-        desc: '选择数据文件夹（可含 objective.json 目标契约与 action_log），智能体按 improvement-advisor 协议真实执行：目标解析/推断 → 三重门证据（剂量响应/操作窗/动作归因）→ A/B/C 分级改善行动清单 + 处方区 + 中文 HTML 指导报告。每条建议带数据证据链、物理机理链、预期收益 95%CI、验证与回滚条款；纯咨询绝不下发参数。',
-      },
-      'experience-mining': {
-        title: '调优经验挖掘（industrial-tuning-memory）',
-        desc: '选择含动作日志的数据文件夹，智能体按 tuning-memory 协议真实执行：动作归因 → 经验条目沉淀 → 故障签名检索与历史处置效果报告。',
-      },
-      'optimizer-campaign': {
-        title: '闭环寻优（industrial-optimizer-loop）',
-        desc: '选择试验/工况数据文件夹，智能体按 optimizer-loop 协议真实执行：目标解析 → 布点设计或试验收敛分析 → 配方收敛建议报告（只做设计/分析，绝不派发参数）。',
-      },
-    },
-    launcher: {
-      up: '上级目录',
-      loading: '正在读取目录…',
-      empty: '该目录为空。',
-      folder: '文件夹',
-      selected: '分析目标',
-      none: '尚未选择文件夹',
-      questionPlaceholder: '给智能体的补充说明（可选）：关注哪些参数 / 时段 / 判定口径…',
-      ontologyScene: '复用场景',
-      note: '点击启动后，执行引擎拉起真实智能体按 {skill} 协议分析所选文件夹，过程实时展示。',
-      launch: '启动智能体分析',
-      starting: '正在拉起…',
-    },
-    runs: {
-      title: '该专项的最近运行',
-      refresh: '刷新',
-      loading: '加载中…',
-      empty: '还没有该专项的运行记录。',
-      name: '运行',
-      status: '状态',
-      time: '发起时间',
-      open: '查看过程',
-      status_completed: '已完成',
-      status_failed: '失败',
-      status_stopped: '已停止',
-      status_running: '运行中',
-      status_queued: '待执行',
-      status_awaiting: '等待输入',
-      status_expired: '已过期',
-    },
-  },
 
   workbench: {
     intentLabel: '分析任务（全部由集成智能体真实执行）',

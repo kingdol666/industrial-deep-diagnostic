@@ -102,6 +102,9 @@ diagnosis:
   # from a hung upstream (e.g. an OMP resume stuck on its cross-process
   # session lock) and keeps the session resumable.
   chat_turn_idle_timeout_minutes: 10
+  # 并发治理（P0-5）：同时执行的诊断上限；超出者进入 FIFO 等待队列（status=queued），
+  # 有运行结束后自动开始。环境变量 MAX_CONCURRENT_RUNS 覆盖本值。
+  max_concurrent_runs: 2
 
 # --- Data Paths (relative to project root) ---
 data:

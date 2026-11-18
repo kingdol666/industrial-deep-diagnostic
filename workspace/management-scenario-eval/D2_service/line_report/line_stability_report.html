@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>系统运行稳定性报告 · LSR-1791977577-2b8p0s</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<script src="https://unpkg.com/echarts@5.5.0/dist/echarts.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.5.0/echarts.min.js"></script>
+<style>
+  :root { --bg:#101418; --panel:#171d24; --line:#26303b; --tx:#dfe7ee; --mut:#8a99a8;
+          --acc:#e8a33d; --good:#22a06b; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--tx);
+        font:14px/1.65 "Segoe UI","Microsoft YaHei",sans-serif; }
+  .wrap { max-width:1180px; margin:0 auto; padding:28px 20px 60px; }
+  .hero { display:flex; gap:24px; background:var(--panel); border:1px solid var(--line);
+         border-radius:14px; padding:26px 28px; align-items:center; justify-content:space-between;
+         flex-wrap:wrap; }
+  .hero-title { font-size:24px; font-weight:700; letter-spacing:.5px; }
+  .hero-sub { margin:10px 0 12px; display:flex; gap:8px; flex-wrap:wrap; }
+  .chip { background:rgba(232,163,61,.14); color:var(--acc); border:1px solid rgba(232,163,61,.35);
+          border-radius:999px; padding:2px 12px; font-size:12px; }
+  .chip.ghost { background:transparent; color:var(--mut); border-color:var(--line); }
+  .statement { font-size:15px; max-width:640px; }
+  .hero-score { text-align:center; min-width:190px; border:1px solid var(--g);
+               border-radius:14px; padding:16px 22px; }
+  .score-num { font-size:46px; font-weight:800; color:var(--g); line-height:1.1; }
+  .score-grade { color:var(--g); font-weight:700; margin-top:4px; }
+  .score-cap { color:var(--mut); font-size:12px; margin-top:6px; }
+  h2 { font-size:17px; margin:34px 0 12px; padding-left:10px; border-left:3px solid var(--acc); }
+  .panel { background:var(--panel); border:1px solid var(--line); border-radius:12px;
+          padding:16px 18px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:14px; }
+  .finding { background:var(--panel); border:1px solid var(--line); border-left:3px solid var(--s);
+            border-radius:10px; padding:14px 16px; margin-bottom:12px; }
+  .f-head { display:flex; align-items:center; gap:10px; }
+  .pill { background:var(--s); color:#fff; border-radius:999px; padding:1px 10px;
+          font-size:12px; flex:0 0 auto; }
+  .f-title { font-weight:700; }
+  .f-id { margin-left:auto; color:var(--mut); font-size:12px; }
+  .f-detail { color:#b9c6d2; margin:8px 0; }
+  .f-mech { font-size:12.5px; color:#a8c0d8; background:rgba(90,140,190,.08);
+           border:1px dashed rgba(90,140,190,.35); border-radius:6px; padding:6px 10px; margin:6px 0; }
+  .f-conf { margin-left:auto; color:var(--mut); font-size:12px; white-space:nowrap; }
+  .f-id { color:var(--mut); font-size:12px; margin-left:10px; }
+  .derived { font-size:10px; color:var(--acc); border:1px solid rgba(232,163,61,.4);
+            border-radius:4px; padding:0 4px; margin-left:4px; }
+  table { border-collapse:collapse; width:100%; }
+  th,td { border-bottom:1px solid var(--line); padding:7px 10px; text-align:left;
+         font-size:13px; vertical-align:top; }
+  th { color:var(--mut); font-weight:600; white-space:nowrap; }
+  td.num, .num { font-variant-numeric:tabular-nums; }
+  .ev-table { margin-top:8px; }
+  .ev-table th { font-size:12px; }
+  .role-tag { margin-left:8px; font-size:11px; color:var(--mut); border:1px solid var(--line);
+             border-radius:4px; padding:0 6px; }
+  .drift-flag { margin-left:6px; color:#e0703a; font-size:11px; border:1px solid #e0703a;
+               border-radius:4px; padding:0 5px; }
+  .score-cell { display:flex; align-items:center; gap:8px; min-width:130px; }
+  .score-bar { height:8px; width:var(--w); max-width:120px; background:var(--c);
+              border-radius:4px; }
+  .chart { height:300px; background:var(--panel); border:1px solid var(--line);
+          border-radius:12px; }
+  .chart + .chart { margin-top:14px; }
+  .chart-title { padding:10px 14px 0; color:var(--mut); font-size:13px; }
+  .empty { color:var(--mut); padding:10px 4px; }
+  .static-table { max-height:220px; overflow:auto; margin-top:8px; }
+  .foot { margin-top:40px; color:var(--mut); font-size:12px; border-top:1px solid var(--line);
+         padding-top:14px; }
+  .foot b { color:#b9c6d2; }
+  code { background:#0c1013; border:1px solid var(--line); border-radius:4px;
+        padding:0 5px; font-size:12px; }
+  @media print { body { background:#fff; color:#111; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  
+    <section class="hero">
+      <div class="hero-main">
+        <div class="hero-title">系统运行稳定性报告</div>
+        <div class="hero-sub">
+          <span class="chip">客服运营管理</span>
+          
+          <span class="chip ghost">时段：2026-01-05 00:00:00 ~ 2026-12-28 00:00:00</span>
+        </div>
+        <div class="hero-sub"><span class="chip ghost">分析目标：定位客户满意度下滑的服务质量驱动因素</span></div>
+        <div class="statement">该系统在本时段总体运行波动（62.7 分，C 级）：评估 4 个参数，检出 44 个 SPC 违规剧集、0 项显著漂移；最需关注：客户满意度、工单量、平均响应时长。</div>
+      </div>
+      <div class="hero-score" style="--g:#e0703a">
+        <div class="score-num">62.7</div>
+        <div class="score-grade">C · 波动</div>
+        <div class="score-cap">综合稳定性评分（0–100）</div>
+      </div>
+    </section>
+
+  <h2>场景理解（本体优先）</h2>
+  <div class='panel'><p style='margin:0 0 8px'>未命中本体资产（<code>00_input/ontology.json</code>、<code>01_ontology/</code>、本体资产库均未命中）——以下列角色/单位/规格为确定性启发推断（assigned_by=auto），可由 industrial-ontology-builder 先建本体后复跑以获得物理语义与控制方程级解读。</p><table></table><div style='overflow:auto;margin-top:8px'><table><thead><tr><th>参数（本体名）</th><th>单位</th><th>角色</th><th>规格/正常范围</th><th>控制方程</th><th>assigned_by</th></tr></thead><tbody><tr><td class=strong>一次解决率<span class='role-tag'>一次解决率</span></td><td>—</td><td>检测指标</td><td>—</td><td>—</td><td><span class='role-tag'>user</span></td></tr><tr><td class=strong>客户满意度<span class='role-tag'>客户满意度</span></td><td>—</td><td>检测指标</td><td>[4.2, —]（用户提供）</td><td>—</td><td><span class='role-tag'>user</span></td></tr><tr><td class=strong>工单量<span class='role-tag'>工单量</span></td><td>—</td><td>加工参数</td><td>—</td><td>—</td><td><span class='role-tag'>auto</span></td></tr><tr><td class=strong>平均响应时长<span class='role-tag'>平均响应时长</span></td><td>—</td><td>加工参数</td><td>—</td><td>—</td><td><span class='role-tag'>auto</span></td></tr></tbody></table></div><div class='empty' style='margin-top:8px'>运行状态分段未启用（skipped_too_few_rows_or_params）。</div></div>
+
+  <h2>核心发现（结论与证据）</h2>
+  
+        <div class="finding sev-high">
+          <div class="f-head">
+            <span class="pill" style="--s:#e0703a">严重</span>
+            <span class="f-title">客户满意度 检出 SPC 违规</span>
+            <span class="f-conf">置信度 90</span>
+            <span class="f-id">F001</span>
+          </div>
+          <div class="f-detail">共 12 个判异剧集命中（每百点 23.1 个，规则：NELSON_R1/NELSON_R2/NELSON_R5/NELSON_R6），控制限为中心值4.21±3σ_within（σ=0.0392）。</div>
+          
+          <table class="ev-table"><thead><tr>
+            <th>证据项</th><th>数值</th><th>阈值/口径</th><th>来源</th>
+          </tr></thead><tbody><tr><td>violation_episodes</td><td class=num>12</td><td class=num>0</td><td>lstcore</td></tr><tr><td>rate_per_100</td><td class=num>23.08</td><td class=num>&lt;2 for warn; &gt;=2 for high</td><td>lstcore</td></tr><tr><td>sigma_within_mr</td><td class=num>0.0392</td><td class=num>—</td><td>lstcore</td></tr></tbody></table>
+        </div>
+        <div class="finding sev-high">
+          <div class="f-head">
+            <span class="pill" style="--s:#e0703a">严重</span>
+            <span class="f-title">工单量 检出 SPC 违规</span>
+            <span class="f-conf">置信度 90</span>
+            <span class="f-id">F002</span>
+          </div>
+          <div class="f-detail">共 16 个判异剧集命中（每百点 30.8 个，规则：NELSON_R1/NELSON_R3/NELSON_R5/NELSON_R6），控制限为中心值1415±3σ_within（σ=39.1635）。</div>
+          
+          <table class="ev-table"><thead><tr>
+            <th>证据项</th><th>数值</th><th>阈值/口径</th><th>来源</th>
+          </tr></thead><tbody><tr><td>violation_episodes</td><td class=num>16</td><td class=num>0</td><td>lstcore</td></tr><tr><td>rate_per_100</td><td class=num>30.77</td><td class=num>&lt;2 for warn; &gt;=2 for high</td><td>lstcore</td></tr><tr><td>sigma_within_mr</td><td class=num>39.1635</td><td class=num>—</td><td>lstcore</td></tr></tbody></table>
+        </div>
+        <div class="finding sev-high">
+          <div class="f-head">
+            <span class="pill" style="--s:#e0703a">严重</span>
+            <span class="f-title">平均响应时长 检出 SPC 违规</span>
+            <span class="f-conf">置信度 90</span>
+            <span class="f-id">F003</span>
+          </div>
+          <div class="f-detail">共 15 个判异剧集命中（每百点 28.8 个，规则：NELSON_R1/NELSON_R2/NELSON_R5/NELSON_R6），控制限为中心值2.93±3σ_within（σ=0.0885）。</div>
+          
+          <table class="ev-table"><thead><tr>
+            <th>证据项</th><th>数值</th><th>阈值/口径</th><th>来源</th>
+          </tr></thead><tbody><tr><td>violation_episodes</td><td class=num>15</td><td class=num>0</td><td>lstcore</td></tr><tr><td>rate_per_100</td><td class=num>28.85</td><td class=num>&lt;2 for warn; &gt;=2 for high</td><td>lstcore</td></tr><tr><td>sigma_within_mr</td><td class=num>0.0885</td><td class=num>—</td><td>lstcore</td></tr></tbody></table>
+        </div>
+        <div class="finding sev-high">
+          <div class="f-head">
+            <span class="pill" style="--s:#e0703a">严重</span>
+            <span class="f-title">客户满意度 规格能力不足</span>
+            <span class="f-conf">置信度 85</span>
+            <span class="f-id">F004</span>
+          </div>
+          <div class="f-detail">Cpk=0.0332（阈值：≥1.33 合格，&lt;1.0 不足），规格界限 LSL=4.2 / USL=None（来源：用户提供）。</div>
+          
+          <table class="ev-table"><thead><tr>
+            <th>证据项</th><th>数值</th><th>阈值/口径</th><th>来源</th>
+          </tr></thead><tbody><tr><td>cpk</td><td class=num>0.0332</td><td class=num>&gt;=1.33</td><td>lstcore</td></tr><tr><td>ppk</td><td class=num>0.0093</td><td class=num>—</td><td>lstcore</td></tr><tr><td>spec_source</td><td class=num>user</td><td class=num>—</td><td>lstcore</td></tr></tbody></table>
+        </div>
+        <div class="finding sev-warn">
+          <div class="f-head">
+            <span class="pill" style="--s:#d8a516">关注</span>
+            <span class="f-title">一次解决率 检出 SPC 违规</span>
+            <span class="f-conf">置信度 90</span>
+            <span class="f-id">F005</span>
+          </div>
+          <div class="f-detail">共 1 个判异剧集命中（每百点 1.9 个，规则：NELSON_R1），控制限为中心值78.645±3σ_within（σ=0.4104）。</div>
+          
+          <table class="ev-table"><thead><tr>
+            <th>证据项</th><th>数值</th><th>阈值/口径</th><th>来源</th>
+          </tr></thead><tbody><tr><td>violation_episodes</td><td class=num>1</td><td class=num>0</td><td>lstcore</td></tr><tr><td>rate_per_100</td><td class=num>1.92</td><td class=num>&lt;2 for warn; &gt;=2 for high</td><td>lstcore</td></tr><tr><td>sigma_within_mr</td><td class=num>0.4104</td><td class=num>—</td><td>lstcore</td></tr></tbody></table>
+        </div>
+        <div class="finding sev-info">
+          <div class="f-head">
+            <span class="pill" style="--s:#4a7fb5">提示</span>
+            <span class="f-title">工单量 是 一次解决率 波动的主要解释项</span>
+            <span class="f-conf">置信度 50</span>
+            <span class="f-id">F006</span>
+          </div>
+          <div class="f-detail">滞后补偿后 |r|² 归一，工单量 解释了 一次解决率 约 100% 的方差（|r|=0.4267，领先 4 行）。本体未见因果边——占比仅为统计分解。置信度 50。</div>
+          <div class='f-mech'>物理机制：无本体机制支持 [MECHANISM_UNKNOWN]</div>
+          <table class="ev-table"><thead><tr>
+            <th>证据项</th><th>数值</th><th>阈值/口径</th><th>来源</th>
+          </tr></thead><tbody><tr><td>share</td><td class=num>1</td><td class=num>&gt;=0.4</td><td>lstcore <span class="derived">derived</span></td></tr><tr><td>abs_r</td><td class=num>0.4267</td><td class=num>—</td><td>lstcore <span class="derived">derived</span></td></tr><tr><td>mechanism_level</td><td class=num>unknown</td><td class=num>—</td><td>ontology</td></tr></tbody></table>
+        </div>
+        <div class="finding sev-info">
+          <div class="f-head">
+            <span class="pill" style="--s:#4a7fb5">提示</span>
+            <span class="f-title">平均响应时长 是 客户满意度 波动的主要解释项</span>
+            <span class="f-conf">置信度 50</span>
+            <span class="f-id">F007</span>
+          </div>
+          <div class="f-detail">滞后补偿后 |r|² 归一，平均响应时长 解释了 客户满意度 约 100% 的方差（|r|=0.8918，领先 3 行）。本体未见因果边——占比仅为统计分解。置信度 50。</div>
+          <div class='f-mech'>物理机制：无本体机制支持 [MECHANISM_UNKNOWN]</div>
+          <table class="ev-table"><thead><tr>
+            <th>证据项</th><th>数值</th><th>阈值/口径</th><th>来源</th>
+          </tr></thead><tbody><tr><td>share</td><td class=num>1</td><td class=num>&gt;=0.4</td><td>lstcore <span class="derived">derived</span></td></tr><tr><td>abs_r</td><td class=num>0.8918</td><td class=num>—</td><td>lstcore <span class="derived">derived</span></td></tr><tr><td>mechanism_level</td><td class=num>unknown</td><td class=num>—</td><td>ontology</td></tr></tbody></table>
+        </div>
+        <div class="finding sev-info">
+          <div class="f-head">
+            <span class="pill" style="--s:#4a7fb5">提示</span>
+            <span class="f-title">强相关对：客户满意度 ↔ 平均响应时长 [MECHANISM_UNKNOWN]</span>
+            <span class="f-conf">置信度 45</span>
+            <span class="f-id">F008</span>
+          </div>
+          <div class="f-detail">滞后补偿后最强 |Spearman|=0.8918（平均响应时长 领先 3 行）；零滞后 Pearson=-0.8456。本体未提供物理机制支持——仅是统计共变，不可作因果线索使用。置信度 45（统计证据充分度 × 机制支持度）。</div>
+          <div class='f-mech'>物理机制：无本体机制支持 [MECHANISM_UNKNOWN]</div>
+          <table class="ev-table"><thead><tr>
+            <th>证据项</th><th>数值</th><th>阈值/口径</th><th>来源</th>
+          </tr></thead><tbody><tr><td>best_abs_r</td><td class=num>0.8918</td><td class=num>&gt;=0.7</td><td>lstcore <span class="derived">derived</span></td></tr><tr><td>best_lag_rows</td><td class=num>3</td><td class=num>—</td><td>lstcore</td></tr><tr><td>mechanism_level</td><td class=num>unknown</td><td class=num>—</td><td>ontology</td></tr></tbody></table>
+        </div>
+
+  <h2>参数稳定性总览</h2>
+  <div class="panel" style="overflow:auto">
+    <table>
+      <thead><tr>
+        <th>参数</th><th>样本数</th><th>中位数</th><th>CV</th><th>SPC违规点</th>
+        <th>漂移/天(相对)</th><th>Cpk</th><th>基线z</th><th>评分</th>
+      </tr></thead>
+      <tbody>
+        <tr>
+          <td>一次解决率<span class="role-tag">检测指标</span></td>
+          <td class=num>52</td>
+          <td class=num>78.645</td>
+          <td class=num>0.005813</td>
+          <td class=num>1</td>
+          <td class=num>0.000001</td>
+          <td class=num>—</td>
+          <td class=num>—</td>
+          <td><div class="score-cell"><div class="score-bar" style="--w:98%;--c:#22a06b"></div><span style="color:#22a06b">98</span></div></td>
+        </tr>
+        <tr>
+          <td>客户满意度<span class="role-tag">检测指标</span></td>
+          <td class=num>52</td>
+          <td class=num>4.21</td>
+          <td class=num>0.033134</td>
+          <td class=num>12</td>
+          <td class=num>0.000303</td>
+          <td class=num>0.0332</td>
+          <td class=num>—</td>
+          <td><div class="score-cell"><div class="score-bar" style="--w:36%;--c:#c9312b"></div><span style="color:#c9312b">36</span></div></td>
+        </tr>
+        <tr>
+          <td>工单量<span class="role-tag">加工参数</span></td>
+          <td class=num>52</td>
+          <td class=num>1415</td>
+          <td class=num>0.052182</td>
+          <td class=num>16</td>
+          <td class=num>0.000069</td>
+          <td class=num>—</td>
+          <td class=num>—</td>
+          <td><div class="score-cell"><div class="score-bar" style="--w:53%;--c:#e0703a"></div><span style="color:#e0703a">53</span></div></td>
+        </tr>
+        <tr>
+          <td>平均响应时长<span class="role-tag">加工参数</span></td>
+          <td class=num>52</td>
+          <td class=num>2.93</td>
+          <td class=num>0.071285</td>
+          <td class=num>15</td>
+          <td class=num>0.00059</td>
+          <td class=num>—</td>
+          <td class=num>—</td>
+          <td><div class="score-cell"><div class="score-bar" style="--w:55%;--c:#e0703a"></div><span style="color:#e0703a">55</span></div></td>
+        </tr></tbody>
+    </table>
+  </div>
+
+  <h2>趋势与控制限</h2>
+  <div id="trend-charts"></div>
+  <noscript><div class="panel empty">已禁用 JavaScript：请查看上方参数总览表与证据附录，
+    或使用导出的 charts.json。</div></noscript>
+
+  <h2>参数相关与波动驱动</h2>
+  <div class="grid">
+    <div class="panel" id="contrib-panel"><div class="chart-title">对检测/目标指标的方差解释占比</div>
+      <div id="contrib-chart" class="chart"></div></div>
+    <div class="panel" id="heat-panel"><div class="chart-title">参数相关热力图（滞后补偿 |Spearman|）</div>
+      <div id="heat-chart" class="chart"></div></div>
+  </div>
+
+  <h2>协同分析输入</h2>
+  <div class="panel" id="integrations"><table><tbody><tr><th>sentinel 基线对照</th><td>未启用（未提供基线）</td></tr><tr><th>tuning-memory 调优归因</th><td>未启用（未提供 action_log）</td></tr><tr><th>doe-analyzer 操作窗</th><td>未启用（未提供 doe_run_dir）</td></tr></tbody></table></div>
+
+  <h2>数据与口径（证据链附录）</h2>
+  <div class="panel">
+    <table>
+      <tr><th>数据文件</th><td>D2_service\00_input\service_weekly_52w.csv</td></tr>
+      <tr><th>数据指纹</th><td class="num">sha256:58a961f9ca8057b3f124ff51e6c461077e01ecef2f68b58975af6ff4df79a07d</td></tr>
+      <tr><th>行数（原始/入评）</th><td class="num">52 / 52</td></tr>
+      <tr><th>时间列 / 采样间隔</th><td>周开始日期 /
+        <span class="num">604800 s</span></td></tr>
+      <tr><th>缺失率 / 覆盖率</th><td class="num">0.00% /
+        100.00%</td></tr>
+      <tr><th>评估参数</th><td>一次解决率、客户满意度、工单量、平均响应时长</td></tr>
+      <tr><th>检测指标</th><td>一次解决率、客户满意度</td></tr>
+      
+    </table>
+    <div style='margin-top:12px'><b>方法与阈值（可复算）</b><ul><li><code>sentinelcore_nelson_episodes</code> — Nelson 判异复用 industrial-sentinel sentinelcore （R1 单点越 3σ；R2 连续 9 点同侧；R3 连续 6 点同向；R5 三点中两点越 2σ；R6 五点中四点越 1σ），单一事实源。</li><li><code>mrbar_sigma_1.128</code> — σ_within 由移动极差估计：σ = MR̄ / 1.128（与 industrial-sentinel 同口径）。</li><li><code>cpk_within_ppk_overall</code> — Cpk 用组内 σ（MR̄ 法），Ppk 用整体标准差；规格限来源：用户上下文 > 本体资产 normal_range > 不计算。</li><li><code>theil_sen_mk_drift</code> — 漂移：Theil–Sen 稳健斜率（每行斜率 ÷ 采样间隔换算每秒）+ Mann–Kendall 显著性（p&lt;0.01 且相对漂移≥0.1%/天才计入）。</li><li><code>lagged_spearman_max10</code> — 相关性：滞后 0–10 行逐行 Spearman 取最强，并记录领先行数；物理机制由本体 relationships/参数组校验（机制四条件）。</li><li><code>contribution_r2_share</code> — 贡献分解：目标指标上各驱动参数滞后补偿后 |r|² 归一化占比（阈值 |r|≥0.3），领先行数一并记录。</li><li><code>regime_segmentation_c3</code> — 运行状态分段：复用 industrial-sentinel regime_map（方差比+漂移坡道融合 + 二分分割显著变点），变点与主导状态逐段列出。</li><li><code>ontology_first_condition</code> — 本体优先：先于任何统计构建场景理解（显式路径 > 00_input/01_ontology 产物 > 本体资产库），每个推断字段带 assigned_by=ontology|user|auto。</li><li><code>weighted_penalty_score_v1</code> — 评分：每参数 100 分起，按 SPC 违规剧集率/CV/Cpk/漂移/基线偏离分档扣分，综合分为参数加权均值；A≥85 稳定，B≥70 亚稳定，C≥50 波动，D&lt;50 不稳定。</li><li><code>data_truth_limitations</code> — 数据真值与局限：全部数值可由原始表复算；推导字段标记 derived；假设、混杂因子与规格覆盖显式列出（见下）。</li></ul><span style='color:var(--mut)'>python 3.12.7 · numpy 2.5.2 · pandas 3.0.5 · spc sentinelcore · input sha256:58a961f9ca8057b3f124ff51e6c461077e01ecef2f68b58975af6ff4df79a07d</span></div>
+    
+    <div style='margin-top:16px'>
+      <b>假设与局限（数据真值条款）</b>
+      <table>
+        <tr><th>数据来源</th><td>raw (this skill never cleans or imputes; every number is recomputable from the raw table)</td></tr>
+        <tr><th>抽样</th><td>全量入评（52 行）</td></tr>
+        <tr><th>规格覆盖</th><td>用户提供：客户满意度 ·
+          本体资产：无 ·
+          无规格（不评 Cpk）：一次解决率、工单量、平均响应时长</td></tr>
+      </table>
+      <div style='margin-top:6px'><b>模型假设</b><ul><li>lag-compensated Spearman window 0–10 rows (lead/lag beyond this window is invisible)</li><li>whole-period scoring assumes one dominant operating condition; use the regime table for segmented reading</li><li>Cpk treats within-sigma as MR̄/1.128 moving-range estimate</li></ul></div>
+      <div style='margin-top:6px'><b>混杂因子（本体登记）</b>
+        <table><thead><tr><th>变量</th><th>影响说明</th><th>状态</th></tr></thead>
+        <tbody><tr><td colspan=3 class=empty>本体未登记混杂因子</td></tr></tbody></table></div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <b>报告性质：</b>本报告由确定性统计脚本生成（零 LLM 参与，全部数值可复算），
+    属咨询性分析产物，不构成参数下发或控制指令；行动决策归业务管理方。<br>
+    <b>生成物：</b>LSR-1791977577-2b8p0s ·
+    contract line-stability-report/1.0 ·
+    script v1.0.0 ·
+    2026-10-14T11:32:57Z
+  </div>
+</div>
+
+<script id="payload" type="application/json">{"report_id":"LSR-1791977577-2b8p0s","charts":{"contract_version":"line-stability-charts/1.0","trend":[{"name":"一次解决率","role":"inspection","n":52,"n_plotted":52,"t":[1767571200000,1768176000000,1768780800000,1769385600000,1769990400000,1770595200000,1771200000000,1771804800000,1772409600000,1773014400000,1773619200000,1774224000000,1774828800000,1775433600000,1776038400000,1776643200000,1777248000000,1777852800000,1778457600000,1779062400000,1779667200000,1780272000000,1780876800000,1781481600000,1782086400000,1782691200000,1783296000000,1783900800000,1784505600000,1785110400000,1785715200000,1786320000000,1786924800000,1787529600000,1788134400000,1788739200000,1789344000000,1789948800000,1790553600000,1791158400000,1791763200000,1792368000000,1792972800000,1793577600000,1794182400000,1794787200000,1795392000000,1795996800000,1796601600000,1797206400000,1797811200000,1798416000000],"v":[78.5,78.86,78.11,78.51,78.5,79.3,78.8,79.31,78.76,79.28,78.47,78.62,78.66,78.37,77.96,77.85,78.64,78.25,78.41,78.85,78.6,78.8,78.45,77.77,79.29,79.18,79.11,78.46,78.67,78.28,78.4,78.78,78.78,79.01,78.74,78.38,78.94,78.51,79.12,78.34,78.5,78.32,78.35,79.28,78.95,79.4,78.86,79.34,77.61,78.7,78.65,77.17],"center":78.645,"ucl":79.876227,"lcl":77.413773,"violation_indices_in_plot":[],"spec":{"lsl":null,"usl":null,"target":null,"source":null}},{"name":"客户满意度","role":"inspection","n":52,"n_plotted":52,"t":[1767571200000,1768176000000,1768780800000,1769385600000,1769990400000,1770595200000,1771200000000,1771804800000,1772409600000,1773014400000,1773619200000,1774224000000,1774828800000,1775433600000,1776038400000,1776643200000,1777248000000,1777852800000,1778457600000,1779062400000,1779667200000,1780272000000,1780876800000,1781481600000,1782086400000,1782691200000,1783296000000,1783900800000,1784505600000,1785110400000,1785715200000,1786320000000,1786924800000,1787529600000,1788134400000,1788739200000,1789344000000,1789948800000,1790553600000,1791158400000,1791763200000,1792368000000,1792972800000,1793577600000,1794182400000,1794787200000,1795392000000,1795996800000,1796601600000,1797206400000,1797811200000,1798416000000],"v":[4.42,4.366,4.403,4.4,4.443,4.309,4.359,4.353,4.337,4.375,4.353,4.428,4.361,4.279,4.292,4.295,4.348,4.281,4.283,4.239,4.277,4.248,4.242,4.322,4.213,4.173,4.201,4.222,4.171,4.12,4.207,4.167,4.139,4.145,4.073,4.133,4.127,4.094,4.083,4.052,4.056,4.035,4.125,3.999,4.063,4.05,4.002,4.057,3.95,3.968,3.954,4.011],"center":4.21,"ucl":4.327492,"lcl":4.092508,"violation_indices_in_plot":[],"spec":{"lsl":4.2,"usl":null,"target":null,"source":"user"}},{"name":"工单量","role":"parameter","n":52,"n_plotted":52,"t":[1767571200000,1768176000000,1768780800000,1769385600000,1769990400000,1770595200000,1771200000000,1771804800000,1772409600000,1773014400000,1773619200000,1774224000000,1774828800000,1775433600000,1776038400000,1776643200000,1777248000000,1777852800000,1778457600000,1779062400000,1779667200000,1780272000000,1780876800000,1781481600000,1782086400000,1782691200000,1783296000000,1783900800000,1784505600000,1785110400000,1785715200000,1786320000000,1786924800000,1787529600000,1788134400000,1788739200000,1789344000000,1789948800000,1790553600000,1791158400000,1791763200000,1792368000000,1792972800000,1793577600000,1794182400000,1794787200000,1795392000000,1795996800000,1796601600000,1797206400000,1797811200000,1798416000000],"v":[1420.0,1416.0,1515.0,1527.0,1448.0,1463.0,1435.0,1416.0,1299.0,1357.0,1311.0,1341.0,1370.0,1396.0,1485.0,1504.0,1463.0,1500.0,1531.0,1463.0,1377.0,1396.0,1339.0,1334.0,1386.0,1349.0,1416.0,1470.0,1505.0,1494.0,1452.0,1396.0,1434.0,1414.0,1382.0,1327.0,1328.0,1351.0,1382.0,1412.0,1483.0,1549.0,1614.0,1551.0,1521.0,1426.0,1400.0,1327.0,1283.0,1377.0,1358.0,1349.0],"center":1415.0,"ucl":1532.490614,"lcl":1297.509386,"violation_indices_in_plot":[],"spec":{"lsl":null,"usl":null,"target":null,"source":null}},{"name":"平均响应时长","role":"parameter","n":52,"n_plotted":52,"t":[1767571200000,1768176000000,1768780800000,1769385600000,1769990400000,1770595200000,1771200000000,1771804800000,1772409600000,1773014400000,1773619200000,1774224000000,1774828800000,1775433600000,1776038400000,1776643200000,1777248000000,1777852800000,1778457600000,1779062400000,1779667200000,1780272000000,1780876800000,1781481600000,1782086400000,1782691200000,1783296000000,1783900800000,1784505600000,1785110400000,1785715200000,1786320000000,1786924800000,1787529600000,1788134400000,1788739200000,1789344000000,1789948800000,1790553600000,1791158400000,1791763200000,1792368000000,1792972800000,1793577600000,1794182400000,1794787200000,1795392000000,1795996800000,1796601600000,1797206400000,1797811200000,1798416000000],"v":[2.6,2.45,2.45,2.53,2.65,2.79,2.86,2.62,2.67,2.51,2.73,2.73,2.57,2.65,2.85,2.93,2.93,2.91,2.76,2.81,2.83,2.79,2.98,2.94,3.02,3.05,2.93,2.9,3.02,2.87,2.9,2.94,3.01,2.93,3.1,2.99,3.1,2.92,3.17,3.08,3.09,3.0,3.03,3.18,3.17,3.23,3.2,3.12,3.22,2.91,3.06,3.21],"center":2.93,"ucl":3.195437,"lcl":2.664563,"violation_indices_in_plot":[],"spec":{"lsl":null,"usl":null,"target":null,"source":null}}],"score_bars":[{"name":"一次解决率","score":98,"role":"inspection"},{"name":"客户满意度","score":36,"role":"inspection"},{"name":"工单量","score":53,"role":"parameter"},{"name":"平均响应时长","score":55,"role":"parameter"}],"corr_heatmap":{"labels":["一次解决率","客户满意度","工单量","平均响应时长"],"matrix":[[1.0,0.133243,0.448789,0.240482],[0.133243,1.0,0.091512,0.891756],[0.448789,0.091512,1.0,0.107677],[0.240482,0.891756,0.107677,1.0]]},"contribution_bar":[{"driver":"工单量","target":"一次解决率","abs_r":0.426717,"best_lag_rows":4,"share":1.0},{"driver":"平均响应时长","target":"客户满意度","abs_r":0.891756,"best_lag_rows":3,"share":1.0}]},"notAssessable":false}</script>
+<script>
+(function () {
+  var DATA = {};
+  try { DATA = JSON.parse(document.getElementById('payload').textContent); } catch (e) {}
+  function fallback() {
+    var host = document.getElementById('trend-charts');
+    var rows = [];
+    (DATA.charts.trend || []).forEach(function (s) {
+      var vs = s.v.filter(function (x) { return x !== null; });
+      var mn = Math.min.apply(null, vs), mx = Math.max.apply(null, vs);
+      var nBad = s.violation_indices_in_plot.length;
+      rows.push('<tr><td>' + s.name + '</td><td>' + vs.length + '</td><td>' +
+        mn.toFixed(4) + '</td><td>' + mx.toFixed(4) + '</td><td>' + nBad + '</td></tr>');
+    });
+    host.innerHTML = '<div class="panel"><div class="chart-title">静态模式（ECharts CDN 不可用）' +
+      '——各参数趋势摘要</div><div class="static-table"><table><thead><tr>' +
+      '<th>参数</th><th>点数</th><th>最小</th><th>最大</th><th>违规点</th></tr></thead>' +
+      '<tbody>' + rows.join('') + '</tbody></table></div></div>';
+    ['contrib-chart', 'heat-chart'].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) el.parentNode.style.display = 'none';
+    });
+  }
+  function init() {
+    if (!window.echarts) { fallback(); return; }
+    var charts = DATA.charts || {};
+    var host = document.getElementById('trend-charts');
+    (charts.trend || []).forEach(function (s) {
+      var box = document.createElement('div');
+      box.className = 'chart';
+      box.innerHTML = '<div class="chart-title">' + s.name +
+        '（中心=中位数，虚线=±3σ_within' + (s.spec && s.spec.lsl != null ? '，红线=规格限' : '') + '）</div>' +
+        '<div style="height:calc(100% - 30px)"></div>';
+      host.appendChild(box);
+      var el = box.lastChild;
+      var ch = echarts.init(el); allCharts.push(ch);
+      var series = [{ name: s.name, type: 'line', showSymbol: false,
+        data: s.t.map(function (t, i) { return [t, s.v[i]]; }),
+        lineStyle: { width: 1.2, color: '#5b8dbf' } }];
+      [['UCL', s.ucl, '#e0703a', 'dashed'], ['LCL', s.lcl, '#e0703a', 'dashed'],
+       ['LSL', s.spec && s.spec.lsl, '#c9312b', 'solid'],
+       ['USL', s.spec && s.spec.usl, '#c9312b', 'solid']].forEach(function (m) {
+        if (m[1] !== null && m[1] !== undefined)
+          series.push({ name: m[0], type: 'line', data: [[s.t[0], m[1]], [s.t[s.t.length - 1], m[1]]],
+            symbol: 'none', lineStyle: { color: m[2], type: m[3], width: 1 },
+            endLabel: { show: true, formatter: m[0], color: m[2] } });
+      });
+      var bad = s.violation_indices_in_plot || [];
+      if (bad.length)
+        series.push({ name: '违规点', type: 'scatter',
+          data: bad.map(function (i) { return [s.t[i], s.v[i]]; }),
+          itemStyle: { color: '#c9312b' }, symbolSize: 7 });
+      ch.setOption({
+        grid: { left: 60, right: 60, top: 18, bottom: 44 },
+        tooltip: { trigger: 'axis' },
+        xAxis: { type: 'time' },
+        yAxis: { type: 'value', scale: true },
+        series: series
+      });
+    });
+    if ((charts.trend || []).length === 0) {
+      host.innerHTML = '<div class="panel empty">无可绘制的趋势数据。</div>';
+    }
+    var contrib = document.getElementById('contrib-chart');
+    if (contrib && (charts.contribution_bar || []).length) {
+      var cb = echarts.init(contrib); allCharts.push(cb);
+      var items = charts.contribution_bar.slice(0, 10);
+      cb.setOption({
+        grid: { left: 90, right: 30, top: 18, bottom: 40 },
+        tooltip: {},
+        xAxis: { type: 'value', max: 1, axisLabel: { formatter: function (v) {
+          return (v * 100).toFixed(0) + '%'; } } },
+        yAxis: { type: 'category', data: items.map(function (d) {
+          return d.driver + ' → ' + d.target; }).reverse() },
+        series: [{ type: 'bar', data: items.map(function (d) {
+          return Math.round(d.share * 1000) / 10; }).reverse(),
+          itemStyle: { color: '#e8a33d' }, barMaxWidth: 18 }]
+      });
+    } else if (contrib) { contrib.parentNode.style.display = 'none'; }
+    var heat = document.getElementById('heat-chart');
+    if (heat && charts.corr_heatmap && charts.corr_heatmap.labels.length > 1) {
+      var hm = echarts.init(heat); allCharts.push(hm);
+      var pts = [];
+      charts.corr_heatmap.matrix.forEach(function (row, i) {
+        row.forEach(function (v, j) {
+          if (v !== null && i !== j)
+            pts.push([j, charts.corr_heatmap.labels.length - 1 - i, v]);
+        });
+      });
+      hm.setOption({
+        grid: { left: 110, right: 60, top: 18, bottom: 60 },
+        tooltip: { position: 'top' },
+        xAxis: { type: 'category', data: charts.corr_heatmap.labels,
+          axisLabel: { rotate: 30 } },
+        yAxis: { type: 'category', data: charts.corr_heatmap.labels.slice().reverse() },
+        visualMap: { min: 0, max: 1, calculable: true, orient: 'horizontal',
+          left: 'center', bottom: 0, inRange: { color: ['#1d2a36', '#e8a33d', '#c9312b'] } },
+        series: [{ type: 'heatmap', data: pts,
+          label: { show: charts.corr_heatmap.labels.length <= 8, formatter: function (p) {
+            return p.value[2].toFixed(2); } } }]
+      });
+    } else if (heat) { heat.parentNode.style.display = 'none'; }
+  }
+  var allCharts = [];
+  function reflowCharts() { allCharts.forEach(function (c) { try { c.resize(); } catch (e) {} }); }
+  window.addEventListener('resize', reflowCharts);
+  if (document.readyState === 'complete') init();
+  else window.addEventListener('load', init);
+  // 布局稳定后强制重测一次尺寸：在后台/延迟渲染环境下，init 时容器宽度
+  // 可能被读成 0（canvas 宽 0、图空白），双 rAF 确保 DOM 布局完成后再 resize。
+  function reflowWhenSettled() {
+    requestAnimationFrame(function () { requestAnimationFrame(reflowCharts); });
+  }
+  if (document.readyState === 'complete') reflowWhenSettled();
+  else window.addEventListener('load', reflowWhenSettled);
+  setTimeout(function () { if (!window.echarts) fallback(); }, 4000);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,221 @@
+{
+  "contract_version": "hetero-features/1.1",
+  "status": "ok",
+  "generated_at": "2026-10-17T04:35:56",
+  "zero_llm": true,
+  "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\hetero-full-sim\\run",
+  "raw_path": "workspace\\hetero-full-sim\\raw",
+  "raw_path_source": "cli",
+  "anchor": {
+    "path": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\hetero-full-sim\\run\\00_input\\preprocessed_data.csv",
+    "sha256": "sha256:0b9f4b64a6b12ed191d463ab988deeaa87407833bfd5239dc6c8121878e55b0a",
+    "time_column": "时间",
+    "n_rows": 1440,
+    "columns": [
+      "时间",
+      "FUR-Z1-TEMP",
+      "FUR-Z2-TEMP",
+      "FUR-Z3-TEMP",
+      "FUR-SPEED",
+      "FUR-PRES",
+      "FUR-OUT-TEMP",
+      "FUR-YIELD"
+    ]
+  },
+  "time_ingest": {
+    "formats": [
+      "%Y-%m-%d %H:%M:%S",
+      "%Y-%m-%dT%H:%M:%S",
+      "%Y-%m-%d %H:%M",
+      "%Y/%m/%d %H:%M:%S",
+      "%Y/%m/%d %H:%M",
+      "%Y.%m.%d %H:%M:%S",
+      "%Y.%m.%d %H:%M",
+      "%Y年%m月%d日 %H:%M:%S",
+      "%Y年%m月%d日 %H:%M",
+      "%Y%m%d_%H%M%S",
+      "%Y%m%d-%H%M%S",
+      "%Y-%m-%d"
+    ],
+    "tz_policy": "strip_to_anchor_local",
+    "ambiguous": [],
+    "epoch_and_serial_detected": 0
+  },
+  "alignment": {
+    "method": "merge_asof_backward",
+    "max_age_factor": 3.0,
+    "interpolation": "none",
+    "forward_fill": "none",
+    "rolling_features": false,
+    "transport_lag_s": {}
+  },
+  "in_control_window": null,
+  "sources": [
+    {
+      "source_id": "L1SURFACECCDINDEX",
+      "path": "workspace\\hetero-full-sim\\raw\\L1_surface_ccd_index.csv",
+      "path_sha6": "9f2a25",
+      "slug": "L1SURFACECCDINDEX",
+      "shape": "image_stream",
+      "format": "png",
+      "n_snapshots": 240,
+      "cadence_s": 3600.0,
+      "span_s": 860400.0,
+      "ts_format": "%Y-%m-%d %H:%M:%S",
+      "ts_source": "index",
+      "tz": "naive_local",
+      "duplicate_key_policy": "aggregate",
+      "anchor_coverage": null,
+      "effective_n": 240,
+      "sparse": true,
+      "stats_eligible": false,
+      "disposition": "featured",
+      "reason": "image_stream/index_csv: rows_in=240; ts_conflict=0; unparsed_ts=0; missing_file=0; decode_failed=0",
+      "features": [
+        "HX-IMG-L1SURFACECCDINDEX-MEAN",
+        "HX-IMG-L1SURFACECCDINDEX-STD",
+        "HX-IMG-L1SURFACECCDINDEX-ENTROPY",
+        "HX-IMG-L1SURFACECCDINDEX-SATFRAC",
+        "HX-IMG-L1SURFACECCDINDEX-DARKFRAC",
+        "HX-IMG-L1SURFACECCDINDEX-FOCUS",
+        "HX-IMG-L1SURFACECCDINDEX-N"
+      ],
+      "objects_dir": "07_hetero/objects/L1SURFACECCDINDEX"
+    },
+    {
+      "source_id": "L1_furnace_thermal_map_2h.csv",
+      "path": "workspace\\hetero-full-sim\\raw\\L1_furnace_thermal_map_2h.csv",
+      "path_sha6": "710726",
+      "slug": "L1FURNACETHERMALMAP2",
+      "shape": "map",
+      "ts_source": "dcs",
+      "duplicate_key_policy": "aggregate",
+      "sparse": false,
+      "stats_eligible": false,
+      "features": [
+        "HX-MAP-L1FURNACETHERMALMAP2-MEAN",
+        "HX-MAP-L1FURNACETHERMALMAP2-P95",
+        "HX-MAP-L1FURNACETHERMALMAP2-HOTAREA-P90",
+        "HX-MAP-L1FURNACETHERMALMAP2-COLDAREA-P10",
+        "HX-MAP-L1FURNACETHERMALMAP2-CENTROID-X",
+        "HX-MAP-L1FURNACETHERMALMAP2-CENTROID-Y",
+        "HX-MAP-L1FURNACETHERMALMAP2-GRAD-P95",
+        "HX-MAP-L1FURNACETHERMALMAP2-ASYM-LR",
+        "HX-MAP-L1FURNACETHERMALMAP2-POSMAX-X",
+        "HX-MAP-L1FURNACETHERMALMAP2-POSMAX-Y",
+        "HX-MAP-L1FURNACETHERMALMAP2-N"
+      ],
+      "objects_dir": null,
+      "disposition": "featured",
+      "reason": "",
+      "format": "long_grid",
+      "n_snapshots": 120,
+      "cadence_s": 7200.0,
+      "span_s": 856800.0,
+      "ts_format": "%Y-%m-%d %H:%M:%S",
+      "tz": null,
+      "anchor_coverage": null,
+      "effective_n": 120
+    },
+    {
+      "source_id": "L1BANDTEMPPROFILE30M",
+      "path": "workspace\\hetero-full-sim\\raw\\L1_band_temp_profile_30min.csv",
+      "slug": "L1BANDTEMPPROFILE30M",
+      "path_sha6": "389d51",
+      "shape": "profile",
+      "format": "csv",
+      "n_snapshots": 480,
+      "cadence_s": 1800.0,
+      "span_s": 862200.0,
+      "ts_format": "%Y-%m-%d %H:%M:%S",
+      "ts_source": "dcs",
+      "tz": null,
+      "duplicate_key_policy": "aggregate",
+      "disposition": "featured",
+      "reason": "shift_baseline=first_20pct",
+      "features": [
+        "HX-PROF-L1BANDTEMPPROFILE30M-MEAN",
+        "HX-PROF-L1BANDTEMPPROFILE30M-STD",
+        "HX-PROF-L1BANDTEMPPROFILE30M-MIN",
+        "HX-PROF-L1BANDTEMPPROFILE30M-MAX",
+        "HX-PROF-L1BANDTEMPPROFILE30M-P05",
+        "HX-PROF-L1BANDTEMPPROFILE30M-P50",
+        "HX-PROF-L1BANDTEMPPROFILE30M-P95",
+        "HX-PROF-L1BANDTEMPPROFILE30M-RANGE",
+        "HX-PROF-L1BANDTEMPPROFILE30M-IQR",
+        "HX-PROF-L1BANDTEMPPROFILE30M-MAD",
+        "HX-PROF-L1BANDTEMPPROFILE30M-N",
+        "HX-PROF-L1BANDTEMPPROFILE30M-SLOPE-LSQ-PER100",
+        "HX-PROF-L1BANDTEMPPROFILE30M-CURV-LSQ",
+        "HX-PROF-L1BANDTEMPPROFILE30M-ZONE-1-3-MEAN",
+        "HX-PROF-L1BANDTEMPPROFILE30M-EDGE-L-DEV",
+        "HX-PROF-L1BANDTEMPPROFILE30M-EDGE-R-DEV",
+        "HX-PROF-L1BANDTEMPPROFILE30M-ARGDEV-NBR",
+        "HX-PROF-L1BANDTEMPPROFILE30M-SHIFT-EST"
+      ],
+      "objects_dir": null,
+      "effective_n": 480,
+      "sparse": false
+    },
+    {
+      "source_id": "text-l1operatornotes",
+      "path": "workspace\\hetero-full-sim\\raw\\L1_operator_notes.csv",
+      "path_sha6": "b96a8c",
+      "slug": "L1OPERATORNOTES",
+      "shape": "text",
+      "format": "csv",
+      "n_snapshots": 9,
+      "cadence_s": 102600.0,
+      "span_s": 779400.0,
+      "ts_format": "%Y-%m-%d %H:%M:%S",
+      "ts_source": "manual",
+      "tz": "anchor_local",
+      "duplicate_key_policy": "keep_all",
+      "anchor_coverage": null,
+      "effective_n": 9,
+      "sparse": true,
+      "stats_eligible": false,
+      "disposition": "featured",
+      "reason": "",
+      "features": [
+        "HX-TXT-L1OPERATORNOTES-EVT-MAINTENANCE",
+        "HX-TXT-L1OPERATORNOTES-EVT-HEATUP",
+        "HX-TXT-L1OPERATORNOTES-HOUR-OF-DAY",
+        "HX-TXT-L1OPERATORNOTES-SHIFT-BUCKET-ID"
+      ],
+      "objects_dir": null
+    }
+  ],
+  "outputs": {
+    "joined_table": "07_hetero/preprocessed_data_hetero.csv",
+    "contract": "07_hetero/column_contract.json",
+    "explicit_cols": "07_hetero/explicit_cols.json",
+    "features_dir": "07_hetero/features",
+    "annotations": "07_hetero/annotations.json",
+    "objects_dir": "07_hetero/objects"
+  },
+  "h7_guard": {
+    "anchor_sha256": "sha256:0b9f4b64a6b12ed191d463ab988deeaa87407833bfd5239dc6c8121878e55b0a",
+    "files": [
+      {
+        "path": "00_input/preprocessed_data.csv",
+        "sha256": "sha256:0b9f4b64a6b12ed191d463ab988deeaa87407833bfd5239dc6c8121878e55b0a"
+      },
+      {
+        "path": "00_input/preprocessing_report.json",
+        "sha256": "sha256:f8e02efa8b3982852b9287cdfe01bb1320e6041c3de87e1bc9d202f324cdde13"
+      }
+    ],
+    "written": [
+      "07_hetero/features/IMG-L1SURFACECCDINDEX.csv",
+      "07_hetero/features/MAP-L1FURNACETHERMALMAP2.csv",
+      "07_hetero/features/PROF-L1BANDTEMPPROFILE30M.csv",
+      "07_hetero/features/TXT-L1OPERATORNOTES.csv",
+      "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\hetero-full-sim\\run\\07_hetero\\column_contract.json",
+      "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\hetero-full-sim\\run\\07_hetero\\explicit_cols.json",
+      "07_hetero/annotations.json",
+      "07_hetero/preprocessed_data_hetero.csv"
+    ]
+  },
+  "notes": []
+}

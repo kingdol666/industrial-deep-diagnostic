@@ -1,0 +1,220 @@
+{
+  "contract_version": "hetero-features/1.1",
+  "status": "ok",
+  "generated_at": "2026-10-17T09:41:05",
+  "zero_llm": true,
+  "run_dir": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\hetero-galv-sim\\precheck",
+  "raw_path": "workspace\\hetero-galv-sim\\raw",
+  "raw_path_source": "cli",
+  "anchor": {
+    "path": "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\hetero-galv-sim\\precheck\\00_input\\preprocessed_data.csv",
+    "sha256": "sha256:e753f13345c3e0cffbee6f743febf7762dcb37414db89897be8b3625acdd6adc",
+    "time_column": "时间",
+    "n_rows": 432,
+    "columns": [
+      "时间",
+      "GAL-POT-TEMP",
+      "GAL-LINE-SPEED",
+      "GAL-TENSION",
+      "GAL-AIRKNIFE-L-PRES",
+      "GAL-AIRKNIFE-R-PRES",
+      "GAL-COATING-GSM",
+      "GAL-YIELD"
+    ]
+  },
+  "time_ingest": {
+    "formats": [
+      "%Y-%m-%d %H:%M:%S",
+      "%Y-%m-%dT%H:%M:%S",
+      "%Y-%m-%d %H:%M",
+      "%Y/%m/%d %H:%M:%S",
+      "%Y/%m/%d %H:%M",
+      "%Y.%m.%d %H:%M:%S",
+      "%Y.%m.%d %H:%M",
+      "%Y年%m月%d日 %H:%M:%S",
+      "%Y年%m月%d日 %H:%M",
+      "%Y%m%d_%H%M%S",
+      "%Y%m%d-%H%M%S",
+      "%Y-%m-%d"
+    ],
+    "tz_policy": "strip_to_anchor_local",
+    "ambiguous": [],
+    "epoch_and_serial_detected": 0
+  },
+  "alignment": {
+    "method": "merge_asof_backward",
+    "max_age_factor": 3.0,
+    "interpolation": "none",
+    "forward_fill": "none",
+    "rolling_features": false,
+    "transport_lag_s": {}
+  },
+  "in_control_window": null,
+  "sources": [
+    {
+      "source_id": "L1SURFACEDEFECTINDEX",
+      "path": "workspace\\hetero-galv-sim\\raw\\L1_surface_defect_index.csv",
+      "path_sha6": "1922ed",
+      "slug": "L1SURFACEDEFECTINDEX",
+      "shape": "image_stream",
+      "format": "png",
+      "n_snapshots": 36,
+      "cadence_s": 7200.0,
+      "span_s": 252000.0,
+      "ts_format": "%Y-%m-%d %H:%M:%S",
+      "ts_source": "index",
+      "tz": "naive_local",
+      "duplicate_key_policy": "aggregate",
+      "anchor_coverage": null,
+      "effective_n": 36,
+      "sparse": true,
+      "stats_eligible": false,
+      "disposition": "featured",
+      "reason": "image_stream/index_csv: rows_in=36; ts_conflict=0; unparsed_ts=0; missing_file=0; decode_failed=0",
+      "features": [
+        "HX-IMG-L1SURFACEDEFECTINDEX-MEAN",
+        "HX-IMG-L1SURFACEDEFECTINDEX-STD",
+        "HX-IMG-L1SURFACEDEFECTINDEX-ENTROPY",
+        "HX-IMG-L1SURFACEDEFECTINDEX-SATFRAC",
+        "HX-IMG-L1SURFACEDEFECTINDEX-DARKFRAC",
+        "HX-IMG-L1SURFACEDEFECTINDEX-FOCUS",
+        "HX-IMG-L1SURFACEDEFECTINDEX-N"
+      ],
+      "objects_dir": "07_hetero/objects/L1SURFACEDEFECTINDEX"
+    },
+    {
+      "source_id": "L1_pot_thermal_map_2h.csv",
+      "path": "workspace\\hetero-galv-sim\\raw\\L1_pot_thermal_map_2h.csv",
+      "path_sha6": "e5210f",
+      "slug": "L1POTTHERMALMAP2H",
+      "shape": "map",
+      "ts_source": "dcs",
+      "duplicate_key_policy": "aggregate",
+      "sparse": false,
+      "stats_eligible": false,
+      "features": [
+        "HX-MAP-L1POTTHERMALMAP2H-MEAN",
+        "HX-MAP-L1POTTHERMALMAP2H-P95",
+        "HX-MAP-L1POTTHERMALMAP2H-HOTAREA-P90",
+        "HX-MAP-L1POTTHERMALMAP2H-COLDAREA-P10",
+        "HX-MAP-L1POTTHERMALMAP2H-CENTROID-X",
+        "HX-MAP-L1POTTHERMALMAP2H-CENTROID-Y",
+        "HX-MAP-L1POTTHERMALMAP2H-GRAD-P95",
+        "HX-MAP-L1POTTHERMALMAP2H-ASYM-LR",
+        "HX-MAP-L1POTTHERMALMAP2H-POSMAX-X",
+        "HX-MAP-L1POTTHERMALMAP2H-POSMAX-Y",
+        "HX-MAP-L1POTTHERMALMAP2H-N"
+      ],
+      "objects_dir": null,
+      "disposition": "featured",
+      "reason": "",
+      "format": "long_grid",
+      "n_snapshots": 36,
+      "cadence_s": 7200.0,
+      "span_s": 252000.0,
+      "ts_format": "%Y-%m-%d %H:%M:%S",
+      "tz": null,
+      "anchor_coverage": null,
+      "effective_n": 36
+    },
+    {
+      "source_id": "L1COATINGPROFILE30MI",
+      "path": "workspace\\hetero-galv-sim\\raw\\L1_coating_profile_30min.csv",
+      "slug": "L1COATINGPROFILE30MI",
+      "path_sha6": "2c73ce",
+      "shape": "profile",
+      "format": "csv",
+      "n_snapshots": 144,
+      "cadence_s": 1800.0,
+      "span_s": 257400.0,
+      "ts_format": "%Y-%m-%d %H:%M:%S",
+      "ts_source": "dcs",
+      "tz": null,
+      "duplicate_key_policy": "aggregate",
+      "disposition": "featured",
+      "reason": "shift_baseline=first_20pct",
+      "features": [
+        "HX-PROF-L1COATINGPROFILE30MI-MEAN",
+        "HX-PROF-L1COATINGPROFILE30MI-STD",
+        "HX-PROF-L1COATINGPROFILE30MI-MIN",
+        "HX-PROF-L1COATINGPROFILE30MI-MAX",
+        "HX-PROF-L1COATINGPROFILE30MI-P05",
+        "HX-PROF-L1COATINGPROFILE30MI-P50",
+        "HX-PROF-L1COATINGPROFILE30MI-P95",
+        "HX-PROF-L1COATINGPROFILE30MI-RANGE",
+        "HX-PROF-L1COATINGPROFILE30MI-IQR",
+        "HX-PROF-L1COATINGPROFILE30MI-MAD",
+        "HX-PROF-L1COATINGPROFILE30MI-N",
+        "HX-PROF-L1COATINGPROFILE30MI-SLOPE-LSQ-PER100",
+        "HX-PROF-L1COATINGPROFILE30MI-CURV-LSQ",
+        "HX-PROF-L1COATINGPROFILE30MI-ZONE-1-3-MEAN",
+        "HX-PROF-L1COATINGPROFILE30MI-EDGE-L-DEV",
+        "HX-PROF-L1COATINGPROFILE30MI-EDGE-R-DEV",
+        "HX-PROF-L1COATINGPROFILE30MI-ARGDEV-NBR",
+        "HX-PROF-L1COATINGPROFILE30MI-SHIFT-EST"
+      ],
+      "objects_dir": null,
+      "effective_n": 144,
+      "sparse": false
+    },
+    {
+      "source_id": "text-l1operatornotes",
+      "path": "workspace\\hetero-galv-sim\\raw\\L1_operator_notes.csv",
+      "path_sha6": "dc3f3d",
+      "slug": "L1OPERATORNOTES",
+      "shape": "text",
+      "format": "csv",
+      "n_snapshots": 7,
+      "cadence_s": 32400.0,
+      "span_s": 174600.0,
+      "ts_format": "%Y-%m-%d %H:%M:%S",
+      "ts_source": "manual",
+      "tz": "anchor_local",
+      "duplicate_key_policy": "keep_all",
+      "anchor_coverage": null,
+      "effective_n": 7,
+      "sparse": true,
+      "stats_eligible": false,
+      "disposition": "featured",
+      "reason": "",
+      "features": [
+        "HX-TXT-L1OPERATORNOTES-EVT-CLEANING",
+        "HX-TXT-L1OPERATORNOTES-HOUR-OF-DAY",
+        "HX-TXT-L1OPERATORNOTES-SHIFT-BUCKET-ID"
+      ],
+      "objects_dir": null
+    }
+  ],
+  "outputs": {
+    "joined_table": "07_hetero/preprocessed_data_hetero.csv",
+    "contract": "07_hetero/column_contract.json",
+    "explicit_cols": "07_hetero/explicit_cols.json",
+    "features_dir": "07_hetero/features",
+    "annotations": "07_hetero/annotations.json",
+    "objects_dir": "07_hetero/objects"
+  },
+  "h7_guard": {
+    "anchor_sha256": "sha256:e753f13345c3e0cffbee6f743febf7762dcb37414db89897be8b3625acdd6adc",
+    "files": [
+      {
+        "path": "00_input/preprocessed_data.csv",
+        "sha256": "sha256:e753f13345c3e0cffbee6f743febf7762dcb37414db89897be8b3625acdd6adc"
+      },
+      {
+        "path": "00_input/preprocessing_report.json",
+        "sha256": "sha256:c70e92dee3562662b2505c5b8eeb4033b707bd16cf8d9ee1aa681548c87b13c4"
+      }
+    ],
+    "written": [
+      "07_hetero/features/IMG-L1SURFACEDEFECTINDEX.csv",
+      "07_hetero/features/MAP-L1POTTHERMALMAP2H.csv",
+      "07_hetero/features/PROF-L1COATINGPROFILE30MI.csv",
+      "07_hetero/features/TXT-L1OPERATORNOTES.csv",
+      "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\hetero-galv-sim\\precheck\\07_hetero\\column_contract.json",
+      "D:\\codes\\myskills\\industrial-deep-diagnostic\\workspace\\hetero-galv-sim\\precheck\\07_hetero\\explicit_cols.json",
+      "07_hetero/annotations.json",
+      "07_hetero/preprocessed_data_hetero.csv"
+    ]
+  },
+  "notes": []
+}

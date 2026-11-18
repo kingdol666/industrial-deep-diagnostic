@@ -1,0 +1,116 @@
+{
+ "stage": "data-processor",
+ "schema": "stage_digest/1.0",
+ "scenario": null,
+ "data_shape": {
+  "n_rows": null,
+  "n_columns": null,
+  "time_col": "时间",
+  "time_method": "single-source-parse",
+  "median_interval_s": 600,
+  "index_implied_only": false
+ },
+ "anomaly_counts": {
+  "data_view_mode": "process_plus_inspection",
+  "anomaly_intervals": 8,
+  "total_transitions": 0,
+  "process_parameters_screened": 20,
+  "integrated_links": 0,
+  "normalized_from_legacy_shape": true
+ },
+ "top_anomalies": [
+  {
+   "column": "HX-MAP-L1FURNACETHERMALMAP2-HOTAREA-P90",
+   "cv": 4.3604,
+   "abrupt": "yes"
+  },
+  {
+   "column": "HX-MAP-L1FURNACETHERMALMAP2-COLDAREA-P10",
+   "cv": 3.1528,
+   "abrupt": "yes"
+  },
+  {
+   "column": "HX-MAP-L1FURNACETHERMALMAP2-POSMAX-Y",
+   "cv": 0.7324,
+   "abrupt": "yes"
+  },
+  {
+   "column": "HX-MAP-L1FURNACETHERMALMAP2-ASYM-LR",
+   "cv": 0.4726,
+   "abrupt": "yes"
+  },
+  {
+   "column": "HX-IMG-L1SURFACECCDINDEX-STD",
+   "cv": 0.4671,
+   "abrupt": "yes"
+  }
+ ],
+ "fluctuation_top_cv": [
+  {
+   "column": "HX-MAP-L1FURNACETHERMALMAP2-HOTAREA-P90",
+   "cv": 4.3604,
+   "abrupt": "yes"
+  },
+  {
+   "column": "HX-MAP-L1FURNACETHERMALMAP2-COLDAREA-P10",
+   "cv": 3.1528,
+   "abrupt": "yes"
+  },
+  {
+   "column": "HX-MAP-L1FURNACETHERMALMAP2-POSMAX-Y",
+   "cv": 0.7324,
+   "abrupt": "yes"
+  },
+  {
+   "column": "HX-MAP-L1FURNACETHERMALMAP2-ASYM-LR",
+   "cv": 0.4726,
+   "abrupt": "yes"
+  },
+  {
+   "column": "HX-IMG-L1SURFACECCDINDEX-STD",
+   "cv": 0.4671,
+   "abrupt": "yes"
+  }
+ ],
+ "top_correlations": [],
+ "segment_contrast": null,
+ "robustness": null,
+ "analysis_mode": "ontology_guided_plus_custom",
+ "key_findings": [],
+ "charts": {
+  "adaptive_plan": [
+   {
+    "chart": "contour_cloud",
+    "target": "FUR-Z2-TEMP"
+   },
+   {
+    "chart": "contour_cloud",
+    "target": "FUR-Z3-TEMP"
+   },
+   {
+    "chart": "contour_cloud",
+    "target": "FUR-SPEED"
+   },
+   {
+    "chart": "contour_cloud",
+    "target": "FUR-PRES"
+   },
+   {
+    "chart": "contour_cloud",
+    "target": "FUR-OUT-TEMP"
+   },
+   {
+    "chart": "contour_cloud",
+    "target": "FUR-YIELD"
+   }
+  ],
+  "n_pngs": 7
+ },
+ "read_full": {
+  "data_analysis_conclusion": "02_processed/data_analysis_conclusion.json",
+  "validate_report": "02_processed/validate_report.json",
+  "anomaly_report": "02_processed/anomaly_report.json",
+  "segment_statistics": "02_processed/segment_statistics.json",
+  "adaptive_chart_plan": "03_figures/adaptive_chart_plan.json"
+ }
+}

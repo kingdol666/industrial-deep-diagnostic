@@ -1,0 +1,1004 @@
+[
+  {
+    "response": "拉伸强度",
+    "n": 20,
+    "df_resid": 10,
+    "mse": 0.683817,
+    "coded_coefficients": {
+      "预热辊温": 18.622495,
+      "拉伸速度": 11.83811,
+      "拉伸比": 0.355682,
+      "预热辊温^2": -156.893738,
+      "拉伸速度^2": -19.428532,
+      "拉伸比^2": -4.443875,
+      "预热辊温:拉伸速度": -0.437993,
+      "预热辊温:拉伸比": 1.946565,
+      "拉伸速度:拉伸比": -0.87668
+    },
+    "r_squared": 0.999854,
+    "adj_r_squared": 0.999723,
+    "q_squared_loo": 0.999205,
+    "q_squared_note": "hat-matrix LOO; replicate (twin) rows can leak — treat as optimistic bound",
+    "saturated": false,
+    "pooled_terms": [],
+    "lack_of_fit": {
+      "estimable": true,
+      "reason": null,
+      "f_stat": 1.182069,
+      "p_value": 0.4294211406967687
+    },
+    "residual_diagnostics": {
+      "n": 20,
+      "n_params": 10,
+      "sigma_residual": 0.826932,
+      "n_high_residual_abs_gt3sigma": 0,
+      "max_leverage": 0.669771,
+      "leverage_cutoff_2p_over_n": 1.0,
+      "n_leverage_gt": 0,
+      "max_cooks_d": 0.744558,
+      "preview_stride": 1,
+      "preview_truncated": false,
+      "residuals_preview": [
+        {
+          "row_index": 0,
+          "y": 226.93,
+          "yhat": 227.86506,
+          "resid": -0.93506
+        },
+        {
+          "row_index": 1,
+          "y": 89.88,
+          "yhat": 89.593818,
+          "resid": 0.286182
+        },
+        {
+          "row_index": 2,
+          "y": 228.0,
+          "yhat": 227.86506,
+          "resid": 0.13494
+        },
+        {
+          "row_index": 3,
+          "y": 228.73,
+          "yhat": 227.86506,
+          "resid": 0.86494
+        },
+        {
+          "row_index": 4,
+          "y": 228.27,
+          "yhat": 227.86506,
+          "resid": 0.40494
+        },
+        {
+          "row_index": 5,
+          "y": 160.05,
+          "yhat": 159.300098,
+          "resid": 0.749902
+        },
+        {
+          "row_index": 6,
+          "y": 146.76,
+          "yhat": 145.849518,
+          "resid": 0.910482
+        },
+        {
+          "row_index": 7,
+          "y": 51.89,
+          "yhat": 52.348827,
+          "resid": -0.458827
+        },
+        {
+          "row_index": 8,
+          "y": 196.3,
+          "yhat": 196.598418,
+          "resid": -0.298418
+        },
+        {
+          "row_index": 9,
+          "y": 160.38,
+          "yhat": 160.872505,
+          "resid": -0.492505
+        },
+        {
+          "row_index": 10,
+          "y": 223.0,
+          "yhat": 223.065503,
+          "resid": -0.065503
+        },
+        {
+          "row_index": 11,
+          "y": 181.72,
+          "yhat": 182.508374,
+          "resid": -0.788374
+        },
+        {
+          "row_index": 12,
+          "y": 220.4,
+          "yhat": 220.274638,
+          "resid": 0.125362
+        },
+        {
+          "row_index": 13,
+          "y": 226.86,
+          "yhat": 227.86506,
+          "resid": -1.00506
+        },
+        {
+          "row_index": 14,
+          "y": 181.75,
+          "yhat": 181.330782,
+          "resid": 0.419218
+        },
+        {
+          "row_index": 15,
+          "y": 169.96,
+          "yhat": 169.345387,
+          "resid": 0.614613
+        },
+        {
+          "row_index": 16,
+          "y": 223.67,
+          "yhat": 223.776868,
+          "resid": -0.106868
+        },
+        {
+          "row_index": 17,
+          "y": 166.3,
+          "yhat": 166.927794,
+          "resid": -0.627794
+        },
+        {
+          "row_index": 18,
+          "y": 145.22,
+          "yhat": 145.51711,
+          "resid": -0.29711
+        },
+        {
+          "row_index": 19,
+          "y": 228.43,
+          "yhat": 227.86506,
+          "resid": 0.56494
+        }
+      ],
+      "normality": {
+        "skew": -0.1092,
+        "excess_kurtosis": -1.153027
+      }
+    },
+    "predictor": {
+      "base": {
+        "预热辊温": {
+          "kind": "numeric_main",
+          "factor": "预热辊温",
+          "mean": 78.0,
+          "half_range": 8.41
+        },
+        "拉伸速度": {
+          "kind": "numeric_main",
+          "factor": "拉伸速度",
+          "mean": 52.0,
+          "half_range": 3.36
+        },
+        "拉伸比": {
+          "kind": "numeric_main",
+          "factor": "拉伸比",
+          "mean": 3.2,
+          "half_range": 0.505
+        }
+      },
+      "terms": [
+        {
+          "term": "预热辊温",
+          "specs": [
+            {
+              "name": "预热辊温",
+              "fn": "identity",
+              "inputs": [
+                "预热辊温"
+              ]
+            }
+          ]
+        },
+        {
+          "term": "拉伸速度",
+          "specs": [
+            {
+              "name": "拉伸速度",
+              "fn": "identity",
+              "inputs": [
+                "拉伸速度"
+              ]
+            }
+          ]
+        },
+        {
+          "term": "拉伸比",
+          "specs": [
+            {
+              "name": "拉伸比",
+              "fn": "identity",
+              "inputs": [
+                "拉伸比"
+              ]
+            }
+          ]
+        },
+        {
+          "term": "预热辊温^2",
+          "specs": [
+            {
+              "name": "预热辊温^2",
+              "fn": "square",
+              "inputs": [
+                "预热辊温"
+              ]
+            }
+          ]
+        },
+        {
+          "term": "拉伸速度^2",
+          "specs": [
+            {
+              "name": "拉伸速度^2",
+              "fn": "square",
+              "inputs": [
+                "拉伸速度"
+              ]
+            }
+          ]
+        },
+        {
+          "term": "拉伸比^2",
+          "specs": [
+            {
+              "name": "拉伸比^2",
+              "fn": "square",
+              "inputs": [
+                "拉伸比"
+              ]
+            }
+          ]
+        },
+        {
+          "term": "预热辊温:拉伸速度",
+          "specs": [
+            {
+              "name": "预热辊温*拉伸速度",
+              "fn": "product",
+              "inputs": [
+                "预热辊温",
+                "拉伸速度"
+              ]
+            }
+          ]
+        },
+        {
+          "term": "预热辊温:拉伸比",
+          "specs": [
+            {
+              "name": "预热辊温*拉伸比",
+              "fn": "product",
+              "inputs": [
+                "预热辊温",
+                "拉伸比"
+              ]
+            }
+          ]
+        },
+        {
+          "term": "拉伸速度:拉伸比",
+          "specs": [
+            {
+              "name": "拉伸速度*拉伸比",
+              "fn": "product",
+              "inputs": [
+                "拉伸速度",
+                "拉伸比"
+              ]
+            }
+          ]
+        }
+      ],
+      "coefficients": {
+        "预热辊温": 18.622495,
+        "拉伸速度": 11.83811,
+        "拉伸比": 0.355682,
+        "预热辊温^2": -156.893738,
+        "拉伸速度^2": -19.428532,
+        "拉伸比^2": -4.443875,
+        "预热辊温*拉伸速度": -0.437993,
+        "预热辊温*拉伸比": 1.946565,
+        "拉伸速度*拉伸比": -0.87668
+      },
+      "intercept": 227.86506
+    },
+    "stationary_point": {
+      "coded": {
+        "预热辊温": 0.059067,
+        "拉伸速度": 0.303473,
+        "拉伸比": 0.023022
+      },
+      "raw": {
+        "预热辊温": 78.496751,
+        "拉伸速度": 53.019668,
+        "拉伸比": 3.211626
+      },
+      "classification": "max",
+      "inside_design_region": true,
+      "eigenvalues": [
+        -313.800583,
+        -38.882161,
+        -8.849547
+      ],
+      "warning": null
+    }
+  },
+  {
+    "response": "雾度",
+    "n": 20,
+    "df_resid": 10,
+    "mse": 0.002916,
+    "coded_coefficients": {
+      "预热辊温": -0.006908,
+      "拉伸速度": -0.011303,
+      "拉伸比": 0.04639,
+      "预热辊温^2": 0.855444,
+      "拉伸速度^2": 0.058898,
+      "拉伸比^2": 0.101974,
+      "预热辊温:拉伸速度": 0.00883,
+      "预热辊温:拉伸比": 0.056273,
+      "拉伸速度:拉伸比": 0.077417
+    },
+    "r_squared": 0.978707,
+    "adj_r_squared": 0.959543,
+    "q_squared_loo": 0.867355,
+    "q_squared_note": "hat-matrix LOO; replicate (twin) rows can leak — treat as optimistic bound",
+    "saturated": false,
+    "pooled_terms": [],
+    "lack_of_fit": {
+      "estimable": true,
+      "reason": null,
+      "f_stat": 2.984493,
+      "p_value": 0.12765991618724826
+    },
+    "residual_diagnostics": {
+      "n": 20,
+      "n_params": 10,
+      "sigma_residual": 0.054004,
+      "n_high_residual_abs_gt3sigma": 0,
+      "max_leverage": 0.669771,
+      "leverage_cutoff_2p_over_n": 1.0,
+      "n_leverage_gt": 0,
+      "max_cooks_d": 1.182161,
+      "preview_stride": 1,
+      "preview_truncated": false,
+      "residuals_preview": [
+        {
+          "row_index": 0,
+          "y": 1.132,
+          "yhat": 1.103428,
+          "resid": 0.028572
+        },
+        {
+          "row_index": 1,
+          "y": 1.964,
+          "yhat": 1.951964,
+          "resid": 0.012036
+        },
+        {
+          "row_index": 2,
+          "y": 1.157,
+          "yhat": 1.103428,
+          "resid": 0.053572
+        },
+        {
+          "row_index": 3,
+          "y": 1.065,
+          "yhat": 1.103428,
+          "resid": -0.038428
+        },
+        {
+          "row_index": 4,
+          "y": 1.083,
+          "yhat": 1.103428,
+          "resid": -0.020428
+        },
+        {
+          "row_index": 5,
+          "y": 1.506,
+          "yhat": 1.491967,
+          "resid": 0.014033
+        },
+        {
+          "row_index": 6,
+          "y": 1.491,
+          "yhat": 1.496305,
+          "resid": -0.005305
+        },
+        {
+          "row_index": 7,
+          "y": 1.992,
+          "yhat": 1.96578,
+          "resid": 0.02622
+        },
+        {
+          "row_index": 8,
+          "y": 1.249,
+          "yhat": 1.173629,
+          "resid": 0.075371
+        },
+        {
+          "row_index": 9,
+          "y": 1.422,
+          "yhat": 1.42185,
+          "resid": 0.00015
+        },
+        {
+          "row_index": 10,
+          "y": 1.145,
+          "yhat": 1.159012,
+          "resid": -0.014012
+        },
+        {
+          "row_index": 11,
+          "y": 1.508,
+          "yhat": 1.529753,
+          "resid": -0.021753
+        },
+        {
+          "row_index": 12,
+          "y": 1.114,
+          "yhat": 1.151023,
+          "resid": -0.037023
+        },
+        {
+          "row_index": 13,
+          "y": 1.114,
+          "yhat": 1.103428,
+          "resid": 0.010572
+        },
+        {
+          "row_index": 14,
+          "y": 1.428,
+          "yhat": 1.380135,
+          "resid": 0.047865
+        },
+        {
+          "row_index": 15,
+          "y": 1.455,
+          "yhat": 1.482208,
+          "resid": -0.027208
+        },
+        {
+          "row_index": 16,
+          "y": 1.304,
+          "yhat": 1.251792,
+          "resid": 0.052208
+        },
+        {
+          "row_index": 17,
+          "y": 1.401,
+          "yhat": 1.442091,
+          "resid": -0.041091
+        },
+        {
+          "row_index": 18,
+          "y": 1.382,
+          "yhat": 1.456923,
+          "resid": -0.074923
+        },
+        {
+          "row_index": 19,
+          "y": 1.063,
+          "yhat": 1.103428,
+          "resid": -0.040428
+        }
+      ],
+      "normality": {
+        "skew": 0.157615,
+        "excess_kurtosis": -0.731419
+      }
+    },
+    "predictor": {
+      "base": {
+        "预热辊温": {
+          "kind": "numeric_main",
+          "factor": "预热辊温",
+          "mean": 78.0,
+          "half_range": 8.41
+        },
+        "拉伸速度": {
+          "kind": "numeric_main",
+          "factor": "拉伸速度",
+          "mean": 52.0,
+          "half_range": 3.36
+        },
+        "拉伸比": {
+          "kind": "numeric_main",
+          "factor": "拉伸比",
+          "mean": 3.2,
+          "half_range": 0.505
+        }
+      },
+      "terms": [
+        {
+          "term": "预热辊温",
+          "specs": [
+            {
+              "name": "预热辊温",
+              "fn": "identity",
+              "inputs": [
+                "预热辊温"
+              ]
+            }
+          ]
+        },
+        {
+          "term": "拉伸速度",
+          "specs": [
+            {
+              "name": "拉伸速度",
+              "fn": "identity",
+              "inputs": [
+                "拉伸速度"
+              ]
+            }
+          ]
+        },
+        {
+          "term": "拉伸比",
+          "specs": [
+            {
+              "name": "拉伸比",
+              "fn": "identity",
+              "inputs": [
+                "拉伸比"
+              ]
+            }
+          ]
+        },
+        {
+          "term": "预热辊温^2",
+          "specs": [
+            {
+              "name": "预热辊温^2",
+              "fn": "square",
+              "inputs": [
+                "预热辊温"
+              ]
+            }
+          ]
+        },
+        {
+          "term": "拉伸速度^2",
+          "specs": [
+            {
+              "name": "拉伸速度^2",
+              "fn": "square",
+              "inputs": [
+                "拉伸速度"
+              ]
+            }
+          ]
+        },
+        {
+          "term": "拉伸比^2",
+          "specs": [
+            {
+              "name": "拉伸比^2",
+              "fn": "square",
+              "inputs": [
+                "拉伸比"
+              ]
+            }
+          ]
+        },
+        {
+          "term": "预热辊温:拉伸速度",
+          "specs": [
+            {
+              "name": "预热辊温*拉伸速度",
+              "fn": "product",
+              "inputs": [
+                "预热辊温",
+                "拉伸速度"
+              ]
+            }
+          ]
+        },
+        {
+          "term": "预热辊温:拉伸比",
+          "specs": [
+            {
+              "name": "预热辊温*拉伸比",
+              "fn": "product",
+              "inputs": [
+                "预热辊温",
+                "拉伸比"
+              ]
+            }
+          ]
+        },
+        {
+          "term": "拉伸速度:拉伸比",
+          "specs": [
+            {
+              "name": "拉伸速度*拉伸比",
+              "fn": "product",
+              "inputs": [
+                "拉伸速度",
+                "拉伸比"
+              ]
+            }
+          ]
+        }
+      ],
+      "coefficients": {
+        "预热辊温": -0.006908,
+        "拉伸速度": -0.011303,
+        "拉伸比": 0.04639,
+        "预热辊温^2": 0.855444,
+        "拉伸速度^2": 0.058898,
+        "拉伸比^2": 0.101974,
+        "预热辊温*拉伸速度": 0.00883,
+        "预热辊温*拉伸比": 0.056273,
+        "拉伸速度*拉伸比": 0.077417
+      },
+      "intercept": 1.103428
+    },
+    "stationary_point": {
+      "coded": {
+        "预热辊温": 0.014056,
+        "拉伸速度": 0.329014,
+        "拉伸比": -0.35623
+      },
+      "raw": {
+        "预热辊温": 78.118215,
+        "拉伸速度": 53.105487,
+        "拉伸比": 3.020104
+      },
+      "classification": "min",
+      "inside_design_region": true,
+      "eigenvalues": [
+        0.072009,
+        0.247551,
+        1.713072
+      ],
+      "warning": "驻点为鞍点或落在设计域外 — 仅作警告，优化请在盒约束内进行 (W3/W5)"
+    }
+  },
+  {
+    "response": "厚度偏差",
+    "n": 20,
+    "df_resid": 10,
+    "mse": 1.506622,
+    "coded_coefficients": {
+      "预热辊温": 0.770839,
+      "拉伸速度": 1.216463,
+      "拉伸比": -0.797293,
+      "预热辊温^2": 210.873458,
+      "拉伸速度^2": 50.222684,
+      "拉伸比^2": -0.576028,
+      "预热辊温:拉伸速度": 0.847728,
+      "预热辊温:拉伸比": -2.831367,
+      "拉伸速度:拉伸比": -0.2828
+    },
+    "r_squared": 0.999818,
+    "adj_r_squared": 0.999654,
+    "q_squared_loo": 0.999045,
+    "q_squared_note": "hat-matrix LOO; replicate (twin) rows can leak — treat as optimistic bound",
+    "saturated": false,
+    "pooled_terms": [],
+    "lack_of_fit": {
+      "estimable": true,
+      "reason": null,
+      "f_stat": 1.211284,
+      "p_value": 0.41926579790094703
+    },
+    "residual_diagnostics": {
+      "n": 20,
+      "n_params": 10,
+      "sigma_residual": 1.227445,
+      "n_high_residual_abs_gt3sigma": 0,
+      "max_leverage": 0.669771,
+      "leverage_cutoff_2p_over_n": 1.0,
+      "n_leverage_gt": 0,
+      "max_cooks_d": 0.967003,
+      "preview_stride": 1,
+      "preview_truncated": false,
+      "residuals_preview": [
+        {
+          "row_index": 0,
+          "y": 20.2,
+          "yhat": 18.65191,
+          "resid": 1.54809
+        },
+        {
+          "row_index": 1,
+          "y": 230.7,
+          "yhat": 230.296207,
+          "resid": 0.403793
+        },
+        {
+          "row_index": 2,
+          "y": 18.9,
+          "yhat": 18.65191,
+          "resid": 0.24809
+        },
+        {
+          "row_index": 3,
+          "y": 17.3,
+          "yhat": 18.65191,
+          "resid": -1.35191
+        },
+        {
+          "row_index": 4,
+          "y": 17.2,
+          "yhat": 18.65191,
+          "resid": -1.45191
+        },
+        {
+          "row_index": 5,
+          "y": 110.3,
+          "yhat": 111.171765,
+          "resid": -0.871765
+        },
+        {
+          "row_index": 6,
+          "y": 108.3,
+          "yhat": 109.270873,
+          "resid": -0.970873
+        },
+        {
+          "row_index": 7,
+          "y": 229.0,
+          "yhat": 228.754529,
+          "resid": 0.245471
+        },
+        {
+          "row_index": 8,
+          "y": 68.7,
+          "yhat": 67.658131,
+          "resid": 1.041869
+        },
+        {
+          "row_index": 9,
+          "y": 111.4,
+          "yhat": 110.319043,
+          "resid": 1.080957
+        },
+        {
+          "row_index": 10,
+          "y": 18.6,
+          "yhat": 18.873175,
+          "resid": -0.273175
+        },
+        {
+          "row_index": 11,
+          "y": 111.2,
+          "yhat": 110.688339,
+          "resid": 0.511661
+        },
+        {
+          "row_index": 12,
+          "y": 69.7,
+          "yhat": 70.091058,
+          "resid": -0.391058
+        },
+        {
+          "row_index": 13,
+          "y": 19.2,
+          "yhat": 18.65191,
+          "resid": 0.54809
+        },
+        {
+          "row_index": 14,
+          "y": 113.4,
+          "yhat": 113.835618,
+          "resid": -0.435618
+        },
+        {
+          "row_index": 15,
+          "y": 107.3,
+          "yhat": 108.840169,
+          "resid": -1.540169
+        },
+        {
+          "row_index": 16,
+          "y": 18.2,
+          "yhat": 17.278589,
+          "resid": 0.921411
+        },
+        {
+          "row_index": 17,
+          "y": 112.0,
+          "yhat": 111.587447,
+          "resid": 0.412553
+        },
+        {
+          "row_index": 18,
+          "y": 110.5,
+          "yhat": 110.523594,
+          "resid": -0.023594
+        },
+        {
+          "row_index": 19,
+          "y": 19.0,
+          "yhat": 18.65191,
+          "resid": 0.34809
+        }
+      ],
+      "normality": {
+        "skew": -0.27012,
+        "excess_kurtosis": -0.868938
+      }
+    },
+    "predictor": {
+      "base": {
+        "预热辊温": {
+          "kind": "numeric_main",
+          "factor": "预热辊温",
+          "mean": 78.0,
+          "half_range": 8.41
+        },
+        "拉伸速度": {
+          "kind": "numeric_main",
+          "factor": "拉伸速度",
+          "mean": 52.0,
+          "half_range": 3.36
+        },
+        "拉伸比": {
+          "kind": "numeric_main",
+          "factor": "拉伸比",
+          "mean": 3.2,
+          "half_range": 0.505
+        }
+      },
+      "terms": [
+        {
+          "term": "预热辊温",
+          "specs": [
+            {
+              "name": "预热辊温",
+              "fn": "identity",
+              "inputs": [
+                "预热辊温"
+              ]
+            }
+          ]
+        },
+        {
+          "term": "拉伸速度",
+          "specs": [
+            {
+              "name": "拉伸速度",
+              "fn": "identity",
+              "inputs": [
+                "拉伸速度"
+              ]
+            }
+          ]
+        },
+        {
+          "term": "拉伸比",
+          "specs": [
+            {
+              "name": "拉伸比",
+              "fn": "identity",
+              "inputs": [
+                "拉伸比"
+              ]
+            }
+          ]
+        },
+        {
+          "term": "预热辊温^2",
+          "specs": [
+            {
+              "name": "预热辊温^2",
+              "fn": "square",
+              "inputs": [
+                "预热辊温"
+              ]
+            }
+          ]
+        },
+        {
+          "term": "拉伸速度^2",
+          "specs": [
+            {
+              "name": "拉伸速度^2",
+              "fn": "square",
+              "inputs": [
+                "拉伸速度"
+              ]
+            }
+          ]
+        },
+        {
+          "term": "拉伸比^2",
+          "specs": [
+            {
+              "name": "拉伸比^2",
+              "fn": "square",
+              "inputs": [
+                "拉伸比"
+              ]
+            }
+          ]
+        },
+        {
+          "term": "预热辊温:拉伸速度",
+          "specs": [
+            {
+              "name": "预热辊温*拉伸速度",
+              "fn": "product",
+              "inputs": [
+                "预热辊温",
+                "拉伸速度"
+              ]
+            }
+          ]
+        },
+        {
+          "term": "预热辊温:拉伸比",
+          "specs": [
+            {
+              "name": "预热辊温*拉伸比",
+              "fn": "product",
+              "inputs": [
+                "预热辊温",
+                "拉伸比"
+              ]
+            }
+          ]
+        },
+        {
+          "term": "拉伸速度:拉伸比",
+          "specs": [
+            {
+              "name": "拉伸速度*拉伸比",
+              "fn": "product",
+              "inputs": [
+                "拉伸速度",
+                "拉伸比"
+              ]
+            }
+          ]
+        }
+      ],
+      "coefficients": {
+        "预热辊温": 0.770839,
+        "拉伸速度": 1.216463,
+        "拉伸比": -0.797293,
+        "预热辊温^2": 210.873458,
+        "拉伸速度^2": 50.222684,
+        "拉伸比^2": -0.576028,
+        "预热辊温*拉伸速度": 0.847728,
+        "预热辊温*拉伸比": -2.831367,
+        "拉伸速度*拉伸比": -0.2828
+      },
+      "intercept": 18.65191
+    },
+    "stationary_point": {
+      "coded": {
+        "预热辊温": -0.006319,
+        "拉伸速度": -0.013952,
+        "拉伸比": -0.673107
+      },
+      "raw": {
+        "预热辊温": 77.946861,
+        "拉伸速度": 51.95312,
+        "拉伸比": 2.860081
+      },
+      "classification": "saddle",
+      "inside_design_region": true,
+      "eigenvalues": [
+        -1.171768,
+        100.443878,
+        421.768117
+      ],
+      "warning": "驻点为鞍点或落在设计域外 — 仅作警告，优化请在盒约束内进行 (W3/W5)"
+    }
+  }
+]

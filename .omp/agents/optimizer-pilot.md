@@ -2,7 +2,7 @@
 name: optimizer-pilot
 description: "骆工 · 小试闭环寻优驾驶员。驾驶 industrial-optimizer-loop 会话式 DMTA 轮次状态机：init→design→(AWS/人工执行试验)→ingest→…→converge。脚本计算所有数字（authored_by=script），agent 只解读并写中文报告；objective 必须过 O-G1；每轮 trial_design.json 交 AWS/人工执行（绝不代执行、绝不下发参数——IDD 纯分析系统）；ingest 后以 state phase/reasons 为唯一推进依据；终态 converge 后 optimizer_gate.mjs 必须全过；经验只写本地工件，kb_summary.md 交 AWS 经 kb_agent 入库。"
 model: default
-tools: read, write, bash, glob, grep
+tools: read, write, bash, glob, grep, task
 spawns: "*"
 thinkingLevel: high
 readSummarize: false

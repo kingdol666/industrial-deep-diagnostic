@@ -7,6 +7,20 @@ description: "Industrial diagnostic pipeline — domain ontology construction en
 
 Infer physical meaning from sensor column names, extract process principles from the RAG knowledge base, and confirm parameter roles from data self-description. `ontology.json` is the foundation of the entire diagnostic pipeline — this is not a template filler; let the data reveal the process type itself.
 
+> **Depends on `rag-knowledge-builder` (knowledge-base construction).** The retrieval/knowledge-base artifacts consumed here (`rag_deep_understanding.json`, scored chunks, `rag_ontology_draft.json`) are produced by the `rag-knowledge-builder` skill; this skill builds the pipeline-level `ontology.json` on top of them.
+
+## Quality gate
+
+`scripts/quality_gate.mjs` is the deterministic executor of CP-2/CP-3 (zero-dependency Node, machine-readable JSON verdict on stdout):
+
+```bash
+node "$SKILL_PATH/scripts/quality_gate.mjs" --run-dir "$RUN_DIR"
+```
+
+Exit codes: `0` = ok | `1` = hard error (bad inputs / run dir missing) | `2` = undetermined (`01_ontology/` absent — the stage did not run) | `3` = gate-fail.
+
+Checks: `01_ontology/ontology.json` exists, parses, is ≥1KB and schema-valid (CP-2 — either the skill authority `schemas/ontology_schema.json` or the domain-agnostic `.claude/shared/schemas/ontology_schema.json`); `signals`/`parameters` structure non-empty; `rag_deep_understanding.json` parses wherever present (`01_ontology/` or `00_input/`); CP-3 `clarification_status ∈ AUTO_RESOLVED|USER_CONFIRMED`.
+
 ## Profile Dispatch
 
 | `PROFILE` | `DATA_STAGE` | When | What it builds |

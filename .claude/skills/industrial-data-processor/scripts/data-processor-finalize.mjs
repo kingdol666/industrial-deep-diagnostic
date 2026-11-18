@@ -316,6 +316,34 @@ function normalizeName(value) {
   return String(value || '').toLowerCase().replace(/[^a-z0-9\u4e00-\u9fff]+/g, '');
 }
 
+// Normalize any confidence representation (numeric belief, verbose string) into
+// the schema's string enum ["high","medium","low"] — the ontology emits numeric
+// belief scores, but data_analysis_conclusion_schema.json requires the enum.
+// Schema-shape coercion helpers (analysis_boundary oneOf shape A requires
+// tiers:object + pruned_pairs/predictor_cols/exclude_cols:array).
+function toArray(value) {
+  return Array.isArray(value) ? value : (value == null ? [] : [value]);
+}
+
+function toObject(value) {
+  return value && typeof value === 'object' && !Array.isArray(value) ? value : {};
+}
+
+function confidenceEnum(value) {
+  if (typeof value === 'string') {
+    const v = value.trim().toLowerCase();
+    if (['high', 'medium', 'low'].includes(v)) return v;
+    const parsed = Number(v.replace('%', ''));
+    if (Number.isFinite(parsed) && v !== '') return confidenceEnum(parsed);
+    return 'medium';
+  }
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    const pct = value <= 1 ? value * 100 : value;
+    return pct >= 80 ? 'high' : (pct >= 60 ? 'medium' : 'low');
+  }
+  return 'medium';
+}
+
 function synthesizeDataAnalysisConclusion(runDir) {
   const runManifest = readJson(join(runDir, 'run_manifest.json'), {});
   // Preserve agent-authored adaptive-analysis fields across synthesis (Phase 1.2/3.6)
@@ -551,11 +579,12 @@ function synthesizeDataAnalysisConclusion(runDir) {
 
   const discrepancySignals = ontology.discrepancy_signals || ontology.discrepancySignals || [];
   const ontologyInterpretation = discrepancySignals.slice(0, 3).map((signal) => ({
-    parameter_or_pattern: signal.parameter || signal.name || 'unknown_pattern',
-    ontology_role: signal.ontology_role || signal.role || 'ontology-linked process feature',
+    parameter_or_pattern: signal.parameter || signal.name || signal.column || signal.column_name || signal.signal
+      || (signal.id ? `discrepancy_signal:${signal.id}` : 'ontology_discrepancy_signal'),
+    ontology_role: signal.ontology_role || signal.role || signal.type || 'ontology-linked process feature',
     industry_knowledge: signal.industry_knowledge || signal.knowledge || 'Industry context indicates this feature can influence quality through a process mechanism.',
     interpretation: signal.interpretation || signal.description || 'The ontology/data mismatch is diagnostically meaningful and should be tested downstream.',
-    confidence: signal.confidence || 'medium'
+    confidence: confidenceEnum(signal.confidence)
   }));
 
   const ontologySignals = collectOntologySignals(ontology, []);
@@ -580,7 +609,7 @@ function synthesizeDataAnalysisConclusion(runDir) {
       interpretation: processParameterNames.includes(column)
         ? 'This process-side data pattern should be interpreted through its ontology role before being promoted to a root-cause hypothesis.'
         : 'This inspection/quality-side signal defines the outcome side of any dual-drive causal claim.',
-      confidence: match.confidence || 'medium'
+      confidence: confidenceEnum(match.confidence)
     });
   }
 
@@ -707,12 +736,24 @@ function synthesizeDataAnalysisConclusion(runDir) {
     adaptive_decision_audit: adaptiveDecisionAudit,
     analysis_coverage_matrix: analysisCoverageMatrix,
     analysis_boundary: analysisParameterSelection ? {
-      tiers: analysisParameterSelection.analysis_tiers,
-      pruned_pairs: analysisParameterSelection.pruned,
-      predictor_cols: analysisParameterSelection.predictor_cols,
-      exclude_cols: analysisParameterSelection.exclude_cols,
-      derived_features: analysisParameterSelection.derived_features_to_compute || []
-    } : { missing: 'Phase 0.4 analysis_parameter_selection.json not found — analysis ran without ontology-guided filtering' },
+      // Producer files vary in key naming (analysis_tiers / tiers / analyzed);
+      // coerce every required key to its schema type so shape A always matches.
+      tiers: toObject(analysisParameterSelection.analysis_tiers || analysisParameterSelection.tiers),
+      pruned_pairs: toArray(analysisParameterSelection.pruned || analysisParameterSelection.pruned_pairs),
+      predictor_cols: toArray(analysisParameterSelection.predictor_cols),
+      exclude_cols: toArray(analysisParameterSelection.exclude_cols),
+      derived_features: toArray(analysisParameterSelection.derived_features_to_compute || analysisParameterSelection.derived_features)
+    } : {
+      // Shape-A fallback: Phase 0.4 was skipped (e.g. single-variable snapshot
+      // with no parameter-selection stage). Keep every required key present so
+      // the oneOf gate in data_analysis_conclusion_schema.json still matches.
+      tiers: {},
+      pruned_pairs: [],
+      predictor_cols: [],
+      exclude_cols: [],
+      derived_features: [],
+      missing: 'Phase 0.4 analysis_parameter_selection.json not found — analysis ran without ontology-guided filtering'
+    },
     time_lag_analysis: artifactExists(runDir, '02_processed/time_lag_analysis.json')
       ? readJson(join(runDir, '02_processed', 'time_lag_analysis.json'), {})
       : {
@@ -747,6 +788,22 @@ function synthesizeDataAnalysisConclusion(runDir) {
     if (Array.isArray(agentConclusion.hypothesis_verdicts)) handoff.hypothesis_verdicts = agentConclusion.hypothesis_verdicts;
     if (agentConclusion.adaptive_decision_audit) handoff.adaptive_decision_audit = agentConclusion.adaptive_decision_audit;
     if (agentConclusion.analysis_method_plan_summary) handoff.analysis_method_plan_summary = agentConclusion.analysis_method_plan_summary;
+    // The data-processor authors data_analysis_conclusion.json as its own
+    // handoff artifact; its content is domain-specific and far richer than the
+    // generic synthesis. Preserve agent-authored analysis verbatim when present
+    // — synthesis only fills the fields the agent left empty.
+    for (const key of [
+      'baseline_script_results',
+      'data_supported_conclusions',
+      'ontology_industry_interpretation',
+      'expert_custom_analysis',
+      'data_cleaning_provenance',
+      'time_lag_analysis',
+      'handoff_to_diagnostician',
+      'analysis_boundary'
+    ]) {
+      if (agentConclusion[key] != null) handoff[key] = agentConclusion[key];
+    }
   }
   if (methodPlan) {
     handoff.analysis_method_plan_summary = handoff.analysis_method_plan_summary || {

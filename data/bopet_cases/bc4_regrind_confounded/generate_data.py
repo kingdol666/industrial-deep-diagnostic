@@ -13,6 +13,7 @@
 import hashlib
 import json
 import sys
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -112,8 +113,13 @@ manifest = {
     },
     "basis": "工艺窗口取自乐凯 FW3 快照典型运行值；内控标准拉伸强度≥195MPa 为题设",
 }
-with open(f"{OUT}/generation_manifest.json", "w", encoding="utf-8") as f:
-    json.dump(manifest, f, ensure_ascii=False, indent=2)
+_out = Path(f"{OUT}/generation_manifest.json").resolve()
+_repo = Path(__file__).resolve().parent
+while _repo != _repo.parent and not (_repo / ".git").exists():
+    _repo = _repo.parent
+if _repo not in _out.parents:
+    raise ValueError(f"output path outside repo: {_out}")
+_out.write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
 
 print("BC4 rows:", len(dcs), "dcs +", len(lab), "lab +", len(recipe), "recipe")
 print("  拉伸强度", lab["拉伸强度(MPa)"].min(), "~", lab["拉伸强度(MPa)"].max(),

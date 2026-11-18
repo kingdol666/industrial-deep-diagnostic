@@ -19,8 +19,12 @@ from __future__ import annotations
 import csv
 import json
 import os
+from pathlib import Path
 
-REPO = r"D:\codes\industrial-deep-diagnostic"
+REPO = Path(__file__).resolve().parent
+while REPO != REPO.parent and not (REPO / ".git").exists():
+    REPO = REPO.parent
+REPO = str(REPO)
 MAIN_CSV = os.path.join(REPO, "data", "lekaiData", "merged_process_data_full.csv")
 MAPPING = os.path.join(REPO, "data", "lekaiData", "parameter_mapping.json")
 OUT = os.path.join(REPO, "workspace", "lekai", "run-stability-full", "00_input", "ontology.json")
@@ -209,8 +213,10 @@ def main() -> None:
                               "equipment_ref", "physical_meaning", "source"}, e
 
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
-    with open(OUT, "w", encoding="utf-8") as f:
-        json.dump(ontology, f, ensure_ascii=False, indent=2)
+    _out = Path(OUT).resolve()
+    if Path(REPO) not in _out.parents:
+        raise ValueError(f"output path outside repo: {_out}")
+    _out.write_text(json.dumps(ontology, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"OK ontology -> {OUT}")
     print(f"columns={len(exported)} groups={len(signals)} relationships={len(ontology['relationships'])} "
           f"confounders={len(ontology['confounders'])}")

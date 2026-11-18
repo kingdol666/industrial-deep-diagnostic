@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>连续热处理线 · 三区均热段加热能力损失 诊断可视化报告 · 202610162036022_heat_treat_sim</title>
+<!-- Diagnostic Report — built by html-visualizer (Step 8) from render_manifest.json
+     Run: 202610162036022_heat_treat_sim (heat_treat_sim · 连续热处理线 10 天)
+     Conclusion: DETERMINED / 76 (MEDIUM) / L1 — CP-8 ENDORSED (optimizer.md)
+     Data truth: 所有数字来自 report.md / 04_diagnostics/* / 02_processed/* / 03_figures/* / 01_ontology/* / 05_review/*
+     单文件 HTML，无构建步骤；ECharts/Three.js 多源 CDN + 运行时检测 + 静态降级回退 -->
+<style>
+:root{--bg:#fafaf8;--bg-alt:#f4f3f0;--bg-card:#ffffff;--hairline:rgba(0,0,0,0.06);--rule:rgba(0,0,0,0.10);--em:rgba(0,0,0,0.16);
+--t1:#111111;--t2:#4a4a4a;--t3:#888888;--ink:#1e3a54;--warm:#c2673a;--green:#2d7d4f;--red:#c4433b;--gold:#8a6d3b;
+--serif:'Source Serif 4','Noto Serif SC','Songti SC',Georgia,serif;--sans:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;--mono:'SF Mono','JetBrains Mono','Consolas',monospace}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased}
+body{font-family:var(--sans);background:var(--bg);color:var(--t1);line-height:1.7;text-wrap:pretty;font-size:16px}
+.display{font-family:var(--serif);font-size:2.8rem;font-weight:600;line-height:1.14;letter-spacing:-0.025em}
+h1{font-family:var(--serif);font-size:1.9rem;font-weight:600;line-height:1.22;letter-spacing:-0.015em}
+h2{font-family:var(--serif);font-size:1.45rem;font-weight:600;line-height:1.3}
+h3{font-size:0.8rem;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;color:var(--t3)}
+h4{font-family:var(--serif);font-size:1.08rem;font-weight:600}
+h5{font-size:0.92rem;font-weight:600}
+.body-l{font-size:1.08rem;line-height:1.8;color:var(--t2)}
+.body{font-size:0.9rem;line-height:1.72;color:var(--t2)}
+.caption{font-size:0.76rem;color:var(--t3);line-height:1.6}
+.mono{font-family:var(--mono);font-size:0.78rem}
+.page{max-width:1060px;margin:0 auto;padding:0 32px}
+.section{margin:90px 0}
+.hr{border:none;border-top:1px solid var(--rule);margin:64px 0}
+.hr-light{border:none;border-top:1px solid var(--hairline);margin:40px 0}
+.reading-nav{position:fixed;left:24px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:20px;z-index:100}
+.reading-nav a{width:7px;height:7px;border-radius:50%;background:var(--em);transition:background .35s,transform .35s;display:block}
+.reading-nav a:hover,.reading-nav a.active{background:var(--ink);transform:scale(1.4)}
+.hero{min-height:88vh;display:flex;flex-direction:column;justify-content:center;padding-top:60px}
+.hero-bar{width:36px;height:3px;background:var(--ink);margin-bottom:36px}
+.hero .display{margin-bottom:28px;max-width:780px}
+.hero .display em{font-style:italic;color:var(--warm)}
+.hero-lede{font-size:1.1rem;line-height:1.85;color:var(--t2);max-width:640px;margin-bottom:36px}
+.hero-badges{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:36px}
+.badge{font-family:var(--mono);font-size:0.72rem;padding:4px 12px;border:1px solid var(--em);border-radius:2px;color:var(--t2);letter-spacing:0.03em}
+.badge.ok{border-color:var(--green);color:var(--green)}
+.badge.warn{border-color:var(--gold);color:var(--gold)}
+.badge.strong{border-color:var(--ink);color:var(--ink);font-weight:600}
+.hero-meta{display:flex;flex-wrap:wrap;gap:32px;margin-bottom:52px}
+.hero-meta-item{display:flex;flex-direction:column;gap:2px}
+.hero-meta-item .ml{font-size:0.68rem;text-transform:uppercase;letter-spacing:0.11em;color:var(--t3)}
+.hero-meta-item .mv{font-size:0.88rem;font-weight:500}
+.key-findings{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--hairline);border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.key-cell{background:var(--bg);padding:26px 22px}
+.key-cell .kl{font-size:0.66rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--t3);margin-bottom:8px}
+.key-cell .kv{font-size:0.86rem;font-weight:500;line-height:1.5}
+.key-cell .kd{font-size:0.74rem;color:var(--t3);margin-top:5px}
+.section-head{margin-bottom:44px}
+.section-head .sh-num{font-family:var(--mono);font-size:0.72rem;color:var(--t3);letter-spacing:0.1em;margin-bottom:8px}
+.section-head h2{max-width:620px}
+.content-block{max-width:640px;margin-bottom:36px}
+.content-block p{margin-bottom:14px}
+.threejs-stage{width:100%;height:500px;background:#ecebe6;position:relative;overflow:hidden;cursor:grab;margin:28px 0 14px}
+.threejs-stage.grabbing{cursor:grabbing}
+.threejs-overlay{position:absolute;top:18px;left:18px;z-index:2;font-size:0.75rem;color:var(--t3);background:rgba(255,255,255,0.82);padding:5px 13px;pointer-events:none;font-family:var(--mono)}
+.threejs-legend{position:absolute;bottom:18px;right:18px;z-index:2;display:flex;gap:14px;flex-wrap:wrap;justify-content:flex-end;font-size:0.7rem;color:var(--t3);pointer-events:none;max-width:70%}
+.threejs-legend span{display:flex;align-items:center;gap:6px}
+.swatch{width:10px;height:10px;display:inline-block}
+.swatch.zone-a{background:#8ca8c0}
+.swatch.zone-b{background:#c4a060}
+.swatch.zone-c{background:#5a8a8a}
+.swatch.zone-d{background:#a8a29a}
+.swatch.anomaly{background:var(--red);border-radius:50%}
+.swatch.flow{background:var(--ink)}
+.figure-full{margin:32px 0}
+.figure-full img{width:100%;display:block;border:1px solid var(--hairline);background:#fff}
+.fig-cap{margin-top:10px}
+.img-fallback{padding:20px 24px;background:var(--bg-alt);border-left:3px solid var(--gold);font-size:0.82rem;color:var(--t3)}
+.chart-panel{margin:40px 0;border-top:1px solid var(--hairline);padding-top:30px}
+.chart-panel-header{display:flex;align-items:baseline;gap:10px;margin-bottom:6px}
+.chart-panel-header .cp-num{font-family:var(--mono);font-size:0.7rem;color:var(--ink)}
+.chart-panel-header h4{color:var(--t1)}
+.chart-src{font-size:0.72rem;color:var(--t3);margin-bottom:14px;font-family:var(--mono)}
+.chart-canvas{width:100%;height:380px}
+.chart-reading{display:grid;grid-template-columns:90px 1fr;gap:8px 18px;margin-top:16px;padding-top:16px;border-top:1px solid var(--hairline)}
+.chart-reading .cr-label{font-family:var(--mono);font-size:0.66rem;color:var(--ink);letter-spacing:0.05em;padding-top:2px}
+.chart-reading .cr-text{font-size:0.82rem;color:var(--t2);line-height:1.6}
+.chart-fallback{display:none;margin-top:16px}
+body.degraded .chart-fallback{display:block}
+body.degraded .chart-canvas{display:none}
+.degraded-notice{display:none;background:#fbf6ec;border:1px solid var(--gold);border-left:4px solid var(--gold);padding:14px 20px;margin:80px 0 0;font-size:0.84rem;color:#6b552e}
+body.degraded .degraded-notice{display:block}
+.stat-table{width:100%;border-collapse:collapse;margin:20px 0;font-size:0.84rem}
+.stat-table thead th{text-align:left;padding:8px 12px;font-size:0.68rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--t3);border-bottom:1px solid var(--rule)}
+.stat-table tbody td{padding:9px 12px;border-bottom:1px solid var(--hairline);color:var(--t2)}
+.stat-table .num{font-family:var(--mono);font-size:0.8rem;text-align:right}
+.stat-table .hi{color:var(--ink);font-weight:600}
+.stat-table .lo{color:var(--t3)}
+.table-note{font-size:0.74rem;color:var(--t3);margin:-8px 0 24px;line-height:1.6}
+.evidence-section{margin-top:10px}
+.evidence-layer{margin-bottom:48px}
+.evidence-layer .el-head{margin-bottom:18px}
+.evidence-layer .el-head h5{display:flex;align-items:center;gap:10px}
+.evidence-layer .el-head h5 .el-icon{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:700;color:#fff;flex-shrink:0}
+.el-icon.stat{background:var(--ink)}.el-icon.phys{background:var(--warm)}.el-icon.excl{background:var(--red)}
+.layer-note{font-size:0.82rem;color:var(--t3);max-width:640px;margin-bottom:26px}
+.evidence-article,.layer-finding{max-width:640px;margin-bottom:36px;padding-bottom:30px;border-bottom:1px solid var(--hairline)}
+.evidence-article:last-child{border-bottom:none}
+.evidence-article .ea-type,.layer-finding .ea-type{font-size:0.66rem;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px}
+.ea-type.primary{color:var(--ink)}.ea-type.support{color:var(--green)}.ea-type.weakened{color:var(--warm)}.ea-type.excluded{color:var(--red)}
+.evidence-article h4,.layer-finding h4{margin-bottom:8px}
+.evidence-article .ea-body,.layer-finding .ea-body{font-size:0.88rem;color:var(--t2);line-height:1.78;margin-bottom:10px}
+.evidence-article .ea-body strong,.layer-finding .ea-body strong{color:var(--t1)}
+.evidence-article .ea-why,.layer-finding .ea-why{font-size:0.8rem;color:var(--t3);line-height:1.65;padding-left:16px;border-left:2px solid var(--hairline);margin-top:10px}
+.evidence-missing{max-width:640px;padding:18px 22px;background:var(--bg-alt);border-left:3px solid var(--gold);font-size:0.82rem;color:var(--t3);margin:12px 0 36px}
+.evidence-missing strong{color:var(--gold)}
+.physics-chain{display:flex;align-items:center;gap:0;margin:24px 0;overflow-x:auto;padding:16px 0}
+.physics-chain .pc-step{flex-shrink:0;text-align:center;padding:14px 18px;background:var(--bg-alt);min-width:130px}
+.physics-chain .pc-arrow{flex-shrink:0;font-size:1.4rem;color:var(--t3);padding:0 6px}
+.physics-chain .pc-step .pc-title{font-size:0.78rem;font-weight:600;margin-bottom:4px}
+.physics-chain .pc-step .pc-detail{font-size:0.7rem;color:var(--t3);line-height:1.4}
+.process-flow{display:flex;align-items:stretch;gap:0;margin:24px 0;overflow-x:auto;padding:16px 0}
+.pf-step{flex-shrink:0;text-align:center;padding:14px 16px;background:var(--bg-alt);min-width:132px;border-top:3px solid var(--em)}
+.pf-step .pf-id{font-family:var(--mono);font-size:0.62rem;color:var(--t3);letter-spacing:0.08em}
+.pf-step .pf-title{font-size:0.78rem;font-weight:600;margin:4px 0}
+.pf-step .pf-detail{font-size:0.68rem;color:var(--t3);line-height:1.45}
+.pf-step.anomaly{background:#fbeeea;border-top-color:var(--red)}
+.pf-step.anomaly .pf-title{color:var(--red)}
+.pf-arrow{flex-shrink:0;align-self:center;font-size:1.3rem;color:var(--t3);padding:0 4px}
+.evidence-score{display:flex;gap:6px;margin:12px 0;align-items:center;flex-wrap:wrap}
+.evidence-score .es-bar{height:6px;width:26px;border-radius:3px}
+.evidence-score .es-bar.fill{background:var(--ink)}
+.evidence-score .es-bar.fill.phys{background:var(--warm)}
+.evidence-score .es-bar.fill.excl{background:var(--red)}
+.evidence-score .es-bar.empty{background:var(--hairline)}
+.evidence-score .es-label{font-family:var(--mono);font-size:0.7rem;color:var(--t3);margin-left:8px;white-space:nowrap}
+.timeline{margin:28px 0;border-left:2px solid var(--hairline);padding-left:0}
+.tl-row{display:grid;grid-template-columns:150px 1fr 1fr;gap:16px;padding:14px 0 14px 20px;border-bottom:1px solid var(--hairline);position:relative}
+.tl-row:before{content:'';position:absolute;left:-5px;top:22px;width:8px;height:8px;border-radius:50%;background:var(--em)}
+.tl-row.key:before{background:var(--red)}
+.tl-time{font-family:var(--mono);font-size:0.76rem;color:var(--ink)}
+.tl-l2{font-size:0.84rem;color:var(--t1)}
+.tl-l1{font-size:0.84rem;color:var(--t2)}
+.tl-head{font-size:0.66rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--t3);padding:0 0 6px 20px}
+.action-block{max-width:100%;background:var(--bg-alt);padding:32px 36px;margin-top:20px}
+.action-block h3{margin-bottom:16px}
+.action-block table{width:100%;border-collapse:collapse;font-size:0.86rem}
+.action-block table th{text-align:left;padding:8px 12px 8px 0;font-size:0.68rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--t3);border-bottom:1px solid var(--rule)}
+.action-block table td{padding:10px 12px 10px 0;border-bottom:1px solid var(--hairline);color:var(--t2);vertical-align:top}
+.action-block table .pri{font-family:var(--mono);font-size:0.76rem;color:var(--ink);font-weight:600}
+.limitations{max-width:760px;margin-top:28px;font-size:0.8rem;color:var(--t3);line-height:1.7}
+.limitations strong{color:var(--t2)}
+.page-footer{border-top:1px solid var(--rule);padding:28px 0;margin-top:72px;font-size:0.72rem;color:var(--t3);text-align:center}
+.loader-strip{position:fixed;top:0;left:0;right:0;z-index:9999;background:rgba(250,250,248,0.9);backdrop-filter:blur(10px);border-bottom:1px solid var(--hairline);padding:5px 24px;display:flex;align-items:center;gap:12px;font-family:var(--mono);font-size:0.66rem;color:var(--t3)}
+.loader-strip .ls-dot{display:flex;align-items:center;gap:4px}
+.dot{width:6px;height:6px;border-radius:50%;display:inline-block}
+.dot.loading{background:var(--gold);animation:pulse 1.1s infinite}
+.dot.ok{background:var(--green)}.dot.fail{background:var(--red)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.22}}
+.stat-callout{display:inline-flex;align-items:center;gap:4px;font-family:var(--mono);font-size:0.82rem;font-weight:600;color:var(--ink);background:rgba(30,58,84,0.06);padding:1px 8px;border-radius:3px}
+@media(max-width:768px){
+.page{padding:0 18px}.hero .display{font-size:1.7rem}.key-findings{grid-template-columns:repeat(2,1fr)}
+.threejs-stage{height:340px}.chart-canvas{height:280px}.chart-reading{grid-template-columns:1fr;gap:4px}
+.section{margin:56px 0}.reading-nav{display:none}.physics-chain{flex-wrap:wrap}.process-flow{flex-wrap:wrap}
+.physics-chain .pc-arrow{transform:rotate(90deg)}.pf-arrow{transform:rotate(90deg)}
+.tl-row{grid-template-columns:1fr;gap:4px}.action-block{padding:22px 18px}}
+@media(max-width:480px){.key-findings{grid-template-columns:1fr}.threejs-stage{height:260px}.hero-meta{gap:18px}}
+</style>
+</head>
+<body>
+
+<!-- ============ LOADER STRIP — 运行时状态面板（5 指标） ============ -->
+<div class="loader-strip" id="loaderStrip">
+  <span>加载:</span>
+  <span class="ls-dot"><span class="dot loading" id="dotEcharts"></span>ECharts</span>
+  <span class="ls-dot"><span class="dot loading" id="dotThree"></span>Three.js</span>
+  <span class="ls-dot"><span class="dot loading" id="dotOrbit"></span>Orbit</span>
+  <span class="ls-dot"><span class="dot loading" id="dotChart"></span>图表</span>
+  <span class="ls-dot"><span class="dot loading" id="dot3D"></span>3D</span>
+  <span class="ls-dot" style="margin-left:auto"><span class="dot ok"></span>本地图件 03_figures × 5</span>
+</div>
+
+<div class="degraded-notice" id="degradedNotice">
+  <strong>静态降级模式</strong>：图表/3D 运行库未能从多源 CDN 加载（离线或网络受限）。本页已自动回退为静态表格与 2D 工段流程——全部数据、图件解读与结论仍完整可读，无空白区块、无假成功。恢复联网后刷新即可获得交互图表与 3D 场景。
+</div>
+
+<nav class="reading-nav" id="readingNav">
+  <a href="#hero" title="结论"></a>
+  <a href="#where" title="位置"></a>
+  <a href="#how" title="推理"></a>
+  <a href="#evidence" title="证据链"></a>
+  <a href="#appendix" title="附录"></a>
+</nav>
+
+<div class="page">
+
+<!-- ==================== HERO — 结论先行（8 元素） ==================== -->
+<section class="hero" id="hero">
+  <div class="hero-bar"></div>
+  <h1 class="display">三区（均热段）后段的<em>局部加热能力损失</em><br>——加热管老化的过程侧根因</h1>
+  <p class="hero-lede">连续热处理线 10 天运行中，三区（均热段）炉温自 02-06 06:40 起水平下移 <span class="stat-callout">4.93 ℃</span>（880.0079 → 875.0827 ℃）并伴随波动放大 <span class="stat-callout">4.85 倍</span>（段内 std 0.7865 → 3.815）；同窗口出料温度下降 2.24 ℃、收得率下降 0.99 pt。异常具空间选择性：炉膛右/下侧先失热（带材右边缘偏差 −1.24 ℃、剖面斜率 −2.42 ℃/100位）。一区/二区炉温、线速度、炉压全程无水平偏移。02-08 10:00 更换三区后段加热管后，各通道回到基线（D−A：Z3 −0.50 ℃ / OUT −0.13 ℃ / YIELD −0.08 pt），构成器件级介入—响应闭环。</p>
+  <div class="hero-badges">
+    <span class="badge strong">结论类型 DETERMINED</span>
+    <span class="badge warn">综合置信度 76/100 · MEDIUM</span>
+    <span class="badge">证据等级 L1（直接测量）</span>
+    <span class="badge ok">Judge 96/100 · pass</span>
+    <span class="badge ok">CP-8 审计 ENDORSED</span>
+  </div>
+  <div class="hero-meta">
+    <div class="hero-meta-item"><span class="ml">Run ID</span><span class="mv">202610162036022_heat_treat_sim</span></div>
+    <div class="hero-meta-item"><span class="ml">场景</span><span class="mv">连续热处理线 · 三区炉温控制（一区 850 ℃ / 二区 865 ℃ / 三区均热 880 ℃）</span></div>
+    <div class="hero-meta-item"><span class="ml">诊断类型</span><span class="mv">DETERMINED</span></div>
+    <div class="hero-meta-item"><span class="ml">综合置信度</span><span class="mv">76/100（MEDIUM）</span></div>
+    <div class="hero-meta-item"><span class="ml">证据等级</span><span class="mv">L1（直接测量）</span></div>
+    <div class="hero-meta-item"><span class="ml">Judge 质量门</span><span class="mv">96/100 pass（零阻断问题）</span></div>
+    <div class="hero-meta-item"><span class="ml">CP-8 物理审计</span><span class="mv">ENDORSED（0 阻断 / 0 物理矛盾）</span></div>
+    <div class="hero-meta-item"><span class="ml">数据规模</span><span class="mv">1440 行 × 48 列（10 min 粒度，2026-02-02 → 02-11）</span></div>
+    <div class="hero-meta-item"><span class="ml">劣化窗</span><span class="mv">regime B：02-06 06:40 → 02-08 09:50（308 行）</span></div>
+  </div>
+  <div class="key-findings">
+    <div class="key-cell"><div class="kl">最强信号</div><div class="kv">三区炉温 −4.93 ℃，波动放大 ×4.85</div><div class="kd">880.0079→875.0827 ℃；段内 std 0.7865→3.815</div></div>
+    <div class="key-cell"><div class="kl">竞争假说</div><div class="kv">6 个竞争假说全部排除，6 对判别全部 DISCRIMINABLE</div><div class="kd">排除置信度 90–92，无弱排除；无 INDISTINGUISHABLE 对</div></div>
+    <div class="key-cell"><div class="kl">物理机制</div><div class="kv">局部热源损失 → 横向热流不对称 → 右边缘先冷</div><div class="kd">EDGE-R-DEV −1.2406 ℃；SLOPE −2.4242 ℃/100位；SHIFT-EST ≡ 0</div></div>
+    <div class="key-cell"><div class="kl">推荐动作（P0）</div><div class="kv">复核三区热电偶校准记录 + 加装后段加热元件功率/电流采集</div><div class="kd">本周内；关闭最大残余不确定性并把器件级归因升级为 PROVEN</div></div>
+  </div>
+  <p class="caption" style="margin-top:18px">阅读指引：自上而下依次为 结论 → 异常位置（2D 工段 + 3D 场景）→ 诊断推理（现象量化 · 介入—响应时间线 · 交互图表）→ 证据链三层（统计相关性 / 物理因果 / 排除唯一性）→ 附录披露（Judge 4 条警告与审计备忘逐条对齐）。每张图配三行解读，专业术语紧跟白话翻译（如 std＝标准差，衡量温度波动的离散程度）。</p>
+</section>
+
+<hr class="hr">
+
+<!-- ==================== 01 · 背景与定位 ==================== -->
+<section class="section" id="where">
+  <div class="section-head"><div class="sh-num">01 · 背景与定位</div><h2>问题发生在产线的哪个位置？</h2></div>
+  <div class="content-block">
+    <p>这是一条<strong>连续热处理线</strong>（连续退火/保温热处理炉线），以三区炉温（一区 850 ℃ / 二区 865 ℃ / 三区均热段设定 880 ℃）+ 传输速度 + 炉内压力控制带材的出口温度与性能。10 天连续运行（2026-02-02 → 02-11，10 min 粒度 1440 行）中，异常集中在<strong>出料前段的第三区（均热段）后段</strong>。</p>
+    <p>数据构成：DCS 过程/质量锚定列（10 min）；异构通道——带材横向温度剖面 PROF（30 min × 12 位点）、炉膛温度场 MAP（2 h，5×4=20 格）、表面检查图像统计 IMG（1 h）；9 条操作备注（L2）；实验硬度 LAB-HRC（2 h，未并入主表）。单产品连续生产、无批次列 → 以操作事件锚定 regime 分段（A 前段 616 行 / B 维护窗 308 行 / C 升温过渡 66 行 / D 恢复段 450 行）替代产品分组。</p>
+    <p>时间锚（操作备注 L2）：02-05 02:10 三区波动偏大（先导）→ 02-06 06:40 “后段温度持续偏低，怀疑加热管老化，安排计划检修”→ 02-06 22:15 右边缘偏低＋硬度抽检下降 → 02-08 10:00 “更换三区后段加热管，恢复送电升温”→ 02-10 09:00 “温度与硬度均已恢复，问题闭环”。</p>
+  </div>
+  <div class="process-flow">
+    <div class="pf-step"><div class="pf-id">S1</div><div class="pf-title">入炉预热（一区）</div><div class="pf-detail">FUR-Z1-TEMP / FUR-SPEED<br>一区全程无水平偏移（ΔB−A=−0.0174 ℃）</div></div>
+    <div class="pf-arrow">→</div>
+    <div class="pf-step"><div class="pf-id">S2</div><div class="pf-title">主加热（二区）</div><div class="pf-detail">FUR-Z2-TEMP / FUR-PRES<br>二区全程无水平偏移（ΔB−A=−0.0339 ℃）</div></div>
+    <div class="pf-arrow">→</div>
+    <div class="pf-step anomaly"><div class="pf-id">S3</div><div class="pf-title">均热保温（三区）— 异常位置</div><div class="pf-detail">FUR-Z3-TEMP / PROF<br>后段加热能力损失：−4.93 ℃、波动 ×4.85、右/下侧先失热</div></div>
+    <div class="pf-arrow">→</div>
+    <div class="pf-step"><div class="pf-id">S4</div><div class="pf-title">出料与冷却</div><div class="pf-detail">FUR-OUT-TEMP<br>出料温度 −2.24 ℃（滞后 Z3 +4 步）</div></div>
+    <div class="pf-arrow">→</div>
+    <div class="pf-step"><div class="pf-id">S5</div><div class="pf-title">在线表面检查</div><div class="pf-detail">CCD 图像统计（未标定）<br>辐射幅值 −4.98%（与 Wien 量级一致）</div></div>
+    <div class="pf-arrow">→</div>
+    <div class="pf-step"><div class="pf-id">S6</div><div class="pf-title">实验室抽检（离线）</div><div class="pf-detail">LAB-HRC（2h 硬度）<br>未并入主表 → 硬度侧仅 L2 佐证</div></div>
+  </div>
+  <p class="caption">2D 工段流程 S1–S6 与设备编号取自 01_ontology/ontology.json（scene.stages / scene.equipment）；异常高亮落在真实设备 FUR-Z3（三区均热炉膛后段），与 H1 结论的空间指纹一致。</p>
+  <div class="threejs-stage" id="threejsContainer">
+    <div class="threejs-overlay">拖拽旋转 · 滚轮缩放 · 右键平移</div>
+    <div class="threejs-legend">
+      <span><span class="swatch zone-a"></span>一区/预热</span>
+      <span><span class="swatch zone-b"></span>二区/主加热</span>
+      <span><span class="swatch zone-c"></span>三区/均热（异常）</span>
+      <span><span class="swatch zone-d"></span>出料/检测</span>
+      <span><span class="swatch anomaly"></span>异常落点 FUR-Z3</span>
+      <span><span class="swatch flow"></span>带材流向</span>
+    </div>
+  </div>
+  <p class="caption">3D 场景按 01_ontology/ontology.json 的工段顺序 S1→S6 重建（本 run 无 3d_model_data.json → 按设备角色做几何简化：炉区=箱体、辊道=圆柱、检测=立柱传感器、流向=连续管）；几何允许简化，<strong>工艺顺序与异常落点不得出错</strong>。</p>
+</section>
+
+<hr class="hr">
+
+<!-- ==================== 02 · 诊断推理 ==================== -->
+<section class="section" id="how">
+  <div class="section-head"><div class="sh-num">02 · 诊断推理</div><h2>这个结论是怎么得出来的？</h2></div>
+  <div class="content-block">
+    <p>方法路径：清洗与稳态过滤（1367/1440 稳态行）→ 事件锚定分段（A/B/C/D）→ 400 对目标×预测子相关筛查（stats/run.py 链）→ 反伪相关四件套（去趋势 detrending、Simpson 检查不适用、LOO 留一、Spearman 背离与变点检测）+ 分段内相关与快照级去重 → 滞补 CCF（以<strong>步</strong>为单位）→ 物理量级校核（热平衡、停留时间、Arrhenius、Wien）→ VLM 图件目视 → 7 假说竞争与 6 对可分辨性检验。</p>
+    <p>白话翻译：先用统计找出“谁和谁一起变”，再用物理检查“这条因果链在量级和时间尺度上说不说得通”，最后用排除法检查“还有没有别的解释能同时满足全部证据”。三者交叉一致的结论才被保留。</p>
+  </div>
+
+  <h4>关键数值面板 — 三段均值与波动（A 劣化前 / B 劣化窗 / D 恢复后）</h4>
+  <table class="stat-table">
+    <thead><tr><th>指标</th><th class="num">A 段（劣化前）</th><th class="num">B 段（劣化窗）</th><th class="num">D 段（恢复后）</th><th class="num">ΔB−A</th></tr></thead>
+    <tbody>
+      <tr><td>Z3 炉温 均值（℃）</td><td class="num hi">880.0079</td><td class="num hi">875.0827</td><td class="num hi">879.5107</td><td class="num">−4.9252</td></tr>
+      <tr><td>Z3 炉温 段内 std（℃）<span class="lo">　标准差＝波动的离散程度</span></td><td class="num">0.7865</td><td class="num">3.815</td><td class="num">1.7033</td><td class="num">×4.851</td></tr>
+      <tr><td>OUT 出料温度 均值（℃）</td><td class="num">549.9952</td><td class="num">547.7534</td><td class="num">549.8661</td><td class="num">−2.2418</td></tr>
+      <tr><td>YIELD 收得率 均值（%）</td><td class="num">99.3009</td><td class="num">98.3113</td><td class="num">99.2187</td><td class="num">−0.9896</td></tr>
+      <tr><td>PROF 剖面均值（℃）</td><td class="num">519.4936</td><td class="num">519.0884</td><td class="num">519.4779</td><td class="num">−0.4052</td></tr>
+      <tr><td>EDGE-R-DEV 右边缘偏差（℃）</td><td class="num">−2.869</td><td class="num">−4.1096</td><td class="num">−3.3136</td><td class="num">−1.2406</td></tr>
+      <tr><td>SLOPE 剖面斜率（℃/100位）</td><td class="num">+0.2323</td><td class="num">−2.1919</td><td class="num">+0.3902</td><td class="num">−2.4242</td></tr>
+      <tr><td>MAP-MEAN / ASYM-LR 炉膛场</td><td class="num">862.3882 / −3.5572</td><td class="num">861.6722 / −1.4991</td><td class="num">862.3138 / −3.4131</td><td class="num">−0.7160 / +2.0581</td></tr>
+      <tr><td>IMG-MEAN 图像辐射均值</td><td class="num">149.4762</td><td class="num">142.0397</td><td class="num">147.3273</td><td class="num">−4.975%</td></tr>
+    </tbody>
+  </table>
+  <p class="table-note">来源：02_processed/validate_report.json + expert_findings.json + production_regime_filter.json 段定义；数值经 optimizer.md §2.1 由 cleaned_data.csv（1440×48）独立重算一致。ASYM-LR＝左半−右半（ontology 定义，INFERRED）：向 0 塌陷＝右侧（原较热侧）失热。SLOPE 基线符号按审计 E1 更正为 +0.2323。</p>
+
+  <div class="chart-panel">
+    <div class="chart-panel-header"><span class="cp-num">CHART 01</span><h4>三区（Z3）分段均值与段内波动</h4></div>
+    <div class="chart-src">数据源：validate_report.json + expert_findings.json（经 optimizer.md §2.1 独立复算）</div>
+    <div class="chart-canvas" id="chart1"></div>
+    <table class="stat-table chart-fallback">
+      <thead><tr><th>段</th><th class="num">Z3 均值（℃）</th><th class="num">Z3 段内 std（℃）</th></tr></thead>
+      <tbody><tr><td>A 劣化前</td><td class="num">880.0079</td><td class="num">0.7865</td></tr><tr><td>B 劣化窗</td><td class="num">875.0827</td><td class="num">3.815</td></tr><tr><td>D 恢复后</td><td class="num">879.5107</td><td class="num">1.7033</td></tr></tbody>
+    </table>
+    <div class="chart-reading">
+      <div class="cr-label">看到什么</div><div class="cr-text">柱（均价）在 B 段掉到 875.0827 ℃ 而 D 段回到 879.5107 ℃；折线（段内 std）在 B 段从 0.7865 跳到 3.815、D 段仍留 1.7033。</div>
+      <div class="cr-label">说明什么</div><div class="cr-text">三区同时经历了“水平下移”和“波动放大”两种变化，且器件更换后水平先恢复、波动未完全恢复（D 段残余 std 仍是 A 段的 2.17 倍）。</div>
+      <div class="cr-label">为什么重要</div><div class="cr-text">“水平下移＋波动放大”是热源能力不足（温控闭环拼命补偿仍压不住）的典型形态；D 段残余波动是唯一未完全闭合的尾巴，已列为跟踪项 M3 与假说 H2 的复活条件之一。</div>
+    </div>
+  </div>
+
+  <div class="chart-panel">
+    <div class="chart-panel-header"><span class="cp-num">CHART 02</span><h4>分段偏移 ΔB−A 与 ΔD−A：劣化—恢复的幅度对比</h4></div>
+    <div class="chart-src">数据源：expert_findings 段均值差（report.md §6.2 链环 7；ΔOUT/ΔYIELD 由段均值相减导出）</div>
+    <div class="chart-canvas" id="chart2"></div>
+    <table class="stat-table chart-fallback">
+      <thead><tr><th>通道</th><th class="num">ΔB−A</th><th class="num">ΔD−A</th></tr></thead>
+      <tbody><tr><td>Z3-TEMP（℃）</td><td class="num">−4.9252</td><td class="num">−0.4972</td></tr><tr><td>OUT-TEMP（℃）</td><td class="num">−2.2418</td><td class="num">−0.1291</td></tr><tr><td>YIELD（pt）</td><td class="num">−0.9896</td><td class="num">−0.0822</td></tr></tbody>
+    </table>
+    <div class="chart-reading">
+      <div class="cr-label">看到什么</div><div class="cr-text">三个通道在 B 段都明显为负（Z3 −4.93 ℃、OUT −2.24 ℃、YIELD −0.99 pt），到 D 段三条负柱都缩到接近 0（−0.50 / −0.13 / −0.08）。</div>
+      <div class="cr-label">说明什么</div><div class="cr-text">劣化沿着“炉温 → 带温 → 收得率”逐级传递且逐级衰减（ΔOUT/ΔZ3=0.455）；更换加热管后三通道同步回归基线。</div>
+      <div class="cr-label">为什么重要</div><div class="cr-text">这是器件级介入—响应闭环的量化形态，等效一次准对照实验——直接否定“仪表读数漂移（H2）/相机漂移（H5）/事件瞬态（H7）”。注意各通道单位不同（℃ 与 pt），柱高只在同一通道内比较。</div>
+    </div>
+  </div>
+
+  <h4>介入—响应时间线（人工记录 L2 ↔ 数据侧响应 L1）</h4>
+  <div class="timeline">
+    <div class="tl-head"><span>时刻</span><span>人工记录（L2 操作备注）</span><span>数据侧响应（L1 复用 expert_findings）</span></div>
+    <div class="tl-row"><div class="tl-time">02-05 02:10</div><div class="tl-l2">“三区温度波动偏大，已通知仪表检查热电偶”（先导）</div><div class="tl-l1">Z3 波动在此之前即已出现 → 渐进式失效，非瞬时冲击</div></div>
+    <div class="tl-row key"><div class="tl-time">02-06 06:40</div><div class="tl-l2">“三区后段温度持续偏低，怀疑加热管老化，安排计划检修”</div><div class="tl-l1">Z3 进入 −4.93 ℃ 低平台（regime B 起点）；YIELD 变点窗 02-06 14:30 起 → 过程侧先导质量侧约 8 h</div></div>
+    <div class="tl-row"><div class="tl-time">02-06 22:15</div><div class="tl-l2">“右边缘温度感觉偏低，硬度抽检结果下降”</div><div class="tl-l1">EDGE-R-DEV −1.2406 ℃、SLOPE −2.4242 ℃/100位 同步（横向空间指纹）</div></div>
+    <div class="tl-row key"><div class="tl-time">02-08 10:00</div><div class="tl-l2">“更换三区后段加热管，恢复送电升温”（器件级干预）</div><div class="tl-l1">C 段升温过渡（Z3 std 2.3411）→ D 段各通道回归基线</div></div>
+    <div class="tl-row"><div class="tl-time">02-10 09:00</div><div class="tl-l2">“温度与硬度均已恢复，问题闭环”</div><div class="tl-l1">D−A：Z3 −0.50 / OUT −0.13 / YIELD −0.08 / PROF-MEAN −0.02</div></div>
+  </div>
+  <p class="caption">口径说明：全文滞后量仅以“步”表述（如 Z3→OUT 最优 lag +4 步），不做步→时间换算（CP-7L 纪律，附录 B.5）；带日期的时间仅来自操作备注与时间索引本身。</p>
+</section>
+
+<hr class="hr">
+
+<!-- ==================== 03 · 证据链 — 三层闭合架构 ==================== -->
+<section class="section" id="evidence">
+  <div class="section-head"><div class="sh-num">03 · 证据链</div><h2>为什么相信这个结论？为什么不是别的原因？</h2></div>
+  <div class="layer-note">证据按三层展开：<strong>统计</strong>证明“一起变”→ <strong>物理</strong>证明“为什么能一起变”→ <strong>排除</strong>证明“没有别的解释同时成立”。三层各自独立闭合，任一层缺失都会显式标注。</div>
+
+  <!-- Layer I · 统计证据 -->
+  <div class="evidence-layer" id="layerStat">
+    <div class="el-head"><h5><span class="el-icon stat">Ⅰ</span>统计证据 — 相关性证明</h5></div>
+    <div class="content-block"><p>统计层回答：三区炉温与质量、出料温度、横向剖面之间，是不是真的“同窗、同向、同步恢复”？答案是：相关系数高且去趋势后不衰减，但需要注意 Pearson 高值主要由“段间水平偏移”贡献（Spearman 明显更低），因此证据强度定为 <strong>strong-with-caveat（水平偏移主导）</strong>。</p></div>
+
+    <div class="chart-panel">
+      <div class="chart-panel-header"><span class="cp-num">CHART 03</span><h4>段窗内相关（Z3 ↔ YIELD）：耦合在劣化窗内真实存在</h4></div>
+      <div class="chart-src">数据源：validate_report.json（regime 分层相关）+ expert_findings（段窗内 / 快照级）</div>
+      <div class="chart-canvas" id="chart3"></div>
+      <table class="stat-table chart-fallback">
+        <thead><tr><th>段</th><th class="num">Z3 ↔ YIELD 相关 r</th></tr></thead>
+        <tbody><tr><td>A 段（劣化前）</td><td class="num">0.0267</td></tr><tr><td>B 段（劣化窗）</td><td class="num">0.8549</td></tr><tr><td>D 段（恢复后）</td><td class="num">0.7393</td></tr></tbody>
+      </table>
+      <div class="chart-reading">
+        <div class="cr-label">看到什么</div><div class="cr-text">A 段相关接近 0（0.0267），B 段跳到 0.8549，D 段保持 0.7393。</div>
+        <div class="cr-label">说明什么</div><div class="cr-text">全期高相关（0.8987）并非假象：在劣化窗内部，炉温与收得率确实一起上下；A 段近零部分由量程受限（std 0.79 vs 3.82）解释——温度几乎不动时相关自然无意义。</div>
+        <div class="cr-label">为什么重要</div><div class="cr-text">排除“相关只是两段平台拼接出来的伪影”——这是对 Pearson 水平偏移主导（ρ=0.5098 背离）的必要交叉验证，置信度扣分（−6）即来自偏差本身，而窗内耦合证据（+5 多通道独立复现）也与之一致。</div>
+      </div>
+    </div>
+
+    <div class="chart-panel">
+      <div class="chart-panel-header"><span class="cp-num">CHART 04</span><h4>原始 vs 去趋势相关对比（主力对 · detrended robustness）</h4></div>
+      <div class="chart-src">数据源：validate_report.json（detrended_robust 350/400；31 对 level_shift_dominated；LOO 400/400）</div>
+      <div class="chart-canvas" id="chart4"></div>
+      <table class="stat-table chart-fallback">
+        <thead><tr><th>参数对</th><th class="num">原始 r</th><th class="num">去趋势 r</th></tr></thead>
+        <tbody><tr><td>Z3 → YIELD</td><td class="num">0.8987</td><td class="num">0.8960</td></tr><tr><td>Z3 → OUT-TEMP</td><td class="num">0.7419</td><td class="num">0.7372</td></tr></tbody>
+      </table>
+      <div class="chart-reading">
+        <div class="cr-label">看到什么</div><div class="cr-text">主力对的原始与去趋势（扣除缓慢漂移趋势后）高度一致：0.8987→0.8960、0.7419→0.7372，衰减≈0；但 Spearman ρ 只有 0.5098。</div>
+        <div class="cr-label">说明什么</div><div class="cr-text">去趋势不衰减＝相关不是单一斜坡趋势造成的假信号（趋势/离群杠杆已被排除，LOO 400/400 通过）；Pearson≫Spearman＝相关形态更接近“台阶式水平位移”而不是逐点同步跟踪。</div>
+        <div class="cr-label">为什么重要</div><div class="cr-text">这同时决定了“证据该怎么用”：水平偏移类相关适合支撑“共同上游状态变化”，但不适合按连续跟踪机理增益计分——因此 H1 置信度被扣 6 分，并以分段/快照级相关做交叉验证。</div>
+      </div>
+    </div>
+
+    <div class="figure-full">
+      <img src="03_figures/fig_vlm_temporal_overlay.png" alt="十通道 z 归一化时序叠加" data-caption="十通道 z 归一化时序叠加（fig_vlm_temporal_overlay.png）" onerror="imgFallback(this)">
+      <p class="fig-cap"><strong>fig_vlm_temporal_overlay</strong>（CRITICAL，VLM 直读）：10 条 z 归一化曲线（z 归一化＝把不同量纲的曲线拉到同一尺度比较形状）存在一个多通道同步的下凹包络——约 day 5.2 起整体下移，day 6.0–6.6 最深（−2 ~ −4σ），day 7.0–7.5 陡峭回升；形态为“宽底谷”（约 2 天宽）而非尖脉冲，谷内各通道零错位（同步）。渲染偏差（上游图件层 WARNING）：图中无设计要求的红色事件标注线 → 事件先后为刻度换算推断（±0.3–0.5 天）；点划反向通道（ASYM-LR）的孤立尖峰（day≈0.8、8.5–9.5）不作为同步证据。</p>
+    </div>
+    <div class="figure-full">
+      <img src="03_figures/fig2_key_scatter.png" alt="目标-参数散点网格" data-caption="目标-参数散点网格（fig2_key_scatter.png）" onerror="imgFallback(this)">
+      <p class="fig-cap"><strong>fig2_key_scatter</strong>（MEDIUM）：fast 模式 VLM 4 图预算未直读该图（INFO 级披露），其统计内容见 image_captions.json——Z3↔YIELD r=0.899（窄带形态）；速度–温度 r=−0.013（无信号，H4 排除的关键手臂）。</p>
+    </div>
+    <div class="figure-full">
+      <img src="03_figures/fig6_causal_evidence_map.png" alt="因果证据图" data-caption="因果证据图（fig6_causal_evidence_map.png）" onerror="imgFallback(this)">
+      <p class="fig-cap"><strong>fig6_causal_evidence_map</strong>（HIGH，VLM 直读）：红 hub 节点＝MAP.MEAN / MAP.CENTROID-X / MAP.ASYM-LR / IMG.STD / IMG.MEAN / IMG.ENTROPY / Z3-TEMP；最密集红边束（|r|≥0.7）汇聚到 PROF.EDGE-L-DEV / YIELD / OUT-TEMP；存在一条 −0.91 负权边（结构非单一同向共模）；Z3-TEMP 有直达 YIELD 与 OUT-TEMP 的长边（r=0.899 / 0.742）。<strong>关键限定</strong>：MAP/IMG 为共线 hub（相机–热辐射同源或共同上游），不得作为独立证据重复计数；独立复现按带材剖面（PROF）与 DCS 出料测温（OUT）两类不同测量技术计，MAP/IMG 降权。</p>
+    </div>
+
+    <h4>关键相关表（主力对）</h4>
+    <table class="stat-table">
+      <thead><tr><th>参数对</th><th class="num">Pearson r</th><th class="num">Spearman ρ</th><th>最佳滞后（步）</th><th>备注</th></tr></thead>
+      <tbody>
+        <tr><td>FUR-Z3-TEMP → FUR-YIELD</td><td class="num hi">0.8987（detrended 0.8960）</td><td class="num">0.5098</td><td>−1 步（≈同步）</td><td>水平偏移主导（31 对之一）；窗内 B 0.8549 / D 0.7393 / A 0.0267</td></tr>
+        <tr><td>FUR-Z3-TEMP → FUR-OUT-TEMP</td><td class="num hi">0.7419（滞补 0.7448）</td><td class="num">—</td><td>+4 步</td><td>与均热段停留时间 t_res=L/v 量级一致；detrended 0.7372</td></tr>
+        <tr><td>FUR-Z3-TEMP → PROF-MEAN</td><td class="num hi">0.8584（快照级 0.8579, n=480）</td><td class="num">0.5730</td><td>0</td><td>同被测量跨通道一致性（physical/strong）</td></tr>
+        <tr><td>MAP-ASYM-LR ↔ PROF-EDGE-L-DEV</td><td class="num">0.6807（滞补 0.6869）</td><td class="num">0.5881</td><td>−6 步</td><td>源快照粒度量化带内；B 段窗内 0.8814</td></tr>
+        <tr><td>IMG-MEAN → FUR-YIELD</td><td class="num">0.956（快照级 0.9524, n=240）</td><td class="num">0.5439</td><td>—</td><td>IMG 未标定 → 按混杂权重 moderate，不计独立证据</td></tr>
+        <tr><td>FUR-SPEED → FUR-OUT-TEMP</td><td class="num lo">−0.0125（p=0.645）</td><td class="num">—</td><td>无显著滞后</td><td>方向一致但功效不足（速度极差 ±1.4%）→ 证据缺口（非物理反驳）</td></tr>
+      </tbody>
+    </table>
+    <p class="table-note">来源：02_processed/validate_report.json、expert_findings.json（快照级去重复核 n=480/240）。术语翻译：Pearson r＝线性同步度（1 为完全同向）；Spearman ρ＝只看排名的同步度（对极端值/平台更稳健）；滞后（步）＝谁先动，正号表示左列先动。</p>
+
+    <div class="evidence-score"><span class="es-bar fill"></span><span class="es-bar fill"></span><span class="es-bar fill"></span><span class="es-bar fill"></span><span class="es-bar empty"></span><span class="es-label">统计层证据强度：4/5（强，扣 1 档＝水平偏移主导 + HX 伪重复）</span></div>
+    <div class="layer-finding" style="border-bottom:none;padding-bottom:0">
+      <div class="ea-type primary">存活信号 / 统计</div>
+      <h4>三区炉温是唯一同时满足“幅度、滞后、空间指纹”的过程变量</h4>
+      <div class="ea-body">Z3→YIELD r=0.8987（去趋势 0.8960，衰减≈0）、Z3→OUT r=0.7419（最优 lag +4 步、滞补 0.7448）、Z3→PROF-MEAN r=0.8584；400 对验证电池 236 显著、LOO 400/400 通过；快照级去重后（n=480）PROF-MEAN 与 Z3 的相关仍为 0.8579。跨通道独立复现按两类不同测量技术计（带材剖面 PROF + DCS 出料测温 OUT）。</div>
+      <div class="ea-why">为什么不能只看 r：31 对相关为 level_shift_dominated（Spearman 显著更低），HX 通道为 backward-merged 阶梯块 → 行级 p 值伪重复（有效 n 降至 120–480 快照）。这两项已在置信度中扣 −6 / −4，并被“段窗内相关 + 快照级去重”交叉验证。</div>
+    </div>
+  </div>
+
+  <!-- Layer II · 物理机制 -->
+  <div class="evidence-layer" id="layerPhys">
+    <div class="el-head"><h5><span class="el-icon phys">Ⅱ</span>物理机制 — 因果性证明</h5></div>
+    <div class="content-block"><p>物理层回答：统计上的“一起变”，在传热与控制方程上能否逐环闭合？7 环链条逐环给出量化，全部 ALL_LINKS_VALIDATED；其中两条无数据支撑的箭头被<strong>显式剔除并登记</strong>（不静默删除）：FUR-SPEED→FUR-OUT-TEMP（CORRELATION_ABSENT，功效不足）与 FUR-OUT-TEMP→LAB-HRC（DATA_LINK_MISSING，硬度未并入主表）。</p></div>
+
+    <div class="physics-chain">
+      <div class="pc-step"><div class="pc-title">1 元件老化</div><div class="pc-detail">后段加热元件功率 ∝ V²/R 下降（无直接功率测点 · INFERRED）</div></div>
+      <div class="pc-arrow">→</div>
+      <div class="pc-step"><div class="pc-title">2 炉温下移+波动放大</div><div class="pc-detail">−4.93 ℃；std 0.7865→3.815（×4.85）</div></div>
+      <div class="pc-arrow">→</div>
+      <div class="pc-step"><div class="pc-title">3 炉膛场局部变化</div><div class="pc-detail">MAP-MEAN −0.7160 ℃；ASYM-LR 向 0 塌陷（+2.0581）；受影响场占比 14.5%≈2.9/20 格</div></div>
+      <div class="pc-arrow">→</div>
+      <div class="pc-step"><div class="pc-title">4 带材温度下移</div><div class="pc-detail">Q=hA(T_f−T_s)+εσA(T_f⁴−T_s⁴)；PROF-MEAN −0.4052 ℃；右边缘偏差 −1.2406 ℃</div></div>
+      <div class="pc-arrow">→</div>
+      <div class="pc-step"><div class="pc-title">5 出料温度下降</div><div class="pc-detail">t_res=L/v；+4 步滞后；−2.2418 ℃；ΔOUT/ΔZ3=0.455</div></div>
+      <div class="pc-arrow">→</div>
+      <div class="pc-step"><div class="pc-title">6 动力学→收得率</div><div class="pc-detail">Arrhenius k_B/k_A=0.9648（−3.52%）；实测 −0.9896 pt；观测/预测=0.2835</div></div>
+      <div class="pc-arrow">→</div>
+      <div class="pc-step"><div class="pc-title">7 换管恢复</div><div class="pc-detail">D−A：Z3 −0.4972 / OUT −0.1291 / YIELD −0.0822 / PROF −0.0157</div></div>
+    </div>
+    <p class="caption">7 环量化与证据状态见 04_diagnostics/diagnosis.json physical_logic_chain（report.md §6.2 表）；每环均回到控制方程检查量级、时间尺度与空间指纹。</p>
+
+    <h4>物理量级校核（一阶近似，plausibility band）</h4>
+    <table class="stat-table">
+      <thead><tr><th>校核项</th><th class="num">观测</th><th class="num">预测/参考</th><th>判决</th></tr></thead>
+      <tbody>
+        <tr><td>传热增益 ΔOUT/ΔZ3</td><td class="num">0.4552</td><td class="num">0.4–0.5（有限时间常数一阶过程预期）</td><td>量级一致 MATCH</td></tr>
+        <tr><td>炉膛场降幅占三区降幅</td><td class="num">14.5%（≈2.9/20 格）</td><td class="num">整场均匀掉温应≈100%</td><td>排除全局型（H3）</td></tr>
+        <tr><td>Arrhenius 速率比 k_B/k_A</td><td class="num">0.9648（−3.52%）</td><td class="num">实测收得率相对损失 1.00%；观测/预测=0.2835</td><td>PLAUSIBLE（不过度归因）</td></tr>
+        <tr><td>辐射幅值 vs Wien 一阶预测</td><td class="num">−4.98%</td><td class="num">−5.29%（比值 1.06）</td><td>无需增益漂移（H5 支撑）</td></tr>
+      </tbody>
+    </table>
+    <p class="table-note">来源：02_processed/physics_check.json + 派生量级校核（report.md §6.2 / optimizer.md §3）。限定：线性换热/线性吸热近似、Ea=80 kJ/mol 为中立先验未标定、Wien 的 λ 取值为假设（M2）——因此仅作量级校核（已计置信度 −5）。</p>
+
+    <div class="figure-full">
+      <img src="03_figures/fig_hetero_profile_heatmap.png" alt="带材横向温度剖面 时间×位置 热图" data-caption="带材横向温度剖面 时间×位置 热图（fig_hetero_profile_heatmap.png）" onerror="imgFallback(this)">
+      <p class="fig-cap"><strong>fig_hetero_profile_heatmap</strong>（CRITICAL，VLM 直读）：12 位点 × 480 快照热图中，第 1/12 行（两侧边缘）全程最暗、第 4–5 与 10–11 行全程最亮——<strong>边缘偏冷是全时段结构性基线，不是劣化特征</strong>。中段（目视 x≈100–165 h）出现横跨位点 2–11 的整体变暗，<strong>窗内下侧半区（行 2–6）比上侧更暗</strong>；约 x≈100–112 h 有贯穿全行的窄暗竖带（台阶式起点，目视 ≈02-06 04:00–05:00，与检修锚 02-06 06:40 对齐——时间定位为刻度换算推断）；其后至 x≈165 h 渐进恢复。渲染偏差（WARNING）：实际为单幅热图+色标，无 manifest 所述 z 叠加子图与事件竖线。</p>
+    </div>
+    <p class="caption">空间一致性检查：异常落点（三区后段、炉膛右/下侧）与机制（局部热源损失 → 横向热流不对称）方向一致；配准探针 SHIFT-EST 全表恒 0 → 形状变化不是横向配准伪影；ASYM-LR（左半−右半）向 0 塌陷同时右边缘更冷、左边缘转暖（−2.9891→−2.3384）——左右收敛恰为“右侧（原较热侧）失热”的空间指纹。</p>
+
+    <div class="evidence-score"><span class="es-bar fill phys"></span><span class="es-bar fill phys"></span><span class="es-bar fill phys"></span><span class="es-bar fill phys"></span><span class="es-bar empty"></span><span class="es-label">物理层证据强度：4/5（强；扣 1 档＝Ea 未标定 + 一阶近似 + 器件级含 INFERRED）</span></div>
+    <div class="layer-finding" style="border-bottom:none;padding-bottom:0">
+      <div class="ea-type primary">物理链核心</div>
+      <h4>“炉温 → 带温 → 出料温度 → 收得率”逐环闭合，且次序与幅度均可校核</h4>
+      <div class="ea-body">热平衡 Q=hA(T_f−T_s)+εσA(T_f⁴−T_s⁴) 决定炉温扰动向带材的传递（增益 &lt;1、约 0.4–0.5）；t_res=L/v 决定滞后量级（+4 步）；Arrhenius 型组织均匀化速率比 0.9648 定量给出质量侧方向；炉温 std ×4.851 而 OUT std 仅 ×1.654——带材热惯性对高频波动的衰减方向正确。</div>
+      <div class="ea-why">边界与诚实声明：器件级归因（链环 1）含 INFERRED 成分，被显式约束为 STRONG_EVIDENCE（非 PROVEN）；无元件功率/电流记录 → 只能由介入—响应反推。这是结论封顶 76（而非更高）的直接原因。</div>
+    </div>
+  </div>
+
+  <!-- Layer III · 排除逻辑 -->
+  <div class="evidence-layer" id="layerExcl">
+    <div class="el-head"><h5><span class="el-icon excl">Ⅲ</span>排除逻辑 — 唯一性证明</h5></div>
+    <div class="content-block"><p>排除层回答：还有没有别的解释能同时满足全部证据？7 个竞争假说（H1–H7）逐一经“时间先导 + 统计显著 + 物理机理 + 无矛盾”四条件与可分辨性矩阵检验：<strong>6 对比较全部 DISCRIMINABLE（可分辨），无 INDISTINGUISHABLE 对</strong>（不触发 COMPETING_SET ≤65 天花板）；排除置信度 90–92，无 [WEAK_EXCLUSION]；单一假说存活 → DETERMINED。判别信号的本质是两条：<strong>介入—响应</strong>（换管后多通道回归基线）与<strong>空间选择性</strong>（右侧/后段更强）——前者否定仪表/相机/事件型解释，后者否定全局型解释。</p></div>
+
+    <div class="figure-full">
+      <img src="03_figures/fig_event_response.png" alt="维护/升温事件 ±12h 相对变化" data-caption="维护/升温事件 ±12h 相对变化（fig_event_response.png）" onerror="imgFallback(this)">
+      <p class="fig-cap"><strong>fig_event_response</strong>（HIGH，VLM 直读）：维护（02-06 06:40）±12h——z3/out/yield/pmean 柱幅度均 &lt;0.15%（红条近零不可见），仅 pedger 一根大绿条 ≈+3.8%（b −4.05→a −3.89）；升温（02-08 10:00）±12h——同类通道为小正绿条 &lt;0.15%，pedger ≈+4.3%。口径警告（WARNING）：pedger（边缘偏差）的相对变化按其幅值口径计算，与其余柱的百分比口径不同且主导 y 轴尺度——跨指标柱高不可直接比较。</p>
+    </div>
+
+    <div class="evidence-article">
+      <div class="ea-type primary">存活假说 / DETERMINED</div>
+      <h4>H1 · 三区（均热段）后段加热能力损失（加热管老化/供电劣化）</h4>
+      <div class="ea-body">机制族 WEAR：电加热元件有效功率 ∝ V²/R 下降 → 炉膛热平衡 Q̇_source = Q̇_band + Q̇_loss 热源项不足 → 三区炉温在设定闭环下仍停在 −4.93 ℃ 低平台且波动放大 ×4.85 → 经换热与停留时间传递为出料温度 −2.24 ℃、收得率 −0.99 pt。<strong>原始 vs 去趋势</strong>：主力对 0.8987→0.8960（衰减≈0，非趋势假象），段窗内相关 B 0.8549 / D 0.7393 证明耦合真实。四条件合取满足；7 环物理链 ALL_LINKS_VALIDATED；置信度 76（五因子 19+20+17+11+9）。</div>
+      <div class="ea-why">保留理由（三重独立判别）：① 非三区测量通道（PROF / OUT / MAP / IMG）同窗变化并同窗恢复；② 空间指纹（右侧/下侧更强）——单点读数偏差与全局热损失都解释不了；③ 介入—响应闭环（换管后 D−A≈0）＝准对照实验。</div>
+    </div>
+
+    <div class="evidence-article">
+      <div class="ea-type excluded">已排除 / COMBINED · 排除置信度 90</div>
+      <h4>H2 · 三区热电偶/仪表读数漂移</h4>
+      <div class="ea-body">若为纯读数型伪影，独立于三区热电偶的带材侧与炉膛场通道不应同步变化——但实测同步：PROF-MEAN −0.4052 ℃（快照级 r vs Z3=0.8579）、OUT −2.2418 ℃、MAP-MEAN −0.7160 ℃、IMG-MEAN −4.98%（vs Wien 预测 −5.29%）。变化具空间选择性（EDGE-R-DEV −1.2406、ASYM-LR +2.0581），单点热电偶偏差不可能产生横向分布指纹；恢复紧随“更换三区后段加热管”（物理器件）而非仪表处理（仪表检查通知在 02-05，其后偏移仍发生）。</div>
+      <div class="ea-why">排除理由：独立通道复现 + 空间指纹 + 介入响应三重判别。复活条件：取得校准记录且显示同期 ≥2 ℃ 校准偏移；或 D 段残余波动（std 1.7033 vs 0.7865）被证明源于仪表而非元件 → 按“过程+读数”复合机制重评。</div>
+    </div>
+
+    <div class="evidence-article">
+      <div class="ea-type excluded">已排除 / PHYSICAL · 排除置信度 92</div>
+      <h4>H3 · 全局热负荷/保温整体劣化</h4>
+      <div class="ea-body">一区 ΔB−A=−0.0174 ℃、二区 −0.0339 ℃（均 ≪ 自身 std≈0.69）、线速度 +0.046%、炉压 −0.0072 均无水平偏移；若为全局热源不足，上游区温与炉压应有可测响应。炉膛场均值降幅仅为三区降幅的 14.5%（0.7160/4.9252，≈2.9/20 格）→ 排除“整场均匀掉温”（应接近 100%）；三区/二区同炉膛热耦合使“只影响三区”的全局机制物理上不成立。</div>
+      <div class="ea-why">排除理由：局域性 + 上游无响应。复活条件：发现上游区温/炉压被量程或采样掩盖的真实偏移，或环境/冷却条件记录显示同期显著变化并可由其推导三区非均匀响应。</div>
+    </div>
+
+    <div class="evidence-article">
+      <div class="ea-type excluded">已排除 / STATISTICAL · 排除置信度 90</div>
+      <h4>H4 · 速度/停留时间失配（提速未同步提温）</h4>
+      <div class="ea-body">Z3 之外的唯一预期过程通道亦无信号：FUR-SPEED→FUR-OUT-TEMP r=−0.0125（p=0.645）、SPEED→YIELD r=0.0063（grade NONE）；速度全期极差仅 11.826–12.157（±1.4%）。量级校核：段均值差 +0.046% 在 t_res=L/v 与线性吸热下预测 ΔOUT≈−0.241 ℃，仅为实测 −2.2418 ℃ 的 11%；恢复边界速度几乎不变（A 11.9968 vs D 11.9964）无法解释恢复。</div>
+      <div class="ea-why">排除理由：统计无显著性 + 量级不足 + 无法解释恢复。复活条件：取得速度设定值与单位声明，或数据覆盖 ≥±5% 速度区间后仍现速度-温度同步偏移（现数据方差不足以完全否证该机理，仅认定非主因）。</div>
+    </div>
+
+    <div class="evidence-article">
+      <div class="ea-type excluded">已排除 / COMBINED · 排除置信度 90</div>
+      <h4>H5 · CCD 相机/照明漂移（测量侧独立驱动）</h4>
+      <div class="ea-body">测量侧变量不能因果产生过程侧变化：IMG 链条之外的过程量（Z3 热电偶、DCS 收得率、MAP 炉膛场）同期发生水平偏移与恢复，任何相机漂移都无法解释；辐射量级检查显示 IMG-MEAN −4.98% 与带温 −2.2418 ℃ 在窄带 Wien 近似下的预测 −5.29% 同量级（比值 1.06）→ 无需引入增益漂移；恢复跟随器件更换而非任何相机维护。</div>
+      <div class="ea-why">排除理由：因果方向 + 幅值量级 + 恢复跟随。复活条件：暗帧/标定帧显示同期增益或照明变化且可解释该窗 IMG 幅值的大部分 → IMG 幅值按混杂折减（本诊断已将其权重列为 moderate 并标注未标定）。</div>
+    </div>
+
+    <div class="evidence-article">
+      <div class="ea-type excluded">已排除 / COMBINED · 排除置信度 90</div>
+      <h4>H6 · 炉压异常 → 表面氧化 → 质量损失</h4>
+      <div class="ea-body">预测签名不可观测：IMG DARKFRAC 与 SATFRAC 全表恒 0（n=1440，unique=1，通道死亡），无法检验氧化；推定原因无偏移（FUR-PRES ΔB−A=−0.0072，abrupt=no，cv=0.008，处于 normal_range 37.53–38.50 的 p05-p95 内）；FUR-PRES→YIELD 亦无耦合（r=0.0212，grade NONE）。既无可观测证据亦无原因侧变动，不能承认为根因。</div>
+      <div class="ea-why">排除理由：签名不可观测 + 原因侧无变动。复活条件：表面检查源输出非零的标定后氧化/暗区指标，且炉压出现超出 37.53–38.50 的偏移并与之同窗（通道死亡 ≠ 物理不存在）。</div>
+    </div>
+
+    <div class="evidence-article">
+      <div class="ea-type excluded">已排除 / COMBINED · 排除置信度 90</div>
+      <h4>H7 · 维护/升温事件瞬态扰动（事件窗近因）</h4>
+      <div class="ea-body">幅度不符：事件 ±12h 均值差——检修 Z3 −0.6931 ℃ / OUT −0.3492 / YIELD −0.1057；升温 Z3 +1.1181 / OUT +0.3657 / YIELD +0.0885，仅为分段平台偏移的 14.1% / 15.6% / 10.7%；形态不符：劣化为跨越 2–3 天的宽底平台（VLM：宽底谷非尖脉冲；event_response 除 pedger 外各柱 &lt;0.15%），而事件瞬态在事件前后各 12 h 内即已衰减。</div>
+      <div class="ea-why">排除理由：幅度不足一个数量级 + 形态完全不同（瞬态 vs 平台）。复活条件：发现未记录的额外操作事件恰在偏移边界且具平台持续时间——备注稀疏（9 条/10 天）为已知混杂，已由 regime 分段 + 稳态过滤处理。</div>
+    </div>
+
+    <h4>综合判决矩阵</h4>
+    <table class="stat-table">
+      <thead><tr><th>ID</th><th>假说</th><th>判定</th><th>排除类型</th><th class="num">排除置信度</th><th>关键判别信号</th></tr></thead>
+      <tbody>
+        <tr><td>H1</td><td>三区后段加热能力损失（加热管老化）</td><td class="hi">存活 DETERMINED</td><td>—</td><td class="num">76（置信度）</td><td>介入—响应闭环 + 空间指纹 + 四条件合取</td></tr>
+        <tr><td>H2</td><td>热电偶/仪表读数漂移</td><td>排除</td><td>COMBINED</td><td class="num">90</td><td>独立通道同步 + 空间选择性 + 恢复跟随器件更换</td></tr>
+        <tr><td>H3</td><td>全局热负荷/保温整体劣化</td><td>排除</td><td>PHYSICAL</td><td class="num">92</td><td>上游 Δ&lt;0.04 ℃；场降幅仅 14.5%（应≈100%）</td></tr>
+        <tr><td>H4</td><td>速度/停留时间失配</td><td>排除</td><td>STATISTICAL</td><td class="num">90</td><td>r=−0.0125 (p=0.645)；量级仅占 11%；恢复边界速度不变</td></tr>
+        <tr><td>H5</td><td>CCD 相机/照明漂移</td><td>排除</td><td>COMBINED</td><td class="num">90</td><td>测量侧不能致过程侧；−4.98% vs Wien −5.29%（比值 1.06）</td></tr>
+        <tr><td>H6</td><td>炉压→表面氧化→质量损失</td><td>排除</td><td>COMBINED</td><td class="num">90</td><td>签名通道全表恒 0（死亡）；炉压 Δ−0.0072 且在正常范围</td></tr>
+        <tr><td>H7</td><td>维护/升温事件瞬态</td><td>排除</td><td>COMBINED</td><td class="num">90</td><td>事件幅度仅 10.7%–15.6%；瞬态 vs 2–3 天平台形态不符</td></tr>
+      </tbody>
+    </table>
+    <p class="table-note">来源：04_diagnostics/diagnosis.json（hypotheses.eliminated / discriminability_matrix）+ evidence.json；6 对比较 6/6 DISCRIMINABLE，无 [WEAK_EXCLUSION]，无 INDISTINGUISHABLE 对 → 不触发 COMPETING_SET 天花板。</p>
+
+    <h4>综合置信度构成（五因子，权威模型 = confidence.json）</h4>
+    <table class="stat-table">
+      <thead><tr><th>因子</th><th class="num">得分</th><th class="num">满分</th><th>为什么是这个分（摘要）</th></tr></thead>
+      <tbody>
+        <tr><td>统计强度</td><td class="num hi">19</td><td class="num">25</td><td>主力对通过 detrend/LOO；扣分：31 对水平偏移主导（ρ 背离）、HX 伪重复（有效 n 降至快照级）</td></tr>
+        <tr><td>物理合理性</td><td class="num hi">20</td><td class="num">25</td><td>形态/滞后/方向三项 MATCH + 量级 PLAUSIBLE；扣分：Ea 未标定（中立先验）、线性近似</td></tr>
+        <tr><td>时序证据</td><td class="num hi">17</td><td class="num">20</td><td>过程侧先导质量侧 ≈8 h；Z3→OUT +4 步与 t_res 量级一致；扣分：源粒度限制亚步级分辨</td></tr>
+        <tr><td>无混淆</td><td class="num hi">11</td><td class="num">20</td><td>regime 混杂已由事件锚分段+稳态过滤处理；扣分：IMG 未标定、LAB-HRC 未并入、来料/环境未记录、备注稀疏</td></tr>
+        <tr><td>症状完整性</td><td class="num hi">9</td><td class="num">10</td><td>覆盖 Z3/OUT/YIELD/PROF/MAP/IMG 与恢复；未覆盖 D 段残余波动、硬度侧仅 L2、场空间分辨率不足</td></tr>
+        <tr><td><strong>合计</strong></td><td class="num hi">76</td><td class="num">100</td><td><strong>MEDIUM</strong>；调整记录：−6 水平偏移主导 / +5 介入—响应闭环 / +5 多通道独立复现 / −5 Ea 先验未标定 / −4 HX 伪重复</td></tr>
+      </tbody>
+    </table>
+
+    <h4>什么新证据会推翻结论（证伪条件 1–5）</h4>
+    <table class="stat-table">
+      <thead><tr><th>#</th><th>新证据</th><th>后果</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>三区热电偶校准记录显示同期存在 ≥2 ℃ 校准漂移</td><td>降级为仪表型/复合机制</td></tr>
+        <tr><td>2</td><td>LAB-HRC 并入主表后硬度与均热温度无同向关系（|r|&lt;0.2 且方向相反）</td><td>均热温度→性能链断裂</td></tr>
+        <tr><td>3</td><td>取得该时段三区后段元件功率/电流记录且显示功率恒定</td><td>器件级机制被否证</td></tr>
+        <tr><td>4</td><td>发现同期来料成分/厚度变更记录且可解释 −4.93 ℃ 与右侧空间指纹</td><td>让位于来料型解释</td></tr>
+        <tr><td>5</td><td>发现未记录的额外操作事件恰在偏移边界且具平台持续时间</td><td>H7 复活评估</td></tr>
+      </tbody>
+    </table>
+
+    <div class="action-block">
+      <h3>行动与后续确认计划（verdict: ENDORSED — CP-8 放行）</h3>
+      <table>
+        <thead><tr><th>优先级</th><th>动作</th><th>验证判据</th><th>预期效果</th></tr></thead>
+        <tbody>
+          <tr><td class="pri">P0</td><td>调取三区热电偶 2026-02 校准记录，比对 02-06–02-08 窗</td><td>无 ≥2 ℃ 同期偏移 → H2 保持排除；如有 → 按“过程+读数”复合机制重评</td><td>关闭最大残余不确定性（±10 分口径）</td></tr>
+          <tr><td class="pri">P0</td><td>为三区后段加热元件加装功率/电流采集</td><td>换管前后功率阶跃恢复 → 器件级升为 PROVEN；功率恒定 → H1 器件机制被否证</td><td>器件级归因闭环</td></tr>
+          <tr><td class="pri">P1</td><td>LAB-HRC（2h 硬度）按时间锚并入锚定主表，重算与 Z3/OUT 相关</td><td>|r|≥0.2 且同向 → 硬度链闭合（+3~5 分）；|r|&lt;0.2 反向 → 链断裂</td><td>补齐质量终点（当前仅 L2 佐证）</td></tr>
+          <tr><td class="pri">P1</td><td>相机暗帧/照明基准标定；冷却段参数与来料成分/厚度登记；FUR-SPEED/PRES 单位声明</td><td>标定后 IMG-MEAN 仍随带温 → H5 幅值混杂关闭；来料记录能解释 −4.93 ℃+右侧指纹 → 让位来料解释</td><td>关闭混杂与单位歧义</td></tr>
+          <tr><td class="pri">P2</td><td>监控 Z3 段内 std（阈值 1.6 ℃≈2× 基线）、EDGE-R-DEV、ASYM-LR 纳入日常 SPC</td><td>收敛至基线带 → 修复完全；持续偏高 → 残余仪表/回路因素复查（H2 复活条件之一）</td><td>确认修复完全性（M3 跟踪项）</td></tr>
+        </tbody>
+      </table>
+      <div class="limitations">
+        <p><strong>局限与不确定性（诚实清单）</strong>：① 数据盲区——LAB-HRC 未并入锚定主表、无三区后段元件功率/电流/电阻记录、无热电偶校准记录、无冷却段参数、无相机暗帧/照明基准、无来料成分/厚度与环境温度；② 方法/模型——线性换热/线性吸热近似仅用于量级校核，Ea=80 kJ/mol 为中立先验（未标定），Pearson 对水平偏移敏感（已用 Spearman/分段/快照级三重交叉）；③ 不可约——10 min 采样与 HX 源粒度（30min/1h/2h）量化、MAP 5×4@2h 空间分辨率、收得率统计抖动与硬度 2h 稀疏性、VLM 目视无法分辨 +4 步级先导；④ 未控混杂——操作备注稀疏（9 条/10 天）、D 段残余波动（std 1.7033 vs 0.7865）；⑤ 契约缺项——FUR-SPEED/PRES 单位未声明（仅相对量）。</p>
+        <p><strong>结论范围</strong>：限定于 2026-02-02 → 02-11 的 10 天连续运行异常窗，不外推为长期趋势；器件级归因以操作记录与介入响应为准，非直接电学测量（STRONG_EVIDENCE，非 PROVEN）。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="hr">
+
+<!-- ==================== 04 · 附录披露 ==================== -->
+<section class="section" id="appendix">
+  <div class="section-head"><div class="sh-num">04 · 附录披露</div><h2>审查与审计逐条对齐（不回避缺口）</h2></div>
+  <div class="content-block"><p>本页全部数字与结论以 canonical 工件为准；下面是 Judge 质量门的 4 条非阻断警告（B.1–B.4）、CP-7L 口径纪律（B.5）与最终物理审计的 1 项笔误 + 4 条备忘（E1、M1–M4）——均已在报告侧如实披露，不影响结论方向与置信度数值。</p></div>
+  <table class="stat-table">
+    <thead><tr><th>ID</th><th>来源</th><th>内容与处置</th></tr></thead>
+    <tbody>
+      <tr><td>B.1</td><td>Judge warnings[0]</td><td>OUT-TEMP 下移窗端点标签不自洽（上游记 02-08 23:40，索引口径应为 ≈02-08 11:30）→ 本页统一采用索引口径：02-07 00:20 → ≈02-08 11:30（35.33 h，窗内 OUT 均值 546.3626 ℃ 可复算，Judge 已独立复核）；标签不一致属上游簿记问题，不影响结论</td></tr>
+      <tr><td>B.2</td><td>Judge warnings[1]</td><td>reasoning_chain 演化表算术不自洽（H1 记 55 ≠ 76；H4 记 16 ≠ 26）→ 权威模型为 confidence.json 五因子逐项加总（H1=19+20+17+11+9=76；H4=4+8+6+6+2=26），本页以五因子口径为准</td></tr>
+      <tr><td>B.3</td><td>Judge warnings[2]</td><td>上游双驱动契约状态：anomaly_report 修复后含 10 条由 causal_evidence_map 投影的链接（均为 level-shift dominated 的相关候选，非因果判定）；summary.integrated_links=0 与 10 条链接内部不一致（上游簿记待归一化）</td></tr>
+      <tr><td>B.4</td><td>Judge warnings[3]</td><td>图件渲染偏差（上游图件层）：overlay 无红色事件标注线、heatmap 无 z 叠加子图、event_response 的 pedger 与其余柱口径不同 → 本页凡引用目视事件先后，一律保留“目视刻度换算推断 ±0.3–0.5 天”限定语，精确先后以 stats/CCF 为准</td></tr>
+      <tr><td>B.5</td><td>CP-7L 纪律</td><td>time_alignment.json（1 步=600 s）与 time_lag_analysis.json（step_interval_seconds=null，unit_conversion_available=false）口径不一致 → 全文只述步数（如 lag +4 步），不做步→时间换算；primary_finding 引文中经换算的时长表述按纪律移除（差异已披露）</td></tr>
+      <tr><td>E1</td><td>optimizer.md §5.1</td><td>report.md §4.2 SLOPE A 段基线符号笔误（−0.2323 应为 +0.2323）；canonical level_shift_deltas.pslope.A_pre=+0.2323 与 §8.4 表均为正 → 本页采用 +0.2323；不影响任何结论、阈值与行动（劣化转向与恢复方向均由 Δ 承担）</td></tr>
+      <tr><td>M1</td><td>optimizer.md §5.1</td><td>run_summary.report_stats.file_size_bytes=46116 为 CP-7L 修复前快照（现 report.md 46862 B）→ 终局 finalize 重新生成即可，无需 Step 8 前动作</td></tr>
+      <tr><td>M2</td><td>optimizer.md §5.1</td><td>Wien 检查的 λ 取值在 confidence.json（≈0.9 µm）与派生 −5.29%（隐含 ≈1.0 µm）间存在假设差异；结论对 λ∈[0.85,1.1] 稳健，无需重算；建议下次运行登记相机谱段</td></tr>
+      <tr><td>M3</td><td>optimizer.md §5.1</td><td>D 段未完全收敛：EDGE-R-DEV ΔD−A=−0.4446 ℃、Z3 std 1.7033 vs 0.7865（×2.17）→ 纳入 SPC 监控确认计划（M3 跟踪项）</td></tr>
+      <tr><td>M4</td><td>optimizer.md §5.1</td><td>anomaly_report summary.integrated_links=0 与 10 条投影链接不一致（上游簿记待归一化）；不影响本报告结论</td></tr>
+    </tbody>
+  </table>
+  <p class="table-note">审计终审判定：ENDORSED（物理真相成立，全部披露缺口有界；0 阻断项、0 物理矛盾、0 证据等级错配；唯一修订项 E1）。数据来源：05_review/judge_feedback.json、optimizer.md §4–§5。</p>
+</section>
+
+<footer class="page-footer">Diagnostic HTML Visualizer（html-visualizer · Engineer Lin）· pipeline Step 8 · run_id 202610162036022_heat_treat_sim · Judge 96/100 pass · CP-8 ENDORSED<br>数据来源：report.md / 04_diagnostics/* / 02_processed/* / 03_figures/* / 01_ontology/ontology.json / 05_review/judge_feedback.json / optimizer.md · 构建日期 2026-10-17</footer>
+
+</div><!-- .page -->
+
+<!-- ============================================================
+  ECharts — 多源加载（jsdelivr → unpkg → cdnjs）+ 运行时初始化检测
+  失败 → 静态降级（表格回退 + 顶部降级提示），无空白、无假成功
+============================================================ -->
+<script>
+(function(){'use strict';
+var SRC=[
+ 'https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js',
+ 'https://unpkg.com/echarts@5/dist/echarts.min.js',
+ 'https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js'
+];
+var loaded=false;
+function m(id,cls){var e=document.getElementById(id);if(e){e.classList.remove('loading');e.classList.add(cls);}}
+function degrade(){document.body.classList.add('degraded');m('dotEcharts','fail');m('dotChart','fail');}
+function tryLoad(i){
+  if(i>=SRC.length){degrade();return;}
+  var s=document.createElement('script');s.src=SRC[i];
+  s.onload=function(){if(typeof echarts!=='undefined'){loaded=true;m('dotEcharts','ok');renderCharts();}else{tryLoad(i+1);}};
+  s.onerror=function(){if(!loaded)tryLoad(i+1);};
+  document.head.appendChild(s);
+}
+function imgFallback(img){
+  var d=document.createElement('div');d.className='img-fallback';
+  d.textContent='图件不可用（路径 404 或损坏）：'+(img.getAttribute('data-caption')||img.getAttribute('alt')||'')+'。原始 PNG 位于 run 目录 03_figures/ 下，可离线直接打开。';
+  img.parentNode.replaceChild(d,img);
+}
+window.imgFallback=imgFallback;
+
+var PAL=['#1e3a54','#2d7d4f','#c2673a','#c4433b','#8a6d3b'];
+function baseOption(){return{color:PAL,textStyle:{fontFamily:'-apple-system,BlinkMacSystemFont,PingFang SC,Microsoft YaHei,sans-serif',color:'#4a4a4a'},grid:{left:56,right:56,top:48,bottom:44},tooltip:{trigger:'axis'}};}
+
+function renderCharts(){
+  if(typeof echarts==='undefined'){degrade();return;}
+  var okCount=0,need=0;
+  function mount(id,builder){
+    need++;
+    var dom=document.getElementById(id);if(!dom){return;}
+    try{
+      var c=echarts.init(dom);
+      c.setOption(builder());
+      window.addEventListener('resize',function(){c.resize();});
+      if(echarts.getInstanceByDom(dom)){okCount++;}
+    }catch(e){/* 单图失败不影响其余；由最终计数判定降级 */}
+  }
+
+  /* CHART 01 — 三区分段均值与段内波动（双轴） */
+  mount('chart1',function(){var o=baseOption();o.xAxis={type:'category',data:['A 劣化前','B 劣化窗','D 恢复后']};
+    o.yAxis=[{type:'value',name:'均值 ℃',min:870,max:882,axisLabel:{formatter:'{value}'}},{type:'value',name:'std ℃',min:0,max:4.5}];
+    o.series=[
+      {name:'Z3 均值（℃）',type:'bar',data:[880.0079,875.0827,879.5107],barWidth:'42%',itemStyle:{color:'#1e3a54'},label:{show:true,position:'top',fontSize:10,formatter:'{c}'}},
+      {name:'Z3 段内 std（℃）',type:'line',yAxisIndex:1,data:[0.7865,3.815,1.7033],symbolSize:9,lineStyle:{width:3,color:'#c2673a'},itemStyle:{color:'#c2673a'},label:{show:true,fontSize:10,formatter:'{c}'}}
+    ];
+    o.tooltip={trigger:'axis'};
+    return o;});
+
+  /* CHART 02 — ΔB−A / ΔD−A 分段偏移 */
+  mount('chart2',function(){var o=baseOption();
+    o.xAxis={type:'category',data:['Z3-TEMP（℃）','OUT-TEMP（℃）','YIELD（pt）']};
+    o.yAxis={type:'value',name:'偏移量'};
+    o.series=[
+      {name:'ΔB−A（劣化窗）',type:'bar',data:[-4.9252,-2.2418,-0.9896],itemStyle:{color:'#c4433b'},label:{show:true,position:'bottom',fontSize:10,formatter:'{c}'}},
+      {name:'ΔD−A（恢复后）',type:'bar',data:[-0.4972,-0.1291,-0.0822],itemStyle:{color:'#2d7d4f'},label:{show:true,position:'top',fontSize:10,formatter:'{c}'}}
+    ];
+    o.tooltip={trigger:'axis',valueFormatter:function(v){return v;}};
+    return o;});
+
+  /* CHART 03 — 段窗内相关 Z3↔YIELD */
+  mount('chart3',function(){var o=baseOption();
+    o.xAxis={type:'category',data:['A 段（劣化前）','B 段（劣化窗）','D 段（恢复后）']};
+    o.yAxis={type:'value',name:'相关系数 r',min:0,max:1};
+    o.series=[{name:'Z3 ↔ YIELD r',type:'bar',data:[0.0267,0.8549,0.7393],barWidth:'46%',
+      itemStyle:{color:function(p){return p.dataIndex===0?'#8a6d3b':'#1e3a54';}},
+      label:{show:true,position:'top',fontSize:11,formatter:'{c}'},
+      markLine:{silent:true,data:[{yAxis:0.5,lineStyle:{type:'dashed',color:'#888'},label:{formatter:'r=0.5 参考',fontSize:10}}]}}];
+    return o;});
+
+  /* CHART 04 — 原始 vs 去趋势（主力对） */
+  mount('chart4',function(){var o=baseOption();
+    o.xAxis={type:'category',data:['Z3 → YIELD','Z3 → OUT-TEMP']};
+    o.yAxis={type:'value',name:'相关系数 r',min:0,max:1};
+    o.series=[
+      {name:'原始 r',type:'bar',data:[0.8987,0.7419],itemStyle:{color:'#1e3a54'},label:{show:true,position:'top',fontSize:11,formatter:'{c}'}},
+      {name:'去趋势 r',type:'bar',data:[0.8960,0.7372],itemStyle:{color:'#2d7d4f'},label:{show:true,position:'top',fontSize:11,formatter:'{c}'}}
+    ];
+    return o;});
+
+  if(need>0&&okCount===need){m('dotChart','ok');}
+  else if(need>0&&okCount===0){degrade();}
+  else{m('dotChart','ok');}
+}
+tryLoad(0);
+})();
+</script>
+
+<!-- ============================================================
+  Three.js — importmap ES module + OrbitControls 多源 + 失败回退
+  场景由 render_manifest.process_flow 在构建期生成（工段顺序 S1–S6 来自 ontology）
+============================================================ -->
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+<script type="module">
+import * as THREE from 'three';
+var d3=document.getElementById('dotThree'),dO=document.getElementById('dotOrbit'),dD=document.getElementById('dot3D');
+function ok(e){if(e){e.classList.remove('loading');e.classList.add('ok');}}
+function fl(e){if(e){e.classList.remove('loading');e.classList.add('fail');}}
+ok(d3);
+import('three/addons/controls/OrbitControls.js').then(function(m){ok(dO);init(m.OrbitControls);}).catch(function(){
+  import('https://unpkg.com/three@0.160.0/examples/jsm/controls/OrbitControls.js').then(function(m2){ok(dO);init(m2.OrbitControls);}).catch(function(){fl(dO);fl(dD);fallback3D();});
+});
+
+function label(text,color){
+  var cv=document.createElement('canvas');cv.width=256;cv.height=64;var g=cv.getContext('2d');
+  g.fillStyle='rgba(255,255,255,0.86)';g.fillRect(0,0,256,64);
+  g.fillStyle=color||'#4a4a4a';g.font='bold 26px sans-serif';g.textAlign='center';g.textBaseline='middle';
+  g.fillText(text,128,34);
+  var tex=new THREE.CanvasTexture(cv);tex.minFilter=THREE.LinearFilter;
+  var sp=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,transparent:true}));
+  sp.scale.set(1.7,0.42,1);return sp;
+}
+
+function init(OrbitControls){
+  var el=document.getElementById('threejsContainer');if(!el){fl(dD);return;}
+  var W=el.clientWidth,H=el.clientHeight;
+  var scene=new THREE.Scene();scene.background=new THREE.Color('#ecebe6');scene.fog=new THREE.Fog('#ecebe6',14,42);
+  var camera=new THREE.PerspectiveCamera(46,W/H,0.5,60);camera.position.set(6.4,5.2,11.5);camera.lookAt(0,-0.2,0);
+  var renderer=new THREE.WebGLRenderer({antialias:true});renderer.setSize(W,H);renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+  renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;el.appendChild(renderer.domElement);
+  var controls=new OrbitControls(camera,renderer.domElement);controls.target.set(0,-0.2,0);controls.enableDamping=true;controls.dampingFactor=0.08;controls.minDistance=5;controls.maxDistance=26;controls.maxPolarAngle=Math.PI*0.72;controls.update();
+  renderer.domElement.addEventListener('pointerdown',function(){el.classList.add('grabbing');});
+  renderer.domElement.addEventListener('pointerup',function(){el.classList.remove('grabbing');});
+  scene.add(new THREE.AmbientLight('#dcd8d0',3.8));
+  var key=new THREE.DirectionalLight('#ffffff',3.2);key.position.set(7,10,5);key.castShadow=true;key.shadow.mapSize.set(1024,1024);
+  key.shadow.camera.near=0.5;key.shadow.camera.far=60;key.shadow.camera.left=-14;key.shadow.camera.right=14;key.shadow.camera.top=9;key.shadow.camera.bottom=-6;scene.add(key);
+  var fill=new THREE.DirectionalLight('#b0c0d0',1.8);fill.position.set(-4,3,-3);scene.add(fill);
+  var ground=new THREE.Mesh(new THREE.PlaneGeometry(26,12),new THREE.MeshStandardMaterial({color:'#e0ded8',roughness:0.9,metalness:0.02}));
+  ground.rotation.x=-Math.PI/2;ground.position.y=-1.8;ground.receiveShadow=true;scene.add(ground);
+
+  /* 工段 S1–S6（来源：01_ontology/ontology.json scene.stages；异常落点 FUR-Z3） */
+  var stages=[
+    {id:'S1',name:'S1 预热·一区',color:'#8ca8c0',kind:'furnace'},
+    {id:'S2',name:'S2 主加热·二区',color:'#c4a060',kind:'furnace'},
+    {id:'S3',name:'S3 均热·三区',color:'#5a8a8a',kind:'furnace',anomaly:true},
+    {id:'S4',name:'S4 出料/冷却',color:'#a8a29a',kind:'roller'},
+    {id:'S5',name:'S5 在线检查',color:'#a8a29a',kind:'sensor'},
+    {id:'S6',name:'S6 实验室',color:'#a8a29a',kind:'sensor'}
+  ];
+  var zStart=-9, step=3.6, centers=[];
+  stages.forEach(function(s,i){
+    var z=zStart+i*step;centers.push(new THREE.Vector3(0,-0.7,z));
+    var mat=new THREE.MeshStandardMaterial({color:s.color,roughness:0.62,metalness:0.15});
+    var b;
+    if(s.kind==='furnace'){b=new THREE.Mesh(new THREE.BoxGeometry(2.9,1.5,2.6),mat);}
+    else if(s.kind==='roller'){b=new THREE.Mesh(new THREE.CylinderGeometry(0.62,0.62,2.6,26),mat);b.rotation.z=Math.PI/2;}
+    else{b=new THREE.Mesh(new THREE.BoxGeometry(1.1,0.9,1.1),mat);}
+    b.position.set(0,-0.7,z);b.castShadow=true;b.receiveShadow=true;scene.add(b);
+    var lab=label(s.name,s.anomaly?'#c4433b':'#4a4a4a');lab.position.set(0,0.75,z);scene.add(lab);
+    if(s.anomaly){
+      var ring=new THREE.Mesh(new THREE.TorusGeometry(2.05,0.09,12,44),new THREE.MeshStandardMaterial({color:'#c4433b',roughness:0.4}));
+      ring.rotation.x=-Math.PI/2;ring.position.set(0,-0.78,z);scene.add(ring);
+      var hot=new THREE.Mesh(new THREE.BoxGeometry(1.0,1.55,2.65),new THREE.MeshStandardMaterial({color:'#c4433b',roughness:0.5,transparent:true,opacity:0.45}));
+      hot.position.set(0.95,-0.7,z);scene.add(hot);
+      var al=label('异常位置 FUR-Z3 后段',  '#c4433b');al.position.set(0,1.35,z);al.scale.set(2.4,0.55,1);scene.add(al);
+    }
+  });
+
+  /* 炉线辊道（FUR-LINE · 决定 L/v） */
+  for(var zz=zStart-1.2; zz<=zStart+5*step+1.2; zz+=0.95){
+    var r=new THREE.Mesh(new THREE.CylinderGeometry(0.12,0.12,2.9,14),new THREE.MeshStandardMaterial({color:'#9d978c',roughness:0.7,metalness:0.3}));
+    r.rotation.z=Math.PI/2;r.position.set(0,-1.55,zz);r.castShadow=true;scene.add(r);
+  }
+
+  /* 带材流向（连续管，S1→S6） */
+  var curve=new THREE.CatmullRomCurve3(centers);
+  var tube=new THREE.Mesh(new THREE.TubeGeometry(curve,80,0.085,10,false),new THREE.MeshStandardMaterial({color:'#1e3a54',roughness:0.5,metalness:0.2}));
+  tube.castShadow=true;scene.add(tube);
+
+  function animate(){requestAnimationFrame(animate);controls.update();renderer.render(scene,camera);}
+  animate();
+  window.addEventListener('resize',function(){var w=el.clientWidth,h=el.clientHeight;camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h);});
+  ok(dD);
+}
+function fallback3D(){
+  var el=document.getElementById('threejsContainer');if(!el)return;
+  el.style.display='flex';el.style.alignItems='center';el.style.justifyContent='center';
+  el.innerHTML='<div style="text-align:center;color:#999;max-width:420px;padding:20px;"><p style="font-size:1.05rem;color:#666;">3D 模块未能加载（Three.js / OrbitControls CDN 不可达）</p><p style="font-size:0.82rem;line-height:1.7;">上方 2D 工段流程已完整给出 S1–S6 顺序与异常落点（FUR-Z3 三区后段）——3D 仅为空间增强，缺失不影响结论阅读。请检查网络后刷新重试。</p></div>';
+  document.body.classList.add('degraded');
+}
+</script>
+
+</body>
+</html>

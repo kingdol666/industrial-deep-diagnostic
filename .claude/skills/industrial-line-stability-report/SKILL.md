@@ -57,6 +57,11 @@ description: "产线运行稳定性报告 skill：给定时间段的生产数据
 |---|---|---|---|---|
 - `stability_analyzer.py analyze` 文件模式分析一个输入表；**文件夹输入**由 agent 先运行 `industrial-data-preprocessor/scripts/data_preprocessor.py --stability-single-primary --recursive`，把它选出的唯一主时序规范表交给 analyzer（不跨文件/跨采样率合并；选择理由写进 `preprocessing_report.json`）。
 - 目录模式按确定性评分选择一个 ≥50 行且时间列 ≥80% 可解析的主表；默认不跨文件合并/重采样不同采样频率。QC/检测表、维修/事件表、manifest/说明材料按角色审计；真值/答案文件不读取、不复制、不哈希。逐文件处置与 SHA-256 存入 `00_input/input_manifest.json`，摘要通过 `data.preprocessing` 进入 JSON/HTML/Markdown。
+- **多源异构数据（E-1H）**：目录含剖面/map/图像索引/时序文本时，编排层在 E-1 之后链式执行
+  `industrial-hetero-preprocessor`（`build.py --raw-path <dir> --run-dir <run>` + `quality_gate.mjs`）；
+  `status: ok` 时用 `--data <run>/07_hetero/preprocessed_data_hetero.csv` 把 `HX-*` 派生特征通道一并交本 skill 评估
+  （实测：L5 锂电涂布 55 参数中 35 个 HX 通道入评、15 条 HX 发现，门禁 11/11，本体 auto）。
+  无异构源时链式命令零行为变化。`HX-*` 通道同样受时间不变量守卫与诚实降级约束。
 - 文件夹内若存在本体资产且用户未显式传本体，分析器按发现顺序取用（`--ontology` 显式路径 > run 目录 `00_input|01_ontology/ontology.json` > 资产库按 scene）。HTTP 编排层会为 stability-report 注入本体指令（扁平字段 `ontologyMode`/`ontologyScene`）：skill 先运行 `scripts/ontology_prepare.py` 制备 `01_ontology/` 四件套（声明先验 + 词典纪律 + CP-2 硬闸），再进入分析；prepare 的动作（built/reused/extended）与 `rag_used=false` 如实记录在 `stability_report.json` 的 `provenance.ontology`。同表内的 SV（设定值）列通常近似不变，会被时间不变量通道守卫剔除评分并出 data_quality 发现；PV（实际值）列正常入评。
 
 ## Inputs / Outputs

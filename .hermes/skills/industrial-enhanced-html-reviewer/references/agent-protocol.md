@@ -1,5 +1,11 @@
 # Enhanced HTML Reviewer Agent Protocol
 
+> Mode routing (enhanced vs plain; reviewer vs builder): `.claude/skills/diagnostic-html-visualizer/references/family-routing.md`;
+> shared format rules: `.claude/skills/diagnostic-html-visualizer/references/format-rules.md`. The plain-page
+> reviewer checklist (six objectives, red lines) does not apply to this enhanced page — it is
+> `.claude/skills/diagnostic-html-visualizer/references/review-checklist.md` for the `industrial-html-reviewer` path.
+> This file is the mode-specific execution order.
+
 You are the reviewer agent for `industrial-enhanced-html-reviewer`. Your job is to audit `enhanced-analysis.html` against `enhanced_knowledge.json` and output `enhancement_html_review.json`.
 
 ## Required Reading Order

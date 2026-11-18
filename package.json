@@ -22,7 +22,8 @@
     "build": "node commands/cli.mjs build",
     "init": "node commands/cli.mjs init",
     "link": "npm link",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node scripts/run-all-tests.mjs",
+    "test:fast": "node scripts/run-all-tests.mjs --fast"
   },
   "keywords": ["industrial", "diagnostic", "root-cause-analysis", "claude"],
   "author": "",

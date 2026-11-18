@@ -24,6 +24,15 @@ const PORT = 3988;
 const BASE = `http://127.0.0.1:${PORT}`;
 const DB_PATH = join(mkdtempSync(join(tmpdir(), 'idd-onto-api-')), 'e2e.db');
 
+// Isolated ontology store — this file boots a REAL backend whose store writes
+// (publish / edit / deprecate / delete) would otherwise race the in-process
+// primitives of ontology-control.test.mjs: node --test runs test FILES
+// concurrently and the store (index.json + cross-process lock) is shared state.
+// The env override is resolved at store-module load time, so it is passed to the
+// spawned backend before it imports anything.
+const STORE_ROOT = mkdtempSync(join(tmpdir(), 'idd-onto-api-store-'));
+const STORE_DIR = join(STORE_ROOT, 'ontology_store');
+
 // 本测试专用的场景键，跑完自清理；绝不触碰既有场景
 const SCENE = `e2e_onto_api_${process.pid}`;
 const CLONE = `${SCENE}_clone`;
@@ -151,6 +160,7 @@ before(async () => {
       SERVER_PORT: String(PORT),
       AUTH_ENABLED: '0',
       DATABASE_PATH: DB_PATH,
+      ONTOLOGY_STORE_DIR: STORE_DIR,
     },
     windowsHide: true,
   });
@@ -165,6 +175,7 @@ after(async () => {
   if (server) { server.kill(); server = null; }
   try { rmSync(runDir, { recursive: true, force: true }); } catch { /* ignore */ }
   try { rmSync(workDir, { recursive: true, force: true }); } catch { /* ignore */ }
+  try { rmSync(STORE_ROOT, { recursive: true, force: true }); } catch { /* ignore */ }
 });
 
 // ─────────────────────────────────────────────────────────────
@@ -178,7 +189,7 @@ describe('ontology control API — HTTP surface', () => {
     assert.equal(r.status, 200);
     assert.equal(r.body.success, true);
     assert.ok(Array.isArray(r.body.data.assets));
-    assert.ok(r.body.data.store_dir.endsWith('ontology_store'));
+    assert.equal(r.body.data.store_dir, STORE_DIR, 'the backend must honor ONTOLOGY_STORE_DIR (test isolation)');
     assert.equal(r.body.data.schema_path.endsWith('ontology_schema.json'), true);
   });
 

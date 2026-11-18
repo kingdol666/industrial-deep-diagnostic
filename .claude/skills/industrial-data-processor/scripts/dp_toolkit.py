@@ -172,6 +172,12 @@ def cmd_preprocess(args):
             baselines[c] = mean([float(r[c]) for r in rows[:baseline_n]])
         except: pass
     for c in numeric_cols:
+        if c.startswith("HX-"):
+            # E-1H columns are already derived, contract-bound features
+            # (HX-<SHAPE>-<SRC>-<FEATURE>); a second-order "<col>_dev" ghost
+            # column would break the naming contract and pollute the anchor
+            # fingerprint — never derive on top of them (WS8).
+            continue
         vals = [_safe_float(r.get(c)) for r in rows[: min(200, len(rows))]]
         vals = [v for v in vals if v is not None]
         if len(vals) < 5:

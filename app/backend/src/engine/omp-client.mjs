@@ -16,7 +16,7 @@ import {
 } from '../../../../config/loader.mjs';
 import logger from '../utils/logger.mjs';
 import { recordProviderError } from '../services/provider-error.service.mjs';
-import { whereLookup, spawnResolvedCli } from './cli-common.mjs';
+import { whereLookup, spawnResolvedCli, killTree, withTimeout, resolveEngineTimeoutMinutes, resolveCliBinary } from './cli-common.mjs';
 import { existsSync, mkdirSync, rmSync, readFileSync, readdirSync, statSync } from 'fs';
 import { join, isAbsolute } from 'path';
 import {
@@ -27,17 +27,30 @@ import {
 } from './claude-client.mjs';
 
 // ── Binary resolution ──
+// 探测与拉起同源: probeOmpEngine (the availability gate for /start|/execute)
+// and the real spawn share this function, and it resolves through cli-common's
+// shared chain — config harness.engines.omp.binary → env HARNESS_OMP_COMMAND →
+// `where`/PATH — exactly like every other harness. The documented legacy knob
+// `config.omp.binary` is consulted only when the shared chain found nothing
+// more specific than the bare name.
+//
+// No module-local memoization on purpose: the shared chain is cached inside
+// cli-common (invalidateBinaryCache('omp') drops it), and a separate cache here
+// would survive env/config changes and re-create the probe/spawn divergence.
+//
 // Node's spawn on Windows cannot execute the extensionless `omp` bash shim,
 // and PATH resolution differs between shells — resolve to an absolute path.
-let resolvedBinary = null;
-function resolveOmpBinary() {
-  if (resolvedBinary && existsSync(resolvedBinary)) return resolvedBinary;
-
+export function resolveOmpBinary() {
+  const shared = resolveCliBinary('omp'); // env override / explicit config path / PATH hit
   const configured = config.omp?.binary || 'omp';
-  const candidates = [];
-  if (isAbsolute(configured)) {
-    candidates.push(configured);
+
+  let resolved;
+  if (shared !== 'omp') {
+    resolved = shared;
+  } else if (isAbsolute(configured)) {
+    resolved = configured;
   } else {
+    const candidates = [];
     // 1) `where omp` / `which omp` — whereLookup prefers .exe then .cmd/.bat;
     //    on Windows it must NEVER pick the extensionless sh shim (npm global
     //    installs emit sh/.cmd/.ps1 shims; the sh one cannot be spawned).
@@ -49,11 +62,12 @@ function resolveOmpBinary() {
     }
     // 3) Bare name — works when the backend runs under a POSIX shell
     candidates.push(configured);
+
+    resolved = candidates.find(c => existsSync(c)) || candidates[candidates.length - 1];
   }
 
-  resolvedBinary = candidates.find(c => existsSync(c)) || candidates[candidates.length - 1];
-  logger.info(`OMP binary resolved to: ${resolvedBinary}`, { context: 'OmpClient' });
-  return resolvedBinary;
+  logger.info(`OMP binary resolved to: ${resolved}`, { context: 'OmpClient' });
+  return resolved;
 }
 
 // ── Session dirs ──
@@ -147,12 +161,14 @@ function spawnOmpRpc({ sessionDir, resume = false, label = 'omp', timeoutMinutes
 // ── Event adapter ──
 // Wraps an OMP RPC process as an async iterable of standardized messages
 // (Claude-SDK-compatible shapes), plus a close() handle.
-function createOmpQuery(proc, { runKey, maxTurns = 0, label = 'omp' }) {
+// Exported for tests (spawned with a directly-owned fake RPC process).
+export function createOmpQuery(proc, { runKey, maxTurns = 0, label = 'omp', timeoutMinutes = 0 }) {
   const queue = [];
   let wake = null;
   let closed = false;
   let sawReady = false;
   let sawAgentEnd = false;
+  let sawResult = false;
   let turnCount = 0;
   let startedAt = Date.now();
   const pendingToolCalls = new Map(); // toolCallId -> { name }
@@ -207,6 +223,9 @@ function createOmpQuery(proc, { runKey, maxTurns = 0, label = 'omp' }) {
   };
 
   const emitResult = (subtype, stopReason) => {
+    if (sawResult) return;
+    sawResult = true;
+    timeoutGuard.cancel();
     push({
       type: 'result',
       subtype,
@@ -242,7 +261,7 @@ function createOmpQuery(proc, { runKey, maxTurns = 0, label = 'omp' }) {
         turnCount += 1;
         if (maxTurns > 0 && turnCount > maxTurns) {
           logger.warn(`OMP run ${runKey} exceeded maxTurns=${maxTurns} — stopping`, { context: 'OmpClient', runKey });
-          try { proc.kill(); } catch { /* ignore */ }
+          killTree(proc);
         }
         break;
       case 'message_start':
@@ -325,23 +344,44 @@ function createOmpQuery(proc, { runKey, maxTurns = 0, label = 'omp' }) {
     end();
   });
 
+  // Per-turn timeout — a silent OMP process (no ready handshake, no agent_end)
+  // would otherwise hang the run forever; the CLI-side --max-time cap is
+  // best-effort and this guard is the backstop that owns the process tree.
+  const timeoutGuard = withTimeout({
+    minutes: resolveEngineTimeoutMinutes('omp', timeoutMinutes),
+    label: 'omp',
+    context: 'OmpClient',
+    turnKey: runKey,
+    onTimeout: () => {
+      emitResult('error_during_execution', 'omp_timeout');
+      end();
+    },
+    child: proc,
+  });
+
   return {
     async sendPrompt(message) {
       if (closed) throw new Error('OMP process already closed');
       if (!sawReady) {
+        // The handshake timeout timer must not outlive the race — a pending
+        // 30s timer would hold the event loop open for every finished turn.
+        let handshakeTimer = null;
         await Promise.race([
           new Promise(resolve => {
             const check = () => { if (sawReady || closed) resolve(); else setTimeout(check, 50); };
             check();
           }),
-          new Promise((_, reject) => setTimeout(() => reject(new Error('OMP RPC handshake timeout (no ready event)')), 30000)),
-        ]);
+          new Promise((_, reject) => {
+            handshakeTimer = setTimeout(() => reject(new Error('OMP RPC handshake timeout (no ready event)')), 30000);
+          }),
+        ]).finally(() => clearTimeout(handshakeTimer));
       }
       proc.stdin.write(`${JSON.stringify({ type: 'prompt', message })}\n`);
     },
     close() {
+      timeoutGuard.cancel();
       closed = true;
-      try { proc.kill(); } catch { /* ignore */ }
+      killTree(proc);
     },
     get killed() { return proc.killed || proc.exitCode !== null; },
     async *[Symbol.asyncIterator]() {
@@ -374,8 +414,11 @@ export function startDiagnosis({
   const { dataPaths, promptTarget } = resolveAnalysisTarget(isResume ? { mode: 'resume' } : analysisTarget);
 
   const sessionDir = runSessionDir(runId);
+  // timeoutMinutes goes to BOTH layers: spawnOmpRpc turns it into the CLI-side
+  // --max-time cap; createOmpQuery arms the JS-side withTimeout process-tree
+  // guard (resolveEngineTimeoutMinutes) that owns the kill as a backstop.
   const { proc } = spawnOmpRpc({ sessionDir, resume: isResume, label: `omp-diagnosis:${runId}`, timeoutMinutes });
-  const query = createOmpQuery(proc, { runKey: runId, maxTurns, label: `omp-diagnosis:${runId}` });
+  const query = createOmpQuery(proc, { runKey: runId, maxTurns, label: `omp-diagnosis:${runId}`, timeoutMinutes });
 
   let prompt;
   if (isResume) {

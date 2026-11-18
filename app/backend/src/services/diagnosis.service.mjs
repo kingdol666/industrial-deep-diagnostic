@@ -1,5 +1,6 @@
 // Diagnosis Service — Core business logic for diagnosis orchestration
-// Handles: run creation, Claude process management, streaming, HITL, questions
+// Handles: run creation, Claude process management, streaming, concurrency
+// admission (queued runs), questions
 
 import { v4 as uuid } from 'uuid';
 import { readdir, stat, realpath } from 'fs/promises';
@@ -118,7 +119,9 @@ import {
   createRun, setChild, getChild, updateStatus, getStatus, emit, closeRun,
   hasRun, subscribe, setMeta, getMeta, resetRun, listRunIds,
 } from '../engine/diagnosis-engine.mjs';
+import { createRunQueue } from './runQueue.mjs';
 import { stmts } from '../db/database.mjs';
+import { canView, resolveOwnerId, INTERNAL } from './tenancy.mjs';
 import {
   assertSessionHarnessMatch, sessionMap, clampChatTurns, CHAT_TURN_PASSTHROUGH,
   resolveChatRoute, hasRebuildContext, rebuildNotice,
@@ -135,11 +138,8 @@ import logger from '../utils/logger.mjs';
 import { resolveEnhancementPolicy } from '../utils/enhance-intent.mjs';
 import { findMatch as ontologyFindMatch, reuse as ontologyReuse, appendPipelineEvent as ontologyAppendEvent, PROJECT_ROOT as ONTOLOGY_PROJECT_ROOT } from '../../../../.claude/shared/scripts/ontology_store.mjs';
 
-// Track HITL requests per run: hitlId -> { resolve, child }
-const hitlRequests = new Map();
-let hitlSeq = 0;
-
-// Guard: prevent double execution of the same run
+// Guard: prevent double execution of the same run. Holds one execution slot per
+// run whose engine query is live — see MAX_CONCURRENT_RUNS below.
 const executingRuns = new Set();
 // B4: one live session-chat turn per run (two concurrent resumes would race and
 // kill each other); separate from executingRuns, which guards full executions.
@@ -149,9 +149,44 @@ const activeChatTurns = new Set();
 // (OMP exits non-zero when its child process is killed; that is expected).
 const stoppingRuns = new Set();
 
+// FIFO admission queue for runs that arrived while every execution slot was
+// taken. A queued run's stored status is 'queued'; it is started through the
+// same execution path as a direct start once a slot frees.
+const executionQueue = createRunQueue();
+
 const TERMINAL_STATUSES = new Set(['completed', 'failed', 'stopped', 'expired']);
 const PAUSED_STATUSES = new Set(['awaiting_input']);
+// A queued run holds no engine process — it must not read as an active engine
+// run (nor as a paused one asking for input).
+const QUEUED_STATUSES = new Set(['queued']);
+const DEFAULT_MAX_CONCURRENT_RUNS = 2;
 const MISSING_CONVERSATION_RE = /No conversation found with session ID/i;
+
+/**
+ * Concurrency cap for diagnosis executions (P0-5): env MAX_CONCURRENT_RUNS
+ * wins, then config `diagnosis.max_concurrent_runs`, then 2. Read per check so
+ * an operator (or a test) can change it without restarting the process.
+ */
+export function resolveMaxConcurrentRuns() {
+  const raw = process.env.MAX_CONCURRENT_RUNS;
+  if (raw !== undefined && raw !== '') {
+    const parsed = Number(raw);
+    if (Number.isFinite(parsed) && parsed >= 1) return Math.floor(parsed);
+    logger.warn(`Ignoring invalid MAX_CONCURRENT_RUNS=${raw} (expected a positive number)`, { context: 'Diagnosis' });
+  }
+  const configured = Number(diagConfig.max_concurrent_runs);
+  if (Number.isFinite(configured) && configured >= 1) return Math.floor(configured);
+  return DEFAULT_MAX_CONCURRENT_RUNS;
+}
+
+/** Introspection for tests / ops: current cap, executing ids, waiting ids. */
+export function getConcurrencySnapshot() {
+  return {
+    maxConcurrentRuns: resolveMaxConcurrentRuns(),
+    executing: [...executingRuns],
+    queued: executionQueue.list(),
+  };
+}
 
 function formatResumeError(err, runId, sessionId) {
   if (MISSING_CONVERSATION_RE.test(err?.message || '')) {
@@ -307,7 +342,10 @@ function resolveWatchOntologyDirective({ profile, ontologyMode, ontologyScene, o
   };
 }
 
-// Create a new diagnosis run (DB + engine state)
+// Create a new diagnosis run (DB + engine state).
+// `params.ownerUserId` (accepts a user object or an id) is persisted as the
+// run's owner_user_id; absent/null → NULL row (unowned = admin-only, which is
+// what an AUTH_ENABLED=0 dev-mode request produces — no identity exists).
 export function createDiagnosisRun(params) {
   const { dataPath, folderPath, dataPaths, userQuestion, sceneName, maxTurns, timeoutMinutes, reportLanguage,
           model, permissionMode } = params;
@@ -445,11 +483,19 @@ export function createDiagnosisRun(params) {
     enhancementTriggered: enhancement.intentHit ? 1 : 0,
     analysisIntent,
     userId: params.userId ? String(params.userId) : null,
+    // Persisted (not in-memory meta): executeDiagnosis passes the row's value
+    // to the engine, so the knob survives /execute, Continue and queued drains.
+    // Only the caller's explicit positive choice is recorded (nullable) — a
+    // claude-specific default must not leak into non-claude engine rows, and
+    // NULL keeps each engine's own config chain (per-engine → global) in charge.
+    timeoutMinutes: Number.isFinite(Number(timeoutMinutes)) && Number(timeoutMinutes) > 0
+      ? Number(timeoutMinutes)
+      : null,
+    ownerUserId: resolveOwnerId(params.ownerUserId),
   });
 
   createRun(runId);
   setMeta(runId, {
-    timeoutMinutes: timeoutMinutes ?? config.claude.timeout_minutes,
     ontology,
     enhancement,
     analysisIntent,
@@ -492,9 +538,11 @@ function expireStalePendingRuns(runs) {
   }
 }
 
-// List all runs enriched with engine status
-export function listRuns() {
-  const runs = stmts.getAllRuns.all();
+// List all runs enriched with engine status.
+// `viewer` = req.user for API callers (own runs, or all for an admin; legacy
+// NULL-owner runs are admin-only); INTERNAL for trusted service-internal calls.
+export function listRuns(viewer = INTERNAL) {
+  const runs = stmts.getAllRuns.all().filter((r) => canView(viewer, r.owner_user_id));
   expireStalePendingRuns(runs);
   return runs.map(r => ({
     ...r,
@@ -506,23 +554,27 @@ export function listRuns() {
 // ── 异步任务视图(AgentWorkShop diag-bridge 任务管理面)─────────────────
 // POST /api/diagnosis/tasks 即返 task_id(=runId,诊断在引擎子进程后台执行);
 // GET /api/diagnosis/tasks/:id 返回状态与结果(诊断总结 + 报告 md 绝对路径)。
-export function getDiagTaskView(taskId) {
+export function getDiagTaskView(taskId, viewer = INTERNAL) {
   // Read-time outcome enrichment: specialist runs completed before the
   // artifact-first contract (or orphaned by a crash) still answer with the
   // score/verdict their own artifacts contain.
-  const run = enrichRunOutcome(getRunStatus(taskId));
+  const run = enrichRunOutcome(getRunStatus(taskId, viewer));
   if (!run) return null;
   const raw = run.engineStatus || run.status;
   // Terminal mapping (plan v2 Phase C3): expired runs used to be reported as
   // "running", which made a wait-mode caller spin until its timeout. Both
   // `expired` (never executed, past its pending horizon) and `awaiting_input`
   // (blocked on a human answer) are real states a caller must see.
+  // `queued` is a REAL admission state (waiting for a concurrency slot), not a
+  // flavour of running — folding it into 'running' made POST /tasks promise
+  // execution that had not started.
   const taskStatus = raw === 'completed' ? 'completed'
     : (raw === 'failed' || raw === 'interrupted') ? 'failed'
       : raw === 'stopped' ? 'stopped'
         : raw === 'expired' ? 'expired'
           : raw === 'awaiting_input' ? 'awaiting_input'
-            : 'running';
+            : raw === 'queued' ? 'queued'
+              : 'running';
   const view = {
     task_id: run.run_id,
     status: taskStatus,
@@ -564,11 +616,23 @@ export function getDiagTaskView(taskId) {
   return view;
 }
 
-export function getRunStatus(runId) {
+// Single run row + live engine status, or null when the run does not exist OR
+// `viewer` may not see it — the two cases are deliberately indistinguishable
+// (routes answer 404 for both; no existence leak).
+export function getRunStatus(runId, viewer = INTERNAL) {
   const run = stmts.getRunById.get(runId);
   if (!run) return null;
+  if (!canView(viewer, run.owner_user_id)) return null;
   const engineStatus = getStatus(runId);
   return { ...run, engineStatus: engineStatus || run.status };
+}
+
+/** Cheap ownership probe for callers that only need a yes/no (external API). */
+export function canViewRun(runId, viewer = INTERNAL) {
+  if (viewer === INTERNAL) return true;
+  const run = stmts.getRunById.get(runId);
+  if (!run) return false;
+  return canView(viewer, run.owner_user_id);
 }
 
 function parseEventStreamRow(row) {
@@ -631,12 +695,21 @@ function derivePendingQuestionFromEvents(events) {
   return latestQuestion;
 }
 
-export function getRunRealtimeSnapshot(runId, options = {}) {
-  const run = getRunStatus(runId);
+// Dual-mode 2nd argument for backward compatibility with both call shapes:
+//   (runId, { eventsLimit })   — console snapshot route (options object)
+//   (runId, viewer)            — tenancy-scoped callers (user object / id)
+// A plain user object carries no eventsLimit key, so it lands in `viewer`.
+export function getRunRealtimeSnapshot(runId, optionsOrViewer = {}) {
+  const isOptions = optionsOrViewer && typeof optionsOrViewer === 'object' && !Array.isArray(optionsOrViewer)
+    && (optionsOrViewer.eventsLimit !== undefined || optionsOrViewer.viewer !== undefined);
+  const options = isOptions ? optionsOrViewer : {};
+  const viewer = isOptions ? (optionsOrViewer.viewer ?? INTERNAL) : (optionsOrViewer ?? INTERNAL);
+  const run = getRunStatus(runId, viewer);
   if (!run) return null;
   const liveStatus = getStatus(runId) || run.status;
   const hasActiveEngineRun = !TERMINAL_STATUSES.has(liveStatus)
     && !PAUSED_STATUSES.has(liveStatus)
+    && !QUEUED_STATUSES.has(liveStatus)
     && hasRun(runId);
   const limit = clampSnapshotEventsLimit(options.eventsLimit);
   const { events, total } = getRunEventStreamTail(runId, limit);
@@ -666,8 +739,9 @@ export function getRunRealtimeSnapshot(runId, options = {}) {
   };
 }
 
-// Stop a running diagnosis
-export function stopDiagnosis(runId) {
+// Stop a running diagnosis. A run the caller may not see is a 404 (the route
+// answers it identically to an unknown id) — stopping is an act on the run.
+export function stopDiagnosis(runId, viewer = INTERNAL) {
   const run = stmts.getRunById.get(runId);
   if (!run) {
     const err = new Error(`Run not found: ${runId}`);
@@ -675,7 +749,15 @@ export function stopDiagnosis(runId) {
     err.code = 'RUN_NOT_FOUND';
     throw err;
   }
-  const stoppable = new Set(['pending', 'running', 'awaiting_input']);
+  // A run the caller may not see is a 404 (the route answers it identically to
+  // an unknown id) — stopping is an act on the run.
+  if (!canView(viewer, run.owner_user_id)) {
+    const err = new Error('Run not found');
+    err.status = 404;
+    err.code = 'NOT_FOUND';
+    throw err;
+  }
+  const stoppable = new Set(['pending', 'queued', 'running', 'awaiting_input']);
   if (!stoppable.has(run.status)) {
     const err = new Error(`Run is already ${run.status}: ${runId}`);
     err.status = 409;
@@ -686,6 +768,9 @@ export function stopDiagnosis(runId) {
   // Close on every engine — each is a no-op when the runId is unknown.
   closeAllEngines(runId);
   questionSessions.delete(runId);
+  // A stopped run must not stay in the FIFO: the drain would otherwise start a
+  // cancelled run as soon as a slot frees.
+  const wasQueued = executionQueue.remove(runId);
   updateStatus(runId, 'stopped');
   stmts.updateRunStatus.run({ runId, status: 'stopped' });
   emit(runId, { type: 'status', data: { status: 'stopped', runId } });
@@ -693,6 +778,8 @@ export function stopDiagnosis(runId) {
   // Safety net: an engine that never emits a result must not pin the run in
   // stoppingRuns forever. The stream-end cleanup normally clears it first.
   setTimeout(() => stoppingRuns.delete(runId), 60_000).unref?.();
+  // Stopping an idle 'running' row frees its slot without a stream end.
+  if (!wasQueued) drainExecutionQueue();
   return { runId, status: 'stopped' };
 }
 
@@ -738,11 +825,13 @@ function missingRequiredArtifacts(runDir, analysisIntent, harness = null) {
 // Send a chat message — resume the run's own session, or rebuild with the same
 // harness/intent/data when that engine cannot resume across processes.
 //
-// Return contract: `false` = run missing (the route answers 404); otherwise
-// `{ mode: 'session' | 'rebuild', reason? }` so callers can report honestly.
-export async function sendChatMessage(runId, message, options = {}) {
+// Return contract: `false` = run missing or not visible to the caller (the
+// route answers 404); otherwise `{ mode: 'session' | 'rebuild', reason? }` so
+// callers can report honestly.
+export async function sendChatMessage(runId, message, viewer = INTERNAL) {
   const run = stmts.getRunById.get(runId);
   if (!run) return false;
+  if (!canView(viewer, run.owner_user_id)) return false;
   // Soft-deleted runs must not be chatted into (they may be purged at any time).
   if (run.deleted_at) {
     const err = new Error(`Run ${runId} was deleted — restore it before continuing`);
@@ -753,10 +842,10 @@ export async function sendChatMessage(runId, message, options = {}) {
   // B0.4: never let a chat cross harnesses — the stored session id must belong
   // to the run's engine or the resume would look up a missing session.
   assertSessionHarnessMatch(run);
-  // A pending run has no analysis to continue; chatting into it would rebuild
-  // a pipeline that was never started. Execute it first.
-  if (run.status === 'pending') {
-    const err = new Error(`Run ${runId} is still pending — execute it before chatting`);
+  // A pending/queued run has no analysis to continue; chatting into it would
+  // rebuild a pipeline that was never started. Execute it first.
+  if (run.status === 'pending' || run.status === 'queued') {
+    const err = new Error(`Run ${runId} is still ${run.status} — execute it before chatting`);
     err.status = 400;
     err.code = 'RUN_PENDING';
     throw err;
@@ -787,7 +876,9 @@ export async function sendChatMessage(runId, message, options = {}) {
 
   const engine = resolveEngine(run.harness);
   closeAllEngines(runId);
-  executingRuns.delete(runId);
+  // The diagnosis execution for this run is over (its query was just closed) —
+  // release the slot like any other execution end so a queued run can start.
+  releaseExecutionSlot(runId);
   activeChatTurns.add(runId);
   try {
     if (!hasRun(runId)) createRun(runId);
@@ -990,12 +1081,14 @@ async function consumeSessionChat(runId, query, sessionId, engine) {
   }
 }
 
-// Continue / retry a failed or stopped run
+// Continue / retry a failed or stopped run. `options.viewer` (default:
+// INTERNAL) gates the act: a run the caller may not see is a 404.
 export function continueDiagnosis(runId, followUpMessage, options = {}) {
   const run = stmts.getRunById.get(runId);
-  if (!run) {
+  if (!run || !canView(options.viewer ?? INTERNAL, run.owner_user_id)) {
     const err = new Error('Run not found');
     err.status = 404;
+    err.code = 'NOT_FOUND';
     throw err;
   }
   // Allow continue for ANY non-pending status
@@ -1007,6 +1100,8 @@ export function continueDiagnosis(runId, followUpMessage, options = {}) {
 
   // Clear execution guard from previous run (enables re-entry)
   executingRuns.delete(runId);
+  // A run that leaves the queued state must not keep a FIFO slot either.
+  executionQueue.remove(runId);
 
   // Close any existing query — we're starting fresh
   closeAllEngines(runId);
@@ -1047,10 +1142,13 @@ export function continueDiagnosis(runId, followUpMessage, options = {}) {
 // Track active question sessions (child is SIGSTOPPED waiting for user answer)
 const questionSessions = new Map();
 
-// Submit answer to AskUserQuestion — write tool_result to stdin + SIGCONT the paused child
-export function answerQuestion(runId, questionId, toolUseId, answers) {
+// Submit answer to AskUserQuestion — write tool_result to stdin + SIGCONT the paused child.
+// `viewer` gates the act (a foreign run answers exactly like a finished one).
+export function answerQuestion(runId, questionId, toolUseId, answers, viewer = INTERNAL) {
   const entry = questionSessions.get(runId);
   if (!entry) return false;
+  const run = stmts.getRunById.get(runId);
+  if (run && !canView(viewer, run.owner_user_id)) return false;
 
   const answerText = Object.entries(answers)
     .map(([q, a]) => {
@@ -1176,7 +1274,6 @@ async function executeDiagnosis(runId, run, isRetry = false) {
     }
   }
 
-  const hitlTimeoutMs = secConfig.hitl_auto_deny_seconds * 1000;
   let shouldCloseRun = true;
   let pausedForQuestion = false;
   let resumeSessionId = null;
@@ -1210,9 +1307,11 @@ async function executeDiagnosis(runId, run, isRetry = false) {
       sceneName: run.scene_name,
       runId,
       maxTurns: run.max_turns,
-      // No timeout_minutes DB column exists — the requested budget lives in run
-      // meta (setMeta at create time). Reading only the row kept every run
-      // pinned at the engine default (120min) regardless of timeoutMinutes.
+      // Prefer the persisted per-run value (diagnostic_runs.timeout_minutes,
+      // written at create — survives /execute, Continue and queued drains);
+      // fall back to the in-process meta for runs created before the column
+      // existed. NULL/0 falls through to the harness config chain inside each
+      // engine client.
       timeoutMinutes: run.timeout_minutes ?? meta.timeoutMinutes,
       reportLanguage: run.report_language || diagConfig.default_language,
       followUpMessage,
@@ -1272,14 +1371,15 @@ async function executeDiagnosis(runId, run, isRetry = false) {
           } else if (block.type === 'tool_use') {
             stmts.insertLog.run({ runId, role: 'assistant', content: JSON.stringify(block.input), messageType: 'tool_use', toolName: block.name });
 
-            // HITL: dangerous Bash commands
+            // Dangerous Bash command — informational notice only. There is no
+            // interactive approval channel: with the SDK and
+            // bypassPermissions the command is auto-approved, so the event
+            // exists purely for the frontend to render a risk notice. Nothing
+            // waits on a user response, and there is no timeout to enforce.
             if (block.name === 'Bash' && block.input?.command) {
               const danger = isDangerousCommand(block.input.command);
               if (danger) {
-                const hitlId = `hitl_${runId}_${++hitlSeq}`;
-                emit(runId, { type: 'hitl_request', data: { hitlId, runId, command: block.input.command, riskLevel: danger.level, riskDesc: danger.desc, dangerMatch: danger.match, toolUseId: block.id } });
-                // With SDK and bypassPermissions, dangerous commands are auto-allowed
-                // HITL approval is informational in SDK mode; auto-deny after timeout
+                emit(runId, { type: 'hitl_request', data: { hitlId: `hitl_${runId}_${block.id}`, runId, command: block.input.command, riskLevel: danger.level, riskDesc: danger.desc, dangerMatch: danger.match, toolUseId: block.id } });
               }
             }
 
@@ -1484,7 +1584,8 @@ async function executeDiagnosis(runId, run, isRetry = false) {
         // (mock/in-process, resident RPC) keep their stream open afterwards, so
         // waiting for stream end left execution promises and the chat-turn lock
         // alive forever. Stop consuming here; the code after the loop settles
-        // the run (status already persisted above).
+        // the run (status already persisted above) and frees the execution
+        // slot — a slot held by a finished run would starve every queued one.
         break;
       } else if (parsed.type === 'stream_event') {
         const ev = parsed.event;
@@ -1503,10 +1604,14 @@ async function executeDiagnosis(runId, run, isRetry = false) {
     }
 
     // Stream ended
+    // Stream ended
     executingRuns.delete(runId);
     stoppingRuns.delete(runId);
     activeChatTurns.delete(runId);
-    // Kill the engine process NOW. A finished run's engine (OMP RPC in
+    // Close the run's query on every engine: on a natural end this releases
+    // per-engine registry entries (activeQueries) that would otherwise linger
+    // until the runId is reused; on a question pause the query was already
+    // closed, so this is a no-op. A finished run's engine (OMP RPC in
     // particular) keeps its session file locked until it exits; with only the
     // delayed closeRun, a follow-up chat's resume hit OMP's cross-process
     // lock and retried forever with no events. closeRun (in-memory cleanup)
@@ -1516,6 +1621,7 @@ async function executeDiagnosis(runId, run, isRetry = false) {
     if (shouldCloseRun) {
       setTimeout(() => closeRun(runId), engConfig.close_run_delay_seconds * 1000);
     }
+    releaseExecutionSlot(runId);
 
   } catch (err) {
     executingRuns.delete(runId);
@@ -1526,6 +1632,7 @@ async function executeDiagnosis(runId, run, isRetry = false) {
       questionSessions.delete(runId);
       logger.info(`Run ${runId} closed after explicit stop (engine error suppressed: ${err.message})`, { context: 'Diagnosis', runId });
       setTimeout(() => closeRun(runId), engConfig.close_run_delay_seconds * 1000);
+      releaseExecutionSlot(runId);
       return;
     }
     const errorMessage = formatResumeError(err, runId, resumeSessionId);
@@ -1538,8 +1645,48 @@ async function executeDiagnosis(runId, run, isRetry = false) {
     logger.error(`Diagnosis execution error for run ${runId}: ${err.message}`, { context: 'Diagnosis', runId });
     emit(runId, { type: 'status', data: { status: 'failed', runId, error: tagged.text, provider_error: tagged.category?.code || null } });
     emit(runId, { type: 'error', data: { status: 'failed', runId, error: tagged.text, provider_error: tagged.category?.code || null } });
+    // The engine query is NOT closed by a crashed stream — close it on every
+    // engine so a dead query cannot keep per-engine registries alive.
+    closeAllEngines(runId);
     setTimeout(() => closeRun(runId), engConfig.close_run_delay_seconds * 1000);
+    // Terminal state (failed) recorded above — the slot is free, admit the
+    // next FIFO run.
+    releaseExecutionSlot(runId);
   }
+}
+
+/**
+ * Start waiting runs while capacity is free — FIFO. Called whenever an
+ * executing run releases its slot. A dequeued run goes through the exact same
+ * execution path as a direct start (executeDiagnosis).
+ */
+function drainExecutionQueue() {
+  const max = resolveMaxConcurrentRuns();
+  while (executionQueue.size > 0 && executingRuns.size < max) {
+    const nextRunId = executionQueue.dequeue();
+    if (!nextRunId || executingRuns.has(nextRunId)) continue;
+    const nextRun = stmts.getRunById.get(nextRunId);
+    if (!nextRun || nextRun.status !== 'queued') {
+      // Stopped / expired / deleted while waiting — never start it.
+      logger.warn(`Queued run ${nextRunId} is no longer queued (status: ${nextRun ? nextRun.status : 'missing'}) — skipped`, { context: 'Diagnosis', runId: nextRunId });
+      continue;
+    }
+    logger.info(`Execution slot free — starting queued run ${nextRunId}`, { context: 'Diagnosis', runId: nextRunId });
+    try {
+      // Synchronous until the first await, so the slot is accounted for before
+      // the next loop iteration re-checks the capacity.
+      executeDiagnosis(nextRunId, nextRun);
+    } catch (e) {
+      executingRuns.delete(nextRunId);
+      logger.error(`Failed to start queued run ${nextRunId}: ${e.message}`, { context: 'Diagnosis', runId: nextRunId });
+    }
+  }
+}
+
+/** Release one execution slot and admit the next queued run (if any). */
+function releaseExecutionSlot(runId) {
+  executingRuns.delete(runId);
+  drainExecutionQueue();
 }
 export function snapshotWorkspaceDirs() {
   if (!existsSync(WORKSPACE_DIR)) return new Set();
@@ -1605,7 +1752,7 @@ async function findLatestRunDir(sceneName, knownDirs = new Set()) {
   return null;
 }
 
-export { hitlRequests, executeDiagnosis };
+export { executeDiagnosis };
 
 // ── SSE + streaming helpers ──
 
@@ -1658,12 +1805,56 @@ export function subscribeSSE(runId, callback) {
   });
 }
 
-export function triggerDiagnosis(runId) {
+export function triggerDiagnosis(runId, viewer = INTERNAL) {
   const run = stmts.getRunById.get(runId);
-  if (!run) { const err = new Error('Run not found'); err.status = 404; throw err; }
-  if (run.status !== 'pending') { const err = new Error(`Run is not pending (status: ${run.status})`); err.status = 400; throw err; }
-  const existingQuery = getChild(runId);
-  if (existingQuery && !existingQuery.closed) { const err = new Error('Run is already executing'); err.status = 409; throw err; }
+  if (!run || !canView(viewer, run.owner_user_id)) {
+    const err = new Error('Run not found');
+    err.status = 404;
+    err.code = 'NOT_FOUND';
+    throw err;
+  }
+
+  // Already waiting in the FIFO — a repeated /execute is idempotent and must
+  // not consume a second slot or lose the run's position.
+  const isQueuedRow = run.status === 'queued';
+  if (isQueuedRow && executionQueue.has(runId)) {
+    return {
+      runId,
+      status: 'queued',
+      queuePosition: executionQueue.positionOf(runId),
+      maxConcurrentRuns: resolveMaxConcurrentRuns(),
+    };
+  }
+
+  // A queued row with no FIFO entry is an orphan (the process restarted while
+  // it was waiting) — /execute re-admits it instead of refusing or hanging.
+  if (!isQueuedRow && run.status !== 'pending') { const err = new Error(`Run is not pending (status: ${run.status})`); err.status = 400; throw err; }
+  if (!isQueuedRow) {
+    const existingQuery = getChild(runId);
+    if (existingQuery && !existingQuery.closed) { const err = new Error('Run is already executing'); err.status = 409; throw err; }
+  }
+
+  // Concurrency governance (P0-5): at most MAX_CONCURRENT_RUNS engine
+  // executions run at once. A run that would exceed the cap is stored as
+  // 'queued' and started FIFO by drainExecutionQueue() when a slot frees.
+  const max = resolveMaxConcurrentRuns();
+  if (executingRuns.size >= max) {
+    stmts.updateRunStatus.run({ runId, status: 'queued' });
+    updateStatus(runId, 'queued');
+    const queuePosition = executionQueue.enqueue(runId);
+    logger.info(`Concurrency cap reached (${executingRuns.size}/${max}) — run ${runId} queued at position ${queuePosition}`, { context: 'Diagnosis', runId });
+    emit(runId, {
+      type: 'status',
+      data: { status: 'queued', runId, queuePosition, maxConcurrentRuns: max },
+    });
+    emit(runId, {
+      type: 'system',
+      subtype: 'queued',
+      data: { message: `并发执行上限（${max}）已满，本运行进入等待队列（第 ${queuePosition} 位），有运行结束后自动开始。` },
+    });
+    return { runId, status: 'queued', queuePosition, maxConcurrentRuns: max };
+  }
+
   executeDiagnosis(runId, run);
   return { runId, status: 'running' };
 }
@@ -1674,9 +1865,14 @@ export function triggerDiagnosis(runId) {
 // output into the run's event stream.
 const activeEnhancements = new Set();
 
-export async function triggerEnhancement(runId) {
+export async function triggerEnhancement(runId, viewer = INTERNAL) {
   const run = stmts.getRunById.get(runId);
-  if (!run) { const err = new Error('Run not found'); err.status = 404; throw err; }
+  if (!run || !canView(viewer, run.owner_user_id)) {
+    const err = new Error('Run not found');
+    err.status = 404;
+    err.code = 'NOT_FOUND';
+    throw err;
+  }
   if (run.status !== 'completed') { const err = new Error(`Enhancement requires a completed run (status: ${run.status})`); err.status = 400; throw err; }
   if (!run.workspace_path) { const err = new Error('Run has no workspace directory recorded'); err.status = 400; throw err; }
   if (activeEnhancements.has(runId)) { const err = new Error('Enhancement already running for this run'); err.status = 409; throw err; }
@@ -1742,8 +1938,8 @@ export async function triggerEnhancement(runId) {
   return { runId, status: 'running', phase: 'enhancement' };
 }
 
-export function startStream(runId) {
-  const run = stmts.getRunById.get(runId);
+export function startStream(runId, viewer = INTERNAL) {
+  const run = getRunStatus(runId, viewer);
   if (!run) return null;
   const currentStatus = getStatus(runId) || run.status;
   if ((currentStatus === 'completed' || currentStatus === 'failed' || currentStatus === 'stopped') && !hasRun(runId)) {
@@ -1752,8 +1948,8 @@ export function startStream(runId) {
   return { run, currentStatus, isFinished: false };
 }
 
-export async function getSessionContent(runId) {
-  const run = stmts.getRunById.get(runId);
+export async function getSessionContent(runId, viewer = INTERNAL) {
+  const run = getRunStatus(runId, viewer);
   if (!run) {
     const err = new Error('Run not found');
     err.status = 404;

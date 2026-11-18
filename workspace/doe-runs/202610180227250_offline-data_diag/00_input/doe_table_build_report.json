@@ -1,0 +1,262 @@
+{
+  "schema": "doe.table-build/1",
+  "snapshot": "D:\\codes\\myskills\\industrial-deep-diagnostic\\data\\aw-snapshots\\exp-daqexp-20261018102646-fc7c64",
+  "manifest_export_id": "daqexp-20261018102646-fc7c64",
+  "line": "注塑验收线(模拟4036)",
+  "product": "注塑验收线(模拟4036)·默认产品",
+  "recipe": {
+    "name": "注塑基线配方",
+    "version": 3
+  },
+  "node_columns": {
+    "dn-0d8d535b": {
+      "name": "制品重量",
+      "unit": "g",
+      "column": "part_weight_g",
+      "role": "response"
+    },
+    "dn-e2b16251": {
+      "name": "成型周期",
+      "unit": "s",
+      "column": "cycle_time_s",
+      "role": "response"
+    },
+    "dn-7e7e7d41": {
+      "name": "熔体温度PV",
+      "unit": "℃",
+      "column": "melt_temp_c",
+      "role": "response"
+    },
+    "dn-7c63393d": {
+      "name": "注射压力PV",
+      "unit": "bar",
+      "column": "injection_pressure_bar",
+      "role": "response"
+    },
+    "dn-272e0703": {
+      "name": "熔体压力PV",
+      "unit": "bar",
+      "column": "melt_pressure_bar",
+      "role": "context_only"
+    },
+    "dn-c24c8256": {
+      "name": "模具温度PV",
+      "unit": "℃",
+      "column": "mold_temp_c",
+      "role": "context_only"
+    },
+    "dn-083b4007": {
+      "name": "冷却水温PV",
+      "unit": "℃",
+      "column": "coolant_temp_c",
+      "role": "context_only"
+    }
+  },
+  "block_seconds": 5.2,
+  "settling_guard_s": 180,
+  "balance_k_per_condition": 37,
+  "n_rows": 185,
+  "design": "2^2 full factorial (A x B) + 1 center condition, run sequentially",
+  "pre_experiment_baseline": {
+    "n_shots": 23,
+    "part_weight_g_mean": 31.2435,
+    "part_weight_g_sd": 0.0374,
+    "melt_temp_c_mean": 246.7179,
+    "injection_pressure_bar_mean": 51.7804
+  },
+  "conditions": [
+    {
+      "condition": "C1",
+      "levels": {
+        "hold_pressure_sp_bar": 45,
+        "barrel_zone1_temp_sp_c": 240
+      },
+      "window": {
+        "start": "2026-10-18T01:54:21.268Z",
+        "end": "2026-10-18T01:58:21.274Z"
+      },
+      "factor_step_vs_previous": false,
+      "guard_discarded_s": 0,
+      "n_shots_raw_in_window": 46,
+      "n_shots_after_guard": 46,
+      "n_shots_used": 37,
+      "used_window": {
+        "from": "2026-10-18T01:55:10.942000+00:00",
+        "to": "2026-10-18T01:58:18.866000+00:00"
+      },
+      "settled_means": {
+        "part_weight_g": 31.2473,
+        "cycle_time_s": 15.3,
+        "melt_temp_c": 246.6806,
+        "injection_pressure_bar": 51.8635
+      },
+      "settled_sd": {
+        "part_weight_g": 0.044,
+        "cycle_time_s": 0.0,
+        "melt_temp_c": 0.1719,
+        "injection_pressure_bar": 0.5778
+      },
+      "raw_window_means": {
+        "part_weight_g": 31.247,
+        "melt_temp_c": 246.7054,
+        "injection_pressure_bar": 51.9087
+      }
+    },
+    {
+      "condition": "C2",
+      "levels": {
+        "hold_pressure_sp_bar": 51,
+        "barrel_zone1_temp_sp_c": 240
+      },
+      "window": {
+        "start": "2026-10-18T01:58:21.274Z",
+        "end": "2026-10-18T02:04:33.364Z"
+      },
+      "factor_step_vs_previous": true,
+      "guard_discarded_s": 180,
+      "n_shots_raw_in_window": 71,
+      "n_shots_after_guard": 37,
+      "n_shots_used": 37,
+      "used_window": {
+        "from": "2026-10-18T02:01:22.191000+00:00",
+        "to": "2026-10-18T02:04:30.227000+00:00"
+      },
+      "settled_means": {
+        "part_weight_g": 31.56,
+        "cycle_time_s": 15.3,
+        "melt_temp_c": 246.6667,
+        "injection_pressure_bar": 51.9541
+      },
+      "settled_sd": {
+        "part_weight_g": 0.0339,
+        "cycle_time_s": 0.0,
+        "melt_temp_c": 0.2231,
+        "injection_pressure_bar": 0.5018
+      },
+      "raw_window_means": {
+        "part_weight_g": 31.56,
+        "melt_temp_c": 246.6667,
+        "injection_pressure_bar": 51.9541
+      }
+    },
+    {
+      "condition": "C3",
+      "levels": {
+        "hold_pressure_sp_bar": 51,
+        "barrel_zone1_temp_sp_c": 250
+      },
+      "window": {
+        "start": "2026-10-18T02:04:33.364Z",
+        "end": "2026-10-18T02:11:51.522Z"
+      },
+      "factor_step_vs_previous": true,
+      "guard_discarded_s": 180,
+      "n_shots_raw_in_window": 84,
+      "n_shots_after_guard": 49,
+      "n_shots_used": 37,
+      "used_window": {
+        "from": "2026-10-18T02:08:41.233000+00:00",
+        "to": "2026-10-18T02:11:49.066000+00:00"
+      },
+      "settled_means": {
+        "part_weight_g": 31.537,
+        "cycle_time_s": 15.3,
+        "melt_temp_c": 249.373,
+        "injection_pressure_bar": 51.1144
+      },
+      "settled_sd": {
+        "part_weight_g": 0.0381,
+        "cycle_time_s": 0.0,
+        "melt_temp_c": 0.2547,
+        "injection_pressure_bar": 0.6162
+      },
+      "raw_window_means": {
+        "part_weight_g": 31.5371,
+        "melt_temp_c": 249.284,
+        "injection_pressure_bar": 51.2344
+      }
+    },
+    {
+      "condition": "C4",
+      "levels": {
+        "hold_pressure_sp_bar": 45,
+        "barrel_zone1_temp_sp_c": 250
+      },
+      "window": {
+        "start": "2026-10-18T02:11:51.522Z",
+        "end": "2026-10-18T02:18:03.592Z"
+      },
+      "factor_step_vs_previous": true,
+      "guard_discarded_s": 180,
+      "n_shots_raw_in_window": 71,
+      "n_shots_after_guard": 37,
+      "n_shots_used": 37,
+      "used_window": {
+        "from": "2026-10-18T02:14:51.676000+00:00",
+        "to": "2026-10-18T02:17:59.270000+00:00"
+      },
+      "settled_means": {
+        "part_weight_g": 31.2208,
+        "cycle_time_s": 15.3,
+        "melt_temp_c": 249.3599,
+        "injection_pressure_bar": 51.5428
+      },
+      "settled_sd": {
+        "part_weight_g": 0.0482,
+        "cycle_time_s": 0.0,
+        "melt_temp_c": 0.2097,
+        "injection_pressure_bar": 0.3883
+      },
+      "raw_window_means": {
+        "part_weight_g": 31.2208,
+        "melt_temp_c": 249.3599,
+        "injection_pressure_bar": 51.5428
+      }
+    },
+    {
+      "condition": "C5",
+      "levels": {
+        "hold_pressure_sp_bar": 48,
+        "barrel_zone1_temp_sp_c": 245
+      },
+      "window": {
+        "start": "2026-10-18T02:18:03.592Z",
+        "end": "2026-10-18T02:24:15.676Z"
+      },
+      "factor_step_vs_previous": true,
+      "guard_discarded_s": 180,
+      "n_shots_raw_in_window": 72,
+      "n_shots_after_guard": 37,
+      "n_shots_used": 37,
+      "used_window": {
+        "from": "2026-10-18T02:21:07.322000+00:00",
+        "to": "2026-10-18T02:24:15.474000+00:00"
+      },
+      "settled_means": {
+        "part_weight_g": 31.3897,
+        "cycle_time_s": 15.3,
+        "melt_temp_c": 248.0023,
+        "injection_pressure_bar": 51.5532
+      },
+      "settled_sd": {
+        "part_weight_g": 0.0425,
+        "cycle_time_s": 0.0,
+        "melt_temp_c": 0.2507,
+        "injection_pressure_bar": 0.4868
+      },
+      "raw_window_means": {
+        "part_weight_g": 31.3897,
+        "melt_temp_c": 248.0023,
+        "injection_pressure_bar": 51.5532
+      }
+    }
+  ],
+  "zero_variance_responses": [
+    "cycle_time_s (single value 15.3 s in every sample of the snapshot)"
+  ],
+  "notes": [
+    "A shot = one part_weight_g sample; 2 s process signals are averaged inside each shot block.",
+    "Settling guard only applies to conditions whose factor levels changed vs the previous condition.",
+    "Each condition was run once; shots inside a condition are repeated measures (pseudo-replication), run-order is not randomized."
+  ]
+}

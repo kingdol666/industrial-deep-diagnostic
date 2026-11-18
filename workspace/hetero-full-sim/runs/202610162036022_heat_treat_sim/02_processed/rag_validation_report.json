@@ -1,0 +1,61 @@
+{
+  "run_id": "202610162036022_heat_treat_sim",
+  "generated_at": "2026-10-17T05:00:00+08:00",
+  "rag_engine_reachable": false,
+  "rag_degraded_path": "parameter_to_physics.json + heat-treatment first principles (01_ontology/ontology.json provenance.rag)",
+  "validation_queue_source": "00_input/rag_deep_understanding.json → r2_knowledge_data_alignment.validation_queue",
+  "claims_validated": [
+    {
+      "claim": "FUR-Z3-TEMP 与 LAB-HRC 的滞后互相关（含滞后补偿）",
+      "status": "UNTESTABLE",
+      "reason": "LAB-HRC 未并入锚定主表（raw/L1_lab_hardness_2h.csv，2h 粒度，120 行），与 10-min 锚定行无可信时间对齐；不做任何伪造对齐。",
+      "method": "N/A",
+      "evidence": ["00_input/input_manifest.json hetero join excludes LAB-HRC", "01_ontology/ontology.json signals.inspection_signals[0]（role=target, 仅外部参照）"],
+      "recommended_followup": "将 2h 硬度表按时间锚并入锚定主表后执行滞后互相关（预计硬度对均热温度存在小时级滞后）。"
+    },
+    {
+      "claim": "FUR-SPEED 与 FUR-OUT-TEMP 的负相关方向验证（t_res=L/v 机理）",
+      "status": "INDETERMINATE",
+      "reason": "实测 r=-0.0125（p=0.645, n=1367，稳态），最优滞后 r=-0.0337 亦不显著；FUR-SPEED 极差仅 11.826–12.157（±1.4%，236 个唯一值）→ 自变量方差不足，检验功效低下，不能支持也不能反驳负相关方向。",
+      "method": "稳态 Pearson + 滞后 CCF（stats/run.py --time-col 时间 --max-lag 20）",
+      "evidence": ["02_processed/validate_report.json validations (FUR-SPEED→FUR-OUT-TEMP)", "02_processed/expert_findings.json confounder_probes.speed"],
+      "quantified_attenuation": "N/A（原始相关即不显著）"
+    },
+    {
+      "claim": "HX-MAP ASYM-LR 与 PROF EDGE-*-DEV 的横向偏差传导",
+      "status": "VALIDATED",
+      "reason": "稳态 r(ASYM-LR, EDGE-L-DEV)=0.6807（p≈0, n=1367, lag −6 步≈60min）；Spearman ρ=0.588（无强背离）；去趋势 r=0.766（衰减 −12.5%，非趋势混杂）；维护窗内 B 段 r=0.8814；对 EDGE-R-DEV r=-0.3415（lag 20 步，物理上左右两侧对不对称的响应符号相反，方向自洽）。事件窗水平偏移（ASYM +2.06，EDGE-R-DEV −1.24 °C）与传导方向一致。",
+      "method": "稳态相关 + 去趋势 + 滞后 CCF + 分段内相关（v6.4/v6.7）",
+      "evidence": ["02_processed/validate_report.json", "02_processed/expert_findings.json (within_segment_pearson.B_maintenance_window.masym~pedgel=0.8814)"]
+    },
+    {
+      "claim": "EVT-MAINTENANCE/HEATUP 事件窗内炉温偏离显著性",
+      "status": "PARTIALLY_VALIDATED",
+      "reason": "事件 ±12h 窗内瞬时偏离轻微且未达“事件驱动响应”标准：检修窗 Z3 均值 880.221→879.528（Δ−0.693 °C）、升温窗 870.876→871.994（Δ+1.118 °C）；而真正的显著偏离是事件之间的平台下移（维护窗段均值 −4.925 °C，见 change-point 窗 02-07 00:20–02-08 23:40 均值 546.36 vs 549.90 °C）。即：事件时点本身不显著，事件之间的慢性掉温才显著。",
+      "method": "事件锚 ±12h 窗对比（06_scripts/expert_analysis.py）+ PELT/共识变点",
+      "evidence": ["02_processed/expert_findings.json event_response_windows_12h", "02_processed/validate_report.json summary.change_point_detection"]
+    }
+  ],
+  "additional_ontology_validation": [
+    {
+      "claim": "FUR-Z3-TEMP→FUR-OUT-TEMP 强因果（ontology relationship, predicted linear, lag minutes）",
+      "status": "VALIDATED",
+      "evidence": "r=0.7419；最优滞后 +4 步=+40 min（滞后窗口一致 consistent=true）；方向为正（升温→升温）与热平衡机理一致。"
+    },
+    {
+      "claim": "出厂温度应低于炉温（升温路径物理）",
+      "status": "VALIDATED",
+      "evidence": "mean(FUR-OUT-TEMP)=549.30 °C << mean(FUR-Z3-TEMP)=878.42 °C（全表）。"
+    },
+    {
+      "claim": "一致性检查：在线剖面均值与 DCS 出料测温同量级同趋势",
+      "status": "VALIDATED_WITH_LEVEL_BIAS",
+      "evidence": "快照级 PROF-MEAN↔FUR-OUT-TEMP r=0.7044（Spearman 0.483）；水平偏移同窗；绝对量级差约 30 °C（不同测量通道/位置，量级差异属物理位置差而非偏差）。"
+    },
+    {
+      "claim": "FUR-PRES→IMG DARKFRAC 弱因果（氧化通道，threshold 型）",
+      "status": "UNTESTABLE",
+      "evidence": "DARKFRAC 全表恒 0（unique=1）→ 目标通道无观测；相关性无法定义。"
+    }
+  ]
+}

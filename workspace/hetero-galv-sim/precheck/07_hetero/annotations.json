@@ -1,0 +1,95 @@
+[
+  {
+    "event_ts": "2026-02-09 08:00:00",
+    "recorded_ts": null,
+    "text": "接班：锌锅温度与镀层克重正常，线速 100m/min",
+    "tags": [],
+    "source_id": "text-l1operatornotes",
+    "source_sha256": "sha256:9f165a27b97209bd5d6331cdb2689afb95f62c0e50f024e5e749fffc75c4f81d",
+    "line_no": 1,
+    "hour_of_day": 8.0,
+    "shift_bucket": "A"
+  },
+  {
+    "event_ts": "2026-02-09 20:30:00",
+    "recorded_ts": null,
+    "text": "右侧气刀附近听到异响，镀层目视右边缘略厚，已记录",
+    "tags": [],
+    "source_id": "text-l1operatornotes",
+    "source_sha256": "sha256:9f165a27b97209bd5d6331cdb2689afb95f62c0e50f024e5e749fffc75c4f81d",
+    "line_no": 2,
+    "hour_of_day": 20.5,
+    "shift_bucket": "B"
+  },
+  {
+    "event_ts": "2026-02-10 04:10:00",
+    "recorded_ts": null,
+    "text": "右边缘镀层持续偏厚，怀疑右侧气刀唇口结渣，通知工艺",
+    "tags": [],
+    "source_id": "text-l1operatornotes",
+    "source_sha256": "sha256:9f165a27b97209bd5d6331cdb2689afb95f62c0e50f024e5e749fffc75c4f81d",
+    "line_no": 3,
+    "hour_of_day": 4.166667,
+    "shift_bucket": "C"
+  },
+  {
+    "event_ts": "2026-02-10 16:40:00",
+    "recorded_ts": null,
+    "text": "计划清理右侧气刀，降速准备",
+    "tags": [
+      {
+        "tag": "清洗/清理",
+        "tag_slug": "CLEANING",
+        "method": "lexicon",
+        "matched_term": "清理",
+        "model_derived": false
+      }
+    ],
+    "source_id": "text-l1operatornotes",
+    "source_sha256": "sha256:9f165a27b97209bd5d6331cdb2689afb95f62c0e50f024e5e749fffc75c4f81d",
+    "line_no": 4,
+    "hour_of_day": 16.666667,
+    "shift_bucket": "B"
+  },
+  {
+    "event_ts": "2026-02-10 19:00:00",
+    "recorded_ts": null,
+    "text": "清理右侧气刀唇口结渣完成，升速观察",
+    "tags": [
+      {
+        "tag": "清洗/清理",
+        "tag_slug": "CLEANING",
+        "method": "lexicon",
+        "matched_term": "清理",
+        "model_derived": false
+      }
+    ],
+    "source_id": "text-l1operatornotes",
+    "source_sha256": "sha256:9f165a27b97209bd5d6331cdb2689afb95f62c0e50f024e5e749fffc75c4f81d",
+    "line_no": 5,
+    "hour_of_day": 19.0,
+    "shift_bucket": "B"
+  },
+  {
+    "event_ts": "2026-02-10 23:30:00",
+    "recorded_ts": null,
+    "text": "右边缘镀层恢复正常，克重回到目标窗口",
+    "tags": [],
+    "source_id": "text-l1operatornotes",
+    "source_sha256": "sha256:9f165a27b97209bd5d6331cdb2689afb95f62c0e50f024e5e749fffc75c4f81d",
+    "line_no": 6,
+    "hour_of_day": 23.5,
+    "shift_bucket": "B"
+  },
+  {
+    "event_ts": "2026-02-11 08:30:00",
+    "recorded_ts": null,
+    "text": "交接班：镀层克重与合格率回稳，问题闭环",
+    "tags": [],
+    "source_id": "text-l1operatornotes",
+    "source_sha256": "sha256:9f165a27b97209bd5d6331cdb2689afb95f62c0e50f024e5e749fffc75c4f81d",
+    "line_no": 7,
+    "hour_of_day": 8.5,
+    "shift_bucket": "A"
+  }
+]

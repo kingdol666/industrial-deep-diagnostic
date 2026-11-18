@@ -1,0 +1,26 @@
+{
+  "result_version": "1.0",
+  "campaign_id": "OPT-20261116-001",
+  "round_id": "R002",
+  "trials": [
+    {
+      "trial_id": "R002-T01",
+      "status": "completed",
+      "measurements": {
+        "制品克重PV": [
+          32.291999999999994,
+          32.28,
+          32.282,
+          32.29
+        ]
+      },
+      "measured_at": "2026-11-16T07:01:59.843Z",
+      "operator_note": "AWS/manual execution via governed DCW writes: [{\"name\":\"保压压力SP\",\"from\":64,\"target\":62.536698,\"readback\":62.5,\"anchorId\":\"anc-18bcd027\"},{\"name\":\"保压时间SP\",\"from\":4.5,\"target\":4,\"readback\":4,\"anchorId\":\"anc-009097bd\"},{\"name\":\"保压时间SP\",\"from\":4,\"target\":3.5,\"readback\":3.5,\"anchorId\":\"anc-dd3441c2\"},{\"name\":\"保压时间SP\",\"from\":3.5,\"target\":3.398866,\"readback\":3.4000000953674316,\"anchorId\":\"anc-beea7045\"},{\"name\":\"冷却流量SP\",\"from\":15,\"target\":16,\"readback\":16,\"anchorId\":\"anc-08cf267d\"},{\"name\":\"冷却流量SP\",\"from\":16,\"target\":17,\"readback\":17,\"anchorId\":\"anc-716a91d3\"},{\"name\":\"冷却流量SP\",\"from\":17,\"target\":17.951263,\"readback\":18,\"anchorId\":\"anc-ae5f5940\"},{\"name\":\"料温SP\",\"from\":211,\"target\":208.913543,\"readback\":209,\"anchorId\":\"anc-edc83848\"}]"
+    }
+  ],
+  "environment": {
+    "line_id": "ln-95454c2c",
+    "line_kind": "five-protocol simulator shadow :4052",
+    "executor": "platform admin DCW writes (AWS/manual contract)"
+  }
+}

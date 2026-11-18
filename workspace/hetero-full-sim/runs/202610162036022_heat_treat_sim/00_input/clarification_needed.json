@@ -1,0 +1,39 @@
+{
+  "clarification_status": "AUTO_RESOLVED",
+  "interaction_mode": "auto",
+  "run_mode": "fast",
+  "questions": [],
+  "auto_resolutions": [
+    {
+      "item": "场景与工艺类型",
+      "method": "scene spec",
+      "resolution": "连续热处理线（模拟场景），10 天连续生产",
+      "basis": "00_input/user_context.json"
+    },
+    {
+      "item": "FUR-SPEED / FUR-PRES 单位",
+      "method": "L2 (unit undeclared)",
+      "resolution": "按相对量使用；unit 键省略，不做虚构标定",
+      "basis": "数据与文档均未声明单位"
+    },
+    {
+      "item": "FUR-YIELD 量纲",
+      "method": "L4 (value-domain inference)",
+      "resolution": "按观测域 97.0–99.71 推断为 %",
+      "basis": "锚定表实测取值域"
+    },
+    {
+      "item": "三区设定温度",
+      "method": "L2 (operator record)",
+      "resolution": "880 ℃（2026-02-02 交接班备注）",
+      "basis": "07_hetero/annotations.json"
+    },
+    {
+      "item": "HX 列语义",
+      "method": "contract (authoritative)",
+      "resolution": "40 列全部取自 column_contract.json 确定性映射（37+2EVT+…，零再推断）",
+      "basis": "07_hetero/column_contract.json"
+    }
+  ],
+  "notes": "场景完整指定（模拟），无待澄清问题；所有 FUR-* 基础列语义与物理角色已由场景/物理先验确定。"
+}

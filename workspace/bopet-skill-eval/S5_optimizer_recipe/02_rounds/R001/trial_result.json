@@ -1,0 +1,128 @@
+{
+  "result_version": "1.0",
+  "campaign_id": "OPT-20261014-001",
+  "round_id": "R001",
+  "trials": [
+    {
+      "trial_id": "R001-T01",
+      "status": "completed",
+      "measurements": {
+        "优品率": [
+          97.949,
+          97.641,
+          97.814
+        ]
+      },
+      "measured_at": "2026-10-14T00:00:00Z",
+      "operator_note": "虚拟产线替身回投（演示）"
+    },
+    {
+      "trial_id": "R001-T02",
+      "status": "completed",
+      "measurements": {
+        "优品率": [
+          97.853,
+          97.964,
+          98.193
+        ]
+      },
+      "measured_at": "2026-10-14T00:00:00Z",
+      "operator_note": "虚拟产线替身回投（演示）"
+    },
+    {
+      "trial_id": "R001-T03",
+      "status": "completed",
+      "measurements": {
+        "优品率": [
+          97.948,
+          97.842,
+          98.032
+        ]
+      },
+      "measured_at": "2026-10-14T00:00:00Z",
+      "operator_note": "虚拟产线替身回投（演示）"
+    },
+    {
+      "trial_id": "R001-T04",
+      "status": "completed",
+      "measurements": {
+        "优品率": [
+          98.939,
+          99.148,
+          99.063
+        ]
+      },
+      "measured_at": "2026-10-14T00:00:00Z",
+      "operator_note": "虚拟产线替身回投（演示）"
+    },
+    {
+      "trial_id": "R001-T05",
+      "status": "completed",
+      "measurements": {
+        "优品率": [
+          98.055,
+          97.881,
+          97.985
+        ]
+      },
+      "measured_at": "2026-10-14T00:00:00Z",
+      "operator_note": "虚拟产线替身回投（演示）"
+    },
+    {
+      "trial_id": "R001-T06",
+      "status": "completed",
+      "measurements": {
+        "优品率": [
+          98.304,
+          98.506,
+          98.403
+        ]
+      },
+      "measured_at": "2026-10-14T00:00:00Z",
+      "operator_note": "虚拟产线替身回投（演示）"
+    },
+    {
+      "trial_id": "R001-T07",
+      "status": "completed",
+      "measurements": {
+        "优品率": [
+          98.77,
+          98.922,
+          98.879
+        ]
+      },
+      "measured_at": "2026-10-14T00:00:00Z",
+      "operator_note": "虚拟产线替身回投（演示）"
+    },
+    {
+      "trial_id": "R001-T08",
+      "status": "completed",
+      "measurements": {
+        "优品率": [
+          97.421,
+          97.353,
+          97.025
+        ]
+      },
+      "measured_at": "2026-10-14T00:00:00Z",
+      "operator_note": "虚拟产线替身回投（演示）"
+    },
+    {
+      "trial_id": "R001-T09",
+      "status": "completed",
+      "measurements": {
+        "优品率": [
+          98.171,
+          98.206,
+          98.113
+        ]
+      },
+      "measured_at": "2026-10-14T00:00:00Z",
+      "operator_note": "虚拟产线替身回投（演示）"
+    }
+  ],
+  "ingest_meta": {
+    "source": "manual_csv",
+    "ingested_at": null
+  }
+}

@@ -9,10 +9,25 @@
 import { readdirSync, readFileSync, existsSync, statSync } from 'fs';
 import { join, basename, extname } from 'path';
 import { PROJECT_ROOT } from '../../../../config/loader.mjs';
+import { resolveInside } from '../utils/pathGuard.mjs';
+import { canViewWorkspaceRun } from './files.service.mjs';
+import { INTERNAL } from './tenancy.mjs';
 
 const RUNS_DIR = join(PROJECT_ROOT, 'workspace', 'diagnostic-runs');
 
 // ── helpers ──────────────────────────────────────────────────────────
+
+// Resolve an OMP run name (URL param) to its directory inside RUNS_DIR, or null
+// when it would escape — a bare `join(RUNS_DIR, name)` lets `..\..\data` through.
+// Violations surface through the existing 404 path (never a 500 from a sync
+// handler) and never disclose whether the attempted target exists.
+function safeRunDir(name) {
+  try {
+    return resolveInside(RUNS_DIR, name, { label: 'run name' });
+  } catch {
+    return null;
+  }
+}
 
 function tryReadJson(filePath) {
   try {
@@ -168,10 +183,14 @@ export function ompHealth() {
   };
 }
 
-export function listOmpRuns() {
+// Viewer-scoped (P0-6): OMP run dirs are run-scoped resources — a normal user
+// sees only their own (run dirs with no matching diagnostic_runs row are
+// unowned → admin-only); INTERNAL callers bypass.
+export function listOmpRuns(viewer = INTERNAL) {
   if (!existsSync(RUNS_DIR)) return [];
   const runs = readdirSync(RUNS_DIR, { withFileTypes: true })
     .filter((d) => d.isDirectory() && existsSync(join(RUNS_DIR, d.name, 'run_manifest.json')))
+    .filter((d) => canViewWorkspaceRun(viewer, d.name))
     .map((d) => {
       const dir = join(RUNS_DIR, d.name);
       const manifest = tryReadJson(join(dir, 'run_manifest.json')) || {};
@@ -198,9 +217,10 @@ export function listOmpRuns() {
   return runs;
 }
 
-export function getOmpRun(name) {
-  const runDir = join(RUNS_DIR, name);
-  if (!existsSync(runDir) || !existsSync(join(runDir, 'run_manifest.json'))) return null;
+export function getOmpRun(name, viewer = INTERNAL) {
+  if (!canViewWorkspaceRun(viewer, name)) return null;
+  const runDir = safeRunDir(name);
+  if (!runDir || !existsSync(runDir) || !existsSync(join(runDir, 'run_manifest.json'))) return null;
   const manifest = tryReadJson(join(runDir, 'run_manifest.json')) || {};
   const baseline = deriveBaselineStatus(runDir);
   const enhancement = deriveEnhancementStatus(runDir);
@@ -215,9 +235,10 @@ export function getOmpRun(name) {
   };
 }
 
-export function getOmpArtifact(name, kind) {
-  const runDir = join(RUNS_DIR, name);
-  if (!existsSync(runDir)) return null;
+export function getOmpArtifact(name, kind, viewer = INTERNAL) {
+  if (!canViewWorkspaceRun(viewer, name)) return null;
+  const runDir = safeRunDir(name);
+  if (!runDir || !existsSync(runDir)) return null;
   const MAP = {
     report: 'report.md',
     optimizer: 'optimizer.md',
@@ -264,8 +285,10 @@ export function getOmpArtifact(name, kind) {
   };
 }
 
-export function getOmpEnhancement(name, kind) {
-  const runDir = join(RUNS_DIR, name);
+export function getOmpEnhancement(name, kind, viewer = INTERNAL) {
+  if (!canViewWorkspaceRun(viewer, name)) return null;
+  const runDir = safeRunDir(name);
+  if (!runDir) return null;
   const enhDir = join(runDir, 'enhancement');
   if (!existsSync(enhDir)) return null;
   const MAP = {
@@ -296,9 +319,10 @@ export function getOmpEnhancement(name, kind) {
 }
 
 /** Enrichment summaries for the frontend cards (kept light). */
-export function getOmpSummary(name) {
-  const runDir = join(RUNS_DIR, name);
-  if (!existsSync(runDir)) return null;
+export function getOmpSummary(name, viewer = INTERNAL) {
+  if (!canViewWorkspaceRun(viewer, name)) return null;
+  const runDir = safeRunDir(name);
+  if (!runDir || !existsSync(runDir)) return null;
   const conclusion = tryReadJson(join(runDir, '02_processed', 'data_analysis_conclusion.json'));
   const diagnosis = tryReadJson(join(runDir, '04_diagnostics', 'diagnosis.json'));
   const knowledge = tryReadJson(join(runDir, 'enhancement', 'enhanced_knowledge.json'));

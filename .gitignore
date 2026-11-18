@@ -203,3 +203,7 @@ doe_auto_run/
 .tmp-line-memory-store-*/
 .tmp-line-memory-empty-*/
 .tmp-line-memory-run-*/
+
+# runtime sqlite (local job state, never commit)
+workspace/*.sqlite
+workspace/*.sqlite-*

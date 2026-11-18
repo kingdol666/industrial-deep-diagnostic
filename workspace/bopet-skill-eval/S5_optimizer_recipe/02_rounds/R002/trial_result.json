@@ -1,0 +1,24 @@
+{
+  "result_version": "1.0",
+  "campaign_id": "OPT-20261014-001",
+  "round_id": "R002",
+  "trials": [
+    {
+      "trial_id": "R002-T01",
+      "status": "completed",
+      "measurements": {
+        "优品率": [
+          99.074,
+          99.19,
+          98.865
+        ]
+      },
+      "measured_at": "2026-10-14T00:00:00Z",
+      "operator_note": "虚拟产线替身回投（演示）"
+    }
+  ],
+  "ingest_meta": {
+    "source": "manual_csv",
+    "ingested_at": null
+  }
+}

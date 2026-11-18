@@ -7,6 +7,10 @@ description: >
   writes only under RUN_DIR/enhancement/ and never modifies baseline diagnostic artifacts.
   Trigger: deep analysis, deep data analysis, coverage builder, derived feature,
   conditional analysis, tradeoff.
+  Do NOT use for physical mechanism verification / causal-chain bridging (use industrial-physics-bridge);
+  do NOT use to orchestrate the whole E0-E8 enhancement chain (use industrial-analysis-enhance-auto);
+  does not diagnose root causes and requires an existing diagnostic RUN_DIR — for raw-data-first
+  diagnosis use industrial-analysis-auto.
 ---
 
 # industrial-deep-analysis
@@ -134,6 +138,35 @@ covered = {col['column'] for col in c['columns']}
 missing = [col for col in csv_cols if col not in covered]
 print(f'Missing columns: {missing}')
 "
+```
+
+## Quality gate
+
+Post-hoc gate for a run dir that went through E1-E4 (zero-dep Node wrapper):
+
+```bash
+node .claude/skills/industrial-deep-analysis/scripts/quality_gate.mjs \
+  --run-dir <RUN_DIR> [--python <interpreter>]
+# exit 0 ok | 1 hard error (bad inputs / no usable Python) | 2 undetermined | 3 gate-fail
+```
+
+It checks that the E1-E4 artifacts exist and parse
+(`enhancement/analysis_coverage.json`, `derived_features.json`,
+`derived_data.csv`, `deep_data_analysis.json`, `association_graph.json`) and
+then **delegates to `scripts/verify_enhancement.py`** — the authoritative
+structural verifier (exit non-zero naming the failing rule) — mapping its exit
+code into the gate verdict. Python resolution order: `--python <interpreter>`
+→ `uv run --project .claude/shared/scripts python` → the shared venv
+interpreter → plain `python`.
+
+Usage states: exit **2** when none of the E1-E4 artifacts exist (the
+deep-analysis enhancement was not run for this run dir); exit **3** when the
+chain ran but is incomplete or `verify_enhancement.py` reports failures.
+
+Gate tests (fixtures generated on the fly):
+
+```bash
+uv run --project .claude/shared/scripts python .claude/skills/industrial-deep-analysis/tests/run_tests.py
 ```
 
 ## Dependencies

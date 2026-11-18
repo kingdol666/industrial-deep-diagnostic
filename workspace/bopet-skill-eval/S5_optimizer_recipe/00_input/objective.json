@@ -1,0 +1,20 @@
+{
+  "contract_version": "1.0",
+  "campaign_id": "OPT-20261014-001",
+  "target_metric": "优品率",
+  "goal": "maximize",
+  "tolerance": 0.3,
+  "factors": [
+    { "name": "TDO拉伸区温度CX4", "type": "numeric", "min": 235.0, "max": 245.0, "unit": "℃" },
+    { "name": "纵拉拉伸速度", "type": "numeric", "min": 50.9, "max": 54.9, "unit": "m/min" },
+    { "name": "TDO定型区温度CX6", "type": "numeric", "min": 186.0, "max": 196.0, "unit": "℃" }
+  ],
+  "budget": { "max_rounds": 12, "max_trials": 15 },
+  "noise": { "replicates_for_sigma": 3 },
+  "constraints": [
+    { "factor": "TDO拉伸区温度CX4", "type": "safety", "expr": "TDO拉伸区温度CX4 <= 245 ℃（风机电机热保护）", "hard": true, "source": "设备安全规程" }
+  ],
+  "prior": { "history_csv": null },
+  "convergence_mode": "in_range",
+  "seed": 42
+}

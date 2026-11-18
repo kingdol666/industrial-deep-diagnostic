@@ -870,16 +870,21 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   gap: 14px;
-  min-height: 0;
-  height: 100%;
-  overflow-y: auto;
-  overflow-x: hidden;
+  /* List mode: grow with content and let the page (main) scroll. A fixed
+     100% height here collapsed the task table inside tiny windows and hid
+     the ACTIVE rows behind the sticky group label. */
+  min-height: 100%;
+  height: auto;
+  overflow: visible;
   padding-right: 2px;
 }
 
 .diagnosis-view-run {
   height: 100%;
   flex: 1;
+  /* Keep a usable workspace in short windows: the page scrolls instead of
+     collapsing the stream to zero height. */
+  min-height: 480px;
   overflow: hidden;
   padding: 0;
 }

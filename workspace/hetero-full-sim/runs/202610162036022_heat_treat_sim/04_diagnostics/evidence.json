@@ -1,0 +1,265 @@
+{
+  "run_id": "202610162036022_heat_treat_sim",
+  "evidence_inventory": {
+    "visual_evidence": [
+      {
+        "source": "03_figures/fig_vlm_temporal_overlay.png",
+        "finding": "10 条 z 归一化+方向对齐轨迹存在多通道同步下凹包络：≈day 5.2 起整体下移，day 6.0-6.6 最深（多条轨迹 -2~-4σ），day 7.0-7.5 陡峭回升后回到 0 附近；下凹为宽底谷（≈2 天宽）而非尖脉冲",
+        "rank": 4,
+        "implication": "炉温、炉膛场、图像通道与质量目标在同一窗口同向运动 → 单一共同上游驱动（时间源在均热段）的目视证据；宽底平台形态与慢性掉温一致，与'事件瞬时冲击'形态不符",
+        "generation_method": {
+          "script": "generate_vlm_charts.py（02_processed/cleaned_data.csv）",
+          "source_file": "03_figures/image_captions.json source_files"
+        },
+        "confidence_note": "目视分辨率不能分辨 <0.5 天级先导；叠加图实际渲染无事件标注线，事件对齐为刻度换算推断（visual_analysis.json pipeline_warnings）；z 归一化+方向反转后不能从符号直读物理升降方向"
+      },
+      {
+        "source": "03_figures/fig_hetero_profile_heatmap.png",
+        "finding": "中段（目视 x≈100-165 h）横跨位点 2-11 的整体变暗（黄→青绿，≈516-518 ℃），行 2-6（下侧）比上侧更暗，呈台阶（step）而非斜坡；位点 1/12（两侧边缘）全程最暗为结构性基线",
+        "rank": 4,
+        "implication": "变冷具横向空间选择性（下侧/右边缘更强）而非整体降温 → 指向炉膛局部（单侧/后段）加热能力损失，而非全局热负荷下降；剖面劣化判定应看相对变化（位点梯度/斜率）",
+        "generation_method": {
+          "script": "06_scripts/expert_analysis.py（07_hetero/features/PROF-L1BANDTEMPPROFILE30M.csv + 02_processed/cleaned_data.csv）",
+          "source_file": "03_figures/image_captions.json source_files"
+        },
+        "confidence_note": "实际渲染为单幅热图+色标（无 manifest 描述的 z 叠加子图与事件竖线）；事件对齐为时间轴刻度换算推断，定位误差约 ±0.3-0.5 天"
+      },
+      {
+        "source": "03_figures/fig_event_response.png",
+        "finding": "维护（02-06 06:40）与升温（02-08 10:00）事件 ±12h：z3/out/yield/pmean 柱幅度均 <0.15%（近零不可见），仅 pedger（边缘偏差）显著（b -4.05→a -3.89 / b -4.1→a -3.93）；四过程/质量柱方向随事件类型翻转（维护红负、升温绿正）",
+        "rank": 4,
+        "implication": "事件窗内炉温/质量指标几乎无瞬时阶跃 → 劣化不能归因于维护操作瞬间引入的扰动；'慢性掉温平台'叙事成立；pedger 是唯一对事件窗敏感的通道，与横向/边缘通道承担劣化空间特征互证",
+        "generation_method": {
+          "script": "06_scripts/expert_analysis.py（±12h 均值差）",
+          "source_file": "02_processed/expert_findings.json event_response_windows_12h"
+        },
+        "confidence_note": "pedger 采用幅值相对变化口径（与其余柱的百分比口径不同）且主导 y 轴尺度，跨指标柱高不可直接比较（visual_analysis.json pipeline_warnings）"
+      },
+      {
+        "source": "03_figures/fig6_causal_evidence_map.png",
+        "finding": "红 hub（≥3 条 |r|≥0.7 边）：MAP.MEAN、MAP.CENTROID-X、MAP.ASYM-LR、IMG.STD、IMG.MEAN、IMG.ENTROPY、Z3-TEMP；最密红边束汇聚右列 PROF.EDGE-L-DEV、YIELD、OUT-TEMP；Z3-TEMP 有红色长边直达 YIELD 与 OUT-TEMP；存在一条 −0.91 负权边",
+        "rank": 4,
+        "implication": "证据网以三区炉温/炉膛场/图像为上游汇聚点 → 诊断焦点应是 EDGE-L-DEV/YIELD/OUT-TEMP 的共同上游（三区加热能力）；MAP/IMG 通道集体为 hub 指示高度共线冗余，不得作为独立证据重复计数；负权边表明结构非单一同向共模",
+        "generation_method": {
+          "script": "dp_toolkit.py visualize（feature_summary.json + validate_report.json）",
+          "source_file": "02_processed/causal_evidence_map.json（78 边，33 边 |r|≥0.7）"
+        },
+        "confidence_note": "边权标签逐边配对准度有限；<a-r> 仅确认量级"
+      },
+      {
+        "source": "03_figures/fig2_key_scatter.png + 03_figures/fig_hetero_profile_heatmap.png（变点窗目视）",
+        "finding": "Z3 与 YIELD 散点在稳态数据上呈强线性带（r=0.899，n=1367，水平台阶叠加）；剖面均值三段水平 519.4936 → 519.0884 → 519.4779 ℃、右边缘偏差 −2.869 → −4.1096 → −3.3136 ℃、剖面斜率 0.2323 → −2.1919 → 0.3902 ℃/100位；热图暗窗（目视 x≈100-165 h）与恢复区（x≈175-215 h）互证",
+        "rank": 4,
+        "implication": "质量-过程相关的形态是窄带+水平台阶（非连续跟踪带）；剖面恶化是水平偏移（right-side cooling）而非整体降温，与 02-06 后三区后段掉温事件对齐",
+        "generation_method": {
+          "script": "dp_toolkit.py visualize；06_scripts/expert_analysis.py",
+          "source_file": "03_figures/image_captions.json fig2/fig_hetero_profile_heatmap"
+        },
+        "confidence_note": "fig2 未纳入本次 VLM 4 图直读预算（fast 模式），其数值来自 image_captions.json 与 validate_report"
+      },
+      {
+        "source": "03_figures/fig_hetero_profile_heatmap.png（窄暗竖带）",
+        "finding": "≈x 100-112 h 存在一条几乎贯穿全部行（含边缘行 1/12）的窄暗竖带，形态接近同步台阶下移；其后至 x≈165 h 为渐进恢复区，x≈175-185 h 与 x≈195-215 h 出现恢复亮斑（≈521 ℃）",
+        "rank": 4,
+        "implication": "全场同步的台阶起点（目视 ≈100 h，若首快照=02-02 00:00 则 ≈02-06 04:00-05:00，与 02-06 06:40 检修锚点目视对齐）是'检修窗起点=劣化起点'的可视证据；恢复窗晚于暗窗 2.5-3 天，与 02-08 21:00 恢复操作方向一致",
+        "generation_method": {
+          "script": "06_scripts/expert_analysis.py",
+          "source_file": "03_figures/visual_analysis.json plots[fig_hetero_profile_heatmap]"
+        },
+        "confidence_note": "时间定位为轴刻度目视换算（图面无事件标记线），±0.3-0.5 天"
+      }
+    ],
+    "numerical_evidence": [
+      {
+        "source": "02_processed/expert_findings.json level_shift_deltas（[reused]）",
+        "finding": "维护窗（B）相对前段（A）的水平偏移：FUR-Z3-TEMP −4.9252 ℃（880.0079→875.0827）、FUR-OUT-TEMP −2.2418 ℃（549.9952→547.7534）、FUR-YIELD −0.9896 pt（99.3009→98.3113）、PROF-MEAN −0.4052 ℃、PROF-STD +0.3381、EDGE-R-DEV −1.2406 ℃、SLOPE −2.4242 ℃/100位、MAP-ASYM-LR +2.0581、MAP-MEAN −0.7160 ℃、IMG-MEAN −7.4365",
+        "rank": 3,
+        "metric": "regime level-shift delta (B−A)",
+        "value": -4.9252,
+        "interpretation": "异常主体是水平平台下移而非连续漂移；受影响通道覆盖炉温、出料温度、收得率、剖面（均值/边缘/斜率）、炉膛场与图像 — 多源同窗"
+      },
+      {
+        "source": "02_processed/expert_findings.json level_shift_deltas（[reused]）",
+        "finding": "恢复段（D）相对前段（A）：Z3 −0.4972 ℃、OUT −0.1291 ℃、YIELD −0.0822 pt、PROF-MEAN −0.0157 ℃；即更换三区后段加热管后各通道回到基线（残余 <1/10 偏移量）",
+        "rank": 3,
+        "metric": "regime level-shift delta (D−A)",
+        "value": -0.4972,
+        "interpretation": "器件级介入—响应闭环：物理修复（加热元件）逆转了过程侧与质量侧的偏移，构成最强的准对照证据"
+      },
+      {
+        "source": "02_processed/expert_findings.json within_segment_pearson（[reused]）",
+        "finding": "分段内相关：z3~yield = A 0.0267 / B 0.8549 / C −0.0437 / D 0.7393；z3~out = A 0.0430 / B 0.7235 / D 0.3709；masym~pedgel = A 0.3379 / B 0.8814 / D 0.6427",
+        "rank": 3,
+        "metric": "within-segment Pearson r",
+        "value": 0.8549,
+        "interpretation": "池化强相关由水平偏移主导（A 段近零），但 B/D 段窗内耦合真实存在 → 机理耦合非纯统计假象；A 段近零部分由量程受限（Z3 std 0.7865 vs B 3.815）解释"
+      },
+      {
+        "source": "02_processed/expert_findings.json snapshot_level_correlation（[reused]）",
+        "finding": "快照级（去重后）相关：PROF-MEAN vs Z3 0.8579（n=480）、vs YIELD 0.9006；MAP-MMEAN vs Z3 0.8678、vs YIELD 0.9051（n=120）；MAP-ASYM-LR vs Z3 −0.8732、vs YIELD −0.9521；IMG-MEAN vs Z3 0.9060、vs YIELD 0.9524（n=240）",
+        "rank": 3,
+        "metric": "snapshot-level Pearson r",
+        "value": 0.8579,
+        "interpretation": "在排除 backward-merge 伪重复后（有效 n = 快照数），跨域相关仍然强；但 Spearman 明显更低（0.57 级）→ 水平偏移主导，按'平台偏移类证据'使用"
+      },
+      {
+        "source": "02_processed/validate_report.json (validations/best_lags)（[reused]）",
+        "finding": "FUR-Z3-TEMP→FUR-OUT-TEMP：r=0.7419，最优 lag +4 步（2400 s），detrended r=0.7372（衰减≈0）；FUR-Z3-TEMP→FUR-YIELD：r=0.8987，最优 lag −1 步（≈同步），detrended r=0.8960；FUR-Z3-TEMP→PROF-MEAN r=0.8584（lag 0）",
+        "rank": 3,
+        "metric": "lagged CCF / best lag",
+        "value": 4,
+        "interpretation": "滞后量级 40 min 与均热段停留时间 L/v 同量级 → 因果方向为均热段（三区）→ 出料/质量；质量目标没有独立于炉温的额外时滞"
+      },
+      {
+        "source": "02_processed/validate_report.json summary（[reused]）",
+        "finding": "400 对目标×预测子：236 对显著；simpson_safe 400/400（无分组列，Simpson 不适用）；detrended_robust 350/400；trend_confounded 50；level_shift_dominated 31；leave_one_out 400/400",
+        "rank": 3,
+        "metric": "anti-spurious battery counts",
+        "value": 31,
+        "interpretation": "相关网络不是趋势伪相关（detrending 无损）也不是离群驱动（LOO 全通过）；但 31 对为水平偏移主导 → 证据等级应按'平台偏移'计，不升级为连续机理增益"
+      },
+      {
+        "source": "02_processed/validate_report.json summary.change_point_detection（[reused]）",
+        "finding": "FUR-OUT-TEMP 三段水平 549.90 ℃（rows 0-721）→ 546.36 ℃（722-933 下移）→ 549.96 ℃（934+）；FUR-YIELD 检出 12 个变点，变点窗（02-06 14:30→02-09 07:00）均值 98.0673% vs 之前 99.2982%",
+        "rank": 3,
+        "metric": "change-point segment means",
+        "value": 98.0673,
+        "interpretation": "平台下移的起止窗口可与操作事件锚（02-06 06:40 / 02-08 10:00-21:00）逐一对齐；质量变点窗起点晚于过程侧人工锚 ≈8 h"
+      },
+      {
+        "source": "02_processed/expert_findings.json out_temp_dip_window / yield_cp_window（[reused]）",
+        "finding": "OUT-TEMP 下移窗 2026-02-07 00:20–02-08 23:40（35.33 h，窗内均值 546.3626 ℃、Z3 871.9111 ℃、YIELD 97.6559%）；YIELD 变点窗 2026-02-06 14:30–02-09 07:00（98.0673% vs 前 99.2982%）",
+        "rank": 3,
+        "metric": "anomaly window means",
+        "value": 546.3626,
+        "interpretation": "劣化窗跨越 1.5-2.5 天，覆盖检修锚之后与升温锚之前 → 慢性持续掉温，窗口边界与设备处置时点一致"
+      },
+      {
+        "source": "02_processed/anomaly_report.json process_parameter_fluctuation（[reused]）",
+        "finding": "Z3 std 3.2206（cv 0.0037，abrupt='no'）；Z1 std 0.6964（cv 0.0008）、Z2 std 0.6882（cv 0.0008）、FUR-SPEED std 0.0502（cv 0.0042，极差 11.826-12.157）、FUR-PRES std 0.3026（cv 0.0080）；MAP-ASYM-LR cv 0.4726（abrupt='yes'）；MAP-HOTAREA-P90 cv 4.3604 / COLDAREA-P10 cv 3.1528（高度量化）",
+        "rank": 3,
+        "metric": "process fluctuation statistics",
+        "value": 3.2206,
+        "interpretation": "纯过程侧只有三区炉温与炉膛场不对称/异质性指标异常；上游区温、速度、炉压全程平稳 → 异常局域化"
+      },
+      {
+        "source": "02_processed/expert_findings.json confounder_probes（[reused]）",
+        "finding": "SHIFT-EST 全表恒 0（n=1440，unique=1）；IMG DARKFRAC、SATFRAC 全表恒 0（unique=1）；FUR-PRES 826 个 unique（无量化）；FUR-SPEED 236 个 unique",
+        "rank": 3,
+        "metric": "confounder probe uniqueness",
+        "value": 1,
+        "interpretation": "SHIFT-EST≡0 排除'横向配准漂移伪装形状变化'，使 EDGE/SLOPE 变化可作为真实证据；DARKFRAC/SATFRAC 通道死亡使炉压→氧化链不可检验；速度/炉压未被量化截断（其无信号不是数据量化所致）"
+      },
+      {
+        "source": "02_processed/expert_findings.json regime_segments（[reused]）",
+        "finding": "MAP-HOTAREA-P90 均值 A 0.0019 → B 0.0156（×8.2）；MAP-COLDAREA-P10 均值 A 0.0029 → B 0.0429（×15）；D 段回落（0.0027 / 0.0013）",
+        "rank": 3,
+        "metric": "field heterogeneity indicators (mean fraction)",
+        "value": 0.0429,
+        "interpretation": "维护窗内炉膛场空间异质性抬升（热尾与冷尾同时增加）→ 与'局部加热能力损失 + 闭环重分布'一致；因取值高度量化，仅作方向性佐证"
+      },
+      {
+        "source": "02_processed/expert_findings.json event_response_windows_12h（[reused]）",
+        "finding": "检修 02-06 06:40 ±12h：Z3 880.2212→879.5282（Δ−0.6931）、OUT −0.3492、YIELD −0.1057、IMG-MEAN −1.1502；升温 02-08 10:00 ±12h：Z3 870.8756→871.9936（Δ+1.1181）、OUT +0.3657、YIELD +0.0885",
+        "rank": 3,
+        "metric": "±12h event response delta",
+        "value": -0.6931,
+        "interpretation": "事件瞬态幅度仅为平台偏移的 10.7%-15.6%（derived）→ 劣化不能归因于事件瞬间扰动（H7 排除）"
+      },
+      {
+        "source": "derived（diagnostician 目标化计算；输入全部为 [reused] 上游数字）",
+        "finding": "量级校核四则：(1) ΔOUT/ΔZ3 = 2.2418/4.9252 = 0.455；(2) 停留时间臂：段均值速度差 +0.0055/11.9968 = +0.046% → 预测 ΔOUT≈−0.241 ℃，为实测 −2.2418 ℃ 的 11%；(3) Arrhenius 扰动：k_B/k_A=exp(−(Ea/R)(1/T_B−1/T_A))=0.9648（−3.52%，T 由 ℃→K），实测收得率相对损失 1.00%，observed/predicted=0.28；(4) 场定位：−0.7160/−4.9252=14.5% ≈ 2.9/20 格",
+        "rank": 3,
+        "metric": "derived magnitude checks",
+        "value": 0.28,
+        "interpretation": "四项量级均在物理可接受量级内（比值 0.11-0.46 与 1.1）：温度→质量链的量级自洽；速度臂只能解释 11%（排除为主因）；场定位指向局域化（≈15% 场面积）",
+        "derived": true,
+        "formula_note": "Ea=80000 J/mol、R=8.314 J/(mol·K) 取自 02_processed/physics_check.json（中立先验，非标定值）；线性吸热假设用于停留时间臂（一阶近似）"
+      },
+      {
+        "source": "derived（Wien 近似辐射一致性检查；输入为 [reused] 带温与灰度幅值）",
+        "finding": "带温 −2.2418 ℃ @ 823.15 K，窄带 Wien 灵敏度因子 c₂/(λT)=14388/(0.9×823.15)=19.42 → 预测 ΔL/L = 19.42×(2.2418/823.15) = −5.29%；实测 IMG-MEAN 相对变化 −7.4365/149.4762 = −4.98%；比值 1.06",
+        "rank": 3,
+        "metric": "radiance consistency (Wien narrowband)",
+        "value": -0.0498,
+        "interpretation": "图像通道的幅值变化可由带材辐射变化充分解释（同量级），无需引入相机增益漂移（H5 排除的支撑）；但图像未标定、λ≈0.9 μm 为假设，结论为量级级（PLAUSIBLE）",
+        "derived": true,
+        "formula_note": "λ≈0.9 μm 假设（探测器谱段未声明）；若实际谱段更长则预测幅度更小，方向不变"
+      }
+    ],
+    "physical_evidence": [
+      {
+        "source": "01_ontology/ontology.json relationships（FUR-Z3-TEMP→FUR-OUT-TEMP）+ 焓/换热第一性原理",
+        "finding": "炉温—带材换热 Q = h·A·(T_f−T_s) + εσA·(T_f⁴−T_s⁴)；均热段温度水平决定出料温度与冷却起点。观测：ΔT_f=−4.93 ℃ → ΔT_out=−2.24 ℃（比值 0.455）",
+        "rank": 5
+      },
+      {
+        "source": "停留时间标度 t_res = L/v + 实测 lag",
+        "finding": "Z3→OUT 最优滞后 +4 步（2400 s）与炉内热输运/停留时间同量级，支持'均热段炉温先导出料温度'的方向性；速度臂因方差受限（±1.4%）无检验功效",
+        "rank": 5
+      },
+      {
+        "source": "Arrhenius 动力学（01_ontology/ontology.json stages S3 + 02_processed/physics_check.json）",
+        "finding": "k=k₀·exp(−Ea/RT)：以 Ea=80 kJ/mol 中立先验，均热温度 −4.93 ℃ 对应速率常数比 0.9648（−3.52%）；physics_check 判定 ARRHENIUS_PLAUSIBLE（predicted rate ratio 32.05），并自述为'plausibility band, not a quantitative law'",
+        "rank": 5
+      },
+      {
+        "source": "炉膛热平衡 Q̇_source = Q̇_band + Q̇_loss + 元件功率 ∝ V²/R",
+        "finding": "三区后段加热元件有效功率下降会同时产生 (a) 平台下移与 (b) 温控裕度下降引起的波动放大（观测 std 0.7865→3.815，×4.85），两者为同一物理缺陷的两面；无元件功率测点，器件级为潜在中间量",
+        "rank": 5
+      },
+      {
+        "source": "横向热流传导（ontology relationships ASYM-LR→EDGE-*-DEV）",
+        "finding": "炉膛横向热源分布改变 → 带材横向温度梯度：ASYM-LR 向 0 塌陷（−3.5572→−1.4991）伴随右边缘偏差 −1.2406 ℃ 与剖面斜率 −2.4242 ℃/100位，方向与幅值一致；SHIFT-EST≡0 排除配准伪影",
+        "rank": 5
+      },
+      {
+        "source": "辐射传输（Stefan-Boltzmann + 窄带 Wien 灵敏度）",
+        "finding": "带温下降 2.2418 ℃ 在窄带（λ≈0.9 μm）近似下预测辐射亮度 −5.29%，与图像通道观测 −4.98% 同量级 → 图像统计变化与过程辐射物理一致（相机漂移解释非必要）",
+        "rank": 5
+      }
+    ],
+    "validation_evidence": [
+      {
+        "source": "02_processed/validate_report.json (summary)",
+        "finding": "time_sorted 成立（排序操作未改变行序，rows_affected=1440）；400 对相关通过 Simpson-safe 400/400、LOO 400/400；detrended_robust 350/400；50 对 trend_confounded；31 对 level_shift_dominated",
+        "affected_hypotheses": ["H1", "H2", "H3", "H4", "H5", "H6", "H7"]
+      },
+      {
+        "source": "02_processed/validate_report.json (validations, Pearson-Spearman divergence)",
+        "finding": "Z3~YIELD：r=0.8987 vs ρ=0.5098（背离 0.389）；Z3~OUT：r=0.7419 vs ρ=0.4536；IMG-MEAN~YIELD：r=0.9556 vs ρ=0.4941 — 相关质量集中在段间水平变化",
+        "affected_hypotheses": ["H1", "H5"]
+      },
+      {
+        "source": "02_processed/validate_report.json (validations)",
+        "finding": "FUR-SPEED→FUR-OUT-TEMP r=−0.0125（p=0.645, grade NONE）；FUR-SPEED→FUR-YIELD r=0.0063（p=0.8165）；FUR-PRES→FUR-YIELD r=0.0212（p=0.4325）；FUR-Z1-TEMP→FUR-YIELD r=−0.0176；FUR-Z2-TEMP→FUR-YIELD r=0.0059（trend_confounded=true, 衰减 110.2%）",
+        "affected_hypotheses": ["H3", "H4", "H6"]
+      },
+      {
+        "source": "02_processed/expert_findings.json confounder_probes",
+        "finding": "SHIFT-EST n=1440、unique=1（min=max=0）→ 无横向配准漂移；IMG DARKFRAC/SATFRAC n=1440、unique=1（min=max=0）→ 表面氧化通道不可观测；FUR-SPEED/FUR-PRES 未被量化截断",
+        "affected_hypotheses": ["H1", "H5", "H6"]
+      },
+      {
+        "source": "02_processed/anomaly_report.json quality_reset_analysis",
+        "finding": "applicable=false：未检出离散的质量 reset 事件（自动化口径），仅以变点窗代理（YIELD 98.0673 vs 99.2982；Z3 873.9145 vs 879.9996）。本诊断以操作事件锚（02-06 06:40 检修锚 / 02-08 10:00 换管升温锚）与 regime 均值逆转为 reset 等效证据（L2 用户文档 + L3 统计复合）",
+        "affected_hypotheses": ["H1", "H7"]
+      },
+      {
+        "source": "02_processed/physics_check.json",
+        "finding": "thermal_expansion: coupling_r=−0.2365 → THERMAL_COUPLING_NOT_DETECTED（热膨胀非该偏差的主导通道）；arrhenius_kinetics: ARRHENIUS_PLAUSIBLE（predicted rate ratio 32.05）但 observational_consistency=INCONSISTENT（observed 1.0），Ea 为默认先验（80 kJ/mol）",
+        "affected_hypotheses": ["H1", "H3"]
+      },
+      {
+        "source": "02_processed/causal_evidence_map.json",
+        "finding": "78 条边（p<0.05 且 |r|≥0.5），33 条 |r|≥0.7；hub（≥3 条强边）：IMG-MEAN 5、MAP-CENTROID-X 5、MAP-ASYM-LR 5、IMG-STD 4、IMG-ENTROPY 4、MAP-MEAN 4、Z3-TEMP 3；所有 |r|>0.9 的 HX 相关边均带 level-shift dominated 警告",
+        "affected_hypotheses": ["H1", "H5"]
+      },
+      {
+        "source": "02_processed/validate_report.json (metadata.notes)",
+        "finding": "HX 列为 backward-merged 阶梯常量块（PROF 30min/480 快照、MAP 2h/120、IMG 1h/240、TXT 9 条），有效 n = 快照数而非行数 → 行级 p 值为伪重复，相关显著性应按快照级复核（已复核：快照级 r 0.86-0.95 仍强）",
+        "affected_hypotheses": ["H1", "H5", "H6"]
+      }
+    ]
+  }
+}

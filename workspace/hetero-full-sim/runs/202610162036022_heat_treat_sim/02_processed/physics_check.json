@@ -1,0 +1,40 @@
+{
+  "generated_at": "2026-10-17T04:51:25.909915",
+  "scenario": "连续热处理（连续退火/保温热处理炉线：三区炉温 + 传输速度 + 炉内压力控制带材出口温度与性能）",
+  "checks_summary": {
+    "thermal_expansion": "THERMAL_COUPLING_NOT_DETECTED",
+    "arrhenius_kinetics": "ARRHENIUS_PLAUSIBLE"
+  },
+  "physical_checks": {
+    "thermal_expansion": {
+      "T_range_C": [
+        864.25,
+        882.92
+      ],
+      "deviation_range": [
+        0.7996983332747579,
+        1.9448212116939245
+      ],
+      "coupling_r": -0.2365,
+      "coupling_n": 1440,
+      "note": "quantitative ΔL=α·L₀·ΔT requires material coefficient from ontology",
+      "conclusion": "THERMAL_COUPLING_NOT_DETECTED",
+      "explanation": "Deviation shows no material coupling with temperature (r=-0.237) — thermal expansion is not the dominant channel for this deviation"
+    },
+    "arrhenius_kinetics": {
+      "check": "arrhenius_kinetics",
+      "Ea_J_per_mol": 80000,
+      "R_J_per_mol_K": 8.314,
+      "T_low_C": 543.0,
+      "T_high_C": 882.9,
+      "predicted_rate_ratio": 32.0505,
+      "observed_rate_ratio": 1.0,
+      "conclusion": "ARRHENIUS_PLAUSIBLE",
+      "explanation": "Rate ratio 3.21e+01 is physically observable — temperature-driven degradation is plausible",
+      "observational_consistency": "INCONSISTENT",
+      "observational_detail": "Observed rate ratio (1.00) deviates significantly from Arrhenius prediction (3.21e+01) — other mechanisms may dominate",
+      "Ea_assumed_default": true,
+      "Ea_note": "No activation energy supplied via --ea-kj-mol/ontology — 80 kJ/mol neutral prior used; conclusion is a plausibility band, not a quantitative law"
+    }
+  }
+}

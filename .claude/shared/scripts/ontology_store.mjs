@@ -22,6 +22,8 @@ export const PROJECT_ROOT = resolve(__dirname, '..', '..', '..');
 // ONTOLOGY_STORE_DIR so `doe_ontology_prepare.py --store-dir <dir>` (and tests)
 // can run against an isolated store without touching the project default.
 // Unset → byte-identical legacy behaviour.
+// STORE_DIR 可用环境变量 ONTOLOGY_STORE_DIR 覆盖（并发测试 / 沙箱把 store 指到
+// 隔离目录；模块加载时解析一次，因此必须在 import 前设置）。
 export const STORE_DIR = process.env.ONTOLOGY_STORE_DIR
   ? resolve(process.env.ONTOLOGY_STORE_DIR)
   : join(PROJECT_ROOT, 'data', 'ontology_store');
@@ -52,9 +54,11 @@ function normalizeProfile(profile) {
 
 // 后端长驻进程与 CLI 子进程共用同一 store：所有 read-modify-write 必须在
 // 进程间串行，否则会互覆版本目录 / 丢 index entry。锁文件用 `wx` 独占创建，
-// 内容只是诊断信息（pid + 时间）；进程崩溃留下的锁按 mtime 判陈旧。
-const LOCK_PATH = join(STORE_DIR, '.lock');
-const LOCK_RETRY_MS = 50;
+// 内容 {pid, ts, nonce, op}；进程崩溃留下的锁按 mtime 判陈旧并被接管。
+export const LOCK_PATH = join(STORE_DIR, '.index.lock');
+const LOCK_STALE_MS = 30000;   // 锁 mtime 超过该时长 → 持有者视为已死，接管
+const LOCK_RETRY_MS = 25;      // 重试退避基数（附加随机抖动，避免活锁同步）
+
 // 同进程重入标记：publish → addVersion 会再次请求写锁，直接复用外层临界区
 // （否则自锁死等）。
 let storeLockHeld = false;
@@ -63,43 +67,121 @@ function sleepSync(ms) {
   Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
 }
 
+function timestampSuffix() {
+  return new Date().toISOString().replace(/[:.]/g, '-'); // Windows 文件名安全
+}
+
+/** 索引损坏异常：readIndex 绝不静默返回空库（那会让下一个写者把整库清零）。 */
+export class OntologyStoreCorruptError extends Error {
+  constructor(message, { indexPath = INDEX_PATH, backupPath = null, cause = null } = {}) {
+    super(message);
+    this.name = 'OntologyStoreCorruptError';
+    this.code = 'ONTOLOGY_STORE_CORRUPT';
+    this.indexPath = indexPath;
+    this.backupPath = backupPath;
+    if (cause) this.cause = cause;
+  }
+}
+
+/** 未能在超时内获得 store 写锁。 */
+export class OntologyStoreLockError extends Error {
+  constructor(message, { lockPath = LOCK_PATH, holder = null } = {}) {
+    super(message);
+    this.name = 'OntologyStoreLockError';
+    this.code = 'ONTOLOGY_STORE_LOCK_TIMEOUT';
+    this.lockPath = lockPath;
+    this.holder = holder;
+  }
+}
+
+function readLockHolder() {
+  try { return JSON.parse(readFileSync(LOCK_PATH, 'utf-8')); } catch { return null; }
+}
+
+// openSync('wx') 的可重试失败码：EEXIST 是正常竞争；Windows 上创建文件与
+// 另一进程的 unlink 撞车时会以 EPERM/EACCES/EBUSY（pending delete）浮现，
+// 语义同样是「别人正持有/刚释放」——必须重试，绝不能当致命错误抛出。
+const LOCK_BUSY_ERRORS = new Set(['EEXIST', 'EPERM', 'EACCES', 'EBUSY', 'ENOTEMPTY']);
+
+/** 原子创建锁文件（wx = 独占创建，已存在则 EEXIST）；内容 {pid, ts, nonce, op}。 */
+function acquireLockFile(nonce) {
+  mkdirSync(STORE_DIR, { recursive: true });
+  let fd;
+  try {
+    fd = openSync(LOCK_PATH, 'wx');
+  } catch (e) {
+    if (LOCK_BUSY_ERRORS.has(e.code)) {
+      throw Object.assign(new Error(`ontology store lock busy (${e.code}): ${LOCK_PATH}`), { code: 'EEXIST', cause: e });
+    }
+    throw e;
+  }
+  try {
+    writeSync(fd, JSON.stringify({
+      pid: process.pid,
+      ts: new Date().toISOString(),
+      nonce,
+      op: process.argv[1] ? basename(process.argv[1]) : null,
+    }));
+  } catch (e) {
+    // 写内容失败（磁盘满等）不要留下半个空锁把别人堵 30s
+    try { closeSync(fd); } catch { /* ignore */ }
+    try { unlinkSync(LOCK_PATH); } catch { /* ignore */ }
+    throw e;
+  }
+  try { closeSync(fd); } catch { /* ignore */ }
+}
+
+/** 只释放自己的锁：持有者被判定陈旧并接管后，原持有者不得删掉新持有者的锁。 */
+function releaseLockFile(nonce) {
+  const holder = readLockHolder();
+  if (holder && holder.nonce && holder.nonce !== nonce) return; // 已被接管
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    try { unlinkSync(LOCK_PATH); return; } catch {
+      // Windows 上并发读/抢占可能瞬时拒绝 unlink —— 小退避后重试
+      sleepSync(5);
+    }
+  }
+}
+
 /**
  * Run `fn` inside the store's cross-process write lock.
  *
- * The lock is `<STORE_DIR>/.lock`, acquired with `openSync(..., 'wx')` (pid +
- * timestamp written inside). A waiter retries every 50ms until `timeoutMs`; a
- * lock file whose mtime is older than `staleMs` is treated as abandoned and
- * removed before re-attempting. Re-entrant within one process (module-level
- * marker) so nested public entry points never deadlock on themselves.
- * Read-only paths intentionally do NOT take this lock.
+ * The lock is `<STORE_DIR>/.index.lock`, acquired with `openSync(..., 'wx')`
+ * ({pid, ts, nonce, op} written inside). A waiter retries with small jittered
+ * backoff until `timeoutMs`; a lock whose mtime is older than `staleMs` is
+ * treated as abandoned (warned once, taken over) and only its own nonce may
+ * release it. Re-entrant within one process (module-level marker) so nested
+ * public entry points never deadlock on themselves. Read-only paths
+ * intentionally do NOT take this lock.
  */
-export function withStoreLock(fn, { timeoutMs = 15000, staleMs = 30000 } = {}) {
+export function withStoreLock(fn, { timeoutMs = 15000, staleMs = LOCK_STALE_MS } = {}) {
   if (storeLockHeld) return fn();
-  mkdirSync(STORE_DIR, { recursive: true });
+  const nonce = `${process.pid}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
   const deadline = Date.now() + timeoutMs;
+  let staleWarned = false;
   for (;;) {
     if (Date.now() >= deadline) {
-      throw new Error(`ontology store lock timeout after ${timeoutMs}ms — lock file: ${LOCK_PATH}`);
+      throw new OntologyStoreLockError(
+        `cannot acquire store lock within ${timeoutMs}ms: ${LOCK_PATH} (holder: ${JSON.stringify(readLockHolder())})`,
+        { holder: readLockHolder() });
     }
     try {
-      const fd = openSync(LOCK_PATH, 'wx');
-      try {
-        writeSync(fd, JSON.stringify({ pid: process.pid, acquired_at: new Date().toISOString() }));
-      } finally {
-        closeSync(fd);
-      }
+      acquireLockFile(nonce);
       break;
-    } catch (err) {
-      if (err.code !== 'EEXIST') throw err;
-      let stale = false;
-      try {
-        stale = Date.now() - statSync(LOCK_PATH).mtimeMs > staleMs;
-      } catch { /* lock vanished between open and stat — retry immediately */ }
-      if (stale) {
-        try { unlinkSync(LOCK_PATH); } catch { /* another waiter won the race */ }
+    } catch (e) {
+      if (e.code !== 'EEXIST') throw e;
+      let st = null;
+      try { st = statSync(LOCK_PATH); } catch { /* 锁刚好被释放：立即重试 */ }
+      if (st && Date.now() - st.mtimeMs > staleMs) {
+        if (!staleWarned) {
+          staleWarned = true;
+          console.error(`WARNING: stale ontology store lock at ${LOCK_PATH} (mtime ${new Date(st.mtimeMs).toISOString()} older than ${staleMs}ms, holder: ${JSON.stringify(readLockHolder())}) — taking over`);
+        }
+        try { unlinkSync(LOCK_PATH); } catch { /* 抢占失败：稍后重试 */ }
+        sleepSync(5);
         continue;
       }
-      sleepSync(LOCK_RETRY_MS);
+      sleepSync(LOCK_RETRY_MS + Math.floor(Math.random() * LOCK_RETRY_MS));
     }
   }
   storeLockHeld = true;
@@ -107,7 +189,7 @@ export function withStoreLock(fn, { timeoutMs = 15000, staleMs = 30000 } = {}) {
     return fn();
   } finally {
     storeLockHeld = false;
-    try { unlinkSync(LOCK_PATH); } catch { /* already removed */ }
+    releaseLockFile(nonce);
   }
 }
 
@@ -386,15 +468,48 @@ export function computeWatchContextFingerprint(decl) {
 
 // ────────────────────────── 注册表 ──────────────────────────
 
+/** 备份损坏的 index.json；内容一致则复用同一备份（读路径反复命中不刷屏）。 */
+function backupCorruptIndex(raw) {
+  mkdirSync(STORE_DIR, { recursive: true });
+  let names = [];
+  try { names = readdirSync(STORE_DIR).filter((f) => f.startsWith('index.json.corrupt-')); } catch { /* ignore */ }
+  for (const name of names) {
+    try {
+      if (readFileSync(join(STORE_DIR, name), 'utf-8') === raw) return join(STORE_DIR, name);
+    } catch { /* ignore */ }
+  }
+  const backupPath = join(STORE_DIR, `index.json.corrupt-${timestampSuffix()}`);
+  writeFileSync(backupPath, raw);
+  return backupPath;
+}
+
+/**
+ * 读取 store 索引。
+ *  - 文件不存在 → `{version, entries: []}`（首次运行，正常）。
+ *  - 解析失败 / entries 非数组 → 备份原文件为 index.json.corrupt-<ISO ts> 并
+ *    抛 OntologyStoreCorruptError（带 backupPath）。绝不静默返回空库：那会让
+ *    下一个写者把损坏如实持久化，等于把整库清零。
+ */
 export function readIndex() {
   if (!existsSync(INDEX_PATH)) return { version: STORE_INDEX_VERSION, entries: [] };
+  let raw;
   try {
-    const idx = JSON.parse(readFileSync(INDEX_PATH, 'utf-8'));
-    if (!Array.isArray(idx.entries)) return { version: STORE_INDEX_VERSION, entries: [] };
-    return idx;
-  } catch {
-    return { version: STORE_INDEX_VERSION, entries: [] };
+    raw = readFileSync(INDEX_PATH, 'utf-8');
+  } catch (e) {
+    throw new OntologyStoreCorruptError(`cannot read store index: ${e.message}`, { cause: e });
   }
+  let idx = null;
+  try {
+    idx = JSON.parse(raw);
+  } catch (e) {
+    const backupPath = backupCorruptIndex(raw);
+    throw new OntologyStoreCorruptError(`store index is not valid JSON (backed up to ${backupPath})`, { backupPath, cause: e });
+  }
+  if (!idx || typeof idx !== 'object' || !Array.isArray(idx.entries)) {
+    const backupPath = backupCorruptIndex(raw);
+    throw new OntologyStoreCorruptError(`store index has no entries[] array (backed up to ${backupPath})`, { backupPath });
+  }
+  return idx;
 }
 
 export function writeIndex(idx) {
@@ -1403,7 +1518,7 @@ function cli() {
         break;
       }
       case 'save': {
-        // 离线编辑落库：--scene <key> --file <edited.json> [--base-version N] [--title T] [--tags a,b]
+        // 离线编辑落库：--scene <key> --file <edited.json> [--base-version N] [--title T] [--tags a,b] [--notes S]
         const file = arg('file');
         if (!file) throw new Error('--file <edited ontology.json> is required');
         const result = addVersion({

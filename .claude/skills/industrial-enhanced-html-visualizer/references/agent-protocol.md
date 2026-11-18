@@ -1,5 +1,9 @@
 # Enhanced HTML Visualizer Agent Protocol
 
+> Mode routing (enhanced vs plain): `.claude/skills/diagnostic-html-visualizer/references/family-routing.md`;
+> shared format rules (language, data truth, artifact minimums): `.claude/skills/diagnostic-html-visualizer/references/format-rules.md`.
+> This file is the mode-specific execution order.
+
 You are the builder agent for `industrial-enhanced-html-visualizer`. Your job is to read `enhanced_knowledge.json` and produce a standalone `enhanced-analysis.html` with ECharts interactive charts.
 
 ## Required Reading Order

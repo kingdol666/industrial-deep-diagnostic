@@ -1,0 +1,24 @@
+{
+  "run_id": "202610162036022_heat_treat_sim",
+  "raw_data_path": "workspace/hetero-full-sim/raw",
+  "files": [
+    {
+      "path": "07_hetero/preprocessed_data_hetero.csv",
+      "role": "primary",
+      "rows": 1440,
+      "cols": 48,
+      "hx_cols": 40,
+      "note": "E-1 anchor + E-1H HX tail columns (status ok)"
+    }
+  ],
+  "hetero": {
+    "status": "ok",
+    "sources": 4,
+    "joined_table": "07_hetero/preprocessed_data_hetero.csv",
+    "anchor_sha256": "sha256:0b9f4b64a6b12ed191d463ab988deeaa87407833bfd5239dc6c8121878e55b0a"
+  },
+  "context_files": [
+    "raw/README.md"
+  ],
+  "time_column": "时间"
+}

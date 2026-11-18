@@ -1,0 +1,16 @@
+{
+  "data_path": "workspace/lst-teaching-kit/T3_injection_molding/00_input/shots_30h.json",
+  "line_id": "注塑-3机",
+  "product": "家电外壳 PP 件",
+  "time_col": "模次时间",
+  "start": "2026-09-08T06:00:00",
+  "end": "2026-09-09T11:45:00",
+  "inspection_cols": ["单件重量"],
+  "spec_limits": {
+    "单件重量": { "lsl": 24.7, "usl": 25.3, "target": 25.0 }
+  },
+  "preprocessing": {
+    "source_export": "workspace/lst-teaching-kit/T3_injection_molding/00_input/shots_30h.json",
+    "note": "教学夹具：MES 逐模记录导出为 JSON 行对象数组（合成数据 seed=703），每 15 分钟一模"
+  }
+}

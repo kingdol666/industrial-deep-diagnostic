@@ -19,7 +19,7 @@ describe('resolveAnalysisIntent', () => {
   });
 
   test('registered non-default intents pass through as strings', () => {
-    for (const id of ['stability-report', 'quick-screen', 'doe-analysis', 'experience-mining', 'optimizer-campaign']) {
+    for (const id of ['stability-report', 'quick-screen']) {
       assert.equal(resolveAnalysisIntent(id), id);
     }
   });
@@ -40,9 +40,6 @@ describe('buildIntentDirective', () => {
     const cases = [
       ['stability-report', 'industrial-line-stability-report'],
       ['quick-screen', 'industrial-sentinel'],
-      ['doe-analysis', 'industrial-doe-analyzer'],
-      ['experience-mining', 'industrial-tuning-memory'],
-      ['optimizer-campaign', 'industrial-optimizer-loop'],
     ];
     for (const [intent, skill] of cases) {
       const directive = buildIntentDirective(intent, 'bopet_line');

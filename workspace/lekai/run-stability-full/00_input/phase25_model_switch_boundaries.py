@@ -11,8 +11,12 @@ from __future__ import annotations
 import csv
 import json
 import os
+from pathlib import Path
 
-REPO = r"D:\codes\industrial-deep-diagnostic"
+REPO = Path(__file__).resolve().parent
+while REPO != REPO.parent and not (REPO / ".git").exists():
+    REPO = REPO.parent
+REPO = str(REPO)
 SRC = os.path.join(REPO, "data", "lekaiData", "aligned_multidefect.csv")
 OUT = os.path.join(REPO, "workspace", "lekai", "run-stability-full",
                    "00_input", "model_switch_boundaries.json")
@@ -66,8 +70,10 @@ def main() -> None:
         "timeline": [{k: r[k] for k in ("batch_id", "ts_start", "ts_end", "model")} for r in rows],
     }
 
-    with open(OUT, "w", encoding="utf-8") as f:
-        json.dump(payload, f, ensure_ascii=False, indent=2)
+    _out = Path(OUT).resolve()
+    if Path(REPO) not in _out.parents:
+        raise ValueError(f"output path outside repo: {_out}")
+    _out.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
 
     print(f"batches={len(rows)} models={len(counts)} boundaries={len(boundaries)}")
     print("model_counts:", json.dumps(payload["model_counts"], ensure_ascii=False))

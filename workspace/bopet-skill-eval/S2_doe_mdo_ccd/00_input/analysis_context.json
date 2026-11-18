@@ -1,0 +1,53 @@
+{
+  "data_path": "00_input/mdo_ccd_trials.csv",
+  "factors": [
+    {
+      "col": "预热辊温",
+      "type": "numeric"
+    },
+    {
+      "col": "拉伸速度",
+      "type": "numeric"
+    },
+    {
+      "col": "拉伸比",
+      "type": "numeric"
+    }
+  ],
+  "responses": [
+    {
+      "col": "拉伸强度",
+      "goal": "maximize",
+      "lsl": 200.0,
+      "target": 230.0
+    },
+    {
+      "col": "雾度",
+      "goal": "minimize",
+      "usl": 2.0,
+      "target": 1.2
+    },
+    {
+      "col": "厚度偏差",
+      "goal": "minimize",
+      "target": 15.0
+    }
+  ],
+  "run_order_col": "试验顺序",
+  "time_col": null,
+  "group_col": null,
+  "alpha": 0.05,
+  "inference": {
+    "assigned_by": "user",
+    "notes": [
+      "旋转中心复合设计 CCD，k=3，α=1.682，8 析因点 + 6 轴点 + 6 中心点，共 20 run",
+      "单批次单区块；试验顺序已随机化（seed=202）",
+      "目标：在雾度 ≤2.0% 与厚度偏差 ≤30nm 约束下最大化拉伸强度并给出操作窗"
+    ]
+  },
+  "_predictor_cols": [
+    "预热辊温",
+    "拉伸速度",
+    "拉伸比"
+  ]
+}

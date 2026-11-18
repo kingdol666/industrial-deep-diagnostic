@@ -1,0 +1,117 @@
+[
+  {
+    "event_ts": "2026-02-02 08:00:00",
+    "recorded_ts": null,
+    "text": "交接班：全线运行正常，三区温度设定 880℃ 稳定",
+    "tags": [],
+    "source_id": "text-l1operatornotes",
+    "source_sha256": "sha256:8636535c4bff8791a396aed73b65e25417334608e9eee6b72a045fa305bf9c91",
+    "line_no": 1,
+    "hour_of_day": 8.0,
+    "shift_bucket": "A"
+  },
+  {
+    "event_ts": "2026-02-03 09:30:00",
+    "recorded_ts": null,
+    "text": "带材入炉前检查正常，无异常记录",
+    "tags": [],
+    "source_id": "text-l1operatornotes",
+    "source_sha256": "sha256:8636535c4bff8791a396aed73b65e25417334608e9eee6b72a045fa305bf9c91",
+    "line_no": 2,
+    "hour_of_day": 9.5,
+    "shift_bucket": "A"
+  },
+  {
+    "event_ts": "2026-02-05 02:10:00",
+    "recorded_ts": null,
+    "text": "三区温度波动偏大，已通知仪表检查热电偶",
+    "tags": [],
+    "source_id": "text-l1operatornotes",
+    "source_sha256": "sha256:8636535c4bff8791a396aed73b65e25417334608e9eee6b72a045fa305bf9c91",
+    "line_no": 3,
+    "hour_of_day": 2.166667,
+    "shift_bucket": "C"
+  },
+  {
+    "event_ts": "2026-02-06 06:40:00",
+    "recorded_ts": null,
+    "text": "三区后段温度持续偏低，怀疑加热管老化，安排计划检修",
+    "tags": [
+      {
+        "tag": "检修",
+        "tag_slug": "MAINTENANCE",
+        "method": "lexicon",
+        "matched_term": "检修",
+        "model_derived": false
+      }
+    ],
+    "source_id": "text-l1operatornotes",
+    "source_sha256": "sha256:8636535c4bff8791a396aed73b65e25417334608e9eee6b72a045fa305bf9c91",
+    "line_no": 4,
+    "hour_of_day": 6.666667,
+    "shift_bucket": "C"
+  },
+  {
+    "event_ts": "2026-02-06 22:15:00",
+    "recorded_ts": null,
+    "text": "右边缘温度感觉偏低，硬度抽检结果下降，通知工艺",
+    "tags": [],
+    "source_id": "text-l1operatornotes",
+    "source_sha256": "sha256:8636535c4bff8791a396aed73b65e25417334608e9eee6b72a045fa305bf9c91",
+    "line_no": 5,
+    "hour_of_day": 22.25,
+    "shift_bucket": "B"
+  },
+  {
+    "event_ts": "2026-02-08 10:00:00",
+    "recorded_ts": null,
+    "text": "更换三区后段加热管，恢复送电升温",
+    "tags": [
+      {
+        "tag": "升温",
+        "tag_slug": "HEATUP",
+        "method": "lexicon",
+        "matched_term": "升温",
+        "model_derived": false
+      }
+    ],
+    "source_id": "text-l1operatornotes",
+    "source_sha256": "sha256:8636535c4bff8791a396aed73b65e25417334608e9eee6b72a045fa305bf9c91",
+    "line_no": 6,
+    "hour_of_day": 10.0,
+    "shift_bucket": "A"
+  },
+  {
+    "event_ts": "2026-02-08 21:00:00",
+    "recorded_ts": null,
+    "text": "更换后温度回升中，继续观察边缘硬度",
+    "tags": [],
+    "source_id": "text-l1operatornotes",
+    "source_sha256": "sha256:8636535c4bff8791a396aed73b65e25417334608e9eee6b72a045fa305bf9c91",
+    "line_no": 7,
+    "hour_of_day": 21.0,
+    "shift_bucket": "B"
+  },
+  {
+    "event_ts": "2026-02-10 09:00:00",
+    "recorded_ts": null,
+    "text": "温度与硬度均已恢复，问题闭环",
+    "tags": [],
+    "source_id": "text-l1operatornotes",
+    "source_sha256": "sha256:8636535c4bff8791a396aed73b65e25417334608e9eee6b72a045fa305bf9c91",
+    "line_no": 8,
+    "hour_of_day": 9.0,
+    "shift_bucket": "A"
+  },
+  {
+    "event_ts": "2026-02-11 08:30:00",
+    "recorded_ts": null,
+    "text": "交接班：一切正常",
+    "tags": [],
+    "source_id": "text-l1operatornotes",
+    "source_sha256": "sha256:8636535c4bff8791a396aed73b65e25417334608e9eee6b72a045fa305bf9c91",
+    "line_no": 9,
+    "hour_of_day": 8.5,
+    "shift_bucket": "A"
+  }
+]

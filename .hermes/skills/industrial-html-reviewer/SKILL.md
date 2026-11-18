@@ -19,7 +19,7 @@ Diagnostic visualization review engine (Step 8.5). Independently reviews whether
 | File | Description |
 |------|-------------|
 | `diagnostic-report.html` | HTML visualization page (review target) |
-| `render_manifest.json` | Builder's data-driven page model (**CP-8A audit input**) |
+| `render_manifest.json` | Builder's data-driven page model (**CP-8A audit input**; missing → fail) |
 | `html_selfcheck.json` | Builder's 9-item self-check (**CP-8B audit input — cross-check, never trust blindly**) |
 | `report.md` | Final diagnostic report (conclusion reference) |
 | `04_diagnostics/diagnosis.json` | Diagnostic conclusion |

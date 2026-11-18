@@ -1,0 +1,55 @@
+{
+  "report_version": "1.0",
+  "action_log_id": "20261002ff52840a",
+  "bundle_scope": false,
+  "attribution_status": "estimable",
+  "reason_code": null,
+  "metric": "薄膜厚度",
+  "segments": {
+    "baseline": {
+      "row_range": [
+        4,
+        34
+      ],
+      "n": 30,
+      "n_eff": 29,
+      "lag1_autocorr": 0.0005455557011062119
+    },
+    "effect": {
+      "row_range": [
+        46,
+        64
+      ],
+      "n": 18,
+      "n_eff": 7,
+      "lag1_autocorr": 0.38609197353841657,
+      "truncated_by": null
+    },
+    "dead_time_used": 6.0
+  },
+  "effect": {
+    "delta": -0.11748222222222182,
+    "ci95": [
+      -0.14343075065867497,
+      -0.09153369378576867
+    ],
+    "n_eff_hi": 7,
+    "n_eff_lo": 29,
+    "direction_established": true,
+    "direction_withheld": false,
+    "stop_suspected": false,
+    "stratified": null
+  },
+  "confound_detected": false,
+  "attribution_compromised": false,
+  "anti_spurious": {
+    "trend_check": "CAUTION",
+    "outlier_check": "PASS"
+  },
+  "warnings": [],
+  "evidence_grade": "E1",
+  "provenance": {
+    "script_version": "tune_stats/1.0",
+    "authored_by": "script"
+  }
+}

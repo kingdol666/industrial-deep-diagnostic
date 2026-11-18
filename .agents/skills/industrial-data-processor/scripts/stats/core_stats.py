@@ -807,6 +807,15 @@ def run_correlation_analysis(rows, run_dir, *,
     for col in numeric_cols:
         col_data[col] = [_safe_float(r.get(col)) for r in rows]
 
+    # --- Selection audit (WS8 additive, R2 visibility loop): a column the
+    # caller explicitly requested as target/predictor but that did not survive
+    # the >50% coverage filter (or the exclude list) above must never vanish
+    # silently — HX-* sparse columns are the canonical victim. Emitted in
+    # data_summary next to excluded_columns; validate_report_schema.json has no
+    # additionalProperties:false, so the extra key passes untouched.
+    dropped_requested_columns = list(dict.fromkeys(
+        [c for c in list(target_cols) + list(predictor_cols) if c not in col_data]))
+
     # --- Validate time sorting ---
     sorting_validation = _validate_time_sorting(rows, time_col)
 
@@ -924,6 +933,7 @@ def run_correlation_analysis(rows, run_dir, *,
             'numeric_columns_total': len(numeric_cols),
             'numeric_columns_analyzed': len(numeric_cols),
             'excluded_columns': list(exclude_cols),
+            'dropped_requested_columns': dropped_requested_columns,
             'target_columns': effective_targets,
             'predictor_columns': analysis_predictors,
             'time_column': time_col,

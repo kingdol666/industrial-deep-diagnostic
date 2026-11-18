@@ -1,4 +1,8 @@
 // File Routes — Thin HTTP handlers, delegates business logic to file service
+//
+// Tenancy (P0-6): run-scoped reads (workspace report/files/html/asset/preview
+// inside a run dir) and folder writes are viewer-scoped — a resource the caller
+// may not see answers exactly like a missing one (404 / null), never 403.
 
 import { Router } from 'express';
 import multer from 'multer';
@@ -11,11 +15,42 @@ import {
   listWorkspaceFiles, listWorkspaceHtml, getWorkspaceAsset, readDataFile, isSystemDatabaseFile, DATA_DIR,
 } from '../services/files.service.mjs';
 import { rewriteHtmlAssetUrls, callerToken, isHtmlContentType } from '../utils/html-assets.mjs';
+import { resolveInside, sanitizeFileName } from '../utils/pathGuard.mjs';
+import { userRateLimit } from '../services/tenancy.mjs';
+import logger from '../utils/logger.mjs';
 
 const UPLOAD_DIR = join(PROJECT_ROOT, dataConfig.upload_dir);
 const FOLDER_NAME_RE = new RegExp(dataConfig.folder_name_pattern);
 
 const router = Router();
+
+// 文件上传限流（P0-6）：config.security.upload_rate_limit（默认 20 次/分钟/用户）。
+// 放在 multer 之前 —— 被限流的请求连 multipart 正文都不必解析。
+// AUTH_ENABLED=0 下自动让行（见 tenancy.userRateLimit）。
+const uploadLimitCfg = config.security?.upload_rate_limit || {};
+const uploadRateLimit = userRateLimit({
+  windowMs: Number(uploadLimitCfg.window_ms ?? uploadLimitCfg.windowMs ?? 60_000),
+  max: Number(uploadLimitCfg.max ?? 20),
+});
+
+// Uniform error shape. PathViolationError carries status 400 + code
+// PATH_OUTSIDE_BASE and validation 4xx keep their user-facing message; a 5xx
+// answer is GENERIC with a stable code and the real error goes to the log
+// (B4 leak class — an internal message must not reach the client).
+function sendError(res, err, fallbackStatus = 500) {
+  const status = err?.status || fallbackStatus;
+  if (status >= 500) {
+    logger.error(`[files] ${err?.stack || err?.message || err}`, { context: 'Files' });
+    return res.status(status).json({
+      success: false,
+      code: err?.code || 'FILES_INTERNAL_ERROR',
+      error: '文件服务内部错误，请查看后端日志后重试',
+    });
+  }
+  const body = { success: false, error: err?.message || '请求无效' };
+  if (err?.code) body.code = err.code;
+  return res.status(status).json(body);
+}
 
 const upload = multer({
   dest: UPLOAD_DIR,
@@ -28,7 +63,7 @@ router.get('/data/browse', async (req, res) => {
     const entries = await listDataFolder(req.query.path || '');
     res.json({ success: true, data: entries });
   } catch (err) {
-    res.status(err.status || 500).json({ success: false, error: err.message });
+    sendError(res, err);
   }
 });
 
@@ -38,60 +73,63 @@ router.get('/data', async (req, res) => {
     const entries = await listDataDir(DATA_DIR);
     res.json({ success: true, data: entries });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    sendError(res, err);
   }
 });
 
 // List files in a subfolder
 router.get('/data/:folder', async (req, res) => {
   try {
-    // listDataFolder resolves real paths and rejects traversal / non-folders;
-    // a join()+startsWith() prefix check is not containment (data-evil would pass).
-    const entries = await listDataFolder(req.params.folder);
+    // resolveInside proves containment segment-wise: a string prefix check let
+    // `../data-evil` (a sibling whose name starts with "data") through.
+    const folderPath = resolveInside(DATA_DIR, req.params.folder, { label: 'folder' });
+    if (!existsSync(folderPath)) {
+      return res.status(404).json({ success: false, error: 'Folder not found' });
+    }
+    const entries = await listDataDir(folderPath);
     res.json({ success: true, data: entries });
   } catch (err) {
-    res.status(err.status || 500).json({ success: false, error: err.message });
+    sendError(res, err);
   }
 });
 
-// Create a new subfolder
+// Create a new subfolder (owned by the creator)
 router.post('/data/folder', async (req, res) => {
   try {
     const { name, description } = req.body;
     if (!name || !FOLDER_NAME_RE.test(name)) {
       return res.status(400).json({ success: false, error: 'Invalid folder name' });
     }
-    const result = await createDataFolder(name, description || '');
+    const result = await createDataFolder(name, description || '', req.user);
     res.json({ success: true, data: result });
   } catch (err) {
-    const status = err.status || 500;
-    res.status(status).json({ success: false, error: err.message });
+    sendError(res, err);
   }
 });
 
-// Delete a subfolder (only empty ones or user-created)
+// Delete a subfolder (only empty ones or user-created; owner/admin only)
 router.delete('/data/folder/:name', async (req, res) => {
   try {
-    await deleteDataFolder(req.params.name);
+    await deleteDataFolder(req.params.name, req.user);
     res.json({ success: true });
   } catch (err) {
-    const status = err.status || 500;
-    res.status(status).json({ success: false, error: err.message });
+    sendError(res, err);
   }
 });
 
 // Upload files to a folder
-router.post('/data/upload', upload.array('files', dataConfig.upload.max_files), async (req, res) => {
+router.post('/data/upload', uploadRateLimit, upload.array('files', dataConfig.upload.max_files), async (req, res) => {
   try {
-    const folder = String(req.body.folder || req.query.folder || '');
-    // Real containment: resolve() normalises "..", then relative() decides
-    // whether the result is still inside DATA_DIR. startsWith() would let a
-    // sibling whose name shares the prefix through.
-    const targetDir = folder ? resolve(DATA_DIR, folder) : DATA_DIR;
-    const relDir = relative(DATA_DIR, targetDir);
-    if (relDir === '..' || relDir.startsWith(`..${sep}`) || isAbsolute(relDir)) {
-      return res.status(400).json({ success: false, error: 'Invalid path' });
+    const folder = req.body.folder || req.query.folder || '';
+    // Dot-dirs below data/ are system areas (e.g. the JWT secret and temp
+    // upload staging live next to them) — never an upload target. Plain `.`/`..`
+    // segments are traversal and stay with resolveInside (PATH_OUTSIDE_BASE).
+    if (String(folder).split(/[\\/]+/).some((s) => s.startsWith('.') && s !== '.' && s !== '..')) {
+      return res.status(400).json({ success: false, error: 'Dot folders are not valid upload targets' });
     }
+    const targetDir = folder
+      ? resolveInside(DATA_DIR, folder, { label: 'folder' })
+      : DATA_DIR;
     if (!existsSync(targetDir)) {
       const { mkdir } = await import('fs/promises');
       await mkdir(targetDir, { recursive: true });
@@ -99,27 +137,37 @@ router.post('/data/upload', upload.array('files', dataConfig.upload.max_files), 
 
     const uploaded = [];
     for (const file of req.files || []) {
-      // The multipart filename is client-controlled: keep only its basename so
-      // a crafted "../../x" cannot escape targetDir, and keep the live DB safe.
-      const name = basename(String(file.originalname || ''));
-      if (!name || name === '.' || name === '..') {
+      // The multipart filename is fully attacker-controlled: it may carry
+      // directory components (`../`, `C:\`) that would rename the temp file
+      // outside targetDir. Reduce it to a safe leaf name first.
+      const safeName = sanitizeFileName(file.originalname);
+      if (!safeName) {
         return res.status(400).json({ success: false, error: 'Invalid file name' });
       }
-      if (isSystemDatabaseFile(name)) {
+      // A dot name would overwrite system files (e.g. `.auth-jwt-secret`
+      // signs every session) — the read path hides dotfiles for the same reason.
+      if (safeName.startsWith('.')) {
+        return res.status(400).json({ success: false, error: 'Dot files cannot be uploaded' });
+      }
+      // Uploading resolves an arbitrary name — a file named like the system
+      // database would overwrite the live DB, so refuse it up front.
+      if (isSystemDatabaseFile(safeName)) {
         return res.status(400).json({ success: false, error: 'System database file cannot be uploaded' });
       }
-      const destPath = join(targetDir, name);
+      // sanitizeFileName returns a bare leaf name (no separators, not `.`/`..`),
+      // so joining it onto the already-verified targetDir cannot escape.
+      const destPath = join(targetDir, safeName);
       const { rename } = await import('fs/promises');
       await rename(file.path, destPath);
       uploaded.push({
-        name,
+        name: safeName,
         size: file.size,
-        path: folder ? `data/${folder}/${name}` : `data/${name}`,
+        path: folder ? `data/${folder}/${safeName}` : `data/${safeName}`,
       });
     }
     res.json({ success: true, data: uploaded });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    sendError(res, err);
   }
 });
 
@@ -127,7 +175,7 @@ router.post('/data/upload', upload.array('files', dataConfig.upload.max_files), 
 router.get('/data/file/*', async (req, res) => {
   try {
     const { ext } = req.query;
-    const result = await readDataFile(req.params[0]);
+    const result = await readDataFile(req.params[0], req.user);
 
     if (ext === 'binary') {
       res.setHeader('Content-Type', 'application/octet-stream');
@@ -136,29 +184,28 @@ router.get('/data/file/*', async (req, res) => {
     }
     res.json({ success: true, data: { path: result.path, content: result.content, size: result.size } });
   } catch (err) {
-    const status = err.status || 500;
-    res.status(status).json({ success: false, error: err.message });
+    sendError(res, err);
   }
 });
 
-// List diagnostic run results
+// List diagnostic run results (own runs; all for an admin)
 router.get('/workspace', async (req, res) => {
   try {
-    const runs = await listWorkspaceRuns();
+    const runs = await listWorkspaceRuns(req.user);
     res.json({ success: true, data: runs });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    sendError(res, err);
   }
 });
 
 // Get report content
 router.get('/workspace/report/:runName', async (req, res) => {
   try {
-    const report = await getWorkspaceReport(req.params.runName);
+    const report = await getWorkspaceReport(req.params.runName, req.user);
     if (!report) return res.status(404).json({ success: false, error: 'Report not found' });
     res.json({ success: true, data: report });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    sendError(res, err);
   }
 });
 
@@ -167,21 +214,21 @@ router.get('/workspace/report/:runName', async (req, res) => {
 // endpoints: 200 + null instead of a 404 that only feeds the console.
 router.get('/workspace/optimizer/:runName', async (req, res) => {
   try {
-    const optimizer = await getWorkspaceOptimizer(req.params.runName);
+    const optimizer = await getWorkspaceOptimizer(req.params.runName, req.user);
     res.json({ success: true, data: optimizer ?? null });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    sendError(res, err);
   }
 });
 
 // List files in a diagnostic run workspace
 router.get('/workspace/files/:runName', async (req, res) => {
   try {
-    const files = await listWorkspaceFiles(req.params.runName);
+    const files = await listWorkspaceFiles(req.params.runName, req.user);
     if (!files) return res.status(404).json({ success: false, error: 'Run not found' });
     res.json({ success: true, data: files });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    sendError(res, err);
   }
 });
 
@@ -190,18 +237,18 @@ router.get('/workspace/files/:runName', async (req, res) => {
 // artifact is viewable regardless of the filename convention it uses.
 router.get('/workspace/html/:runName', async (req, res) => {
   try {
-    const htmls = await listWorkspaceHtml(req.params.runName);
+    const htmls = await listWorkspaceHtml(req.params.runName, req.user);
+    if (!htmls) return res.status(404).json({ success: false, error: 'Run not found' });
     res.json({ success: true, data: htmls });
   } catch (err) {
-    const status = err.status || 500;
-    res.status(status).json({ success: false, error: err.message });
+    sendError(res, err);
   }
 });
 
 // Serve workspace asset files (images, etc.) for report rendering
 router.get('/workspace/asset/:runName/*', async (req, res) => {
   try {
-    const asset = await getWorkspaceAsset(req.params.runName, req.params[0]);
+    const asset = await getWorkspaceAsset(req.params.runName, req.params[0], req.user);
     if (!asset) return res.status(404).json({ success: false, error: 'File not found' });
 
     res.setHeader('Content-Type', asset.contentType);
@@ -218,8 +265,7 @@ router.get('/workspace/asset/:runName/*', async (req, res) => {
 
     res.send(asset.content);
   } catch (err) {
-    const status = err.status || 500;
-    res.status(status).json({ success: false, error: err.message });
+    sendError(res, err);
   }
 });
 

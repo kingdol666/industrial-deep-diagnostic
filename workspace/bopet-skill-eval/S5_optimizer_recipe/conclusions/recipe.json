@@ -1,0 +1,71 @@
+{
+  "contract_version": "1.0",
+  "campaign_id": "OPT-20261014-001",
+  "regime_key": "优品率_3f_maximize",
+  "final_setpoints": {
+    "TDO定型区温度CX6": 190.908707,
+    "TDO拉伸区温度CX4": 243.24442,
+    "纵拉拉伸速度": 53.137229
+  },
+  "achieved": {
+    "优品率": {
+      "mean": 98.92366666666665,
+      "sd": 0.3471920698019072,
+      "n": 3,
+      "ci95_one_sided": [
+        98.33835136702038,
+        99.50898196631292
+      ],
+      "values": [
+        99.002,
+        98.544,
+        99.225
+      ]
+    }
+  },
+  "guardrails": {
+    "TDO拉伸区温度CX4": {
+      "value": 243.24442,
+      "envelope": [
+        242.99442,
+        243.49442
+      ]
+    },
+    "纵拉拉伸速度": {
+      "value": 53.137229,
+      "envelope": [
+        53.037228999999996,
+        53.237229
+      ]
+    },
+    "TDO定型区温度CX6": {
+      "value": 190.908707,
+      "envelope": [
+        190.658707,
+        191.158707
+      ]
+    }
+  },
+  "verification_status": "verified",
+  "dual_gate": {
+    "replicates_in_window": true,
+    "ci_in_limits": true,
+    "desirability_gate": true,
+    "D": 0.998721,
+    "D_max": 1.0
+  },
+  "notes": [
+    "in_tolerance_off_optimum: 达标收敛不等于全局最优 — RSM 驻点（classification=max，盒内）距 incumbent 相对距离 24.9%（>2%）；驻点设定点见 optimization_conclusion.json 的 recommended_refinement，建议在驻点处补一轮 confirm_replicates 后再决定是否切换配方（双门槛语义不变）"
+  ],
+  "usage_rules": [
+    "本文件为纯分析建议（advisory），IDD 不下发参数；执行决策由 AWS 侧做出",
+    "仅在 guardrails 包络内、非外推点直接复用；越包络或越支撑需重新验证",
+    "regime_key 场景化复用；跨工况使用前必须重新验证"
+  ],
+  "provenance": {
+    "script_version": "1.0.0",
+    "input_sha256": "7e1fd5c59ddfd2e0219b4fb77ab8b8798a331eb67e98f5b5d51d75620126dbf9",
+    "seed": 42,
+    "authored_by": "script"
+  }
+}

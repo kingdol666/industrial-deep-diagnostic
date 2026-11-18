@@ -1,0 +1,453 @@
+{
+  "run_name": "l5_coat_precheck",
+  "input_path": "data\\L5_COAT_20261001-20261021",
+  "input_is_directory": true,
+  "sources": [
+    {
+      "file": "参数代号对照说明.md",
+      "role": "no_tabular",
+      "reason": "no tabular content detected"
+    },
+    {
+      "file": "工艺背景与设备说明.md",
+      "role": "no_tabular",
+      "reason": "no tabular content detected"
+    },
+    {
+      "file": "异常现象与已做排查.md",
+      "role": "no_tabular",
+      "reason": "no tabular content detected"
+    }
+  ],
+  "tables": [
+    {
+      "file": "L5_AREAL_PROFILE_10min.csv",
+      "sheet": null,
+      "format": "delimited",
+      "n_rows": 3024,
+      "n_cols": 43,
+      "time_column": "时间",
+      "score": 6.1,
+      "quality_flags": {
+        "exact_duplicate_rows": {
+          "count": 0,
+          "row_indices_0based": [],
+          "row_indices_truncated": false,
+          "note": "count = redundant occurrences beyond the first (dedup is NOT applied); row_indices_0based lists the rows involved in exact duplication, 0-based within the parsed table (header excluded), capped at 10"
+        },
+        "null_cell_count": 0,
+        "encoding": "utf-8-sig",
+        "delimiter": ","
+      }
+    },
+    {
+      "file": "L5_ccd_index.csv",
+      "sheet": null,
+      "format": "delimited",
+      "n_rows": 63,
+      "n_cols": 2,
+      "time_column": "时间",
+      "score": 1.463,
+      "quality_flags": {
+        "exact_duplicate_rows": {
+          "count": 0,
+          "row_indices_0based": [],
+          "row_indices_truncated": false,
+          "note": "count = redundant occurrences beyond the first (dedup is NOT applied); row_indices_0based lists the rows involved in exact duplication, 0-based within the parsed table (header excluded), capped at 10"
+        },
+        "null_cell_count": 0,
+        "encoding": "utf-8-sig",
+        "delimiter": ","
+      }
+    },
+    {
+      "file": "L5_coat_main_10min.csv",
+      "sheet": null,
+      "format": "delimited",
+      "n_rows": 3024,
+      "n_cols": 25,
+      "time_column": "时间",
+      "score": 17.5,
+      "quality_flags": {
+        "exact_duplicate_rows": {
+          "count": 0,
+          "row_indices_0based": [],
+          "row_indices_truncated": false,
+          "note": "count = redundant occurrences beyond the first (dedup is NOT applied); row_indices_0based lists the rows involved in exact duplication, 0-based within the parsed table (header excluded), capped at 10"
+        },
+        "null_cell_count": 0,
+        "encoding": "utf-8-sig",
+        "delimiter": ","
+      }
+    },
+    {
+      "file": "L5_lab_quality_2h.csv",
+      "sheet": null,
+      "format": "delimited",
+      "n_rows": 252,
+      "n_cols": 6,
+      "time_column": "时间",
+      "score": 4.952,
+      "quality_flags": {
+        "exact_duplicate_rows": {
+          "count": 0,
+          "row_indices_0based": [],
+          "row_indices_truncated": false,
+          "note": "count = redundant occurrences beyond the first (dedup is NOT applied); row_indices_0based lists the rows involved in exact duplication, 0-based within the parsed table (header excluded), capped at 10"
+        },
+        "null_cell_count": 0,
+        "encoding": "utf-8-sig",
+        "delimiter": ","
+      }
+    },
+    {
+      "file": "L5_operator_notes.csv",
+      "sheet": null,
+      "format": "delimited",
+      "n_rows": 10,
+      "n_cols": 2,
+      "time_column": "时间",
+      "score": 1.41,
+      "quality_flags": {
+        "exact_duplicate_rows": {
+          "count": 0,
+          "row_indices_0based": [],
+          "row_indices_truncated": false,
+          "note": "count = redundant occurrences beyond the first (dedup is NOT applied); row_indices_0based lists the rows involved in exact duplication, 0-based within the parsed table (header excluded), capped at 10"
+        },
+        "null_cell_count": 0,
+        "encoding": "utf-8-sig",
+        "delimiter": ","
+      }
+    }
+  ],
+  "selected_table": {
+    "file": "L5_coat_main_10min.csv",
+    "sheet": null,
+    "format": "delimited",
+    "n_rows": 3024,
+    "n_cols": 25,
+    "time_column": "时间",
+    "score": 17.5,
+    "why": "merge abandoned (anti-bloat); largest single table"
+  },
+  "merge": {
+    "strategy": "abandoned",
+    "reason": "merged rows 6048 > 1.5x largest source (3024); time keys did not align — keeping largest single table",
+    "merged_files": [
+      "L5_AREAL_PROFILE_10min.csv",
+      "L5_coat_main_10min.csv",
+      "L5_lab_quality_2h.csv"
+    ]
+  },
+  "merge_exclusions": [
+    {
+      "file": "L5_ccd_index.csv",
+      "sheet": null,
+      "reason_code": "below_min_rows",
+      "detail": "63 rows < 100 merge threshold"
+    },
+    {
+      "file": "L5_operator_notes.csv",
+      "sheet": null,
+      "reason_code": "below_min_rows",
+      "detail": "10 rows < 100 merge threshold"
+    }
+  ],
+  "quality": {
+    "missing_cell_pct": 0.0,
+    "rows": 3024,
+    "cols": 25,
+    "time_column": "时间",
+    "numeric_columns": [
+      "L5-SLRY-VISC",
+      "L5-SLRY-SC",
+      "L5-SLRY-TEMP",
+      "L5-COAT-GAP-OS",
+      "L5-COAT-GAP-DS",
+      "L5-COAT-SPD",
+      "L5-OVEN-T1",
+      "L5-OVEN-T2",
+      "L5-OVEN-T3",
+      "L5-OVEN-T4",
+      "L5-OVEN-HOUT3",
+      "L5-OVEN-FAN1-HZ",
+      "L5-OVEN-FAN2-HZ",
+      "L5-OVEN-FAN3-HZ",
+      "L5-OVEN-NMP",
+      "L5-MSR-WT-AVG",
+      "L5-MSR-WT-CV",
+      "L5-MSR-EDGE-OS",
+      "L5-MSR-EDGE-DS",
+      "L5-MSR-MOIST",
+      "L5-QLT-YIELD",
+      "L5-LINE-MODE"
+    ],
+    "note": "missing cells stay NaN; downstream cleaning handles them"
+  },
+  "context_files": [
+    "workspace\\l5-coat-multiskill-eval\\precheck\\00_input\\context\\参数代号对照说明.md",
+    "workspace\\l5-coat-multiskill-eval\\precheck\\00_input\\context\\工艺背景与设备说明.md",
+    "workspace\\l5-coat-multiskill-eval\\precheck\\00_input\\context\\异常现象与已做排查.md"
+  ],
+  "skipped_files": [
+    {
+      "file": "L5_ccd_frame_000.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "L5_ccd_frame_001.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "L5_ccd_frame_002.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "L5_ccd_frame_003.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "L5_ccd_frame_004.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "L5_ccd_frame_005.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "L5_ccd_frame_006.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "L5_ccd_frame_007.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "L5_ccd_frame_008.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "L5_ccd_frame_009.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "L5_ccd_frame_010.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "L5_ccd_frame_011.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "L5_ccd_frame_012.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "L5_ccd_frame_013.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "L5_ccd_frame_014.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "L5_ccd_frame_015.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "L5_ccd_frame_016.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "L5_ccd_frame_017.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "L5_ccd_frame_018.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "L5_ccd_frame_019.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "L5_ccd_frame_020.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "L5_ccd_frame_021.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "L5_ccd_frame_022.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "L5_ccd_frame_023.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "L5_ccd_frame_024.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "L5_ccd_frame_025.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "L5_ccd_frame_026.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "L5_ccd_frame_027.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "L5_ccd_frame_028.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "L5_ccd_frame_029.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "L5_ccd_frame_030.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "L5_ccd_frame_031.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "L5_ccd_frame_032.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "L5_ccd_frame_033.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "L5_ccd_frame_034.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "L5_ccd_frame_035.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "L5_ccd_frame_036.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "L5_ccd_frame_037.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "L5_ccd_frame_038.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "L5_ccd_frame_039.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "L5_ccd_frame_040.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "L5_ccd_frame_041.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "L5_ccd_frame_042.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "L5_ccd_frame_043.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "L5_ccd_frame_044.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "L5_ccd_frame_045.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "L5_ccd_frame_046.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "L5_ccd_frame_047.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "L5_ccd_frame_048.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "L5_ccd_frame_049.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "L5_ccd_frame_050.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "L5_ccd_frame_051.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "L5_ccd_frame_052.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "L5_ccd_frame_053.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "L5_ccd_frame_054.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "L5_ccd_frame_055.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "L5_ccd_frame_056.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "L5_ccd_frame_057.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "L5_ccd_frame_058.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "L5_ccd_frame_059.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "L5_ccd_frame_060.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "L5_ccd_frame_061.png",
+      "reason": "extension .png not tabular/context"
+    },
+    {
+      "file": "L5_ccd_frame_062.png",
+      "reason": "extension .png not tabular/context"
+    }
+  ],
+  "status": "ok",
+  "outputs": {
+    "preprocessed_data.csv": "workspace\\l5-coat-multiskill-eval\\precheck\\00_input\\preprocessed_data.csv",
+    "preprocessed_data.json": "workspace\\l5-coat-multiskill-eval\\precheck\\00_input\\preprocessed_data.json",
+    "context_dir": "workspace\\l5-coat-multiskill-eval\\precheck\\00_input\\context"
+  }
+}

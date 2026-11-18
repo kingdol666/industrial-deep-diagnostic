@@ -1,0 +1,20 @@
+{
+  "data_path": "workspace/line-stability-runs/20261014110439_bopet_demo/00_input/bopet_demo_actual.csv",
+  "line_id": "bopet_demo",
+  "product": "BOPET薄膜",
+  "time_col": "时间",
+  "start": "2026-10-01T00:00:00",
+  "end": "2026-10-10T23:00:00",
+  "inspection_cols": [
+    "薄膜厚度",
+    "优品率"
+  ],
+  "preprocessing": {
+    "source_export": "data/bopet_demo/bopet_demo_actual.csv",
+    "companion_files": [
+      "bopet_demo_setpoint.csv (同期设定值表，13 参数)",
+      "generation_manifest.json (数据集生成清单，seed=42)"
+    ],
+    "note": "演示数据集：由 generate_bopet_demo.py 以固定种子生成，工艺窗口取自乐凯 FW3 快照典型运行值；本报告按普通产线数据流程评估，生成脚本不参与评分"
+  }
+}

@@ -164,9 +164,9 @@ onMounted(() => {
   color: var(--text3);
   background: var(--surface-soft);
   border-bottom: 1px solid var(--border);
-  position: sticky;
-  top: 28px;
-  z-index: 1;
+  /* Separator, not an overlay: a sticky label pinned below the sticky thead
+     covered the first row of its own group (ACTIVE row hidden in short
+     windows). Keep it in flow so every row stays visible. */
 }
 
 .tl-pulse {

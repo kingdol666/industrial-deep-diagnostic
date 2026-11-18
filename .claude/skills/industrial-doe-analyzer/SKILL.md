@@ -135,3 +135,9 @@ uv run --project "$SHARED_PATH/scripts" python "$SKILL_PATH/tests/perf_probe.py"
 | Gate FAIL | Fix the flagged artifact (script-side rerun, not hand-edit), max 3 rounds |
 | validate.mjs unavailable | G6 FAILS by design (no degraded path); report the environment blocker (validator missing at `<shared>/scripts/validate.mjs`) to the main agent — it does not consume fix rounds |
 | industrial-data-processor stats package missing | Observational mode is unavailable (`analyze.py` hard-depends on its `core_stats`/`anti_spurious`/`production_regime_detector`); designed mode is unaffected |
+
+## Heterogeneous profile responses (E-1H, M3)
+
+剖面类响应以 `HX-PROF-<SRC>-MEAN` / `HX-PROF-<SRC>-P95` 列登记
+（`07_hetero/preprocessed_data_hetero.csv`；v1 不做 PC 分数压缩）；
+`07_hetero/column_contract.json` 提供各候选的单位与正常范围。

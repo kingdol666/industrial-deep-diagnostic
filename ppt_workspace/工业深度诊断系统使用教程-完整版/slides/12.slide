@@ -1,0 +1,32 @@
+<Slide style={{ padding: '22px 64px 18px 64px', background: '#F7F4EC' }}>
+    <Box style={{ width: 1152, height: 102, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box style={{ flexDirection: 'column' }}>
+            <Text style={{ fontSize: 36, fontWeight: 'bold', color: '#1D1B16', lineHeight: 1.25 }}>第 5 步 · /model 切换模型</Text>
+            <Text style={{ fontSize: 17, color: 'rgba(29,27,22,0.72)', marginTop: 6 }}>左边选服务商，右边选模型；中下会显示它的上下文、价格与速度</Text>
+        </Box>
+        <Box style={{ padding: '10px 18px', background: '#1D1B16', borderRadius: 8 }}>
+            <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#B8730F' }}>本机当前 deepseek-flash</Text>
+        </Box>
+    </Box>
+    <Box style={{ width: 1152, height: 534, flexDirection: 'row', gap: 22 }}>
+        <Image src="assets/omp_models.png" style={{ width: 632, height: 534, borderRadius: 10, border: '1px solid rgba(29,27,22,0.10)' }} />
+        <Box style={{ width: 498, height: 534, flexDirection: 'column', gap: 15 }}>
+            <Box style={{ height: 168, padding: 18, background: '#FFFFFF', borderRadius: 12, border: '1px solid rgba(29,27,22,0.10)', flexDirection: 'column' }}>
+                <Text style={{ fontSize: 21, fontWeight: 'bold', color: '#1D1B16' }}>① 左栏是服务商</Text>
+                <Text style={{ fontSize: 17, color: 'rgba(29,27,22,0.78)', lineHeight: 1.6, marginTop: 9 }}>实心圆 ● 表示已登录可用，空心 ○ 表示还没配。DeepSeek 在列表中部。</Text>
+            </Box>
+            <Box style={{ height: 168, padding: 18, background: '#FFFFFF', borderRadius: 12, border: '1px solid rgba(29,27,22,0.10)', flexDirection: 'column' }}>
+                <Text style={{ fontSize: 21, fontWeight: 'bold', color: '#1D1B16' }}>② 右栏是模型</Text>
+                <Text style={{ fontSize: 17, color: 'rgba(29,27,22,0.78)', lineHeight: 1.6, marginTop: 9 }}>按 → 进入模型列表，↑↓ 选择。每行后面标着上下文长度、每百万 token 价格与实测速度。</Text>
+            </Box>
+            <Box style={{ height: 168, padding: 18, background: 'rgba(184,115,15,0.10)', borderRadius: 12, border: '1px solid rgba(184,115,15,0.42)', flexDirection: 'column' }}>
+                <Text style={{ fontSize: 21, fontWeight: 'bold', color: '#8A5608' }}>③ 回车指派角色</Text>
+                <Text style={{ fontSize: 17, color: 'rgba(29,27,22,0.80)', lineHeight: 1.6, marginTop: 9 }}>底部写着 Enter assign roles。默认角色选定后，状态栏与欢迎框都会立刻变成新模型。</Text>
+            </Box>
+        </Box>
+    </Box>
+    <Box style={{ width: 1152, height: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Text style={{ fontSize: 15, color: 'rgba(29,27,22,0.48)' }}>也可以打字过滤；Esc 关闭，不改动任何设置</Text>
+        <Text style={{ fontSize: 15, color: 'rgba(29,27,22,0.48)' }}>12 / 40</Text>
+    </Box>
+</Slide>

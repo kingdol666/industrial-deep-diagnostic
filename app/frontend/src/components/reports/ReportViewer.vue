@@ -173,7 +173,7 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { api, getToken } from '../../api/index.js';
+import { api } from '../../api/index.js';
 import { marked } from 'marked';
 import DOMPurify from 'dompurify';
 import { HeatmapChart, GaugeChart } from '../charts/index.js';
@@ -332,9 +332,9 @@ async function loadHtmlReports(runName) {
     hasHtml.value = htmlReports.value.length > 0;
   } catch {
     try {
+      // Same-origin HEAD probe: the session cookie is attached automatically.
       const res = await fetch(assetUrl(runName, 'diagnostic-report.html'), {
         method: 'HEAD',
-        headers: authHeaders(),
       });
       if (selectedRun.value !== runName) return;
       if (res.ok) {
@@ -468,28 +468,14 @@ async function fetchChartData(runDir) {
 /**
  * Build a URL for a workspace asset (figure PNG, generated HTML report).
  *
- * These URLs end up in `<img src>` and `<iframe src>`, and the browser cannot
- * attach an `Authorization` header to either — so the global auth guard
- * rejected every one of them with 401. The symptom was silent and specific:
- * report figures never appeared, and the whole "HTML report" tab rendered
- * blank, because the iframe received a 401 JSON body instead of the page.
- *
- * The backend already sanctions a `?token=` fallback for exactly this class of
- * caller (see extractBearerToken — it exists for SSE/EventSource, which has the
- * same "cannot set headers" constraint). Reusing it keeps the fix on the
- * client and needs no change to the auth contract.
+ * These URLs end up in `<img src>` and `<iframe src>`, which cannot carry an
+ * `Authorization` header — but they don't need to: the session is a same-origin
+ * HttpOnly cookie, and the browser attaches it to image/iframe/fetch requests
+ * on this origin automatically. The URL is therefore exactly the API path;
+ * there is no token query param anymore (it used to leak into access logs).
  */
 function assetUrl(runName, path) {
-  const base = `/api/files/workspace/asset/${encodeURIComponent(runName)}/${path}`;
-  const token = getToken();
-  if (!token) return base;
-  return `${base}${base.includes('?') ? '&' : '?'}token=${encodeURIComponent(token)}`;
-}
-
-/** Header form, for fetches that *can* carry one. */
-function authHeaders() {
-  const token = getToken();
-  return token ? { Authorization: `Bearer ${token}` } : {};
+  return `/api/files/workspace/asset/${encodeURIComponent(runName)}/${path}`;
 }
 
 function rewriteImageUrls(html, runName) {

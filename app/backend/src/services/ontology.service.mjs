@@ -14,11 +14,13 @@ import { readdirSync, readFileSync, existsSync, statSync } from 'fs';
 import { createHash } from 'crypto';
 import { join, dirname, basename, resolve, relative, isAbsolute } from 'path';
 import { PROJECT_ROOT } from '../../../../config/loader.mjs';
+import logger from '../utils/logger.mjs';
+import { resolveInside, isInside, PathViolationError } from '../utils/pathGuard.mjs';
 import {
   STORE_DIR, INDEX_PATH, ONTOLOGY_SCHEMA_PATH, ONTOLOGY_MIN_BYTES,
   readIndex, writeIndex, listStore, getEntry, readAsset, addVersion,
   updateEntry, removeVersion, removeScene, validateOntology, summarizeOntology,
-  recommendReuse, computeFingerprint,
+  recommendReuse, computeFingerprint, withStoreLock, OntologyStoreCorruptError,
 } from '../../../../.claude/shared/scripts/ontology_store.mjs';
 
 const RUNS_DIR = join(PROJECT_ROOT, 'workspace', 'diagnostic-runs');
@@ -34,14 +36,52 @@ export class OntologyError extends Error {
   }
 }
 
+/**
+ * A corrupt store index (readIndex refused to read it and backed the original
+ * up) must surface as an explicit 500 with a stable machine code — continuing
+ * would let the next writer persist the damage. The backup path is operational
+ * detail: it goes to the server log, never into the response body.
+ */
+function storeCorruptError(err) {
+  logger.error(
+    `Ontology store index corrupt — reads/writes refused (backup: ${err?.backupPath || 'n/a'}): ${err?.message}`,
+    { context: 'Ontology' },
+  );
+  return new OntologyError(
+    500,
+    'ONTOLOGY_STORE_CORRUPT',
+    '本体存储索引已损坏，读写已被拒绝；原文件已备份，请运维查看后端日志后修复或恢复备份。',
+  );
+}
+
+/** Throw the explicit 500 for a corrupt store index; return for anything else. */
+function throwIfStoreCorrupt(err) {
+  if (err instanceof OntologyStoreCorruptError || err?.code === 'ONTOLOGY_STORE_CORRUPT') {
+    throw storeCorruptError(err);
+  }
+}
+
+/** Run a store read/write, mapping a corrupt-index failure to the explicit 500. */
+function guardedStore(fn) {
+  try {
+    return fn();
+  } catch (err) {
+    throwIfStoreCorrupt(err);
+    throw err;
+  }
+}
+
 // ────────────────────────── 资产读取 ──────────────────────────
 
 /** 懒回填：老索引条目缺 summary / content_sha256 时补齐（只写索引，不动本体文件）。
  *
  *  content_sha256 同时是 HTTP 强 ETag 与并发前置条件的来源 —— 历史条目没有它，
- *  编辑页就会在保存时撞上 428。必须从磁盘内容重算，而不是留空。 */
-function backfillIndex() {
-  const idx = readIndex();
+ *  编辑页就会在保存时撞上 428。必须从磁盘内容重算，而不是留空。
+ *
+ *  并发：读路径保持无锁（列表页是热路径）；只有确实需要写回时才升级为
+ *  withStoreLock 内的 read-modify-write —— 与 CLI/skill 侧的加锁写者串行，
+ *  否则无锁的 writeIndex 会把别的进程刚写的条目整段覆盖掉。 */
+function applyIndexBackfill(idx) {
   let dirty = false;
   for (const e of idx.entries) {
     const abs = join(STORE_DIR, e.path);
@@ -63,8 +103,30 @@ function backfillIndex() {
     if (e.tags === undefined) { e.tags = []; dirty = true; }
     if (e.origin === undefined) { e.origin = e.built_from_run ? 'agent' : 'unknown'; dirty = true; }
   }
-  if (dirty) writeIndex(idx);
-  return idx;
+  return dirty;
+}
+
+function backfillIndex() {
+  let peek;
+  try {
+    peek = readIndex(); // 无锁快照：绝大多数调用都不需要写回
+  } catch (err) {
+    throwIfStoreCorrupt(err);
+    throw err;
+  }
+  if (!indexNeedsBackfill(peek)) return peek;
+  // 有内容需要回填 —— 在跨进程写锁内重读并写回，避免与 CLI 写者互相覆盖。
+  return withStoreLock(() => {
+    const idx = readIndex();
+    if (applyIndexBackfill(idx)) writeIndex(idx);
+    return idx;
+  });
+}
+
+/** 探针：在浅拷贝上跑同一套回填逻辑，只回答「需不需要写」——不改动原索引。 */
+function indexNeedsBackfill(idx) {
+  const clone = { ...idx, entries: idx.entries.map((e) => ({ ...e })) };
+  return applyIndexBackfill(clone);
 }
 
 /** 列表：按 scene 聚合，含每版本条目 + 落盘健康状态。 */
@@ -166,21 +228,32 @@ function ensureContentHash(entry) {
   if (entry.content_sha256) return entry.content_sha256;
   const abs = join(STORE_DIR, entry.path);
   if (!existsSync(abs)) return null;
+  let hash;
   try {
-    const hash = 'sha256:' + createHash('sha256').update(readFileSync(abs, 'utf-8')).digest('hex');
-    const idx = readIndex();
-    const target = idx.entries.find((e) => e.scene_key === entry.scene_key && e.version === entry.version);
-    if (target) { target.content_sha256 = hash; writeIndex(idx); }
-    entry.content_sha256 = hash;
-    return hash;
+    // 哈希计算（磁盘读）留在锁外；只有索引写回进锁。
+    hash = 'sha256:' + createHash('sha256').update(readFileSync(abs, 'utf-8')).digest('hex');
   } catch {
     return null;
   }
+  try {
+    withStoreLock(() => {
+      const idx = readIndex();
+      const target = idx.entries.find((e) => e.scene_key === entry.scene_key && e.version === entry.version);
+      if (target) { target.content_sha256 = hash; writeIndex(idx); }
+    });
+  } catch (err) {
+    // 索引损坏必须显式浮现（500 ONTOLOGY_STORE_CORRUPT），不静默留空 ——
+    // 留空只会让编辑页在保存时撞上 428，把真正的问题藏起来。其余（锁超时等）
+    // 维持旧行为：本函数是可选的哈希补写，失败不让读取整体崩掉。
+    throwIfStoreCorrupt(err);
+  }
+  entry.content_sha256 = hash;
+  return hash;
 }
 
 /** 单资产：本体 + provenance + 索引条目 + 校验 + 度量。 */
 export function getAsset(sceneKey, version, { withGraph = true, withMetrics = true } = {}) {
-  const asset = readAsset(sceneKey, version);
+  const asset = guardedStore(() => readAsset(sceneKey, version));
   if (!asset) throw new OntologyError(404, 'ONTOLOGY_NOT_FOUND', `本体资产不存在: ${sceneKey} v${version}`);
   if (asset.missing) {
     throw new OntologyError(410, 'ONTOLOGY_FILE_MISSING',
@@ -1151,7 +1224,13 @@ export function saveAsset({
     throw new OntologyError(400, 'SCENE_INVALID',
       `scene_key 不合法: ${JSON.stringify(sceneKey)}（仅允许 A-Z a-z 0-9 . _ -，长度 3-64）`);
   }
-  const versions = readIndex().entries.filter((e) => e.scene_key === sceneKey).map((e) => e.version);
+  let versions;
+  try {
+    versions = readIndex().entries.filter((e) => e.scene_key === sceneKey).map((e) => e.version);
+  } catch (err) {
+    throwIfStoreCorrupt(err);
+    throw err;
+  }
   const latest = versions.length ? Math.max(...versions) : 0;
 
   if (baseVersion !== null && baseVersion !== undefined && Number(baseVersion) !== latest && !force) {
@@ -1166,7 +1245,9 @@ export function saveAsset({
   //   - 编辑既有版本时缺少前置条件 → 428（让"丢失更新"在结构上不可能，而不只是"可检测"）
   //   - 前置条件与磁盘不符 → 409 CONTENT_CHANGED（客户端须重新加载或显式 force）
   //   - 冲突时绝不静默重试：UI 必须呈现三方视图（base / mine / theirs）
-  const baseEntry = (baseVersion !== null && baseVersion !== undefined) ? getEntry(sceneKey, baseVersion) : null;
+  const baseEntry = (baseVersion !== null && baseVersion !== undefined)
+    ? guardedStore(() => getEntry(sceneKey, baseVersion))
+    : null;
   if (baseEntry && !force && !expectedSha256) {
     // 缺前置条件时把当前有效哈希一并告知客户端，便于其直接重试而不是盲目刷新
     const current = ensureContentHash(baseEntry);
@@ -1209,10 +1290,13 @@ export function saveAsset({
       },
     });
   } catch (err) {
+    // 索引损坏/写入冲突要如实区分：损坏是运维问题（500 + 备份在日志里），
+    // 其余 store 侧拒绝才是 400 SAVE_FAILED。
+    throwIfStoreCorrupt(err);
     throw new OntologyError(400, 'SAVE_FAILED', err.message);
   }
 
-  const asset = readAsset(sceneKey, result.version);
+  const asset = guardedStore(() => readAsset(sceneKey, result.version));
   return {
     ...result,
     validation,
@@ -1232,7 +1316,13 @@ export function listCandidates({ limit = 200, includeInStore = true } = {}) {
   if (!existsSync(RUNS_DIR)) {
     return { runs_dir: RUNS_DIR, candidates: [], total: 0 };
   }
-  const idx = readIndex();
+  let idx;
+  try {
+    idx = readIndex();
+  } catch (err) {
+    throwIfStoreCorrupt(err);
+    throw err;
+  }
   const storeByHash = new Map();
   for (const e of idx.entries) {
     try {
@@ -1295,12 +1385,44 @@ function hashOf(abs) {
 }
 
 /**
+ * Resolve the request-supplied run location to an absolute directory that
+ * provably stays inside the runs root (workspace/diagnostic-runs).
+ *
+ * Both fields arrive from the request body, so both are hostile input: a bare
+ * `join`/`resolve` let `runName: '../../data'` escape the runs root and
+ * `runDir` accepted ANY absolute path (arbitrary 01_ontology/ontology.json
+ * reads + a store entry built from attacker-chosen provenance). Containment is
+ * therefore proven with pathGuard, never with string prefixes.
+ *
+ * Legitimate values keep working: `runName` is a run directory name, and
+ * `runDir` is either such a name, a project-relative
+ * `workspace/diagnostic-runs/<name>`, or the absolute path the /candidates
+ * endpoint hands the UI (which already lives inside the runs root).
+ */
+function resolveAdoptRunDir(runDir, runName) {
+  try {
+    if (runDir) {
+      const abs = isAbsolute(runDir)
+        ? resolve(runDir)
+        : resolveInside(PROJECT_ROOT, runDir, { label: 'run dir' });
+      if (!isInside(RUNS_DIR, abs)) {
+        throw new PathViolationError('run dir resolves outside the runs root');
+      }
+      return abs;
+    }
+    return resolveInside(RUNS_DIR, runName || '', { label: 'run name' });
+  } catch (e) {
+    // Fail on the existing 400 path — OntologyError is what the routes map to
+    // a client error; a raw guard error would surface as a 500.
+    throw new OntologyError(400, 'PATH_OUTSIDE_BASE', `runDir/runName 必须位于诊断运行目录（workspace/diagnostic-runs）之内: ${e.message}`);
+  }
+}
+
+/**
  * 采纳一个 run 目录本体进入 store（publish 语义 + 显式 scene/元数据）。
  */
 export function adoptCandidate({ runDir, runName, scene, title, tags, notes, quality = 'unvalidated', dataFile }) {
-  const dir = runDir
-    ? (isAbsolute(runDir) ? runDir : resolve(PROJECT_ROOT, runDir))
-    : join(RUNS_DIR, runName || '');
+  const dir = resolveAdoptRunDir(runDir, runName);
   const ontologyPath = join(dir, '01_ontology', 'ontology.json');
   if (!existsSync(ontologyPath)) {
     throw new OntologyError(404, 'ONTOLOGY_NOT_FOUND', `run 目录下没有 01_ontology/ontology.json: ${dir}`);
@@ -1359,7 +1481,7 @@ export function recommend({ dataPath, scene } = {}) {
     abs = isAbsolute(dataPath) ? dataPath : join(PROJECT_ROOT, dataPath);
     if (!existsSync(abs)) throw new OntologyError(404, 'DATA_NOT_FOUND', `数据路径不存在: ${dataPath}`);
   }
-  const result = recommendReuse({ dataPath: abs || undefined, scene: scene || undefined });
+  const result = guardedStore(() => recommendReuse({ dataPath: abs || undefined, scene: scene || undefined }));
   // 补充可读的列信息，帮助用户判断「是否与场景高度相关」
   let columns = null;
   if (abs) {
@@ -1383,6 +1505,9 @@ export function patchAsset(sceneKey, version, patch) {
 
 /** store 原语抛出的是普通 Error；翻译成带 HTTP 语义的 OntologyError。 */
 function translateStoreError(err, fallbackCode) {
+  if (err instanceof OntologyStoreCorruptError || err?.code === 'ONTOLOGY_STORE_CORRUPT') {
+    return storeCorruptError(err);
+  }
   const msg = err?.message || String(err);
   if (/not found/i.test(msg)) return new OntologyError(404, 'ONTOLOGY_NOT_FOUND', msg);
   if (/invalid/i.test(msg)) return new OntologyError(422, 'ONTOLOGY_INVALID', msg);
@@ -1403,27 +1528,40 @@ export function deleteScene(sceneKey) {
 
 /** 克隆一个版本到另一个 scene_key（用于「以此为模板新建场景」）。 */
 export function cloneAsset({ sceneKey, version, targetScene, title, tags }) {
-  const src = readAsset(sceneKey, version);
+  const src = guardedStore(() => readAsset(sceneKey, version));
   if (!src || src.missing) throw new OntologyError(404, 'ONTOLOGY_NOT_FOUND', `缺少 ${sceneKey} v${version}`);
   const target = String(targetScene || '').trim();
   if (!target) throw new OntologyError(400, 'TARGET_SCENE_REQUIRED', 'target_scene 必填');
-  if (readIndex().entries.some((e) => e.scene_key === target)) {
+  let existing;
+  try {
+    existing = readIndex().entries.some((e) => e.scene_key === target);
+  } catch (err) {
+    throwIfStoreCorrupt(err);
+    throw err;
+  }
+  if (existing) {
     throw new OntologyError(409, 'SCENE_EXISTS', `场景已存在: ${target}（请换一个 key 或先删除）`);
   }
   const onto = JSON.parse(JSON.stringify(src.ontology));
   if (onto.scene && typeof onto.scene === 'object') onto.scene.name = target;
-  const result = addVersion({
-    sceneKey: target,
-    ontology: onto,
-    buildMode: 'clone',
-    quality: 'unvalidated',
-    title: title || target,
-    tags: tags || src.entry.tags || [],
-    notes: `克隆自 ${sceneKey} v${version}`,
-    origin: 'user',
-    inheritFrom: src.entry,
-    provenance: { cloned_from: { scene_key: sceneKey, version: Number(version) } },
-  });
+  let result;
+  try {
+    result = addVersion({
+      sceneKey: target,
+      ontology: onto,
+      buildMode: 'clone',
+      quality: 'unvalidated',
+      title: title || target,
+      tags: tags || src.entry.tags || [],
+      notes: `克隆自 ${sceneKey} v${version}`,
+      origin: 'user',
+      inheritFrom: src.entry,
+      provenance: { cloned_from: { scene_key: sceneKey, version: Number(version) } },
+    });
+  } catch (err) {
+    throwIfStoreCorrupt(err);
+    throw err;
+  }
   return result;
 }
 // ────────────────────────── 统计总览 ──────────────────────────

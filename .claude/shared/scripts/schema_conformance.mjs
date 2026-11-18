@@ -44,6 +44,7 @@ const anomaly = j('02_processed/anomaly_report.json');
 const dac = j('02_processed/data_analysis_conclusion.json');
 const captions = j('03_figures/image_captions.json');
 const visual = j('03_figures/visual_analysis.json');
+const featureSummary = j('02_processed/feature_summary.json') || {};
 const judge = j('05_review/judge_feedback.json');
 const runSummary = j('run_summary.json');
 const diagnosis = j('04_diagnostics/diagnosis.json');
@@ -60,6 +61,11 @@ const tlPairs = tl.pair_analyses || [];
 const qualityTargets = (manifest.target_columns && manifest.target_columns.length ? manifest.target_columns
   : flatSignals.filter(s => s.role === 'target').map(s => s.column).slice(0, 5)) || [];
 const categorical = manifest.categorical_columns || [];
+// Hoisted: consumed by both the data_analysis_conclusion (#3) and the
+// analysis_parameter_selection (#4) projection blocks.
+const predictorCols = (tlPairs.map(p => p.predictor).concat(corrPairs.map(p => p.parameter)))
+  .filter((v, i, a) => v && a.indexOf(v) === i).slice(0, 12);
+const excludeCols = categorical.filter(c => !predictorCols.includes(c)).slice(0, 6);
 
 // ── 1. scenario_classification ──
 if (scenario) {
@@ -73,6 +79,9 @@ if (scenario) {
 // ── 2. anomaly_report: quality_reset trio + process_parameter_fluctuation ──
 if (anomaly) {
   let fix = false;
+  // Only project a quality-reset block when the scene actually has quality
+  // targets or already carries one — otherwise it is invented content.
+  if (anomaly.quality_reset_analysis || qualityTargets.length > 0) {
   anomaly.quality_reset_analysis = anomaly.quality_reset_analysis || {};
   const q = anomaly.quality_reset_analysis;
   if (q.reset_found === undefined) {
@@ -91,6 +100,7 @@ if (anomaly) {
     fix = true;
   }
   if (!q.summary) { q.summary = String(q.verdict || 'no quality reset observed'); fix = true; }
+  }
   if (!anomaly.process_parameter_fluctuation || Object.keys(anomaly.process_parameter_fluctuation).length === 0) {
     const fluct = {};
     corrPairs.filter(p => p && p.parameter && typeof p.r === 'number').slice(0, 8).forEach(p => {
@@ -101,10 +111,28 @@ if (anomaly) {
       };
     });
     if (Object.keys(fluct).length === 0) {
-      fluct.mill_power_kW = { trend: 'see stage_digest.top_anomalies', magnitude: null, source: '02_processed/stage_digest.json' };
+      // No correlation evidence for this scene. Derive the block from THIS
+      // scene's own process parameters (value-preserving re-shape of
+      // feature_summary.json statistics) — never inject a foreign-scene
+      // template key such as mill_power_kW.
+      const cols = flatSignals.filter(s => s.role !== 'target').map(s => s.column).slice(0, 8);
+      const stats = featureSummary.columns || {};
+      cols.forEach(col => {
+        const st = stats[col] || {};
+        fluct[col] = {
+          trend: 'see 02_processed/data_analysis_conclusion.json',
+          magnitude: (st.mean !== undefined && st.mean !== null)
+            ? { mean: st.mean, std: st.std, min: st.min, max: st.max }
+            : null,
+          cv: (st.mean ? Number((st.std / st.mean).toFixed(6)) : null),
+          source: (st.mean !== undefined ? '02_processed/feature_summary.json' : '01_ontology/ontology.json'),
+        };
+      });
     }
-    anomaly.process_parameter_fluctuation = fluct;
-    fix = true;
+    if (Object.keys(fluct).length > 0) {
+      anomaly.process_parameter_fluctuation = fluct;
+      fix = true;
+    }
   }
   if (fix) save('02_processed/anomaly_report.json', anomaly);
 }
@@ -112,9 +140,6 @@ if (anomaly) {
 // ── 3. data_analysis_conclusion: analysis_boundary shape-0 + time_lag block ──
 if (dac) {
   let fix = false;
-  const predictorCols = (tlPairs.map(p => p.predictor).concat(corrPairs.map(p => p.parameter)))
-    .filter((v, i, a) => v && a.indexOf(v) === i).slice(0, 12);
-  const excludeCols = categorical.filter(c => !predictorCols.includes(c)).slice(0, 6);
   dac.analysis_boundary = dac.analysis_boundary || {};
   if (!Array.isArray(dac.analysis_boundary.tiers) && !dac.analysis_boundary.pruned_pairs) {
     dac.analysis_boundary = {

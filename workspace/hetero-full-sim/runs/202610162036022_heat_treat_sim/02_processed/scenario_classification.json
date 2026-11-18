@@ -1,0 +1,49 @@
+{
+  "scene_type": "continuous_heat_treatment_line_monitoring",
+  "process_category": "continuous_annealing_furnace",
+  "confidence": "high",
+  "ontology_available": true,
+  "classification_basis": [
+    "column_name_heuristics",
+    "value_range_patterns",
+    "ontology",
+    "user_provided"
+  ],
+  "classification_notes": [
+    "列名前缀 FUR-Z1/Z2/Z3-TEMP = 三区炉温（预热/加热/均热），FUR-SPEED = 线速度，FUR-PRES = 炉压，FUR-OUT-TEMP = 带材出口温度，FUR-YIELD = 收得率",
+    "列名 HX-PROF-L1BANDTEMPPROFILE30M-* = 带材横向温度剖面（30min，12 位点），HX-MAP-L1FURNACETHERMALMAP2-* = 炉膛 5x4 温度场（2h）",
+    "HX-IMG-L1SURFACECCDINDEX-* = 表面检查 CCD 图像整帧统计（1h，相对灰度）；HX-TXT-L1OPERATORNOTES-* = 操作备注事件锚定窗与班次协变量",
+    "时间列 时间 10min 粒度 1440 行（2026-02-02 00:00 → 2026-02-11 23:50），单产品连续生产（无产品/牌号分组列）",
+    "值域签名：三区炉温 ~848-883°C，出口温度 ~543-553°C，收得率 97.0-99.71%，与连续热处理工况一致",
+    "01_ontology/ontology.json 明确 scene=连续热处理线（模拟场景，10 天），stages S1-S6（预热/主加热/均热/出料冷却/表面检查/实验室抽检）"
+  ],
+  "expected_physics": [
+    "牛顿对流+辐射换热：Q = h·A·(T_f−T_s) + εσA(T_f⁴−T_s⁴)，炉温-带材温差驱动升温",
+    "停留时间控制：t_res = L/v，提速→吸热不足→出料温度下降（负相关，热惯性滞后）",
+    "均热段组织均匀化（Arrhenius 型动力学）：均热温度/时间决定硬度与性能",
+    "横向均匀性：炉膛左右不对称加热转化为带材边部温度偏差（剖面 EDGE-*-DEV）",
+    "炉压影响炉内气氛与氧化，属间接质量通道（表面灰度统计可观测）",
+    "带材温度水平：在线剖面均值应与 DCS 出料测温同量级同趋势（测量一致性）"
+  ],
+  "degradation_candidates": [
+    "三区（后段）加热管老化掉温（操作备注 2026-02-06：三区后段温度持续偏低，怀疑加热管老化；2026-02-08 更换三区后段加热管）",
+    "三区热电偶漂移/故障（操作备注 2026-02-05：三区温度波动偏大，已通知仪表检查热电偶）",
+    "炉膛局部热斑/左右不对称（MAP ASYM-LR / HOTAREA-P90 漂移）",
+    "炉压异常导致氧化/表面缺陷（FUR-PRES → IMG DARKFRAC）",
+    "维护/升温事件后过渡期扰动（2026-02-08 10:00 升温事件后恢复期）"
+  ],
+  "adaptive_visualization_plan": {
+    "data_shape": "multi_parameter_time_series + profile_over_time + 2D_field_snapshots + sparse_event_markers",
+    "planned_charts": [
+      {"chart": "vlm_temporal_overlay", "reason": "多参数共享时间轴 z 归一叠加（含质量目标），VLM MANDATORY", "priority": "CRITICAL"},
+      {"chart": "hetero_profile_heatmap", "reason": "时间×位置剖面热图（PROF 12 位点×480 快照），边部/漂移的直接证据", "priority": "CRITICAL"},
+      {"chart": "per_target_alignment", "reason": "质量目标与 top-3 参数时间对齐", "priority": "HIGH"},
+      {"chart": "scatter_grid", "reason": "top 参数 vs 目标散点（带事件着色）", "priority": "MEDIUM"},
+      {"chart": "correlation_robustness", "reason": "raw r vs detrended r vs Spearman 稳健性对照", "priority": "HIGH"},
+      {"chart": "event_response", "reason": "维护/升温事件前后质量与炉温响应", "priority": "HIGH"}
+    ],
+    "plot_budget_fast_mode": 8,
+    "vlm_priority_heatmap": "CRITICAL",
+    "notes": "fast 模式；adaptive_charts.py 若误检测 2D field 产出无关等高线图 → 删除并记录于 plot_manifest.metadata.excluded_charts"
+  }
+}

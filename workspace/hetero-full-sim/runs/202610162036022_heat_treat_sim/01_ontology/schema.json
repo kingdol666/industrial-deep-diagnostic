@@ -1,0 +1,243 @@
+{
+  "schema_version": "1.0",
+  "generated_by": "context-builder (industrial-ontology-builder, Step 2, fast mode)",
+  "reference": "01_ontology/ontology.json",
+  "source_table": "07_hetero/preprocessed_data_hetero.csv",
+  "rows": 1440,
+  "time_column": "时间",
+  "time_span": {
+    "start": "2026-02-02 00:00:00",
+    "end": "2026-02-11 23:50:00",
+    "cadence": "10 min"
+  },
+  "classification": {
+    "control_variables": [
+      "FUR-Z1-TEMP",
+      "FUR-Z2-TEMP",
+      "FUR-Z3-TEMP",
+      "FUR-SPEED"
+    ],
+    "process_parameters": [
+      "FUR-PRES",
+      "FUR-OUT-TEMP",
+      "FUR-YIELD",
+      "HX-IMG-L1SURFACECCDINDEX-MEAN",
+      "HX-IMG-L1SURFACECCDINDEX-STD",
+      "HX-IMG-L1SURFACECCDINDEX-ENTROPY",
+      "HX-IMG-L1SURFACECCDINDEX-SATFRAC",
+      "HX-IMG-L1SURFACECCDINDEX-DARKFRAC",
+      "HX-IMG-L1SURFACECCDINDEX-FOCUS",
+      "HX-IMG-L1SURFACECCDINDEX-N",
+      "HX-MAP-L1FURNACETHERMALMAP2-MEAN",
+      "HX-MAP-L1FURNACETHERMALMAP2-P95",
+      "HX-MAP-L1FURNACETHERMALMAP2-HOTAREA-P90",
+      "HX-MAP-L1FURNACETHERMALMAP2-COLDAREA-P10",
+      "HX-MAP-L1FURNACETHERMALMAP2-CENTROID-X",
+      "HX-MAP-L1FURNACETHERMALMAP2-CENTROID-Y",
+      "HX-MAP-L1FURNACETHERMALMAP2-GRAD-P95",
+      "HX-MAP-L1FURNACETHERMALMAP2-ASYM-LR",
+      "HX-MAP-L1FURNACETHERMALMAP2-POSMAX-X",
+      "HX-MAP-L1FURNACETHERMALMAP2-POSMAX-Y",
+      "HX-MAP-L1FURNACETHERMALMAP2-N",
+      "HX-PROF-L1BANDTEMPPROFILE30M-MEAN",
+      "HX-PROF-L1BANDTEMPPROFILE30M-STD",
+      "HX-PROF-L1BANDTEMPPROFILE30M-MIN",
+      "HX-PROF-L1BANDTEMPPROFILE30M-MAX",
+      "HX-PROF-L1BANDTEMPPROFILE30M-P05",
+      "HX-PROF-L1BANDTEMPPROFILE30M-P50",
+      "HX-PROF-L1BANDTEMPPROFILE30M-P95",
+      "HX-PROF-L1BANDTEMPPROFILE30M-RANGE",
+      "HX-PROF-L1BANDTEMPPROFILE30M-IQR",
+      "HX-PROF-L1BANDTEMPPROFILE30M-MAD",
+      "HX-PROF-L1BANDTEMPPROFILE30M-N",
+      "HX-PROF-L1BANDTEMPPROFILE30M-SLOPE-LSQ-PER100",
+      "HX-PROF-L1BANDTEMPPROFILE30M-CURV-LSQ",
+      "HX-PROF-L1BANDTEMPPROFILE30M-ZONE-1-3-MEAN",
+      "HX-PROF-L1BANDTEMPPROFILE30M-EDGE-L-DEV",
+      "HX-PROF-L1BANDTEMPPROFILE30M-EDGE-R-DEV",
+      "HX-PROF-L1BANDTEMPPROFILE30M-ARGDEV-NBR",
+      "HX-PROF-L1BANDTEMPPROFILE30M-SHIFT-EST",
+      "HX-TXT-L1OPERATORNOTES-HOUR-OF-DAY",
+      "HX-TXT-L1OPERATORNOTES-SHIFT-BUCKET-ID"
+    ],
+    "targets": [
+      "FUR-OUT-TEMP",
+      "FUR-YIELD",
+      "HX-PROF-L1BANDTEMPPROFILE30M-MEAN",
+      "HX-PROF-L1BANDTEMPPROFILE30M-STD",
+      "HX-PROF-L1BANDTEMPPROFILE30M-MIN",
+      "HX-PROF-L1BANDTEMPPROFILE30M-MAX",
+      "HX-PROF-L1BANDTEMPPROFILE30M-P05",
+      "HX-PROF-L1BANDTEMPPROFILE30M-P50",
+      "HX-PROF-L1BANDTEMPPROFILE30M-P95",
+      "HX-PROF-L1BANDTEMPPROFILE30M-RANGE",
+      "HX-PROF-L1BANDTEMPPROFILE30M-IQR",
+      "HX-PROF-L1BANDTEMPPROFILE30M-MAD",
+      "HX-PROF-L1BANDTEMPPROFILE30M-N",
+      "HX-PROF-L1BANDTEMPPROFILE30M-SLOPE-LSQ-PER100",
+      "HX-PROF-L1BANDTEMPPROFILE30M-CURV-LSQ",
+      "HX-PROF-L1BANDTEMPPROFILE30M-ZONE-1-3-MEAN",
+      "HX-PROF-L1BANDTEMPPROFILE30M-EDGE-L-DEV",
+      "HX-PROF-L1BANDTEMPPROFILE30M-EDGE-R-DEV",
+      "HX-PROF-L1BANDTEMPPROFILE30M-ARGDEV-NBR",
+      "HX-PROF-L1BANDTEMPPROFILE30M-SHIFT-EST"
+    ],
+    "inspection_signals": [
+      "LAB-HRC"
+    ],
+    "events": [
+      "HX-TXT-L1OPERATORNOTES-EVT-MAINTENANCE",
+      "HX-TXT-L1OPERATORNOTES-EVT-HEATUP"
+    ],
+    "metadata_columns": [
+      "时间",
+      "HX-IMG-L1SURFACECCDINDEX-N",
+      "HX-MAP-L1FURNACETHERMALMAP2-N",
+      "HX-TXT-L1OPERATORNOTES-HOUR-OF-DAY",
+      "HX-TXT-L1OPERATORNOTES-SHIFT-BUCKET-ID"
+    ]
+  },
+  "units": {
+    "FUR-Z1-TEMP": "°C",
+    "FUR-Z2-TEMP": "°C",
+    "FUR-Z3-TEMP": "°C",
+    "FUR-OUT-TEMP": "°C",
+    "LAB-HRC": "HRC",
+    "FUR-YIELD": "%",
+    "FUR-SPEED": "未声明",
+    "FUR-PRES": "未声明",
+    "HX-IMG-L1SURFACECCDINDEX-MEAN": "graylevel_8bit"
+  },
+  "base_column_stats_10d": {
+    "FUR-Z1-TEMP": {
+      "n": 1440,
+      "min": 847.19,
+      "max": 852.43,
+      "mean": 849.9978,
+      "std": 0.6964,
+      "p05": 848.88,
+      "p95": 851.16
+    },
+    "FUR-Z2-TEMP": {
+      "n": 1440,
+      "min": 862.51,
+      "max": 867.36,
+      "mean": 865.0063,
+      "std": 0.6882,
+      "p05": 863.88,
+      "p95": 866.1105
+    },
+    "FUR-Z3-TEMP": {
+      "n": 1440,
+      "min": 864.25,
+      "max": 882.92,
+      "mean": 878.4225,
+      "std": 3.2206,
+      "p05": 870.9295,
+      "p95": 881.1705
+    },
+    "FUR-SPEED": {
+      "n": 1440,
+      "min": 11.826,
+      "max": 12.157,
+      "mean": 11.9976,
+      "std": 0.0502,
+      "p05": 11.916,
+      "p95": 12.08
+    },
+    "FUR-PRES": {
+      "n": 1440,
+      "min": 36.874,
+      "max": 39.187,
+      "mean": 38.0102,
+      "std": 0.3026,
+      "p05": 37.5259,
+      "p95": 38.4961
+    },
+    "FUR-OUT-TEMP": {
+      "n": 1440,
+      "min": 542.95,
+      "max": 553.45,
+      "mean": 549.3018,
+      "std": 1.6616,
+      "p05": 545.9275,
+      "p95": 551.5205
+    },
+    "FUR-YIELD": {
+      "n": 1440,
+      "min": 97.0,
+      "max": 99.71,
+      "mean": 98.9827,
+      "std": 0.6252,
+      "p05": 97.5,
+      "p95": 99.51
+    }
+  },
+  "hetero_merge": {
+    "contract": "07_hetero/column_contract.json",
+    "contract_version": "hetero-features/1.1",
+    "mapper": "heterocore.contracts.to_ontology_signals",
+    "merged_hx_columns": 40,
+    "process_parameters": 38,
+    "events": 2,
+    "metadata_columns": 0,
+    "confidence_tally_process_parameters": {
+      "KNOWN": 25,
+      "INFERRED": 13
+    },
+    "contract_role_histogram": {
+      "predictor_candidate": 16,
+      "metadata": 6,
+      "target_candidate": 18
+    },
+    "explicit_cols": {
+      "targets": [
+        "HX-PROF-L1BANDTEMPPROFILE30M-MEAN",
+        "HX-PROF-L1BANDTEMPPROFILE30M-STD",
+        "HX-PROF-L1BANDTEMPPROFILE30M-MIN",
+        "HX-PROF-L1BANDTEMPPROFILE30M-MAX",
+        "HX-PROF-L1BANDTEMPPROFILE30M-P05",
+        "HX-PROF-L1BANDTEMPPROFILE30M-P50",
+        "HX-PROF-L1BANDTEMPPROFILE30M-P95",
+        "HX-PROF-L1BANDTEMPPROFILE30M-RANGE",
+        "HX-PROF-L1BANDTEMPPROFILE30M-IQR",
+        "HX-PROF-L1BANDTEMPPROFILE30M-MAD",
+        "HX-PROF-L1BANDTEMPPROFILE30M-N",
+        "HX-PROF-L1BANDTEMPPROFILE30M-SLOPE-LSQ-PER100",
+        "HX-PROF-L1BANDTEMPPROFILE30M-CURV-LSQ",
+        "HX-PROF-L1BANDTEMPPROFILE30M-ZONE-1-3-MEAN",
+        "HX-PROF-L1BANDTEMPPROFILE30M-EDGE-L-DEV",
+        "HX-PROF-L1BANDTEMPPROFILE30M-EDGE-R-DEV",
+        "HX-PROF-L1BANDTEMPPROFILE30M-ARGDEV-NBR",
+        "HX-PROF-L1BANDTEMPPROFILE30M-SHIFT-EST"
+      ],
+      "predictors": [
+        "HX-IMG-L1SURFACECCDINDEX-MEAN",
+        "HX-IMG-L1SURFACECCDINDEX-STD",
+        "HX-IMG-L1SURFACECCDINDEX-ENTROPY",
+        "HX-IMG-L1SURFACECCDINDEX-SATFRAC",
+        "HX-IMG-L1SURFACECCDINDEX-DARKFRAC",
+        "HX-IMG-L1SURFACECCDINDEX-FOCUS",
+        "HX-MAP-L1FURNACETHERMALMAP2-MEAN",
+        "HX-MAP-L1FURNACETHERMALMAP2-P95",
+        "HX-MAP-L1FURNACETHERMALMAP2-HOTAREA-P90",
+        "HX-MAP-L1FURNACETHERMALMAP2-COLDAREA-P10",
+        "HX-MAP-L1FURNACETHERMALMAP2-CENTROID-X",
+        "HX-MAP-L1FURNACETHERMALMAP2-CENTROID-Y",
+        "HX-MAP-L1FURNACETHERMALMAP2-ASYM-LR",
+        "HX-MAP-L1FURNACETHERMALMAP2-POSMAX-X",
+        "HX-MAP-L1FURNACETHERMALMAP2-POSMAX-Y"
+      ],
+      "excludes": [
+        "HX-IMG-L1SURFACECCDINDEX-N",
+        "HX-MAP-L1FURNACETHERMALMAP2-GRAD-P95",
+        "HX-MAP-L1FURNACETHERMALMAP2-N",
+        "HX-TXT-L1OPERATORNOTES-EVT-MAINTENANCE",
+        "HX-TXT-L1OPERATORNOTES-EVT-HEATUP",
+        "HX-TXT-L1OPERATORNOTES-HOUR-OF-DAY",
+        "HX-TXT-L1OPERATORNOTES-SHIFT-BUCKET-ID"
+      ]
+    }
+  },
+  "null_policy": "null-valued optional keys (unit, …) dropped during merge"
+}

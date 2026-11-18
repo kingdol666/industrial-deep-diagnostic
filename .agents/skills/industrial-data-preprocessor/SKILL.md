@@ -9,6 +9,11 @@ description: >
   Trigger: data preprocessing, preprocess, data formats, multi-format data,
   directory data, xlsm, multi-sheet, adaptive data, any data format.
   Guarantees data-source independence: the pipeline flow works for any data shape.
+  Do NOT use for statistics, cleaning, correlation/CCF or charts (use industrial-data-processor);
+  do NOT use for profile/2D-field/image-sequence/time-anchored-text heterogeneous features
+  (use industrial-hetero-preprocessor); do NOT use for designed-experiment / ANOVA /
+  operating-window analysis (use industrial-doe-analyzer); do NOT use for root-cause
+  diagnosis (use industrial-diagnostician) or full pipeline orchestration (use industrial-analysis-auto).
 ---
 
 # Industrial Data Preprocessor
@@ -104,6 +109,40 @@ Exit 0 with `status: ok` (table produced) or `status: no_tabular_data`
   Step 1 Inspect whenever the user supplies a directory or non-CSV input.
 - Idempotent: if the input already IS `preprocessed_data.csv`, it passes
   through unchanged.
+
+## Quality gate
+
+```bash
+node .claude/skills/industrial-data-preprocessor/scripts/quality_gate.mjs \
+  --run-dir <RUN_DIR> [--raw-path <data-file-or-dir>]
+# exit 0 ok | 1 hard error (bad inputs / unreadable audit) | 2 undetermined | 3 gate-fail
+```
+
+Post-hoc, zero-LLM verification of an E-1 run dir (D1–D7): canonical table
+non-empty; report↔disk rows/cols/numeric-column agreement; declared time
+column present (time-less cross-sectional data is a supported scenario —
+disclosed as a note, never a fail); `selected_table.file` resolves against
+`--raw-path` when given; merge/dedup actions internally consistent (E-1 never
+dedups — disclosed duplicate counts must be arithmetically sound; the
+stability mode's `single_primary_no_merge` policy and
+`single_primary_policy` exclusions are documented, accepted actions); every
+reported output path resolves inside `00_input` (moved/exported run dirs whose
+report keeps the canonical `.../00_input/<name>` suffix stay valid).
+
+**Passthrough semantics decide exit 2 vs 3** (the marker is
+`00_input/preprocessing_report.json`):
+
+| Disk state | Verdict |
+|---|---|
+| `preprocessed_data.csv` AND `preprocessing_report.json` both absent — E-1 did not run (single-file passthrough: the raw file is consumed directly) | exit 2 |
+| report `status: no_tabular_data` (or `no_time_series` in stability mode), no canonical csv — documented non-production outcome, the caller decides | exit 2 |
+| report claims `status: ok` but the declared `preprocessed_data.csv` is missing, empty, truncated, or inconsistent | exit 3 |
+
+Gate tests (fixtures generated on the fly):
+
+```bash
+uv run --project .claude/shared/scripts python .claude/skills/industrial-data-preprocessor/tests/run_tests.py
+```
 
 ## Verification
 

@@ -1,0 +1,885 @@
+{
+  "run_name": "l5_e2e",
+  "input_path": "workspace\\hetero-e2e-l5\\data",
+  "input_is_directory": true,
+  "recursive_discovery": true,
+  "mode": "stability_single_primary_v1",
+  "sources": [
+    {
+      "file": "L5_lab_electrode_2h.csv",
+      "role": "auxiliary",
+      "reason": "filename indicates lower-frequency quality/inspection measurements"
+    },
+    {
+      "file": "L5_参数对照说明.md",
+      "role": "context",
+      "reason": "filename indicates documentation/metadata rather than process time series"
+    }
+  ],
+  "source_dispositions": [
+    {
+      "relative_path": "ccd_frames/ccd_20260924_000000.png",
+      "role": "skipped",
+      "disposition": "skipped",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "relative_path": "ccd_frames/ccd_20260924_080000.png",
+      "role": "skipped",
+      "disposition": "skipped",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "relative_path": "ccd_frames/ccd_20260924_160000.png",
+      "role": "skipped",
+      "disposition": "skipped",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "relative_path": "ccd_frames/ccd_20260925_000000.png",
+      "role": "skipped",
+      "disposition": "skipped",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "relative_path": "ccd_frames/ccd_20260925_080000.png",
+      "role": "skipped",
+      "disposition": "skipped",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "relative_path": "ccd_frames/ccd_20260925_160000.png",
+      "role": "skipped",
+      "disposition": "skipped",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "relative_path": "ccd_frames/ccd_20260926_000000.png",
+      "role": "skipped",
+      "disposition": "skipped",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "relative_path": "ccd_frames/ccd_20260926_080000.png",
+      "role": "skipped",
+      "disposition": "skipped",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "relative_path": "ccd_frames/ccd_20260926_160000.png",
+      "role": "skipped",
+      "disposition": "skipped",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "relative_path": "ccd_frames/ccd_20260927_000000.png",
+      "role": "skipped",
+      "disposition": "skipped",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "relative_path": "ccd_frames/ccd_20260927_080000.png",
+      "role": "skipped",
+      "disposition": "skipped",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "relative_path": "ccd_frames/ccd_20260927_160000.png",
+      "role": "skipped",
+      "disposition": "skipped",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "relative_path": "ccd_frames/ccd_20260928_000000.png",
+      "role": "skipped",
+      "disposition": "skipped",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "relative_path": "ccd_frames/ccd_20260928_080000.png",
+      "role": "skipped",
+      "disposition": "skipped",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "relative_path": "ccd_frames/ccd_20260928_160000.png",
+      "role": "skipped",
+      "disposition": "skipped",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "relative_path": "ccd_frames/ccd_20260929_000000.png",
+      "role": "skipped",
+      "disposition": "skipped",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "relative_path": "ccd_frames/ccd_20260929_080000.png",
+      "role": "skipped",
+      "disposition": "skipped",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "relative_path": "ccd_frames/ccd_20260929_160000.png",
+      "role": "skipped",
+      "disposition": "skipped",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "relative_path": "ccd_frames/ccd_20260930_000000.png",
+      "role": "skipped",
+      "disposition": "skipped",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "relative_path": "ccd_frames/ccd_20260930_080000.png",
+      "role": "skipped",
+      "disposition": "skipped",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "relative_path": "ccd_frames/ccd_20260930_160000.png",
+      "role": "skipped",
+      "disposition": "skipped",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "relative_path": "ccd_frames/ccd_20261001_000000.png",
+      "role": "skipped",
+      "disposition": "skipped",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "relative_path": "ccd_frames/ccd_20261001_080000.png",
+      "role": "skipped",
+      "disposition": "skipped",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "relative_path": "ccd_frames/ccd_20261001_160000.png",
+      "role": "skipped",
+      "disposition": "skipped",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "relative_path": "ccd_frames/ccd_20261002_000000.png",
+      "role": "skipped",
+      "disposition": "skipped",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "relative_path": "ccd_frames/ccd_20261002_080000.png",
+      "role": "skipped",
+      "disposition": "skipped",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "relative_path": "ccd_frames/ccd_20261002_160000.png",
+      "role": "skipped",
+      "disposition": "skipped",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "relative_path": "ccd_frames/ccd_20261003_000000.png",
+      "role": "skipped",
+      "disposition": "skipped",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "relative_path": "ccd_frames/ccd_20261003_080000.png",
+      "role": "skipped",
+      "disposition": "skipped",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "relative_path": "ccd_frames/ccd_20261003_160000.png",
+      "role": "skipped",
+      "disposition": "skipped",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "relative_path": "ccd_frames/ccd_20261004_000000.png",
+      "role": "skipped",
+      "disposition": "skipped",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "relative_path": "ccd_frames/ccd_20261004_080000.png",
+      "role": "skipped",
+      "disposition": "skipped",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "relative_path": "ccd_frames/ccd_20261004_160000.png",
+      "role": "skipped",
+      "disposition": "skipped",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "relative_path": "ccd_frames/ccd_20261005_000000.png",
+      "role": "skipped",
+      "disposition": "skipped",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "relative_path": "ccd_frames/ccd_20261005_080000.png",
+      "role": "skipped",
+      "disposition": "skipped",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "relative_path": "ccd_frames/ccd_20261005_160000.png",
+      "role": "skipped",
+      "disposition": "skipped",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "relative_path": "ccd_frames/ccd_20261006_000000.png",
+      "role": "skipped",
+      "disposition": "skipped",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "relative_path": "ccd_frames/ccd_20261006_080000.png",
+      "role": "skipped",
+      "disposition": "skipped",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "relative_path": "ccd_frames/ccd_20261006_160000.png",
+      "role": "skipped",
+      "disposition": "skipped",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "relative_path": "ccd_frames/ccd_20261007_000000.png",
+      "role": "skipped",
+      "disposition": "skipped",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "relative_path": "ccd_frames/ccd_20261007_080000.png",
+      "role": "skipped",
+      "disposition": "skipped",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "relative_path": "ccd_frames/ccd_20261007_160000.png",
+      "role": "skipped",
+      "disposition": "skipped",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "relative_path": "ccd_frames/ccd_20261008_000000.png",
+      "role": "skipped",
+      "disposition": "skipped",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "relative_path": "ccd_frames/ccd_20261008_080000.png",
+      "role": "skipped",
+      "disposition": "skipped",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "relative_path": "ccd_frames/ccd_20261008_160000.png",
+      "role": "skipped",
+      "disposition": "skipped",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "relative_path": "ccd_frames/ccd_20261009_000000.png",
+      "role": "skipped",
+      "disposition": "skipped",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "relative_path": "ccd_frames/ccd_20261009_080000.png",
+      "role": "skipped",
+      "disposition": "skipped",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "relative_path": "ccd_frames/ccd_20261009_160000.png",
+      "role": "skipped",
+      "disposition": "skipped",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "relative_path": "ccd_frames/ccd_20261010_000000.png",
+      "role": "skipped",
+      "disposition": "skipped",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "relative_path": "ccd_frames/ccd_20261010_080000.png",
+      "role": "skipped",
+      "disposition": "skipped",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "relative_path": "ccd_frames/ccd_20261010_160000.png",
+      "role": "skipped",
+      "disposition": "skipped",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "relative_path": "ccd_frames/ccd_20261011_000000.png",
+      "role": "skipped",
+      "disposition": "skipped",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "relative_path": "ccd_frames/ccd_20261011_080000.png",
+      "role": "skipped",
+      "disposition": "skipped",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "relative_path": "ccd_frames/ccd_20261011_160000.png",
+      "role": "skipped",
+      "disposition": "skipped",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "relative_path": "ccd_frames/ccd_20261012_000000.png",
+      "role": "skipped",
+      "disposition": "skipped",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "relative_path": "ccd_frames/ccd_20261012_080000.png",
+      "role": "skipped",
+      "disposition": "skipped",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "relative_path": "ccd_frames/ccd_20261012_160000.png",
+      "role": "skipped",
+      "disposition": "skipped",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "relative_path": "ccd_frames/ccd_20261013_000000.png",
+      "role": "skipped",
+      "disposition": "skipped",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "relative_path": "ccd_frames/ccd_20261013_080000.png",
+      "role": "skipped",
+      "disposition": "skipped",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "relative_path": "ccd_frames/ccd_20261013_160000.png",
+      "role": "skipped",
+      "disposition": "skipped",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "relative_path": "L5_ad_scan_30min.csv",
+      "sheet": null,
+      "role": "candidate",
+      "disposition": "excluded_from_scoring",
+      "reason": "tabular candidate; role determined by table score and time-axis checks; stability folder mode uses one primary time-series table; no resampling or blind merge",
+      "rows": 1008,
+      "columns": 25,
+      "time_column": "时间",
+      "score": 3.908,
+      "time_parseability": 1.0,
+      "reason_code": "single_primary_policy"
+    },
+    {
+      "relative_path": "L5_calender_map_2h.csv",
+      "sheet": null,
+      "role": "candidate",
+      "disposition": "excluded_from_scoring",
+      "reason": "tabular candidate; role determined by table score and time-axis checks; stability folder mode uses one primary time-series table; no resampling or blind merge",
+      "rows": 5040,
+      "columns": 4,
+      "time_column": "时间",
+      "score": 6.3,
+      "time_parseability": 1.0,
+      "reason_code": "single_primary_policy"
+    },
+    {
+      "relative_path": "L5_ccd_index.csv",
+      "sheet": null,
+      "role": "candidate",
+      "disposition": "excluded_from_scoring",
+      "reason": "tabular candidate; role determined by table score and time-axis checks; stability folder mode uses one primary time-series table; no resampling or blind merge",
+      "rows": 60,
+      "columns": 2,
+      "time_column": "时间",
+      "score": 1.46,
+      "time_parseability": 1.0,
+      "reason_code": "single_primary_policy"
+    },
+    {
+      "relative_path": "L5_dcs_process_10min.csv",
+      "sheet": null,
+      "role": "primary_time_series",
+      "disposition": "selected",
+      "reason": "highest-scoring eligible time-series table",
+      "rows": 3024,
+      "columns": 22,
+      "time_column": "时间",
+      "score": 17.0,
+      "time_parseability": 1.0
+    },
+    {
+      "relative_path": "L5_lab_electrode_2h.csv",
+      "role": "auxiliary",
+      "disposition": "excluded_from_scoring",
+      "reason": "filename indicates lower-frequency quality/inspection measurements"
+    },
+    {
+      "relative_path": "L5_operator_notes.csv",
+      "sheet": null,
+      "role": "candidate",
+      "disposition": "excluded_from_scoring",
+      "reason": "tabular candidate; role determined by table score and time-axis checks; stability folder mode uses one primary time-series table; no resampling or blind merge",
+      "rows": 5,
+      "columns": 2,
+      "time_column": "时间",
+      "score": 1.405,
+      "time_parseability": 1.0,
+      "reason_code": "below_min_rows"
+    },
+    {
+      "relative_path": "L5_参数对照说明.md",
+      "role": "context",
+      "disposition": "context_only",
+      "reason": "filename indicates documentation/metadata rather than process time series"
+    }
+  ],
+  "tables": [
+    {
+      "file": "L5_ad_scan_30min.csv",
+      "sheet": null,
+      "format": "delimited",
+      "n_rows": 1008,
+      "n_cols": 25,
+      "time_column": "时间",
+      "time_parseability": 1.0,
+      "score": 3.908,
+      "quality_flags": {
+        "exact_duplicate_rows": {
+          "count": 0,
+          "row_indices_0based": [],
+          "row_indices_truncated": false,
+          "note": "count = redundant occurrences beyond the first (dedup is NOT applied); row_indices_0based lists the rows involved in exact duplication, 0-based within the parsed table (header excluded), capped at 10"
+        },
+        "null_cell_count": 0,
+        "encoding": "utf-8-sig",
+        "delimiter": ","
+      }
+    },
+    {
+      "file": "L5_calender_map_2h.csv",
+      "sheet": null,
+      "format": "delimited",
+      "n_rows": 5040,
+      "n_cols": 4,
+      "time_column": "时间",
+      "time_parseability": 1.0,
+      "score": 6.3,
+      "quality_flags": {
+        "exact_duplicate_rows": {
+          "count": 0,
+          "row_indices_0based": [],
+          "row_indices_truncated": false,
+          "note": "count = redundant occurrences beyond the first (dedup is NOT applied); row_indices_0based lists the rows involved in exact duplication, 0-based within the parsed table (header excluded), capped at 10"
+        },
+        "null_cell_count": 0,
+        "encoding": "utf-8-sig",
+        "delimiter": ","
+      }
+    },
+    {
+      "file": "L5_ccd_index.csv",
+      "sheet": null,
+      "format": "delimited",
+      "n_rows": 60,
+      "n_cols": 2,
+      "time_column": "时间",
+      "time_parseability": 1.0,
+      "score": 1.46,
+      "quality_flags": {
+        "exact_duplicate_rows": {
+          "count": 0,
+          "row_indices_0based": [],
+          "row_indices_truncated": false,
+          "note": "count = redundant occurrences beyond the first (dedup is NOT applied); row_indices_0based lists the rows involved in exact duplication, 0-based within the parsed table (header excluded), capped at 10"
+        },
+        "null_cell_count": 0,
+        "encoding": "utf-8-sig",
+        "delimiter": ","
+      }
+    },
+    {
+      "file": "L5_dcs_process_10min.csv",
+      "sheet": null,
+      "format": "delimited",
+      "n_rows": 3024,
+      "n_cols": 22,
+      "time_column": "时间",
+      "time_parseability": 1.0,
+      "score": 17.0,
+      "quality_flags": {
+        "exact_duplicate_rows": {
+          "count": 0,
+          "row_indices_0based": [],
+          "row_indices_truncated": false,
+          "note": "count = redundant occurrences beyond the first (dedup is NOT applied); row_indices_0based lists the rows involved in exact duplication, 0-based within the parsed table (header excluded), capped at 10"
+        },
+        "null_cell_count": 0,
+        "encoding": "utf-8-sig",
+        "delimiter": ","
+      }
+    },
+    {
+      "file": "L5_operator_notes.csv",
+      "sheet": null,
+      "format": "delimited",
+      "n_rows": 5,
+      "n_cols": 2,
+      "time_column": "时间",
+      "time_parseability": 1.0,
+      "score": 1.405,
+      "quality_flags": {
+        "exact_duplicate_rows": {
+          "count": 0,
+          "row_indices_0based": [],
+          "row_indices_truncated": false,
+          "note": "count = redundant occurrences beyond the first (dedup is NOT applied); row_indices_0based lists the rows involved in exact duplication, 0-based within the parsed table (header excluded), capped at 10"
+        },
+        "null_cell_count": 0,
+        "encoding": "utf-8-sig",
+        "delimiter": ","
+      }
+    }
+  ],
+  "selected_table": {
+    "file": "L5_dcs_process_10min.csv",
+    "sheet": null,
+    "format": "delimited",
+    "n_rows": 3024,
+    "n_cols": 22,
+    "time_column": "时间",
+    "time_parseability": 1.0,
+    "score": 17.0,
+    "why": "highest-scoring time-series candidate (premerged filename gets priority)"
+  },
+  "merge": {
+    "strategy": "single_primary_no_merge",
+    "reason": "folder stability mode does not resample or combine different acquisition cadences",
+    "merged_files": []
+  },
+  "merge_exclusions": [
+    {
+      "file": "L5_ad_scan_30min.csv",
+      "sheet": null,
+      "reason_code": "single_primary_policy",
+      "detail": "tabular candidate; role determined by table score and time-axis checks; stability folder mode uses one primary time-series table; no resampling or blind merge"
+    },
+    {
+      "file": "L5_calender_map_2h.csv",
+      "sheet": null,
+      "reason_code": "single_primary_policy",
+      "detail": "tabular candidate; role determined by table score and time-axis checks; stability folder mode uses one primary time-series table; no resampling or blind merge"
+    },
+    {
+      "file": "L5_ccd_index.csv",
+      "sheet": null,
+      "reason_code": "single_primary_policy",
+      "detail": "tabular candidate; role determined by table score and time-axis checks; stability folder mode uses one primary time-series table; no resampling or blind merge"
+    },
+    {
+      "file": "L5_operator_notes.csv",
+      "sheet": null,
+      "reason_code": "below_min_rows",
+      "detail": "tabular candidate; role determined by table score and time-axis checks; stability folder mode uses one primary time-series table; no resampling or blind merge"
+    }
+  ],
+  "quality": {
+    "rows": 3024,
+    "cols": 22,
+    "time_column": "时间",
+    "numeric_columns": [
+      "L5-SL-SC01",
+      "L5-SL-VSC01",
+      "L5-CT-GAP-L01",
+      "L5-CT-GAP-R01",
+      "L5-CT-PMP-SP01",
+      "L5-OV-Z1-TE01",
+      "L5-OV-Z2-TE01",
+      "L5-OV-Z3-TE01",
+      "L5-CAL-P01",
+      "L5-CAL-TE01",
+      "L5-WD-TN01",
+      "L5-LN-SPD01",
+      "L5-ENV-TE01",
+      "L5-GA-AD-AVG01",
+      "L5-GA-AD-CV01",
+      "L5-GA-EDGE-R01",
+      "L5-GA-EDGE-L01",
+      "L5-QM-YIELD01",
+      "L5-MES-RECY01",
+      "L5-LINE-MODE01"
+    ],
+    "missing_cell_pct": 0.0
+  },
+  "context_files": [
+    "L5_参数对照说明.md"
+  ],
+  "skipped_files": [
+    {
+      "file": "ccd_frames/ccd_20260924_000000.png",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "file": "ccd_frames/ccd_20260924_080000.png",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "file": "ccd_frames/ccd_20260924_160000.png",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "file": "ccd_frames/ccd_20260925_000000.png",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "file": "ccd_frames/ccd_20260925_080000.png",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "file": "ccd_frames/ccd_20260925_160000.png",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "file": "ccd_frames/ccd_20260926_000000.png",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "file": "ccd_frames/ccd_20260926_080000.png",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "file": "ccd_frames/ccd_20260926_160000.png",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "file": "ccd_frames/ccd_20260927_000000.png",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "file": "ccd_frames/ccd_20260927_080000.png",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "file": "ccd_frames/ccd_20260927_160000.png",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "file": "ccd_frames/ccd_20260928_000000.png",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "file": "ccd_frames/ccd_20260928_080000.png",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "file": "ccd_frames/ccd_20260928_160000.png",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "file": "ccd_frames/ccd_20260929_000000.png",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "file": "ccd_frames/ccd_20260929_080000.png",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "file": "ccd_frames/ccd_20260929_160000.png",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "file": "ccd_frames/ccd_20260930_000000.png",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "file": "ccd_frames/ccd_20260930_080000.png",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "file": "ccd_frames/ccd_20260930_160000.png",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "file": "ccd_frames/ccd_20261001_000000.png",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "file": "ccd_frames/ccd_20261001_080000.png",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "file": "ccd_frames/ccd_20261001_160000.png",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "file": "ccd_frames/ccd_20261002_000000.png",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "file": "ccd_frames/ccd_20261002_080000.png",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "file": "ccd_frames/ccd_20261002_160000.png",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "file": "ccd_frames/ccd_20261003_000000.png",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "file": "ccd_frames/ccd_20261003_080000.png",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "file": "ccd_frames/ccd_20261003_160000.png",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "file": "ccd_frames/ccd_20261004_000000.png",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "file": "ccd_frames/ccd_20261004_080000.png",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "file": "ccd_frames/ccd_20261004_160000.png",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "file": "ccd_frames/ccd_20261005_000000.png",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "file": "ccd_frames/ccd_20261005_080000.png",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "file": "ccd_frames/ccd_20261005_160000.png",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "file": "ccd_frames/ccd_20261006_000000.png",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "file": "ccd_frames/ccd_20261006_080000.png",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "file": "ccd_frames/ccd_20261006_160000.png",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "file": "ccd_frames/ccd_20261007_000000.png",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "file": "ccd_frames/ccd_20261007_080000.png",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "file": "ccd_frames/ccd_20261007_160000.png",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "file": "ccd_frames/ccd_20261008_000000.png",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "file": "ccd_frames/ccd_20261008_080000.png",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "file": "ccd_frames/ccd_20261008_160000.png",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "file": "ccd_frames/ccd_20261009_000000.png",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "file": "ccd_frames/ccd_20261009_080000.png",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "file": "ccd_frames/ccd_20261009_160000.png",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "file": "ccd_frames/ccd_20261010_000000.png",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "file": "ccd_frames/ccd_20261010_080000.png",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "file": "ccd_frames/ccd_20261010_160000.png",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "file": "ccd_frames/ccd_20261011_000000.png",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "file": "ccd_frames/ccd_20261011_080000.png",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "file": "ccd_frames/ccd_20261011_160000.png",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "file": "ccd_frames/ccd_20261012_000000.png",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "file": "ccd_frames/ccd_20261012_080000.png",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "file": "ccd_frames/ccd_20261012_160000.png",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "file": "ccd_frames/ccd_20261013_000000.png",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "file": "ccd_frames/ccd_20261013_080000.png",
+      "reason": "extension .png is not a supported table/context format"
+    },
+    {
+      "file": "ccd_frames/ccd_20261013_160000.png",
+      "reason": "extension .png is not a supported table/context format"
+    }
+  ],
+  "status": "ok",
+  "outputs": {
+    "preprocessed_data.csv": "workspace\\hetero-e2e-l5\\run\\00_input\\preprocessed_data.csv",
+    "preprocessed_data.json": "workspace\\hetero-e2e-l5\\run\\00_input\\preprocessed_data.json",
+    "context_dir": "workspace\\hetero-e2e-l5\\run\\00_input\\context"
+  }
+}

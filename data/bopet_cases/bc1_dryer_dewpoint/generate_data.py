@@ -12,6 +12,7 @@
 import hashlib
 import json
 import sys
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -103,8 +104,13 @@ manifest = {
     },
     "basis": "工艺窗口取自乐凯 FW3 快照（data/lekai-test）典型运行值；干燥露点/含水/雾度机理参考 BOPET 干燥工艺常识",
 }
-with open(f"{OUT}/generation_manifest.json", "w", encoding="utf-8") as f:
-    json.dump(manifest, f, ensure_ascii=False, indent=2)
+_out = Path(f"{OUT}/generation_manifest.json").resolve()
+_repo = Path(__file__).resolve().parent
+while _repo != _repo.parent and not (_repo / ".git").exists():
+    _repo = _repo.parent
+if _repo not in _out.parents:
+    raise ValueError(f"output path outside repo: {_out}")
+_out.write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
 
 print("BC1 rows:", len(dcs), "dcs +", len(lab), "lab")
 print("  露点", dew.min(), "~", round(dew.max(), 1), "| 再生风温", round(regen.max(), 1), "~", round(regen.min(), 1))

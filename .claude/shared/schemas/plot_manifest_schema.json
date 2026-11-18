@@ -37,7 +37,8 @@
        "time_lag_ccf",
        "distribution",
        "trend",
-       "other"
+       "other",
+       "profile_heatmap"
       ]
      },
      "priority": {
@@ -64,7 +65,10 @@
        "CRITICAL",
        "HIGH",
        "MEDIUM",
-       "LOW"
+       "LOW",
+       "MANDATORY",
+       "SUPPLEMENTARY",
+       "NOT_FOR_VLM"
       ]
      },
      "width_px": {

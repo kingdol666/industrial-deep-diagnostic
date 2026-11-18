@@ -11,9 +11,20 @@ import { tmpdir } from 'os';
 import { join } from 'path';
 import { execFileSync } from 'child_process';
 
+// Isolated ontology store — node --test runs test FILES concurrently, and the
+// store (index.json + cross-process lock) is shared on-disk state. A shared
+// store dir lets this file's destructive primitives (delete / deprecate /
+// prune) race ontology-api.e2e.test.mjs's HTTP assertions. Point this file at
+// its own store: the override is read at MODULE LOAD time, so it must be set
+// BEFORE the store module (or anything importing it) is imported.
+const STORE_ROOT = mkdtempSync(join(tmpdir(), 'idd-onto-ctrl-store-'));
+const STORE_DIR = join(STORE_ROOT, 'ontology_store');
+process.env.ONTOLOGY_STORE_DIR = STORE_DIR;
+
 // 破坏性用例只操作「新建的测试场景」，绝不触碰既有场景。
 const store = await import('../../../.claude/shared/scripts/ontology_store.mjs');
 const svc = await import('../src/services/ontology.service.mjs');
+const { PROJECT_ROOT } = await import('../../../config/loader.mjs');
 
 const TEST_SCENE = `test_ontology_ctrl_${process.pid}`;
 const CLONE_SCENE = `${TEST_SCENE}_clone`;
@@ -101,7 +112,10 @@ function cleanup() {
 }
 
 before(() => cleanup());
-after(() => cleanup());
+after(() => {
+  cleanup();
+  try { rmSync(STORE_ROOT, { recursive: true, force: true }); } catch { /* best effort */ }
+});
 
 // ─────────────────────── store 原语 ───────────────────────
 
@@ -590,7 +604,7 @@ describe('asset listing and overview', () => {
     const o = svc.storeOverview();
     assert.ok(o.totals.scenes >= 1);
     assert.ok(o.totals.versions >= o.totals.scenes);
-    assert.ok(o.store_dir.endsWith('ontology_store'));
+    assert.equal(o.store_dir, STORE_DIR, 'the service must honor ONTOLOGY_STORE_DIR (test isolation)');
     assert.ok(Array.isArray(o.totals.broken_scenes));
   });
 
@@ -715,9 +729,23 @@ describe('end-to-end: build → persist → read → reuse → edit → reuse ag
       assert.equal(d.diff.summary.identical, false);
       assert.equal(d.diff.summary.signals_changed, 1);
 
-      // 8) 采纳路径：同一本体再次从 run 目录采纳入库 → 去重不产生噪声版本
-      const adopted = svc.adoptCandidate({ runDir, scene });
-      assert.equal(adopted.deduped, true);
+      // 8) 采纳路径：runDir/runName 必须位于 runs root（workspace/diagnostic-runs）
+      //    之下 —— 临时夹具目录被路径守卫拒绝（400），runs root 内的同一本体
+      //    再次采纳入库仍然去重，不产生噪声版本
+      assert.throws(
+        () => svc.adoptCandidate({ runDir, scene }),
+        (e) => e.status === 400 && e.code === 'PATH_OUTSIDE_BASE',
+        'a run dir outside the runs root must be refused',
+      );
+      const adoptDir = join(PROJECT_ROOT, 'workspace', 'diagnostic-runs', `idd-adopt-${process.pid}-${Date.now()}`);
+      try {
+        mkdirSync(join(adoptDir, '01_ontology'), { recursive: true });
+        writeFileSync(join(adoptDir, '01_ontology', 'ontology.json'), readFileSync(join(runDir, '01_ontology', 'ontology.json')));
+        const adopted = svc.adoptCandidate({ runDir: adoptDir, scene });
+        assert.equal(adopted.deduped, true);
+      } finally {
+        rmSync(adoptDir, { recursive: true, force: true });
+      }
 
       // 9) 清理
       svc.deleteScene(scene);

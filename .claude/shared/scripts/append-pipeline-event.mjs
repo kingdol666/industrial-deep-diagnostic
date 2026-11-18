@@ -2,6 +2,17 @@
 // append-pipeline-event.mjs — Append structured pipeline events and keep
 // run_manifest.json in sync with execution state.
 //
+// Robustness contract (2026-10-17):
+//   - run_manifest.json is written atomically (temp file + rename) — a crash
+//     mid-write can no longer leave a truncated manifest that hard-blocks the
+//     repair loop.
+//   - If run_manifest.json is corrupt/unreadable, the manifest is rebuilt from
+//     .pipeline_events.jsonl (which is the append-only source of truth), the
+//     corrupt file is backed up as run_manifest.json.corrupt-<ts>, and the
+//     rebuilt manifest carries `rebuilt_from_events: true`. Only when the JSONL
+//     is ALSO missing/unreadable does the script keep its hard exit.
+//   - Corrupt JSONL lines are skipped with a warning on read paths — never fatal.
+//
 // Usage examples:
 //   node append-pipeline-event.mjs <run_dir> --event agent_start --agent data-processor
 //   node append-pipeline-event.mjs <run_dir> --event agent_complete --agent reporter --files report.md,run_summary.json
@@ -9,7 +20,7 @@
 //   node append-pipeline-event.mjs <run_dir> --event artifact_check_complete --agent main-agent --step present --status PASS
 
 import fs from 'fs';
-import { join } from 'path';
+import { join, resolve, basename } from 'path';
 
 const args = process.argv.slice(2);
 const runDir = args[0];
@@ -76,8 +87,235 @@ function readJson(pathLike, fallback = null) {
   }
 }
 
+/** 读取原始文本（区分「读不到文件」与「内容不是 JSON」——重建逻辑需要两者）。 */
+function readText(pathLike) {
+  try {
+    return { ok: true, text: fs.readFileSync(pathLike, 'utf8') };
+  } catch (error) {
+    return { ok: false, error };
+  }
+}
+
+/** 原子写 JSON：同目录唯一后缀临时文件 → renameSync 覆盖目标。
+ *  崩溃/并发只会留下一个孤儿 tmp，目标文件永远是完整的一代。 */
 function writeJson(pathLike, data) {
-  fs.writeFileSync(pathLike, `${JSON.stringify(data, null, 2)}\n`);
+  const tmp = `${pathLike}.tmp-${process.pid}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+  fs.writeFileSync(tmp, `${JSON.stringify(data, null, 2)}\n`);
+  try {
+    fs.renameSync(tmp, pathLike);
+  } catch (error) {
+    try { fs.unlinkSync(tmp); } catch (_) { /* ignore */ }
+    throw error;
+  }
+}
+
+function timestampSuffix() {
+  return new Date().toISOString().replace(/[:.]/g, '-'); // Windows 文件名安全
+}
+
+/** 事件日志读取：损坏行跳过并告警（单行损坏绝不能中断重建/审计）。 */
+function readEventsFile(logPath) {
+  const read = readText(logPath);
+  if (!read.ok) return { events: [], corruptLines: 0, unreadable: true, error: read.error };
+  const events = [];
+  let corruptLines = 0;
+  const lines = read.text.split(/\r?\n/);
+  for (let i = 0; i < lines.length; i += 1) {
+    const line = lines[i].trim();
+    if (!line) continue;
+    try {
+      const ev = JSON.parse(line);
+      if (ev && typeof ev === 'object' && !Array.isArray(ev)) events.push(ev);
+      else { corruptLines += 1; console.error(`WARNING: skipping non-object .pipeline_events.jsonl line ${i + 1} in ${logPath}`); }
+    } catch (_) {
+      corruptLines += 1;
+      console.error(`WARNING: skipping corrupt .pipeline_events.jsonl line ${i + 1} in ${logPath}`);
+    }
+  }
+  return { events, corruptLines, unreadable: false };
+}
+
+// 标准管线步骤清单（与 setup.mjs 的 pipelineSteps 同源）——重建 steps[] 的骨架，
+// 保证 index/owner 与初始 manifest 一致；事件里出现的新步骤追加在尾部。
+const PIPELINE_STEPS = [
+  { step: 'setup', owner: 'main-agent' },
+  { step: 'hetero_preprocess', owner: 'main-agent' },
+  { step: 'inspect', owner: 'main-agent' },
+  { step: 'context_builder', owner: 'context-builder' },
+  { step: 'clarification_gate', owner: 'main-agent' },
+  { step: 'data_processor', owner: 'data-processor' },
+  { step: 'diagnostician', owner: 'diagnostician' },
+  { step: 'judge', owner: 'judge' },
+  { step: 'reporter', owner: 'reporter' },
+  { step: 'audit', owner: 'report-reviewer' },
+  { step: 'present', owner: 'main-agent' }
+];
+const STEP_OWNER = new Map(PIPELINE_STEPS.map((item) => [item.step, item.owner]));
+
+// delivery_contract 是常量契约（setup.mjs 写入的同一清单），事件无法证明它；
+// 留空会让 pipeline-finalize 的 delivery-contract 检查静默空转（required=[] →
+// 永远 VALID），因此按契约默认值重建，并用 rebuilt_from_events 标记来源。
+const DEFAULT_REQUIRED_ARTIFACTS = [
+  '00_input/run_config.json',
+  '00_input/input_manifest.json',
+  '01_ontology/ontology.json',
+  '02_processed/scenario_classification.json',
+  '02_processed/anomaly_report.json',
+  '02_processed/data_analysis_conclusion.json',
+  '03_figures/plot_manifest.json',
+  '03_figures/visual_analysis.json',
+  '03_figures/image_captions.json',
+  '04_diagnostics/diagnosis.json',
+  '04_diagnostics/evidence.json',
+  '04_diagnostics/confidence.json',
+  '04_diagnostics/reasoning_chain.json',
+  '05_review/judge_feedback.json',
+  'report.md',
+  'run_summary.json',
+  'optimizer.md',
+  'evidence_closure_report.json'
+];
+
+/**
+ * run_manifest.json 损坏/不可读时，从 .pipeline_events.jsonl（append-only 事实源）
+ * 重建最小可用清单：只写事件能证明的事实（状态、步骤进度、repair 计数、
+ * artifact 检查与跳阶段记录、run_id/时间戳），无法证明的部分保持缺省，
+ * 并打 `rebuilt_from_events: true` 标记。
+ *
+ * @returns {{ok:true, manifest, backupPath, events, corruptLines} | {ok:false, reason}}
+ */
+function rebuildManifestFromEvents({ manifestPath, corruptText }) {
+  const logPath = join(runDir, '.pipeline_events.jsonl');
+  const { events, corruptLines, unreadable } = readEventsFile(logPath);
+  if (unreadable) return { ok: false, reason: `.pipeline_events.jsonl unreadable at ${logPath}` };
+  if (events.length === 0) return { ok: false, reason: `.pipeline_events.jsonl has no parsable events at ${logPath}` };
+
+  const init = events.find((ev) => ev.event === 'run_initialized') || null;
+  const steps = new Map();
+  const skippedStages = [];
+  let diagIters = 0;
+  let repairSpawns = 0;
+  let finalizeRuns = 0;
+  let capReached = false;
+  let lastArtifactCheck = null;
+  let runCompleted = false;
+  let runFailed = false;
+  let lastEvent = null;
+  let currentStep = init?.step || null;
+  let currentOwner = init?.agent || null;
+
+  for (const ev of events) {
+    if (ev.step) {
+      if (!steps.has(ev.step)) {
+        steps.set(ev.step, {
+          step: ev.step,
+          owner: STEP_OWNER.get(ev.step) || ev.agent || 'main-agent',
+          status: 'pending',
+          attempts: 0,
+          started_at: null,
+          completed_at: null,
+          last_event: null,
+          outputs: [],
+          notes: []
+        });
+      }
+      const rec = steps.get(ev.step);
+      if (ev.event === 'step_start' || ev.event === 'agent_start') {
+        // 与主流程同一回退守卫：已完成的步骤不被迟到的 start 翻回 in_progress
+        if (!['completed', 'completed_with_errors'].includes(rec.status)) {
+          rec.status = 'in_progress';
+          rec.started_at = rec.started_at || ev.timestamp || null;
+          rec.attempts += 1;
+          rec.last_event = ev.event;
+        }
+      } else if (ev.event === 'step_complete' || ev.event === 'agent_complete') {
+        rec.status = ev.errors ? 'completed_with_errors' : 'completed';
+        rec.completed_at = ev.timestamp || null;
+        rec.last_event = ev.event;
+        rec.outputs = Array.from(new Set([...(rec.outputs || []), ...(Array.isArray(ev.files_written) ? ev.files_written : [])]));
+        if (ev.errors) rec.notes.push(`errors:${ev.errors}`);
+      } else if (ev.event.startsWith('clarification_')) {
+        rec.status = 'completed';
+        rec.completed_at = ev.timestamp || null;
+        rec.last_event = ev.event;
+        rec.attempts = Math.max(rec.attempts || 0, 1);
+      }
+      if (['step_start', 'agent_start', 'step_complete', 'agent_complete'].includes(ev.event)) {
+        currentStep = ev.step;
+        currentOwner = ev.agent || STEP_OWNER.get(ev.step) || currentOwner;
+      }
+    }
+    if (ev.event === 'repair_spawn') { diagIters += 1; repairSpawns += 1; }
+    if (ev.event === 'repair_cap_reached') capReached = true;
+    if (ev.event === 'artifact_finalize_start') finalizeRuns += 1;
+    if (ev.event === 'artifact_finalize_complete') { currentStep = 'present'; currentOwner = 'main-agent'; }
+    if (ev.event === 'artifact_check_complete') {
+      lastArtifactCheck = ev.status || ev.integrity_check || 'unknown';
+      if (ev.skipped_stage && ev.reason) {
+        const record = { stage: ev.skipped_stage, reason: ev.reason, event: ev.event };
+        const index = skippedStages.findIndex((item) => item.stage === record.stage);
+        if (index >= 0) skippedStages[index] = record;
+        else skippedStages.push(record);
+      }
+    }
+    if (ev.event === 'run_completed') runCompleted = true;
+    if (ev.event === 'run_failed') runFailed = true;
+    lastEvent = ev;
+  }
+
+  const stepList = PIPELINE_STEPS.map((item, index) => {
+    const rec = steps.get(item.step) || {
+      step: item.step, owner: item.owner, status: 'pending', attempts: 0,
+      started_at: null, completed_at: null, last_event: null, outputs: [], notes: []
+    };
+    return { index, ...rec };
+  });
+  const known = new Set(PIPELINE_STEPS.map((item) => item.step));
+  for (const [name, rec] of steps) {
+    if (!known.has(name)) stepList.push({ index: stepList.length, ...rec });
+  }
+
+  const runConfig = readJson(join(runDir, '00_input', 'run_config.json'), null);
+  const firstTs = init?.timestamp || events[0]?.timestamp || new Date().toISOString();
+  const rebuilt = {
+    run_id: init?.run_id || basename(resolve(runDir)),
+    created: firstTs,
+    run_dir: init?.run_dir || resolve(runDir),
+    status: runCompleted ? 'completed' : (runFailed ? 'failed' : 'initialized'),
+    steps: stepList,
+    execution_policy: {
+      run_mode: runConfig?.run_mode || 'full',
+      audit: { skipped_stages: skippedStages }
+    },
+    delivery_contract: {
+      strict_pipeline_required: true,
+      evidence_closure_required: true,
+      required_runtime_artifacts: DEFAULT_REQUIRED_ARTIFACTS
+    },
+    pipeline: {
+      version: 'v6.5',
+      current_step: currentStep,
+      current_owner: currentOwner,
+      diag_iters_total: diagIters,
+      repair_spawn_count: repairSpawns,
+      artifact_finalize_runs: finalizeRuns,
+      integrity: {
+        repair_cap_reached: capReached,
+        ...(lastArtifactCheck ? { last_artifact_check: lastArtifactCheck } : {})
+      }
+    },
+    updated_at: lastEvent?.timestamp || new Date().toISOString(),
+    rebuilt_from_events: true,
+    rebuilt_at: new Date().toISOString(),
+    rebuilt_note: 'run_manifest.json was unreadable; this manifest was reconstructed from .pipeline_events.jsonl (append-only source of truth). Unprovable fields use pipeline defaults.'
+  };
+
+  let backupPath = null;
+  if (typeof corruptText === 'string') {
+    backupPath = `${manifestPath}.corrupt-${timestampSuffix()}`;
+    try { fs.writeFileSync(backupPath, corruptText); } catch (_) { backupPath = null; }
+  }
+  return { ok: true, manifest: rebuilt, backupPath, events: events.length, corruptLines };
 }
 
 function ensureArray(value) {
@@ -260,10 +498,34 @@ if (!eventName || !VALID_EVENTS.has(eventName)) {
 }
 
 const manifestPath = join(runDir, 'run_manifest.json');
-const manifest = readJson(manifestPath, null);
+const manifestRead = readText(manifestPath);
+let manifest = null;
+if (manifestRead.ok) {
+  try {
+    const parsed = JSON.parse(manifestRead.text);
+    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) manifest = parsed;
+  } catch (_) { /* corrupt JSON → rebuild below */ }
+}
 if (!manifest) {
-  console.error(`Missing or unreadable run_manifest.json at ${manifestPath}`);
-  process.exit(1);
+  // 损坏的 manifest 不再硬退出：事件日志是 append-only 事实源，先重建。
+  const rebuilt = rebuildManifestFromEvents({
+    manifestPath,
+    corruptText: manifestRead.ok ? manifestRead.text : null,
+  });
+  if (!rebuilt.ok) {
+    console.error(
+      `Missing or unreadable run_manifest.json at ${manifestPath}\n`
+      + `  - manifest: ${manifestRead.ok ? 'present but not a JSON object (corrupt)' : `unreadable (${manifestRead.error.message})`}\n`
+      + `  - rebuild from .pipeline_events.jsonl failed: ${rebuilt.reason}`
+    );
+    process.exit(1);
+  }
+  console.error(
+    `WARNING: run_manifest.json was ${manifestRead.ok ? 'corrupt' : 'unreadable'} — rebuilt from .pipeline_events.jsonl `
+    + `(${rebuilt.events} event(s)${rebuilt.corruptLines ? `, ${rebuilt.corruptLines} corrupt line(s) skipped` : ''})`
+    + `${rebuilt.backupPath ? `; corrupt copy: ${rebuilt.backupPath}` : ''}`
+  );
+  manifest = rebuilt.manifest;
 }
 manifest.steps = ensureArray(manifest.steps);
 manifest.pipeline = manifest.pipeline || {

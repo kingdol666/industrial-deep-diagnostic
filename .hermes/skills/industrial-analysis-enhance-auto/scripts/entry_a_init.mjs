@@ -123,6 +123,58 @@ try {
   process.exit(1);
 }
 
+// Step 1.6: heterogeneous preprocessing (E-1H) — chained after a successful E-1
+// run, mirroring the Step 0.5 chain in industrial-analysis-auto (E-1 && build.py
+// && quality_gate.mjs). Only when build.py reports status "ok" AND a non-empty
+// joined_table AND the gate passes does the pipeline consume the joined table
+// 07_hetero/preprocessed_data_hetero.csv; every other outcome (no_hetero_sources /
+// off / gate-fail / build error) keeps 00_input/preprocessed_data.csv — prefer
+// skipping the upgrade over adopting a defective state.
+const heteroSkill = path.join(projectRoot, '.claude', 'skills', 'industrial-hetero-preprocessor');
+const heteroManifestRel = path.join('07_hetero', 'hetero_manifest.json');
+let heteroInfo = null; // written into run_config.json + input_manifest.json when adopted
+let heteroGate = null; // "failed" when the gate (or joined-table check) rejected the upgrade
+try {
+  if (prepReport && prepReport.status === 'ok') {
+    const buildArgs = pythonArgs(['-W', 'ignore',
+      path.join(heteroSkill, 'scripts', 'build.py'),
+      '--raw-path', dataAbs, '--run-dir', runDir]);
+    const buildOut = execFileSync(UV_CMD, buildArgs, { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
+    const buildJson = JSON.parse(buildOut.trim().split('\n').pop());
+    if (buildJson.status === 'ok' && buildJson.joined_table) {
+      const joinedAbs = path.join(runDir, buildJson.joined_table);
+      if (!fs.existsSync(joinedAbs)) {
+        heteroGate = 'failed';
+        console.error(`WARNING: hetero joined_table missing on disk (${joinedAbs}); keeping 00_input/preprocessed_data.csv`);
+      } else {
+        let gateOk = true;
+        try {
+          runScript(path.join(heteroSkill, 'scripts', 'quality_gate.mjs'), ['--run-dir', runDir, '--raw-path', dataAbs]);
+        } catch (gateErr) {
+          gateOk = false;
+          heteroGate = 'failed';
+          console.error(`WARNING: hetero quality gate failed (exit ${gateErr.status ?? 'unknown'}); keeping 00_input/preprocessed_data.csv`);
+        }
+        if (gateOk) {
+          const hManifest = JSON.parse(fs.readFileSync(path.join(runDir, heteroManifestRel), 'utf8'));
+          inspectedPath = joinedAbs;
+          heteroInfo = {
+            enabled: 'auto',
+            anchor_path: hManifest?.anchor?.path || path.join(runDir, '00_input', 'preprocessed_data.csv'),
+            manifest: path.join(runDir, heteroManifestRel),
+            anchor_sha256: hManifest?.anchor?.sha256 || null,
+          };
+        }
+      }
+    } else {
+      // no_hetero_sources / off — by design zero behavior change
+      console.error(`INFO: hetero stage: ${buildJson.status}; keeping 00_input/preprocessed_data.csv`);
+    }
+  }
+} catch (e) {
+  console.error(`WARNING: hetero build failed (exit ${e.status ?? 'unknown'}): ${String(e.message).split('\n')[0]}; keeping 00_input/preprocessed_data.csv`);
+}
+
 // Step 2: inspect data → write input_manifest / user_context / run_config
 try {
   const inspectOut = runScript(path.join(autoSkill, 'scripts', 'inspect.mjs'), [inspectedPath]);
@@ -142,6 +194,10 @@ try {
           report: path.join(runDir, '00_input', 'preprocessing_report.json'),
         }
       : null,
+    ...(heteroInfo
+      ? { hetero: { ...heteroInfo, joined_table: path.relative(runDir, inspectedPath).split(path.sep).join('/') } }
+      : {}),
+    ...(heteroGate === 'failed' ? { hetero_gate: 'failed' } : {}),
     data_profile: {
       rows: insp.rows,
       columns: insp.columns,
@@ -164,6 +220,7 @@ try {
     ...baseConfig,
     data_path: inspectedPath,
     raw_data_path: dataPath,
+    ...(heteroInfo ? { hetero: heteroInfo } : {}),
     interaction_mode: 'auto',
     run_mode: runMode,
     process_description: processDesc,

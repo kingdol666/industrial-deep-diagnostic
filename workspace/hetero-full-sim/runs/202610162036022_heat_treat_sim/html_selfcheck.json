@@ -1,0 +1,64 @@
+{
+  "run_id": "202610162036022_heat_treat_sim",
+  "artifact": "diagnostic-report.html",
+  "built_by": "html-visualizer (Engineer Lin) · pipeline Step 8 · CP-8B",
+  "checked_at": "2026-10-17",
+  "build_order": ["render_manifest.json (CP-8A)", "diagnostic-report.html (CP-9)", "html_selfcheck.json (CP-8B)"],
+  "checks": [
+    {
+      "name": "manifest_produced_first",
+      "status": "PASS",
+      "evidence": "render_manifest.json 在 diagnostic-report.html 之前写入（_meta.protocol_ack 三布尔全 true；counts = {hypotheses:7, charts:4, evidence_layers_available:3, pngs:5, actions:5, hero_scope_fields:9}）。页面未在无 manifest 情况下先行生成。"
+    },
+    {
+      "name": "hero_first_screen_8_elements",
+      "status": "PASS",
+      "evidence": "Hero 含全部 8 元素：.hero-bar、.display（'三区（均热段）后段的局部加热能力损失'）、.hero-lede（含 −4.93 ℃ / ×4.85 / −2.24 ℃ / −0.99 pt / D−A 三值）、.hero-meta 9 项（= manifest.scope 9 键）、.hero-badges（DETERMINED / 76 MEDIUM / L1 / Judge 96 pass / CP-8 ENDORSED）、.key-findings 4 格（kl+kv+kd，无空值）、阅读指引 caption。10 秒内可读出结论+位置+置信度。"
+    },
+    {
+      "name": "manifest_page_consistency",
+      "status": "PASS",
+      "evidence": "程序化计数一致：.chart-canvas=4=manifest.charts；.evidence-article=7=manifest.hypotheses（Layer Ⅲ 每假说一篇，H1 存活 + H2–H7 排除）；<img>=5=manifest.available_pngs；行动表行=5=manifest.actions；.hero-meta-item=9=Object.keys(manifest.scope)；.evidence-layer=3=evidence_layers available:true。3D 仅在 process_flow.recoverable=true 时渲染（工段 S1–S6 与异常落点 FUR-Z3 取自 ontology）。"
+    },
+    {
+      "name": "chart_initialization_multisource",
+      "status": "PASS",
+      "evidence": "ECharts 三源顺序加载（jsdelivr → unpkg → cdnjs）并逐图用 echarts.getInstanceByDom(dom) 做初始化成功判定（mount() 内计数 okCount===need → dotChart ok；全失败 → degrade()）；4 个图表（chart1 分段均值+std 双轴、chart2 ΔB−A/ΔD−A、chart3 段窗内相关、chart4 原始 vs 去趋势）数据全部来自 render_manifest.charts[].values（源自 validate_report/expert_findings 的真实数值），无运行时读取 manifest。"
+    },
+    {
+      "name": "runtime_degradation_readiness",
+      "status": "PASS",
+      "evidence": "loader 状态条 5 指标（ECharts / Three.js / Orbit / 图表 / 3D）各 loaded|fail；body.degraded 触发顶部降级提示（degraded-notice）并显示 4 张静态回退表（body.degraded .chart-fallback{display:block}）；Three.js/Orbit 双源（jsdelivr importmap + unpkg dynamic import）失败 → fallback3D() 输出三行说明并置降级类；PNG onerror → imgFallback() 以图注文本替代，不出现 404 破图。"
+    },
+    {
+      "name": "image_usage_from_03_figures",
+      "status": "PASS",
+      "evidence": "5 张真实 PNG 全部嵌入（相对路径 + 逐个核验存在）：03_figures/fig_vlm_temporal_overlay.png（Layer Ⅰ）、fig2_key_scatter.png（Layer Ⅰ）、fig6_causal_evidence_map.png（Layer Ⅰ）、fig_hetero_profile_heatmap.png（Layer Ⅱ）、fig_event_response.png（Layer Ⅲ）；每图配图注与来源/渲染偏差限定语，与 plot_manifest.json/image_captions.json 对齐。"
+    },
+    {
+      "name": "evidence_three_layers_complete",
+      "status": "PASS",
+      "evidence": "Layer Ⅰ 统计：段窗内相关 0.0267/0.8549/0.7393 + 原始 vs 去趋势 0.8987→0.8960 / 0.7419→0.7372 + 关键相关表（含 ρ=0.5098）+ 证据强度 4/5；Layer Ⅱ 物理：7 环 .physics-chain（每环量化）+ 热平衡/停留时间/Arrhenius/Wien 量级校核表 + 剖面热图 PNG + 空间一致性说明（SHIFT-EST≡0、ASYM-LR 塌陷）+ 证据强度 4/5；Layer Ⅲ 排除：7 篇假说文章（各含原始/去趋势或量化量级 + 排除理由 + 复活条件）+ 综合判决矩阵（H2–H7 排除置信度 90/92/90/90/90/90）+ 五因子置信度表 + 证伪条件 1–5 + 行动表 + 局限清单。三层全部 available:true，无需 .evidence-missing 标注。"
+    },
+    {
+      "name": "plain_language_and_jargon_translation",
+      "status": "PASS",
+      "evidence": "术语即译：std＝'标准差＝波动的离散程度'、Pearson/Spearman 表下注'线性同步度 / 只看排名的同步度'、lag 步＝'谁先动，正号表示左列先动'、z 归一化＝'把不同量纲曲线拉到同一尺度比较'、INFERRED/STRONG_EVIDENCE 均随文解释；结论段配白话（'暖气片局部不热'类比见 report.md 执行摘要，本页 lede 为白话叙述）。全文中文，枚举保持英文。"
+    }
+  ],
+  "step2time_discipline": {
+    "status": "PASS",
+    "evidence": "全文滞后仅述步数（如 'Z3→OUT 最优 lag +4 步'），无步→时间换算文本（自检含 '约 40 min' / '2400' / '+40 min' 均为 false）；CP-7L 口径在 §02 caption 与附录 B.5 显式披露。"
+  },
+  "artifact_stats": {
+    "bytes": 81210,
+    "min_bytes": 5120,
+    "sections": ["hero", "where(01 背景与定位)", "how(02 诊断推理)", "evidence(03 证据链 三层)", "appendix(04 附录披露)"],
+    "echarts_charts": 4,
+    "embedded_pngs": 5,
+    "cdn_sources_echarts": 3,
+    "cdn_sources_three": 2,
+    "static_fallback_tables": 4
+  },
+  "next_gate": "CP-8C — html-reviewer 独立审查（05_review/html_review.json 由 reviewer 写入，本 agent 不代写）"
+}

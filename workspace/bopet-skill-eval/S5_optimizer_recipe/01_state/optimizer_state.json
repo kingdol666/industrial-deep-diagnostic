@@ -1,0 +1,122 @@
+{
+  "state_version": "1.0",
+  "campaign_id": "OPT-20261014-001",
+  "objective_ref": "00_input/objective.json",
+  "objective_sha256": "7e1fd5c59ddfd2e0219b4fb77ab8b8798a331eb67e98f5b5d51d75620126dbf9",
+  "phase": "converged",
+  "round_count": 4,
+  "trial_count": 12,
+  "budget": {
+    "max_rounds": 12,
+    "max_trials": 15,
+    "deadline": null,
+    "rounds_used": 4,
+    "trials_used": 12,
+    "replicates_used": 14
+  },
+  "incumbent": {
+    "setpoints": {
+      "TDO定型区温度CX6": 190.908707,
+      "TDO拉伸区温度CX4": 243.24442,
+      "纵拉拉伸速度": 53.137229
+    },
+    "measured": {
+      "优品率": {
+        "mean": 99.05,
+        "sd": 0.105105,
+        "n": 3
+      }
+    },
+    "in_target": true,
+    "predicted_D": 1.0,
+    "round_id": "R001"
+  },
+  "target_status": {
+    "hit_ratio_history": [
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "ci_in_limits": true,
+    "desirability_gate": true
+  },
+  "model": {
+    "kind": "gp_ard_rbf",
+    "fallback_active": false,
+    "data_n": 12,
+    "noise_source": "replicates",
+    "fit_quality": {
+      "log_ml": -13.011146892006524,
+      "cond_K": 49.80211421838783
+    }
+  },
+  "belief": {
+    "stall_rounds": 2,
+    "max_ei_last": 0.09364761644139105,
+    "duplication_ratio": 0.0,
+    "domain_coverage": 0.784
+  },
+  "history": [
+    {
+      "round_id": "R001",
+      "phase": "explore",
+      "method": "lhs_fill",
+      "n_trials": 9,
+      "best_D": 1.0,
+      "failures": 0,
+      "notes": "duplication_ratio=0.0"
+    },
+    {
+      "round_id": "R002",
+      "phase": "exploit",
+      "method": "gp_ei",
+      "n_trials": 1,
+      "best_D": 1.0,
+      "failures": 0,
+      "notes": "duplication_ratio=0.0"
+    },
+    {
+      "round_id": "R003",
+      "phase": "exploit",
+      "method": "gp_ei",
+      "n_trials": 1,
+      "best_D": 1.0,
+      "failures": 0,
+      "notes": "duplication_ratio=0.0"
+    },
+    {
+      "round_id": "R004",
+      "phase": "confirm",
+      "method": "confirm_replicates",
+      "n_trials": 1,
+      "best_D": 1.0,
+      "failures": 0,
+      "notes": "duplication_ratio=0.0; dual_gate=PASS"
+    }
+  ],
+  "next_action": {
+    "recommendation": "stop",
+    "reasons": [
+      "dual gate satisfied"
+    ],
+    "agent_review_required": false
+  },
+  "stop_resume": {
+    "can_pause": false,
+    "resume_hint": "campaign converged closed"
+  },
+  "guardrail_log": [
+    {
+      "code": "CONFIRM_EVAL",
+      "ts": "2026-10-14T03:43:48.562781+00:00",
+      "detail": "confirm round R004: values=[99.002, 98.544, 99.225], ci_in_limits=True, desirability_gate=True"
+    }
+  ],
+  "provenance": {
+    "input_sha256": "7e1fd5c59ddfd2e0219b4fb77ab8b8798a331eb67e98f5b5d51d75620126dbf9",
+    "script_version": "1.0.0",
+    "seed": 42,
+    "authored_by": "script"
+  }
+}

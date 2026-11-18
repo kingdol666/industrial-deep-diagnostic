@@ -1,0 +1,377 @@
+{
+  "generated_at": "2026-10-18T02:45:04.319304+00:00",
+  "mode": "designed",
+  "model_spec": {
+    "main_effects": [
+      "hold_pressure_sp_bar",
+      "barrel_zone1_temp_sp_c"
+    ],
+    "interactions": [
+      "hold_pressure_sp_bar:barrel_zone1_temp_sp_c"
+    ],
+    "quadratic": [
+      "hold_pressure_sp_bar^2",
+      "barrel_zone1_temp_sp_c^2"
+    ],
+    "blocks": [],
+    "covariates": [],
+    "pooled_terms": [],
+    "term_status": {
+      "hold_pressure_sp_bar": {
+        "estimated": true,
+        "reason_code": null,
+        "detail": null,
+        "alias_chain": []
+      },
+      "barrel_zone1_temp_sp_c": {
+        "estimated": true,
+        "reason_code": null,
+        "detail": null,
+        "alias_chain": []
+      },
+      "hold_pressure_sp_bar^2": {
+        "estimated": true,
+        "reason_code": null,
+        "detail": null,
+        "alias_chain": []
+      },
+      "barrel_zone1_temp_sp_c^2": {
+        "estimated": false,
+        "reason_code": "aliased",
+        "detail": "coded column(s) exactly duplicate an earlier term's columns — not estimable",
+        "alias_chain": [
+          "hold_pressure_sp_bar"
+        ]
+      },
+      "hold_pressure_sp_bar:barrel_zone1_temp_sp_c": {
+        "estimated": true,
+        "reason_code": null,
+        "detail": null,
+        "alias_chain": []
+      }
+    }
+  },
+  "coding": {
+    "method": "deviation",
+    "continuous_scaling": "(x - mean) / half_range (coded to [-1, 1])",
+    "columns": {
+      "hold_pressure_sp_bar": {
+        "type": "numeric",
+        "zero_variance": false
+      },
+      "barrel_zone1_temp_sp_c": {
+        "type": "numeric",
+        "zero_variance": false
+      }
+    }
+  },
+  "families": [
+    {
+      "response": "part_weight_g",
+      "n": 185,
+      "df_resid": 180,
+      "df_pure_error": 180,
+      "df_lack_of_fit": 0,
+      "mse": 0.001782,
+      "mse_pure_error": 0.001782,
+      "sigma_pure_error": 0.042208,
+      "r_squared": 0.919876,
+      "adj_r_squared": 0.918095,
+      "q_squared_loo": 0.915362,
+      "mde": 0.017482,
+      "mde_note": "2 水平编码主效应的最小可检效应（α=0.05, power=0.8）",
+      "saturated": false,
+      "lack_of_fit": {
+        "estimable": false,
+        "reason": null,
+        "f_stat": null,
+        "p_value": null
+      },
+      "tests": [
+        {
+          "term": "hold_pressure_sp_bar",
+          "order": 1,
+          "coefficient": 0.15723,
+          "std_err": 0.003469,
+          "df": 1,
+          "ss_extra_ss": 3.658736,
+          "n": 185,
+          "estimable": true,
+          "reason_code": null,
+          "alias_chain": [],
+          "f_stat": 2053.702528,
+          "p_value": 2.2593362140371706e-100,
+          "eta_squared": 0.914175,
+          "partial_eta_squared": 0.919416,
+          "effect_size_std": 3.7251,
+          "q_value_bh": 9.037344856148682e-100,
+          "pareto_rank": 1
+        },
+        {
+          "term": "barrel_zone1_temp_sp_c",
+          "order": 1,
+          "coefficient": -0.012365,
+          "std_err": 0.003469,
+          "df": 1,
+          "ss_extra_ss": 0.022628,
+          "n": 185,
+          "estimable": true,
+          "reason_code": null,
+          "alias_chain": [],
+          "f_stat": 12.701264,
+          "p_value": 0.0004679287042759968,
+          "eta_squared": 0.005654,
+          "partial_eta_squared": 0.065912,
+          "effect_size_std": 0.292949,
+          "q_value_bh": 0.0009358574085519936,
+          "pareto_rank": 2
+        },
+        {
+          "term": "hold_pressure_sp_bar^2",
+          "order": 2,
+          "coefficient": 0.001554,
+          "std_err": 0.007758,
+          "df": 1,
+          "ss_extra_ss": 7.1e-05,
+          "n": 185,
+          "estimable": true,
+          "reason_code": null,
+          "alias_chain": [],
+          "f_stat": 0.040126,
+          "p_value": 0.8414597443687865,
+          "eta_squared": 1.8e-05,
+          "partial_eta_squared": 0.000223,
+          "effect_size_std": 0.036819,
+          "q_value_bh": 0.8414597443687865,
+          "pareto_rank": 4
+        },
+        {
+          "term": "hold_pressure_sp_bar:barrel_zone1_temp_sp_c",
+          "order": 2,
+          "coefficient": 0.000878,
+          "std_err": 0.003469,
+          "df": 1,
+          "ss_extra_ss": 0.000114,
+          "n": 185,
+          "estimable": true,
+          "reason_code": null,
+          "alias_chain": [],
+          "f_stat": 0.064096,
+          "p_value": 0.8004241863018132,
+          "eta_squared": 2.9e-05,
+          "partial_eta_squared": 0.000356,
+          "effect_size_std": 0.020811,
+          "q_value_bh": 0.8414597443687865,
+          "pareto_rank": 3
+        }
+      ]
+    },
+    {
+      "response": "melt_temp_c",
+      "n": 185,
+      "df_resid": 180,
+      "df_pure_error": 180,
+      "df_lack_of_fit": 0,
+      "mse": 0.051598,
+      "mse_pure_error": 0.051598,
+      "sigma_pure_error": 0.227151,
+      "r_squared": 0.966543,
+      "adj_r_squared": 0.965799,
+      "q_squared_loo": 0.964658,
+      "mde": 0.094086,
+      "mde_note": "2 水平编码主效应的最小可检效应（α=0.05, power=0.8）",
+      "saturated": false,
+      "lack_of_fit": {
+        "estimable": false,
+        "reason": null,
+        "f_stat": null,
+        "p_value": null
+      },
+      "tests": [
+        {
+          "term": "hold_pressure_sp_bar",
+          "order": 1,
+          "coefficient": -0.000228,
+          "std_err": 0.018672,
+          "df": 1,
+          "ss_extra_ss": 8e-06,
+          "n": 185,
+          "estimable": true,
+          "reason_code": null,
+          "alias_chain": [],
+          "f_stat": 0.00015,
+          "p_value": 0.9902546679289536,
+          "eta_squared": 0.0,
+          "partial_eta_squared": 1e-06,
+          "effect_size_std": 0.001005,
+          "q_value_bh": 0.9902546679289536,
+          "pareto_rank": 4
+        },
+        {
+          "term": "barrel_zone1_temp_sp_c",
+          "order": 1,
+          "coefficient": 1.346397,
+          "std_err": 0.018672,
+          "df": 1,
+          "ss_extra_ss": 268.292281,
+          "n": 185,
+          "estimable": true,
+          "reason_code": null,
+          "alias_chain": [],
+          "f_stat": 5199.694151,
+          "p_value": 9.712939980452698e-135,
+          "eta_squared": 0.966485,
+          "partial_eta_squared": 0.966541,
+          "effect_size_std": 5.927315,
+          "q_value_bh": 3.885175992181079e-134,
+          "pareto_rank": 1
+        },
+        {
+          "term": "hold_pressure_sp_bar^2",
+          "order": 2,
+          "coefficient": 0.017796,
+          "std_err": 0.041751,
+          "df": 1,
+          "ss_extra_ss": 0.009374,
+          "n": 185,
+          "estimable": true,
+          "reason_code": null,
+          "alias_chain": [],
+          "f_stat": 0.181678,
+          "p_value": 0.6704440099459986,
+          "eta_squared": 3.4e-05,
+          "partial_eta_squared": 0.001008,
+          "effect_size_std": 0.078344,
+          "q_value_bh": 0.9571637075678611,
+          "pareto_rank": 2
+        },
+        {
+          "term": "hold_pressure_sp_bar:barrel_zone1_temp_sp_c",
+          "order": 2,
+          "coefficient": 0.006757,
+          "std_err": 0.018672,
+          "df": 1,
+          "ss_extra_ss": 0.006757,
+          "n": 185,
+          "estimable": true,
+          "reason_code": null,
+          "alias_chain": [],
+          "f_stat": 0.130951,
+          "p_value": 0.7178727806758958,
+          "eta_squared": 2.4e-05,
+          "partial_eta_squared": 0.000727,
+          "effect_size_std": 0.029746,
+          "q_value_bh": 0.9571637075678611,
+          "pareto_rank": 3
+        }
+      ]
+    },
+    {
+      "response": "injection_pressure_bar",
+      "n": 185,
+      "df_resid": 180,
+      "df_pure_error": 180,
+      "df_lack_of_fit": 0,
+      "mse": 0.278124,
+      "mse_pure_error": 0.278124,
+      "sigma_pure_error": 0.527375,
+      "r_squared": 0.243664,
+      "adj_r_squared": 0.226856,
+      "q_squared_loo": 0.201062,
+      "mde": 0.218438,
+      "mde_note": "2 水平编码主效应的最小可检效应（α=0.05, power=0.8）",
+      "saturated": false,
+      "lack_of_fit": {
+        "estimable": false,
+        "reason": null,
+        "f_stat": null,
+        "p_value": null
+      },
+      "tests": [
+        {
+          "term": "hold_pressure_sp_bar",
+          "order": 1,
+          "coefficient": -0.084461,
+          "std_err": 0.04335,
+          "df": 1,
+          "ss_extra_ss": 1.055777,
+          "n": 185,
+          "estimable": true,
+          "reason_code": null,
+          "alias_chain": [],
+          "f_stat": 3.796065,
+          "p_value": 0.05292808131577333,
+          "eta_squared": 0.015951,
+          "partial_eta_squared": 0.020654,
+          "effect_size_std": 0.160153,
+          "q_value_bh": 0.07057077508769778,
+          "pareto_rank": 3
+        },
+        {
+          "term": "barrel_zone1_temp_sp_c",
+          "order": 1,
+          "coefficient": -0.290091,
+          "std_err": 0.04335,
+          "df": 1,
+          "ss_extra_ss": 12.454573,
+          "n": 185,
+          "estimable": true,
+          "reason_code": null,
+          "alias_chain": [],
+          "f_stat": 44.780634,
+          "p_value": 2.6986258976434405e-10,
+          "eta_squared": 0.188162,
+          "partial_eta_squared": 0.199219,
+          "effect_size_std": 0.550065,
+          "q_value_bh": 1.0794503590573762e-09,
+          "pareto_rank": 1
+        },
+        {
+          "term": "hold_pressure_sp_bar^2",
+          "order": 2,
+          "coefficient": 0.065542,
+          "std_err": 0.096933,
+          "df": 1,
+          "ss_extra_ss": 0.127154,
+          "n": 185,
+          "estimable": true,
+          "reason_code": null,
+          "alias_chain": [],
+          "f_stat": 0.457184,
+          "p_value": 0.4998108204963228,
+          "eta_squared": 0.001921,
+          "partial_eta_squared": 0.002533,
+          "effect_size_std": 0.12428,
+          "q_value_bh": 0.4998108204963228,
+          "pareto_rank": 4
+        },
+        {
+          "term": "hold_pressure_sp_bar:barrel_zone1_temp_sp_c",
+          "order": 2,
+          "coefficient": -0.129728,
+          "std_err": 0.04335,
+          "df": 1,
+          "ss_extra_ss": 2.490759,
+          "n": 185,
+          "estimable": true,
+          "reason_code": null,
+          "alias_chain": [],
+          "f_stat": 8.955567,
+          "p_value": 0.0031547055691899715,
+          "eta_squared": 0.03763,
+          "partial_eta_squared": 0.047395,
+          "effect_size_std": 0.245989,
+          "q_value_bh": 0.006309411138379943,
+          "pareto_rank": 2
+        }
+      ]
+    }
+  ],
+  "multiple_testing": {
+    "method": "BH",
+    "n_families": 3,
+    "total_tests": 12,
+    "total_significant_q05": 5,
+    "excluded_from_family": 0
+  }
+}

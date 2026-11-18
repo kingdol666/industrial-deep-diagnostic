@@ -238,19 +238,92 @@ export function probeCliBinary(id, { versionArgs = ['--version'], timeoutMs } = 
 // ── Process-tree kill (win32 taskkill /T /F; POSIX kill -pid) ──
 export function killTree(proc) {
   if (!proc || proc.exitCode !== null) return;
-  // Belt-and-braces: kill() flags the ChildProcess as killed (stop-route
-  // semantics rely on `killed`) even when the tree-kill below does the work.
-  try { proc.kill('SIGKILL'); } catch { /* already dead */ }
   const pid = proc.pid;
-  try {
-    if (process.platform === 'win32' && pid) {
-      spawn('taskkill', ['/pid', String(pid), '/T', '/F'], { windowsHide: true, stdio: 'ignore' });
-    } else if (pid) {
-      try { process.kill(-pid, 'SIGKILL'); } catch { /* root already gone */ }
-    }
-  } catch {
-    /* kill() above already attempted */
+  // win32: taskkill /T reaps the tree by walking the root's children, so it
+  // MUST run while the root is still alive. Terminating the root first turns
+  // /T into a no-op that leaks the grandchildren of npm-style .cmd shims
+  // (cmd.exe /c node …) — the tree-kill is therefore synchronous and first.
+  let treeKilled = false;
+  if (process.platform === 'win32' && pid) {
+    try {
+      execFileSync('taskkill', ['/pid', String(pid), '/T', '/F'], { timeout: 5000, windowsHide: true, stdio: 'ignore' });
+      treeKilled = true;
+    } catch { /* root already gone / taskkill unavailable — kill() below is the fallback */ }
   }
+  // Belt-and-braces: the handle must report `killed` (stop-route semantics
+  // rely on it) — taskkill already reaped the root, so kill() cannot mark it.
+  if (treeKilled) {
+    try { proc.killed = true; } catch { /* no setter in this Node build */ }
+  } else {
+    try { proc.kill('SIGKILL'); } catch { /* already dead */ }
+  }
+  if (process.platform !== 'win32' && pid) {
+    try { process.kill(-pid, 'SIGKILL'); } catch { /* root already gone */ }
+  }
+}
+
+// ── Turn-timeout guard (shared by every CLI engine client) ──
+// minutes <= 0 disables the guard; fractional minutes are honored (tests use
+// them to exercise the kill path in milliseconds). On fire the guard logs one
+// line, runs the caller's own hard-error path (onTimeout — emit the result
+// frame / mark the query finished), then kills the owned process tree.
+// cancel() must be called on every terminal path (process exit, result
+// emitted, close) so a finished turn never fires.
+export function withTimeout({
+  minutes, label = 'engine', context = 'CliCommon', turnKey = '',
+  onTimeout = null, child = null, logger: log = logger,
+}) {
+  const ms = (Number(minutes) || 0) * 60 * 1000;
+  if (!(ms > 0)) {
+    return {
+      ms: 0,
+      get fired() { return false; },
+      cancel() { /* disabled — nothing to clear */ },
+      promise: new Promise(() => { /* never settles — racers wait on the operation */ }),
+    };
+  }
+
+  let timer = null;
+  let fired = false;
+  let resolveFired = null;
+  const promise = new Promise((resolve) => { resolveFired = resolve; });
+
+  timer = setTimeout(() => {
+    timer = null;
+    fired = true;
+    log.error(`[${label}] turn timed out after ${ms}ms — killing process tree`, { context, turnKey });
+    try {
+      onTimeout?.();
+    } catch (e) {
+      log.warn(`[${label}] timeout handler failed: ${e.message}`, { context, turnKey });
+    }
+    if (child) killTree(child);
+    resolveFired(ms);
+  }, ms);
+
+  return {
+    ms,
+    promise,
+    get fired() { return fired; },
+    cancel() {
+      if (timer) { clearTimeout(timer); timer = null; }
+    },
+  };
+}
+
+/**
+ * Effective per-turn timeout (minutes) for an engine: explicit run value →
+ * per-engine config (harness.engines.<id>.timeout_minutes) → global
+ * harness.timeout_minutes → 0 (unlimited). Mirrors the one-shot family's
+ * harnessTimeout() chain so every client resolves the budget identically.
+ */
+export function resolveEngineTimeoutMinutes(id, override) {
+  const explicit = Number(override);
+  if (Number.isFinite(explicit) && explicit > 0) return explicit;
+  const perEngine = Number(engineConfig(id).timeout_minutes);
+  if (Number.isFinite(perEngine) && perEngine > 0) return perEngine;
+  const global = Number(config.harness?.timeout_minutes);
+  return Number.isFinite(global) && global > 0 ? global : 0;
 }
 
 /** Keep the last `max` characters of a stream — used for error-event tails. */

@@ -1,0 +1,965 @@
+{
+  "contract_version": "line-stability-report/1.0",
+  "report_id": "LSR-1791950395-r2qfu5",
+  "generated_at": "2026-10-14T03:59:55Z",
+  "status": "ok",
+  "line": {
+    "line_id": null,
+    "product": null
+  },
+  "period": {
+    "start": "2026-09-10 00:00:00",
+    "end": "2026-09-14 23:00:00",
+    "requested": {
+      "start": null,
+      "end": null
+    }
+  },
+  "data": {
+    "path": "workspace/lst-teaching-kit/T5_air_compressor\\00_input\\station_5d.csv",
+    "sha256": "sha256:06a7d5bce9fcf31e83638d3dcecd771de3f542c2bb1a68b110cee72dbcc53634",
+    "time_col": "时间",
+    "group_col": null,
+    "group_used": null,
+    "parameter_cols": [
+      "1号机组排气压力",
+      "1号机组加载率",
+      "2号机组排气压力",
+      "2号机组电机电流",
+      "母管压力"
+    ],
+    "inspection_cols": [],
+    "ignored_cols": [],
+    "sampled": false,
+    "stride": 1,
+    "n_rows_raw": 120,
+    "n_rows_used": 120,
+    "time_span_seconds": 428400.0,
+    "sampling_interval_median_seconds": 3600.0,
+    "missing_rate": 0.0,
+    "coverage_ratio": 1.0,
+    "time_invariant_channels": {
+      "count": 1,
+      "total": 6,
+      "share": 0.166667,
+      "examples": [
+        "油位传感器显示"
+      ]
+    }
+  },
+  "condition": {
+    "ontology": {
+      "mode": "auto",
+      "path": null,
+      "source": null,
+      "reason": "no ontology artifact found (auto mode)"
+    },
+    "scene": null,
+    "columns": {
+      "1号机组排气压力": {
+        "assigned_by": "auto",
+        "label": "1号机组排气压力",
+        "unit": null,
+        "role": "parameter",
+        "spec": null,
+        "normal_range": null,
+        "stage": null,
+        "equipment": null,
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null
+      },
+      "1号机组加载率": {
+        "assigned_by": "auto",
+        "label": "1号机组加载率",
+        "unit": null,
+        "role": "parameter",
+        "spec": null,
+        "normal_range": null,
+        "stage": null,
+        "equipment": null,
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null
+      },
+      "2号机组排气压力": {
+        "assigned_by": "auto",
+        "label": "2号机组排气压力",
+        "unit": null,
+        "role": "parameter",
+        "spec": null,
+        "normal_range": null,
+        "stage": null,
+        "equipment": null,
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null
+      },
+      "2号机组电机电流": {
+        "assigned_by": "auto",
+        "label": "2号机组电机电流",
+        "unit": null,
+        "role": "parameter",
+        "spec": null,
+        "normal_range": null,
+        "stage": null,
+        "equipment": null,
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null
+      },
+      "母管压力": {
+        "assigned_by": "auto",
+        "label": "母管压力",
+        "unit": null,
+        "role": "parameter",
+        "spec": null,
+        "normal_range": null,
+        "stage": null,
+        "equipment": null,
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null
+      },
+      "油位传感器显示": {
+        "assigned_by": "auto",
+        "label": "油位传感器显示",
+        "unit": null,
+        "role": "parameter",
+        "spec": null,
+        "normal_range": null,
+        "stage": null,
+        "equipment": null,
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null
+      }
+    },
+    "relationships": [],
+    "regimes": {
+      "available": true,
+      "method": "fast",
+      "change_points": [
+        58,
+        69
+      ],
+      "regimes": [
+        {
+          "start": 0,
+          "end": 58,
+          "label": "steady",
+          "n_rows": 59
+        },
+        {
+          "start": 58,
+          "end": 69,
+          "label": "transition",
+          "n_rows": 12
+        },
+        {
+          "start": 69,
+          "end": 119,
+          "label": "steady",
+          "n_rows": 51
+        }
+      ],
+      "abnormal_ratio": 0.0
+    }
+  },
+  "parameters": [
+    {
+      "name": "1号机组排气压力",
+      "role": "parameter",
+      "condition": {
+        "label": "1号机组排气压力",
+        "unit": null,
+        "assigned_by": "auto",
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null,
+        "stage": null,
+        "equipment": null
+      },
+      "n": 120,
+      "row_range": [
+        0,
+        119
+      ],
+      "data_source": "raw",
+      "mu": 0.737988,
+      "median": 0.7411,
+      "sigma": 0.011583,
+      "sigma_within_mr": 0.012991,
+      "cv": 0.01563,
+      "min": 0.7087,
+      "max": 0.7559,
+      "spec": {
+        "lsl": null,
+        "usl": null,
+        "target": null,
+        "source": null
+      },
+      "capability": {
+        "cp": null,
+        "cpk": null,
+        "pp": null,
+        "ppk": null
+      },
+      "nelson": {},
+      "n_violation_points": 0,
+      "drift": {
+        "slope_per_second": 0.0,
+        "per_day_relative": 0.000864,
+        "mk_p": 0.266339,
+        "significant": false
+      },
+      "baseline_ref": null,
+      "score": 94,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": 0,
+        "cv_penalty": -6,
+        "capability_penalty": 0,
+        "drift_penalty": 0,
+        "baseline_penalty": 0,
+        "total": 94
+      }
+    },
+    {
+      "name": "1号机组加载率",
+      "role": "parameter",
+      "condition": {
+        "label": "1号机组加载率",
+        "unit": null,
+        "assigned_by": "auto",
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null,
+        "stage": null,
+        "equipment": null
+      },
+      "n": 120,
+      "row_range": [
+        0,
+        119
+      ],
+      "data_source": "raw",
+      "mu": 67.10975,
+      "median": 66.83,
+      "sigma": 2.229755,
+      "sigma_within_mr": 2.157459,
+      "cv": 0.033087,
+      "min": 63.1,
+      "max": 71.13,
+      "spec": {
+        "lsl": null,
+        "usl": null,
+        "target": null,
+        "source": null
+      },
+      "capability": {
+        "cp": null,
+        "cpk": null,
+        "pp": null,
+        "ppk": null
+      },
+      "nelson": {},
+      "n_violation_points": 0,
+      "drift": {
+        "slope_per_second": -1e-06,
+        "per_day_relative": 0.001159,
+        "mk_p": 0.526833,
+        "significant": false
+      },
+      "baseline_ref": null,
+      "score": 88,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": 0,
+        "cv_penalty": -12,
+        "capability_penalty": 0,
+        "drift_penalty": 0,
+        "baseline_penalty": 0,
+        "total": 88
+      }
+    },
+    {
+      "name": "2号机组排气压力",
+      "role": "parameter",
+      "condition": {
+        "label": "2号机组排气压力",
+        "unit": null,
+        "assigned_by": "auto",
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null,
+        "stage": null,
+        "equipment": null
+      },
+      "n": 120,
+      "row_range": [
+        0,
+        119
+      ],
+      "data_source": "raw",
+      "mu": 0.698972,
+      "median": 0.69855,
+      "sigma": 0.005791,
+      "sigma_within_mr": 0.00467,
+      "cv": 0.00825,
+      "min": 0.6846,
+      "max": 0.7135,
+      "spec": {
+        "lsl": null,
+        "usl": null,
+        "target": null,
+        "source": null
+      },
+      "capability": {
+        "cp": null,
+        "cpk": null,
+        "pp": null,
+        "ppk": null
+      },
+      "nelson": {
+        "NELSON_R6": {
+          "n_episodes": 3,
+          "indices": [
+            4,
+            41,
+            60
+          ]
+        },
+        "NELSON_R2": {
+          "n_episodes": 2,
+          "indices": [
+            22,
+            41
+          ]
+        },
+        "NELSON_R5": {
+          "n_episodes": 1,
+          "indices": [
+            27
+          ]
+        },
+        "NELSON_R3": {
+          "n_episodes": 1,
+          "indices": [
+            43
+          ]
+        },
+        "NELSON_R1": {
+          "n_episodes": 2,
+          "indices": [
+            81,
+            90
+          ]
+        }
+      },
+      "n_violation_points": 9,
+      "drift": {
+        "slope_per_second": 0.0,
+        "per_day_relative": 0.00036,
+        "mk_p": 0.538721,
+        "significant": false
+      },
+      "baseline_ref": null,
+      "score": 94,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -6,
+        "cv_penalty": 0,
+        "capability_penalty": 0,
+        "drift_penalty": 0,
+        "baseline_penalty": 0,
+        "total": 94
+      }
+    },
+    {
+      "name": "2号机组电机电流",
+      "role": "parameter",
+      "condition": {
+        "label": "2号机组电机电流",
+        "unit": null,
+        "assigned_by": "auto",
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null,
+        "stage": null,
+        "equipment": null
+      },
+      "n": 120,
+      "row_range": [
+        0,
+        119
+      ],
+      "data_source": "raw",
+      "mu": 101.91,
+      "median": 99.15,
+      "sigma": 6.821437,
+      "sigma_within_mr": 0.734549,
+      "cv": 0.066656,
+      "min": 94.5,
+      "max": 117.2,
+      "spec": {
+        "lsl": null,
+        "usl": null,
+        "target": null,
+        "source": null
+      },
+      "capability": {
+        "cp": null,
+        "cpk": null,
+        "pp": null,
+        "ppk": null
+      },
+      "nelson": {
+        "NELSON_R1": {
+          "n_episodes": 7,
+          "indices": [
+            0,
+            22,
+            33,
+            47,
+            50,
+            53,
+            119
+          ]
+        },
+        "NELSON_R2": {
+          "n_episodes": 2,
+          "indices": [
+            8,
+            70
+          ]
+        },
+        "NELSON_R5": {
+          "n_episodes": 3,
+          "indices": [
+            55,
+            66,
+            119
+          ]
+        },
+        "NELSON_R6": {
+          "n_episodes": 2,
+          "indices": [
+            58,
+            119
+          ]
+        },
+        "NELSON_R3": {
+          "n_episodes": 1,
+          "indices": [
+            103
+          ]
+        }
+      },
+      "n_violation_points": 15,
+      "drift": {
+        "slope_per_second": 5.3e-05,
+        "per_day_relative": 0.045836,
+        "mk_p": 0.0,
+        "significant": true
+      },
+      "baseline_ref": null,
+      "score": 43,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -10,
+        "cv_penalty": -22,
+        "capability_penalty": 0,
+        "drift_penalty": -25,
+        "baseline_penalty": 0,
+        "total": 43
+      }
+    },
+    {
+      "name": "母管压力",
+      "role": "parameter",
+      "condition": {
+        "label": "母管压力",
+        "unit": null,
+        "assigned_by": "auto",
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null,
+        "stage": null,
+        "equipment": null
+      },
+      "n": 120,
+      "row_range": [
+        0,
+        119
+      ],
+      "data_source": "raw",
+      "mu": 0.649693,
+      "median": 0.65055,
+      "sigma": 0.014948,
+      "sigma_within_mr": 0.008832,
+      "cv": 0.022912,
+      "min": 0.6267,
+      "max": 0.6751,
+      "spec": {
+        "lsl": null,
+        "usl": null,
+        "target": null,
+        "source": null
+      },
+      "capability": {
+        "cp": null,
+        "cpk": null,
+        "pp": null,
+        "ppk": null
+      },
+      "nelson": {
+        "NELSON_R3": {
+          "n_episodes": 6,
+          "indices": [
+            10,
+            26,
+            34,
+            70,
+            90,
+            118
+          ]
+        },
+        "NELSON_R5": {
+          "n_episodes": 16,
+          "indices": [
+            11,
+            15,
+            19,
+            23,
+            27,
+            31,
+            35,
+            39,
+            47,
+            55,
+            63,
+            71,
+            87,
+            95,
+            103,
+            119
+          ]
+        },
+        "NELSON_R6": {
+          "n_episodes": 2,
+          "indices": [
+            40,
+            56
+          ]
+        }
+      },
+      "n_violation_points": 24,
+      "drift": {
+        "slope_per_second": -0.0,
+        "per_day_relative": 0.00123,
+        "mk_p": 0.275241,
+        "significant": false
+      },
+      "baseline_ref": null,
+      "score": 78,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -16,
+        "cv_penalty": -6,
+        "capability_penalty": 0,
+        "drift_penalty": 0,
+        "baseline_penalty": 0,
+        "total": 78
+      }
+    }
+  ],
+  "correlations": {
+    "max_lag": 10,
+    "pairs": [
+      {
+        "pearson": -0.637943,
+        "spearman": -0.620976,
+        "best_abs_r": 0.620976,
+        "best_lag_rows": 0,
+        "leader": null,
+        "pearson_at_best": -0.637943,
+        "spearman_at_best": -0.620976,
+        "a": "1号机组排气压力",
+        "b": "1号机组加载率",
+        "n": 120
+      },
+      {
+        "pearson": 0.089433,
+        "spearman": 0.150611,
+        "best_abs_r": 0.174051,
+        "best_lag_rows": 9,
+        "leader": "1号机组排气压力",
+        "pearson_at_best": 0.123176,
+        "spearman_at_best": 0.174051,
+        "a": "1号机组排气压力",
+        "b": "2号机组电机电流",
+        "n": 120
+      },
+      {
+        "pearson": 0.024538,
+        "spearman": 0.009396,
+        "best_abs_r": 0.168934,
+        "best_lag_rows": 10,
+        "leader": "2号机组排气压力",
+        "pearson_at_best": -0.133217,
+        "spearman_at_best": -0.168934,
+        "a": "2号机组排气压力",
+        "b": "母管压力",
+        "n": 120
+      },
+      {
+        "pearson": 0.029342,
+        "spearman": 0.077413,
+        "best_abs_r": 0.137396,
+        "best_lag_rows": 5,
+        "leader": "1号机组加载率",
+        "pearson_at_best": -0.094835,
+        "spearman_at_best": -0.137396,
+        "a": "1号机组加载率",
+        "b": "母管压力",
+        "n": 120
+      },
+      {
+        "pearson": -0.068074,
+        "spearman": -0.084201,
+        "best_abs_r": 0.134127,
+        "best_lag_rows": 3,
+        "leader": "2号机组排气压力",
+        "pearson_at_best": 0.123895,
+        "spearman_at_best": 0.134127,
+        "a": "1号机组加载率",
+        "b": "2号机组排气压力",
+        "n": 120
+      },
+      {
+        "pearson": 0.074223,
+        "spearman": 0.077703,
+        "best_abs_r": 0.111803,
+        "best_lag_rows": 3,
+        "leader": "2号机组排气压力",
+        "pearson_at_best": -0.074015,
+        "spearman_at_best": -0.111803,
+        "a": "1号机组排气压力",
+        "b": "2号机组排气压力",
+        "n": 120
+      },
+      {
+        "pearson": 0.074594,
+        "spearman": 0.081524,
+        "best_abs_r": 0.110609,
+        "best_lag_rows": 10,
+        "leader": "2号机组电机电流",
+        "pearson_at_best": 0.103797,
+        "spearman_at_best": 0.110609,
+        "a": "2号机组排气压力",
+        "b": "2号机组电机电流",
+        "n": 120
+      },
+      {
+        "pearson": -0.051013,
+        "spearman": -0.098884,
+        "best_abs_r": 0.103955,
+        "best_lag_rows": 8,
+        "leader": "2号机组电机电流",
+        "pearson_at_best": -0.048496,
+        "spearman_at_best": -0.103955,
+        "a": "1号机组加载率",
+        "b": "2号机组电机电流",
+        "n": 120
+      },
+      {
+        "pearson": -0.046885,
+        "spearman": -0.001857,
+        "best_abs_r": 0.094503,
+        "best_lag_rows": 3,
+        "leader": "2号机组电机电流",
+        "pearson_at_best": -0.043334,
+        "spearman_at_best": -0.094503,
+        "a": "2号机组电机电流",
+        "b": "母管压力",
+        "n": 120
+      },
+      {
+        "pearson": -0.009345,
+        "spearman": 0.014858,
+        "best_abs_r": 0.064304,
+        "best_lag_rows": 3,
+        "leader": "1号机组排气压力",
+        "pearson_at_best": -0.060618,
+        "spearman_at_best": -0.064304,
+        "a": "1号机组排气压力",
+        "b": "母管压力",
+        "n": 120
+      }
+    ],
+    "contributions": [],
+    "contributions_skipped": "未声明检测/响应指标（inspection_cols 或本体 role=response），贡献分析未执行——默认目标列不可解释"
+  },
+  "integrations": {
+    "sentinel_baseline": {
+      "used": false,
+      "path": null
+    },
+    "tuning_memory": {
+      "used": false
+    },
+    "doe_analyzer": {
+      "used": false
+    }
+  },
+  "degradations": [
+    {
+      "check": "time_invariant_channels",
+      "reason": "1/6 numeric channels never change across the period (frozen snapshot export or dead/unused points); excluded from scoring"
+    }
+  ],
+  "limitations": {
+    "data_source": "raw (this skill never cleans or imputes; every number is recomputable from the raw table)",
+    "sampling": {
+      "n_rows_analyzed": 120,
+      "sampled": false,
+      "stride": 1,
+      "note": null
+    },
+    "missing_rate": 0.0,
+    "sampling_interval_seconds": 3600.0,
+    "spec_coverage": {
+      "user": [],
+      "ontology": [],
+      "none": [
+        "1号机组排气压力",
+        "1号机组加载率",
+        "2号机组排气压力",
+        "2号机组电机电流",
+        "母管压力"
+      ]
+    },
+    "model_assumptions": [
+      "lag-compensated Spearman window 0–10 rows (lead/lag beyond this window is invisible)",
+      "whole-period scoring assumes one dominant operating condition; use the regime table for segmented reading",
+      "Cpk treats within-sigma as MR̄/1.128 moving-range estimate"
+    ],
+    "confounders": [],
+    "derived_fields": [
+      "baseline_ref.robust_z",
+      "correlations.contributions.share",
+      "correlations.pairs.best_abs_r"
+    ]
+  },
+  "provenance": {
+    "input_sha256": "sha256:06a7d5bce9fcf31e83638d3dcecd771de3f542c2bb1a68b110cee72dbcc53634",
+    "script_version": "1.0.0",
+    "authored_by": "lstcore/stability_analyzer.py",
+    "zero_llm": true,
+    "spc_source": "sentinelcore",
+    "regime_method": "fast",
+    "ontology_source": null,
+    "python": "3.12.7",
+    "numpy": "2.5.2",
+    "pandas": "3.0.5",
+    "methods": [
+      "sentinelcore_nelson_episodes",
+      "mrbar_sigma_1.128",
+      "cpk_within_ppk_overall",
+      "theil_sen_mk_drift",
+      "lagged_spearman_max10",
+      "contribution_r2_share",
+      "regime_segmentation_c3",
+      "ontology_first_condition",
+      "weighted_penalty_score_v1",
+      "darwin_limitations"
+    ]
+  },
+  "findings": [
+    {
+      "finding_id": "F001",
+      "severity": "high",
+      "category": "spc",
+      "title": "2号机组排气压力 检出 SPC 违规",
+      "detail": "共 9 个判异剧集命中（每百点 7.5 个，规则：NELSON_R1/NELSON_R2/NELSON_R3/NELSON_R5/NELSON_R6），控制限为中心值0.6986±3σ_within（σ=0.0047）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 9,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 7.5,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 0.00467,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "2号机组排气压力"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F002",
+      "severity": "high",
+      "category": "spc",
+      "title": "2号机组电机电流 检出 SPC 违规",
+      "detail": "共 15 个判异剧集命中（每百点 12.5 个，规则：NELSON_R1/NELSON_R2/NELSON_R3/NELSON_R5/NELSON_R6），控制限为中心值99.15±3σ_within（σ=0.7345）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 15,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 12.5,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 0.734549,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "2号机组电机电流"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F003",
+      "severity": "high",
+      "category": "spc",
+      "title": "母管压力 检出 SPC 违规",
+      "detail": "共 24 个判异剧集命中（每百点 20.0 个，规则：NELSON_R3/NELSON_R5/NELSON_R6），控制限为中心值0.6505±3σ_within（σ=0.0088）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 24,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 20.0,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 0.008832,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "母管压力"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F004",
+      "severity": "high",
+      "category": "drift",
+      "title": "2号机组电机电流 存在显著漂移",
+      "detail": "Theil–Sen 斜率显著（Mann–Kendall p=0.0，且相对漂移≥0.1%/天才计入），相对漂移约 4.584%/天，方向对应斜率 0.0001/秒。",
+      "evidence": [
+        {
+          "metric": "mk_p",
+          "value": 0.0,
+          "source": "lstcore",
+          "threshold": "<0.01 且 >=0.1%/天"
+        },
+        {
+          "metric": "per_day_relative",
+          "value": 0.045836,
+          "source": "lstcore",
+          "threshold": "<0.001 ok; >=0.01 high"
+        },
+        {
+          "metric": "slope_per_second",
+          "value": 5.3e-05,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "2号机组电机电流"
+      ],
+      "confidence": 80
+    },
+    {
+      "finding_id": "F005",
+      "severity": "warn",
+      "category": "data_quality",
+      "title": "时间不变量通道",
+      "detail": "1/6 个数值通道在整个时段取值完全不变（占比 17%）— 疑似快照式导出、死点或未投入的测点；这些通道已从稳定性评分中剔除，结论仅覆盖其余通道。",
+      "evidence": [
+        {
+          "metric": "time_invariant_count",
+          "value": 1,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "time_invariant_share",
+          "value": 0.166667,
+          "source": "lstcore",
+          "threshold": "<0.5",
+          "derived": true
+        }
+      ],
+      "affected": [
+        "油位传感器显示"
+      ],
+      "confidence": 95
+    },
+    {
+      "finding_id": "F006",
+      "severity": "warn",
+      "category": "regime",
+      "title": "工况发生结构性切换（2 个显著变点）",
+      "detail": "sentinel C3 工况分段在本时段检出 2 个显著变点（首个位于第 58 行附近）；全时段评分可能混合不同工况，请结合下方工况分段表分段解读。",
+      "evidence": [
+        {
+          "metric": "change_points",
+          "value": 2,
+          "source": "lstcore",
+          "threshold": "0",
+          "derived": true
+        },
+        {
+          "metric": "segmentation_method",
+          "value": "fast",
+          "source": "sentinel regime_map"
+        }
+      ],
+      "affected": [],
+      "confidence": 70
+    }
+  ],
+  "conclusion": {
+    "score": 79.4,
+    "grade": "B",
+    "grade_key": "sub_stable",
+    "label": "亚稳定",
+    "statement": "该产线在本时段总体运行亚稳定（79.4 分，B 级）：评估 5 个参数，检出 48 个 SPC 违规剧集、1 项显著漂移；工况分段检出 2 个显著变点；最需关注：2号机组电机电流。",
+    "n_parameters_assessed": 5,
+    "n_findings": 6,
+    "findings_by_severity": {
+      "info": 0,
+      "warn": 2,
+      "high": 4,
+      "critical": 0
+    }
+  }
+}

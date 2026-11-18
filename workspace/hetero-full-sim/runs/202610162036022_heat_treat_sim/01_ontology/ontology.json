@@ -1,0 +1,1452 @@
+{
+  "scene": {
+    "name": "heat_treat_sim · 连续热处理线（模拟场景，10 天）",
+    "process_type": "连续热处理（连续退火/保温热处理炉线：三区炉温 + 传输速度 + 炉内压力控制带材出口温度与性能）",
+    "production_goal": "连续生产 10 天；通过三区炉温/线速度/炉压控制带材出口温度与横向温度均匀性，保证硬度与收得率达标",
+    "equipment": [
+      {
+        "id": "FUR-Z1",
+        "name": "炉膛一区（预热区）",
+        "type": "加热炉区",
+        "function": "带材入炉预热，降低热冲击",
+        "location": "连续热处理线入口段"
+      },
+      {
+        "id": "FUR-Z2",
+        "name": "炉膛二区（加热区）",
+        "type": "加热炉区",
+        "function": "主加热段，带材快速升温",
+        "location": "连续热处理线中段"
+      },
+      {
+        "id": "FUR-Z3",
+        "name": "炉膛三区（均热区）",
+        "type": "加热炉区",
+        "function": "保温均热，组织均匀化（操作备注记录设定 880℃）",
+        "location": "连续热处理线出口前段"
+      },
+      {
+        "id": "FUR-LINE",
+        "name": "炉线辊道/传动系统",
+        "type": "传输设备",
+        "function": "决定带材运行速度与炉内停留时间 L/v",
+        "location": "全线"
+      },
+      {
+        "id": "THERMO-MAP-1",
+        "name": "炉膛温度场测量（5x4 网格）",
+        "type": "温度场测量",
+        "function": "2h 粒度炉膛温度场（含左右不对称/热斑指标）",
+        "location": "炉膛"
+      },
+      {
+        "id": "PROFILE-SENSOR-1",
+        "name": "带材横向温度剖面测量",
+        "type": "剖面测量",
+        "function": "30min 粒度带材横向温度剖面（边部/中部/斜度）",
+        "location": "炉线"
+      },
+      {
+        "id": "CCD-SURF-1",
+        "name": "表面检查相机（CCD 图像索引）",
+        "type": "表面检测",
+        "function": "1h 粒度表面图像帧统计（未标定，相对监测）",
+        "location": "出料侧"
+      },
+      {
+        "id": "LAB-HRC",
+        "name": "实验室硬度抽检（洛氏 C）",
+        "type": "实验室检测",
+        "function": "2h 粒度洛氏硬度抽检（未并入锚定主表，仅作外部验证参照）",
+        "location": "实验室"
+      }
+    ],
+    "stages": [
+      {
+        "id": "S1",
+        "name": "入炉预热（一区）",
+        "sequence": 1,
+        "typical_duration": "分钟级（按 L/v 估算，未在数据中声明）",
+        "key_physics": "对流+辐射换热升温；升温速率受炉温-带材温差驱动",
+        "key_parameters": [
+          "FUR-Z1-TEMP",
+          "FUR-SPEED"
+        ]
+      },
+      {
+        "id": "S2",
+        "name": "主加热（二区）",
+        "sequence": 2,
+        "typical_duration": "分钟级（按 L/v 估算）",
+        "key_physics": "牛顿换热 Q=hA(T_f−T_s) + 辐射四次方项；停留时间 t_res=L/v 决定吸热量",
+        "key_parameters": [
+          "FUR-Z2-TEMP",
+          "FUR-SPEED",
+          "FUR-PRES"
+        ]
+      },
+      {
+        "id": "S3",
+        "name": "均热保温（三区）",
+        "sequence": 3,
+        "typical_duration": "分钟级至十几分钟（操作备注设定 880℃）",
+        "key_physics": "保温段晶粒长大/组织均匀化（Arrhenius 型动力学）；横向温度均匀性决定带材性能一致性",
+        "key_parameters": [
+          "FUR-Z3-TEMP",
+          "HX-PROF-L1BANDTEMPPROFILE30M-MEAN",
+          "HX-PROF-L1BANDTEMPPROFILE30M-STD"
+        ]
+      },
+      {
+        "id": "S4",
+        "name": "出料与冷却",
+        "sequence": 4,
+        "typical_duration": "秒级-分钟级",
+        "key_physics": "冷却速率与终冷温度决定最终组织与硬度（相变动力学）",
+        "key_parameters": [
+          "FUR-OUT-TEMP"
+        ]
+      },
+      {
+        "id": "S5",
+        "name": "在线表面检查",
+        "sequence": 5,
+        "typical_duration": "1h 粒度",
+        "key_physics": "表面氧化/划伤在灰度统计上的响应（未标定）",
+        "key_parameters": [
+          "HX-IMG-L1SURFACECCDINDEX-MEAN",
+          "HX-IMG-L1SURFACECCDINDEX-DARKFRAC"
+        ]
+      },
+      {
+        "id": "S6",
+        "name": "实验室抽检（离线）",
+        "sequence": 6,
+        "typical_duration": "2h 粒度",
+        "key_physics": "硬度-温度-时间关系（退火软化曲线）",
+        "key_parameters": [
+          "LAB-HRC"
+        ]
+      }
+    ],
+    "objectives": [
+      "定位产线质量异常根因并给出证据链",
+      "维持三区炉温稳定（操作备注：三区设定 880℃）",
+      "保证带材横向温度均匀性（边部偏差/斜度在限内）",
+      "保证表面质量与收得率"
+    ]
+  },
+  "signals": {
+    "inspection_signals": [
+      {
+        "name": "实验室洛氏硬度",
+        "column": "LAB-HRC",
+        "unit": "HRC",
+        "role": "target",
+        "physical_meaning": "实验室洛氏 C 硬度抽检（2h 粒度）；未并入锚定主表，仅作外部验证参照（raw/L1_lab_hardness_2h.csv）",
+        "physical_meaning_confidence": "KNOWN",
+        "auto_inferred": false,
+        "inference_basis": "场景描述 + raw/README.md（实验室硬度抽检 2h）+ raw/L1_lab_hardness_2h.csv 表头 LAB-HRC",
+        "governing_law": "硬度 ∝ f(均热温度, 保温时间, 冷却速率)；退火软化曲线（Arrhenius 型）",
+        "expected_data_behavior": "围绕工艺窗口中心小幅波动；与出口温度/均热温度负相关（升温软化）",
+        "behavior_match": "UNVERIFIED",
+        "discrepancy_signal": "硬度漂移而同炉温稳定 = 冷却段/来料/抽检偏差候选",
+        "knowledge_source": "user_provided",
+        "equipment_ref": "LAB-HRC",
+        "stage_ref": "S6"
+      }
+    ],
+    "process_parameters": [
+      {
+        "name": "炉内压力",
+        "column": "FUR-PRES",
+        "role": "predictor",
+        "physical_meaning": "炉膛/保护气氛压力（相对值；单位未在数据或文档中声明）",
+        "physical_meaning_confidence": "INFERRED",
+        "auto_inferred": false,
+        "inference_basis": "列名 FUR-PRES 指向炉膛压力；单位未声明，按相对漂移量使用",
+        "normal_range": [
+          37.5259,
+          38.4961
+        ],
+        "governing_law": "炉压影响炉内气氛与氧化/卷气，属间接质量影响通道",
+        "expected_data_behavior": "有界波动、与炉门/密封状态及事件相关；不随炉温同步大幅变化",
+        "observed_data_behavior": "锚定表 1440 行实测: min=36.874, max=39.187, mean=38.0102, std=0.3026, p05=37.5259, p95=38.4961 (source: 07_hetero/preprocessed_data_hetero.csv)",
+        "behavior_match": "UNVERIFIED",
+        "discrepancy_signal": "Stage-1 预检仅记录观测范围；与物理预期的一致/矛盾判定由 data-processor（Step 3）完成",
+        "knowledge_source": "user_provided",
+        "equipment_ref": "FUR-Z3",
+        "stage_ref": "S2"
+      },
+      {
+        "name": "带材出口温度",
+        "column": "FUR-OUT-TEMP",
+        "role": "target",
+        "physical_meaning": "出料侧带材温度（DCS 实测），决定冷却起点与最终硬度",
+        "physical_meaning_confidence": "KNOWN",
+        "auto_inferred": false,
+        "inference_basis": "列名 + 场景描述（连续热处理线出口温度）",
+        "normal_range": [
+          545.9275,
+          551.5205
+        ],
+        "governing_law": "Q=hA(T_f−T_s) 与停留时间 t_res=L/v 决定出料温度",
+        "expected_data_behavior": "低于各区炉温；随炉温上升/速度下降而升高；波动应传导至硬度",
+        "observed_data_behavior": "锚定表 1440 行实测: min=542.95, max=553.45, mean=549.3018, std=1.6616, p05=545.9275, p95=551.5205 (source: 07_hetero/preprocessed_data_hetero.csv)",
+        "behavior_match": "UNVERIFIED",
+        "discrepancy_signal": "Stage-1 预检仅记录观测范围；与物理预期的一致/矛盾判定由 data-processor（Step 3）完成",
+        "knowledge_source": "user_provided",
+        "unit": "°C",
+        "equipment_ref": "FUR-LINE",
+        "stage_ref": "S4"
+      },
+      {
+        "name": "收得率/良率",
+        "column": "FUR-YIELD",
+        "role": "target",
+        "physical_meaning": "DCS 上报的产线收得率/良率（质量结果代理）",
+        "physical_meaning_confidence": "INFERRED",
+        "auto_inferred": false,
+        "inference_basis": "列名 FUR-YIELD + 观测域 0–100，推断为百分数",
+        "normal_range": [
+          97.5,
+          99.51
+        ],
+        "governing_law": "由合格率统计生成，非连续物理量；受温度/表面质量影响",
+        "expected_data_behavior": "缓慢变化、与质量事件同步下探；不易受单点噪声影响",
+        "observed_data_behavior": "锚定表 1440 行实测: min=97.0, max=99.71, mean=98.9827, std=0.6252, p05=97.5, p95=99.51 (source: 07_hetero/preprocessed_data_hetero.csv)",
+        "behavior_match": "UNVERIFIED",
+        "discrepancy_signal": "Stage-1 预检仅记录观测范围；与物理预期的一致/矛盾判定由 data-processor（Step 3）完成",
+        "knowledge_source": "user_provided",
+        "unit": "%",
+        "equipment_ref": "FUR-LINE",
+        "stage_ref": "S4"
+      },
+      {
+        "name": "whole-frame gray mean",
+        "column": "HX-IMG-L1SURFACECCDINDEX-MEAN",
+        "unit": "graylevel_8bit",
+        "role": "predictor",
+        "physical_meaning": "整图统计量（未标定、探测器坐标系）：全图像素灰度均值，整帧亮度水平代理",
+        "physical_meaning_confidence": "KNOWN",
+        "auto_inferred": true,
+        "inference_basis": "探测器线性区内整帧亮度与入射辐射/样品散射强度单调相关；未标定，仅作相对漂移监测",
+        "evidence_level": 1,
+        "derived": {
+          "formula": "mean(g) over all pixels; g = 8-bit grayscale frame",
+          "method": "img_whole_frame_stats",
+          "n_inputs": 240,
+          "source_sha256": "sha256:dfa1be5d70649c3d52876871a1d104c6060c6e6ba8141fbca4c716f1539b26f6",
+          "model_derived": false
+        },
+        "knowledge_source": "user_provided",
+        "governing_law": "探测器线性区内整帧亮度与入射辐射/样品散射强度单调相关；未标定，仅作相对漂移监测"
+      },
+      {
+        "name": "whole-frame gray std",
+        "column": "HX-IMG-L1SURFACECCDINDEX-STD",
+        "unit": "graylevel_8bit",
+        "role": "predictor",
+        "physical_meaning": "整图统计量（未标定、探测器坐标系）：全图像素灰度标准差（ddof=1），整帧对比度代理",
+        "physical_meaning_confidence": "KNOWN",
+        "auto_inferred": true,
+        "inference_basis": "灰度标准差正比于整帧空间对比度，对环带宽度、缺陷等结构变化敏感",
+        "evidence_level": 1,
+        "derived": {
+          "formula": "std(g, ddof=1) over all pixels",
+          "method": "img_whole_frame_stats",
+          "n_inputs": 240,
+          "source_sha256": "sha256:dfa1be5d70649c3d52876871a1d104c6060c6e6ba8141fbca4c716f1539b26f6",
+          "model_derived": false
+        },
+        "knowledge_source": "user_provided",
+        "governing_law": "灰度标准差正比于整帧空间对比度，对环带宽度、缺陷等结构变化敏感"
+      },
+      {
+        "name": "frame histogram entropy (64-bin)",
+        "column": "HX-IMG-L1SURFACECCDINDEX-ENTROPY",
+        "unit": "bit",
+        "role": "predictor",
+        "physical_meaning": "整图统计量（未标定、探测器坐标系）：64-bin 灰度直方图 Shannon 熵，整帧纹理/灰度分布复杂度代理",
+        "physical_meaning_confidence": "KNOWN",
+        "auto_inferred": true,
+        "inference_basis": "直方图熵度量灰度分布分散度；结构增多（环变粗、缺陷出现）改变灰度质量分布从而改变熵",
+        "evidence_level": 1,
+        "derived": {
+          "formula": "-sum(p_k*log2(p_k)); p_k = mass of the 64-bin histogram of g over [0,256)",
+          "method": "img_whole_frame_stats",
+          "n_inputs": 240,
+          "source_sha256": "sha256:dfa1be5d70649c3d52876871a1d104c6060c6e6ba8141fbca4c716f1539b26f6",
+          "model_derived": false
+        },
+        "knowledge_source": "user_provided",
+        "governing_law": "直方图熵度量灰度分布分散度；结构增多（环变粗、缺陷出现）改变灰度质量分布从而改变熵"
+      },
+      {
+        "name": "saturated pixel fraction (>250)",
+        "column": "HX-IMG-L1SURFACECCDINDEX-SATFRAC",
+        "unit": "fraction",
+        "role": "predictor",
+        "physical_meaning": "整图统计量（未标定、探测器坐标系）：灰度>250 像素占比，饱和/过曝面积代理",
+        "physical_meaning_confidence": "KNOWN",
+        "auto_inferred": true,
+        "inference_basis": "探测器满阱/ADC 上限截断不可恢复，饱和占比升高指示过曝或光源异常",
+        "evidence_level": 1,
+        "derived": {
+          "formula": "mean(g > 250)",
+          "method": "img_whole_frame_stats",
+          "n_inputs": 240,
+          "source_sha256": "sha256:dfa1be5d70649c3d52876871a1d104c6060c6e6ba8141fbca4c716f1539b26f6",
+          "model_derived": false
+        },
+        "knowledge_source": "user_provided",
+        "governing_law": "探测器满阱/ADC 上限截断不可恢复，饱和占比升高指示过曝或光源异常"
+      },
+      {
+        "name": "dark pixel fraction (<5)",
+        "column": "HX-IMG-L1SURFACECCDINDEX-DARKFRAC",
+        "unit": "fraction",
+        "role": "predictor",
+        "physical_meaning": "整图统计量（未标定、探测器坐标系）：灰度<5 像素占比，欠曝/无信号面积代理",
+        "physical_meaning_confidence": "KNOWN",
+        "auto_inferred": true,
+        "inference_basis": "读出噪声底附近像元占比升高指示遮挡、快门或光路异常",
+        "evidence_level": 1,
+        "derived": {
+          "formula": "mean(g < 5)",
+          "method": "img_whole_frame_stats",
+          "n_inputs": 240,
+          "source_sha256": "sha256:dfa1be5d70649c3d52876871a1d104c6060c6e6ba8141fbca4c716f1539b26f6",
+          "model_derived": false
+        },
+        "knowledge_source": "user_provided",
+        "governing_law": "读出噪声底附近像元占比升高指示遮挡、快门或光路异常"
+      },
+      {
+        "name": "Laplacian focus variance",
+        "column": "HX-IMG-L1SURFACECCDINDEX-FOCUS",
+        "unit": "graylevel_8bit^2",
+        "role": "predictor",
+        "physical_meaning": "整图统计量（未标定、探测器坐标系）：4 邻域 Laplacian 响应方差，整帧清晰度（离焦/运动模糊）代理",
+        "physical_meaning_confidence": "KNOWN",
+        "auto_inferred": true,
+        "inference_basis": "Laplacian 高通能量集中于边缘；离焦或运动模糊使高频能量下降、响应方差随之下降（MIA 2014 告诫：与相机漂移协变，解释需谨慎）",
+        "evidence_level": 1,
+        "derived": {
+          "formula": "var(L), L[i,j] = 4*g[i,j] - g[i-1,j] - g[i+1,j] - g[i,j-1] - g[i,j+1] (interior pixels)",
+          "method": "img_whole_frame_stats",
+          "n_inputs": 240,
+          "source_sha256": "sha256:dfa1be5d70649c3d52876871a1d104c6060c6e6ba8141fbca4c716f1539b26f6",
+          "model_derived": false
+        },
+        "knowledge_source": "user_provided",
+        "governing_law": "Laplacian 高通能量集中于边缘；离焦或运动模糊使高频能量下降、响应方差随之下降（MIA 2014 告诫：与相机漂移协变，解释需谨慎）"
+      },
+      {
+        "name": "decoded frame count",
+        "column": "HX-IMG-L1SURFACECCDINDEX-N",
+        "unit": "count",
+        "role": "metadata",
+        "physical_meaning": "成功解码且通过时间冲突检查的图像帧数（整源常量，非过程量）",
+        "physical_meaning_confidence": "KNOWN",
+        "auto_inferred": true,
+        "inference_basis": "数据完整性计数，非过程量",
+        "evidence_level": 1,
+        "derived": {
+          "formula": "count of rows in IMG-<SLUG>.csv (decoded, time-anchored frames)",
+          "method": "img_whole_frame_stats",
+          "n_inputs": 240,
+          "source_sha256": "sha256:dfa1be5d70649c3d52876871a1d104c6060c6e6ba8141fbca4c716f1539b26f6",
+          "model_derived": false
+        },
+        "knowledge_source": "user_provided",
+        "governing_law": "数据完整性计数，非过程量"
+      },
+      {
+        "name": "field mean",
+        "column": "HX-MAP-L1FURNACETHERMALMAP2-MEAN",
+        "role": "predictor",
+        "physical_meaning": "快照二维场有限格元的算术均值（场整体幅值水平）",
+        "physical_meaning_confidence": "KNOWN",
+        "auto_inferred": true,
+        "inference_basis": "direct spatial statistic of the measured field (L1)",
+        "evidence_level": 1,
+        "derived": {
+          "formula": "mean(v) over finite cells of the snapshot raster",
+          "method": "map.snapshot_features (per-ts pivot to raster; median+3*rawMAD robust thresholds; numpy.diff gradient; no interpolation)",
+          "n_inputs": 2400,
+          "source_sha256": "sha256:289759bb07d0f64da60ba18638e04e5d09c32472d8260098d77e9d983fe1dd48",
+          "model_derived": false
+        },
+        "knowledge_source": "user_provided",
+        "governing_law": "direct spatial statistic of the measured field (L1)"
+      },
+      {
+        "name": "field P95",
+        "column": "HX-MAP-L1FURNACETHERMALMAP2-P95",
+        "role": "predictor",
+        "physical_meaning": "快照二维场有限格元的第95百分位（高段幅值水平）",
+        "physical_meaning_confidence": "KNOWN",
+        "auto_inferred": true,
+        "inference_basis": "high-tail field level, robust to single-cell spikes",
+        "evidence_level": 1,
+        "derived": {
+          "formula": "numpy.percentile(v, 95) linear interpolation over finite cells",
+          "method": "map.snapshot_features (per-ts pivot to raster; median+3*rawMAD robust thresholds; numpy.diff gradient; no interpolation)",
+          "n_inputs": 2400,
+          "source_sha256": "sha256:289759bb07d0f64da60ba18638e04e5d09c32472d8260098d77e9d983fe1dd48",
+          "model_derived": false
+        },
+        "knowledge_source": "user_provided",
+        "governing_law": "high-tail field level, robust to single-cell spikes"
+      },
+      {
+        "name": "hot-area fraction",
+        "column": "HX-MAP-L1FURNACETHERMALMAP2-HOTAREA-P90",
+        "unit": "ratio",
+        "role": "predictor",
+        "physical_meaning": "过热像元占比：值大于快照中位数+3倍MAD的有限格元比例（局部过热面积指标）；几何解释依赖坐标系声明（geometric interpretation depends on the declared x/y coordinate frame）",
+        "physical_meaning_confidence": "INFERRED",
+        "auto_inferred": true,
+        "inference_basis": "robust median+3MAD exceedance share; insensitive to non-Gaussian field tails (method_notes §1)",
+        "evidence_level": 1,
+        "derived": {
+          "formula": "count(v > median(v)+3*MAD(v)) / count(v); MAD = median(|v-median(v)|), raw (no 1.4826 factor)",
+          "method": "map.snapshot_features (per-ts pivot to raster; median+3*rawMAD robust thresholds; numpy.diff gradient; no interpolation)",
+          "n_inputs": 2400,
+          "source_sha256": "sha256:289759bb07d0f64da60ba18638e04e5d09c32472d8260098d77e9d983fe1dd48",
+          "model_derived": false
+        },
+        "knowledge_source": "user_provided",
+        "governing_law": "robust median+3MAD exceedance share; insensitive to non-Gaussian field tails (method_notes §1)"
+      },
+      {
+        "name": "cold-area fraction",
+        "column": "HX-MAP-L1FURNACETHERMALMAP2-COLDAREA-P10",
+        "unit": "ratio",
+        "role": "predictor",
+        "physical_meaning": "过冷像元占比：值小于快照中位数-3倍MAD的有限格元比例（局部过冷面积指标）；几何解释依赖坐标系声明（geometric interpretation depends on the declared x/y coordinate frame）",
+        "physical_meaning_confidence": "INFERRED",
+        "auto_inferred": true,
+        "inference_basis": "robust median-3MAD shortfall share (mirror of HOTAREA-P90)",
+        "evidence_level": 1,
+        "derived": {
+          "formula": "count(v < median(v)-3*MAD(v)) / count(v)",
+          "method": "map.snapshot_features (per-ts pivot to raster; median+3*rawMAD robust thresholds; numpy.diff gradient; no interpolation)",
+          "n_inputs": 2400,
+          "source_sha256": "sha256:289759bb07d0f64da60ba18638e04e5d09c32472d8260098d77e9d983fe1dd48",
+          "model_derived": false
+        },
+        "knowledge_source": "user_provided",
+        "governing_law": "robust median-3MAD shortfall share (mirror of HOTAREA-P90)"
+      },
+      {
+        "name": "value-weighted centroid X",
+        "column": "HX-MAP-L1FURNACETHERMALMAP2-CENTROID-X",
+        "role": "predictor",
+        "physical_meaning": "以值为权的场质心横坐标（场分布重心的水平位置）；几何解释依赖坐标系声明（geometric interpretation depends on the declared x/y coordinate frame）",
+        "physical_meaning_confidence": "INFERRED",
+        "auto_inferred": true,
+        "inference_basis": "first spatial moment of the field (value centroid)",
+        "evidence_level": 1,
+        "derived": {
+          "formula": "sum(v*x) / sum(v) over finite cells",
+          "method": "map.snapshot_features (per-ts pivot to raster; median+3*rawMAD robust thresholds; numpy.diff gradient; no interpolation)",
+          "n_inputs": 2400,
+          "source_sha256": "sha256:289759bb07d0f64da60ba18638e04e5d09c32472d8260098d77e9d983fe1dd48",
+          "model_derived": false
+        },
+        "knowledge_source": "user_provided",
+        "governing_law": "first spatial moment of the field (value centroid)"
+      },
+      {
+        "name": "value-weighted centroid Y",
+        "column": "HX-MAP-L1FURNACETHERMALMAP2-CENTROID-Y",
+        "role": "predictor",
+        "physical_meaning": "以值为权的场质心纵坐标（场分布重心的纵向位置）；几何解释依赖坐标系声明（geometric interpretation depends on the declared x/y coordinate frame）",
+        "physical_meaning_confidence": "INFERRED",
+        "auto_inferred": true,
+        "inference_basis": "first spatial moment of the field (value centroid)",
+        "evidence_level": 1,
+        "derived": {
+          "formula": "sum(v*y) / sum(v) over finite cells",
+          "method": "map.snapshot_features (per-ts pivot to raster; median+3*rawMAD robust thresholds; numpy.diff gradient; no interpolation)",
+          "n_inputs": 2400,
+          "source_sha256": "sha256:289759bb07d0f64da60ba18638e04e5d09c32472d8260098d77e9d983fe1dd48",
+          "model_derived": false
+        },
+        "knowledge_source": "user_provided",
+        "governing_law": "first spatial moment of the field (value centroid)"
+      },
+      {
+        "name": "gradient magnitude P95",
+        "column": "HX-MAP-L1FURNACETHERMALMAP2-GRAD-P95",
+        "role": "predictor",
+        "physical_meaning": "空间梯度幅值的第95百分位除以格间距（场内变化最剧烈部分的强度）",
+        "physical_meaning_confidence": "KNOWN",
+        "auto_inferred": true,
+        "inference_basis": "first-order numpy-difference gradient; P95 keeps it robust to single-cell noise (method_notes §1)",
+        "evidence_level": 1,
+        "derived": {
+          "formula": "P95 over interior cells of hypot(diff(F,axis=1)/dx, diff(F,axis=0)/dy); dx,dy = median grid spacing",
+          "method": "map.snapshot_features (per-ts pivot to raster; median+3*rawMAD robust thresholds; numpy.diff gradient; no interpolation)",
+          "n_inputs": 2400,
+          "source_sha256": "sha256:289759bb07d0f64da60ba18638e04e5d09c32472d8260098d77e9d983fe1dd48",
+          "model_derived": false
+        },
+        "knowledge_source": "user_provided",
+        "governing_law": "first-order numpy-difference gradient; P95 keeps it robust to single-cell noise (method_notes §1)"
+      },
+      {
+        "name": "left-minus-right mean difference",
+        "column": "HX-MAP-L1FURNACETHERMALMAP2-ASYM-LR",
+        "role": "predictor",
+        "physical_meaning": "左右不对称度：左半列有限格均值减右半列有限格均值（场的水平偏置）；几何解释依赖坐标系声明（geometric interpretation depends on the declared x/y coordinate frame）",
+        "physical_meaning_confidence": "INFERRED",
+        "auto_inferred": true,
+        "inference_basis": "zeroth-order left/right half-field comparison",
+        "evidence_level": 1,
+        "derived": {
+          "formula": "mean(left half of columns) - mean(right half of columns); middle column excluded when nx is odd",
+          "method": "map.snapshot_features (per-ts pivot to raster; median+3*rawMAD robust thresholds; numpy.diff gradient; no interpolation)",
+          "n_inputs": 2400,
+          "source_sha256": "sha256:289759bb07d0f64da60ba18638e04e5d09c32472d8260098d77e9d983fe1dd48",
+          "model_derived": false
+        },
+        "knowledge_source": "user_provided",
+        "governing_law": "zeroth-order left/right half-field comparison"
+      },
+      {
+        "name": "argmax cell X",
+        "column": "HX-MAP-L1FURNACETHERMALMAP2-POSMAX-X",
+        "role": "predictor",
+        "physical_meaning": "场最大有限值所在格的x坐标（峰值定位）；几何解释依赖坐标系声明（geometric interpretation depends on the declared x/y coordinate frame）",
+        "physical_meaning_confidence": "INFERRED",
+        "auto_inferred": true,
+        "inference_basis": "argmax location of the measured field",
+        "evidence_level": 1,
+        "derived": {
+          "formula": "x coordinate of the maximum finite cell (row-major first on ties)",
+          "method": "map.snapshot_features (per-ts pivot to raster; median+3*rawMAD robust thresholds; numpy.diff gradient; no interpolation)",
+          "n_inputs": 2400,
+          "source_sha256": "sha256:289759bb07d0f64da60ba18638e04e5d09c32472d8260098d77e9d983fe1dd48",
+          "model_derived": false
+        },
+        "knowledge_source": "user_provided",
+        "governing_law": "argmax location of the measured field"
+      },
+      {
+        "name": "argmax cell Y",
+        "column": "HX-MAP-L1FURNACETHERMALMAP2-POSMAX-Y",
+        "role": "predictor",
+        "physical_meaning": "场最大有限值所在格的y坐标（峰值定位）；几何解释依赖坐标系声明（geometric interpretation depends on the declared x/y coordinate frame）",
+        "physical_meaning_confidence": "INFERRED",
+        "auto_inferred": true,
+        "inference_basis": "argmax location of the measured field",
+        "evidence_level": 1,
+        "derived": {
+          "formula": "y coordinate of the maximum finite cell (row-major first on ties)",
+          "method": "map.snapshot_features (per-ts pivot to raster; median+3*rawMAD robust thresholds; numpy.diff gradient; no interpolation)",
+          "n_inputs": 2400,
+          "source_sha256": "sha256:289759bb07d0f64da60ba18638e04e5d09c32472d8260098d77e9d983fe1dd48",
+          "model_derived": false
+        },
+        "knowledge_source": "user_provided",
+        "governing_law": "argmax location of the measured field"
+      },
+      {
+        "name": "finite cell count",
+        "column": "HX-MAP-L1FURNACETHERMALMAP2-N",
+        "unit": "count",
+        "role": "metadata",
+        "physical_meaning": "快照有限格元数（场完整性指标，缺失格恒为NaN，不做任何插值）",
+        "physical_meaning_confidence": "KNOWN",
+        "auto_inferred": true,
+        "inference_basis": "completeness of the pivot grid; missing cells stay NaN and are never interpolated",
+        "evidence_level": 1,
+        "derived": {
+          "formula": "count(isfinite(F)) in the snapshot raster",
+          "method": "map.snapshot_features (per-ts pivot to raster; median+3*rawMAD robust thresholds; numpy.diff gradient; no interpolation)",
+          "n_inputs": 2400,
+          "source_sha256": "sha256:289759bb07d0f64da60ba18638e04e5d09c32472d8260098d77e9d983fe1dd48",
+          "model_derived": false
+        },
+        "knowledge_source": "user_provided",
+        "governing_law": "completeness of the pivot grid; missing cells stay NaN and are never interpolated"
+      },
+      {
+        "name": "profile mean",
+        "column": "HX-PROF-L1BANDTEMPPROFILE30M-MEAN",
+        "role": "predictor",
+        "physical_meaning": "该快照全部有效位置测值的算术平均，代表剖面整体质量水平",
+        "physical_meaning_confidence": "KNOWN",
+        "auto_inferred": true,
+        "inference_basis": "同一横断面物理量采样的一阶矩；整体增厚/减薄直接反映在均值上",
+        "evidence_level": 1,
+        "derived": {
+          "formula": "mean(x_finite)",
+          "method": "heterocore.robust.mean",
+          "n_inputs": 12,
+          "source_sha256": "sha256:c7e05fd85b52d24a01820ea5b457c7face147e5621e0c8562a0b51038942f87d",
+          "model_derived": false
+        },
+        "knowledge_source": "user_provided",
+        "governing_law": "同一横断面物理量采样的一阶矩；整体增厚/减薄直接反映在均值上"
+      },
+      {
+        "name": "profile std",
+        "column": "HX-PROF-L1BANDTEMPPROFILE30M-STD",
+        "role": "predictor",
+        "physical_meaning": "该快照有效位置测值的标准差（ddof=1），刻画剖面内不均匀度",
+        "physical_meaning_confidence": "KNOWN",
+        "auto_inferred": true,
+        "inference_basis": "同一横断面内的离散度；板形波动/厚度不均在标准差上直接显形",
+        "evidence_level": 1,
+        "derived": {
+          "formula": "std(x_finite, ddof=1)",
+          "method": "heterocore.robust.std",
+          "n_inputs": 12,
+          "source_sha256": "sha256:c7e05fd85b52d24a01820ea5b457c7face147e5621e0c8562a0b51038942f87d",
+          "model_derived": false
+        },
+        "knowledge_source": "user_provided",
+        "governing_law": "同一横断面内的离散度；板形波动/厚度不均在标准差上直接显形"
+      },
+      {
+        "name": "profile min",
+        "column": "HX-PROF-L1BANDTEMPPROFILE30M-MIN",
+        "role": "predictor",
+        "physical_meaning": "该快照有效位置测值的最小值",
+        "physical_meaning_confidence": "KNOWN",
+        "auto_inferred": true,
+        "inference_basis": "剖面最薄点（下限极值）",
+        "evidence_level": 1,
+        "derived": {
+          "formula": "min(x_finite)",
+          "method": "heterocore.robust.vmin",
+          "n_inputs": 12,
+          "source_sha256": "sha256:c7e05fd85b52d24a01820ea5b457c7face147e5621e0c8562a0b51038942f87d",
+          "model_derived": false
+        },
+        "knowledge_source": "user_provided",
+        "governing_law": "剖面最薄点（下限极值）"
+      },
+      {
+        "name": "profile max",
+        "column": "HX-PROF-L1BANDTEMPPROFILE30M-MAX",
+        "role": "predictor",
+        "physical_meaning": "该快照有效位置测值的最大值",
+        "physical_meaning_confidence": "KNOWN",
+        "auto_inferred": true,
+        "inference_basis": "剖面最厚点（上限极值）",
+        "evidence_level": 1,
+        "derived": {
+          "formula": "max(x_finite)",
+          "method": "heterocore.robust.vmax",
+          "n_inputs": 12,
+          "source_sha256": "sha256:c7e05fd85b52d24a01820ea5b457c7face147e5621e0c8562a0b51038942f87d",
+          "model_derived": false
+        },
+        "knowledge_source": "user_provided",
+        "governing_law": "剖面最厚点（上限极值）"
+      },
+      {
+        "name": "profile p05",
+        "column": "HX-PROF-L1BANDTEMPPROFILE30M-P05",
+        "role": "predictor",
+        "physical_meaning": "该快照有效位置测值的 5% 分位数（线性插值），稳健下包络",
+        "physical_meaning_confidence": "KNOWN",
+        "auto_inferred": true,
+        "inference_basis": "分位数比极值抗单点噪声，P05 稳健刻画剖面下包络水平",
+        "evidence_level": 1,
+        "derived": {
+          "formula": "numpy.percentile(x_finite, 5, method='linear')",
+          "method": "numpy.percentile(linear)",
+          "n_inputs": 12,
+          "source_sha256": "sha256:c7e05fd85b52d24a01820ea5b457c7face147e5621e0c8562a0b51038942f87d",
+          "model_derived": false
+        },
+        "knowledge_source": "user_provided",
+        "governing_law": "分位数比极值抗单点噪声，P05 稳健刻画剖面下包络水平"
+      },
+      {
+        "name": "profile p50",
+        "column": "HX-PROF-L1BANDTEMPPROFILE30M-P50",
+        "role": "predictor",
+        "physical_meaning": "该快照有效位置测值的 50% 分位数（线性插值）",
+        "physical_meaning_confidence": "KNOWN",
+        "auto_inferred": true,
+        "inference_basis": "中位数是抗离群的整体水平读数，与均值互为对照",
+        "evidence_level": 1,
+        "derived": {
+          "formula": "numpy.percentile(x_finite, 50, method='linear')",
+          "method": "numpy.percentile(linear)",
+          "n_inputs": 12,
+          "source_sha256": "sha256:c7e05fd85b52d24a01820ea5b457c7face147e5621e0c8562a0b51038942f87d",
+          "model_derived": false
+        },
+        "knowledge_source": "user_provided",
+        "governing_law": "中位数是抗离群的整体水平读数，与均值互为对照"
+      },
+      {
+        "name": "profile p95",
+        "column": "HX-PROF-L1BANDTEMPPROFILE30M-P95",
+        "role": "predictor",
+        "physical_meaning": "该快照有效位置测值的 95% 分位数（线性插值），稳健上包络",
+        "physical_meaning_confidence": "KNOWN",
+        "auto_inferred": true,
+        "inference_basis": "分位数比极值抗单点噪声，P95 稳健刻画剖面上包络水平",
+        "evidence_level": 1,
+        "derived": {
+          "formula": "numpy.percentile(x_finite, 95, method='linear')",
+          "method": "numpy.percentile(linear)",
+          "n_inputs": 12,
+          "source_sha256": "sha256:c7e05fd85b52d24a01820ea5b457c7face147e5621e0c8562a0b51038942f87d",
+          "model_derived": false
+        },
+        "knowledge_source": "user_provided",
+        "governing_law": "分位数比极值抗单点噪声，P95 稳健刻画剖面上包络水平"
+      },
+      {
+        "name": "profile range",
+        "column": "HX-PROF-L1BANDTEMPPROFILE30M-RANGE",
+        "role": "predictor",
+        "physical_meaning": "该快照有效位置测值最大值减最小值（剖面总幅值跨度）",
+        "physical_meaning_confidence": "KNOWN",
+        "auto_inferred": true,
+        "inference_basis": "极差是最直接的剖面总波动幅度度量（对单点噪声敏感，与 IQR 互为对照）",
+        "evidence_level": 1,
+        "derived": {
+          "formula": "max(x_finite) - min(x_finite)",
+          "method": "heterocore.robust.vmax - vmin",
+          "n_inputs": 12,
+          "source_sha256": "sha256:c7e05fd85b52d24a01820ea5b457c7face147e5621e0c8562a0b51038942f87d",
+          "model_derived": false
+        },
+        "knowledge_source": "user_provided",
+        "governing_law": "极差是最直接的剖面总波动幅度度量（对单点噪声敏感，与 IQR 互为对照）"
+      },
+      {
+        "name": "profile iqr",
+        "column": "HX-PROF-L1BANDTEMPPROFILE30M-IQR",
+        "role": "predictor",
+        "physical_meaning": "该快照 75% 分位减 25% 分位（剖面包络宽度，抗端点噪声）",
+        "physical_meaning_confidence": "KNOWN",
+        "auto_inferred": true,
+        "inference_basis": "四分位距是稳健散布度量，不受剖面两端单点异常影响",
+        "evidence_level": 1,
+        "derived": {
+          "formula": "numpy.percentile(x_finite, 75) - numpy.percentile(x_finite, 25)",
+          "method": "heterocore.robust.iqr",
+          "n_inputs": 12,
+          "source_sha256": "sha256:c7e05fd85b52d24a01820ea5b457c7face147e5621e0c8562a0b51038942f87d",
+          "model_derived": false
+        },
+        "knowledge_source": "user_provided",
+        "governing_law": "四分位距是稳健散布度量，不受剖面两端单点异常影响"
+      },
+      {
+        "name": "profile mad",
+        "column": "HX-PROF-L1BANDTEMPPROFILE30M-MAD",
+        "role": "predictor",
+        "physical_meaning": "该快照有效值的中位绝对偏差（不带 1.4826 因子，稳健散布）",
+        "physical_meaning_confidence": "KNOWN",
+        "auto_inferred": true,
+        "inference_basis": "MAD 对离群点稳健；口径按 method_notes 冻结为原始 MAD（不乘一致性因子）",
+        "evidence_level": 1,
+        "derived": {
+          "formula": "median(|x_finite - median(x_finite)|)  # no 1.4826 factor",
+          "method": "heterocore.robust.mad",
+          "n_inputs": 12,
+          "source_sha256": "sha256:c7e05fd85b52d24a01820ea5b457c7face147e5621e0c8562a0b51038942f87d",
+          "model_derived": false
+        },
+        "knowledge_source": "user_provided",
+        "governing_law": "MAD 对离群点稳健；口径按 method_notes 冻结为原始 MAD（不乘一致性因子）"
+      },
+      {
+        "name": "profile finite count",
+        "column": "HX-PROF-L1BANDTEMPPROFILE30M-N",
+        "role": "predictor",
+        "physical_meaning": "该快照有限（可测）位置点数，剖面完整性指标",
+        "physical_meaning_confidence": "KNOWN",
+        "auto_inferred": true,
+        "inference_basis": "完整性决定形状类结论的可信边界：点数不足时形状特征按策略弃用",
+        "evidence_level": 1,
+        "derived": {
+          "formula": "count(x_finite)",
+          "method": "heterocore.robust.n_finite",
+          "n_inputs": 12,
+          "source_sha256": "sha256:c7e05fd85b52d24a01820ea5b457c7face147e5621e0c8562a0b51038942f87d",
+          "model_derived": false
+        },
+        "knowledge_source": "user_provided",
+        "governing_law": "完整性决定形状类结论的可信边界：点数不足时形状特征按策略弃用"
+      },
+      {
+        "name": "profile LSQ slope per 100 positions",
+        "column": "HX-PROF-L1BANDTEMPPROFILE30M-SLOPE-LSQ-PER100",
+        "role": "predictor",
+        "physical_meaning": "对有效位置做一次最小二乘拟合的斜率，按每 100 个位置归一（剖面整体倾斜度）",
+        "physical_meaning_confidence": "KNOWN",
+        "auto_inferred": true,
+        "inference_basis": "剖面整体倾斜对应横向厚度/浓度梯度；最小二乘斜率在均匀采样栅格上收敛于真实梯度",
+        "evidence_level": 1,
+        "derived": {
+          "formula": "polyfit(0..k-1, x_finite, 1)[0] * 100/(k-1), k=count(x_finite)",
+          "method": "heterocore.robust.lsq_slope_curv(per_n=100).slope",
+          "n_inputs": 12,
+          "source_sha256": "sha256:c7e05fd85b52d24a01820ea5b457c7face147e5621e0c8562a0b51038942f87d",
+          "model_derived": false
+        },
+        "knowledge_source": "user_provided",
+        "governing_law": "剖面整体倾斜对应横向厚度/浓度梯度；最小二乘斜率在均匀采样栅格上收敛于真实梯度"
+      },
+      {
+        "name": "profile LSQ curvature",
+        "column": "HX-PROF-L1BANDTEMPPROFILE30M-CURV-LSQ",
+        "role": "predictor",
+        "physical_meaning": "对有效位置做二次多项式最小二乘拟合的二次项系数（剖面凸度/板形弯曲）",
+        "physical_meaning_confidence": "KNOWN",
+        "auto_inferred": true,
+        "inference_basis": "二次项系数是剖面 Crown（凸度）的线性读数，板形/厚度横向弯曲的直接度量",
+        "evidence_level": 1,
+        "derived": {
+          "formula": "polyfit(0..k-1, x_finite, 2)[0], k>=4",
+          "method": "heterocore.robust.lsq_slope_curv(per_n=100).curv",
+          "n_inputs": 12,
+          "source_sha256": "sha256:c7e05fd85b52d24a01820ea5b457c7face147e5621e0c8562a0b51038942f87d",
+          "model_derived": false
+        },
+        "knowledge_source": "user_provided",
+        "governing_law": "二次项系数是剖面 Crown（凸度）的线性读数，板形/厚度横向弯曲的直接度量"
+      },
+      {
+        "name": "profile zone-1-of-3 mean",
+        "column": "HX-PROF-L1BANDTEMPPROFILE30M-ZONE-1-3-MEAN",
+        "role": "predictor",
+        "physical_meaning": "剖面三等分后第 1 区（起始段，操作侧）的平均值",
+        "physical_meaning_confidence": "INFERRED",
+        "auto_inferred": true,
+        "inference_basis": "分区均值把连续剖面离散为工艺分区水平，便于分区归因（操作侧/中部/传动侧）",
+        "evidence_level": 1,
+        "derived": {
+          "formula": "mean(x_finite[linspace(0,k,4)[0]:linspace(0,k,4)[1]])",
+          "method": "heterocore.robust.zone_means(n_zones=3)[0]",
+          "n_inputs": 12,
+          "source_sha256": "sha256:c7e05fd85b52d24a01820ea5b457c7face147e5621e0c8562a0b51038942f87d",
+          "model_derived": false
+        },
+        "knowledge_source": "user_provided",
+        "governing_law": "分区均值把连续剖面离散为工艺分区水平，便于分区归因（操作侧/中部/传动侧）"
+      },
+      {
+        "name": "profile left edge deviation",
+        "column": "HX-PROF-L1BANDTEMPPROFILE30M-EDGE-L-DEV",
+        "role": "predictor",
+        "physical_meaning": "左侧 10% 边缘带均值减中心带均值（操作侧边缘增/减厚）",
+        "physical_meaning_confidence": "INFERRED",
+        "auto_inferred": true,
+        "inference_basis": "边缘增减厚（edge drop）是剖面最常见缺陷形态；外侧带-中心带对比是其直接度量",
+        "evidence_level": 1,
+        "derived": {
+          "formula": "mean(x_finite[0:w]) - mean(x_finite[w:k-w]), w=max(1,round(k*0.1)), k>=6",
+          "method": "heterocore.robust.edge_band_deviation(band_frac=0.10).edge_l",
+          "n_inputs": 12,
+          "source_sha256": "sha256:c7e05fd85b52d24a01820ea5b457c7face147e5621e0c8562a0b51038942f87d",
+          "model_derived": false
+        },
+        "knowledge_source": "user_provided",
+        "governing_law": "边缘增减厚（edge drop）是剖面最常见缺陷形态；外侧带-中心带对比是其直接度量"
+      },
+      {
+        "name": "profile right edge deviation",
+        "column": "HX-PROF-L1BANDTEMPPROFILE30M-EDGE-R-DEV",
+        "role": "predictor",
+        "physical_meaning": "右侧 10% 边缘带均值减中心带均值（传动侧边缘增/减厚）",
+        "physical_meaning_confidence": "INFERRED",
+        "auto_inferred": true,
+        "inference_basis": "边缘增减厚（edge drop）是剖面最常见缺陷形态；外侧带-中心带对比是其直接度量",
+        "evidence_level": 1,
+        "derived": {
+          "formula": "mean(x_finite[k-w:k]) - mean(x_finite[w:k-w]), w=max(1,round(k*0.1)), k>=6",
+          "method": "heterocore.robust.edge_band_deviation(band_frac=0.10).edge_r",
+          "n_inputs": 12,
+          "source_sha256": "sha256:c7e05fd85b52d24a01820ea5b457c7face147e5621e0c8562a0b51038942f87d",
+          "model_derived": false
+        },
+        "knowledge_source": "user_provided",
+        "governing_law": "边缘增减厚（edge drop）是剖面最常见缺陷形态；外侧带-中心带对比是其直接度量"
+      },
+      {
+        "name": "profile argmax neighbour deviation",
+        "column": "HX-PROF-L1BANDTEMPPROFILE30M-ARGDEV-NBR",
+        "role": "predictor",
+        "physical_meaning": "邻域偏差绝对值最大的位置点号（0 基；局部异常点的剖面内定位）",
+        "physical_meaning_confidence": "INFERRED",
+        "auto_inferred": true,
+        "inference_basis": "局部异常点在邻域对比下最突出；取最大邻域偏差的位置作剖面内定位",
+        "evidence_level": 1,
+        "derived": {
+          "formula": "argmax_i |x[i] - mean(finite neighbours of i)| (0-based index)",
+          "method": "heterocore.robust.max_abs_neighbour_deviation().argmax",
+          "n_inputs": 12,
+          "source_sha256": "sha256:c7e05fd85b52d24a01820ea5b457c7face147e5621e0c8562a0b51038942f87d",
+          "model_derived": false
+        },
+        "knowledge_source": "user_provided",
+        "governing_law": "局部异常点在邻域对比下最突出；取最大邻域偏差的位置作剖面内定位"
+      },
+      {
+        "name": "profile lateral shift estimate",
+        "column": "HX-PROF-L1BANDTEMPPROFILE30M-SHIFT-EST",
+        "role": "predictor",
+        "physical_meaning": "对基线模板（in-control 逐位中位剖面）互相关估计的整位横向偏移（右移为正）",
+        "physical_meaning_confidence": "INFERRED",
+        "auto_inferred": true,
+        "inference_basis": "横向配准漂移会被误读为形状变化（J. Process Control 2011 告诫）；先看 SHIFT 再解释 EDGE",
+        "evidence_level": 1,
+        "derived": {
+          "formula": "argmax_s corr(profile[overlap], baseline[overlap-shift]); integer s, overlap>=max(3,k/3)",
+          "method": "heterocore.robust.cross_correlation_shift vs in-control median template",
+          "n_inputs": 12,
+          "source_sha256": "sha256:c7e05fd85b52d24a01820ea5b457c7face147e5621e0c8562a0b51038942f87d",
+          "model_derived": false
+        },
+        "knowledge_source": "user_provided",
+        "governing_law": "横向配准漂移会被误读为形状变化（J. Process Control 2011 告诫）；先看 SHIFT 再解释 EDGE"
+      },
+      {
+        "name": "hour-of-day covariate",
+        "column": "HX-TXT-L1OPERATORNOTES-HOUR-OF-DAY",
+        "unit": "h",
+        "role": "metadata",
+        "physical_meaning": "时刻协变量：事件发生的当日至小数小时（0-24）。班次/时刻协变量——交接班整点混杂的显式对照项",
+        "physical_meaning_confidence": "KNOWN",
+        "auto_inferred": true,
+        "inference_basis": "交接班与昼夜班次惯例使事件时刻与工艺状态/人员行为系统相关，作为协变量显式对照交接班整点混杂",
+        "evidence_level": 2,
+        "derived": {
+          "formula": "hour + minute/60 + second/3600 from event_ts",
+          "method": "clock_covariate",
+          "n_inputs": 9,
+          "source_sha256": "sha256:8636535c4bff8791a396aed73b65e25417334608e9eee6b72a045fa305bf9c91",
+          "model_derived": false
+        },
+        "knowledge_source": "user_provided",
+        "governing_law": "交接班与昼夜班次惯例使事件时刻与工艺状态/人员行为系统相关，作为协变量显式对照交接班整点混杂"
+      },
+      {
+        "name": "shift bucket id",
+        "column": "HX-TXT-L1OPERATORNOTES-SHIFT-BUCKET-ID",
+        "unit": "id",
+        "role": "metadata",
+        "physical_meaning": "班次桶协变量：A[08:00,16:00)→1, B[16:00,24:00)→2, C[00:00,08:00)→3。班次/时刻协变量——交接班整点混杂的显式对照项",
+        "physical_meaning_confidence": "INFERRED",
+        "auto_inferred": true,
+        "inference_basis": "交接班与昼夜班次惯例使事件时刻与工艺状态/人员行为系统相关，作为协变量显式对照交接班整点混杂",
+        "evidence_level": 2,
+        "derived": {
+          "formula": "shift_bucket(event_ts): A->1, B->2, C->3",
+          "method": "clock_covariate",
+          "n_inputs": 9,
+          "source_sha256": "sha256:8636535c4bff8791a396aed73b65e25417334608e9eee6b72a045fa305bf9c91",
+          "model_derived": false
+        },
+        "knowledge_source": "user_provided",
+        "governing_law": "交接班与昼夜班次惯例使事件时刻与工艺状态/人员行为系统相关，作为协变量显式对照交接班整点混杂"
+      }
+    ],
+    "control_variables": [
+      {
+        "name": "一区炉温（预热区）",
+        "column": "FUR-Z1-TEMP",
+        "unit": "°C",
+        "role": "control",
+        "control_type": "measurement",
+        "physical_meaning": "炉膛一区温度实测（预热段）",
+        "physical_meaning_confidence": "KNOWN",
+        "auto_inferred": false,
+        "inference_basis": "列名 FUR-Z1-TEMP + 场景（三区炉线）",
+        "controlled_by": "一区温控回路（燃气/电加热执行器，回路细节未声明）",
+        "normal_range": [
+          848.88,
+          851.16
+        ],
+        "governing_law": "一阶热惯性 + 炉膛热平衡（热源 = 对流/辐射散热 + 带材吸热）",
+        "expected_data_behavior": "围绕设定值波动、与二/三区热耦合；跨区温差决定升温曲线",
+        "observed_data_behavior": "锚定表 1440 行实测: min=847.19, max=852.43, mean=849.9978, std=0.6964, p05=848.88, p95=851.16 (source: 07_hetero/preprocessed_data_hetero.csv)",
+        "behavior_match": "UNVERIFIED",
+        "discrepancy_signal": "整段漂移或异常波动 = 温控/热电偶/燃控候选根因（操作备注曾记录三区波动偏大并通知仪表检查热电偶）",
+        "knowledge_source": "user_provided",
+        "equipment_ref": "FUR-Z1",
+        "stage_ref": "S1"
+      },
+      {
+        "name": "二区炉温（加热区）",
+        "column": "FUR-Z2-TEMP",
+        "unit": "°C",
+        "role": "control",
+        "control_type": "measurement",
+        "physical_meaning": "炉膛二区温度实测（主加热段）",
+        "physical_meaning_confidence": "KNOWN",
+        "auto_inferred": false,
+        "inference_basis": "列名 FUR-Z2-TEMP + 场景（三区炉线）",
+        "controlled_by": "二区温控回路（细节未声明）",
+        "normal_range": [
+          863.88,
+          866.1105
+        ],
+        "governing_law": "热平衡 + 带材吸热（Q=hA(T_f−T_s)）",
+        "expected_data_behavior": "围绕设定值波动；与带材速度负相关（提速吸热增多）",
+        "observed_data_behavior": "锚定表 1440 行实测: min=862.51, max=867.36, mean=865.0063, std=0.6882, p05=863.88, p95=866.1105 (source: 07_hetero/preprocessed_data_hetero.csv)",
+        "behavior_match": "UNVERIFIED",
+        "discrepancy_signal": "二区掉温/滞后 = 燃控能力不足或仪表故障候选",
+        "knowledge_source": "user_provided",
+        "equipment_ref": "FUR-Z2",
+        "stage_ref": "S2"
+      },
+      {
+        "name": "三区炉温（均热区）",
+        "column": "FUR-Z3-TEMP",
+        "unit": "°C",
+        "role": "control",
+        "control_type": "measurement",
+        "physical_meaning": "炉膛三区温度实测（均热/保温段）；操作备注记录设定 880℃",
+        "physical_meaning_confidence": "KNOWN",
+        "auto_inferred": false,
+        "inference_basis": "列名 FUR-Z3-TEMP + 07_hetero/annotations.json（2026-02-02 交接班：三区温度设定 880℃ 稳定）",
+        "setpoint": 880.0,
+        "controlled_by": "三区温控回路（2026-02-05 备注：温度波动偏大，已通知仪表检查热电偶）",
+        "normal_range": [
+          870.9295,
+          881.1705
+        ],
+        "governing_law": "热平衡 + 保温段组织均匀化动力学（Arrhenius）",
+        "expected_data_behavior": "稳定在 880℃ 附近（±小幅波动）；直接影响出料温度与硬度",
+        "observed_data_behavior": "锚定表 1440 行实测: min=864.25, max=882.92, mean=878.4225, std=3.2206, p05=870.9295, p95=881.1705 (source: 07_hetero/preprocessed_data_hetero.csv)",
+        "behavior_match": "UNVERIFIED",
+        "discrepancy_signal": "超过设定附近的正常波动带 = 热电偶/燃控/负荷扰动候选；与硬度波动配对出现则为强证据",
+        "knowledge_source": "user_provided",
+        "equipment_ref": "FUR-Z3",
+        "stage_ref": "S3"
+      },
+      {
+        "name": "产线速度",
+        "column": "FUR-SPEED",
+        "role": "control",
+        "control_type": "measurement",
+        "physical_meaning": "带材运行线速度（单位未在数据或文档中声明）；决定炉内停留时间 t_res=L/v",
+        "physical_meaning_confidence": "INFERRED",
+        "auto_inferred": true,
+        "inference_basis": "列名 FUR-SPEED + 热平衡物理：停留时间对吸热量的控制作用",
+        "controlled_by": "传动主控（设定值未声明）",
+        "normal_range": [
+          11.916,
+          12.08
+        ],
+        "governing_law": "t_res = L / v；吸热量 ∝ t_res·(T_f−T_s)",
+        "expected_data_behavior": "围绕工艺设定小幅波动；升速时出料温度下降（负相关、有热惯性滞后）",
+        "observed_data_behavior": "锚定表 1440 行实测: min=11.826, max=12.157, mean=11.9976, std=0.0502, p05=11.916, p95=12.08 (source: 07_hetero/preprocessed_data_hetero.csv)",
+        "behavior_match": "UNVERIFIED",
+        "discrepancy_signal": "速度阶跃且出料温度同步偏移 = 传输/工艺调整，而非设备故障",
+        "knowledge_source": "user_provided",
+        "equipment_ref": "FUR-LINE",
+        "stage_ref": "S1"
+      }
+    ],
+    "events": [
+      {
+        "name": "maintenance",
+        "column": "HX-TXT-L1OPERATORNOTES-EVT-MAINTENANCE",
+        "description": "时间锚定事件窗标志：t 时刻值=1 表示该源在 [t-3600s, t] 内记录过一次「检修」(maintenance)；窗口只向前过期（forward-only），由对齐层按 evt_window_s 实施，绝不向未来泄漏",
+        "event_values": [
+          0,
+          1
+        ],
+        "event_meanings": {
+          "0": "no",
+          "1": "检修"
+        }
+      },
+      {
+        "name": "heatup",
+        "column": "HX-TXT-L1OPERATORNOTES-EVT-HEATUP",
+        "description": "时间锚定事件窗标志：t 时刻值=1 表示该源在 [t-3600s, t] 内记录过一次「升温」(heatup)；窗口只向前过期（forward-only），由对齐层按 evt_window_s 实施，绝不向未来泄漏",
+        "event_values": [
+          0,
+          1
+        ],
+        "event_meanings": {
+          "0": "no",
+          "1": "升温"
+        }
+      }
+    ],
+    "metadata_columns": [
+      {
+        "name": "时间戳",
+        "column": "时间",
+        "role": "timestamp",
+        "description": "锚定主表时间列；10min 粒度，2026-02-02 00:00:00 → 2026-02-11 23:50:00（1440 行）"
+      }
+    ]
+  },
+  "parameter_groups": {
+    "furnace_zone_temperatures": [
+      "FUR-Z1-TEMP",
+      "FUR-Z2-TEMP",
+      "FUR-Z3-TEMP",
+      "HX-MAP-L1FURNACETHERMALMAP2-MEAN",
+      "HX-MAP-L1FURNACETHERMALMAP2-P95"
+    ],
+    "transport_parameters": [
+      "FUR-SPEED"
+    ],
+    "atmosphere_parameters": [
+      "FUR-PRES"
+    ],
+    "band_temperature": [
+      "FUR-OUT-TEMP",
+      "HX-PROF-L1BANDTEMPPROFILE30M-MEAN",
+      "HX-PROF-L1BANDTEMPPROFILE30M-STD",
+      "HX-PROF-L1BANDTEMPPROFILE30M-EDGE-L-DEV",
+      "HX-PROF-L1BANDTEMPPROFILE30M-EDGE-R-DEV"
+    ],
+    "quality_outcomes": [
+      "FUR-YIELD",
+      "LAB-HRC"
+    ],
+    "surface_inspection": [
+      "HX-IMG-L1SURFACECCDINDEX-MEAN",
+      "HX-IMG-L1SURFACECCDINDEX-STD",
+      "HX-IMG-L1SURFACECCDINDEX-ENTROPY",
+      "HX-IMG-L1SURFACECCDINDEX-SATFRAC",
+      "HX-IMG-L1SURFACECCDINDEX-DARKFRAC",
+      "HX-IMG-L1SURFACECCDINDEX-FOCUS",
+      "HX-IMG-L1SURFACECCDINDEX-N"
+    ],
+    "hetero_explicit_targets": [
+      "HX-PROF-L1BANDTEMPPROFILE30M-MEAN",
+      "HX-PROF-L1BANDTEMPPROFILE30M-STD",
+      "HX-PROF-L1BANDTEMPPROFILE30M-MIN",
+      "HX-PROF-L1BANDTEMPPROFILE30M-MAX",
+      "HX-PROF-L1BANDTEMPPROFILE30M-P05",
+      "HX-PROF-L1BANDTEMPPROFILE30M-P50",
+      "HX-PROF-L1BANDTEMPPROFILE30M-P95",
+      "HX-PROF-L1BANDTEMPPROFILE30M-RANGE",
+      "HX-PROF-L1BANDTEMPPROFILE30M-IQR",
+      "HX-PROF-L1BANDTEMPPROFILE30M-MAD",
+      "HX-PROF-L1BANDTEMPPROFILE30M-N",
+      "HX-PROF-L1BANDTEMPPROFILE30M-SLOPE-LSQ-PER100",
+      "HX-PROF-L1BANDTEMPPROFILE30M-CURV-LSQ",
+      "HX-PROF-L1BANDTEMPPROFILE30M-ZONE-1-3-MEAN",
+      "HX-PROF-L1BANDTEMPPROFILE30M-EDGE-L-DEV",
+      "HX-PROF-L1BANDTEMPPROFILE30M-EDGE-R-DEV",
+      "HX-PROF-L1BANDTEMPPROFILE30M-ARGDEV-NBR",
+      "HX-PROF-L1BANDTEMPPROFILE30M-SHIFT-EST"
+    ],
+    "hetero_explicit_predictors": [
+      "HX-IMG-L1SURFACECCDINDEX-MEAN",
+      "HX-IMG-L1SURFACECCDINDEX-STD",
+      "HX-IMG-L1SURFACECCDINDEX-ENTROPY",
+      "HX-IMG-L1SURFACECCDINDEX-SATFRAC",
+      "HX-IMG-L1SURFACECCDINDEX-DARKFRAC",
+      "HX-IMG-L1SURFACECCDINDEX-FOCUS",
+      "HX-MAP-L1FURNACETHERMALMAP2-MEAN",
+      "HX-MAP-L1FURNACETHERMALMAP2-P95",
+      "HX-MAP-L1FURNACETHERMALMAP2-HOTAREA-P90",
+      "HX-MAP-L1FURNACETHERMALMAP2-COLDAREA-P10",
+      "HX-MAP-L1FURNACETHERMALMAP2-CENTROID-X",
+      "HX-MAP-L1FURNACETHERMALMAP2-CENTROID-Y",
+      "HX-MAP-L1FURNACETHERMALMAP2-ASYM-LR",
+      "HX-MAP-L1FURNACETHERMALMAP2-POSMAX-X",
+      "HX-MAP-L1FURNACETHERMALMAP2-POSMAX-Y"
+    ],
+    "hetero_excluded_from_screening": [
+      "HX-IMG-L1SURFACECCDINDEX-N",
+      "HX-MAP-L1FURNACETHERMALMAP2-GRAD-P95",
+      "HX-MAP-L1FURNACETHERMALMAP2-N",
+      "HX-TXT-L1OPERATORNOTES-EVT-MAINTENANCE",
+      "HX-TXT-L1OPERATORNOTES-EVT-HEATUP",
+      "HX-TXT-L1OPERATORNOTES-HOUR-OF-DAY",
+      "HX-TXT-L1OPERATORNOTES-SHIFT-BUCKET-ID"
+    ]
+  },
+  "relationships": [
+    {
+      "from": "FUR-Z3-TEMP",
+      "to": "FUR-OUT-TEMP",
+      "type": "causal",
+      "strength": "strong",
+      "mechanism": "均热区炉温经对流+辐射换热决定带材出口温度（热平衡）",
+      "governing_equation": "Q = h·A·(T_f − T_s) + εσA(T_f⁴ − T_s⁴)；T_out ≈ f(T_f, t_res)",
+      "predicted_functional_form": "linear",
+      "time_lag": "分钟级：接近均热段停留时间 L/v（待数据估计）",
+      "inferred": true,
+      "lag_detection_method": "physics_prior_only",
+      "rag_validated": false,
+      "data_direction_validated": "untested"
+    },
+    {
+      "from": "FUR-Z2-TEMP",
+      "to": "FUR-OUT-TEMP",
+      "type": "causal",
+      "strength": "moderate",
+      "mechanism": "加热区炉温通过带材蓄热传导至出料温度",
+      "governing_equation": "能量守恒沿带材积分",
+      "predicted_functional_form": "linear",
+      "time_lag": "分钟级（L/v 量级，待数据估计）",
+      "inferred": true,
+      "lag_detection_method": "physics_prior_only",
+      "rag_validated": false,
+      "data_direction_validated": "untested"
+    },
+    {
+      "from": "FUR-Z1-TEMP",
+      "to": "FUR-OUT-TEMP",
+      "type": "causal",
+      "strength": "weak",
+      "mechanism": "预热区对出料温度的间接贡献（降低后续加热负荷）",
+      "governing_equation": "能量守恒沿带材积分",
+      "predicted_functional_form": "linear",
+      "time_lag": "分钟级（L/v 量级，待数据估计）",
+      "inferred": true,
+      "lag_detection_method": "physics_prior_only",
+      "rag_validated": false,
+      "data_direction_validated": "untested"
+    },
+    {
+      "from": "FUR-SPEED",
+      "to": "FUR-OUT-TEMP",
+      "type": "causal",
+      "strength": "strong",
+      "mechanism": "提速缩短炉内停留时间→吸热不足→出口温度下降（负相关）",
+      "governing_equation": "t_res = L / v；吸热量 ∝ t_res·(T_f−T_s)",
+      "predicted_functional_form": "inverse",
+      "time_lag": "热惯性滞后（分钟级，待数据估计）",
+      "inferred": true,
+      "lag_detection_method": "physics_prior_only",
+      "rag_validated": false,
+      "data_direction_validated": "untested"
+    },
+    {
+      "from": "FUR-SPEED",
+      "to": "HX-PROF-L1BANDTEMPPROFILE30M-MEAN",
+      "type": "causal",
+      "strength": "moderate",
+      "mechanism": "停留时间改变带材整体温度水平，剖面均值随之移动",
+      "governing_equation": "t_res = L / v",
+      "predicted_functional_form": "inverse",
+      "time_lag": "滞后 + 30min 采样量化（待数据估计）",
+      "inferred": true,
+      "lag_detection_method": "physics_prior_only",
+      "rag_validated": false,
+      "data_direction_validated": "untested"
+    },
+    {
+      "from": "FUR-Z3-TEMP",
+      "to": "HX-MAP-L1FURNACETHERMALMAP2-MEAN",
+      "type": "physical",
+      "strength": "strong",
+      "mechanism": "炉膛温度场均值应跟随三区（及全线）实测炉温",
+      "governing_equation": "场统计量 = 炉温的空间平均",
+      "predicted_functional_form": "linear",
+      "time_lag": "近零（同一炉膛瞬时耦合；2h 采样量化）",
+      "inferred": true,
+      "lag_detection_method": "physics_prior_only",
+      "rag_validated": false,
+      "data_direction_validated": "untested"
+    },
+    {
+      "from": "FUR-Z3-TEMP",
+      "to": "HX-MAP-L1FURNACETHERMALMAP2-GRAD-P95",
+      "type": "correlative",
+      "strength": "weak",
+      "mechanism": "单侧/局部加热不均会使炉温场梯度抬高，与区温设定存在弱耦合",
+      "governing_equation": "场的空间梯度统计",
+      "predicted_functional_form": "monotonic",
+      "time_lag": "近零（空间场与区温同炉膛）",
+      "inferred": true,
+      "lag_detection_method": "physics_prior_only",
+      "rag_validated": false,
+      "data_direction_validated": "untested"
+    },
+    {
+      "from": "HX-MAP-L1FURNACETHERMALMAP2-ASYM-LR",
+      "to": "HX-PROF-L1BANDTEMPPROFILE30M-EDGE-L-DEV",
+      "type": "causal",
+      "strength": "moderate",
+      "mechanism": "炉膛左右不对称加热→带材左侧边部温度偏差",
+      "governing_equation": "横向热流不对称 → 剖面边部偏差",
+      "predicted_functional_form": "linear",
+      "time_lag": "分钟级（热传导 + 30min 采样量化）",
+      "inferred": true,
+      "lag_detection_method": "physics_prior_only",
+      "rag_validated": false,
+      "data_direction_validated": "untested"
+    },
+    {
+      "from": "HX-MAP-L1FURNACETHERMALMAP2-ASYM-LR",
+      "to": "HX-PROF-L1BANDTEMPPROFILE30M-EDGE-R-DEV",
+      "type": "causal",
+      "strength": "moderate",
+      "mechanism": "炉膛左右不对称加热→带材右侧边部温度偏差",
+      "governing_equation": "横向热流不对称 → 剖面边部偏差",
+      "predicted_functional_form": "linear",
+      "time_lag": "分钟级（热传导 + 30min 采样量化）",
+      "inferred": true,
+      "lag_detection_method": "physics_prior_only",
+      "rag_validated": false,
+      "data_direction_validated": "untested"
+    },
+    {
+      "from": "HX-PROF-L1BANDTEMPPROFILE30M-MEAN",
+      "to": "FUR-OUT-TEMP",
+      "type": "physical",
+      "strength": "strong",
+      "mechanism": "一致性检查：在线剖面均值应与 DCS 出料测温同量级同趋势",
+      "governing_equation": "同被测量（带材温度）的不同测量通道一致性",
+      "predicted_functional_form": "linear",
+      "time_lag": "近零（测量一致性；采样粒度差异除外）",
+      "inferred": true,
+      "lag_detection_method": "physics_prior_only",
+      "rag_validated": false,
+      "data_direction_validated": "untested"
+    },
+    {
+      "from": "FUR-OUT-TEMP",
+      "to": "LAB-HRC",
+      "type": "causal",
+      "strength": "strong",
+      "mechanism": "终冷温度/均热温度决定组织与硬度（退火软化）",
+      "governing_equation": "硬度 = f(T, t)（Arrhenius 型软化动力学）",
+      "predicted_functional_form": "monotonic",
+      "time_lag": "实验室抽检延迟（2h 采样 + 离线时长，待对齐估计）",
+      "inferred": true,
+      "lag_detection_method": "physics_prior_only",
+      "rag_validated": false,
+      "data_direction_validated": "untested"
+    },
+    {
+      "from": "HX-PROF-L1BANDTEMPPROFILE30M-MEAN",
+      "to": "LAB-HRC",
+      "type": "causal",
+      "strength": "moderate",
+      "mechanism": "带材实际温度水平直接影响硬度",
+      "governing_equation": "硬度 = f(T, t)（Arrhenius 型软化动力学）",
+      "predicted_functional_form": "monotonic",
+      "time_lag": "抽检延迟 + 30min 采样量化（待数据估计）",
+      "inferred": true,
+      "lag_detection_method": "physics_prior_only",
+      "rag_validated": false,
+      "data_direction_validated": "untested"
+    },
+    {
+      "from": "FUR-PRES",
+      "to": "HX-IMG-L1SURFACECCDINDEX-DARKFRAC",
+      "type": "causal",
+      "strength": "weak",
+      "mechanism": "炉内压力/气氛影响氧化与烟灰沉积→表面暗区占比（未标定图像，相对响应）",
+      "governing_equation": "氧化动力学 ∝ f(气氛, T)",
+      "predicted_functional_form": "threshold",
+      "time_lag": "分钟级至小时级（待数据估计）",
+      "inferred": true,
+      "lag_detection_method": "physics_prior_only",
+      "rag_validated": false,
+      "data_direction_validated": "untested"
+    },
+    {
+      "from": "HX-TXT-L1OPERATORNOTES-EVT-HEATUP",
+      "to": "FUR-Z2-TEMP",
+      "type": "causal",
+      "strength": "moderate",
+      "mechanism": "升温事件窗内对应炉温爬升",
+      "governing_equation": "事件驱动：加热功率上调 → 炉温上行",
+      "predicted_functional_form": "delayed_response",
+      "time_lag": "事件窗内（前向 1h 窗口，见事件列描述）",
+      "inferred": true,
+      "lag_detection_method": "physics_prior_only",
+      "rag_validated": false,
+      "data_direction_validated": "untested"
+    },
+    {
+      "from": "HX-TXT-L1OPERATORNOTES-EVT-MAINTENANCE",
+      "to": "FUR-Z3-TEMP",
+      "type": "causal",
+      "strength": "weak",
+      "mechanism": "检修事件后继发的仪表/温控扰动（操作备注曾记录通知仪表检查热电偶）",
+      "governing_equation": "维护活动 → 环路/传感器状态变化",
+      "predicted_functional_form": "delayed_response",
+      "time_lag": "检修窗后数小时（待数据估计）",
+      "inferred": true,
+      "lag_detection_method": "physics_prior_only",
+      "rag_validated": false,
+      "data_direction_validated": "untested"
+    }
+  ],
+  "confounders": [
+    {
+      "variable": "环境温度/冷却条件（未记录）",
+      "why": "会同时影响出口温度与硬度，且不在数据结构中",
+      "controlled": false
+    },
+    {
+      "variable": "实验室抽检延迟与稀疏性（2h、未并入主表）",
+      "why": "硬度与在线量的时间对齐存在不确定性，可能制造伪相关",
+      "controlled": false
+    },
+    {
+      "variable": "CCD 图像未标定（灰度相对值）",
+      "why": "照明/相机漂移会同时影响全部 IMG 统计量",
+      "controlled": false
+    },
+    {
+      "variable": "人工操作备注稀疏（9 条/10 天）",
+      "why": "事件漏记会造成事件窗覆盖不全，削弱事件回归",
+      "controlled": false
+    },
+    {
+      "variable": "炉膛热电偶状态（2026-02-05 备注：波动偏大、已通知仪表检查）",
+      "why": "仪表故障会同时污染温度读数与基于读数的诊断结论",
+      "controlled": false
+    }
+  ],
+  "metadata": {
+    "units": {
+      "FUR-Z1-TEMP": "°C",
+      "FUR-Z2-TEMP": "°C",
+      "FUR-Z3-TEMP": "°C",
+      "FUR-OUT-TEMP": "°C",
+      "LAB-HRC": "HRC",
+      "FUR-YIELD": "%",
+      "FUR-SPEED": "未声明",
+      "FUR-PRES": "未声明",
+      "HX-IMG-L1SURFACECCDINDEX-MEAN": "graylevel_8bit"
+    },
+    "sampling_rate": "10 min (锚定 DCS)；HX 源粒度: 带材剖面 30min / 炉膛温度场 2h / 表面图像 1h / 操作备注事件 / 实验室硬度 2h（未并入锚定主表）",
+    "batch_id": "heat_treat_sim_20260202_10d_continuous",
+    "timezone": "naive_local（未声明时区）",
+    "start_time": "2026-02-02T00:00:00",
+    "end_time": "2026-02-11T23:50:00"
+  },
+  "provenance": {
+    "ontology_version": "6.4",
+    "generated_by": "context-builder (industrial-ontology-builder, Step 2, fast mode)",
+    "run_id": "202610162036022_heat_treat_sim",
+    "build_mode": "full",
+    "hx_merge": {
+      "contract": "07_hetero/column_contract.json",
+      "contract_version": "hetero-features/1.1",
+      "mapper": "heterocore.contracts.to_ontology_signals",
+      "merged_hx_columns": 40,
+      "verbatim": true,
+      "null_policy": "null-valued optional keys dropped (schema string-typed fields reject null)"
+    },
+    "rag": {
+      "engine": "http://localhost:8764",
+      "reachable": false,
+      "degradation_path": "parameter_to_physics.json + first-principles physics + scene meta-knowledge"
+    }
+  }
+}

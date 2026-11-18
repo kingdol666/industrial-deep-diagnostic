@@ -1,6 +1,6 @@
 ---
 name: industrial-reporter
-description: "Industrial diagnostic pipeline Step 6 — generates the 10-section pyramid-structure Chinese diagnostic report (report.md) and the structured summary (run_summary.json) from diagnostic artifacts. Judge-gated: may start only after the Judge verdict is pass with score >= 90 (or all 3 rounds exhausted). Trigger: write report, diagnostic report, report generation, generate report, report writing."
+description: "Industrial diagnostic pipeline Step 6 — generates the 10-section pyramid-structure Chinese diagnostic report (report.md) and the structured summary (run_summary.json) from diagnostic artifacts. Judge-gated: may start only after the Judge verdict is pass with score >= 90 (or all 3 rounds exhausted). Do NOT use before a Judge pass with score >= 90 (it is Judge-gated); do NOT use for the physical-truth audit verdict on the report (use industrial-physical-auditor), for the HTML page (use industrial-html-visualizer), or to run the diagnosis itself (use industrial-diagnostician). Trigger: write report, diagnostic report, report generation, generate report, report writing."
 ---
 
 # Industrial Reporter

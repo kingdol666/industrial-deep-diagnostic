@@ -1,0 +1,57 @@
+[
+  {
+    "event_ts": "2026-03-01 08:00:00",
+    "recorded_ts": null,
+    "text": "接班检查正常，各段温度稳定",
+    "tags": [],
+    "source_id": "text-operatornotes",
+    "source_sha256": "sha256:caab1033c74aae74af54e6a6311e6741e7fa1fcfc84c6812bd4a6d7ad91274f4",
+    "line_no": 1,
+    "hour_of_day": 8.0,
+    "shift_bucket": "A"
+  },
+  {
+    "event_ts": "2026-03-02 10:30:00",
+    "recorded_ts": null,
+    "text": "右边缘手感略紧，做了微调",
+    "tags": [],
+    "source_id": "text-operatornotes",
+    "source_sha256": "sha256:caab1033c74aae74af54e6a6311e6741e7fa1fcfc84c6812bd4a6d7ad91274f4",
+    "line_no": 2,
+    "hour_of_day": 10.5,
+    "shift_bucket": "A"
+  },
+  {
+    "event_ts": "2026-03-04 02:10:00",
+    "recorded_ts": null,
+    "text": "右边缘出现轻微条纹，已通知工艺",
+    "tags": [],
+    "source_id": "text-operatornotes",
+    "source_sha256": "sha256:caab1033c74aae74af54e6a6311e6741e7fa1fcfc84c6812bd4a6d7ad91274f4",
+    "line_no": 3,
+    "hour_of_day": 2.166667,
+    "shift_bucket": "C"
+  },
+  {
+    "event_ts": "2026-03-04 06:00:00",
+    "recorded_ts": null,
+    "text": "换卷后继续观察，问题仍在",
+    "tags": [],
+    "source_id": "text-operatornotes",
+    "source_sha256": "sha256:caab1033c74aae74af54e6a6311e6741e7fa1fcfc84c6812bd4a6d7ad91274f4",
+    "line_no": 4,
+    "hour_of_day": 6.0,
+    "shift_bucket": "C"
+  },
+  {
+    "event_ts": "2026-03-04 22:40:00",
+    "recorded_ts": null,
+    "text": "调整右侧风量后条纹减轻",
+    "tags": [],
+    "source_id": "text-operatornotes",
+    "source_sha256": "sha256:caab1033c74aae74af54e6a6311e6741e7fa1fcfc84c6812bd4a6d7ad91274f4",
+    "line_no": 5,
+    "hour_of_day": 22.666667,
+    "shift_bucket": "B"
+  }
+]

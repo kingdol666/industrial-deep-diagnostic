@@ -1,0 +1,45 @@
+<Slide style={{ padding: 0, background: '#1D1B16', position: 'relative', overflow: 'hidden' }}>
+    <Box style={{ position: 'absolute', left: -220, bottom: -280, width: 720, height: 720, background: 'linear-gradient(135deg, #B8730F 0%, #1D1B16 100%)', opacity: 0.26 }} />
+    <Box style={{ position: 'absolute', left: 0, top: 0, width: 1280, height: 7, background: '#B8730F' }} />
+    <Box style={{ flexDirection: 'column', width: 1280, height: 720, padding: '58px 76px 46px 76px', position: 'relative' }}>
+        <Box style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
+            <Box style={{ width: 48, height: 48, background: '#1D1B16', border: '2px solid #B8730F', borderRadius: 10, justifyContent: 'center', alignItems: 'center' }}>
+                <Text style={{ fontSize: 19, fontWeight: 'bold', color: '#B8730F' }}>ID</Text>
+            </Box>
+            <Text style={{ fontSize: 13, color: 'rgba(247,244,236,0.55)', letterSpacing: 3 }}>INDUSTRIAL DEEP DIAGNOSTIC · 零基础使用教程</Text>
+        </Box>
+        <Text style={{ fontSize: 66, fontWeight: 'bold', color: '#F7F4EC', lineHeight: 1.2, marginTop: 38 }}>六步走完，<br />一次诊断到底。</Text>
+        <Text style={{ fontSize: 20, color: 'rgba(247,244,236,0.76)', lineHeight: 1.7, marginTop: 20, width: 980 }}>配好 OMP 之后，剩下的交给那九步管线：它不会为了取悦你而编造根因，也不会在数据说不清的时候硬给一个答案。</Text>
+        <Box style={{ flexDirection: 'row', gap: 14, marginTop: 32 }}>
+            <Box style={{ width: 211, padding: '16px 16px', background: 'rgba(184,115,15,0.14)', border: '1px solid rgba(184,115,15,0.45)', borderRadius: 10 }}>
+                <Text style={{ fontSize: 13, color: '#B8730F', letterSpacing: 2, fontWeight: 'bold' }}>STEP 1–2</Text>
+                <Text style={{ fontSize: 18, color: '#F7F4EC', fontWeight: 'bold', marginTop: 8 }}>装好项目</Text>
+                <Text style={{ fontSize: 15, color: 'rgba(247,244,236,0.70)', marginTop: 6, lineHeight: 1.5 }}>npm install · npm link</Text>
+            </Box>
+            <Box style={{ width: 211, padding: '16px 16px', background: 'rgba(184,115,15,0.14)', border: '1px solid rgba(184,115,15,0.45)', borderRadius: 10 }}>
+                <Text style={{ fontSize: 13, color: '#B8730F', letterSpacing: 2, fontWeight: 'bold' }}>STEP 3–4</Text>
+                <Text style={{ fontSize: 18, color: '#F7F4EC', fontWeight: 'bold', marginTop: 8 }}>起服务验状态</Text>
+                <Text style={{ fontSize: 15, color: 'rgba(247,244,236,0.70)', marginTop: 6, lineHeight: 1.5 }}>start --all --detach · status</Text>
+            </Box>
+            <Box style={{ width: 211, padding: '16px 16px', background: 'rgba(184,115,15,0.28)', border: '1px solid #B8730F', borderRadius: 10 }}>
+                <Text style={{ fontSize: 13, color: '#F0A93B', letterSpacing: 2, fontWeight: 'bold' }}>STEP 5</Text>
+                <Text style={{ fontSize: 18, color: '#FFFFFF', fontWeight: 'bold', marginTop: 8 }}>配好 OMP</Text>
+                <Text style={{ fontSize: 15, color: 'rgba(255,255,255,0.82)', marginTop: 6, lineHeight: 1.5 }}>omp · /login · /model</Text>
+            </Box>
+            <Box style={{ width: 211, padding: '16px 16px', background: 'rgba(184,115,15,0.14)', border: '1px solid rgba(184,115,15,0.45)', borderRadius: 10 }}>
+                <Text style={{ fontSize: 13, color: '#B8730F', letterSpacing: 2, fontWeight: 'bold' }}>STEP 6</Text>
+                <Text style={{ fontSize: 18, color: '#F7F4EC', fontWeight: 'bold', marginTop: 8 }}>开浏览器</Text>
+                <Text style={{ fontSize: 15, color: 'rgba(247,244,236,0.70)', marginTop: 6, lineHeight: 1.5 }}>http://localhost:5180</Text>
+            </Box>
+            <Box style={{ width: 211, padding: '16px 16px', background: 'rgba(247,244,236,0.06)', border: '1px solid rgba(247,244,236,0.20)', borderRadius: 10 }}>
+                <Text style={{ fontSize: 13, color: 'rgba(247,244,236,0.60)', letterSpacing: 2, fontWeight: 'bold' }}>然后</Text>
+                <Text style={{ fontSize: 18, color: '#F7F4EC', fontWeight: 'bold', marginTop: 8 }}>上传并开跑</Text>
+                <Text style={{ fontSize: 15, color: 'rgba(247,244,236,0.70)', marginTop: 6, lineHeight: 1.5 }}>见第 22 页</Text>
+            </Box>
+        </Box>
+        <Box style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 'auto' }}>
+            <Text style={{ fontSize: 16, color: 'rgba(247,244,236,0.58)', lineHeight: 1.6 }}>下一步：换一份你自己的数据，按第 22 页上传，走一遍完整闭环。</Text>
+            <Text style={{ fontSize: 15, color: 'rgba(247,244,236,0.40)' }}>40 / 40</Text>
+        </Box>
+    </Box>
+</Slide>

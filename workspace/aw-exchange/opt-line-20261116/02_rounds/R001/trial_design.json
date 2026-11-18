@@ -1,0 +1,57 @@
+{
+  "design_version": "1.0",
+  "campaign_id": "OPT-20261116-001",
+  "round_id": "R001",
+  "phase": "explore",
+  "method": "window_seed",
+  "trials": [
+    {
+      "trial_id": "R001-T01",
+      "setpoints": {
+        "保压压力SP": 64.0,
+        "保压时间SP": 4.5,
+        "冷却流量SP": 15.0,
+        "料温SP": 211.0
+      },
+      "extrapolation": true,
+      "safety_checked": true,
+      "selection_reason": "window_seed W2_optimum; window_seed window_center; window_seed current_baseline; prior window seeds; dup_to_existing=False; nearest_data_coded=inf"
+    },
+    {
+      "trial_id": "R001-T02",
+      "setpoints": {
+        "保压压力SP": 60.0,
+        "保压时间SP": 4.5,
+        "冷却流量SP": 16.0,
+        "料温SP": 210.0
+      },
+      "extrapolation": true,
+      "safety_checked": true,
+      "selection_reason": "window_seed W2_optimum; window_seed window_center; window_seed current_baseline; prior window seeds; dup_to_existing=False; nearest_data_coded=inf"
+    },
+    {
+      "trial_id": "R001-T03",
+      "setpoints": {
+        "保压压力SP": 54.0,
+        "保压时间SP": 4.0,
+        "冷却流量SP": 16.0,
+        "料温SP": 211.0
+      },
+      "extrapolation": true,
+      "safety_checked": true,
+      "selection_reason": "window_seed W2_optimum; window_seed window_center; window_seed current_baseline; prior window seeds; dup_to_existing=False; nearest_data_coded=inf"
+    }
+  ],
+  "model_summary": null,
+  "gating": {
+    "domain_ok": true,
+    "safety_ok": true,
+    "duplication_ratio": 0.0
+  },
+  "provenance": {
+    "input_sha256": "b72299190bfce4a0c3f39370ba948569d1af598b43b329891c9714ba1c3ea063",
+    "script_version": "1.0.0",
+    "seed": 42,
+    "authored_by": "script"
+  }
+}

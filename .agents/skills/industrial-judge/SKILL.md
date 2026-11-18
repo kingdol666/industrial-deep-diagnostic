@@ -1,6 +1,6 @@
 ---
 name: industrial-judge
-description: "Industrial diagnostic pipeline — quality gate review. Scores 10 criteria to verify the integrity of diagnostic reasoning and statistical foundations, and performs cross-file cross-validation audits. Trigger: quality gate, quality review, judge, diagnosis review, quality gate review, cross validation, audit, quality review, diagnosis audit, verdict check, blocking issues."
+description: "Industrial diagnostic pipeline — quality gate review. Scores 10 criteria to verify the integrity of diagnostic reasoning and statistical foundations, and performs cross-file cross-validation audits. Trigger: quality gate, quality review, judge, diagnosis review, quality gate review, cross validation, audit, quality review, diagnosis audit, verdict check, blocking issues. Do NOT use for the independent physical-truth audit of report.md (use industrial-physical-auditor); do NOT use to write the report itself (use industrial-reporter) or to execute the diagnosis (use industrial-diagnostician); it scores artifact integrity (reasoning + statistics + schema) and never re-derives physical mechanisms."
 ---
 
 # Industrial Judge

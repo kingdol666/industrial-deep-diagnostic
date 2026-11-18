@@ -1,0 +1,13 @@
+{
+  "source": "baseline engineering prior for isolated simulator line ln-95454c2c",
+  "operating_windows": [
+    { "factor": "保压压力SP", "range": [50, 70], "priority": 1 },
+    { "factor": "保压时间SP", "range": [3, 6], "priority": 2 },
+    { "factor": "料温SP", "range": [200, 220], "priority": 3 },
+    { "factor": "冷却流量SP", "range": [12, 20], "priority": 4 }
+  ],
+  "setpoints": [
+    { "factor": "MULTI", "expected_response": { "raw": { "保压压力SP": 64, "保压时间SP": 4.5, "料温SP": 211, "冷却流量SP": 15 }, "D": 0.9 } }
+  ],
+  "current_baseline": { "point": { "保压压力SP": 54, "保压时间SP": 4, "料温SP": 211, "冷却流量SP": 16 } }
+}

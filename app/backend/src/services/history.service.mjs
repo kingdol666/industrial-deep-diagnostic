@@ -5,11 +5,18 @@
 //   * soft delete: `deleted_at` hides a run from the default list and keeps it
 //     restorable; an explicit purge removes the row AND its workspace directory;
 //   * categories: one flat, user-defined category per run (run_categories).
+//
+// Tenancy (P0-6): every read/delete is viewer-scoped. `viewer` is req.user for
+// API callers (own runs, everything for an admin; legacy NULL-owner runs are
+// admin-only) and INTERNAL for trusted service-internal calls. A run the
+// viewer may not see is reported exactly like a missing one (null / 404).
+
 import { randomUUID } from 'crypto';
 import { rmSync } from 'fs';
-import { stmts } from '../db/database.mjs';
-import { getRunRealtimeSnapshot, listRuns } from './diagnosis.service.mjs';
+import { db, stmts } from '../db/database.mjs';
+import { getRunRealtimeSnapshot, getRunStatus, listRuns } from './diagnosis.service.mjs';
 import { enrichRunOutcome } from './intent-outcome.service.mjs';
+import { INTERNAL } from './tenancy.mjs';
 import logger from '../utils/logger.mjs';
 
 const DEFAULT_LIMIT = 200;
@@ -25,8 +32,8 @@ function httpError(status, code, message) {
 }
 
 /** Legacy unfiltered listing (kept for internal callers/tests). */
-export function getAllRuns() {
-  return listRuns().map(run => ({
+export function getAllRuns(viewer = INTERNAL) {
+  return listRuns(viewer).map(run => ({
     ...run,
     liveStatus: run.engineStatus || run.status,
   }));
@@ -78,10 +85,10 @@ export function listRunsForUser(user, {
   };
 }
 
-export function getRunWithLogs(runId) {
-  const snapshot = getRunRealtimeSnapshot(runId);
-  const run = snapshot?.run || stmts.getRunById.get(runId);
+export function getRunWithLogs(runId, viewer = INTERNAL) {
+  const run = getRunStatus(runId, viewer);
   if (!run) return null;
+  const snapshot = getRunRealtimeSnapshot(runId, viewer);
   const logs = stmts.getLogsByRunId.all(runId);
   return {
     ...enrichRunOutcome(run),

@@ -76,6 +76,7 @@
             />
           </label>
 
+          <div v-if="bootNotice && !error" class="auth-error" role="alert">{{ bootNotice }}</div>
           <div v-if="error" class="auth-error" role="alert">{{ error }}</div>
 
           <button class="auth-submit" data-testid="auth-submit" type="submit" :disabled="loading">
@@ -91,11 +92,18 @@
 <script setup>
 import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { api, setToken, setStoredUser } from '../../api/index.js';
+import { api } from '../../api/index.js';
 import { toggleLocale } from '../../i18n/index.js';
 
 const { t } = useI18n();
 const emit = defineEmits(['authed']);
+
+// Non-401 failure of the boot-time GET /me (server unreachable, 5xx): the gate
+// still lands here, but the user deserves to know why they were asked to sign
+// in even though they may already have a session cookie.
+defineProps({
+  bootNotice: { type: String, default: '' },
+});
 
 const mode = ref('login');
 const username = ref('');
@@ -124,11 +132,17 @@ async function submit() {
     const body = { username: username.value, password: password.value };
     if (mode.value === 'register') {
       if (email.value) body.email = email.value;
+      await api.authRegister(body);
+      // Register is followed by an explicit login: whether the server also
+      // opens a session on register is its own business, and this way the
+      // "register & sign in" tab keeps its promise under either contract.
     }
-    const data = mode.value === 'login' ? await api.authLogin(body) : await api.authRegister(body);
-    setToken(data.session_token);
-    setStoredUser(data.user);
-    emit('authed', data.user);
+    // The login POST sets the HttpOnly `idd_session` cookie; its response body
+    // carries no usable session (JS cannot read the cookie either). So the
+    // authoritative confirmation — and the user object — must come from /me.
+    await api.authLogin(body);
+    const me = await api.authMe();
+    emit('authed', me?.user || me || null);
   } catch (err) {
     error.value = err.message || t('auth.errOperationFailed');
   } finally {

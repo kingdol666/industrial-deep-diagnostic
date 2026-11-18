@@ -3,18 +3,31 @@
 // Management surface (plan v2 Phase A): filtered listing, rename, categorize,
 // soft delete / restore / purge, and per-user categories. Every mutating route
 // passes the authenticated principal so ownership is enforced in one place.
+//
+// Tenancy: the viewer is always req.user — another user's run answers 404 on
+// every verb (see history.service.mjs).
 import { Router } from 'express';
 import {
   listRunsForUser, getRunWithLogs, deleteRun,
   renameRun, setRunCategory, softDeleteRun, restoreRun, purgeRun,
   listCategories, createCategory, renameCategory, deleteCategory,
 } from '../services/history.service.mjs';
+import logger from '../utils/logger.mjs';
 
 const router = Router();
 
-function sendError(res, err) {
-  const status = err.status || 500;
-  res.status(status).json({ success: false, code: err.code || 'HISTORY_ERROR', error: err.message });
+function sendError(res, err, fallbackCode) {
+  const status = err?.status || 500;
+  if (status >= 500) {
+    // B4: internal messages stay server-side; the client gets a stable code.
+    logger.error(`[history] ${err?.stack || err?.message || err}`, { context: 'History' });
+    return res.status(status).json({ success: false, code: err?.code || fallbackCode || 'HISTORY_ERROR', error: '历史记录服务内部错误，请查看后端日志后重试' });
+  }
+  return res.status(status).json({
+    success: false,
+    ...(err?.code ? { code: err.code } : {}),
+    error: err?.message || '请求无效',
+  });
 }
 
 /** Express error wrapper (async-safe). */
@@ -41,7 +54,7 @@ router.get('/runs', wrap((req, res) => {
 
 // Get a specific run with logs
 router.get('/runs/:runId', wrap((req, res) => {
-  const run = getRunWithLogs(req.params.runId);
+  const run = getRunWithLogs(req.params.runId, req.user);
   if (!run) return res.status(404).json({ success: false, error: 'Run not found' });
   res.json({ success: true, data: run });
 }));

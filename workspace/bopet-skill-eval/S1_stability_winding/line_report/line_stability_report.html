@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>产线运行稳定性报告 · BOPET-1线-收卷工段</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<script src="https://unpkg.com/echarts@5.5.0/dist/echarts.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.5.0/echarts.min.js"></script>
+<style>
+  :root { --bg:#101418; --panel:#171d24; --line:#26303b; --tx:#dfe7ee; --mut:#8a99a8;
+          --acc:#e8a33d; --good:#22a06b; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--tx);
+        font:14px/1.65 "Segoe UI","Microsoft YaHei",sans-serif; }
+  .wrap { max-width:1180px; margin:0 auto; padding:28px 20px 60px; }
+  .hero { display:flex; gap:24px; background:var(--panel); border:1px solid var(--line);
+         border-radius:14px; padding:26px 28px; align-items:center; justify-content:space-between;
+         flex-wrap:wrap; }
+  .hero-title { font-size:24px; font-weight:700; letter-spacing:.5px; }
+  .hero-sub { margin:10px 0 12px; display:flex; gap:8px; flex-wrap:wrap; }
+  .chip { background:rgba(232,163,61,.14); color:var(--acc); border:1px solid rgba(232,163,61,.35);
+          border-radius:999px; padding:2px 12px; font-size:12px; }
+  .chip.ghost { background:transparent; color:var(--mut); border-color:var(--line); }
+  .statement { font-size:15px; max-width:640px; }
+  .hero-score { text-align:center; min-width:190px; border:1px solid var(--g);
+               border-radius:14px; padding:16px 22px; }
+  .score-num { font-size:46px; font-weight:800; color:var(--g); line-height:1.1; }
+  .score-grade { color:var(--g); font-weight:700; margin-top:4px; }
+  .score-cap { color:var(--mut); font-size:12px; margin-top:6px; }
+  h2 { font-size:17px; margin:34px 0 12px; padding-left:10px; border-left:3px solid var(--acc); }
+  .panel { background:var(--panel); border:1px solid var(--line); border-radius:12px;
+          padding:16px 18px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:14px; }
+  .finding { background:var(--panel); border:1px solid var(--line); border-left:3px solid var(--s);
+            border-radius:10px; padding:14px 16px; margin-bottom:12px; }
+  .f-head { display:flex; align-items:center; gap:10px; }
+  .pill { background:var(--s); color:#fff; border-radius:999px; padding:1px 10px;
+          font-size:12px; flex:0 0 auto; }
+  .f-title { font-weight:700; }
+  .f-id { margin-left:auto; color:var(--mut); font-size:12px; }
+  .f-detail { color:#b9c6d2; margin:8px 0; }
+  .f-mech { font-size:12.5px; color:#a8c0d8; background:rgba(90,140,190,.08);
+           border:1px dashed rgba(90,140,190,.35); border-radius:6px; padding:6px 10px; margin:6px 0; }
+  .f-conf { margin-left:auto; color:var(--mut); font-size:12px; white-space:nowrap; }
+  .f-id { color:var(--mut); font-size:12px; margin-left:10px; }
+  .derived { font-size:10px; color:var(--acc); border:1px solid rgba(232,163,61,.4);
+            border-radius:4px; padding:0 4px; margin-left:4px; }
+  table { border-collapse:collapse; width:100%; }
+  th,td { border-bottom:1px solid var(--line); padding:7px 10px; text-align:left;
+         font-size:13px; vertical-align:top; }
+  th { color:var(--mut); font-weight:600; white-space:nowrap; }
+  td.num, .num { font-variant-numeric:tabular-nums; }
+  .ev-table { margin-top:8px; }
+  .ev-table th { font-size:12px; }
+  .role-tag { margin-left:8px; font-size:11px; color:var(--mut); border:1px solid var(--line);
+             border-radius:4px; padding:0 6px; }
+  .drift-flag { margin-left:6px; color:#e0703a; font-size:11px; border:1px solid #e0703a;
+               border-radius:4px; padding:0 5px; }
+  .score-cell { display:flex; align-items:center; gap:8px; min-width:130px; }
+  .score-bar { height:8px; width:var(--w); max-width:120px; background:var(--c);
+              border-radius:4px; }
+  .chart { height:300px; background:var(--panel); border:1px solid var(--line);
+          border-radius:12px; }
+  .chart + .chart { margin-top:14px; }
+  .chart-title { padding:10px 14px 0; color:var(--mut); font-size:13px; }
+  .empty { color:var(--mut); padding:10px 4px; }
+  .static-table { max-height:220px; overflow:auto; margin-top:8px; }
+  .foot { margin-top:40px; color:var(--mut); font-size:12px; border-top:1px solid var(--line);
+         padding-top:14px; }
+  .foot b { color:#b9c6d2; }
+  code { background:#0c1013; border:1px solid var(--line); border-radius:4px;
+        padding:0 5px; font-size:12px; }
+  @media print { body { background:#fff; color:#111; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  
+    <section class="hero">
+      <div class="hero-main">
+        <div class="hero-title">产线运行稳定性报告</div>
+        <div class="hero-sub">
+          <span class="chip">BOPET双向拉伸薄膜产线（12μm光膜）</span>
+          <span class="chip ghost">12μm光膜</span>
+          <span class="chip ghost">时段：2026-10-01 00:00:00 ~ 2026-10-07 23:00:00</span>
+        </div>
+        
+        <div class="statement">该产线在本时段总体运行亚稳定（83.9 分，B 级）：评估 6 个参数，检出 106 个 SPC 违规剧集、0 项显著漂移。</div>
+      </div>
+      <div class="hero-score" style="--g:#d8a516">
+        <div class="score-num">83.9</div>
+        <div class="score-grade">B · 亚稳定</div>
+        <div class="score-cap">综合稳定性评分（0–100）</div>
+      </div>
+    </section>
+
+  <h2>工况理解（本体优先）</h2>
+  <div class='panel'><p style='margin:0 0 8px'>本体来源：run_dir（workspace/bopet-skill-eval/S1_stability_winding\00_input\ontology.json）。</p><table><tr><th>场景</th><td>BOPET双向拉伸薄膜产线（12μm光膜）</td></tr><tr><th>过程类型</th><td>pet_film_biaxial_orientation_line</td></tr><tr><th>生产目标</th><td>在厚度公差 ±0.09μm 与雾度 ≤2.0% 约束下最大化优品率与产能</td></tr></table><div style='overflow:auto;margin-top:8px'><table><thead><tr><th>参数（本体名）</th><th>单位</th><th>角色</th><th>规格/正常范围</th><th>控制方程</th><th>assigned_by</th></tr></thead><tbody><tr><td class=strong>薄膜厚度<span class='role-tag'>薄膜平均厚度（在线测厚）</span></td><td>μm</td><td>检测指标</td><td>[11.91, 12.09]（用户提供）</td><td>受 MDO 拉伸比/TDO 热定型/张力应变的复合调制</td><td><span class='role-tag'>user</span></td></tr><tr><td class=strong>优品率<span class='role-tag'>优品率</span></td><td>%</td><td>检测指标</td><td>[96, —]（用户提供）</td><td>厚度公差、晶点、热收缩的联合合格率</td><td><span class='role-tag'>user</span></td></tr><tr><td class=strong>牵引入口张力<span class='role-tag'>牵引段入口张力</span></td><td>N</td><td>加工参数</td><td>[2190, 2350]（本体资产）</td><td>胡克弹性 σ=E·ε：张力波动→薄膜纵向应变→在线测厚扰动</td><td><span class='role-tag'>ontology</span></td></tr><tr><td class=strong>收卷锥度张力<span class='role-tag'>收卷锥度张力</span></td><td>%</td><td>加工参数</td><td>[16, 20]（本体资产）</td><td>锥度张力曲线 T(r)=T0·(r0/r)^k</td><td><span class='role-tag'>ontology</span></td></tr><tr><td class=strong>展平辊压力<span class='role-tag'>展平辊气缸压力</span></td><td>bar</td><td>加工参数</td><td>[2.2, 2.8]（本体资产）</td><td>气压压紧力 F=P·A</td><td><span class='role-tag'>ontology</span></td></tr><tr><td class=strong>收卷速度<span class='role-tag'>收卷线速度</span></td><td>m/min</td><td>加工参数</td><td>[310, 330]（本体资产）</td><td>与生产线速度同步</td><td><span class='role-tag'>ontology</span></td></tr></tbody></table></div><div style='margin-top:10px'><b>工况分段（sentinel C3，方法 fast；变点 0 个）</b><table><thead><tr><th>段</th><th>行范围</th><th>主导状态</th></tr></thead><tbody><tr><td>段 1</td><td class=num>行 0–167（168 行）</td><td>steady</td></tr></tbody></table></div></div>
+
+  <h2>核心发现（结论与证据）</h2>
+  
+        <div class="finding sev-high">
+          <div class="f-head">
+            <span class="pill" style="--s:#e0703a">严重</span>
+            <span class="f-title">薄膜厚度 检出 SPC 违规</span>
+            <span class="f-conf">置信度 90</span>
+            <span class="f-id">F001</span>
+          </div>
+          <div class="f-detail">共 20 个判异剧集命中（每百点 11.9 个，规则：NELSON_R1/NELSON_R3/NELSON_R5/NELSON_R6），控制限为中心值11.9931 μm±3σ_within（σ=0.0229）。</div>
+          
+          <table class="ev-table"><thead><tr>
+            <th>证据项</th><th>数值</th><th>阈值/口径</th><th>来源</th>
+          </tr></thead><tbody><tr><td>violation_episodes</td><td class=num>20</td><td class=num>0</td><td>lstcore</td></tr><tr><td>rate_per_100</td><td class=num>11.9</td><td class=num>&lt;2 for warn; &gt;=2 for high</td><td>lstcore</td></tr><tr><td>sigma_within_mr</td><td class=num>0.0229</td><td class=num>—</td><td>lstcore</td></tr></tbody></table>
+        </div>
+        <div class="finding sev-high">
+          <div class="f-head">
+            <span class="pill" style="--s:#e0703a">严重</span>
+            <span class="f-title">优品率 检出 SPC 违规</span>
+            <span class="f-conf">置信度 90</span>
+            <span class="f-id">F002</span>
+          </div>
+          <div class="f-detail">共 9 个判异剧集命中（每百点 5.4 个，规则：NELSON_R1/NELSON_R2/NELSON_R5/NELSON_R6），控制限为中心值98.59 %±3σ_within（σ=0.1458）。</div>
+          
+          <table class="ev-table"><thead><tr>
+            <th>证据项</th><th>数值</th><th>阈值/口径</th><th>来源</th>
+          </tr></thead><tbody><tr><td>violation_episodes</td><td class=num>9</td><td class=num>0</td><td>lstcore</td></tr><tr><td>rate_per_100</td><td class=num>5.36</td><td class=num>&lt;2 for warn; &gt;=2 for high</td><td>lstcore</td></tr><tr><td>sigma_within_mr</td><td class=num>0.1458</td><td class=num>—</td><td>lstcore</td></tr></tbody></table>
+        </div>
+        <div class="finding sev-high">
+          <div class="f-head">
+            <span class="pill" style="--s:#e0703a">严重</span>
+            <span class="f-title">牵引入口张力 检出 SPC 违规</span>
+            <span class="f-conf">置信度 90</span>
+            <span class="f-id">F003</span>
+          </div>
+          <div class="f-detail">共 50 个判异剧集命中（每百点 29.8 个，规则：NELSON_R1/NELSON_R3/NELSON_R5/NELSON_R6），控制限为中心值2269.45 N±3σ_within（σ=7.9113）。</div>
+          
+          <table class="ev-table"><thead><tr>
+            <th>证据项</th><th>数值</th><th>阈值/口径</th><th>来源</th>
+          </tr></thead><tbody><tr><td>violation_episodes</td><td class=num>50</td><td class=num>0</td><td>lstcore</td></tr><tr><td>rate_per_100</td><td class=num>29.76</td><td class=num>&lt;2 for warn; &gt;=2 for high</td><td>lstcore</td></tr><tr><td>sigma_within_mr</td><td class=num>7.9113</td><td class=num>—</td><td>lstcore</td></tr></tbody></table>
+        </div>
+        <div class="finding sev-high">
+          <div class="f-head">
+            <span class="pill" style="--s:#e0703a">严重</span>
+            <span class="f-title">收卷锥度张力 检出 SPC 违规</span>
+            <span class="f-conf">置信度 90</span>
+            <span class="f-id">F004</span>
+          </div>
+          <div class="f-detail">共 7 个判异剧集命中（每百点 4.2 个，规则：NELSON_R1/NELSON_R2/NELSON_R3/NELSON_R5/NELSON_R6），控制限为中心值17.925 %±3σ_within（σ=0.3548）。</div>
+          
+          <table class="ev-table"><thead><tr>
+            <th>证据项</th><th>数值</th><th>阈值/口径</th><th>来源</th>
+          </tr></thead><tbody><tr><td>violation_episodes</td><td class=num>7</td><td class=num>0</td><td>lstcore</td></tr><tr><td>rate_per_100</td><td class=num>4.17</td><td class=num>&lt;2 for warn; &gt;=2 for high</td><td>lstcore</td></tr><tr><td>sigma_within_mr</td><td class=num>0.3548</td><td class=num>—</td><td>lstcore</td></tr></tbody></table>
+        </div>
+        <div class="finding sev-high">
+          <div class="f-head">
+            <span class="pill" style="--s:#e0703a">严重</span>
+            <span class="f-title">收卷速度 检出 SPC 违规</span>
+            <span class="f-conf">置信度 90</span>
+            <span class="f-id">F005</span>
+          </div>
+          <div class="f-detail">共 18 个判异剧集命中（每百点 10.7 个，规则：NELSON_R1/NELSON_R3/NELSON_R5/NELSON_R6），控制限为中心值319.9 m/min±3σ_within（σ=0.9359）。</div>
+          
+          <table class="ev-table"><thead><tr>
+            <th>证据项</th><th>数值</th><th>阈值/口径</th><th>来源</th>
+          </tr></thead><tbody><tr><td>violation_episodes</td><td class=num>18</td><td class=num>0</td><td>lstcore</td></tr><tr><td>rate_per_100</td><td class=num>10.71</td><td class=num>&lt;2 for warn; &gt;=2 for high</td><td>lstcore</td></tr><tr><td>sigma_within_mr</td><td class=num>0.9359</td><td class=num>—</td><td>lstcore</td></tr></tbody></table>
+        </div>
+        <div class="finding sev-warn">
+          <div class="f-head">
+            <span class="pill" style="--s:#d8a516">关注</span>
+            <span class="f-title">展平辊压力 检出 SPC 违规</span>
+            <span class="f-conf">置信度 90</span>
+            <span class="f-id">F006</span>
+          </div>
+          <div class="f-detail">共 2 个判异剧集命中（每百点 1.2 个，规则：NELSON_R6），控制限为中心值2.52 bar±3σ_within（σ=0.0753）。</div>
+          
+          <table class="ev-table"><thead><tr>
+            <th>证据项</th><th>数值</th><th>阈值/口径</th><th>来源</th>
+          </tr></thead><tbody><tr><td>violation_episodes</td><td class=num>2</td><td class=num>0</td><td>lstcore</td></tr><tr><td>rate_per_100</td><td class=num>1.19</td><td class=num>&lt;2 for warn; &gt;=2 for high</td><td>lstcore</td></tr><tr><td>sigma_within_mr</td><td class=num>0.0753</td><td class=num>—</td><td>lstcore</td></tr></tbody></table>
+        </div>
+        <div class="finding sev-warn">
+          <div class="f-head">
+            <span class="pill" style="--s:#d8a516">关注</span>
+            <span class="f-title">薄膜厚度 规格能力不足</span>
+            <span class="f-conf">置信度 85</span>
+            <span class="f-id">F007</span>
+          </div>
+          <div class="f-detail">Cpk=1.2434（阈值：≥1.33 合格，&lt;1.0 不足），规格界限 LSL=11.91 / USL=12.09（来源：用户提供）。</div>
+          
+          <table class="ev-table"><thead><tr>
+            <th>证据项</th><th>数值</th><th>阈值/口径</th><th>来源</th>
+          </tr></thead><tbody><tr><td>cpk</td><td class=num>1.2434</td><td class=num>&gt;=1.33</td><td>lstcore</td></tr><tr><td>ppk</td><td class=num>0.8988</td><td class=num>—</td><td>lstcore</td></tr><tr><td>spec_source</td><td class=num>user</td><td class=num>—</td><td>lstcore</td></tr></tbody></table>
+        </div>
+        <div class="finding sev-warn">
+          <div class="f-head">
+            <span class="pill" style="--s:#d8a516">关注</span>
+            <span class="f-title">展平辊压力 规格能力不足</span>
+            <span class="f-conf">置信度 85</span>
+            <span class="f-id">F008</span>
+          </div>
+          <div class="f-detail">Cpk=1.3082（阈值：≥1.33 合格，&lt;1.0 不足），规格界限 LSL=2.2 / USL=2.8（来源：本体资产）。</div>
+          
+          <table class="ev-table"><thead><tr>
+            <th>证据项</th><th>数值</th><th>阈值/口径</th><th>来源</th>
+          </tr></thead><tbody><tr><td>cpk</td><td class=num>1.3082</td><td class=num>&gt;=1.33</td><td>lstcore</td></tr><tr><td>ppk</td><td class=num>1.1713</td><td class=num>—</td><td>lstcore</td></tr><tr><td>spec_source</td><td class=num>ontology</td><td class=num>—</td><td>lstcore</td></tr></tbody></table>
+        </div>
+        <div class="finding sev-info">
+          <div class="f-head">
+            <span class="pill" style="--s:#4a7fb5">提示</span>
+            <span class="f-title">强相关对：薄膜厚度 ↔ 牵引入口张力</span>
+            <span class="f-conf">置信度 70</span>
+            <span class="f-id">F009</span>
+          </div>
+          <div class="f-detail">滞后补偿后最强 |Spearman|=0.7363（零滞后同步）；零滞后 Pearson=0.727。本体机制佐证：张力波动经弹性应变耦合进在线测厚信号，周期振荡与测厚振荡同频；控制方程：ε = F/(E·A)。置信度 70（统计证据充分度 × 机制支持度）。</div>
+          <div class='f-mech'>物理机制：本体因果边支持 — 张力波动经弹性应变耦合进在线测厚信号，周期振荡与测厚振荡同频 控制方程：<code>ε = F/(E·A)</code></div>
+          <table class="ev-table"><thead><tr>
+            <th>证据项</th><th>数值</th><th>阈值/口径</th><th>来源</th>
+          </tr></thead><tbody><tr><td>best_abs_r</td><td class=num>0.7363</td><td class=num>&gt;=0.7</td><td>lstcore <span class="derived">derived</span></td></tr><tr><td>best_lag_rows</td><td class=num>0</td><td class=num>—</td><td>lstcore</td></tr><tr><td>mechanism_level</td><td class=num>known</td><td class=num>—</td><td>ontology</td></tr></tbody></table>
+        </div>
+        <div class="finding sev-info">
+          <div class="f-head">
+            <span class="pill" style="--s:#4a7fb5">提示</span>
+            <span class="f-title">牵引入口张力 是 薄膜厚度 波动的主要解释项</span>
+            <span class="f-conf">置信度 65</span>
+            <span class="f-id">F010</span>
+          </div>
+          <div class="f-detail">滞后补偿后 |r|² 归一，牵引入口张力 解释了 薄膜厚度 约 100% 的方差（|r|=0.7363，领先 0 行）。本体有因果边支持。置信度 65。</div>
+          <div class='f-mech'>物理机制：本体因果边支持 — 张力波动经弹性应变耦合进在线测厚信号，周期振荡与测厚振荡同频</div>
+          <table class="ev-table"><thead><tr>
+            <th>证据项</th><th>数值</th><th>阈值/口径</th><th>来源</th>
+          </tr></thead><tbody><tr><td>share</td><td class=num>1</td><td class=num>&gt;=0.4</td><td>lstcore <span class="derived">derived</span></td></tr><tr><td>abs_r</td><td class=num>0.7363</td><td class=num>—</td><td>lstcore <span class="derived">derived</span></td></tr><tr><td>mechanism_level</td><td class=num>known</td><td class=num>—</td><td>ontology</td></tr></tbody></table>
+        </div>
+
+  <h2>参数稳定性总览</h2>
+  <div class="panel" style="overflow:auto">
+    <table>
+      <thead><tr>
+        <th>参数</th><th>样本数</th><th>中位数</th><th>CV</th><th>SPC违规点</th>
+        <th>漂移/天(相对)</th><th>Cpk</th><th>基线z</th><th>评分</th>
+      </tr></thead>
+      <tbody>
+        <tr>
+          <td>薄膜厚度<span class="role-tag">检测指标</span></td>
+          <td class=num>168</td>
+          <td class=num>11.9931</td>
+          <td class=num>0.002628</td>
+          <td class=num>20</td>
+          <td class=num>0.000098</td>
+          <td class=num>1.2434</td>
+          <td class=num>—</td>
+          <td><div class="score-cell"><div class="score-bar" style="--w:76%;--c:#d8a516"></div><span style="color:#d8a516">76</span></div></td>
+        </tr>
+        <tr>
+          <td>优品率<span class="role-tag">检测指标</span></td>
+          <td class=num>168</td>
+          <td class=num>98.59</td>
+          <td class=num>0.001721</td>
+          <td class=num>9</td>
+          <td class=num>0</td>
+          <td class=num>5.9328</td>
+          <td class=num>—</td>
+          <td><div class="score-cell"><div class="score-bar" style="--w:96%;--c:#22a06b"></div><span style="color:#22a06b">96</span></div></td>
+        </tr>
+        <tr>
+          <td>牵引入口张力<span class="role-tag">加工参数</span></td>
+          <td class=num>168</td>
+          <td class=num>2269.45</td>
+          <td class=num>0.006327</td>
+          <td class=num>50</td>
+          <td class=num>0.000224</td>
+          <td class=num>3.3617</td>
+          <td class=num>—</td>
+          <td><div class="score-cell"><div class="score-bar" style="--w:76%;--c:#d8a516"></div><span style="color:#d8a516">76</span></div></td>
+        </tr>
+        <tr>
+          <td>收卷锥度张力<span class="role-tag">加工参数</span></td>
+          <td class=num>168</td>
+          <td class=num>17.925</td>
+          <td class=num>0.021706</td>
+          <td class=num>7</td>
+          <td class=num>0.000374</td>
+          <td class=num>1.8382</td>
+          <td class=num>—</td>
+          <td><div class="score-cell"><div class="score-bar" style="--w:91%;--c:#22a06b"></div><span style="color:#22a06b">91</span></div></td>
+        </tr>
+        <tr>
+          <td>展平辊压力<span class="role-tag">加工参数</span></td>
+          <td class=num>168</td>
+          <td class=num>2.52</td>
+          <td class=num>0.033467</td>
+          <td class=num>2</td>
+          <td class=num>0</td>
+          <td class=num>1.3082</td>
+          <td class=num>—</td>
+          <td><div class="score-cell"><div class="score-bar" style="--w:73%;--c:#d8a516"></div><span style="color:#d8a516">73</span></div></td>
+        </tr>
+        <tr>
+          <td>收卷速度<span class="role-tag">加工参数</span></td>
+          <td class=num>168</td>
+          <td class=num>319.9</td>
+          <td class=num>0.004118</td>
+          <td class=num>18</td>
+          <td class=num>0</td>
+          <td class=num>3.5417</td>
+          <td class=num>—</td>
+          <td><div class="score-cell"><div class="score-bar" style="--w:91%;--c:#22a06b"></div><span style="color:#22a06b">91</span></div></td>
+        </tr></tbody>
+    </table>
+  </div>
+
+  <h2>趋势与控制限</h2>
+  <div id="trend-charts"></div>
+  <noscript><div class="panel empty">已禁用 JavaScript：请查看上方参数总览表与证据附录，
+    或使用导出的 charts.json。</div></noscript>
+
+  <h2>参数相关与波动驱动</h2>
+  <div class="grid">
+    <div class="panel" id="contrib-panel"><div class="chart-title">对检测/目标指标的方差解释占比</div>
+      <div id="contrib-chart" class="chart"></div></div>
+    <div class="panel" id="heat-panel"><div class="chart-title">参数相关热力图（滞后补偿 |Spearman|）</div>
+      <div id="heat-chart" class="chart"></div></div>
+  </div>
+
+  <h2>协同分析输入</h2>
+  <div class="panel" id="integrations"><table><tbody><tr><th>sentinel 基线对照</th><td>未启用（未提供基线）</td></tr><tr><th>tuning-memory 调优归因</th><td>未启用（未提供 action_log）</td></tr><tr><th>doe-analyzer 操作窗</th><td>未启用（未提供 doe_run_dir）</td></tr></tbody></table></div>
+
+  <h2>数据与口径（证据链附录）</h2>
+  <div class="panel">
+    <table>
+      <tr><th>数据文件</th><td>workspace/bopet-skill-eval/S1_stability_winding/00_input/winding_week.csv</td></tr>
+      <tr><th>数据指纹</th><td class="num">sha256:687c24bf3f3bab6f4fac27626d46a7ebcd466ba2d356d94f85f11bec240c8760</td></tr>
+      <tr><th>行数（原始/入评）</th><td class="num">168 / 168</td></tr>
+      <tr><th>时间列 / 采样间隔</th><td>时间 /
+        <span class="num">3600 s</span></td></tr>
+      <tr><th>缺失率 / 覆盖率</th><td class="num">0.00% /
+        100.00%</td></tr>
+      <tr><th>评估参数</th><td>薄膜厚度、优品率、牵引入口张力、收卷锥度张力、展平辊压力、收卷速度</td></tr>
+      <tr><th>检测指标</th><td>薄膜厚度、优品率</td></tr>
+      <tr><th>预处理溯源</th><td>{&quot;source_export&quot;: &quot;workspace/bopet-skill-eval/S1_stability_winding/00_input/winding_week.csv&quot;, &quot;note&quot;: &quot;评测夹具：确定性合成数据（seed=101），DCS 小时归档口径；本体为手写 BOPET 全线本体（bopet_line_ontology.json）拷贝&quot;}</td></tr>
+    </table>
+    <div style='margin-top:12px'><b>方法与阈值（可复算）</b><ul><li><code>sentinelcore_nelson_episodes</code> — Nelson 判异复用 industrial-sentinel sentinelcore （R1 单点越 3σ；R2 连续 9 点同侧；R3 连续 6 点同向；R5 三点中两点越 2σ；R6 五点中四点越 1σ），单一事实源。</li><li><code>mrbar_sigma_1.128</code> — σ_within 由移动极差估计：σ = MR̄ / 1.128（与 industrial-sentinel 同口径）。</li><li><code>cpk_within_ppk_overall</code> — Cpk 用组内 σ（MR̄ 法），Ppk 用整体标准差；规格限来源：用户上下文 > 本体资产 normal_range > 不计算。</li><li><code>theil_sen_mk_drift</code> — 漂移：Theil–Sen 稳健斜率（每行斜率 ÷ 采样间隔换算每秒）+ Mann–Kendall 显著性（p&lt;0.01 且相对漂移≥0.1%/天才计入）。</li><li><code>lagged_spearman_max10</code> — 相关性：滞后 0–10 行逐行 Spearman 取最强，并记录领先行数；物理机制由本体 relationships/参数组校验（机制四条件）。</li><li><code>contribution_r2_share</code> — 贡献分解：目标指标上各驱动参数滞后补偿后 |r|² 归一化占比（阈值 |r|≥0.3），领先行数一并记录。</li><li><code>regime_segmentation_c3</code> — 工况分段：复用 industrial-sentinel regime_map（方差比+漂移坡道融合 + 二分分割显著变点），变点与主导状态逐段列出。</li><li><code>ontology_first_condition</code> — 本体优先：先于任何统计构建工况理解（显式路径 > 00_input/01_ontology 产物 > 本体资产库），每个推断字段带 assigned_by=ontology|user|auto。</li><li><code>weighted_penalty_score_v1</code> — 评分：每参数 100 分起，按 SPC 违规剧集率/CV/Cpk/漂移/基线偏离分档扣分，综合分为参数加权均值；A≥85 稳定，B≥70 亚稳定，C≥50 波动，D&lt;50 不稳定。</li><li><code>data_truth_limitations</code> — 数据真值与局限：全部数值可由原始表复算；推导字段标记 derived；假设、混杂因子与规格覆盖显式列出（见下）。</li></ul><span style='color:var(--mut)'>python 3.12.7 · numpy 2.5.2 · pandas 3.0.5 · spc sentinelcore · input sha256:687c24bf3f3bab6f4fac27626d46a7ebcd466ba2d356d94f85f11bec240c8760</span></div>
+    
+    <div style='margin-top:16px'>
+      <b>假设与局限（数据真值条款）</b>
+      <table>
+        <tr><th>数据来源</th><td>raw (this skill never cleans or imputes; every number is recomputable from the raw table)</td></tr>
+        <tr><th>抽样</th><td>全量入评（168 行）</td></tr>
+        <tr><th>规格覆盖</th><td>用户提供：薄膜厚度、优品率 ·
+          本体资产：牵引入口张力、收卷锥度张力、展平辊压力、收卷速度 ·
+          无规格（不评 Cpk）：无</td></tr>
+      </table>
+      <div style='margin-top:6px'><b>模型假设</b><ul><li>lag-compensated Spearman window 0–10 rows (lead/lag beyond this window is invisible)</li><li>whole-period scoring assumes one dominant operating condition; use the regime table for segmented reading</li><li>Cpk treats within-sigma as MR̄/1.128 moving-range estimate</li></ul></div>
+      <div style='margin-top:6px'><b>混杂因子（本体登记）</b>
+        <table><thead><tr><th>变量</th><th>影响说明</th><th>状态</th></tr></thead>
+        <tbody><tr><td>原料批次（PET切片特性粘度波动）</td><td>特性粘度±0.005 dL/g 即改变熔体粘度与可拉伸窗口，未随数据记录</td><td><b style='color:#e0703a'>未控</b></td></tr><tr><td>环境温湿度</td><td>影响切片含水与 TDO 热损失，未控且未记录</td><td><b style='color:#e0703a'>未控</b></td></tr><tr><td>换卷/断膜停机事件</td><td>重启过渡段数据混入稳态统计，会伪造漂移或违规</td><td><b style='color:#e0703a'>未控</b></td></tr><tr><td>测厚仪校准漂移</td><td>在线测厚仪零漂与工艺漂移不可区分，需离线复核</td><td><b style='color:#e0703a'>未控</b></td></tr></tbody></table></div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <b>报告性质：</b>本报告由确定性统计脚本生成（零 LLM 参与，全部数值可复算），
+    属咨询性分析产物，不构成参数下发或控制指令；行动决策归业务管理方。<br>
+    <b>生成物：</b>LSR-1791977114-28edr3 ·
+    contract line-stability-report/1.0 ·
+    script v1.0.0 ·
+    2026-10-14T11:25:14Z
+  </div>
+</div>
+
+<script id="payload" type="application/json">{"report_id":"LSR-1791977114-28edr3","charts":{"contract_version":"line-stability-charts/1.0","trend":[{"name":"薄膜厚度","role":"inspection","n":168,"n_plotted":168,"t":[1790812800000,1790816400000,1790820000000,1790823600000,1790827200000,1790830800000,1790834400000,1790838000000,1790841600000,1790845200000,1790848800000,1790852400000,1790856000000,1790859600000,1790863200000,1790866800000,1790870400000,1790874000000,1790877600000,1790881200000,1790884800000,1790888400000,1790892000000,1790895600000,1790899200000,1790902800000,1790906400000,1790910000000,1790913600000,1790917200000,1790920800000,1790924400000,1790928000000,1790931600000,1790935200000,1790938800000,1790942400000,1790946000000,1790949600000,1790953200000,1790956800000,1790960400000,1790964000000,1790967600000,1790971200000,1790974800000,1790978400000,1790982000000,1790985600000,1790989200000,1790992800000,1790996400000,1791000000000,1791003600000,1791007200000,1791010800000,1791014400000,1791018000000,1791021600000,1791025200000,1791028800000,1791032400000,1791036000000,1791039600000,1791043200000,1791046800000,1791050400000,1791054000000,1791057600000,1791061200000,1791064800000,1791068400000,1791072000000,1791075600000,1791079200000,1791082800000,1791086400000,1791090000000,1791093600000,1791097200000,1791100800000,1791104400000,1791108000000,1791111600000,1791115200000,1791118800000,1791122400000,1791126000000,1791129600000,1791133200000,1791136800000,1791140400000,1791144000000,1791147600000,1791151200000,1791154800000,1791158400000,1791162000000,1791165600000,1791169200000,1791172800000,1791176400000,1791180000000,1791183600000,1791187200000,1791190800000,1791194400000,1791198000000,1791201600000,1791205200000,1791208800000,1791212400000,1791216000000,1791219600000,1791223200000,1791226800000,1791230400000,1791234000000,1791237600000,1791241200000,1791244800000,1791248400000,1791252000000,1791255600000,1791259200000,1791262800000,1791266400000,1791270000000,1791273600000,1791277200000,1791280800000,1791284400000,1791288000000,1791291600000,1791295200000,1791298800000,1791302400000,1791306000000,1791309600000,1791313200000,1791316800000,1791320400000,1791324000000,1791327600000,1791331200000,1791334800000,1791338400000,1791342000000,1791345600000,1791349200000,1791352800000,1791356400000,1791360000000,1791363600000,1791367200000,1791370800000,1791374400000,1791378000000,1791381600000,1791385200000,1791388800000,1791392400000,1791396000000,1791399600000,1791403200000,1791406800000,1791410400000,1791414000000],"v":[12.0426,12.0097,12.0479,12.013,11.9959,12.0123,12.0188,11.958,12.0195,12.0149,11.9887,12.0287,11.9968,11.9743,11.9919,11.9934,12.0105,11.9768,11.9728,11.9861,12.0256,12.0451,12.0012,11.9619,11.9739,11.9762,12.007,12.0486,12.061,12.0235,11.9789,11.9461,11.9715,11.991,11.9457,11.9719,11.9797,12.0142,12.0188,12.0121,12.0272,12.0396,12.0045,12.0141,11.968,11.9794,11.9683,11.9801,12.0352,11.9997,12.0009,11.984,11.9628,11.9857,11.9949,11.9703,12.0339,12.0476,11.9904,11.9873,11.9756,11.971,11.9738,12.0046,12.0192,12.045,12.0234,11.9765,11.9549,11.9524,11.9834,11.9678,11.9922,12.0548,12.0077,12.0492,11.993,11.9685,11.9644,11.9638,11.9872,12.0007,12.0662,11.9916,11.9993,11.9527,11.9651,11.9733,11.992,11.99,11.9799,12.0088,11.9834,11.9716,11.9753,12.0079,11.9588,11.9485,12.0039,12.0057,11.9837,12.0368,12.028,11.9936,11.986,11.9634,11.9598,11.977,12.0086,11.9989,11.9938,12.0683,12.0156,12.0441,11.9863,11.9094,11.9675,11.9478,11.9355,12.0002,11.9991,12.008,12.0181,11.9949,11.9899,11.9933,11.9937,11.9982,12.0086,12.0022,11.988,11.9571,11.9536,11.9691,11.9742,12.0204,12.0548,12.0575,12.0203,11.9718,11.901,11.9471,11.9606,11.9502,11.9641,12.0137,12.0544,12.064,12.0061,12.0433,11.9886,11.9355,11.9506,11.9827,12.0162,12.0226,12.0129,12.0315,11.9914,11.9614,11.9655,11.9954,12.0034,12.0208,12.0753,12.0211,11.9871,11.9754],"center":11.99315,"ucl":12.061712,"lcl":11.924588,"violation_indices_in_plot":[],"spec":{"lsl":11.91,"usl":12.09,"target":12.0,"source":"user"}},{"name":"优品率","role":"inspection","n":168,"n_plotted":168,"t":[1790812800000,1790816400000,1790820000000,1790823600000,1790827200000,1790830800000,1790834400000,1790838000000,1790841600000,1790845200000,1790848800000,1790852400000,1790856000000,1790859600000,1790863200000,1790866800000,1790870400000,1790874000000,1790877600000,1790881200000,1790884800000,1790888400000,1790892000000,1790895600000,1790899200000,1790902800000,1790906400000,1790910000000,1790913600000,1790917200000,1790920800000,1790924400000,1790928000000,1790931600000,1790935200000,1790938800000,1790942400000,1790946000000,1790949600000,1790953200000,1790956800000,1790960400000,1790964000000,1790967600000,1790971200000,1790974800000,1790978400000,1790982000000,1790985600000,1790989200000,1790992800000,1790996400000,1791000000000,1791003600000,1791007200000,1791010800000,1791014400000,1791018000000,1791021600000,1791025200000,1791028800000,1791032400000,1791036000000,1791039600000,1791043200000,1791046800000,1791050400000,1791054000000,1791057600000,1791061200000,1791064800000,1791068400000,1791072000000,1791075600000,1791079200000,1791082800000,1791086400000,1791090000000,1791093600000,1791097200000,1791100800000,1791104400000,1791108000000,1791111600000,1791115200000,1791118800000,1791122400000,1791126000000,1791129600000,1791133200000,1791136800000,1791140400000,1791144000000,1791147600000,1791151200000,1791154800000,1791158400000,1791162000000,1791165600000,1791169200000,1791172800000,1791176400000,1791180000000,1791183600000,1791187200000,1791190800000,1791194400000,1791198000000,1791201600000,1791205200000,1791208800000,1791212400000,1791216000000,1791219600000,1791223200000,1791226800000,1791230400000,1791234000000,1791237600000,1791241200000,1791244800000,1791248400000,1791252000000,1791255600000,1791259200000,1791262800000,1791266400000,1791270000000,1791273600000,1791277200000,1791280800000,1791284400000,1791288000000,1791291600000,1791295200000,1791298800000,1791302400000,1791306000000,1791309600000,1791313200000,1791316800000,1791320400000,1791324000000,1791327600000,1791331200000,1791334800000,1791338400000,1791342000000,1791345600000,1791349200000,1791352800000,1791356400000,1791360000000,1791363600000,1791367200000,1791370800000,1791374400000,1791378000000,1791381600000,1791385200000,1791388800000,1791392400000,1791396000000,1791399600000,1791403200000,1791406800000,1791410400000,1791414000000],"v":[98.66,98.76,98.42,98.45,98.71,98.67,98.65,98.39,98.31,98.37,98.56,98.7,98.76,98.34,98.5,98.57,98.52,98.5,98.39,98.47,98.18,98.66,98.63,98.82,98.53,98.3,98.77,98.3,98.29,98.62,98.81,98.54,98.54,98.53,98.64,98.46,98.64,98.74,98.61,98.61,98.94,98.74,98.57,98.75,98.82,98.55,98.43,98.76,98.83,98.86,98.92,98.51,98.32,98.66,98.76,98.67,98.72,98.52,98.41,98.52,98.63,98.7,98.61,98.69,98.8,98.73,98.56,98.84,98.49,98.59,98.88,99.05,98.97,98.63,98.34,98.44,98.54,98.6,98.44,98.47,98.59,98.61,98.77,98.74,98.73,98.56,98.6,98.3,98.45,98.31,98.54,98.66,98.64,98.84,98.57,98.58,98.51,98.52,98.78,98.44,98.8,98.87,98.77,98.6,98.64,98.55,98.81,98.49,98.42,98.55,98.21,98.68,98.58,98.71,98.66,98.29,98.53,98.64,98.41,98.4,98.38,98.65,98.43,98.41,98.53,98.6,98.51,98.81,98.9,98.5,98.84,98.74,98.74,98.76,98.44,98.36,98.59,98.48,98.98,98.65,98.68,98.49,98.89,98.97,98.48,98.62,98.61,98.82,98.31,98.46,98.69,98.55,98.48,98.33,98.56,98.54,98.35,98.53,98.46,98.58,98.69,98.78,98.69,98.46,98.47,98.5,98.71,98.51],"center":98.59,"ucl":99.027475,"lcl":98.152525,"violation_indices_in_plot":[],"spec":{"lsl":96.0,"usl":null,"target":98.5,"source":"user"}},{"name":"牵引入口张力","role":"parameter","n":168,"n_plotted":168,"t":[1790812800000,1790816400000,1790820000000,1790823600000,1790827200000,1790830800000,1790834400000,1790838000000,1790841600000,1790845200000,1790848800000,1790852400000,1790856000000,1790859600000,1790863200000,1790866800000,1790870400000,1790874000000,1790877600000,1790881200000,1790884800000,1790888400000,1790892000000,1790895600000,1790899200000,1790902800000,1790906400000,1790910000000,1790913600000,1790917200000,1790920800000,1790924400000,1790928000000,1790931600000,1790935200000,1790938800000,1790942400000,1790946000000,1790949600000,1790953200000,1790956800000,1790960400000,1790964000000,1790967600000,1790971200000,1790974800000,1790978400000,1790982000000,1790985600000,1790989200000,1790992800000,1790996400000,1791000000000,1791003600000,1791007200000,1791010800000,1791014400000,1791018000000,1791021600000,1791025200000,1791028800000,1791032400000,1791036000000,1791039600000,1791043200000,1791046800000,1791050400000,1791054000000,1791057600000,1791061200000,1791064800000,1791068400000,1791072000000,1791075600000,1791079200000,1791082800000,1791086400000,1791090000000,1791093600000,1791097200000,1791100800000,1791104400000,1791108000000,1791111600000,1791115200000,1791118800000,1791122400000,1791126000000,1791129600000,1791133200000,1791136800000,1791140400000,1791144000000,1791147600000,1791151200000,1791154800000,1791158400000,1791162000000,1791165600000,1791169200000,1791172800000,1791176400000,1791180000000,1791183600000,1791187200000,1791190800000,1791194400000,1791198000000,1791201600000,1791205200000,1791208800000,1791212400000,1791216000000,1791219600000,1791223200000,1791226800000,1791230400000,1791234000000,1791237600000,1791241200000,1791244800000,1791248400000,1791252000000,1791255600000,1791259200000,1791262800000,1791266400000,1791270000000,1791273600000,1791277200000,1791280800000,1791284400000,1791288000000,1791291600000,1791295200000,1791298800000,1791302400000,1791306000000,1791309600000,1791313200000,1791316800000,1791320400000,1791324000000,1791327600000,1791331200000,1791334800000,1791338400000,1791342000000,1791345600000,1791349200000,1791352800000,1791356400000,1791360000000,1791363600000,1791367200000,1791370800000,1791374400000,1791378000000,1791381600000,1791385200000,1791388800000,1791392400000,1791396000000,1791399600000,1791403200000,1791406800000,1791410400000,1791414000000],"v":[2266.0,2271.6,2290.3,2293.7,2281.2,2270.9,2266.9,2260.2,2260.0,2267.2,2269.3,2283.8,2275.1,2275.0,2268.8,2256.2,2259.7,2272.2,2270.5,2269.1,2274.6,2277.7,2269.9,2261.8,2251.0,2260.7,2270.5,2285.5,2295.6,2294.1,2275.8,2261.7,2250.1,2248.9,2245.1,2262.3,2272.8,2285.7,2295.3,2293.2,2275.6,2279.6,2268.3,2263.0,2253.6,2252.6,2261.7,2271.4,2284.0,2283.9,2281.0,2279.2,2269.8,2268.8,2269.3,2273.1,2270.5,2274.8,2269.6,2259.7,2253.4,2261.1,2274.7,2280.5,2288.1,2285.7,2280.3,2268.6,2256.2,2246.3,2250.2,2263.8,2267.3,2289.2,2290.6,2288.2,2270.4,2253.7,2256.9,2246.5,2256.4,2262.9,2273.6,2286.9,2283.9,2263.0,2258.7,2266.7,2273.4,2267.6,2267.3,2267.2,2277.3,2265.3,2259.0,2259.2,2257.8,2258.7,2272.6,2273.3,2279.1,2284.4,2282.2,2269.3,2267.1,2248.2,2250.5,2253.6,2271.0,2282.7,2290.9,2300.0,2283.3,2276.8,2253.8,2245.9,2256.3,2251.0,2263.2,2280.8,2287.5,2283.7,2269.8,2253.9,2259.7,2264.2,2265.1,2277.8,2291.8,2282.9,2265.1,2255.2,2248.8,2254.0,2268.0,2274.7,2286.6,2299.5,2294.1,2282.0,2250.4,2235.9,2243.7,2247.2,2270.5,2289.0,2296.4,2305.0,2287.0,2263.6,2247.3,2242.5,2239.3,2255.3,2270.8,2277.8,2293.2,2290.4,2276.3,2248.7,2250.9,2260.3,2268.1,2286.9,2285.3,2278.9,2266.2,2250.9],"center":2269.45,"ucl":2293.183915,"lcl":2245.716085,"violation_indices_in_plot":[],"spec":{"lsl":2190.0,"usl":2350.0,"target":2270.0,"source":"ontology"}},{"name":"收卷锥度张力","role":"parameter","n":168,"n_plotted":168,"t":[1790812800000,1790816400000,1790820000000,1790823600000,1790827200000,1790830800000,1790834400000,1790838000000,1790841600000,1790845200000,1790848800000,1790852400000,1790856000000,1790859600000,1790863200000,1790866800000,1790870400000,1790874000000,1790877600000,1790881200000,1790884800000,1790888400000,1790892000000,1790895600000,1790899200000,1790902800000,1790906400000,1790910000000,1790913600000,1790917200000,1790920800000,1790924400000,1790928000000,1790931600000,1790935200000,1790938800000,1790942400000,1790946000000,1790949600000,1790953200000,1790956800000,1790960400000,1790964000000,1790967600000,1790971200000,1790974800000,1790978400000,1790982000000,1790985600000,1790989200000,1790992800000,1790996400000,1791000000000,1791003600000,1791007200000,1791010800000,1791014400000,1791018000000,1791021600000,1791025200000,1791028800000,1791032400000,1791036000000,1791039600000,1791043200000,1791046800000,1791050400000,1791054000000,1791057600000,1791061200000,1791064800000,1791068400000,1791072000000,1791075600000,1791079200000,1791082800000,1791086400000,1791090000000,1791093600000,1791097200000,1791100800000,1791104400000,1791108000000,1791111600000,1791115200000,1791118800000,1791122400000,1791126000000,1791129600000,1791133200000,1791136800000,1791140400000,1791144000000,1791147600000,1791151200000,1791154800000,1791158400000,1791162000000,1791165600000,1791169200000,1791172800000,1791176400000,1791180000000,1791183600000,1791187200000,1791190800000,1791194400000,1791198000000,1791201600000,1791205200000,1791208800000,1791212400000,1791216000000,1791219600000,1791223200000,1791226800000,1791230400000,1791234000000,1791237600000,1791241200000,1791244800000,1791248400000,1791252000000,1791255600000,1791259200000,1791262800000,1791266400000,1791270000000,1791273600000,1791277200000,1791280800000,1791284400000,1791288000000,1791291600000,1791295200000,1791298800000,1791302400000,1791306000000,1791309600000,1791313200000,1791316800000,1791320400000,1791324000000,1791327600000,1791331200000,1791334800000,1791338400000,1791342000000,1791345600000,1791349200000,1791352800000,1791356400000,1791360000000,1791363600000,1791367200000,1791370800000,1791374400000,1791378000000,1791381600000,1791385200000,1791388800000,1791392400000,1791396000000,1791399600000,1791403200000,1791406800000,1791410400000,1791414000000],"v":[17.59,18.27,17.64,17.7,17.65,18.79,17.87,18.15,18.78,17.75,17.59,17.74,17.38,18.31,17.9,18.39,18.33,18.11,18.42,18.0,18.42,17.6,17.58,18.36,17.26,17.97,17.82,17.73,17.64,18.41,17.51,18.19,18.25,17.9,17.94,18.26,17.84,17.34,17.92,17.64,17.73,17.94,18.28,18.81,18.38,18.16,18.38,18.23,17.39,17.58,17.38,18.09,18.54,18.3,17.68,18.22,17.68,18.01,17.52,17.3,17.23,17.78,17.67,18.07,17.5,18.05,17.77,18.43,18.54,18.07,18.07,18.12,18.22,17.96,18.43,17.92,17.21,17.86,17.91,18.31,18.33,18.15,18.09,18.08,17.76,17.44,17.5,17.81,17.04,17.54,17.47,17.81,17.62,17.91,17.88,18.48,18.01,17.9,17.98,17.27,17.35,18.38,18.32,18.13,18.47,18.07,17.92,17.86,17.25,18.15,17.97,17.95,17.85,17.7,17.01,17.76,18.8,18.64,18.08,17.65,17.91,18.12,17.99,18.33,17.72,18.34,18.16,17.83,17.84,18.09,18.33,18.13,18.27,19.04,17.66,17.1,17.76,17.54,17.91,17.33,17.85,18.48,18.59,17.74,17.8,18.29,18.82,17.86,17.62,18.33,17.96,17.58,18.29,17.42,17.55,18.25,17.82,18.25,17.59,18.19,18.24,18.72,18.12,17.89,17.93,18.4,17.82,17.89],"center":17.925,"ucl":18.989466,"lcl":16.860534,"violation_indices_in_plot":[],"spec":{"lsl":16.0,"usl":20.0,"target":18.0,"source":"ontology"}},{"name":"展平辊压力","role":"parameter","n":168,"n_plotted":168,"t":[1790812800000,1790816400000,1790820000000,1790823600000,1790827200000,1790830800000,1790834400000,1790838000000,1790841600000,1790845200000,1790848800000,1790852400000,1790856000000,1790859600000,1790863200000,1790866800000,1790870400000,1790874000000,1790877600000,1790881200000,1790884800000,1790888400000,1790892000000,1790895600000,1790899200000,1790902800000,1790906400000,1790910000000,1790913600000,1790917200000,1790920800000,1790924400000,1790928000000,1790931600000,1790935200000,1790938800000,1790942400000,1790946000000,1790949600000,1790953200000,1790956800000,1790960400000,1790964000000,1790967600000,1790971200000,1790974800000,1790978400000,1790982000000,1790985600000,1790989200000,1790992800000,1790996400000,1791000000000,1791003600000,1791007200000,1791010800000,1791014400000,1791018000000,1791021600000,1791025200000,1791028800000,1791032400000,1791036000000,1791039600000,1791043200000,1791046800000,1791050400000,1791054000000,1791057600000,1791061200000,1791064800000,1791068400000,1791072000000,1791075600000,1791079200000,1791082800000,1791086400000,1791090000000,1791093600000,1791097200000,1791100800000,1791104400000,1791108000000,1791111600000,1791115200000,1791118800000,1791122400000,1791126000000,1791129600000,1791133200000,1791136800000,1791140400000,1791144000000,1791147600000,1791151200000,1791154800000,1791158400000,1791162000000,1791165600000,1791169200000,1791172800000,1791176400000,1791180000000,1791183600000,1791187200000,1791190800000,1791194400000,1791198000000,1791201600000,1791205200000,1791208800000,1791212400000,1791216000000,1791219600000,1791223200000,1791226800000,1791230400000,1791234000000,1791237600000,1791241200000,1791244800000,1791248400000,1791252000000,1791255600000,1791259200000,1791262800000,1791266400000,1791270000000,1791273600000,1791277200000,1791280800000,1791284400000,1791288000000,1791291600000,1791295200000,1791298800000,1791302400000,1791306000000,1791309600000,1791313200000,1791316800000,1791320400000,1791324000000,1791327600000,1791331200000,1791334800000,1791338400000,1791342000000,1791345600000,1791349200000,1791352800000,1791356400000,1791360000000,1791363600000,1791367200000,1791370800000,1791374400000,1791378000000,1791381600000,1791385200000,1791388800000,1791392400000,1791396000000,1791399600000,1791403200000,1791406800000,1791410400000,1791414000000],"v":[2.66,2.61,2.59,2.49,2.56,2.43,2.36,2.38,2.58,2.54,2.44,2.45,2.52,2.6,2.4,2.58,2.6,2.47,2.46,2.53,2.49,2.51,2.42,2.33,2.64,2.56,2.53,2.55,2.62,2.61,2.45,2.48,2.5,2.56,2.47,2.52,2.52,2.62,2.33,2.45,2.51,2.56,2.52,2.44,2.54,2.54,2.44,2.37,2.51,2.43,2.53,2.63,2.56,2.54,2.52,2.62,2.65,2.55,2.57,2.53,2.47,2.55,2.51,2.43,2.36,2.54,2.43,2.39,2.45,2.54,2.37,2.51,2.54,2.41,2.38,2.45,2.64,2.52,2.59,2.6,2.4,2.47,2.57,2.48,2.59,2.44,2.36,2.42,2.53,2.48,2.57,2.4,2.42,2.59,2.33,2.47,2.42,2.42,2.45,2.37,2.53,2.56,2.62,2.55,2.44,2.53,2.4,2.4,2.64,2.63,2.57,2.64,2.52,2.55,2.45,2.46,2.5,2.62,2.48,2.58,2.52,2.37,2.31,2.39,2.55,2.54,2.66,2.56,2.63,2.56,2.45,2.54,2.45,2.37,2.4,2.44,2.5,2.57,2.57,2.69,2.4,2.46,2.7,2.54,2.41,2.41,2.4,2.43,2.62,2.43,2.42,2.59,2.55,2.54,2.48,2.57,2.44,2.56,2.53,2.5,2.46,2.57,2.55,2.49,2.51,2.42,2.58,2.64],"center":2.52,"ucl":2.745825,"lcl":2.294175,"violation_indices_in_plot":[],"spec":{"lsl":2.2,"usl":2.8,"target":2.5,"source":"ontology"}},{"name":"收卷速度","role":"parameter","n":168,"n_plotted":168,"t":[1790812800000,1790816400000,1790820000000,1790823600000,1790827200000,1790830800000,1790834400000,1790838000000,1790841600000,1790845200000,1790848800000,1790852400000,1790856000000,1790859600000,1790863200000,1790866800000,1790870400000,1790874000000,1790877600000,1790881200000,1790884800000,1790888400000,1790892000000,1790895600000,1790899200000,1790902800000,1790906400000,1790910000000,1790913600000,1790917200000,1790920800000,1790924400000,1790928000000,1790931600000,1790935200000,1790938800000,1790942400000,1790946000000,1790949600000,1790953200000,1790956800000,1790960400000,1790964000000,1790967600000,1790971200000,1790974800000,1790978400000,1790982000000,1790985600000,1790989200000,1790992800000,1790996400000,1791000000000,1791003600000,1791007200000,1791010800000,1791014400000,1791018000000,1791021600000,1791025200000,1791028800000,1791032400000,1791036000000,1791039600000,1791043200000,1791046800000,1791050400000,1791054000000,1791057600000,1791061200000,1791064800000,1791068400000,1791072000000,1791075600000,1791079200000,1791082800000,1791086400000,1791090000000,1791093600000,1791097200000,1791100800000,1791104400000,1791108000000,1791111600000,1791115200000,1791118800000,1791122400000,1791126000000,1791129600000,1791133200000,1791136800000,1791140400000,1791144000000,1791147600000,1791151200000,1791154800000,1791158400000,1791162000000,1791165600000,1791169200000,1791172800000,1791176400000,1791180000000,1791183600000,1791187200000,1791190800000,1791194400000,1791198000000,1791201600000,1791205200000,1791208800000,1791212400000,1791216000000,1791219600000,1791223200000,1791226800000,1791230400000,1791234000000,1791237600000,1791241200000,1791244800000,1791248400000,1791252000000,1791255600000,1791259200000,1791262800000,1791266400000,1791270000000,1791273600000,1791277200000,1791280800000,1791284400000,1791288000000,1791291600000,1791295200000,1791298800000,1791302400000,1791306000000,1791309600000,1791313200000,1791316800000,1791320400000,1791324000000,1791327600000,1791331200000,1791334800000,1791338400000,1791342000000,1791345600000,1791349200000,1791352800000,1791356400000,1791360000000,1791363600000,1791367200000,1791370800000,1791374400000,1791378000000,1791381600000,1791385200000,1791388800000,1791392400000,1791396000000,1791399600000,1791403200000,1791406800000,1791410400000,1791414000000],"v":[321.4,320.8,320.9,318.7,319.2,319.5,319.7,320.7,319.7,319.1,321.2,320.0,319.3,317.4,317.6,319.0,320.1,317.9,319.4,320.2,319.5,319.9,321.7,319.6,317.9,318.9,318.6,319.6,320.7,321.3,320.8,321.9,321.0,321.6,320.9,320.6,319.6,319.9,319.3,319.5,319.9,321.4,320.1,320.8,318.8,319.3,321.3,320.8,318.1,319.4,319.5,318.5,317.4,318.1,318.2,320.3,320.8,321.0,321.6,317.9,319.0,320.1,319.3,319.0,318.8,319.8,319.9,321.5,320.9,320.5,320.2,319.1,319.9,321.0,320.9,319.0,317.9,320.2,320.3,320.5,319.1,320.7,321.1,320.0,320.7,319.1,319.7,317.5,318.9,322.7,321.7,322.6,321.5,320.8,320.6,319.7,320.9,319.4,320.0,324.0,321.9,320.1,321.4,321.0,320.1,318.8,319.5,319.4,319.9,320.5,320.6,319.1,320.4,320.7,318.5,320.0,320.0,320.5,318.9,319.3,319.6,318.4,320.2,319.7,320.4,318.9,318.0,318.0,316.8,318.1,319.9,321.8,322.0,322.2,322.3,323.3,321.3,321.6,321.3,317.3,319.5,320.0,320.5,319.6,319.0,319.2,320.7,320.8,322.1,319.2,321.2,322.7,319.8,320.1,318.1,316.1,317.2,319.2,320.0,319.5,320.7,320.6,322.5,319.0,318.6,318.8,318.8,319.1],"center":319.9,"ucl":322.707682,"lcl":317.092318,"violation_indices_in_plot":[],"spec":{"lsl":310.0,"usl":330.0,"target":320.0,"source":"ontology"}}],"score_bars":[{"name":"薄膜厚度","score":76,"role":"inspection"},{"name":"优品率","score":96,"role":"inspection"},{"name":"牵引入口张力","score":76,"role":"parameter"},{"name":"收卷锥度张力","score":91,"role":"parameter"},{"name":"展平辊压力","score":73,"role":"parameter"},{"name":"收卷速度","score":91,"role":"parameter"}],"corr_heatmap":{"labels":["薄膜厚度","优品率","牵引入口张力","收卷锥度张力","展平辊压力","收卷速度"],"matrix":[[1.0,null,0.73627,0.176556,null,null],[null,1.0,null,0.18875,0.164584,0.146482],[0.73627,null,1.0,0.226247,0.210922,null],[0.176556,0.18875,0.226247,1.0,0.255586,0.180976],[null,0.164584,0.210922,0.255586,1.0,0.160252],[null,0.146482,null,0.180976,0.160252,1.0]]},"contribution_bar":[{"driver":"牵引入口张力","target":"薄膜厚度","abs_r":0.73627,"best_lag_rows":0,"share":1.0}]},"notAssessable":false}</script>
+<script>
+(function () {
+  var DATA = {};
+  try { DATA = JSON.parse(document.getElementById('payload').textContent); } catch (e) {}
+  function fallback() {
+    var host = document.getElementById('trend-charts');
+    var rows = [];
+    (DATA.charts.trend || []).forEach(function (s) {
+      var vs = s.v.filter(function (x) { return x !== null; });
+      var mn = Math.min.apply(null, vs), mx = Math.max.apply(null, vs);
+      var nBad = s.violation_indices_in_plot.length;
+      rows.push('<tr><td>' + s.name + '</td><td>' + vs.length + '</td><td>' +
+        mn.toFixed(4) + '</td><td>' + mx.toFixed(4) + '</td><td>' + nBad + '</td></tr>');
+    });
+    host.innerHTML = '<div class="panel"><div class="chart-title">静态模式（ECharts CDN 不可用）' +
+      '——各参数趋势摘要</div><div class="static-table"><table><thead><tr>' +
+      '<th>参数</th><th>点数</th><th>最小</th><th>最大</th><th>违规点</th></tr></thead>' +
+      '<tbody>' + rows.join('') + '</tbody></table></div></div>';
+    ['contrib-chart', 'heat-chart'].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) el.parentNode.style.display = 'none';
+    });
+  }
+  function init() {
+    if (!window.echarts) { fallback(); return; }
+    var charts = DATA.charts || {};
+    var host = document.getElementById('trend-charts');
+    (charts.trend || []).forEach(function (s) {
+      var box = document.createElement('div');
+      box.className = 'chart';
+      box.innerHTML = '<div class="chart-title">' + s.name +
+        '（中心=中位数，虚线=±3σ_within' + (s.spec && s.spec.lsl != null ? '，红线=规格限' : '') + '）</div>' +
+        '<div style="height:calc(100% - 30px)"></div>';
+      host.appendChild(box);
+      var el = box.lastChild;
+      var ch = echarts.init(el); allCharts.push(ch);
+      var series = [{ name: s.name, type: 'line', showSymbol: false,
+        data: s.t.map(function (t, i) { return [t, s.v[i]]; }),
+        lineStyle: { width: 1.2, color: '#5b8dbf' } }];
+      [['UCL', s.ucl, '#e0703a', 'dashed'], ['LCL', s.lcl, '#e0703a', 'dashed'],
+       ['LSL', s.spec && s.spec.lsl, '#c9312b', 'solid'],
+       ['USL', s.spec && s.spec.usl, '#c9312b', 'solid']].forEach(function (m) {
+        if (m[1] !== null && m[1] !== undefined)
+          series.push({ name: m[0], type: 'line', data: [[s.t[0], m[1]], [s.t[s.t.length - 1], m[1]]],
+            symbol: 'none', lineStyle: { color: m[2], type: m[3], width: 1 },
+            endLabel: { show: true, formatter: m[0], color: m[2] } });
+      });
+      var bad = s.violation_indices_in_plot || [];
+      if (bad.length)
+        series.push({ name: '违规点', type: 'scatter',
+          data: bad.map(function (i) { return [s.t[i], s.v[i]]; }),
+          itemStyle: { color: '#c9312b' }, symbolSize: 7 });
+      ch.setOption({
+        grid: { left: 60, right: 60, top: 18, bottom: 44 },
+        tooltip: { trigger: 'axis' },
+        xAxis: { type: 'time' },
+        yAxis: { type: 'value', scale: true },
+        series: series
+      });
+    });
+    if ((charts.trend || []).length === 0) {
+      host.innerHTML = '<div class="panel empty">无可绘制的趋势数据。</div>';
+    }
+    var contrib = document.getElementById('contrib-chart');
+    if (contrib && (charts.contribution_bar || []).length) {
+      var cb = echarts.init(contrib); allCharts.push(cb);
+      var items = charts.contribution_bar.slice(0, 10);
+      cb.setOption({
+        grid: { left: 90, right: 30, top: 18, bottom: 40 },
+        tooltip: {},
+        xAxis: { type: 'value', max: 1, axisLabel: { formatter: function (v) {
+          return (v * 100).toFixed(0) + '%'; } } },
+        yAxis: { type: 'category', data: items.map(function (d) {
+          return d.driver + ' → ' + d.target; }).reverse() },
+        series: [{ type: 'bar', data: items.map(function (d) {
+          return Math.round(d.share * 1000) / 10; }).reverse(),
+          itemStyle: { color: '#e8a33d' }, barMaxWidth: 18 }]
+      });
+    } else if (contrib) { contrib.parentNode.style.display = 'none'; }
+    var heat = document.getElementById('heat-chart');
+    if (heat && charts.corr_heatmap && charts.corr_heatmap.labels.length > 1) {
+      var hm = echarts.init(heat); allCharts.push(hm);
+      var pts = [];
+      charts.corr_heatmap.matrix.forEach(function (row, i) {
+        row.forEach(function (v, j) {
+          if (v !== null && i !== j)
+            pts.push([j, charts.corr_heatmap.labels.length - 1 - i, v]);
+        });
+      });
+      hm.setOption({
+        grid: { left: 110, right: 60, top: 18, bottom: 60 },
+        tooltip: { position: 'top' },
+        xAxis: { type: 'category', data: charts.corr_heatmap.labels,
+          axisLabel: { rotate: 30 } },
+        yAxis: { type: 'category', data: charts.corr_heatmap.labels.slice().reverse() },
+        visualMap: { min: 0, max: 1, calculable: true, orient: 'horizontal',
+          left: 'center', bottom: 0, inRange: { color: ['#1d2a36', '#e8a33d', '#c9312b'] } },
+        series: [{ type: 'heatmap', data: pts,
+          label: { show: charts.corr_heatmap.labels.length <= 8, formatter: function (p) {
+            return p.value[2].toFixed(2); } } }]
+      });
+    } else if (heat) { heat.parentNode.style.display = 'none'; }
+  }
+  var allCharts = [];
+  function reflowCharts() { allCharts.forEach(function (c) { try { c.resize(); } catch (e) {} }); }
+  window.addEventListener('resize', reflowCharts);
+  if (document.readyState === 'complete') init();
+  else window.addEventListener('load', init);
+  // 布局稳定后强制重测一次尺寸：在后台/延迟渲染环境下，init 时容器宽度
+  // 可能被读成 0（canvas 宽 0、图空白），双 rAF 确保 DOM 布局完成后再 resize。
+  function reflowWhenSettled() {
+    requestAnimationFrame(function () { requestAnimationFrame(reflowCharts); });
+  }
+  if (document.readyState === 'complete') reflowWhenSettled();
+  else window.addEventListener('load', reflowWhenSettled);
+  setTimeout(function () { if (!window.echarts) fallback(); }, 4000);
+})();
+</script>
+</body>
+</html>

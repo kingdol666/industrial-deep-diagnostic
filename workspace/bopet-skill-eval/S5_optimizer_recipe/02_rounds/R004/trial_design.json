@@ -1,0 +1,54 @@
+{
+  "design_version": "1.0",
+  "campaign_id": "OPT-20261014-001",
+  "round_id": "R004",
+  "phase": "confirm",
+  "method": "confirm_replicates",
+  "trials": [
+    {
+      "trial_id": "R004-T01",
+      "setpoints": {
+        "TDO定型区温度CX6": 190.908707,
+        "TDO拉伸区温度CX4": 243.24442,
+        "纵拉拉伸速度": 53.137229
+      },
+      "extrapolation": false,
+      "safety_checked": true,
+      "replicates": 3,
+      "distance_to_incumbent_coded": 0.0,
+      "expected": {
+        "优品率": {
+          "mean": 99.035865,
+          "ci95": [
+            98.899793,
+            99.171937
+          ]
+        }
+      },
+      "predicted_D": 0.999857,
+      "selection_reason": "confirm_replicates: incumbent confirmation under the dual gate; confirm_replicates; dup_to_existing=True; nearest_data_coded=0.0"
+    }
+  ],
+  "model_summary": {
+    "kind": "gp_ard_rbf",
+    "log_ml": -12.786849,
+    "lengthscales": {
+      "x0": -0.355531,
+      "x1": -0.615927,
+      "x2": -0.594822
+    },
+    "sigma_noise": 0.026461,
+    "fallback_active": false
+  },
+  "gating": {
+    "domain_ok": true,
+    "safety_ok": true,
+    "duplication_ratio": 0.0
+  },
+  "provenance": {
+    "input_sha256": "7e1fd5c59ddfd2e0219b4fb77ab8b8798a331eb67e98f5b5d51d75620126dbf9",
+    "script_version": "1.0.0",
+    "seed": 42,
+    "authored_by": "script"
+  }
+}

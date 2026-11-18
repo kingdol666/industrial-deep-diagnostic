@@ -1,0 +1,187 @@
+{
+  "source": "Phase 0.4 ontology-guided analysis selection",
+  "ontology_file": "01_ontology/ontology.json",
+  "data_view_mode": "process_plus_inspection",
+  "parameter_physical_groups": {
+    "furnace_zone_temperatures": [
+      "FUR-Z1-TEMP",
+      "FUR-Z2-TEMP",
+      "FUR-Z3-TEMP",
+      "HX-MAP-L1FURNACETHERMALMAP2-MEAN",
+      "HX-MAP-L1FURNACETHERMALMAP2-P95",
+      "HX-MAP-L1FURNACETHERMALMAP2-HOTAREA-P90",
+      "HX-MAP-L1FURNACETHERMALMAP2-COLDAREA-P10",
+      "HX-MAP-L1FURNACETHERMALMAP2-CENTROID-X",
+      "HX-MAP-L1FURNACETHERMALMAP2-CENTROID-Y",
+      "HX-MAP-L1FURNACETHERMALMAP2-ASYM-LR",
+      "HX-MAP-L1FURNACETHERMALMAP2-POSMAX-X",
+      "HX-MAP-L1FURNACETHERMALMAP2-POSMAX-Y"
+    ],
+    "transport_parameters": [
+      "FUR-SPEED"
+    ],
+    "atmosphere_parameters": [
+      "FUR-PRES"
+    ],
+    "band_temperature_profile": [
+      "HX-PROF-L1BANDTEMPPROFILE30M-MEAN",
+      "HX-PROF-L1BANDTEMPPROFILE30M-STD",
+      "HX-PROF-L1BANDTEMPPROFILE30M-MIN",
+      "HX-PROF-L1BANDTEMPPROFILE30M-MAX",
+      "HX-PROF-L1BANDTEMPPROFILE30M-P05",
+      "HX-PROF-L1BANDTEMPPROFILE30M-P50",
+      "HX-PROF-L1BANDTEMPPROFILE30M-P95",
+      "HX-PROF-L1BANDTEMPPROFILE30M-RANGE",
+      "HX-PROF-L1BANDTEMPPROFILE30M-IQR",
+      "HX-PROF-L1BANDTEMPPROFILE30M-MAD",
+      "HX-PROF-L1BANDTEMPPROFILE30M-N",
+      "HX-PROF-L1BANDTEMPPROFILE30M-SLOPE-LSQ-PER100",
+      "HX-PROF-L1BANDTEMPPROFILE30M-CURV-LSQ",
+      "HX-PROF-L1BANDTEMPPROFILE30M-ZONE-1-3-MEAN",
+      "HX-PROF-L1BANDTEMPPROFILE30M-EDGE-L-DEV",
+      "HX-PROF-L1BANDTEMPPROFILE30M-EDGE-R-DEV",
+      "HX-PROF-L1BANDTEMPPROFILE30M-ARGDEV-NBR",
+      "HX-PROF-L1BANDTEMPPROFILE30M-SHIFT-EST"
+    ],
+    "quality_outcomes": [
+      "FUR-OUT-TEMP",
+      "FUR-YIELD",
+      "LAB-HRC"
+    ],
+    "surface_inspection": [
+      "HX-IMG-L1SURFACECCDINDEX-MEAN",
+      "HX-IMG-L1SURFACECCDINDEX-STD",
+      "HX-IMG-L1SURFACECCDINDEX-ENTROPY",
+      "HX-IMG-L1SURFACECCDINDEX-SATFRAC",
+      "HX-IMG-L1SURFACECCDINDEX-DARKFRAC",
+      "HX-IMG-L1SURFACECCDINDEX-FOCUS"
+    ],
+    "event_markers": [
+      "HX-TXT-L1OPERATORNOTES-EVT-MAINTENANCE",
+      "HX-TXT-L1OPERATORNOTES-EVT-HEATUP"
+    ],
+    "clock_covariates": [
+      "HX-TXT-L1OPERATORNOTES-HOUR-OF-DAY",
+      "HX-TXT-L1OPERATORNOTES-SHIFT-BUCKET-ID"
+    ]
+  },
+  "quality_targets": [
+    "FUR-OUT-TEMP",
+    "FUR-YIELD",
+    "HX-PROF-L1BANDTEMPPROFILE30M-MEAN",
+    "HX-PROF-L1BANDTEMPPROFILE30M-STD",
+    "HX-PROF-L1BANDTEMPPROFILE30M-MIN",
+    "HX-PROF-L1BANDTEMPPROFILE30M-MAX",
+    "HX-PROF-L1BANDTEMPPROFILE30M-P05",
+    "HX-PROF-L1BANDTEMPPROFILE30M-P50",
+    "HX-PROF-L1BANDTEMPPROFILE30M-P95",
+    "HX-PROF-L1BANDTEMPPROFILE30M-RANGE",
+    "HX-PROF-L1BANDTEMPPROFILE30M-IQR",
+    "HX-PROF-L1BANDTEMPPROFILE30M-MAD",
+    "HX-PROF-L1BANDTEMPPROFILE30M-N",
+    "HX-PROF-L1BANDTEMPPROFILE30M-SLOPE-LSQ-PER100",
+    "HX-PROF-L1BANDTEMPPROFILE30M-CURV-LSQ",
+    "HX-PROF-L1BANDTEMPPROFILE30M-ZONE-1-3-MEAN",
+    "HX-PROF-L1BANDTEMPPROFILE30M-EDGE-L-DEV",
+    "HX-PROF-L1BANDTEMPPROFILE30M-EDGE-R-DEV",
+    "HX-PROF-L1BANDTEMPPROFILE30M-ARGDEV-NBR",
+    "HX-PROF-L1BANDTEMPPROFILE30M-SHIFT-EST"
+  ],
+  "quality_target_notes": "前 2 项来自 ontology role=target；其余 18 项为 07_hetero/explicit_cols.json→targets 全量并入（Phase 1.2.5 强制）。LAB-HRC 未并入锚定主表，仅作外部验证参照，不入列表。HX-PROF-...-N 为剖面有限点数（快照=12 常量），入列但预期在统计层退化。",
+  "analysis_tiers": {
+    "tier_1": [
+      {
+        "target": "LAB-HRC",
+        "predictor": "predictor",
+        "justification": "primary validated pair"
+      }
+    ],
+    "tier_2": [],
+    "tier_3": [
+      {
+        "target": "LAB-HRC",
+        "predictor": "identifier",
+        "justification": "identifier/constant — pruned from causal analysis"
+      }
+    ]
+  },
+  "pruned": [
+    {
+      "predictor": "HX-IMG-L1SURFACECCDINDEX-N",
+      "target": null,
+      "reason": "常量通道（零方差）：快照解码帧数在整段 1440 行中恒为单一取值，无法提供任何方差/相关信息，剔除（explicit_cols.json excludes；column_contract role=metadata）"
+    },
+    {
+      "predictor": "HX-MAP-L1FURNACETHERMALMAP2-GRAD-P95",
+      "target": null,
+      "reason": "全缺失通道：整段数据零有效值（column_contract coverage=0、effective_n=0、sparse=true、stats_eligible=false），无法进入任何统计，剔除（explicit_cols.json excludes）"
+    },
+    {
+      "predictor": "HX-MAP-L1FURNACETHERMALMAP2-N",
+      "target": null,
+      "reason": "常量通道（零方差）：快照有限格元数在整段 1440 行中恒为单一取值，无法进入相关分析，剔除（explicit_cols.json excludes；column_contract role=metadata）"
+    },
+    {
+      "predictor": "HX-TXT-L1OPERATORNOTES-EVT-MAINTENANCE",
+      "target": null,
+      "reason": "稀疏 0/1 事件窗标志（全段仅 2 个取值）：作为事件锚用于 regime 分段，不进入工艺参数相关性网格（column_contract role=metadata、sparse=true、evt_window_s=3600）"
+    },
+    {
+      "predictor": "HX-TXT-L1OPERATORNOTES-EVT-HEATUP",
+      "target": null,
+      "reason": "稀疏 0/1 事件窗标志（全段仅 2 个取值）：作为事件锚用于 regime 分段，不进入工艺参数相关性网格（column_contract role=metadata、sparse=true、evt_window_s=3600）"
+    },
+    {
+      "predictor": "HX-TXT-L1OPERATORNOTES-HOUR-OF-DAY",
+      "target": null,
+      "reason": "时刻协变量（元数据，全段仅 9 个取值）：用于交接班整点混杂的显式对照/分段，不进入工艺参数相关性网格（column_contract role=metadata）"
+    },
+    {
+      "predictor": "HX-TXT-L1OPERATORNOTES-SHIFT-BUCKET-ID",
+      "target": null,
+      "reason": "班次桶协变量（元数据 id，全段仅 3 个取值）：用于班次混杂对照/分段，不进入工艺参数相关性网格（column_contract role=metadata）"
+    }
+  ],
+  "predictor_cols": [
+    "FUR-Z1-TEMP",
+    "FUR-Z2-TEMP",
+    "FUR-Z3-TEMP",
+    "FUR-SPEED",
+    "FUR-PRES",
+    "HX-IMG-L1SURFACECCDINDEX-MEAN",
+    "HX-IMG-L1SURFACECCDINDEX-STD",
+    "HX-IMG-L1SURFACECCDINDEX-ENTROPY",
+    "HX-IMG-L1SURFACECCDINDEX-SATFRAC",
+    "HX-IMG-L1SURFACECCDINDEX-DARKFRAC",
+    "HX-IMG-L1SURFACECCDINDEX-FOCUS",
+    "HX-MAP-L1FURNACETHERMALMAP2-MEAN",
+    "HX-MAP-L1FURNACETHERMALMAP2-P95",
+    "HX-MAP-L1FURNACETHERMALMAP2-HOTAREA-P90",
+    "HX-MAP-L1FURNACETHERMALMAP2-COLDAREA-P10",
+    "HX-MAP-L1FURNACETHERMALMAP2-CENTROID-X",
+    "HX-MAP-L1FURNACETHERMALMAP2-CENTROID-Y",
+    "HX-MAP-L1FURNACETHERMALMAP2-ASYM-LR",
+    "HX-MAP-L1FURNACETHERMALMAP2-POSMAX-X",
+    "HX-MAP-L1FURNACETHERMALMAP2-POSMAX-Y"
+  ],
+  "exclude_cols": [
+    "HX-IMG-L1SURFACECCDINDEX-N",
+    "HX-MAP-L1FURNACETHERMALMAP2-GRAD-P95",
+    "HX-MAP-L1FURNACETHERMALMAP2-N",
+    "HX-TXT-L1OPERATORNOTES-EVT-MAINTENANCE",
+    "HX-TXT-L1OPERATORNOTES-EVT-HEATUP",
+    "HX-TXT-L1OPERATORNOTES-HOUR-OF-DAY",
+    "HX-TXT-L1OPERATORNOTES-SHIFT-BUCKET-ID",
+    "时间",
+    "time_hours"
+  ],
+  "derived_features_to_compute": [
+    "time_hours（dp_toolkit preprocess 自动：相对 2026-02-02 00:00 的小时轴）",
+    "regime 分段标签（维护前 <2026-02-06 06:40 / 维护-升温窗 2026-02-06 06:40–2026-02-08 21:00 / 恢复后 ≥2026-02-08 21:00，来自 annotations.json 事件锚）",
+    "快照级去重视图（PROF 30min / MAP 2h / IMG 1h）用于伪重复复核（自定义脚本）"
+  ],
+  "_normalization": {
+    "who": "schema_conformance.mjs (deterministic projection)",
+    "when": "2026-10-16T20:55:27.483Z"
+  }
+}

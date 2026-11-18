@@ -1,0 +1,1459 @@
+{
+  "contract_version": "line-stability-report/1.0",
+  "report_id": "LSR-1791977114-28edr3",
+  "generated_at": "2026-10-14T11:25:14Z",
+  "status": "ok",
+  "line": {
+    "line_id": "BOPET-1线-收卷工段",
+    "product": "12μm光膜"
+  },
+  "period": {
+    "start": "2026-10-01 00:00:00",
+    "end": "2026-10-07 23:00:00",
+    "requested": {
+      "start": "2026-10-01T00:00:00",
+      "end": "2026-10-07T23:00:00"
+    }
+  },
+  "data": {
+    "path": "workspace/bopet-skill-eval/S1_stability_winding/00_input/winding_week.csv",
+    "sha256": "sha256:687c24bf3f3bab6f4fac27626d46a7ebcd466ba2d356d94f85f11bec240c8760",
+    "time_col": "时间",
+    "group_col": null,
+    "group_used": null,
+    "parameter_cols": [
+      "薄膜厚度",
+      "优品率",
+      "牵引入口张力",
+      "收卷锥度张力",
+      "展平辊压力",
+      "收卷速度"
+    ],
+    "inspection_cols": [
+      "薄膜厚度",
+      "优品率"
+    ],
+    "ignored_cols": [],
+    "sampled": false,
+    "stride": 1,
+    "n_rows_raw": 168,
+    "n_rows_used": 168,
+    "time_span_seconds": 601200.0,
+    "sampling_interval_median_seconds": 3600.0,
+    "missing_rate": 0.0,
+    "coverage_ratio": 1.0,
+    "time_invariant_channels": {
+      "count": 0,
+      "total": 6,
+      "share": 0.0,
+      "examples": []
+    },
+    "preprocessing": {
+      "source_export": "workspace/bopet-skill-eval/S1_stability_winding/00_input/winding_week.csv",
+      "note": "评测夹具：确定性合成数据（seed=101），DCS 小时归档口径；本体为手写 BOPET 全线本体（bopet_line_ontology.json）拷贝"
+    }
+  },
+  "condition": {
+    "ontology": {
+      "mode": "ontology",
+      "path": "workspace/bopet-skill-eval/S1_stability_winding\\00_input\\ontology.json",
+      "source": "run_dir",
+      "reason": null
+    },
+    "scene": {
+      "name": "BOPET双向拉伸薄膜产线（12μm光膜）",
+      "process_type": "pet_film_biaxial_orientation_line",
+      "production_goal": "在厚度公差 ±0.09μm 与雾度 ≤2.0% 约束下最大化优品率与产能",
+      "equipment": [
+        "主挤出机",
+        "熔体滤器",
+        "模头",
+        "铸片辊",
+        "纵拉机(MDO)",
+        "横拉机(TDO)",
+        "牵引辊组",
+        "收卷机",
+        "在线测厚仪"
+      ],
+      "stages": [
+        "配料干燥",
+        "挤出熔融",
+        "铸片骤冷",
+        "纵向拉伸(MDO)",
+        "横向拉伸与定型(TDO)",
+        "牵引收卷",
+        "分切质检"
+      ]
+    },
+    "columns": {
+      "牵引入口张力": {
+        "assigned_by": "ontology",
+        "label": "牵引段入口张力",
+        "unit": "N",
+        "role": "parameter",
+        "spec": {
+          "lsl": 2190.0,
+          "usl": 2350.0,
+          "target": 2270.0,
+          "source": "ontology"
+        },
+        "normal_range": [
+          2190.0,
+          2350.0
+        ],
+        "stage": "牵引收卷",
+        "equipment": "牵引辊组",
+        "governing_law": "胡克弹性 σ=E·ε：张力波动→薄膜纵向应变→在线测厚扰动",
+        "physical_meaning": "牵引辊轴承磨损/辊径跳动时出现周期性振荡，直接污染厚度信号",
+        "group": "牵引收卷"
+      },
+      "收卷锥度张力": {
+        "assigned_by": "ontology",
+        "label": "收卷锥度张力",
+        "unit": "%",
+        "role": "parameter",
+        "spec": {
+          "lsl": 16.0,
+          "usl": 20.0,
+          "target": 18.0,
+          "source": "ontology"
+        },
+        "normal_range": [
+          16.0,
+          20.0
+        ],
+        "stage": "牵引收卷",
+        "equipment": "收卷机",
+        "governing_law": "锥度张力曲线 T(r)=T0·(r0/r)^k",
+        "physical_meaning": "决定卷端松紧与端面整齐度",
+        "group": "牵引收卷"
+      },
+      "展平辊压力": {
+        "assigned_by": "ontology",
+        "label": "展平辊气缸压力",
+        "unit": "bar",
+        "role": "parameter",
+        "spec": {
+          "lsl": 2.2,
+          "usl": 2.8,
+          "target": 2.5,
+          "source": "ontology"
+        },
+        "normal_range": [
+          2.2,
+          2.8
+        ],
+        "stage": "牵引收卷",
+        "equipment": "展平辊",
+        "governing_law": "气压压紧力 F=P·A",
+        "physical_meaning": "消除褶皱，不足时出现纵向褶皱缺陷",
+        "group": "牵引收卷"
+      },
+      "收卷速度": {
+        "assigned_by": "ontology",
+        "label": "收卷线速度",
+        "unit": "m/min",
+        "role": "parameter",
+        "spec": {
+          "lsl": 310.0,
+          "usl": 330.0,
+          "target": 320.0,
+          "source": "ontology"
+        },
+        "normal_range": [
+          310.0,
+          330.0
+        ],
+        "stage": "牵引收卷",
+        "equipment": "收卷机",
+        "governing_law": "与生产线速度同步",
+        "physical_meaning": "产能直接观测量",
+        "group": "牵引收卷"
+      },
+      "薄膜厚度": {
+        "assigned_by": "user",
+        "label": "薄膜平均厚度（在线测厚）",
+        "unit": "μm",
+        "role": "inspection",
+        "spec": {
+          "lsl": 11.91,
+          "usl": 12.09,
+          "target": 12.0,
+          "source": "user"
+        },
+        "normal_range": [
+          11.91,
+          12.09
+        ],
+        "stage": "分切质检",
+        "equipment": "在线测厚仪",
+        "governing_law": "受 MDO 拉伸比/TDO 热定型/张力应变的复合调制",
+        "physical_meaning": "核心质量指标：厚度超差即降级",
+        "group": "质量指标"
+      },
+      "优品率": {
+        "assigned_by": "user",
+        "label": "优品率",
+        "unit": "%",
+        "role": "inspection",
+        "spec": {
+          "lsl": 96.0,
+          "usl": null,
+          "target": 98.5,
+          "source": "user"
+        },
+        "normal_range": [
+          96.0,
+          100.0
+        ],
+        "stage": "分切质检",
+        "equipment": "质检系统",
+        "governing_law": "厚度公差、晶点、热收缩的联合合格率",
+        "physical_meaning": "最终商业指标，对 CX4 偏移与压力尖峰敏感",
+        "group": "质量指标"
+      }
+    },
+    "relationships": [
+      {
+        "from": "主挤计量段温度",
+        "to": "熔体压力",
+        "type": "causal",
+        "strength": "strong",
+        "mechanism": "熔体粘度随温度指数变化，改变计量泵输送阻力",
+        "governing_equation": "ΔP ∝ η(T)·Q"
+      },
+      {
+        "from": "滤器压差",
+        "to": "熔体压力",
+        "type": "causal",
+        "strength": "strong",
+        "mechanism": "滤器堵孔使下游阻力上升，表现为压力基线抬升与再生/切换前尖峰",
+        "governing_equation": "P_out = P_pump − ΔP_filter(t)"
+      },
+      {
+        "from": "滤器压差",
+        "to": "优品率",
+        "type": "causal",
+        "strength": "medium",
+        "mechanism": "堵孔末期压力脉动引起铸片厚度瞬时波动与晶点，降级品增多",
+        "governing_equation": null
+      },
+      {
+        "from": "纵拉拉伸速度",
+        "to": "薄膜厚度",
+        "type": "causal",
+        "strength": "strong",
+        "mechanism": "体积守恒：速度提升即纵向拉伸倍率增大，厚度成比例减薄",
+        "governing_equation": "d2 ≈ d1·(v1·w1)/(v2·w2)"
+      },
+      {
+        "from": "纵拉拉伸速度",
+        "to": "优品率",
+        "type": "causal",
+        "strength": "medium",
+        "mechanism": "提产阶跃后厚度立即偏离目标带，需重新对中；张力同步上升",
+        "governing_equation": null
+      },
+      {
+        "from": "TDO拉伸区温度CX4",
+        "to": "薄膜厚度",
+        "type": "causal",
+        "strength": "strong",
+        "mechanism": "拉伸区温度改变 PET 结晶与纵向松弛量，缓慢漂移表现为厚度同向缓漂",
+        "governing_equation": "d = d0·[1+α_th·(T_CX4−T_ref)]"
+      },
+      {
+        "from": "TDO拉伸区温度CX4",
+        "to": "优品率",
+        "type": "causal",
+        "strength": "strong",
+        "mechanism": "CX4 偏移使厚度/热收缩越出公差带，优品率随偏移量线性下降",
+        "governing_equation": null
+      },
+      {
+        "from": "TDO定型区温度CX6",
+        "to": "优品率",
+        "type": "causal",
+        "strength": "medium",
+        "mechanism": "定型不足→热收缩超标降级；过定型→脆化破膜",
+        "governing_equation": null
+      },
+      {
+        "from": "牵引入口张力",
+        "to": "薄膜厚度",
+        "type": "causal",
+        "strength": "medium",
+        "mechanism": "张力波动经弹性应变耦合进在线测厚信号，周期振荡与测厚振荡同频",
+        "governing_equation": "ε = F/(E·A)"
+      },
+      {
+        "from": "纵拉预热辊温",
+        "to": "拉伸强度",
+        "type": "causal",
+        "strength": "medium",
+        "mechanism": "预热温度决定拉伸塑性窗口，偏离最优点使取向不均、强度下降",
+        "governing_equation": null
+      },
+      {
+        "from": "拉伸比",
+        "to": "雾度",
+        "type": "causal",
+        "strength": "strong",
+        "mechanism": "过拉伸诱导应变结晶与表面粗糙化，雾度随拉伸比二次增长",
+        "governing_equation": "Haze ≈ H0 + k·(λ−λ0)²"
+      }
+    ],
+    "regimes": {
+      "available": true,
+      "method": "fast",
+      "change_points": [],
+      "regimes": [
+        {
+          "start": 0,
+          "end": 167,
+          "label": "steady",
+          "n_rows": 168
+        }
+      ],
+      "abnormal_ratio": 0.0
+    }
+  },
+  "parameters": [
+    {
+      "name": "薄膜厚度",
+      "role": "inspection",
+      "condition": {
+        "label": "薄膜平均厚度（在线测厚）",
+        "unit": "μm",
+        "assigned_by": "user",
+        "governing_law": "受 MDO 拉伸比/TDO 热定型/张力应变的复合调制",
+        "physical_meaning": "核心质量指标：厚度超差即降级",
+        "group": "质量指标",
+        "stage": "分切质检",
+        "equipment": "在线测厚仪"
+      },
+      "n": 168,
+      "row_range": [
+        0,
+        167
+      ],
+      "data_source": "raw",
+      "mu": 11.995253,
+      "median": 11.99315,
+      "sigma": 0.031617,
+      "sigma_within_mr": 0.022854,
+      "cv": 0.002628,
+      "min": 11.901,
+      "max": 12.0753,
+      "spec": {
+        "lsl": 11.91,
+        "usl": 12.09,
+        "target": 12.0,
+        "source": "user"
+      },
+      "capability": {
+        "cp": 1.312664,
+        "cpk": 1.243428,
+        "pp": 0.948851,
+        "ppk": 0.898804
+      },
+      "nelson": {
+        "NELSON_R5": {
+          "n_episodes": 7,
+          "indices": [
+            2,
+            29,
+            75,
+            113,
+            138,
+            142,
+            149
+          ]
+        },
+        "NELSON_R3": {
+          "n_episodes": 4,
+          "indices": [
+            28,
+            106,
+            137,
+            164
+          ]
+        },
+        "NELSON_R1": {
+          "n_episodes": 6,
+          "indices": [
+            82,
+            111,
+            115,
+            140,
+            147,
+            164
+          ]
+        },
+        "NELSON_R6": {
+          "n_episodes": 3,
+          "indices": [
+            119,
+            139,
+            145
+          ]
+        }
+      },
+      "n_violation_points": 20,
+      "drift": {
+        "slope_per_second": -0.0,
+        "per_day_relative": 9.8e-05,
+        "mk_p": null,
+        "significant": false,
+        "mk_skipped": "相对漂移低于 0.1%/天 门槛，Mann-Kendall 检验未执行"
+      },
+      "baseline_ref": null,
+      "score": 76,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -10,
+        "cv_penalty": 0,
+        "capability_penalty": -14,
+        "drift_penalty": 0,
+        "baseline_penalty": 0,
+        "total": 76
+      }
+    },
+    {
+      "name": "优品率",
+      "role": "inspection",
+      "condition": {
+        "label": "优品率",
+        "unit": "%",
+        "assigned_by": "user",
+        "governing_law": "厚度公差、晶点、热收缩的联合合格率",
+        "physical_meaning": "最终商业指标，对 CX4 偏移与压力尖峰敏感",
+        "group": "质量指标",
+        "stage": "分切质检",
+        "equipment": "质检系统"
+      },
+      "n": 168,
+      "row_range": [
+        0,
+        167
+      ],
+      "data_source": "raw",
+      "mu": 98.595476,
+      "median": 98.59,
+      "sigma": 0.170163,
+      "sigma_within_mr": 0.145825,
+      "cv": 0.001721,
+      "min": 98.18,
+      "max": 99.05,
+      "spec": {
+        "lsl": 96.0,
+        "usl": null,
+        "target": 98.5,
+        "source": "user"
+      },
+      "capability": {
+        "cp": null,
+        "cpk": 5.932841,
+        "pp": null,
+        "ppk": 5.084293
+      },
+      "nelson": {
+        "NELSON_R6": {
+          "n_episodes": 5,
+          "indices": [
+            44,
+            51,
+            102,
+            123,
+            134
+          ]
+        },
+        "NELSON_R1": {
+          "n_episodes": 1,
+          "indices": [
+            71
+          ]
+        },
+        "NELSON_R5": {
+          "n_episodes": 2,
+          "indices": [
+            73,
+            144
+          ]
+        },
+        "NELSON_R2": {
+          "n_episodes": 1,
+          "indices": [
+            159
+          ]
+        }
+      },
+      "n_violation_points": 9,
+      "drift": {
+        "slope_per_second": -0.0,
+        "per_day_relative": 0.0,
+        "mk_p": null,
+        "significant": false,
+        "mk_skipped": "相对漂移低于 0.1%/天 门槛，Mann-Kendall 检验未执行"
+      },
+      "baseline_ref": null,
+      "score": 96,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -4,
+        "cv_penalty": 0,
+        "capability_penalty": 0,
+        "drift_penalty": 0,
+        "baseline_penalty": 0,
+        "total": 96
+      }
+    },
+    {
+      "name": "牵引入口张力",
+      "role": "parameter",
+      "condition": {
+        "label": "牵引段入口张力",
+        "unit": "N",
+        "assigned_by": "ontology",
+        "governing_law": "胡克弹性 σ=E·ε：张力波动→薄膜纵向应变→在线测厚扰动",
+        "physical_meaning": "牵引辊轴承磨损/辊径跳动时出现周期性振荡，直接污染厚度信号",
+        "group": "牵引收卷",
+        "stage": "牵引收卷",
+        "equipment": "牵引辊组"
+      },
+      "n": 168,
+      "row_range": [
+        0,
+        167
+      ],
+      "data_source": "raw",
+      "mu": 2269.7875,
+      "median": 2269.45,
+      "sigma": 14.403315,
+      "sigma_within_mr": 7.911305,
+      "cv": 0.006327,
+      "min": 2235.9,
+      "max": 2305.0,
+      "spec": {
+        "lsl": 2190.0,
+        "usl": 2350.0,
+        "target": 2270.0,
+        "source": "ontology"
+      },
+      "capability": {
+        "cp": 3.370704,
+        "cpk": 3.36175,
+        "pp": 1.851426,
+        "ppk": 1.846508
+      },
+      "nelson": {
+        "NELSON_R1": {
+          "n_episodes": 10,
+          "indices": [
+            3,
+            29,
+            34,
+            39,
+            111,
+            138,
+            142,
+            147,
+            152,
+            156
+          ]
+        },
+        "NELSON_R5": {
+          "n_episodes": 18,
+          "indices": [
+            4,
+            30,
+            35,
+            40,
+            46,
+            66,
+            71,
+            76,
+            108,
+            112,
+            117,
+            139,
+            144,
+            149,
+            153,
+            158,
+            161,
+            165
+          ]
+        },
+        "NELSON_R3": {
+          "n_episodes": 11,
+          "indices": [
+            8,
+            33,
+            53,
+            69,
+            74,
+            101,
+            110,
+            128,
+            137,
+            146,
+            152
+          ]
+        },
+        "NELSON_R6": {
+          "n_episodes": 11,
+          "indices": [
+            41,
+            52,
+            67,
+            81,
+            98,
+            113,
+            118,
+            140,
+            144,
+            149,
+            154
+          ]
+        }
+      },
+      "n_violation_points": 50,
+      "drift": {
+        "slope_per_second": -6e-06,
+        "per_day_relative": 0.000224,
+        "mk_p": null,
+        "significant": false,
+        "mk_skipped": "相对漂移低于 0.1%/天 门槛，Mann-Kendall 检验未执行"
+      },
+      "baseline_ref": null,
+      "score": 76,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -24,
+        "cv_penalty": 0,
+        "capability_penalty": 0,
+        "drift_penalty": 0,
+        "baseline_penalty": 0,
+        "total": 76
+      }
+    },
+    {
+      "name": "收卷锥度张力",
+      "role": "parameter",
+      "condition": {
+        "label": "收卷锥度张力",
+        "unit": "%",
+        "assigned_by": "ontology",
+        "governing_law": "锥度张力曲线 T(r)=T0·(r0/r)^k",
+        "physical_meaning": "决定卷端松紧与端面整齐度",
+        "group": "牵引收卷",
+        "stage": "牵引收卷",
+        "equipment": "收卷机"
+      },
+      "n": 168,
+      "row_range": [
+        0,
+        167
+      ],
+      "data_source": "raw",
+      "mu": 17.956726,
+      "median": 17.925,
+      "sigma": 0.390931,
+      "sigma_within_mr": 0.354822,
+      "cv": 0.021706,
+      "min": 17.01,
+      "max": 19.04,
+      "spec": {
+        "lsl": 16.0,
+        "usl": 20.0,
+        "target": 18.0,
+        "source": "ontology"
+      },
+      "capability": {
+        "cp": 1.878875,
+        "cpk": 1.838222,
+        "pp": 1.705331,
+        "ppk": 1.668433
+      },
+      "nelson": {
+        "NELSON_R6": {
+          "n_episodes": 2,
+          "indices": [
+            46,
+            90
+          ]
+        },
+        "NELSON_R3": {
+          "n_episodes": 2,
+          "indices": [
+            85,
+            114
+          ]
+        },
+        "NELSON_R2": {
+          "n_episodes": 1,
+          "indices": [
+            92
+          ]
+        },
+        "NELSON_R5": {
+          "n_episodes": 1,
+          "indices": [
+            118
+          ]
+        },
+        "NELSON_R1": {
+          "n_episodes": 1,
+          "indices": [
+            133
+          ]
+        }
+      },
+      "n_violation_points": 7,
+      "drift": {
+        "slope_per_second": 0.0,
+        "per_day_relative": 0.000374,
+        "mk_p": null,
+        "significant": false,
+        "mk_skipped": "相对漂移低于 0.1%/天 门槛，Mann-Kendall 检验未执行"
+      },
+      "baseline_ref": null,
+      "score": 91,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -3,
+        "cv_penalty": -6,
+        "capability_penalty": 0,
+        "drift_penalty": 0,
+        "baseline_penalty": 0,
+        "total": 91
+      }
+    },
+    {
+      "name": "展平辊压力",
+      "role": "parameter",
+      "condition": {
+        "label": "展平辊气缸压力",
+        "unit": "bar",
+        "assigned_by": "ontology",
+        "governing_law": "气压压紧力 F=P·A",
+        "physical_meaning": "消除褶皱，不足时出现纵向褶皱缺陷",
+        "group": "牵引收卷",
+        "stage": "牵引收卷",
+        "equipment": "展平辊"
+      },
+      "n": 168,
+      "row_range": [
+        0,
+        167
+      ],
+      "data_source": "raw",
+      "mu": 2.504583,
+      "median": 2.52,
+      "sigma": 0.084072,
+      "sigma_within_mr": 0.075275,
+      "cv": 0.033467,
+      "min": 2.31,
+      "max": 2.7,
+      "spec": {
+        "lsl": 2.2,
+        "usl": 2.8,
+        "target": 2.5,
+        "source": "ontology"
+      },
+      "capability": {
+        "cp": 1.328463,
+        "cpk": 1.308167,
+        "pp": 1.189458,
+        "ppk": 1.171285
+      },
+      "nelson": {
+        "NELSON_R6": {
+          "n_episodes": 2,
+          "indices": [
+            67,
+            150
+          ]
+        }
+      },
+      "n_violation_points": 2,
+      "drift": {
+        "slope_per_second": -0.0,
+        "per_day_relative": 0.0,
+        "mk_p": null,
+        "significant": false,
+        "mk_skipped": "相对漂移低于 0.1%/天 门槛，Mann-Kendall 检验未执行"
+      },
+      "baseline_ref": null,
+      "score": 73,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -1,
+        "cv_penalty": -12,
+        "capability_penalty": -14,
+        "drift_penalty": 0,
+        "baseline_penalty": 0,
+        "total": 73
+      }
+    },
+    {
+      "name": "收卷速度",
+      "role": "parameter",
+      "condition": {
+        "label": "收卷线速度",
+        "unit": "m/min",
+        "assigned_by": "ontology",
+        "governing_law": "与生产线速度同步",
+        "physical_meaning": "产能直接观测量",
+        "group": "牵引收卷",
+        "stage": "牵引收卷",
+        "equipment": "收卷机"
+      },
+      "n": 168,
+      "row_range": [
+        0,
+        167
+      ],
+      "data_source": "raw",
+      "mu": 319.944048,
+      "median": 319.9,
+      "sigma": 1.321436,
+      "sigma_within_mr": 0.935894,
+      "cv": 0.004118,
+      "min": 316.1,
+      "max": 324.0,
+      "spec": {
+        "lsl": 310.0,
+        "usl": 330.0,
+        "target": 320.0,
+        "source": "ontology"
+      },
+      "capability": {
+        "cp": 3.561656,
+        "cpk": 3.541728,
+        "pp": 2.522509,
+        "ppk": 2.508395
+      },
+      "nelson": {
+        "NELSON_R5": {
+          "n_episodes": 6,
+          "indices": [
+            15,
+            91,
+            101,
+            129,
+            136,
+            157
+          ]
+        },
+        "NELSON_R6": {
+          "n_episodes": 6,
+          "indices": [
+            35,
+            55,
+            93,
+            103,
+            130,
+            139
+          ]
+        },
+        "NELSON_R3": {
+          "n_episodes": 2,
+          "indices": [
+            57,
+            133
+          ]
+        },
+        "NELSON_R1": {
+          "n_episodes": 4,
+          "indices": [
+            99,
+            128,
+            135,
+            155
+          ]
+        }
+      },
+      "n_violation_points": 18,
+      "drift": {
+        "slope_per_second": -0.0,
+        "per_day_relative": 0.0,
+        "mk_p": null,
+        "significant": false,
+        "mk_skipped": "相对漂移低于 0.1%/天 门槛，Mann-Kendall 检验未执行"
+      },
+      "baseline_ref": null,
+      "score": 91,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -9,
+        "cv_penalty": 0,
+        "capability_penalty": 0,
+        "drift_penalty": 0,
+        "baseline_penalty": 0,
+        "total": 91
+      }
+    }
+  ],
+  "correlations": {
+    "max_lag": 10,
+    "pairs": [
+      {
+        "pearson": 0.726974,
+        "spearman": 0.73627,
+        "best_abs_r": 0.73627,
+        "best_lag_rows": 0,
+        "leader": null,
+        "pearson_at_best": 0.726974,
+        "spearman_at_best": 0.73627,
+        "a": "薄膜厚度",
+        "b": "牵引入口张力",
+        "n": 168
+      },
+      {
+        "pearson": -0.092022,
+        "spearman": -0.072225,
+        "best_abs_r": 0.255586,
+        "best_lag_rows": 10,
+        "leader": "收卷锥度张力",
+        "pearson_at_best": 0.248901,
+        "spearman_at_best": 0.255586,
+        "a": "收卷锥度张力",
+        "b": "展平辊压力",
+        "n": 168
+      },
+      {
+        "pearson": -0.19895,
+        "spearman": -0.226247,
+        "best_abs_r": 0.226247,
+        "best_lag_rows": 0,
+        "leader": null,
+        "pearson_at_best": -0.19895,
+        "spearman_at_best": -0.226247,
+        "a": "牵引入口张力",
+        "b": "收卷锥度张力",
+        "n": 168
+      },
+      {
+        "pearson": 0.061371,
+        "spearman": 0.085293,
+        "best_abs_r": 0.210922,
+        "best_lag_rows": 10,
+        "leader": "展平辊压力",
+        "pearson_at_best": 0.190951,
+        "spearman_at_best": 0.210922,
+        "a": "牵引入口张力",
+        "b": "展平辊压力",
+        "n": 168
+      },
+      {
+        "pearson": 0.042542,
+        "spearman": 0.033374,
+        "best_abs_r": 0.18875,
+        "best_lag_rows": 3,
+        "leader": "优品率",
+        "pearson_at_best": 0.212024,
+        "spearman_at_best": 0.18875,
+        "a": "优品率",
+        "b": "收卷锥度张力",
+        "n": 168
+      },
+      {
+        "pearson": 0.020995,
+        "spearman": 0.040877,
+        "best_abs_r": 0.180976,
+        "best_lag_rows": 7,
+        "leader": "收卷锥度张力",
+        "pearson_at_best": -0.148121,
+        "spearman_at_best": -0.180976,
+        "a": "收卷锥度张力",
+        "b": "收卷速度",
+        "n": 168
+      },
+      {
+        "pearson": -0.09697,
+        "spearman": -0.131417,
+        "best_abs_r": 0.176556,
+        "best_lag_rows": 4,
+        "leader": "收卷锥度张力",
+        "pearson_at_best": 0.188711,
+        "spearman_at_best": 0.176556,
+        "a": "薄膜厚度",
+        "b": "收卷锥度张力",
+        "n": 168
+      },
+      {
+        "pearson": -0.00369,
+        "spearman": -0.020815,
+        "best_abs_r": 0.164584,
+        "best_lag_rows": 7,
+        "leader": "展平辊压力",
+        "pearson_at_best": -0.174919,
+        "spearman_at_best": -0.164584,
+        "a": "优品率",
+        "b": "展平辊压力",
+        "n": 168
+      },
+      {
+        "pearson": -0.102836,
+        "spearman": -0.039546,
+        "best_abs_r": 0.160252,
+        "best_lag_rows": 3,
+        "leader": "收卷速度",
+        "pearson_at_best": -0.15753,
+        "spearman_at_best": -0.160252,
+        "a": "展平辊压力",
+        "b": "收卷速度",
+        "n": 168
+      },
+      {
+        "pearson": 0.044405,
+        "spearman": 0.084607,
+        "best_abs_r": 0.146482,
+        "best_lag_rows": 7,
+        "leader": "优品率",
+        "pearson_at_best": 0.164316,
+        "spearman_at_best": 0.146482,
+        "a": "优品率",
+        "b": "收卷速度",
+        "n": 168
+      }
+    ],
+    "contributions": [
+      {
+        "driver": "牵引入口张力",
+        "target": "薄膜厚度",
+        "abs_r": 0.73627,
+        "best_lag_rows": 0,
+        "share": 1.0
+      }
+    ]
+  },
+  "integrations": {
+    "sentinel_baseline": {
+      "used": false,
+      "path": null
+    },
+    "tuning_memory": {
+      "used": false
+    },
+    "doe_analyzer": {
+      "used": false
+    }
+  },
+  "degradations": [],
+  "limitations": {
+    "data_source": "raw (this skill never cleans or imputes; every number is recomputable from the raw table)",
+    "sampling": {
+      "n_rows_analyzed": 168,
+      "sampled": false,
+      "stride": 1,
+      "note": null
+    },
+    "missing_rate": 0.0,
+    "sampling_interval_seconds": 3600.0,
+    "spec_coverage": {
+      "user": [
+        "薄膜厚度",
+        "优品率"
+      ],
+      "ontology": [
+        "牵引入口张力",
+        "收卷锥度张力",
+        "展平辊压力",
+        "收卷速度"
+      ],
+      "none": []
+    },
+    "model_assumptions": [
+      "lag-compensated Spearman window 0–10 rows (lead/lag beyond this window is invisible)",
+      "whole-period scoring assumes one dominant operating condition; use the regime table for segmented reading",
+      "Cpk treats within-sigma as MR̄/1.128 moving-range estimate"
+    ],
+    "confounders": [
+      {
+        "variable": "原料批次（PET切片特性粘度波动）",
+        "why": "特性粘度±0.005 dL/g 即改变熔体粘度与可拉伸窗口，未随数据记录",
+        "controlled": false
+      },
+      {
+        "variable": "环境温湿度",
+        "why": "影响切片含水与 TDO 热损失，未控且未记录",
+        "controlled": false
+      },
+      {
+        "variable": "换卷/断膜停机事件",
+        "why": "重启过渡段数据混入稳态统计，会伪造漂移或违规",
+        "controlled": false
+      },
+      {
+        "variable": "测厚仪校准漂移",
+        "why": "在线测厚仪零漂与工艺漂移不可区分，需离线复核",
+        "controlled": false
+      }
+    ],
+    "derived_fields": [
+      "baseline_ref.robust_z",
+      "correlations.contributions.share",
+      "correlations.pairs.best_abs_r"
+    ]
+  },
+  "subject": {
+    "noun": "产线",
+    "display": "BOPET双向拉伸薄膜产线（12μm光膜）",
+    "source": "ontology.scene"
+  },
+  "provenance": {
+    "input_sha256": "sha256:687c24bf3f3bab6f4fac27626d46a7ebcd466ba2d356d94f85f11bec240c8760",
+    "script_version": "1.0.0",
+    "authored_by": "lstcore/stability_analyzer.py",
+    "zero_llm": true,
+    "spc_source": "sentinelcore",
+    "regime_method": "fast",
+    "ontology_source": "run_dir",
+    "weights_source": "user",
+    "python": "3.12.7",
+    "numpy": "2.5.2",
+    "pandas": "3.0.5",
+    "methods": [
+      "sentinelcore_nelson_episodes",
+      "mrbar_sigma_1.128",
+      "cpk_within_ppk_overall",
+      "theil_sen_mk_drift",
+      "lagged_spearman_max10",
+      "contribution_r2_share",
+      "regime_segmentation_c3",
+      "ontology_first_condition",
+      "weighted_penalty_score_v1",
+      "data_truth_limitations"
+    ]
+  },
+  "findings": [
+    {
+      "finding_id": "F001",
+      "severity": "high",
+      "category": "spc",
+      "title": "薄膜厚度 检出 SPC 违规",
+      "detail": "共 20 个判异剧集命中（每百点 11.9 个，规则：NELSON_R1/NELSON_R3/NELSON_R5/NELSON_R6），控制限为中心值11.9931 μm±3σ_within（σ=0.0229）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 20,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 11.9,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 0.022854,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "薄膜厚度"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F002",
+      "severity": "high",
+      "category": "spc",
+      "title": "优品率 检出 SPC 违规",
+      "detail": "共 9 个判异剧集命中（每百点 5.4 个，规则：NELSON_R1/NELSON_R2/NELSON_R5/NELSON_R6），控制限为中心值98.59 %±3σ_within（σ=0.1458）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 9,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 5.36,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 0.145825,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "优品率"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F003",
+      "severity": "high",
+      "category": "spc",
+      "title": "牵引入口张力 检出 SPC 违规",
+      "detail": "共 50 个判异剧集命中（每百点 29.8 个，规则：NELSON_R1/NELSON_R3/NELSON_R5/NELSON_R6），控制限为中心值2269.45 N±3σ_within（σ=7.9113）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 50,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 29.76,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 7.911305,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "牵引入口张力"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F004",
+      "severity": "high",
+      "category": "spc",
+      "title": "收卷锥度张力 检出 SPC 违规",
+      "detail": "共 7 个判异剧集命中（每百点 4.2 个，规则：NELSON_R1/NELSON_R2/NELSON_R3/NELSON_R5/NELSON_R6），控制限为中心值17.925 %±3σ_within（σ=0.3548）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 7,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 4.17,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 0.354822,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "收卷锥度张力"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F005",
+      "severity": "high",
+      "category": "spc",
+      "title": "收卷速度 检出 SPC 违规",
+      "detail": "共 18 个判异剧集命中（每百点 10.7 个，规则：NELSON_R1/NELSON_R3/NELSON_R5/NELSON_R6），控制限为中心值319.9 m/min±3σ_within（σ=0.9359）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 18,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 10.71,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 0.935894,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "收卷速度"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F006",
+      "severity": "warn",
+      "category": "spc",
+      "title": "展平辊压力 检出 SPC 违规",
+      "detail": "共 2 个判异剧集命中（每百点 1.2 个，规则：NELSON_R6），控制限为中心值2.52 bar±3σ_within（σ=0.0753）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 2,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 1.19,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 0.075275,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "展平辊压力"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F007",
+      "severity": "warn",
+      "category": "capability",
+      "title": "薄膜厚度 规格能力不足",
+      "detail": "Cpk=1.2434（阈值：≥1.33 合格，<1.0 不足），规格界限 LSL=11.91 / USL=12.09（来源：用户提供）。",
+      "evidence": [
+        {
+          "metric": "cpk",
+          "value": 1.243428,
+          "source": "lstcore",
+          "threshold": ">=1.33"
+        },
+        {
+          "metric": "ppk",
+          "value": 0.898804,
+          "source": "lstcore"
+        },
+        {
+          "metric": "spec_source",
+          "value": "user",
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "薄膜厚度"
+      ],
+      "confidence": 85
+    },
+    {
+      "finding_id": "F008",
+      "severity": "warn",
+      "category": "capability",
+      "title": "展平辊压力 规格能力不足",
+      "detail": "Cpk=1.3082（阈值：≥1.33 合格，<1.0 不足），规格界限 LSL=2.2 / USL=2.8（来源：本体资产）。",
+      "evidence": [
+        {
+          "metric": "cpk",
+          "value": 1.308167,
+          "source": "lstcore",
+          "threshold": ">=1.33"
+        },
+        {
+          "metric": "ppk",
+          "value": 1.171285,
+          "source": "lstcore"
+        },
+        {
+          "metric": "spec_source",
+          "value": "ontology",
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "展平辊压力"
+      ],
+      "confidence": 85
+    },
+    {
+      "finding_id": "F009",
+      "severity": "info",
+      "category": "driver",
+      "title": "强相关对：薄膜厚度 ↔ 牵引入口张力",
+      "detail": "滞后补偿后最强 |Spearman|=0.7363（零滞后同步）；零滞后 Pearson=0.727。本体机制佐证：张力波动经弹性应变耦合进在线测厚信号，周期振荡与测厚振荡同频；控制方程：ε = F/(E·A)。置信度 70（统计证据充分度 × 机制支持度）。",
+      "evidence": [
+        {
+          "metric": "best_abs_r",
+          "value": 0.73627,
+          "source": "lstcore",
+          "threshold": ">=0.7",
+          "derived": true
+        },
+        {
+          "metric": "best_lag_rows",
+          "value": 0,
+          "source": "lstcore"
+        },
+        {
+          "metric": "mechanism_level",
+          "value": "known",
+          "source": "ontology"
+        }
+      ],
+      "affected": [
+        "薄膜厚度",
+        "牵引入口张力"
+      ],
+      "confidence": 70,
+      "mechanism": {
+        "level": "known",
+        "mechanism": "张力波动经弹性应变耦合进在线测厚信号，周期振荡与测厚振荡同频",
+        "governing_equation": "ε = F/(E·A)"
+      }
+    },
+    {
+      "finding_id": "F010",
+      "severity": "info",
+      "category": "driver",
+      "title": "牵引入口张力 是 薄膜厚度 波动的主要解释项",
+      "detail": "滞后补偿后 |r|² 归一，牵引入口张力 解释了 薄膜厚度 约 100% 的方差（|r|=0.7363，领先 0 行）。本体有因果边支持。置信度 65。",
+      "evidence": [
+        {
+          "metric": "share",
+          "value": 1.0,
+          "source": "lstcore",
+          "threshold": ">=0.4",
+          "derived": true
+        },
+        {
+          "metric": "abs_r",
+          "value": 0.73627,
+          "source": "lstcore",
+          "derived": true
+        },
+        {
+          "metric": "mechanism_level",
+          "value": "known",
+          "source": "ontology"
+        }
+      ],
+      "affected": [
+        "牵引入口张力",
+        "薄膜厚度"
+      ],
+      "confidence": 65,
+      "mechanism": {
+        "level": "known",
+        "mechanism": "张力波动经弹性应变耦合进在线测厚信号，周期振荡与测厚振荡同频"
+      }
+    }
+  ],
+  "conclusion": {
+    "score": 83.9,
+    "grade": "B",
+    "grade_key": "sub_stable",
+    "label": "亚稳定",
+    "statement": "该产线在本时段总体运行亚稳定（83.9 分，B 级）：评估 6 个参数，检出 106 个 SPC 违规剧集、0 项显著漂移。",
+    "n_parameters_assessed": 6,
+    "n_findings": 10,
+    "findings_by_severity": {
+      "info": 2,
+      "warn": 3,
+      "high": 5,
+      "critical": 0
+    }
+  }
+}

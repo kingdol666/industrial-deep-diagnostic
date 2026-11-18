@@ -1,0 +1,44 @@
+{
+  "schema_version": "1.0",
+  "ontology_version": "1.0.0",
+  "title": "水泥球磨机-闭路粉磨系统本体（教学夹具）",
+  "scene": {
+    "name": "水泥磨闭路粉磨系统（P·O 42.5）",
+    "process_type": "cement_ball_mill_closed_circuit",
+    "production_goal": "在比表面积 3400-3600 cm²/g 与主轴承温度 ≤68℃ 约束下稳定台时产量",
+    "equipment": ["球磨机", "主轴承（低压润滑）", "选粉机", "主排风机", "斗式提升机"],
+    "stages": ["配料喂料", "粉磨", "选粉分级", "输送入库"]
+  },
+  "signals": {
+    "粉磨系统": [
+      {"column": "磨机电流", "name": "球磨机主电机电流", "unit": "A", "role": "process", "normal_range": [235.0, 260.0], "target": 245.0, "stage_ref": "粉磨", "equipment_ref": "球磨机", "governing_law": "轴功率 P∝T_load·ω；轴承摩擦阻力矩增大直接抬升电流", "physical_meaning": "磨机负载与摩擦状态的首要观测量"},
+      {"column": "主轴承温度", "name": "主轴承（低压侧）温度", "unit": "℃", "role": "process", "normal_range": [55.0, 68.0], "target": 62.0, "stage_ref": "粉磨", "equipment_ref": "主轴承（低压润滑）", "governing_law": "摩擦功耗 Q=μ·F·v 转化为温升，与润滑油膜状态强相关", "physical_meaning": "润滑恶化/冷却水不足时缓慢爬升，是烧瓦前兆"},
+      {"column": "入磨喂料量", "name": "入磨喂料量", "unit": "t/h", "role": "process", "normal_range": [120.0, 136.0], "target": 128.0, "stage_ref": "配料喂料", "equipment_ref": "球磨机", "governing_law": "球磨内存料量平衡", "physical_meaning": "负荷率主控变量"},
+      {"column": "选粉机转速", "name": "选粉机转速", "unit": "rpm", "role": "process", "normal_range": [1120.0, 1240.0], "target": 1180.0, "stage_ref": "选粉分级", "equipment_ref": "选粉机", "governing_law": "分级粒径 d50∝1/n²", "physical_meaning": "成品细度主控变量"},
+      {"column": "磨音", "name": "磨音（电耳）", "unit": "dB", "role": "process", "normal_range": [83.0, 89.0], "target": 86.0, "stage_ref": "粉磨", "equipment_ref": "球磨机", "governing_law": "存料量增大→研磨体撞击减弱→磨音下降", "physical_meaning": "饱磨/空磨的声学指示"}
+    ],
+    "质量指标": [
+      {"column": "比表面积", "name": "成品比表面积", "unit": "cm²/g", "role": "quality", "normal_range": [3400.0, 3600.0], "target": 3500.0, "stage_ref": "选粉分级", "equipment_ref": "选粉机", "governing_law": "细度与磨温、选粉转速耦合", "physical_meaning": "水泥强度等级的核心指标"},
+      {"column": "台时产量", "name": "台时产量", "unit": "t/h", "role": "quality", "normal_range": [135.0, 150.0], "target": 142.0, "stage_ref": "输送入库", "equipment_ref": "斗式提升机", "governing_law": "闭路循环平衡", "physical_meaning": "产能指标"}
+    ]
+  },
+  "parameter_groups": {
+    "粉磨系统": ["磨机电流", "主轴承温度", "入磨喂料量", "选粉机转速", "磨音"],
+    "质量指标": ["比表面积", "台时产量"]
+  },
+  "relationships": [
+    {"from": "主轴承温度", "to": "磨机电流", "type": "causal", "strength": "strong", "mechanism": "润滑恶化→油膜变薄→轴承摩擦阻力矩增大→主电机电流抬升", "governing_equation": "I ∝ (T_load + μ(T_brg)·F·r)/η"},
+    {"from": "主轴承温度", "to": "磨音", "type": "causal", "strength": "medium", "mechanism": "磨温升高伴随存料量/料球比变化，磨音同向减弱", "governing_equation": null},
+    {"from": "选粉机转速", "to": "比表面积", "type": "causal", "strength": "strong", "mechanism": "转速升高分级粒径减小，成品变细、比表面积上升", "governing_equation": "d50 ∝ n^(-2)"}
+  ],
+  "confounders": [
+    {"variable": "研磨体级配与衬板磨损", "why": "磨损改变冲击谱与电流基线，未随数据记录", "controlled": false},
+    {"variable": "物料易磨性（混合材配比波动）", "why": "易磨性变化同时影响产量与细度，未控", "controlled": false},
+    {"variable": "环境/冷却水温度", "why": "季节性影响轴承散热，未记录", "controlled": false}
+  ],
+  "metadata": {
+    "units_note": "normal_range 为 [下限, 上限]",
+    "basis": "教学夹具：5000t/d 熟料线配套水泥磨典型运行值（合成数据 seed=701）",
+    "authored_by": "agent-generated teaching ontology (hand-authored physics)"
+  }
+}

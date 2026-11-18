@@ -1,0 +1,131 @@
+{
+  "generated_at": "2026-10-18T02:45:06.920259+00:00",
+  "analysis_mode": "designed",
+  "design_type": "full_factorial",
+  "evidence_grade": "A",
+  "grade_checklist": {
+    "randomization_ok": true,
+    "pure_error_df_gt0": true,
+    "resolution_ok": true,
+    "balanced": true,
+    "model_adequacy_ok": null,
+    "anti_spurious_ok": null,
+    "overridden_by": null
+  },
+  "authored_by": "agent",
+  "key_findings": [
+    {
+      "id": "KF-001",
+      "statement": "保压压力 SP(hold_pressure_sp_bar, A)是制品重量(part_weight_g)的主导因子:编码系数 +0.15723(SE 0.003469, F=2053.70, BH q=9.04×10⁻¹⁰⁰, partial η²=0.919, Pareto 第 1)。换算工程单位:+0.05241 g/bar;A 全摆幅 45→51 bar(2 个编码单位)即约 +0.314 g,占制品重量均值 31.39 g 的约 1.0%。方向为正向——保压压力越高、补缩越充分,制品越重,是本实验唯一具备工程量级的主效应。",
+      "evidence_refs": [
+        "effect_table.json#part_weight_g.hold_pressure_sp_bar"
+      ],
+      "confidence": "high",
+      "fdr_q": 9.037344856148682e-100
+    },
+    {
+      "id": "KF-002",
+      "statement": "机筒一区温度 SP(barrel_zone1_temp_sp_c, B)对制品重量是统计显著、工程可忽略的负向小效应:编码系数 −0.012365(SE 0.003469, F=12.70, BH q=9.36×10⁻⁴, partial η²=0.066, Pareto 第 2)。换算工程单位:−0.002473 g/℃;全摆幅 240→250 ℃(2 个编码单位)约 −0.025 g,仅为制品重量均值的约 0.08%,相对条件间稳态标准差(0.034–0.048 g)处于同一量级。判读时须同时看统计显著性与工程显著性,不能据 q 值把它当成调重手段。",
+      "evidence_refs": [
+        "effect_table.json#part_weight_g.barrel_zone1_temp_sp_c"
+      ],
+      "confidence": "high",
+      "fdr_q": 0.0009358574085519936
+    },
+    {
+      "id": "KF-003",
+      "statement": "机筒一区温度 SP(B)几乎完全决定熔体温度 PV(melt_temp_c):编码系数 +1.346397(SE 0.018672, F=5199.69, BH q=3.89×10⁻¹³⁴, partial η²=0.967, Pareto 第 1)。换算工程单位:+0.269279 ℃/℃,全摆幅 240→250 ℃ 即约 +2.69 ℃。但 PV 与 SP 之间存在固定偏移:SP 240 ℃ 时 PV≈246.7 ℃、SP 250 ℃ 时 PV≈249.4 ℃(见 00_input/doe_table_build_report.json),因此 B 是可用的设定值杠杆,不能把 SP 直接当作熔体实际温度使用。",
+      "evidence_refs": [
+        "effect_table.json#melt_temp_c.barrel_zone1_temp_sp_c"
+      ],
+      "confidence": "high",
+      "fdr_q": 3.885175992181079e-134
+    },
+    {
+      "id": "KF-004",
+      "statement": "曲率不显著,且本设计的曲率项不可归因于单一因子:A²(hold_pressure_sp_bar^2)对 melt_temp_c 的编码系数 +0.017796(SE 0.041751, F=0.182, BH q=0.957, partial η²=0.001)。设计只有 1 个中心条件,A² 与 B² 完全共线(barrel_zone1_temp_sp_c^2 被判 aliased、未估计),该行实际代表“角点相对中心点的总体曲率”;同理它在 part_weight_g(q=0.841)与 injection_pressure_bar(q=0.500)上也不显著。结论是“本数据未检出曲率”,而不是“A 无曲率”。",
+      "evidence_refs": [
+        "effect_table.json#melt_temp_c.hold_pressure_sp_bar^2"
+      ],
+      "confidence": "medium",
+      "fdr_q": 0.9571637075678611
+    },
+    {
+      "id": "KF-005",
+      "statement": "机筒一区温度 SP(B)对注射压力 PV(injection_pressure_bar)为显著负向主效应:编码系数 −0.290091(SE 0.043350, F=44.78, BH q=1.08×10⁻⁹, partial η²=0.199, Pareto 第 1),工程单位 −0.058018 bar/℃(全摆幅约 −0.58 bar)。机理方向与“温度升高→熔体黏度下降→所需注射压力下降”一致。该响应族模型解释力有限(R²=0.2437, adj-R²=0.2269, Q²=0.2011),只宜作为趋势/能耗参考,不宜作为控制目标。",
+      "evidence_refs": [
+        "effect_table.json#injection_pressure_bar.barrel_zone1_temp_sp_c"
+      ],
+      "confidence": "high",
+      "fdr_q": 1.0794503590573762e-09
+    },
+    {
+      "id": "KF-006",
+      "statement": "唯一的显著交互出现在注射压力 PV 上:A×B 编码系数 −0.129728(SE 0.043350, F=8.956, BH q=6.31×10⁻³, partial η²=0.047, Pareto 第 2),含义是 B 的降黏降压力效果在高保压压力(A=51 bar)时更强。对质量指标 part_weight_g,同一交互完全不显著(编码 +0.000878, q=0.841, partial η²=0.0004),因此制品重量可按“A、B 主效应可加”来读,不需要为交互额外设置工艺窗口。",
+      "evidence_refs": [
+        "effect_table.json#injection_pressure_bar.hold_pressure_sp_bar:barrel_zone1_temp_sp_c"
+      ],
+      "confidence": "high",
+      "fdr_q": 0.006309411138379943
+    }
+  ],
+  "limitations": [
+    "响应 part_weight_g 的最大 Cook's D=0.038591 超过 4/n 截断 — 个别试验点对系数影响过大，删除该点可能改变结论",
+    "响应 melt_temp_c 残差诊断：1/185 个样本的残差绝对值超过 3σ — 存在离群运行，建议核对原始记录后复核系数",
+    "响应 melt_temp_c 的最大 Cook's D=0.058492 超过 4/n 截断 — 个别试验点对系数影响过大，删除该点可能改变结论",
+    "响应 injection_pressure_bar 残差诊断：2/185 个样本的残差绝对值超过 3σ — 存在离群运行，建议核对原始记录后复核系数",
+    "响应 injection_pressure_bar 的最大 Cook's D=0.087495 超过 4/n 截断 — 个别试验点对系数影响过大，删除该点可能改变结论",
+    "用户未提供任何规格上下限(lsl/usl/target):operating_windows 是方向性窗口,不是规格约束窗口,不可据此判定制品合格/超差,也不可换算 Cp/Cpk。",
+    "每个条件只执行一次,条件内 37 个制品是同一工况下的重复测量(伪重复):df_pure_error=180 被严重高估,只有 5 个条件(4 角点 + 1 中心)是真正独立的试验单元,因此所有 p/q 与 MDE(part_weight_g 0.017482 g)均为乐观值,真实可检效应应显著大于表中 MDE。",
+    "运行顺序固定为 C1→C2→C3→C4→C5,未随机化;01_profile/data_profile.json 的 caveats 为空、未产生 NON_RANDOMIZED 警示——自动检查以 run_order_col=ts_block_start 做 Spearman,而该列是字符串时间戳,无法数值化,检查被跳过。因此 evidence_grade=A 只能视为条件性结论,因子效应仍可能混入时间/批次漂移。",
+    "曲率不可分离且失拟不可检验:仅 1 个中心条件,设计只支持 1 个二次项(A² 与 B² 完全共线,B² 判 aliased),df_resid=df_pure_error=180 → df_lack_of_fit=0,失拟检验不可估;模型形式(“单一曲率 + 交互 + 线性”)本身无法被本数据否决。",
+    "熔体温度 PV ≠ 机筒温度 SP:PV 在 SP 240 ℃ 下约 246.7 ℃、SP 250 ℃ 下约 249.4 ℃(固定偏移,见 doe_table_build_report.json)。B 只能作为设定值(SP)杠杆解释,不能直接当作熔体实际温度,也不能据此反推其它温度设定下的 PV。",
+    "成型周期 cycle_time_s 在全部样本恒为 15.3 s(零方差),任何因子对周期的影响都不可估,因此本实验无法给出效率(周期)代价,最优工况权衡只能是单目标(质量)推荐 + 待验证的效率假设。",
+    "合意度默认规则带来的解释风险:melt_temp_c 与 injection_pressure_bar 的 goal 未设、权重 0.001,脚本按 maximize 默认处理,因此 setpoints 中 B≈240.1 ℃ 是低权重辅助响应的盒边界解,不构成温度的工程最优;温度设定应在 [240,250] ℃ 内按工艺约束取定。"
+  ],
+  "figure_index": [
+    {
+      "file": "pareto_part_weight_g.png",
+      "title": "Pareto of standardized effects — part_weight_g"
+    },
+    {
+      "file": "residuals_part_weight_g.png",
+      "title": "Residual diagnostics — part_weight_g"
+    },
+    {
+      "file": "pareto_melt_temp_c.png",
+      "title": "Pareto of standardized effects — melt_temp_c"
+    },
+    {
+      "file": "residuals_melt_temp_c.png",
+      "title": "Residual diagnostics — melt_temp_c"
+    },
+    {
+      "file": "pareto_injection_pressure_bar.png",
+      "title": "Pareto of standardized effects — injection_pressure_bar"
+    },
+    {
+      "file": "residuals_injection_pressure_bar.png",
+      "title": "Residual diagnostics — injection_pressure_bar"
+    },
+    {
+      "file": "main_effects_part_weight_g.png",
+      "title": "Main effects — part_weight_g"
+    },
+    {
+      "file": "contour_part_weight_g.png",
+      "title": "Predicted response contour — part_weight_g (top-Pareto pair hold_pressure_sp_bar x barrel_zone1_temp_sp_c)"
+    }
+  ],
+  "recommendations_ref": "conclusions/recommendations.json",
+  "downstream_usage_card": {
+    "contract_version": "1.0",
+    "n_windows": 2,
+    "n_confirmations": 0,
+    "n_watchlist": 11,
+    "usage_rules": [
+      "窗口外推端点（extrapolation=true）需工艺确认后方可执行",
+      "多响应窗口冲突以 conflicts[].chosen 为准"
+    ]
+  }
+}

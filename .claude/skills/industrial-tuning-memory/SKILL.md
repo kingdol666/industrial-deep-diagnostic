@@ -98,3 +98,11 @@ uv run --project "$SHARED_PATH/scripts" python \
 | 本地经验库为空 / 无命中 | 四级降级链 regime→product→machine→generic → direction_only → fallback_generic（doe-analyzer 提示）→ no_playbook_hit |
 | 无动作日志冷启动 | step_detector 反推 → E0 advisory 条目（不参与 E2 晋升；工程师 confirmed 反馈补归属） |
 | Gate FAIL | 重跑对应脚本步骤修正（禁止手改 JSON 数字），最多 3 轮 |
+
+## Heterogeneous evidence (E-1H, M3)
+
+`07_hetero/annotations.json`（TXT 形态操作备注：`event_ts/text/tags[]/tag_slug/source_sha256`）是
+E0–E3 佐证（advisory）输入——引用前先把 `event_ts` 与归因基线/效果段（及哨兵告警时刻）对齐。
+`HX-*` 列（`07_hetero/preprocessed_data_hetero.csv` 的派生特征）**永不**进入
+`fault_signature.anomalous_params`：派生特征不是登记参数，混入会把 playbook 匹配分压到 0.55 阈值
+以下 → 静默退化 `fallback_generic`。
