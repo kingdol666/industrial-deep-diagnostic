@@ -206,7 +206,7 @@ router.post('/chat/:runId', async (req, res) => {
   }
 
   try {
-    const sent = await sendChatMessage(runId, message, req.user);
+    const sent = await sendChatMessage(runId, message, req.user, { maxTurns });
     if (!sent) {
       // 404 now means exactly one thing: the run does not exist (or is not
       // visible to this caller). A run that exists but cannot resume/rebuild
@@ -240,13 +240,14 @@ router.post('/chat/:runId', async (req, res) => {
 
 // Session mapping audit (plan v2 B0.3): shows which harness session a run is
 // bound to, whether it is resumable, and whether a missing id can be reconciled.
+// Tenancy-scoped like every sibling — the session binding is run data.
 router.get('/session-map/:runId', (req, res) => {
   try {
-    const run = stmts.getRunById.get(req.params.runId);
+    const run = getRunStatus(req.params.runId, req.user);
     if (!run) return res.status(404).json({ success: false, error: 'Run not found' });
     res.json({ success: true, data: sessionMap(run) });
   } catch (err) {
-    res.status(err.status || 500).json({ success: false, code: err.code, error: err.message });
+    res.status(err.status || 500).json({ success: false, code: err.code || 'DIAGNOSIS_ERROR', error: err.message });
   }
 });
 

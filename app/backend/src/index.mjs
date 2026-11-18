@@ -15,6 +15,7 @@ import externalRoutes from './routes/external.routes.mjs';
 import resultsRoutes from './routes/results.routes.mjs';
 import lineMemoryRoutes from './routes/line-memory.routes.mjs';
 import { authGuard } from './middleware/auth.middleware.mjs';
+import { closeAllEngines } from './services/diagnosis.service.mjs';
 import { initWebSocket, closeWebSocket, getWSS } from './transport/ws-server.mjs';
 import { buildCorsOptions, resolveAllowedOrigins } from './transport/cors.mjs';
 import {
@@ -465,6 +466,20 @@ async function gracefulShutdown(reason, exitCode = 0) {
   setShuttingDown(reason);
   logger.warn(`Graceful shutdown starting (${reason})`, { context: 'Shutdown' });
 
+  // Stop active session chats first: each owns a live engine child whose
+  // session file must be released before the process exits (orphaned omp
+  // children hold cross-process session locks and break the next resume).
+  try {
+    const { listActiveChats, stopChat } = await import('./services/chat.service.mjs');
+    for (const chat of listActiveChats()) {
+      if (chat.status === 'active') {
+        try { stopChat(chat.chatId); } catch { /* best effort */ }
+      }
+    }
+  } catch (err) {
+    logger.warn(`Active chat shutdown incomplete: ${err.message}`, { context: 'Shutdown' });
+  }
+
   notifyLiveEngines();          // (a) live engine processes
   closeWebSocketClients();
   await closeHttpServer(server); // (b) drain HTTP
@@ -494,7 +509,7 @@ function installProcessHandlers() {
     gracefulShutdown('unhandledRejection', 1);
   });
 
-  for (const signal of ['SIGTERM', 'SIGINT']) {
+  for (const signal of ['SIGTERM', 'SIGINT', 'SIGBREAK']) {
     process.on(signal, () => {
       if (shutdownInProgress) {
         logger.warn(`Second ${signal} — exiting immediately`, { context: 'Shutdown' });
@@ -531,39 +546,10 @@ initialize().then(() => {
 });
 
 // ─── Graceful shutdown ───────────────────────────────────────────────────
-// Killing the backend used to leave engine children (omp/claude) alive; they
-// keep their session files locked, so the next process's resume hits
-// "session open for writing in another omp process" and stalls. Close every
-// engine child and the WS server before exiting.
-let shuttingDown = false;
-async function shutdown(signal) {
-  if (shuttingDown) return;
-  shuttingDown = true;
-  logger.info(`Received ${signal} — shutting down (closing engine children)`, { context: 'Server' });
-  try {
-    const { shutdownAllEngines } = await import('./services/diagnosis.service.mjs');
-    const { listActiveChats, stopChat } = await import('./services/chat.service.mjs');
-    for (const chat of listActiveChats()) {
-      if (chat.status === 'active') {
-        try { stopChat(chat.chatId); } catch { /* best effort */ }
-      }
-    }
-    const closed = shutdownAllEngines();
-    logger.info(`Closed engine state for ${closed} run(s)`, { context: 'Server' });
-  } catch (err) {
-    logger.warn(`Engine shutdown incomplete: ${err.message}`, { context: 'Server' });
-  }
-  try { closeWebSocket(); } catch { /* best effort */ }
-  server.close(() => {
-    logger.info('HTTP server closed', { context: 'Server' });
-    process.exit(0);
-  });
-  // A stuck keep-alive connection must not block shutdown forever.
-  setTimeout(() => process.exit(0), 5000).unref?.();
-}
-process.on('SIGINT', () => { void shutdown('SIGINT'); });
-process.on('SIGTERM', () => { void shutdown('SIGTERM'); });
-process.on('SIGBREAK', () => { void shutdown('SIGBREAK'); }); // Windows Ctrl+Break
+// Engine children, active chats, the WS server and the WAL checkpoint are all
+// handled by installProcessHandlers() → gracefulShutdown() above (single
+// implementation — a merge briefly carried a second legacy shutdown here, and
+// two concurrent handlers on one signal could exit before the hooks ran).
 
 // Periodic event-log retention (startup applies it too): long claude runs can
 // emit >100k events; the UI only renders the newest window.

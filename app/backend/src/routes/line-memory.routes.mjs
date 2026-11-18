@@ -37,6 +37,12 @@ function wrap(handler) {
   };
 }
 
+// Mutating endpoints (refute / unrefute / merge / consolidate / proposal
+// approve-reject) rewrite CROSS-TENANT shared memory — admin-only, same rule
+// as the other destructive management surfaces. Auth-gated GETs stay open to
+// every authenticated user.
+import { adminOnly } from '../services/tenancy.mjs';
+
 router.get('/lines', wrap((req, res) => {
   res.json({ success: true, data: listLines() });
 }));
@@ -57,7 +63,7 @@ router.get('/lines/:key/ontology', wrap((req, res) => {
   res.json({ success: true, data: ontologyVersionsForLine(req.params.key) });
 }));
 
-router.post('/lines/:key/refute', wrap((req, res) => {
+router.post('/lines/:key/refute', adminOnly, wrap((req, res) => {
   const { entry_key, reason } = req.body || {};
   if (!entry_key) {
     return res.status(400).json({ success: false, code: 'ENTRY_REQUIRED', error: 'entry_key 必填' });
@@ -66,7 +72,7 @@ router.post('/lines/:key/refute', wrap((req, res) => {
   res.json({ success: true, data: { line_key: consensus.line_key, entry_key, status: 'refuted' } });
 }));
 
-router.post('/lines/:key/unrefute', wrap((req, res) => {
+router.post('/lines/:key/unrefute', adminOnly, wrap((req, res) => {
   const { entry_key } = req.body || {};
   if (!entry_key) {
     return res.status(400).json({ success: false, code: 'ENTRY_REQUIRED', error: 'entry_key 必填' });
@@ -75,7 +81,7 @@ router.post('/lines/:key/unrefute', wrap((req, res) => {
   res.json({ success: true, data: { line_key: consensus.line_key, entry_key, status: 'active' } });
 }));
 
-router.post('/lines/:key/merge', wrap((req, res) => {
+router.post('/lines/:key/merge', adminOnly, wrap((req, res) => {
   const { into } = req.body || {};
   if (!into) {
     return res.status(400).json({ success: false, code: 'INTO_REQUIRED', error: 'into(目标 line_key) 必填' });
@@ -84,7 +90,7 @@ router.post('/lines/:key/merge', wrap((req, res) => {
   res.json({ success: true, data: result });
 }));
 
-router.post('/lines/:key/consolidate', wrap((req, res) => {
+router.post('/lines/:key/consolidate', adminOnly, wrap((req, res) => {
   const consensus = consolidateLine(req.params.key);
   res.json({ success: true, data: { line_key: consensus.line_key, stats: consensus.stats } });
 }));
@@ -106,7 +112,7 @@ function decide(action) {
   });
 }
 
-router.post('/proposals/:id/approve', decide('approve'));
-router.post('/proposals/:id/reject', decide('reject'));
+router.post('/proposals/:id/approve', adminOnly, decide('approve'));
+router.post('/proposals/:id/reject', adminOnly, decide('reject'));
 
 export default router;

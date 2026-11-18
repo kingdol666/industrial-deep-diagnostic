@@ -18,8 +18,10 @@
 // historical 409.
 
 import { Router } from 'express';
+import { config } from '../../../../config/loader.mjs';
 
 import { listHarnesses } from '../harness/registry.mjs';
+import { userRateLimit } from '../services/tenancy.mjs';
 import {
   assertRunHarnessUsable, validateDataPath, createDiagnosisRun,
   triggerDiagnosis, stopDiagnosis, subscribeSSE, startStream, getRunStatus, canViewRun,
@@ -40,6 +42,14 @@ import {
 import logger from '../utils/logger.mjs';
 
 const router = Router();
+
+// POST /v1/analyze creates a REAL run — same budget as the console's
+// start/execute/tasks trio (mirrors diagnosis.routes.startRateLimit).
+const startLimitCfg = config.security?.start_rate_limit || {};
+const analyzeRateLimit = userRateLimit({
+  windowMs: Number(startLimitCfg.window_ms ?? startLimitCfg.windowMs ?? 60_000),
+  max: Number(startLimitCfg.max ?? 10),
+});
 const TERMINAL = new Set(['completed', 'failed', 'stopped', 'interrupted', 'expired', 'awaiting_input']);
 
 // 500 responses are generic (code only); the real error goes to the log (B4).
@@ -96,7 +106,7 @@ router.get('/v1/capabilities', async (req, res) => {
 //   question? (→ objective + user_question), reportLanguage? (default zh),
 //   wait?: bool (block until terminal; cap wait_timeout_minutes, default 30)
 // }
-router.post('/v1/analyze', async (req, res) => {
+router.post('/v1/analyze', analyzeRateLimit, async (req, res) => {
   try {
     const body = req.body || {};
     const harness = body.harness || 'claude';
@@ -126,9 +136,6 @@ router.post('/v1/analyze', async (req, res) => {
       sceneName: body.sceneName,
       harness,
       analysisIntent: intent,
-      // Attribute the run to the authenticated caller so results-library
-      // ownership enforcement (RESULT_FORBIDDEN) applies to external runs too.
-      userId: req.user?.id ?? null,
       // DOE ontology-first policy (contracts §7.3). Omitted fields fall back to
       // mode=auto/data_stage=collected; `off` is refused unless the dev override
       // is explicitly set (an external caller can never silently skip the gate).

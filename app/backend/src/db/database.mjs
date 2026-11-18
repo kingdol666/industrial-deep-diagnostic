@@ -105,9 +105,13 @@ const stmts = {
            user_id, category_id, deleted_at, owner_user_id,
            created_at, updated_at, completed_at, error_message
     FROM diagnostic_runs
-    -- Legacy rows (user_id IS NULL) predate ownership and stay visible to every
-    -- authenticated user; newly created rows are scoped to their creator.
-    WHERE (@userId IS NULL OR user_id = @userId OR user_id IS NULL)
+    -- Visibility (matches getRunStatus/requireRun): own rows, plus rows that
+    -- are unowned under BOTH columns. A user_id-NULL row whose owner_user_id
+    -- was backfilled (v3) belongs to the bootstrap admin — listing it to a
+    -- non-admin would create a ghost row that 404s on detail (existence leak).
+    WHERE (@userId IS NULL
+           OR user_id = @userId
+           OR (user_id IS NULL AND owner_user_id IS NULL))
       AND (@includeDeleted = 1 OR deleted_at IS NULL)
       AND (@categoryId IS NULL OR category_id = @categoryId)
       AND (@status IS NULL OR status = @status)
@@ -117,7 +121,9 @@ const stmts = {
   `),
   countRunsFiltered: db.prepare(`
     SELECT COUNT(*) AS n FROM diagnostic_runs
-    WHERE (@userId IS NULL OR user_id = @userId OR user_id IS NULL)
+    WHERE (@userId IS NULL
+           OR user_id = @userId
+           OR (user_id IS NULL AND owner_user_id IS NULL))
       AND (@includeDeleted = 1 OR deleted_at IS NULL)
       AND (@categoryId IS NULL OR category_id = @categoryId)
       AND (@status IS NULL OR status = @status)

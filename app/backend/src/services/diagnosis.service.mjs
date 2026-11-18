@@ -1266,7 +1266,17 @@ async function executeDiagnosis(runId, run, isRetry = false) {
   } else {
     const dp = run.data_path;
     if (dp && dp.startsWith('[')) {
-      analysisTarget = { mode: 'multi', files: JSON.parse(dp) };
+      // A malformed multi-mode payload must not crash the async executor with
+      // an unhandledRejection (triggerDiagnosis fires executeDiagnosis without
+      // await) — fail the run instead.
+      try {
+        analysisTarget = { mode: 'multi', files: JSON.parse(dp) };
+      } catch {
+        const err = new Error(`Corrupt multi-mode data_path on run ${runId}: JSON parse failed`);
+        err.status = 500;
+        err.code = 'DATA_PATH_CORRUPT';
+        throw err;
+      }
     } else if (run.data_folder && dp === run.data_folder) {
       analysisTarget = { mode: 'folder', folderPath: dp };
     } else {
@@ -1603,7 +1613,6 @@ async function executeDiagnosis(runId, run, isRetry = false) {
       }
     }
 
-    // Stream ended
     // Stream ended
     executingRuns.delete(runId);
     stoppingRuns.delete(runId);

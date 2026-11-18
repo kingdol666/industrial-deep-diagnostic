@@ -597,7 +597,7 @@ export function startDiagnosis({
   return { query, dataPaths, prompt, getSessionId, runId, isResume: !!resumeSessionId };
 }
 
-export function startSessionChat({ runId, sessionId, message, maxTurns = 1, harness = 'claude' }) {
+export function startSessionChat({ runId, sessionId, message, maxTurns = 1, harness = 'claude', timeoutMinutes = 0 }) {
   if (!sdkAvailable || !queryFn) {
     throw new Error('Claude Agent SDK not available. Install with: npm install @anthropic-ai/claude-agent-sdk');
   }

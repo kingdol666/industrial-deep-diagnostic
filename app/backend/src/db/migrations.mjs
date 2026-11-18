@@ -345,7 +345,7 @@ export const MIGRATIONS = [
     detect: (db) => tableExists(db, 'run_categories')
       && tableExists(db, 'external_tasks')
       && tableExists(db, 'analysis_results')
-      && columnExists(db, 'diagnostic_runs', 'deleted_at'),
+      && ['user_id', 'title', 'deleted_at', 'category_id'].every((c) => columnExists(db, 'diagnostic_runs', c)),
     up: (db) => {
       // ── Run management (2026-10-22): user-created categories. Rows are
       // scoped to the owning user; a category name is unique per user only.

@@ -123,7 +123,13 @@ export async function buildExternalResult(runId, viewer = INTERNAL) {
 // TASK_MAX_ENTRIES by evicting the oldest terminal entries first. Non-terminal
 // (accepted/queued/running) entries are NEVER evicted — a caller polling a
 // live task must always find it; durable rows are the DB's concern.
-const TERMINAL = new Set(['completed', 'failed', 'stopped', 'interrupted', 'expired', 'awaiting_input']);
+// FINAL = truly terminal task statuses (result can be frozen; entry may age out).
+// awaiting_input is a PAUSE (HITL question), not an end: freezing it would
+// snapshot an all-null result and block the later refresh forever (external
+// P1: a run that asks a question voids its task result until restart).
+const FINAL = new Set(['completed', 'failed', 'stopped', 'interrupted', 'expired']);
+const PAUSED = new Set(['awaiting_input']);
+const TERMINAL = new Set([...FINAL, ...PAUSED]);
 const tasks = new Map(); // task_id -> entry (hot cache; DB is the durable copy)
 const TASK_MAX_ENTRIES = 200;
 const TASK_TTL_MS = 24 * 60 * 60 * 1000; // terminal entries older than 24h
@@ -154,7 +160,7 @@ function _entryTime(e) {
  */
 export function evictStaleTasks(now = Date.now()) {
   for (const [id, e] of tasks) {
-    if (!TERMINAL.has(e.status)) continue;
+    if (!FINAL.has(e.status)) continue;
     const ts = _entryTime(e);
     if (ts && now - ts > TASK_TTL_MS) tasks.delete(id);
   }
@@ -162,7 +168,7 @@ export function evictStaleTasks(now = Date.now()) {
     let oldestId = null;
     let oldestTs = Infinity;
     for (const [id, e] of tasks) {
-      if (!TERMINAL.has(e.status)) continue;
+      if (!FINAL.has(e.status)) continue;
       const ts = _entryTime(e);
       if (ts < oldestTs) { oldestTs = ts; oldestId = id; }
     }
@@ -295,9 +301,13 @@ export async function refreshTask(taskId, viewer = INTERNAL) {
   }
   e.status = built.status === 'running' ? 'running' : built.status;
   if (e.status === 'running' && !e.started_at) e.started_at = built.created_at ?? e.started_at;
-  if (TERMINAL.has(e.status)) {
+  // FINAL only: a paused (awaiting_input) task must not freeze a null result —
+  // the freeze here is what the later completed refresh checks against.
+  if (FINAL.has(e.status)) {
     e.finished_at = built.finished_at ?? new Date().toISOString();
-    if (!e.result) e.result = {
+    // Overwrite when arriving at a truly-final state with a real result; keep
+    // the one-shot snapshot on repeat polls of the same terminal state.
+    if (!e.result || built.result) e.result = {
       summary: built.result?.summary ?? null,
       verdict: built.result?.verdict ?? null,
       score: built.result?.score ?? null,
@@ -313,8 +323,10 @@ export async function refreshTask(taskId, viewer = INTERNAL) {
   // Progress counters must also be refreshed AFTER the run reaches a terminal
   // state: a task polled for the first time only after completion used to keep
   // events=0/tools=0 forever (the counters were only updated in the live
-  // branch). The snapshot is the same source for both branches.
-  const snap = getRunRealtimeSnapshot(e.run_id);
+  // branch). The snapshot is the same source for both branches. INTERNAL: the
+  // caller's viewer was already enforced above — a no-arg call here would hit
+  // the dual-mode signature's viewer branch and silently fail canView.
+  const snap = getRunRealtimeSnapshot(e.run_id, INTERNAL);
   if (snap) {
     const events = Array.isArray(snap.events) ? snap.events : [];
     e.progress.events = events.length;
