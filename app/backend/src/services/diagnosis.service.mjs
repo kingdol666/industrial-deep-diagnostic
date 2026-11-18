@@ -1550,7 +1550,17 @@ async function findLatestRunDir(sceneName, knownDirs = new Set()) {
   if (!existsSync(WORKSPACE_DIR)) return null;
   const entries = await readdir(WORKSPACE_DIR);
   const escapedName = sceneName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const dirPattern = new RegExp(`_${escapedName}$`);
+  // Engines slugify the scene name when creating the run dir (mock-client
+  // replaces every non [a-zA-Z0-9_一-龥] char with '_'), so a scene like
+  // "persist-check-stab" lands on disk as "_persist_check_stab". Accept BOTH
+  // the raw and the slugified suffix, or completion matching silently degrades
+  // to the single-new-dir fallback and concurrent runs refuse each other.
+  const slugName = sceneName.replace(/[^a-zA-Z0-9_一-龥]/g, '_');
+  const patterns = [new RegExp(`_${escapedName}$`)];
+  if (slugName !== sceneName) {
+    patterns.push(new RegExp(`_${slugName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`));
+  }
+  const dirMatches = (entry) => patterns.some((p) => p.test(entry));
 
   // Collect all matching dirs, excluding known ones (from snapshot)
   // and directories already claimed by other runs in the DB
@@ -1568,7 +1578,7 @@ async function findLatestRunDir(sceneName, knownDirs = new Set()) {
     try {
       const s = await stat(fullPath);
       if (!s.isDirectory()) continue;
-      if (dirPattern.test(entry)) {
+      if (dirMatches(entry)) {
         if (s.mtimeMs > latestTime) {
           latestTime = s.mtimeMs;
           latest = fullPath;

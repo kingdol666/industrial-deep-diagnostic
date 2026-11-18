@@ -67,7 +67,9 @@ POST /api/auth/tokens        （需要 Bearer 会话 JWT）
 | `optimizer-campaign` | industrial-optimizer-loop | 布点寻优（只设计不下发参数） |
 | `improvement-advisory` | industrial-improvement-advisor | **三重门分级建议**（数据/物理/归因门 → A/B/C 级）：`advisory/advisory_actions.json`（全部动作带 95%CI、验证/回滚条款）+ `chapter.md` + `improvement_advisory.html`（A 证据账簿版式）+ `optimizer_seed.json`（B 级 top-1 自动序列化，供 optimizer-campaign 消费）。数据撑不起建议时诚实输出 `not_actionable` + 处方清单（`prescriptions`），不编造建议 |
 
-**harness 支持值（14 个）**：`claude`（推荐，真实 agent）· `omp`（推荐）· `mock`（集成测试，非真实分析）· `codex` · `dsh` · `opencode` · `gemini` · `copilot` · `cursor` · `crush` · `goose` · `hermes` —— 以上需本机已安装对应 CLI；`qwen` · `pi`（未安装，选中返回 409）。
+**harness 支持值（14 个）**：`claude`（推荐，真实 agent）· `omp`（推荐）· `mock`（集成测试，非真实分析）· `codex` · `dsh` · `opencode` · `gemini` · `copilot` · `cursor` · `crush` · `goose` · `hermes` —— 以上需本机已安装对应 CLI；未安装的引擎选中返回 409 `HARNESS_UNAVAILABLE`（**以 `GET /api/harness/availability` 的实时探测为准**，安装状态随机器变化）。
+
+> **引擎两级能力（2026-11-18 实测澄清）**：`capabilities[].runs_capable` 标记引擎是否支持 run 执行。**只具备 `live` 会话能力的引擎（如 qwen）**：提交会被接受（202），但执行会诚实失败——请先看 `runs_capable` 再选 harness。`oneshot` 型引擎（pi 等）执行单次 CLI 调用，行为与驻留型不同。
 
 > **专项 intent 的引擎支持面**：specialist intents（非 deep-diagnosis）的 intent 指令由 `buildIntentDirective` 注入，14 个引擎全部覆盖（claude / omp / acp 族 dsh·qwen·hermes / one-shot 族 gemini·copilot·cursor·crush·goose·pi / codex / opencode / mock），并把技能引用重定向到 intent 对应的 skill。若某引擎显式声明不支持某 intent，`/analyze` 返回 400 `INTENT_UNSUPPORTED_ON_HARNESS`（附 supported 列表），绝不静默跑错技能。deep-diagnosis 主链路不受影响。
 

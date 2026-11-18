@@ -51,8 +51,10 @@ curl "$BASE/tasks/$TASK_ID/result" -H "Authorization: Bearer $TOKEN"
 
 `claude`（默认，真实 agent）· `omp`（推荐）· `mock`（进程内剧本，联调/CI 恒可用，**非真实分析**）·
 `codex` · `dsh` · `opencode` · `gemini` · `copilot` · `cursor` · `crush` · `goose` · `qwen` ·
-`pi` · `hermes`。未知 → 400 `HARNESS_UNKNOWN`；未安装 → 409 `HARNESS_UNAVAILABLE`。
+`pi` · `hermes`。未知 → 400 `HARNESS_UNKNOWN`；已声明但不可用 → 409 `HARNESS_UNAVAILABLE`。
 `session_resume:true` 仅 claude/omp/goose/mock；其余引擎「续聊」为受控重建。
+⚠️ 选 harness 前先看 `/capabilities` 的 `runs_capable`：只有 `live` 能力的引擎（如 qwen）提交会被
+接受但执行诚实失败；引擎安装状态随机器变化，以 `GET /api/harness/availability` 实时探测为准。
 
 ## 4. POST /analyze — 发起分析（同步与异步二选一）
 
