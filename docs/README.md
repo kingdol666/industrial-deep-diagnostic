@@ -11,6 +11,8 @@
 | 文档 | 内容 |
 |---|---|
 | [api.md](api.md) | 外部 API 接口定义 + 错误码表 + 接入三步（已验证） |
+| [api-external.md](api-external.md) | `/api/external/v1` 完整字段级接口文档（v1.3：7 intent × 14 引擎、同步/异步/SSE、结果库、提示词注入协议 §17、产线记忆 §18） |
+| [api-external-plugin-manual.md](api-external-plugin-manual.md) | 外部插件接入手册（可照抄的调用配方 + 错误码速查，AgentWorkShop 插件向） |
 | [benchmark/](benchmark/README.md) | 诊断基准唯一文档入口：README（8 场景）+ design（指标/期刊 baseline 对标/口径 A/B）+ execution-guide（管线执行规程）+ reproduction-guide（复现手册）；编排脚本在 `scripts/benchmark/` |
 | [multi-harness.md](multi-harness.md) | 14 执行引擎适配架构（能力矩阵、工程纪律、API） |
 | [publication-strategy-report.md](publication-strategy-report.md) | 投稿策划（AEI 主投、章节模板、对比矩阵、命中率策略） |
@@ -33,4 +35,4 @@
 
 1. `architecture/system-overview.md` → `architecture/repository-layout.md`
 2. `benchmark/README.md` → `benchmark/design.md` → 根 `experience/README.md`（证据库与复现）
-3. 需要外部集成时读 `api.md`、`agentworkshop-integration.md`、`multi-harness.md`
+3. 需要外部集成时读 `api-external.md`（完整契约）、`api-external-plugin-manual.md`（插件配方）、`agentworkshop-integration.md`、`multi-harness.md`

@@ -1,6 +1,6 @@
 # IDD 对外集成 API 完整接口文档（/api/external/v1）
 
-> 版本 v1.1（2026-10-25 新增 §16 Results Library：摘要索引 / 详情 / 分类管理 / 描述视图）· Base URL：`http://<host>:3210/api/external/v1`（下文省写为 `{base}`）
+> 版本 v1.3（2026-11-18：新增 §2 的 `improvement-advisory` 第 7 意图、§3 的 wait 同步模式实测说明、§17 执行提示词注入协议、§18 产线记忆自动注入；§16 Results Library 不变）· Base URL：`http://<host>:3210/api/external/v1`（下文省写为 `{base}`）
 > 通用响应信封：成功 `{"success": true, "data": …}`；失败 `{"success": false, "code": "…", "error": "…"}`
 > 本文档逐端点给出**每个字段的类型、必填性、默认值、支持取值**。最后附错误码总表与接入配方。
 
@@ -55,16 +55,17 @@ POST /api/auth/tokens        （需要 Bearer 会话 JWT）
 | results_index | bool | 是否提供分析结果库两级接口（恒为 true；见 §16） |
 | results_endpoints | string[] | 结果库端点清单（索引 / 详情 / PATCH / 分类） |
 
-**analysisIntent 支持值（6 个）**：
+**analysisIntent 支持值（7 个）**：
 
 | 值 | 执行 skill | 产出 |
 |---|---|---|
 | `deep-diagnosis`（默认） | industrial-analysis-auto | 9 阶段根因诊断：竞争假设+证据链+`diagnostic-report.html` |
 | `quick-screen` | industrial-sentinel | 哨兵快筛：`alert.json` + `sentinel/watch_report.md` + `quick_screen_report.html`（本体集成后另有 `01_ontology/` 四件套，见 §3.1 ontology 字段） |
-| `stability-report` | industrial-line-stability-report | 稳定性评分（0-100/A-D）+ `line_stability_report.html` + `line_stability_report.md`（本体集成后另有 `01_ontology/` 四件套） |
-| `doe-analysis` | industrial-doe-analyzer | DOE/工况分析 + 操作窗 `recommendations.json` |
+| `stability-report` | industrial-line-stability-report | 稳定性评分（0-100/A-D）+ `line_stability_report.html` + `line_stability_report.md`（本体集成后另有 `01_ontology/` 四件套；**内置改善建议步骤**：`advisory/` 三件套自动产出并嵌入报告第三章） |
+| `doe-analysis` | industrial-doe-analyzer | DOE/工况分析 + 操作窗 `recommendations.json`（**内置改善建议步骤**：报告 §12 自动集成） |
 | `experience-mining` | industrial-tuning-memory | 调优动作归因 + 经验条目 |
 | `optimizer-campaign` | industrial-optimizer-loop | 布点寻优（只设计不下发参数） |
+| `improvement-advisory` | industrial-improvement-advisor | **三重门分级建议**（数据/物理/归因门 → A/B/C 级）：`advisory/advisory_actions.json`（全部动作带 95%CI、验证/回滚条款）+ `chapter.md` + `improvement_advisory.html`（A 证据账簿版式）+ `optimizer_seed.json`（B 级 top-1 自动序列化，供 optimizer-campaign 消费）。数据撑不起建议时诚实输出 `not_actionable` + 处方清单（`prescriptions`），不编造建议 |
 
 **harness 支持值（14 个）**：`claude`（推荐，真实 agent）· `omp`（推荐）· `mock`（集成测试，非真实分析）· `codex` · `dsh` · `opencode` · `gemini` · `copilot` · `cursor` · `crush` · `goose` · `hermes` —— 以上需本机已安装对应 CLI；`qwen` · `pi`（未安装，选中返回 409）。
 
@@ -474,3 +475,60 @@ for row in view["results"]:
 # 6) 删除分类只清引用、不删结果；结果详情仍可读
 requests.delete(f"{BASE}/results/categories/{cat['id']}", headers=HDR)
 ```
+
+---
+
+## 17. 执行提示词注入协议（外部调用者需要知道的）
+
+外部调用**不需要**自己拼分析提示词。`POST /analyze` 在 spawn 引擎时由后端确定性组装完整
+prompt（claude / omp / codex / opencode / acp 族 / one-shot 族全部引擎同一契约），注入以下
+分段（按序拼接；组装证据可复现，见本节末"实测锚点"）：
+
+| 分段 | 作用 | 何时注入 |
+|---|---|---|
+| Runtime Protocol | 管道纪律：skill 协议绑定、子 agent 委派、本体接地、竞争假设、禁止跳步、产物校验、语言规则 | 全部 intent（resume 时不注入） |
+| Skill 预摘录 | `SKILL.md` 前 8000 字符作为权威参考 | deep-diagnosis（systemPrompt） |
+| **Analysis Intent Directive** | 专项意图改派：声明本 run **不跑** 9 阶段管线；`Executing skill: <skill>. FIRST read .claude/skills/<skill>/SKILL.md in full`；强制先跑 setup.mjs 建工作区；`preprocessStep`（stability 数据预处理）/`htmlStep`（quick-screen、improvement-advisory 的确定性 HTML 步骤）；unit 规则（单位缺失写"单位未声明"，禁止从品名推断）；最后必须写 report.md | 非 deep-diagnosis 的全部 intent |
+| **Ontology Directive** | 本体阶段硬门：profile 感知（doe / stability / sentinel / improvement 各有确定性 prepare 命令与 `ONTOLOGY_BRIEF_REQUIRED` 门），reuse 模式给出 ≤60s 快路径，CP-2 校验 + 发布回 store | 按intent 白名单（§3.1 ontology 字段） |
+| Enhancement Directive | E0–E8 增强管线开关 | 仅 deep-diagnosis |
+| **Line Memory Directive** | 跨 run 产线记忆（L5 级先验）：共识/候选/线索 + 纪律声明（"必须用本次数据重新验证；与本次数据冲突时以本次为准；禁止直接复制旧结论"） | 该产线已有记忆时自动注入（fresh spawn；resume 不注入） |
+
+**对调用方的含义**：你只需要传 `analysisIntent` + 数据路径 + 可选的 ontology/line-memory 策略字段，
+引擎收到的就是"按对应 skill 规范作业"的完整约束 prompt——skill 规范（SKILL.md + agent-protocol.md）
+是绑定契约，agent 不得跳步、不得编数（"Every number you report must come from a tool executed
+during this run — never fabricate"）。
+
+实测锚点（2026-11-18）：mock 引擎同步/异步两模式均跑通（§14 配方）；注入分段长度
+runtime 2161 / intent 1962 / ontology 1138 / lineMemory 动态 chars，绑定行
+`ANALYSIS_INTENT: stability-report` + `Executing skill: industrial-line-stability-report. FIRST
+read …` 均真实出现在组装后的 prompt 中（存证 `.runtime/acceptance/injection-proof-prompt.md`）。
+
+## 18. 产线记忆自动注入与回流（越用越懂产线）
+
+系统对每条产线维护跨 run 记忆（`data/line_memory/<line_key>/`），对外调用者无需做任何事，但应理解其行为：
+
+1. **注入（读）**：spawn 时若该产线已有记忆，自动附加 §17 的 Line Memory 分段（≈600 token 预算：
+   共识 top8 + 候选 top4 + 线索 + 纪律声明）。run 完成后快照落 `00_input/context/line_memory.json` 供审计；
+2. **回流（写）**：run 到达终态时完成钩子自动抽取发现（稳定性发现/漂移、快筛告警、诊断结论、DOE
+   效应、调优归因、campaign 状态、改善动作/目标冲突 7 类抽取器）追加到产线 findings，并重算共识；
+3. **共识规则**：≥3 次**独立**观察（不同 run、数据窗重叠 ≤50% 或间隔 ≥7 天）且方向无冲突 → consensus；
+   同一数据窗的重复 run 算同一次事故（independent=1，corroboration 计次数）——**不会**因重复跑同一
+   份数据而虚增共识；
+4. **治理 API**（console 面 `/api/line-memory/*`）：lines / detail / findings / consolidate /
+   override / merge / proposals 审批；外部 v1 面暂不开放写操作（记忆治理属人工职责）。
+
+**含义**：同一产线跑得越多，后续分析的先验越强（共识→候选→线索分级注入）；且所有注入都是
+"可反驳的 L5 建议"而非事实——agent 被明确要求重新验证并在冲突时以本次数据为准。
+
+### 18.1 line_memory 快速验证配方
+
+```bash
+# 1) 同产线跑两次 stability（同数据窗）→ findings 累积但 consensus 不虚增
+curl -X POST "$BASE/analyze" -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+  -d '{"folderPath":"my-folder","analysisIntent":"stability-report","harness":"mock","sceneName":"lineA"}'
+# 2) console 面查看记忆沉淀
+curl "http://<host>:3210/api/line-memory/lines" -H "Authorization: Bearer $TOKEN"
+curl "http://<host>:3210/api/line-memory/<line_key>/findings" -H "Authorization: Bearer $TOKEN"
+# 3) 第三次 run 的 prompt 将自动携带 L5 记忆简报（见 run 的 00_input/context/line_memory.json）
+```
+

@@ -3,6 +3,11 @@
 > 本项目作为 [AgentWorkShop](https://github.com/kingdol666/AgentWorkShop) 的**工业深度诊断引擎插件**后端。
 > AgentWorkShop 侧插件:`.AgentWorkShop/plugins/diag-bridge/` —— 导出 DAQ 时序快照 CSV → 本服务执行 9 阶段根因分析 → 报告回流入 AgentWorkShop 知识库(rag-knowledge)。
 > 本文记录 2026-09-07 三系统集成时钉死的调用契约,本项目**零代码改动**,仅需保证以下行为不破坏。
+>
+> **2026-11-18 更新（推荐迁移）**：新增统一对外集成面 `/api/external/v1/*`（完整字段级文档见
+> `docs/api-external.md`）。新插件/增强应优先走 external v1 —— 一个 `POST /analyze` 即含
+> start+execute+任务跟踪（支持 `wait:true` 同步阻塞或 task 轮询/SSE 异步），且自动注入
+> skill 规范提示词 + 本体指令 + 产线记忆（§17/§18）。下表 diag-bridge 旧契约继续有效。
 
 ## ⚠️ 鉴权(v4 起强制)
 
@@ -22,6 +27,27 @@
 | 执行 | `POST :3210/api/diagnosis/execute/:runId` | start 后必须显式 execute |
 | 状态轮询 | `GET :3210/api/diagnosis/status/:runId` | 插件 15s 轮询;关注 `status/name/score/judge_verdict/report_path` |
 | 报告全文 | `GET :3210/api/files/workspace/report/:runName` | runName 取 status 响应的 `name` |
+
+## 推荐：external v1 一步式（新插件用这个）
+
+```bash
+BASE=http://<host>:3210/api/external/v1
+# 1) 能力发现（7 intent × 14 harness，含每引擎 supported_intents）
+curl "$BASE/capabilities" -H "Authorization: Bearer $TOKEN"
+# 2) 一步发起（start+execute 合一；wait:true=同步阻塞到终态，否则 202+task_id 异步轮询）
+curl -X POST "$BASE/analyze" -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+  -d '{"folderPath":"aw-snapshots","analysisIntent":"stability-report","harness":"omp",
+       "sceneName":"lineA","question":"近 72h 稳定性如何","wait":false}'
+# 3) 轮询 → 终态取结果（result 内含 summary/verdict/score/report_md 全文/files 路径）
+curl "$BASE/tasks/$TASK_ID"        -H "Authorization: Bearer $TOKEN"
+curl "$BASE/tasks/$TASK_ID/result" -H "Authorization: Bearer $TOKEN"
+# 4) 可选：SSE 实时流 / chat 续聊 / stop 停止 / results 结果库索引
+```
+
+可用 `analysisIntent`：`deep-diagnosis`（默认 9 阶段）· `stability-report` · `quick-screen` ·
+`doe-analysis` · `experience-mining` · `optimizer-campaign` · `improvement-advisory`（A/B/C 分级
+建议 + 95%CI + optimizer_seed）。每个 intent 由后端自动注入对应 skill 的规范提示词（skill 协议为
+绑定契约、禁止跳步/编数），并按产线自动携带跨 run 记忆先验——见 `docs/api-external.md` §17/§18。
 
 ## 快照 CSV 输入约定
 
