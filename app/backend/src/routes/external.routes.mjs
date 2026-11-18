@@ -120,6 +120,9 @@ router.post('/v1/analyze', async (req, res) => {
       reportLanguage: body.reportLanguage || 'zh',
       userQuestion: body.question || '',
       maxTurns: body.maxTurns,
+      // Deep-diagnosis on multi-MB tables can exceed the 120min engine default;
+      // docs §3.1 promise this field — wire it through (it was silently dropped).
+      timeoutMinutes: body.timeoutMinutes,
     });
     const runId = created.runId;
     // Non-wait callers track THIS id through the task manager: the entry owns
