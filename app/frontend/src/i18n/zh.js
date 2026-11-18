@@ -54,6 +54,8 @@ export default {
   },
 
   auth: {
+    booting: '加载中…',
+    bootUnreachable: '无法连接后端服务——请确认服务已启动后重新加载。',
     railLabel: '访问控制',
     railState: '安全通道',
     appTitle: '工业深度诊断系统',

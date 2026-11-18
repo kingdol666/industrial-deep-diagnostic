@@ -54,6 +54,8 @@ export default {
   },
 
   auth: {
+    booting: 'Loading…',
+    bootUnreachable: 'Cannot reach the backend service — please confirm it is running, then reload.',
     railLabel: 'Access Control',
     railState: 'Secure Channel',
     appTitle: 'Industrial Deep Diagnostic',

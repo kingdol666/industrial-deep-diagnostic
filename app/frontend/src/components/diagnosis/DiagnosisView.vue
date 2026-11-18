@@ -331,7 +331,7 @@ async function loadEngineOptions() {
 watch(() => props.harness, loadEngineOptions, { immediate: true });
 
 // The transcript must be labeled with the harness that OWNS this run. When a
-// historical run is opened from History/ClosedLoop, `startedHarness` still holds
+// historical run is opened from History, `startedHarness` still holds
 // the app-selected engine, which used to label a claude run as OMP (and vice
 // versa). Prefer the run row's harness whenever we are viewing an existing run.
 const runHarnessId = computed(() => {

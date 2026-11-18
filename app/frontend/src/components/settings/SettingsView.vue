@@ -199,7 +199,6 @@ function statusOf(tk) {
 async function loadAccount() {
   try {
     const data = await api.authMe();
-    account.value = data.user;
     authType.value = data.auth_type || '';
   } catch { /* 401 已由全局处理器接管 */ }
 }
