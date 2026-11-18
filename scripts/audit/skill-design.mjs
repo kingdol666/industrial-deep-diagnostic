@@ -65,7 +65,7 @@ function walk(dir, pred, acc = []) {
 
 // ── Skills ─────────────────────────────────────────────────────────────
 const skillDirs = readdirSync(SKILLS).filter((d) => statSync(join(SKILLS, d)).isDirectory()).sort();
-check('skill count = 25', skillDirs.length === 25, skillDirs.length);
+check('skill count = 26 (25 core + industrial-hetero-preprocessor)', skillDirs.length === 26, skillDirs.length);
 
 const scriptRefMissing = [];
 const schemaCount = { total: 0, bad: 0 };
