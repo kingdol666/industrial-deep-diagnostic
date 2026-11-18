@@ -17,7 +17,8 @@
 <img src="https://img.shields.io/badge/%E6%89%A7%E8%A1%8C%E5%BC%95%E6%93%8E-14%20%C2%B7%20%E8%AF%8A%E6%96%AD%20%2B%20%E8%81%8A%E5%A4%A9-6ba8b8?style=flat-square" alt="14 引擎">
 <img src="https://img.shields.io/badge/%E7%BB%93%E6%9E%9C%E5%BA%93-%E8%87%AA%E5%8A%A8%E6%91%98%E8%A6%81%20%C2%B7%20%E5%88%86%E7%B1%BB%E7%AE%A1%E7%90%86-9b7bd4?style=flat-square" alt="分析结果库">
 <img src="https://img.shields.io/badge/%E5%9F%BA%E5%87%86-Rubric%2094.6-8fbf6a?style=flat-square" alt="基准 Rubric 94.6">
-<img src="https://img.shields.io/badge/%E5%90%8E%E7%AB%AF%E6%B5%8B%E8%AF%95-246%20%E9%80%9A%E8%BF%87-8fbf6a?style=flat-square" alt="后端测试">
+<img src="https://img.shields.io/badge/%E5%90%8E%E7%AB%AF%E6%B5%8B%E8%AF%95-434%20%E9%80%9A%E8%BF%87-8fbf6a?style=flat-square" alt="后端测试">
+<img src="https://img.shields.io/badge/%E9%89%B4%E6%9D%83-%E5%A4%9A%E7%A7%9F%E6%88%B7%20%C2%B7%20RBAC%20%C2%B7%20CSRF-6ba8b8?style=flat-square" alt="鉴权与多租户">
 <img src="https://img.shields.io/badge/%E5%90%AF%E5%8A%A8-%E4%B8%80%E6%9D%A1%E5%91%BD%E4%BB%A4-f4b65a?style=flat-square" alt="一键启动">
 <img src="https://img.shields.io/badge/Node-%E2%89%A518-339933?style=flat-square&logo=nodedotjs&logoColor=white" alt="Node">
 <img src="https://img.shields.io/badge/License-MIT-success?style=flat-square" alt="License">
@@ -44,6 +45,7 @@
 - [📸 界面一览](#-界面一览)
 - [✨ 能力概览](#-能力概览)
 - [📚 分析结果库 —— 每一次分析都可被人与 Agent 读懂的「记忆」](#-分析结果库--每一次分析都可被人与-agent-读懂的记忆)
+- [🔐 安全与多租户加固](#-安全与多租户加固)
 - [🎯 适用场景](#-适用场景)
 - [🚀 快速开始](#-快速开始)
 - [🖥 系统架构](#-系统架构)
@@ -260,6 +262,23 @@ view = get(f"/api/external/v1/results/categories/{cat['id']}/results")["data"]
 for row in view["results"]:
     print(row["result_id"], row["description"] or row["display_text"])
 ```
+
+---
+
+## 🔐 安全与多租户加固
+
+控制台可部署在**多位操作员共用的厂内网络**上——身份、归属与滥用限流是平台一等层，不是事后补丁。
+
+| 层 | 作用 |
+|------|------|
+| **身份** | 会话 JWT 存于 **HttpOnly Cookie**（JS 永远拿不到凭据）或 `idd_` API Token（scrypt 哈希、前缀可见、可吊销、带 TTL）——控制台 UI 与对外 API 使用同一套身份模型 |
+| **归属（租户）** | 每个 run / 日志 / 文件夹 / 会话 / 任务行都带 `owner_user_id`；调用方**只看得到自己的行**——陌生资源与不存在的资源返回完全相同的 404（不存在泄露）；遗留 NULL 属主行仅管理员可见 |
+| **RBAC** | `admin` / `user` 角色管控破坏性管理操作；首个登录者引导为 admin |
+| **滥用限流** | 进程内限流器：登录 5 次/分 · 诊断 start/execute/tasks 10 次/分 · 文件上传 20 次/分——按用户计数，dev 模式自动让行 |
+| **传输** | CORS **白名单**（仅列出的 Vite 开发来源获得 CORS 头——旧的任意来源 `*` 已退役）+ 每个 Cookie 鉴权的状态变更请求强制 **CSRF 同源校验** |
+| **路径安全** | 所有文件读/预览/上传都经过按段 containment 守卫（`resolveInside`）+ **realpath** 校验——符号链接、目录穿越、同名前缀欺骗与点文件一律拒绝；系统数据库、WAL/SHM 兄弟文件与 JWT 密钥永不读写 |
+| **运行时加固** | FIFO 运行队列（`max_concurrent_runs`）· **停滞看门狗**（running 超过 10 分钟无事件在自身事件流告警）· 有界内存注册表（TTL + 硬上限）· 每 run 事件流上限（默认 2 万行）· 有界快照窗口 · SIGTERM/SIGINT 退出前关闭全部引擎子进程 |
+| **错误卫生** | 5xx 应答**刻意泛化**——真实错误与堆栈留在服务端；供应商配额/鉴权失败以分类的 `provider_error` 状态呈现，而不是像平台 bug |
 
 ---
 
@@ -1078,8 +1097,9 @@ ls -la workspace/diagnostic-runs/<run>/                         # 检查各步�
 
 | 验证 | 范围 | 结果 | 证据 |
 |------|------|------|------|
-| 后端测试套件 | 路由 · 服务 · 引擎适配器 · HTTP e2e（fake CLI / fake ACP / codex app-server） | **246/246 通过** | `app/backend npm test` |
-| Skill 设计静态审计 | 24 skills / 16 agents · frontmatter · 协议引用 · JSON Schema · 脚本路径 | **0 failures** | `node scripts/audit/skill-design.mjs` |
+| 后端测试套件 | 路由 · 服务 · 引擎适配器 · HTTP e2e（fake CLI / fake ACP / codex app-server）——含租户隔离、CSRF/CORS、限流、迁移框架 | **434/434 通过** | `app/backend npm test` |
+| Skill 测试套件 | 稳定性报告 181 · 哨兵 183 · 改善建议 52（含篡改密封门禁）· DOE 分析器 199 | **615/615 通过** | 各 skill `uv run … tests/run_tests.py` |
+| Skill 设计静态审计 | 25 skills / 17 agents · frontmatter · 协议引用 · JSON Schema · 脚本路径 | **0 failures** | `node scripts/audit/skill-design.mjs` |
 | API 契约（只读） | harness · capabilities · history · 有界快照 · 报告/资产 · 鉴权/404 | **22/22 通过** | `node scripts/e2e/api-contract-final.mjs` |
 | 结果库 API | 索引过滤/brief/分页 · 详情（summary_json/sources/report_md）· PATCH 规则 · capabilities | **37/37 通过** | `node scripts/e2e/results-api-acceptance.mjs --base http://127.0.0.1:3210` |
 | 结果库 UI | 原生输入全流程：结果库页 · 搜索 · 详情抽屉 · 描述/标签 PATCH · 分类指派与筛选 · 报告打开 · History 摘要卡 | **19/19 通过** | `node scripts/e2e/results-ui-check.mjs --api http://127.0.0.1:3210 --web http://127.0.0.1:5180` |

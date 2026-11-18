@@ -67,7 +67,8 @@ const intentsSeen = new Set(idx.json.data.results.map((r) => r.intent));
 const six = ['deep-diagnosis', 'stability-report', 'quick-screen', 'doe-analysis', 'experience-mining', 'optimizer-campaign'];
 check('AC-2 all six intents present in the index', six.every((i) => intentsSeen.has(i)), [...intentsSeen].join(','));
 
-const stab = idx.json.data.results.find((r) => r.intent === 'stability-report' && r.has_report);
+const stab = idx.json.data.results.find((r) => r.intent === 'stability-report' && r.has_report && r.harness !== 'mock')
+  || idx.json.data.results.find((r) => r.intent === 'stability-report' && r.has_report);
 check('a stability-report result with a report exists', !!stab, stab?.result_id);
 // has_html is derived from the stored metadata — it must be truthful.
 check('AC-3 has_html is truthful for the stability run (has line_stability_report.html)',

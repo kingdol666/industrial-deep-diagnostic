@@ -77,9 +77,24 @@ const preflight = await fetch(`${BASE}/api/external/v1/results?limit=1`, {
 });
 const acao = preflight.headers.get('access-control-allow-origin');
 const acac = preflight.headers.get('access-control-allow-credentials');
-check('[1] CORS preflight answered for a foreign origin',
-  (preflight.status === 200 || preflight.status === 204) && !!acao,
+check('[1] CORS preflight for a foreign origin → never allowlisted (no ACAO header leaks)',
+  !acao,
   `${preflight.status} allow-origin=${acao} creds=${acac}`);
+
+// Positive control: an allowlisted dev origin (config.server.cors_origins) DOES
+// get the CORS headers on preflight.
+const pfAllowed = await fetch(`${BASE}/api/external/v1/results`, {
+  method: 'OPTIONS',
+  headers: {
+    Origin: 'http://localhost:5180',
+    'Access-Control-Request-Method': 'GET',
+    'Access-Control-Request-Headers': 'authorization,content-type',
+  },
+});
+const acaoAllowed = pfAllowed.headers.get('access-control-allow-origin');
+check('[1b] CORS preflight for an allowlisted origin → headers present',
+  acaoAllowed === 'http://localhost:5180',
+  `${pfAllowed.status} allow-origin=${acaoAllowed}`);
 
 // 401 without a token, on every new endpoint group
 const groups = [

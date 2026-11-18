@@ -61,10 +61,10 @@ check('default harness resolvable', def.status === 200 && !!def.json.data?.id, d
 
 const caps = await api('GET', '/api/external/v1/capabilities');
 const capH = caps.json.data?.harnesses || [];
-check('external capabilities 6 intents + honest matrix', caps.status === 200
-  && caps.json.data?.intents?.length === 6
+check('external capabilities 7 intents + honest matrix', caps.status === 200
+  && caps.json.data?.intents?.length === 7
   && capH.length >= 14
-  && capH.every((h) => Array.isArray(h.supported_intents) && h.supported_intents.length === 6 && typeof h.session_resume === 'boolean'),
+  && capH.every((h) => Array.isArray(h.supported_intents) && h.supported_intents.length === 7 && typeof h.session_resume === 'boolean'),
   `${caps.json.data?.intents?.length} intents / ${capH.length} harnesses`);
 
 const list = await api('GET', '/api/history/runs?limit=5');

@@ -17,7 +17,8 @@
 <img src="https://img.shields.io/badge/Engines-14%20·%20diagnose%20%2B%20chat-6ba8b8?style=flat-square" alt="14 engines">
 <img src="https://img.shields.io/badge/Results%20library-auto%20summary%20·%20categories-9b7bd4?style=flat-square" alt="Results library">
 <img src="https://img.shields.io/badge/Benchmark-Rubric%2094.6-8fbf6a?style=flat-square" alt="Benchmark rubric 94.6">
-<img src="https://img.shields.io/badge/Backend%20tests-246%20passed-8fbf6a?style=flat-square" alt="Backend tests">
+<img src="https://img.shields.io/badge/Backend%20tests-434%20passed-8fbf6a?style=flat-square" alt="Backend tests">
+<img src="https://img.shields.io/badge/Auth-multi%20tenant%20·%20RBAC%20·%20CSRF-6ba8b8?style=flat-square" alt="Auth and tenancy">
 <img src="https://img.shields.io/badge/Setup-one%20command-f4b65a?style=flat-square" alt="One-command setup">
 <img src="https://img.shields.io/badge/Node-%E2%89%A518-339933?style=flat-square&logo=nodedotjs&logoColor=white" alt="Node">
 <img src="https://img.shields.io/badge/License-MIT-success?style=flat-square" alt="License">
@@ -44,6 +45,7 @@
 - [📸 The console](#-the-console)
 - [✨ Capabilities](#-capabilities)
 - [📚 Analysis results library — the agent-readable memory of every analysis](#-analysis-results-library--the-agent-readable-memory-of-every-analysis)
+- [🔐 Security & multi-tenant hardening](#-security--multi-tenant-hardening)
 - [🎯 Use cases](#-use-cases)
 - [🚀 Quick start](#-quick-start)
 - [🖥 Architecture](#-architecture)
@@ -383,6 +385,24 @@ lever × target KPI
 - **stability-report** — the analyzer auto-runs the deterministic adapter after scoring: `advisory/` artifacts land in the run dir, `stability_report.json.advisory` carries the summary, and the HTML/MD report gains a fully styled 「改善建议与验证计划」 chapter (same design authority as the rest of the page); the delivery gate grew an **S6 advisory check** (projection contract + grade-summary consistency + A≤3 sentinel)
 - **deep-diagnosis (9-stage pipeline)** — new **Step 5c** between Judge and Reporter: the agent runs one deterministic command, the Reporter appends the script-authored chapter **verbatim** as the 10th required section (lint L5 enforces the keyword; the final auditor gets a fidelity check; the HTML design system gained `manifest.advisory` + `.adv-*` components + a 9th selfcheck item + a reviewer check `advisory_section_consistency`)
 - **DOE analysis** — `analyze.py report` runs the adapter first and §12 renders the advisory; designed runs get a unique evidence leg: **`doe_effect`** — the DOE analyzer's own first-order coefficients (coded→raw units) with their 95% CI count as **randomized-design intervention evidence**, unlocking the A-grade path observational data can never reach (randomization replaces the temporal/confound/regime conditions; the tamper-sealed gate mirrors the same rule)
+
+---
+
+## 🔐 Security & multi-tenant hardening
+
+The console is deployable on a **shared plant network with more than one operator** — identity, ownership
+and abuse limits are first-class platform layers, not an afterthought.
+
+| Layer | What it does |
+|------|------|
+| **Identity** | Session JWT in an **HttpOnly cookie** (JS never touches the credential) or `idd_` API tokens (scrypt-hashed, prefix-visible, revocable, TTL) — one identity model for the console UI and the external API |
+| **Ownership (tenancy)** | Every run / log / folder / chat / task row carries `owner_user_id`; a caller sees **their own rows plus nothing** — a foreign or missing resource answers the same 404 (no existence leak); legacy NULL-owner rows are admin-only |
+| **RBAC** | `admin` / `user` roles gate destructive management operations; the bootstrap admin is created on first login |
+| **Abuse limits** | In-process rate limiters: login 5/min · diagnosis start/execute/tasks 10/min · file upload 20/min — keyed by user, auto-step-aside in dev mode |
+| **Transport** | CORS **allowlist** (only the listed Vite dev origins get CORS headers — the old any-origin `*` is retired) + **CSRF same-origin enforcement** on every cookie-authenticated mutation |
+| **Path safety** | Every file read/preview/upload resolves through a segment-wise containment guard (`resolveInside`) with **realpath** checks — symlinks, traversal, sibling-prefix tricks and dotfiles are refused; the system database, its WAL/SHM siblings and the JWT secret are never readable or writable |
+| **Ops hardening** | FIFO run queue (`max_concurrent_runs`) · **stall watchdog** (a running run that goes silent ≥10 min warns on its own stream) · bounded in-memory registries (TTL + hard caps) · per-run event-stream cap (default 20 000 rows) · bounded snapshot windows · SIGTERM/SIGINT closes every engine child before exit |
+| **Error hygiene** | 5xx answers are **generic by design** — the real error and stack stay server-side; provider quota/auth failures surface as classified `provider_error` states instead of looking like platform bugs |
 
 ---
 
@@ -1216,7 +1236,8 @@ Every release-quality claim traces to a repeatable check, not to a paragraph of 
 
 | Verification | Scope | Result | Evidence |
 |------|------|------|------|
-| Backend test suite | routes · services · engine adapters · HTTP e2e (fake CLI / fake ACP / codex app-server) | **246/246 pass** | `app/backend npm test` |
+| Backend test suite | routes · services · engine adapters · HTTP e2e (fake CLI / fake ACP / codex app-server) — incl. tenancy isolation, CSRF/CORS, rate limits, migration framework | **434/434 pass** | `app/backend npm test` |
+| Skill suites | stability report 181 · sentinel 183 · improvement advisor 52 (incl. tamper-sealed gate) · DOE analyzer 199 | **615/615 pass** | `uv run … tests/run_tests.py` per skill |
 | Static skill design | 25 skills / 17 agents · frontmatter · protocol refs · JSON schemas · script refs | **0 failures** | `node scripts/audit/skill-design.mjs` |
 | API contract (GET-only) | harness · capabilities · history · bounded snapshot · report/assets · auth/404 | **22/22 pass** | `node scripts/e2e/api-contract-final.mjs` |
 | Results library API | index filters/brief/paging · detail (summary_json/sources/report_md) · PATCH rules · capabilities | **37/37 pass** | `node scripts/e2e/results-api-acceptance.mjs --base http://127.0.0.1:3210` |
