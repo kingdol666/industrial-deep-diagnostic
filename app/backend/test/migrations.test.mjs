@@ -63,11 +63,12 @@ describe('migrations — fresh database', () => {
       assert.equal(res.toVersion, LATEST_SCHEMA_VERSION);
       assert.deepEqual(res.applied, MIGRATIONS.map((m) => m.version));
       assert.equal(res.legacyStamped, false);
-      assert.equal(LATEST_SCHEMA_VERSION, 3);
+      assert.equal(LATEST_SCHEMA_VERSION, 4);
 
       for (const t of [
         'diagnostic_runs', 'diagnosis_logs', 'diagnosis_event_stream', 'data_folders',
         'chat_sessions', 'chat_messages', 'users', 'api_tokens', 'schema_version',
+        'run_categories', 'external_tasks', 'analysis_results',
       ]) {
         assert.ok(tableExists(db, t), `table ${t} must exist`);
       }
@@ -91,9 +92,14 @@ describe('migrations — fresh database', () => {
         assert.ok(indexExists(db, idx), `index ${idx}`);
       }
 
+      // v4 run-management columns + results library tables
+      for (const c of ['user_id', 'title', 'deleted_at', 'category_id']) {
+        assert.ok(columnExists(db, 'diagnostic_runs', c), `diagnostic_runs.${c}`);
+      }
+
       // schema_version bookkeeping
       const rows = listAppliedMigrations(db);
-      assert.deepEqual(rows.map((r) => r.version), [1, 2, 3]);
+      assert.deepEqual(rows.map((r) => r.version), [1, 2, 3, 4]);
       assert.deepEqual(rows.map((r) => r.name), MIGRATIONS.map((m) => m.name));
       assert.ok(rows.every((r) => typeof r.applied_at === 'string' && r.applied_at.length > 0));
     } finally {
@@ -136,7 +142,7 @@ describe('migrations — legacy databases (no schema_version)', () => {
       const res = run(db);
       assert.equal(res.legacyStamped, true);
       assert.equal(res.fromVersion, 2);
-      assert.deepEqual(res.applied, [3]);
+      assert.deepEqual(res.applied, [3, 4]);
       assert.equal(res.toVersion, LATEST_SCHEMA_VERSION);
 
       // Backfill: historical rows belong to the lowest-id admin.
@@ -150,7 +156,7 @@ describe('migrations — legacy databases (no schema_version)', () => {
 
       // The stamp records the detected version, not a fabricated v1.
       const stamped = listAppliedMigrations(db);
-      assert.deepEqual(stamped.map((r) => r.version), [2, 3]);
+      assert.deepEqual(stamped.map((r) => r.version), [2, 3, 4]);
       assert.equal(stamped[0].name, 'legacy-stamp');
     } finally {
       db.close();
@@ -167,7 +173,7 @@ describe('migrations — legacy databases (no schema_version)', () => {
 
       const res = run(db);
       assert.equal(res.legacyStamped, true);
-      assert.deepEqual(res.applied, [3]);
+      assert.deepEqual(res.applied, [3, 4]);
       assert.equal(
         db.prepare("SELECT owner_user_id FROM diagnostic_runs WHERE run_id = 'run-orphan'").get().owner_user_id,
         null,
@@ -187,7 +193,7 @@ describe('migrations — legacy databases (no schema_version)', () => {
       const res = run(db);
       assert.equal(res.legacyStamped, true);
       assert.equal(res.fromVersion, 1);
-      assert.deepEqual(res.applied, [2, 3]);
+      assert.deepEqual(res.applied, [2, 3, 4]);
 
       for (const c of ['report_language', 'harness', 'timeout_minutes']) {
         assert.ok(columnExists(db, 'diagnostic_runs', c), `diagnostic_runs.${c} added by v2`);
@@ -216,7 +222,7 @@ describe('migrations — legacy databases (no schema_version)', () => {
       assert.equal(detectLegacyVersion(db), 1, 'one missing marker must drop the stamp back to v1');
 
       const res = run(db);
-      assert.deepEqual(res.applied, [2, 3], 'v2 re-runs idempotently and adds what is missing');
+      assert.deepEqual(res.applied, [2, 3, 4], 'v2 re-runs idempotently and adds what is missing');
       assert.ok(columnExists(db, 'diagnostic_runs', 'timeout_minutes'));
       assert.ok(columnExists(db, 'diagnostic_runs', 'ontology_hit'));
       assert.ok(columnExists(db, 'chat_sessions', 'harness'));

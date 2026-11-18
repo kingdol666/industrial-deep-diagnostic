@@ -13,7 +13,7 @@ import {
 } from './diagnosis.service.mjs';
 import { stmts } from '../db/database.mjs';
 import { getWorkspaceReport, listWorkspaceHtml } from './files.service.mjs';
-import { INTERNAL } from './tenancy.mjs';
+import { canView, INTERNAL } from './tenancy.mjs';
 import { ANALYSIS_INTENTS } from '../engine/claude-client.mjs';
 import logger from '../utils/logger.mjs';
 
@@ -372,8 +372,16 @@ export function listTaskEntries(viewer = INTERNAL) {
  * (foreign or missing run) must be answered 404, unavailable (no live engine)
  * keeps the historical 409.
  */
-export async function chatWithRun(runId, message, viewer = INTERNAL) {
-  if (!canViewRun(runId, viewer)) return { ok: false, reason: 'not_found' };
+export async function chatWithRun(runId, message, viewer = undefined) {
+  // NOTE: no canViewRun call here — its `viewer = INTERNAL` default parameter
+  // would turn an EXPLICIT undefined (AUTH_ENABLED=0 dev mode) into INTERNAL
+  // and skip the check entirely. Inline it instead: an undefined viewer still
+  // gets the existence-correct answer (a missing run → not_found → 404),
+  // matching canView()'s own undefined-is-trusted semantics for real runs.
+  if (viewer !== INTERNAL) {
+    const run = stmts.getRunById.get(runId);
+    if (!run || !canView(viewer, run.owner_user_id)) return { ok: false, reason: 'not_found' };
+  }
   const sent = await sendChatMessage(runId, message, viewer);
   // `sent` carries the session/rebuild contract ({mode, reason?}) so the route
   // can report how the turn ran; null = no runnable engine (unavailable 409).

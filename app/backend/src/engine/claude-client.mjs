@@ -6,6 +6,7 @@ import { join, extname, basename, isAbsolute } from 'path';
 import { config, PROJECT_ROOT } from '../../../../config/loader.mjs';
 import logger from '../utils/logger.mjs';
 import { loadOmpAgents, buildOmpSystemPrompt, buildOmpChatSystemPrompt } from './omp-engine.mjs';
+import { withTimeout } from './cli-common.mjs';
 
 // Dynamic SDK import (ESM-only module)
 let queryFn = null;
@@ -448,6 +449,79 @@ export function resolveAnalysisTarget(analysisTarget) {
 }
 
 // ── Start Diagnosis via SDK ──
+// ── Turn timeout for the SDK query ──
+// The SDK Query is consumed by the service AS an async iterator — there is no
+// internal queue to push into, so a hung turn needs an explicit guard: on
+// expiry the query is interrupted (streamed sessions), closed (kills the
+// SDK-owned CLI subprocess and ends the iteration) and the consumer receives
+// the same error result frame every other failure path produces, marked with
+// an explicit claude_timeout stop reason.
+// Exported for tests (fake Query: async generator + sessionId/close/interrupt).
+export function withQueryTimeout(query, { minutes, runId }) {
+  const guard = withTimeout({
+    minutes,
+    label: 'claude',
+    context: 'ClaudeClient',
+    turnKey: runId,
+    onTimeout: () => {
+      // interrupt() is a control request (streaming input only) — best effort.
+      Promise.resolve()
+        .then(() => query.interrupt?.())
+        .catch(() => { /* unsupported in string-prompt mode — close() is decisive */ });
+      try { query.close(); } catch { /* already closing */ }
+    },
+  });
+
+  if (guard.ms <= 0) return query; // guard disabled (0 = unlimited) — pass through
+
+  const startedAt = Date.now();
+
+  return {
+    get sessionId() { return query.sessionId; },
+    close() {
+      guard.cancel();
+      try { query.close(); } catch { /* ignore */ }
+    },
+    interrupt() {
+      guard.cancel();
+      return query.interrupt?.();
+    },
+    streamInput(stream) { return query.streamInput(stream); },
+    async *[Symbol.asyncIterator]() {
+      const iterator = query[Symbol.asyncIterator]();
+      try {
+        while (true) {
+          if (guard.fired) break;
+          const step = await Promise.race([
+            iterator.next().then((r) => ({ kind: 'next', result: r })),
+            guard.promise.then(() => ({ kind: 'timeout' })),
+          ]);
+          if (step.kind === 'timeout') break;
+          if (step.result.done) return;
+          yield step.result.value;
+        }
+        // Timeout: one standard error result frame, then terminate the loop.
+        yield {
+          type: 'result',
+          subtype: 'error_during_execution',
+          duration_ms: Date.now() - startedAt,
+          num_turns: 0,
+          total_cost_usd: null,
+          stop_reason: 'claude_timeout',
+          session_id: query.sessionId || null,
+        };
+      } finally {
+        guard.cancel();
+        if (guard.fired) {
+          // close() in onTimeout already killed the SDK process — release the
+          // underlying generator without waiting on a dead stream.
+          try { Promise.resolve(iterator.return?.()).catch(() => { /* already closed */ }); } catch { /* ignore */ }
+        }
+      }
+    },
+  };
+}
+
 export function startDiagnosis({
   analysisTarget, userQuestion, sceneName,
   runId, maxTurns = 0, timeoutMinutes = 0,
@@ -511,8 +585,9 @@ export function startDiagnosis({
 
   if (systemPrompt) options.systemPrompt = systemPrompt;
 
-  // Start the SDK query
-  const query = queryFn({ prompt, options });
+  // Start the SDK query — wrapped so a hung turn ends (interrupt + close +
+  // standard error result frame) instead of running forever.
+  const query = withQueryTimeout(queryFn({ prompt, options }), { minutes: timeout, runId });
 
   // Register for later reference
   activeQueries.set(runId, query);
@@ -553,10 +628,12 @@ export function startSessionChat({ runId, sessionId, message, maxTurns = 1, harn
     options.systemPrompt = buildOmpChatSystemPrompt();
   }
 
-  const query = queryFn({
+  // Same turn-timeout guard as startDiagnosis — a hung session turn must end
+  // (interrupt + close + standard error result) instead of running forever.
+  const query = withQueryTimeout(queryFn({
     prompt: sanitize(message || ''),
     options,
-  });
+  }), { minutes: timeoutMinutes || config.claude.timeout_minutes, runId });
 
   activeQueries.set(runId, query);
   return { query, runId, sessionId: resumeSessionId };

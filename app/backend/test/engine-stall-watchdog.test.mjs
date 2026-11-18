@@ -79,6 +79,7 @@ describe('sweepStalledRuns — engine event path', () => {
     stmts.insertRun.run({
       runId,
       name: runId,
+      title: runId,
       sceneName: 'stall_watchdog_scene',
       dataPath: 'data/smoke.csv',
       dataFolder: null,
@@ -91,6 +92,7 @@ describe('sweepStalledRuns — engine event path', () => {
       enhancementPolicy: null,
       enhancementTriggered: 0,
       analysisIntent: null,
+      userId: null,
       timeoutMinutes: null,
       ownerUserId: null,
     });

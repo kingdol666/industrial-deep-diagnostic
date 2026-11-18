@@ -133,18 +133,6 @@ logger.info(`CORS allowlist: ${corsOrigins.length ? corsOrigins.join(', ') : '(n
 //     {status:"unavailable", reasons:["shutting_down"]}。
 // 存活端点的响应结构与拆分前完全一致（兼容既有探针/脚本）。
 
-// API routes
-app.use('/api/files', fileRoutes);
-app.use('/api/diagnosis', diagnosisRoutes);
-app.use('/api/history', historyRoutes);
-app.use('/api/results', resultsRoutes);
-app.use('/api/analysis', analysisRoutes);
-app.use('/api/chat', chatRoutes);
-app.use('/api/omp', ompRoutes);
-app.use('/api/harness', harnessRoutes);
-app.use('/api/ontology', ontologyRoutes);
-app.use('/api/line-memory', lineMemoryRoutes);
-
 // 专项分析（稳定性/快筛/经验/寻优）已全部改为 harness 真实执行：前端经
 // POST /api/diagnosis/start { analysisIntent } 拉起对应 skill 的智能体运行。
 // 旧的固定脚本 HTTP 集成（/api/sentinel 等）已整体退役。
@@ -368,11 +356,13 @@ app.use('/api/external', externalRoutes);
 app.use('/api/files', fileRoutes);
 app.use('/api/diagnosis', diagnosisRoutes);
 app.use('/api/history', historyRoutes);
+app.use('/api/results', resultsRoutes);
 app.use('/api/analysis', analysisRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/omp', ompRoutes);
 app.use('/api/harness', harnessRoutes);
 app.use('/api/ontology', ontologyRoutes);
+app.use('/api/line-memory', lineMemoryRoutes);
 
 // 专项分析（稳定性/快筛/经验/寻优）已全部改为 harness 真实执行：前端经
 // POST /api/diagnosis/start { analysisIntent } 拉起对应 skill 的智能体运行。

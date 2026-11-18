@@ -16,6 +16,7 @@ import { rmSync } from 'fs';
 import { db, stmts } from '../db/database.mjs';
 import { getRunRealtimeSnapshot, getRunStatus, listRuns } from './diagnosis.service.mjs';
 import { enrichRunOutcome } from './intent-outcome.service.mjs';
+import { canAccessOwner } from '../middleware/ownership.mjs';
 import { INTERNAL } from './tenancy.mjs';
 import logger from '../utils/logger.mjs';
 
@@ -102,12 +103,25 @@ export function getRunWithLogs(runId, viewer = INTERNAL) {
 
 // ── ownership ────────────────────────────────────────────────────────────
 
-/** Load a run the caller may manage. Throws 404/403. */
+/**
+ * Load a run the caller may manage. Throws 404 for BOTH a missing run and a
+ * run the caller may not see — a foreign run must answer exactly like a
+ * missing one (no existence leak, mirrors the tenancy contract).
+ *
+ * Ownership is satisfied by EITHER column: user_id (the run-management filter
+ * used since 2026-10-22, including pre-merge rows whose owner_user_id was
+ * backfilled to the bootstrap admin) or owner_user_id (tenancy P0-6). A
+ * legacy NULL/NULL row is admin-only — non-admins get the same 404.
+ */
 export function requireRun(runId, user = null) {
   const run = stmts.getRunById.get(runId);
   if (!run) throw httpError(404, 'RUN_NOT_FOUND', `Run not found: ${runId}`);
-  if (user?.id && user.role !== 'admin' && run.user_id && String(run.user_id) !== String(user.id)) {
-    throw httpError(403, 'RUN_FORBIDDEN', 'This run belongs to another user');
+  if (user?.id && user.role !== 'admin') {
+    const ownUserId = !!run.user_id && String(run.user_id) === String(user.id);
+    const ownOwner = canAccessOwner(user, run.owner_user_id ?? null);
+    if (!ownUserId && !ownOwner) {
+      throw httpError(404, 'RUN_NOT_FOUND', `Run not found: ${runId}`);
+    }
   }
   return run;
 }

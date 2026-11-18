@@ -94,6 +94,16 @@ const stmts = {
            ontology_hit, enhancement_policy, enhancement_triggered, analysis_intent,
            user_id, category_id, deleted_at, owner_user_id,
            created_at, updated_at, completed_at, error_message
+    FROM diagnostic_runs ORDER BY created_at DESC
+  `),
+  // Filtered listing (2026-10-22): ownership + soft-delete + category + status
+  // + free-text, with LIMIT/OFFSET. NULL filters are no-ops by design.
+  listRunsFiltered: db.prepare(`
+    SELECT id, run_id, name, title, scene_name, data_path, data_folder, user_question, status,
+           session_id, workspace_path, report_path, score, judge_verdict, harness,
+           ontology_hit, enhancement_policy, enhancement_triggered, analysis_intent,
+           user_id, category_id, deleted_at, owner_user_id,
+           created_at, updated_at, completed_at, error_message
     FROM diagnostic_runs
     -- Legacy rows (user_id IS NULL) predate ownership and stay visible to every
     -- authenticated user; newly created rows are scoped to their creator.
@@ -402,3 +412,5 @@ const stmts = {
   `),
   touchApiTokenUsed: db.prepare(`UPDATE api_tokens SET last_used_at = datetime('now') WHERE id = ?`),
 };
+
+export { db, stmts };

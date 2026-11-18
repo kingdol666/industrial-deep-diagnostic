@@ -30,6 +30,8 @@ function insertRun(id) {
     model: null, maxTurns: 10, reportLanguage: 'zh', harness: 'claude',
     ontologyHit: 0, enhancementPolicy: 'auto', enhancementTriggered: 0,
     analysisIntent: 'deep-diagnosis', userId: null,
+      timeoutMinutes: null,
+      ownerUserId: null,
   });
   stmts.updateRunStatus.run({ runId: id, status: 'completed' });
 }

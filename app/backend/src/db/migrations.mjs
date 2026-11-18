@@ -349,12 +349,14 @@ export const MIGRATIONS = [
     up: (db) => {
       // ── Run management (2026-10-22): user-created categories. Rows are
       // scoped to the owning user; a category name is unique per user only.
-      db.exec(`
-        ALTER TABLE diagnostic_runs ADD COLUMN user_id TEXT;
-        ALTER TABLE diagnostic_runs ADD COLUMN title TEXT;
-        ALTER TABLE diagnostic_runs ADD COLUMN deleted_at TEXT;
-        ALTER TABLE diagnostic_runs ADD COLUMN category_id TEXT;
-      `);
+      // Pre-framework DBs may already carry some of these columns (the retired
+      // ad-hoc ensure block added them on its own schedule) — every ALTER is
+      // individually guarded so a partial legacy state upgrades cleanly.
+      for (const c of ['user_id', 'title', 'deleted_at', 'category_id']) {
+        if (!columnExists(db, 'diagnostic_runs', c)) {
+          db.exec(`ALTER TABLE diagnostic_runs ADD COLUMN ${c} TEXT`);
+        }
+      }
 
       db.exec(`
         CREATE TABLE IF NOT EXISTS run_categories (

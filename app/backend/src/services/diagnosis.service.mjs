@@ -828,7 +828,7 @@ function missingRequiredArtifacts(runDir, analysisIntent, harness = null) {
 // Return contract: `false` = run missing or not visible to the caller (the
 // route answers 404); otherwise `{ mode: 'session' | 'rebuild', reason? }` so
 // callers can report honestly.
-export async function sendChatMessage(runId, message, viewer = INTERNAL) {
+export async function sendChatMessage(runId, message, viewer = INTERNAL, { maxTurns } = {}) {
   const run = stmts.getRunById.get(runId);
   if (!run) return false;
   if (!canView(viewer, run.owner_user_id)) return false;
@@ -911,7 +911,7 @@ export async function sendChatMessage(runId, message, viewer = INTERNAL) {
       // Resume turns carry the user's message VERBATIM: the run's context lives
       // in the harness session itself, so no extra prompt text is injected.
       message,
-      maxTurns: clampChatTurns(options.maxTurns),
+      maxTurns: clampChatTurns(maxTurns),
       harness: run.harness || 'claude',
     });
     setChild(runId, result.query);

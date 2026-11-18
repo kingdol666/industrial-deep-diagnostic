@@ -411,7 +411,7 @@ router.post('/v1/chat', async (req, res) => {
     const result = await chatWithRun(runId, message, req.user);
     if (result?.reason === 'not_found') {
       // Foreign runs answer exactly like missing ones — no existence leak.
-      return res.status(404).json({ success: false, error: 'Run not found' });
+      return res.status(404).json({ success: false, code: 'RUN_NOT_FOUND', error: 'Run not found' });
     }
     if (!result?.ok) {
       return res.status(409).json({

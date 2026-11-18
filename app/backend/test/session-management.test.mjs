@@ -192,6 +192,8 @@ describe('engine subscription survives a closed completed run', () => {
       dataFolder: null, userQuestion: '', model: null, maxTurns: 10, reportLanguage: 'zh',
       harness: 'claude', ontologyHit: 0, enhancementPolicy: 'auto', enhancementTriggered: 0,
       analysisIntent: 'deep-diagnosis', userId: null,
+      timeoutMinutes: null,
+      ownerUserId: null,
     });
     // Historical events up to seq 40 (the state the UI hydrates from DB).
     for (let i = 0; i <= 40; i += 1) {
@@ -235,6 +237,8 @@ describe('viewing a completed run must not fabricate pending', () => {
         model: null, maxTurns: 10, reportLanguage: 'zh', harness: 'claude',
         ontologyHit: 0, enhancementPolicy: 'auto', enhancementTriggered: 0,
         analysisIntent: 'stability-report', userId: null,
+      timeoutMinutes: null,
+      ownerUserId: null,
       });
       stmts.updateRunStatus.run({ runId: RUN_VIEW, status: 'completed' });
 
@@ -272,6 +276,8 @@ describe('restart semantics (B0.1) + session reconcile (B0.3) — DB backed', ()
       model: null, maxTurns: 10, reportLanguage: 'zh', harness,
       ontologyHit: 0, enhancementPolicy: 'auto', enhancementTriggered: 0,
       analysisIntent: 'deep-diagnosis', userId: null,
+      timeoutMinutes: null,
+      ownerUserId: null,
     });
     stmts.updateRunStatus.run({ runId: id, status });
     if (sessionId) stmts.updateRunSession.run({ runId: id, sessionId });
@@ -343,6 +349,8 @@ describe('chat on a live run is refused (RUN_NOT_IDLE)', () => {
       model: null, maxTurns: 10, reportLanguage: 'zh', harness: 'omp',
       ontologyHit: 0, enhancementPolicy: 'auto', enhancementTriggered: 0,
       analysisIntent: 'deep-diagnosis', userId: null,
+      timeoutMinutes: null,
+      ownerUserId: null,
     });
     stmts.updateRunStatus.run({ runId: RUN_LIVE, status: 'running' });
     stmts.updateRunSession.run({ runId: RUN_LIVE, sessionId: 'omp:run:zz-live-chat' });

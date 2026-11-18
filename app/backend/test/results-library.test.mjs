@@ -57,6 +57,8 @@ function insertTestRun({ intent = 'stability-report', workspacePath = null, repo
     enhancementPolicy: 'off',
     enhancementTriggered: 0,
     analysisIntent: intent,
+      timeoutMinutes: null,
+      ownerUserId: null,
     userId,
   });
   createdRunIds.push(runId);
@@ -287,6 +289,8 @@ describe('upsertResultFromRun — write path', () => {
       userQuestion: '', model: null, maxTurns: 5, reportLanguage: 'zh', harness: 'mock',
       ontologyHit: null, enhancementPolicy: 'off', enhancementTriggered: 0,
       analysisIntent: 'stability-report', userId: null,
+      timeoutMinutes: null,
+      ownerUserId: null,
     });
     createdRunIds.push(runId);
     assert.equal(upsertResultFromRun(runId), null);
@@ -405,6 +409,8 @@ describe('getResultDetail — detail + derive fallback', () => {
       userQuestion: '', model: null, maxTurns: 5, reportLanguage: 'zh', harness: 'mock',
       ontologyHit: null, enhancementPolicy: 'off', enhancementTriggered: 0,
       analysisIntent: 'deep-diagnosis', userId: null,
+      timeoutMinutes: null,
+      ownerUserId: null,
     });
     createdRunIds.push(runId);
     assert.throws(() => getResultDetail(runId), (e) => e.code === 'RESULT_NOT_FOUND');

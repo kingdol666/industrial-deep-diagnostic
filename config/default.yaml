@@ -8,6 +8,11 @@
 server:
   port: 3210
   body_limit: "10mb"
+  # CORS 白名单 —— 只有列出的浏览器来源会拿到 CORS 头（旧的任意来源 '*' 已废弃）。
+  # 默认覆盖 Vite 开发服务器；生产运维用 CORS_ORIGINS 环境变量（逗号分隔）覆盖。
+  cors_origins:
+    - "http://localhost:5180"
+    - "http://127.0.0.1:5180"
 
 # --- Frontend Dev Server ---
 frontend:
