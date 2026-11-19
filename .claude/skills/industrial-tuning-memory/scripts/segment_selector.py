@@ -274,6 +274,8 @@ def _load_dataframe(data_path):
 
 
 def cmd_select(args):
+    import pandas as pd  # cmd_select is the only consumer; keep the heavy import local like _load_dataframe
+
     run_dir = _contained(args.run_dir)
     df = _load_dataframe(run_dir / args.data)
     if args.metric not in df.columns:
