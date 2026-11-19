@@ -1,0 +1,19 @@
+{
+  "contract_version": "1.0",
+  "artifact": "objective_resolved",
+  "mode": "explicit",
+  "inferred": false,
+  "targets": [
+    {
+      "metric": "scrap_rate_pct",
+      "direction": "min",
+      "target_value": null,
+      "tolerance": null,
+      "weight": null
+    }
+  ],
+  "candidates": [],
+  "conflicts": [],
+  "rationale": null,
+  "note": "显式目标（objective.json）"
+}

@@ -1,0 +1,63 @@
+{
+  "generated_at": "2026-11-19T06:18:40.128065+00:00",
+  "analysis_mode": "designed",
+  "design_type": "full_factorial",
+  "evidence_grade": "A",
+  "grade_checklist": {
+    "randomization_ok": true,
+    "pure_error_df_gt0": true,
+    "resolution_ok": true,
+    "balanced": true,
+    "model_adequacy_ok": null,
+    "anti_spurious_ok": null,
+    "overridden_by": null
+  },
+  "authored_by": "script",
+  "key_findings": [],
+  "limitations": [
+    "响应 energy_kwh_per_kg 的最大 Cook's D=0.341635 超过 4/n 截断 — 个别试验点对系数影响过大，删除该点可能改变结论"
+  ],
+  "figure_index": [
+    {
+      "file": "residuals_energy_kwh_per_kg.png",
+      "title": "Residual diagnostics — energy_kwh_per_kg"
+    },
+    {
+      "file": "main_effects_energy_kwh_per_kg.png",
+      "title": "Main effects — energy_kwh_per_kg"
+    }
+  ],
+  "recommendations_ref": "conclusions/recommendations.json",
+  "downstream_usage_card": {
+    "contract_version": "1.1",
+    "n_windows": 0,
+    "n_confirmations": 1,
+    "n_watchlist": 0,
+    "usage_rules": [
+      "窗口外推端点（extrapolation=true）需工艺确认后方可执行",
+      "多响应窗口冲突以 conflicts[].chosen 为准"
+    ],
+    "n_joint_setpoints": 0,
+    "n_actionable": 0,
+    "n_blocked": 0,
+    "factor_response_coverage": {
+      "cells": 2,
+      "with_window": 0,
+      "with_reason": 2,
+      "zero_silent": true
+    },
+    "contract_status": {
+      "contract_version": "1.1",
+      "evidence_grade_independent": true,
+      "n_windows": 0,
+      "n_windows_with_pi": 0,
+      "n_windows_with_pi_gt_ci": 0,
+      "n_joint_setpoints": 0,
+      "n_actionable": 0,
+      "matrix_zero_silent_cells": true,
+      "interval_disclosure_present": true,
+      "units_disclosed": true,
+      "design_region_disclosed": true
+    }
+  }
+}

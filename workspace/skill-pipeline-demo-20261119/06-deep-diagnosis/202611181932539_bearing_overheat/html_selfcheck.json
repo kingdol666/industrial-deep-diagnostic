@@ -1,0 +1,62 @@
+{
+  "generated_at": "2026-11-18T20:00:00+08:00",
+  "page": "diagnostic-report.html",
+  "manifest": "render_manifest.json",
+  "builder": "06_scripts/build_html.mjs (deterministic; build-time count verification in 06_scripts/build_verify.json)",
+  "selfcheck_mode": "静态核验(fast mode 无浏览器预览;运行时项以 init 逻辑+成功检测代码+嵌入数据核验为据, 如实标注)",
+  "items": [
+    {
+      "name": "1. single_file_html_opens",
+      "status": "PASS",
+      "evidence": "diagnostic-report.html 为单文件(40538 bytes): report.css 全文内嵌于 <style>(build_verify.css_embedded_verbatim=true), 无任何本地外链 CSS/JS(external_local_deps=false);CDN 脚本失败时走静态降级, 不影响打开。"
+    },
+    {
+      "name": "2. multi_source_loader_and_status_strip",
+      "status": "PASS",
+      "evidence": "ECharts 双源(jsdelivr 主源 + unpkg 备源)逐源 onload/onerror 探测(window.echarts 存在性检测);加载状态条固定右下角 5 项指示: st-dom/st-ech/st-ech-bk/st-chart/st-deg。Three.js 源声明于 manifest.loader(本页按 process_flow.recoverable=false 不渲染 3D, 见第4项)。"
+    },
+    {
+      "name": "3. echarts_chart_init_and_success_detection",
+      "status": "PASS",
+      "evidence": "静态核验: #idd-main-chart 容器存在(build_verify.echarts_containers_dom=1);initChart() 调用 echarts.init + setOption 并以 echarts.getInstanceByDom(el) 回报初始化结果(st-chart 状态);嵌入数据 IDD_DATA 4×120 点(flow/temp/vib/times)已由 build 后解析核验: flow[59]=11.97→flow[60]=8.18, temp[61]=64.66→temp[62]=73.01 — 台阶位置与 validate_report.json 变化点一致。运行时初始化未在浏览器中执行(fast mode 无浏览器预览), 如实标注为静态核验。"
+    },
+    {
+      "name": "4. threejs_3d_module_per_protocol",
+      "status": "PASS",
+      "evidence": "协议性缺省: manifest.process_flow.recoverable=false(运行数据仅 120 行时序 + 设备名录, 无设备拓扑/工艺结构), 按 §Render 'background + 3D (only if process_flow.recoverable)' 不渲染 3D, 避免装饰性失真 3D;页面 HTML 中无 THREE 场景代码(threejs_absent=true), 局限节第4条已向用户披露该缺省。"
+    },
+    {
+      "name": "5. local_image_paths_accessible",
+      "status": "PASS",
+      "evidence": "2 张 PNG 相对路径与输出文件同目录解析: 03_figures/fig_adaptive_overlay.png 与 fig_adaptive_line_bearing_temp_c.png 均存在(fs.existsSync 双 true);img 带 loading=lazy 与 onerror 降级(失败时替换为 .rpt-note 降级说明并指向 image_captions.json 对应条目)。"
+    },
+    {
+      "name": "6. evidence_chain_three_layers_complete",
+      "status": "PASS",
+      "evidence": "三层齐备且各有真实工件: Ⅰ统计层(validate_report.json + time_lag_analysis.json, 4 条关键数字)→ Ⅱ物理层(physics_check.json + ontology 控制方程, 4 条)→ Ⅲ排除层(diagnosis.json + anomaly_report.json, 3 条);每层标注 available=true 与来源路径;无 .evidence-missing 项(三层均真实可用)。"
+    },
+    {
+      "name": "7. advisory_section_matches_manifest",
+      "status": "PASS",
+      "evidence": "advisory.available=true → 恰好 1 张 .adv 卡(build_verify.adv_cards_rendered=1 = actions.length=1), 处方数 0 如实标注;卡内数字逐字取自 advisory/advisory_actions.json: 点估计 1.9581858375、95%CI [1.840121325, 2.0762493625]、幅度 10.025→11.0125 L/min、回滚 10.025(HTML 内字符串逐一比对通过);等级 C + 可达上限 B(观察数据无设计试验窗)与免责声明原样呈现。"
+    },
+    {
+      "name": "8. all_required_content_sections_present",
+      "status": "PASS",
+      "evidence": "7 个编号章节与 manifest.sections 一一对应(build_verify.sections_in_page=7): 结论先行(Hero 8 要素 + 四格要点 + 如何读)/核心证据图(1 ECharts + 2 PNG, 各带 chart-reading 三行读法)/证据链三层/排除逻辑(3 假设表 + 判别矩阵)/机制链(控制方程 + 独立核验)/改善建议(1 卡 + 免责)/局限与边界(5 条)。主结论在首屏 verdict 区(conclusion-first)。"
+    },
+    {
+      "name": "9. plain_language_readability",
+      "status": "PASS",
+      "evidence": "Hero 用通俗语言(水龙头/散热器类比)解释根因, 4 句无统计术语;四格要点直接给结论;chart-reading 三行(看见了/意味着/为什么重要)避免行话;数字细节集中在证据链层供技术读者核对 — 非统计背景读者可据 Hero+四格理解'为什么是这个结论'。"
+    }
+  ],
+  "summary": { "pass": 9, "fail": 0, "notes": "运行时项(3)为静态核验+如实标注;3D 项(4)为协议性诚实缺省(recoverable=false)" },
+  "red_line_audit": {
+    "dark_style_purple_gradient_neon": false,
+    "kpi_number_wall": false,
+    "image_wall_tiling": false,
+    "hardcoded_counts": false,
+    "colors": "paper #fafaf8 / ink #1e3a54 / warm #c2673a(仅异常标记) / ECharts palette #1e3a54,#2d7d4f,#c2673a,#c4433b,#8a6d3b — 与设计系统一致"
+  }
+}

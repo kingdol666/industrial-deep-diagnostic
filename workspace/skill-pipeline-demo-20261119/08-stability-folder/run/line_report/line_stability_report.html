@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>产线运行稳定性报告 · LSR-1795069191-2j43d9</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<script src="https://unpkg.com/echarts@5.5.0/dist/echarts.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.5.0/echarts.min.js"></script>
+<style>/* IDD Report Design System · v1 (2026-11-17)
+ * 单一视觉权威 = 诊断设计权威色板（warm paper / ink / warm orange）。
+ * 本文件同时服务四个渲染器：stability / advisory / DOE / diagnostic。
+ * 骨架 = 证据账簿 Ledger（左导轨 + 编号章节 + 三栏含页边批注）。
+ * 约定：所有类名以 rpt- 前缀，作用域 .rpt-scope；页面无 JS 依赖。
+ */
+
+/* ---------------- tokens ---------------- */
+.rpt-scope{
+  --paper:#fafaf8; --panel:#fffefb; --ink:#1e3a54; --ink-soft:#41586e; --muted:#726b5f;
+  --hair:#e3ded3; --hair-strong:#cfc8b8; --accent:#a8542c; --warm:#c2673a;
+  --good:#2d7d4f; --warn:#8a6d3b; --bad:#c4433b; --wash:#f3f1ea;
+  --serif:'Noto Serif SC','Source Han Serif SC','Songti SC',Georgia,serif;
+  --sans:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;
+  --mono:'SFMono-Regular',Consolas,'JetBrains Mono',monospace;
+  background:var(--paper); color:var(--ink);
+  font:15px/1.7 var(--sans); -webkit-font-smoothing:antialiased; text-wrap:pretty;
+}
+.rpt-scope *{box-sizing:border-box}
+.rpt-scope a{color:inherit}
+
+/* ---------------- shell ---------------- */
+.rpt-page{display:grid;grid-template-columns:196px minmax(0,1fr);max-width:1280px;
+  margin:0 auto;padding:0 32px 90px;gap:44px}
+.rpt-main{min-width:0;padding-top:38px}
+
+/* ---------------- rail ---------------- */
+.rpt-rail{position:sticky;top:0;align-self:start;height:100vh;padding:38px 0 28px;
+  display:flex;flex-direction:column;gap:26px}
+.rpt-brand{font-family:var(--serif);font-size:15px;letter-spacing:.34em;font-weight:600}
+.rpt-brand span{display:block;margin-top:4px;font-family:var(--sans);font-size:11px;
+  letter-spacing:.22em;color:var(--muted);font-weight:400}
+.rpt-nav{display:flex;flex-direction:column;gap:1px;border-top:1px solid var(--hair-strong)}
+.rpt-nav a{display:flex;gap:10px;align-items:baseline;text-decoration:none;padding:8px 2px;
+  border-bottom:1px solid var(--hair);font-size:12.5px;color:var(--ink-soft)}
+.rpt-nav a b{font-family:var(--mono);font-size:10.5px;color:var(--muted);font-weight:400;
+  letter-spacing:.04em}
+.rpt-nav a:hover{color:var(--accent)}
+.rpt-nav a.is-on{color:var(--ink);font-weight:600}
+.rpt-nav a.is-on b{color:var(--accent)}
+.rpt-rail-foot{margin-top:auto;font-size:11px;line-height:1.7;color:var(--muted);
+  border-top:1px solid var(--hair-strong);padding-top:12px}
+.rpt-rail-foot code{font-family:var(--mono);font-size:10px;color:var(--ink-soft);word-break:break-all}
+
+/* ---------------- masthead ---------------- */
+.rpt-kicker{font-size:11px;letter-spacing:.26em;color:var(--accent);margin:0 0 14px;
+  text-transform:uppercase;font-weight:600}
+.rpt-masthead h1{font-family:var(--serif);font-size:33px;line-height:1.34;font-weight:600;
+  margin:0 0 18px;letter-spacing:.01em;max-width:21em;text-wrap:balance}
+.rpt-meta{display:flex;flex-wrap:wrap;gap:6px 18px;color:var(--muted);font-size:12.5px;
+  padding-bottom:18px;border-bottom:1px solid var(--hair-strong)}
+.rpt-meta b{color:var(--ink-soft);font-weight:600}
+
+/* verdict + seal */
+.rpt-verdict{display:grid;grid-template-columns:minmax(0,1fr) 148px;gap:34px;
+  align-items:center;padding:26px 0 6px}
+.rpt-verdict blockquote{margin:0;font-family:var(--serif);font-size:18.5px;line-height:1.72;
+  color:var(--ink);max-width:36em}
+.rpt-verdict blockquote em{font-style:normal;border-bottom:2px solid rgba(194,103,58,.45);
+  padding-bottom:1px}
+.rpt-seal{width:132px;justify-self:end;border:2px solid var(--ink);padding:3px}
+.rpt-seal-in{border:1px solid var(--ink);padding:12px 8px 10px;text-align:center}
+.rpt-seal-num{font-family:var(--serif);font-size:42px;line-height:1;font-weight:600;letter-spacing:-.01em}
+.rpt-seal-grade{margin-top:7px;font-size:12px;letter-spacing:.18em;color:var(--ink-soft)}
+.rpt-seal-cap{margin-top:6px;font-size:10.5px;letter-spacing:.1em;color:var(--muted)}
+.rpt-seal.is-c{border-color:#9a6a45}
+.rpt-seal.is-c .rpt-seal-in{border-color:#9a6a45}
+.rpt-seal.is-c .rpt-seal-num,.rpt-seal.is-c .rpt-seal-grade{color:#8a5a34}
+.rpt-seal.is-a{border-color:#2d7d4f}
+.rpt-seal.is-a .rpt-seal-in{border-color:#2d7d4f}
+.rpt-seal.is-a .rpt-seal-num,.rpt-seal.is-a .rpt-seal-grade{color:#2d7d4f}
+
+/* ---------------- sections ---------------- */
+.rpt-scope section.rpt-sec{margin-top:52px;scroll-margin-top:20px}
+.rpt-sec-head{display:grid;grid-template-columns:56px minmax(0,1fr);gap:16px;align-items:baseline;
+  border-top:1px solid var(--ink);padding-top:12px;margin-bottom:22px}
+.rpt-sec-no{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--accent);
+  padding-top:5px}
+.rpt-sec-head h2{font-family:var(--serif);font-size:23px;font-weight:600;margin:0;
+  letter-spacing:.015em}
+.rpt-sec-sub{grid-column:2;color:var(--muted);font-size:12.5px;margin-top:2px}
+.rpt-body-grid{display:grid;grid-template-columns:56px minmax(0,1fr) 208px;gap:16px}
+.rpt-body-grid.no-margin{grid-template-columns:56px minmax(0,1fr)}
+.rpt-body-grid>.rpt-content{grid-column:2;min-width:0}
+.rpt-margin{grid-column:3;font-size:12px;line-height:1.72;color:var(--ink-soft);
+  border-left:1px dotted var(--hair-strong);padding-left:14px}
+.rpt-margin h4{margin:0 0 6px;font-size:11px;letter-spacing:.16em;color:var(--muted);
+  font-weight:600;text-transform:uppercase}
+.rpt-margin p{margin:0 0 10px}
+.rpt-margin .rpt-mn-kicker{font-family:var(--serif);color:var(--accent)}
+
+/* ---------------- generic blocks ---------------- */
+.rpt-panel{background:var(--panel);border:1px solid var(--hair);border-radius:6px;padding:16px 18px}
+.rpt-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:26px}
+.rpt-h3{font-size:12px;letter-spacing:.16em;color:var(--muted);font-weight:600;margin:0 0 10px;
+  text-transform:uppercase}
+.rpt-note{font-size:12px;color:var(--muted);line-height:1.65;margin:10px 0 0}
+.rpt-strong{font-weight:600}
+.rpt-mono{font-family:var(--mono);font-size:12px;font-variant-numeric:tabular-nums}
+.rpt-chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--hair);
+  border-radius:999px;padding:2px 10px;font-size:12px;background:var(--panel);color:var(--ink-soft)}
+.rpt-chip i{width:7px;height:7px;border-radius:50%;background:var(--ink);font-style:normal}
+
+/* goal + waterline (stability/advisory) */
+.rpt-target{border:1px solid var(--hair);background:var(--panel);padding:14px 16px}
+.rpt-target .rpt-t-metric{font-family:var(--serif);font-size:20px;margin-bottom:2px}
+.rpt-target .rpt-t-line{font-size:13px;color:var(--ink-soft)}
+.rpt-target .rpt-t-note{margin-top:10px;font-size:12px;color:var(--muted);line-height:1.65}
+.rpt-wl{border:1px solid var(--hair);background:var(--panel);padding:14px 16px}
+.rpt-wl-top{display:flex;align-items:baseline;gap:10px;margin-bottom:8px}
+.rpt-wl-grade{font-family:var(--serif);font-size:26px;line-height:1}
+.rpt-wl ul{list-style:none;margin:0;padding:0;font-size:12.5px}
+.rpt-wl li{display:flex;gap:8px;align-items:baseline;padding:3px 0;color:var(--ink-soft)}
+.rpt-wl li i{font-style:normal;width:14px;text-align:center;color:var(--good)}
+.rpt-wl li i.is-no{color:var(--warn)}
+.rpt-wl li span{margin-left:auto;font-size:11.5px;color:var(--muted)}
+
+/* findings ledger */
+.rpt-finding{display:grid;grid-template-columns:56px minmax(0,1fr) 208px;gap:16px;
+  padding:20px 0 22px;border-top:1px solid var(--hair)}
+.rpt-finding:first-child{border-top:none;padding-top:2px}
+.rpt-f-id{font-family:var(--mono);font-size:11px;color:var(--muted);padding-top:4px;letter-spacing:.04em}
+.rpt-f-main h3{margin:0 0 6px;font-size:16.5px;font-weight:600;font-family:var(--serif);line-height:1.5}
+.rpt-f-main p{margin:0 0 10px;color:var(--ink-soft);font-size:14px}
+.rpt-f-sev{font-size:10.5px;letter-spacing:.14em;color:#fff;background:var(--warm);
+  padding:1px 7px;margin-right:8px;vertical-align:2px;font-family:var(--sans)}
+.rpt-f-mech{grid-column:3;font-size:12px;color:var(--ink-soft);
+  border-left:1px dotted var(--hair-strong);padding-left:14px;align-self:start;margin:0}
+.rpt-f-mech b{display:block;font-size:11px;letter-spacing:.14em;color:var(--muted);margin-bottom:5px;
+  font-weight:600}
+.rpt-ev{border-collapse:collapse;width:100%;font-size:12.5px}
+.rpt-ev th,.rpt-ev td{text-align:left;padding:4px 10px 4px 0;border-bottom:1px solid var(--hair)}
+.rpt-ev th{font-weight:600;color:var(--muted);font-size:11px;letter-spacing:.06em;
+  white-space:nowrap}
+.rpt-ev td.rpt-num{font-family:var(--mono);font-size:12px}
+.rpt-ev tr:last-child td{border-bottom:none}
+
+/* tables */
+.rpt-table-wrap{border:1px solid var(--hair);background:var(--panel);overflow:auto}
+table.rpt-table{border-collapse:collapse;width:100%;font-size:13px}
+.rpt-table th{font-size:11px;letter-spacing:.08em;color:var(--muted);font-weight:600;
+  text-align:left;padding:10px 12px;border-bottom:1px solid var(--hair-strong);white-space:nowrap}
+.rpt-table td{padding:9px 12px;border-bottom:1px solid var(--hair);vertical-align:middle}
+.rpt-table tr:last-child td{border-bottom:none}
+.rpt-table td.rpt-n{font-family:var(--mono);font-size:12px;font-variant-numeric:tabular-nums}
+.rpt-table .rpt-pname{font-weight:600}
+.rpt-role{font-size:10.5px;color:var(--muted);border:1px solid var(--hair);padding:0 5px;
+  margin-left:7px;white-space:nowrap}
+.rpt-score{display:flex;align-items:center;gap:9px;min-width:120px}
+.rpt-score .rpt-track{height:3px;background:var(--hair);flex:1;position:relative}
+.rpt-score .rpt-track i{position:absolute;inset:0 auto 0 0;background:var(--ink)}
+.rpt-score .rpt-val{font-family:var(--mono);font-size:12px;min-width:22px;text-align:right}
+.rpt-score.is-low .rpt-track i{background:var(--warm)}
+.rpt-dflag{color:var(--bad);font-size:10.5px;border:1px solid var(--hair);padding:0 4px;margin-left:5px}
+
+/* figures */
+.rpt-figure{border:1px solid var(--hair);background:var(--panel);padding:14px 16px 8px;margin:0}
+.rpt-fig-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;font-size:12px;
+  color:var(--muted);margin-bottom:6px;flex-wrap:wrap}
+.rpt-fig-head b{color:var(--ink-soft);font-size:13px;font-weight:600}
+.rpt-fig-head span{font-family:var(--mono);font-size:11px}
+.rpt-chart{width:100%;height:auto;display:block}
+.rpt-legend{display:flex;gap:16px;font-size:11px;color:var(--muted);margin-top:2px;padding-bottom:6px;
+  flex-wrap:wrap}
+.rpt-legend i{display:inline-block;width:16px;height:0;border-top:1px solid var(--ink);margin-right:5px;
+  vertical-align:3px}
+.rpt-legend i.is-dash{border-top-style:dashed;border-top-color:var(--muted)}
+
+/* ---------------- advisory ---------------- */
+.rpt-entry{display:grid;grid-template-columns:64px minmax(0,1fr);gap:18px;padding:22px 0;
+  border-top:1px solid var(--hair)}
+.rpt-entry:first-of-type{border-top:1px solid var(--hair-strong)}
+.rpt-grade{width:42px;height:42px;border:2px solid var(--g);color:var(--g);display:flex;
+  align-items:center;justify-content:center;font-family:var(--serif);font-size:20px;font-weight:600}
+.rpt-grade small{font-size:9px;font-family:var(--sans);letter-spacing:.06em;margin-left:2px}
+.rpt-g-a{--g:#2d7d4f}.rpt-g-b{--g:#8a6d3b}.rpt-g-c{--g:#7a6a52}
+.rpt-grade-cap{font-size:10.5px;color:var(--muted);margin-top:5px;letter-spacing:.04em}
+.rpt-entry-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:2px}
+.rpt-lever{font-family:var(--serif);font-size:19px;font-weight:600}
+.rpt-lever code{font-family:var(--mono);font-size:11px;color:var(--muted);font-weight:400;margin-left:6px}
+.rpt-arrow{color:var(--muted);font-size:12px}
+.rpt-entry-gain{display:flex;align-items:baseline;gap:22px;flex-wrap:wrap;margin:10px 0 12px}
+.rpt-gain-num{font-family:var(--serif);font-size:29px;line-height:1.1}
+.rpt-gain-num small{font-size:12px;color:var(--muted);margin-left:5px;font-family:var(--sans)}
+.rpt-gain-ci{font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+.rpt-entry dl{display:grid;grid-template-columns:88px minmax(0,1fr);gap:5px 16px;margin:0;
+  font-size:13px;color:var(--ink-soft)}
+.rpt-entry dt{font-size:11.5px;color:var(--muted);letter-spacing:.04em;padding-top:1px}
+.rpt-entry dd{margin:0}
+.rpt-presc{margin-top:26px;border-top:1px solid var(--hair-strong);padding-top:16px}
+.rpt-presc h3{font-size:12px;letter-spacing:.16em;color:var(--warm);font-weight:600;margin:0 0 10px;
+  text-transform:uppercase}
+.rpt-presc ol{margin:0;padding-left:0;list-style:none;counter-reset:pc}
+.rpt-presc li{counter-increment:pc;display:grid;grid-template-columns:26px 92px minmax(0,1fr);
+  gap:10px;padding:7px 0;border-bottom:1px solid var(--hair);font-size:12.5px;color:var(--ink-soft)}
+.rpt-presc li::before{content:counter(pc,decimal-leading-zero);font-family:var(--mono);
+  font-size:10.5px;color:var(--muted);padding-top:2px}
+.rpt-presc .rpt-kind{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;color:var(--warm);
+  padding-top:2px}
+.rpt-presc .rpt-addr{color:var(--muted);font-size:11px;display:block;margin-top:2px}
+.rpt-empty{color:var(--muted);font-size:13px;padding:10px 0}
+
+/* roadmap (advisory) */
+.rpt-roadmap{border:1px solid var(--hair);background:var(--panel)}
+.rpt-roadmap table{border-collapse:collapse;width:100%;font-size:13px}
+.rpt-roadmap th{font-size:11px;letter-spacing:.08em;color:var(--muted);text-align:left;
+  padding:10px 12px;border-bottom:1px solid var(--hair-strong)}
+.rpt-roadmap td{padding:9px 12px;border-bottom:1px solid var(--hair);vertical-align:middle}
+.rpt-roadmap tr:last-child td{border-bottom:none}
+.rpt-bar{height:5px;background:var(--hair);position:relative;min-width:70px;flex:1}
+.rpt-bar span{position:absolute;inset:0 auto 0 0;background:var(--ink)}
+
+/* ---------------- DOE ---------------- */
+.rpt-factors td.rpt-fname{font-weight:600}
+.rpt-factors td.rpt-low,.rpt-factors td.rpt-high{font-family:var(--mono);font-size:12px}
+.rpt-stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));
+  border:1px solid var(--hair);background:var(--panel)}
+.rpt-stat{padding:12px 14px;border-right:1px solid var(--hair)}
+.rpt-stat:last-child{border-right:none}
+.rpt-stat .rpt-s-cap{font-size:10.5px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
+.rpt-stat .rpt-s-val{font-family:var(--mono);font-size:22px;margin-top:2px}
+.rpt-stat .rpt-s-sub{font-size:11px;color:var(--muted)}
+.rpt-effect{display:grid;grid-template-columns:150px 88px minmax(0,1fr) 96px;gap:12px;
+  align-items:center;padding:9px 0;border-bottom:1px solid var(--hair);font-size:12.5px}
+.rpt-effect:last-child{border-bottom:none}
+.rpt-effect .rpt-e-term{font-family:var(--mono);font-size:12px;color:var(--ink)}
+.rpt-effect .rpt-e-coef{font-family:var(--mono);font-size:12px;text-align:right}
+.rpt-effect .rpt-e-track{height:6px;background:var(--hair);position:relative}
+.rpt-effect .rpt-e-track span{position:absolute;top:0;bottom:0;background:var(--ink)}
+.rpt-effect .rpt-e-track span.is-neg{background:var(--warm);right:0;left:auto}
+.rpt-effect .rpt-e-q{font-family:var(--mono);font-size:11px;color:var(--muted);text-align:right}
+.rpt-effect.is-head{border-bottom:1px solid var(--hair-strong);font-size:10.5px;letter-spacing:.08em;
+  color:var(--muted);text-transform:uppercase}
+.rpt-layer{list-style:none;margin:0;padding:0;font-size:13px;color:var(--ink-soft)}
+.rpt-layer li{padding:7px 0;border-bottom:1px solid var(--hair);display:grid;
+  grid-template-columns:64px minmax(0,1fr);gap:12px}
+.rpt-layer li:last-child{border-bottom:none}
+.rpt-layer b{font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:.06em}
+
+/* ---------------- appendix / foot ---------------- */
+.rpt-appendix{border-top:3px double var(--hair-strong);margin-top:56px;padding-top:16px}
+.rpt-appendix h2{font-size:12px;letter-spacing:.18em;color:var(--muted);font-weight:600;margin:0 0 12px}
+.rpt-kv{display:grid;grid-template-columns:130px minmax(0,1fr);gap:4px 18px;font-size:12.5px;
+  color:var(--ink-soft)}
+.rpt-kv dt{color:var(--muted)}
+.rpt-kv dd{margin:0}
+.rpt-kv code{font-family:var(--mono);font-size:11px;word-break:break-all}
+.rpt-foot{margin-top:34px;padding-top:14px;border-top:1px solid var(--hair);font-size:11.5px;
+  color:var(--muted);display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.rpt-foot b{color:var(--ink-soft)}
+
+/* ---------------- responsive ---------------- */
+@media (max-width:1120px){
+  .rpt-page{grid-template-columns:1fr;padding:0 24px 70px}
+  .rpt-rail{position:static;height:auto;padding:26px 0 0;flex-direction:row;align-items:baseline;
+    gap:18px;flex-wrap:wrap}
+  .rpt-nav{flex-direction:row;flex-wrap:wrap;border-top:none;gap:4px 14px}
+  .rpt-nav a{border-bottom:none;padding:2px 0}
+  .rpt-rail-foot{display:none}
+  .rpt-body-grid,.rpt-finding{grid-template-columns:44px minmax(0,1fr)}
+  .rpt-margin,.rpt-f-mech{grid-column:2;margin-top:10px}
+  .rpt-grid-2{grid-template-columns:1fr}
+}
+@media print{
+  .rpt-scope{background:#fff;font-size:11pt}
+  .rpt-rail{display:none}
+  .rpt-page{display:block;max-width:none;padding:0}
+  .rpt-verdict,.rpt-finding,.rpt-entry,.rpt-figure,.rpt-panel{break-inside:avoid}
+  .rpt-scope a{text-decoration:none}
+}
+
+.rpt-scope .panel{background:var(--panel);border:1px solid var(--hair);border-radius:0;
+  padding:16px 18px}
+.rpt-scope table{border-collapse:collapse;width:100%;font-size:13px}
+.rpt-scope th,.rpt-scope td{border-bottom:1px solid var(--hair);padding:7px 10px;
+  text-align:left;vertical-align:top}
+.rpt-scope th{color:var(--muted);font-weight:600;font-size:11px;letter-spacing:.06em;
+  white-space:nowrap}
+.rpt-scope td.strong{font-weight:600}
+.rpt-scope code{background:#f2efe8;border:1px solid var(--hair);padding:0 5px;font-size:12px}
+.rpt-scope .empty{color:var(--muted);padding:10px 4px}
+.rpt-scope .num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.rpt-scope .role-tag{margin-left:8px;font-size:11px;color:var(--muted);
+  border:1px solid var(--hair);padding:0 6px}
+.rpt-scope .derived{font-size:10px;color:var(--accent);
+  border:1px solid rgba(232,163,61,.4);padding:0 4px;margin-left:4px}
+.rpt-scope .drift-flag{margin-left:6px;color:var(--warm);font-size:11px;
+  border:1px solid var(--warm);padding:0 5px}
+.rpt-scope .finding{background:var(--panel);border:1px solid var(--hair);
+  border-left:3px solid var(--s);border-radius:0;padding:14px 16px;margin-bottom:12px}
+.rpt-scope .f-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.rpt-scope .pill{background:var(--s);color:#fff;padding:1px 10px;font-size:12px}
+.rpt-scope .f-title{font-weight:700;font-family:var(--serif)}
+.rpt-scope .f-id{color:var(--muted);font-size:12px;margin-left:auto}
+.rpt-scope .f-conf{color:var(--muted);font-size:12px;white-space:nowrap}
+.rpt-scope .f-detail{color:var(--ink-soft);margin:8px 0}
+.rpt-scope .f-mech{font-size:12.5px;color:var(--ink-soft);background:rgba(30,58,84,.05);
+  border:1px dashed rgba(30,58,84,.22);padding:6px 10px;margin:6px 0}
+.rpt-scope .ev-table{margin-top:8px}
+.rpt-scope .score-cell{display:flex;align-items:center;gap:8px;min-width:130px}
+.rpt-scope .score-bar{height:8px;width:var(--w);max-width:120px;background:var(--c)}
+.rpt-scope .chart{height:300px;background:var(--panel);border:1px solid var(--hair)}
+.rpt-scope .chart+.chart{margin-top:14px}
+.rpt-scope .chart-title{padding:10px 14px 0;color:var(--muted);font-size:13px}
+.rpt-scope .static-table{max-height:220px;overflow:auto;margin-top:8px}
+.rpt-scope .foot{margin-top:40px;color:var(--muted);font-size:12px;
+  border-top:1px solid var(--hair);padding-top:14px}
+.rpt-scope .foot b{color:var(--ink-soft)}
+.rpt-scope .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+  gap:14px}
+</style>
+</head>
+<body class="rpt-scope">
+<div class="rpt-page">
+<aside class="rpt-rail">
+  <div class="rpt-brand">IDD<span>证据账簿</span></div>
+  <nav class="rpt-nav">
+    <a href="#s1" class="is-on"><b>01</b>场景理解</a>
+    <a href="#s2"><b>02</b>核心发现</a>
+    <a href="#s3"><b>03</b>改善建议</a>
+    <a href="#s4"><b>04</b>参数总览</a>
+    <a href="#s5"><b>05</b>趋势控制</a>
+    <a href="#s6"><b>06</b>相关驱动</a>
+    <a href="#s7"><b>07</b>协同输入</a>
+    <a href="#s8"><b>08</b>数据口径</a>
+  </nav>
+  <div class="rpt-rail-foot">确定性脚本生成<br>数值可复算 · 分级不可手改<br>
+    <code>LSR-1795069191-2j43d9</code></div>
+</aside>
+<main class="rpt-main">
+  
+    <header class="rpt-masthead">
+      <p class="rpt-kicker">Industrial Deep Diagnostic · 运行稳定性</p>
+      <h1>产线运行稳定性报告</h1>
+      <div class="rpt-meta">
+        <span>对象 <b>offline-data_diag</b></span>
+        
+        <span>时段 <b>2026-11-18 06:00:00 ~ 2026-11-18 13:58:00</b></span>
+        <span>采样 <b>120 s · 240 行</b></span>
+        <span>生成 <b>2026-11-19 06:19</b></span>
+      </div>
+      <div class="rpt-verdict">
+        <blockquote data-field="statement">该产线在本时段总体运行稳定（86.2 分，A 级）：评估 5 个参数，检出 21 个 SPC 违规剧集、1 项显著漂移；最需关注：scrap_rate_pct。</blockquote>
+        <div class="rpt-seal is-a">
+          <div class="rpt-seal-in">
+            <div class="rpt-seal-num">86.2</div>
+            <div class="rpt-seal-grade">A · 稳定</div>
+            <div class="rpt-seal-cap">综合稳定性 0–100</div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+  <section class="rpt-sec" id="s1">
+    <div class="rpt-sec-head"><span class="rpt-sec-no">01</span><h2>场景理解（本体优先）</h2>
+      <div class="rpt-sec-sub">先于任何统计构建场景理解；每个推断字段带 assigned_by，
+        快照数据单独标注。</div></div>
+    <div class="rpt-body-grid">
+      <div class="rpt-content"><div class='panel'><p style='margin:0 0 8px'>本体来源：run_dir（D:/codes/myskills/idd-doe-impl/workspace/skill-pipeline-demo-20261119/08-stability-folder/run\01_ontology\ontology.json）。</p><table><tr><th>场景</th><td>offline-data_diag</td></tr><tr><th>过程类型</th><td>挤出/注塑式热工艺产线（PROTO3-B3 文档驱动接入线）时序数据稳定性评估</td></tr><tr><th>生产目标</th><td>评估 2026-11-01 11:03 ~ 12:03 窗口内该产线 7 个标量节点的运行稳定性，给出评分与分级、证据链与中文落地报告</td></tr></table><div style='overflow:auto;margin-top:8px'><table><thead><tr><th>参数（本体名）</th><th>单位</th><th>角色</th><th>规格/正常范围</th><th>控制方程</th><th>assigned_by</th></tr></thead><tbody><tr><td class=strong>film_tension_n<span class='role-tag'>film_tension_n</span></td><td>单位未声明（unit undeclared）</td><td>加工参数</td><td>—</td><td>—</td><td><span class='role-tag'>auto</span></td></tr><tr><td class=strong>oven_temp_c<span class='role-tag'>oven_temp_c</span></td><td>单位未声明（unit undeclared）</td><td>加工参数</td><td>—</td><td>—</td><td><span class='role-tag'>auto</span></td></tr><tr><td class=strong>line_speed_mpm<span class='role-tag'>line_speed_mpm</span></td><td>单位未声明（unit undeclared）</td><td>加工参数</td><td>—</td><td>—</td><td><span class='role-tag'>auto</span></td></tr><tr><td class=strong>cooling_water_flow_lpm<span class='role-tag'>cooling_water_flow_lpm</span></td><td>单位未声明（unit undeclared）</td><td>加工参数</td><td>—</td><td>—</td><td><span class='role-tag'>auto</span></td></tr><tr><td class=strong>scrap_rate_pct<span class='role-tag'>scrap_rate_pct</span></td><td>单位未声明（unit undeclared）</td><td>加工参数</td><td>—</td><td>—</td><td><span class='role-tag'>auto</span></td></tr></tbody></table></div><div style='margin-top:10px'><b>运行状态分段（sentinel C3，方法 fast；变点 0 个）</b><table><thead><tr><th>段</th><th>行范围</th><th>主导状态</th></tr></thead><tbody><tr><td>段 1</td><td class=num>行 0–239（240 行）</td><td>steady</td></tr></tbody></table></div></div></div>
+      <aside class="rpt-margin"><h4>读法</h4>
+        <p>先看本体来源与 spec 覆盖：没有规格时 Cpk 不参与评分，这是口径不是缺失。</p>
+        <p>单时刻导出的快照不进入时段统计，只作为瞬时值单列。</p>
+      </aside>
+    </div>
+  </section>
+
+  <section class="rpt-sec" id="s2">
+    <div class="rpt-sec-head"><span class="rpt-sec-no">02</span><h2>核心发现（结论与证据）</h2>
+      <div class="rpt-sec-sub">5 项分级发现；全部展示，按严重度与可解释性排序。</div></div>
+    
+        <div class="finding sev-high">
+          <div class="f-head">
+            <span class="pill" style="--s:#c2673a">严重</span>
+            <span class="f-title">oven_temp_c 检出 SPC 违规</span>
+            <span class="f-conf">置信度 90</span>
+            <span class="f-id">F001</span>
+          </div>
+          <div class="f-detail">共 10 个判异剧集命中（每百点 4.2 个，规则：NELSON_R1/NELSON_R2/NELSON_R5/NELSON_R6），控制限为中心值120.06±3σ_within（σ=0.4872）。</div>
+          
+          <table class="ev-table"><thead><tr>
+            <th>证据项</th><th>数值</th><th>阈值/口径</th><th>来源</th>
+          </tr></thead><tbody><tr><td>violation_episodes</td><td class=num>10</td><td class=num>0</td><td>lstcore</td></tr><tr><td>rate_per_100</td><td class=num>4.17</td><td class=num>&lt;2 for warn; &gt;=2 for high</td><td>lstcore</td></tr><tr><td>sigma_within_mr</td><td class=num>0.4872</td><td class=num>—</td><td>lstcore</td></tr></tbody></table>
+        </div>
+        <div class="finding sev-high">
+          <div class="f-head">
+            <span class="pill" style="--s:#c2673a">严重</span>
+            <span class="f-title">oven_temp_c 存在显著漂移</span>
+            <span class="f-conf">置信度 80</span>
+            <span class="f-id">F002</span>
+          </div>
+          <div class="f-detail">Theil–Sen 斜率显著（Mann–Kendall p=0.0，且相对漂移≥0.1%/天才计入），相对漂移约 2.093%/天，方向对应斜率 0/秒。</div>
+          
+          <table class="ev-table"><thead><tr>
+            <th>证据项</th><th>数值</th><th>阈值/口径</th><th>来源</th>
+          </tr></thead><tbody><tr><td>mk_p</td><td class=num>0</td><td class=num>&lt;0.01 且 &gt;=0.1%/天</td><td>lstcore</td></tr><tr><td>per_day_relative</td><td class=num>0.0209</td><td class=num>&lt;0.001 ok; &gt;=0.01 high</td><td>lstcore</td></tr><tr><td>slope_per_second</td><td class=num>0</td><td class=num>—</td><td>lstcore</td></tr></tbody></table>
+        </div>
+        <div class="finding sev-warn">
+          <div class="f-head">
+            <span class="pill" style="--s:#8a6d3b">关注</span>
+            <span class="f-title">film_tension_n 检出 SPC 违规</span>
+            <span class="f-conf">置信度 90</span>
+            <span class="f-id">F003</span>
+          </div>
+          <div class="f-detail">共 4 个判异剧集命中（每百点 1.7 个，规则：NELSON_R3/NELSON_R5/NELSON_R6），控制限为中心值249.79±3σ_within（σ=1.495）。</div>
+          
+          <table class="ev-table"><thead><tr>
+            <th>证据项</th><th>数值</th><th>阈值/口径</th><th>来源</th>
+          </tr></thead><tbody><tr><td>violation_episodes</td><td class=num>4</td><td class=num>0</td><td>lstcore</td></tr><tr><td>rate_per_100</td><td class=num>1.67</td><td class=num>&lt;2 for warn; &gt;=2 for high</td><td>lstcore</td></tr><tr><td>sigma_within_mr</td><td class=num>1.495</td><td class=num>—</td><td>lstcore</td></tr></tbody></table>
+        </div>
+        <div class="finding sev-warn">
+          <div class="f-head">
+            <span class="pill" style="--s:#8a6d3b">关注</span>
+            <span class="f-title">line_speed_mpm 检出 SPC 违规</span>
+            <span class="f-conf">置信度 90</span>
+            <span class="f-id">F004</span>
+          </div>
+          <div class="f-detail">共 4 个判异剧集命中（每百点 1.7 个，规则：NELSON_R1/NELSON_R2/NELSON_R6），控制限为中心值120±3σ_within（σ=0.8379）。</div>
+          
+          <table class="ev-table"><thead><tr>
+            <th>证据项</th><th>数值</th><th>阈值/口径</th><th>来源</th>
+          </tr></thead><tbody><tr><td>violation_episodes</td><td class=num>4</td><td class=num>0</td><td>lstcore</td></tr><tr><td>rate_per_100</td><td class=num>1.67</td><td class=num>&lt;2 for warn; &gt;=2 for high</td><td>lstcore</td></tr><tr><td>sigma_within_mr</td><td class=num>0.8379</td><td class=num>—</td><td>lstcore</td></tr></tbody></table>
+        </div>
+        <div class="finding sev-warn">
+          <div class="f-head">
+            <span class="pill" style="--s:#8a6d3b">关注</span>
+            <span class="f-title">cooling_water_flow_lpm 检出 SPC 违规</span>
+            <span class="f-conf">置信度 90</span>
+            <span class="f-id">F005</span>
+          </div>
+          <div class="f-detail">共 3 个判异剧集命中（每百点 1.2 个，规则：NELSON_R1/NELSON_R2/NELSON_R6），控制限为中心值44.99±3σ_within（σ=0.7058）。</div>
+          
+          <table class="ev-table"><thead><tr>
+            <th>证据项</th><th>数值</th><th>阈值/口径</th><th>来源</th>
+          </tr></thead><tbody><tr><td>violation_episodes</td><td class=num>3</td><td class=num>0</td><td>lstcore</td></tr><tr><td>rate_per_100</td><td class=num>1.25</td><td class=num>&lt;2 for warn; &gt;=2 for high</td><td>lstcore</td></tr><tr><td>sigma_within_mr</td><td class=num>0.7058</td><td class=num>—</td><td>lstcore</td></tr></tbody></table>
+        </div>
+  </section>
+
+  <section class="rpt-scope" id="s3" aria-label="改善建议与验证计划（集成）"><div class="rpt-sec-head"><span class="rpt-sec-no">03</span><h2>改善建议与验证计划（集成）</h2><div class="rpt-sec-sub">状态 无建议（处方模式） · 建议 0 条 · 处方 1 条 · 水位线 —</div></div><div class="rpt-body-grid"><div class="rpt-content">
+  <div id="sec-goal">
+<div class="rpt-grid-2">
+  <div>
+    <h3 class="rpt-h3">优化目标</h3>
+    <div class="rpt-panel">
+      <div class="rpt-note"><b>显式目标</b>：来自 objective.json，不触发「未确认目标封顶 B」条款。</div>
+      <table class="rpt-table"><tr><th>KPI</th><th>方向</th><th>目标值</th><th>容差</th></tr>
+      <tr><td class='rpt-strong'>scrap_rate_pct</td><td>min</td><td class='rpt-n'>—</td><td class='rpt-n'>—</td></tr></table>
+      
+    </div>
+  </div>
+  <div>
+    <h3 class="rpt-h3">证据水位线 · 本次最高可达 —</h3>
+    <div class="rpt-wl">
+      <div class="rpt-wl-top"><span class="rpt-wl-grade">—</span>
+        <span style="font-size:12px;color:var(--muted)">证据不足以评级</span></div>
+      <ul><li><i class="is-no">○</i>动作日志归因<span>缺失</span></li><li><i class="is-no">○</i>本体机制边<span>0 条</span></li><li><i class="is-no">○</i>dead_time 声明<span>缺失</span></li><li><i class="is-no">○</i>设计试验窗<span>缺失</span></li><li><i class="">✓</i>目标已确认<span>可用</span></li></ul>
+      <p class="rpt-note">无动作日志：观察数据最高 B；dead_time 缺省：时间先后未评估，相关动作封顶 B；无设计试验窗；目标已显式声明</p>
+    </div>
+  </div>
+</div></div>
+  <div id="sec-roadmap"><h3 class="rpt-h3" style="margin-top:26px">改善路线图</h3><div class="rpt-note"><b>本次没有建议进入建议区</b>——数据撑不起可执行行动，系统给出的是可执行的处方（见下）。</div></div>
+  <div id="sec-actions"><h3 class="rpt-h3" style="margin-top:26px">动作卡</h3><div class="rpt-empty">本次无动作卡（见处方区）。</div></div>
+  <div id="sec-evidence"><h3 class="rpt-h3" style="margin-top:26px">证据链（剂量-响应与时序）</h3>
+    <div class="rpt-empty">无图表数据</div></div>
+  <div id="sec-prescriptions"><h3 class="rpt-h3" style="margin-top:26px">处方区（不成建议）</h3>
+    <div class="rpt-presc" style="margin-top:0;border-top:none;padding-top:0"><h3>处方清单（1 条 · 全部展示）</h3><ol><li><span class="rpt-kind">[experiment]</span><span>KPI scrap_rate_pct 没有通过门禁的可操作杠杆；先补动作日志/更宽数据窗，或用 doe-analyzer 设计试验分离因果<span class="rpt-addr">addresses: scrap_rate_pct</span></span></li></ol><p class="rpt-note">处方是「接下来该补什么」的清单，不是参数指令。</p></div></div>
+  <div class="rpt-foot" style="margin-top:30px"><b>咨询边界：</b>本节为确定性脚本生成的咨询建议
+    （advisory），不构成参数下发或控制指令，绝不下发参数；执行须经产线审批 /
+    optimizer-campaign 验证。数值与分级不可手改（quality_gate 重算密封）。</div></div><aside class="rpt-margin"><h4>分级口径</h4><p>A ＝ 干预性证据（设计窗 / 随机化 DOE / 归因 CI 不含 0）；B ＝ 观察性证据，需小试验证；C ＝ 方向可信但不足以执行。</p><p>收益一律给 95%CI；不可估时写 <code>effect=null</code> 并说明原因，不给点估计。</p><p style="color:var(--accent)">本节不构成参数下发指令。</p></aside></div></section>
+
+  <section class="rpt-sec" id="s4">
+    <div class="rpt-sec-head"><span class="rpt-sec-no">04</span><h2>参数稳定性总览</h2>
+      <div class="rpt-sec-sub">全部 5 个评估参数；评分 ≈ 波动 + 违规 + 漂移的确定性加权。</div></div>
+    <div class="panel" style="overflow:auto">
+      <table>
+        <thead><tr>
+          <th>参数</th><th>样本数</th><th>中位数</th><th>CV</th><th>SPC违规点</th>
+          <th>漂移/天(相对)</th><th>Cpk</th><th>基线z</th><th>评分</th>
+        </tr></thead>
+        <tbody>
+        <tr>
+          <td>film_tension_n<span class="role-tag">加工参数</span></td>
+          <td class=num>240</td>
+          <td class=num>249.79</td>
+          <td class=num>0.006325</td>
+          <td class=num>4</td>
+          <td class=num>0.003348</td>
+          <td class=num>—</td>
+          <td class=num>—</td>
+          <td><div class="score-cell"><div class="score-bar" style="--w:99%;--c:#1e3a54"></div><span style="color:#1e3a54">99</span></div></td>
+        </tr>
+        <tr>
+          <td>oven_temp_c<span class="role-tag">加工参数</span></td>
+          <td class=num>240</td>
+          <td class=num>120.06</td>
+          <td class=num>0.004515</td>
+          <td class=num>10</td>
+          <td class=num>0.020927<span class="drift-flag">显著</span></td>
+          <td class=num>—</td>
+          <td class=num>—</td>
+          <td><div class="score-cell"><div class="score-bar" style="--w:72%;--c:#1e3a54"></div><span style="color:#1e3a54">72</span></div></td>
+        </tr>
+        <tr>
+          <td>line_speed_mpm<span class="role-tag">加工参数</span></td>
+          <td class=num>240</td>
+          <td class=num>120</td>
+          <td class=num>0.006736</td>
+          <td class=num>4</td>
+          <td class=num>0</td>
+          <td class=num>—</td>
+          <td class=num>—</td>
+          <td><div class="score-cell"><div class="score-bar" style="--w:99%;--c:#1e3a54"></div><span style="color:#1e3a54">99</span></div></td>
+        </tr>
+        <tr>
+          <td>cooling_water_flow_lpm<span class="role-tag">加工参数</span></td>
+          <td class=num>240</td>
+          <td class=num>44.99</td>
+          <td class=num>0.015632</td>
+          <td class=num>3</td>
+          <td class=num>0.011054</td>
+          <td class=num>—</td>
+          <td class=num>—</td>
+          <td><div class="score-cell"><div class="score-bar" style="--w:93%;--c:#1e3a54"></div><span style="color:#1e3a54">93</span></div></td>
+        </tr>
+        <tr>
+          <td>scrap_rate_pct<span class="role-tag">加工参数</span></td>
+          <td class=num>240</td>
+          <td class=num>1.485</td>
+          <td class=num>0.131014</td>
+          <td class=num>0</td>
+          <td class=num>0</td>
+          <td class=num>—</td>
+          <td class=num>—</td>
+          <td><div class="score-cell"><div class="score-bar" style="--w:68%;--c:#1e3a54"></div><span style="color:#1e3a54">68</span></div></td>
+        </tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="rpt-sec" id="s5">
+    <div class="rpt-sec-head"><span class="rpt-sec-no">05</span><h2>趋势与控制限</h2>
+      <div class="rpt-sec-sub">ECharts 交互图；CDN 不可用时自动降级为静态摘要表。</div></div>
+    <div id="trend-charts"></div>
+    <noscript><div class="panel empty">已禁用 JavaScript：请查看上方参数总览表与证据附录，
+      或使用导出的 charts.json。</div></noscript>
+  </section>
+
+  <section class="rpt-sec" id="s6">
+    <div class="rpt-sec-head"><span class="rpt-sec-no">06</span><h2>参数相关与波动驱动</h2>
+      <div class="rpt-sec-sub">滞后补偿相关 + 方差贡献分解；缺失目标指标时明示未执行。</div></div>
+    <div class="grid">
+      <div class="panel" id="contrib-panel"><div class="chart-title">对检测/目标指标的方差解释占比</div>
+        <div id="contrib-chart" class="chart"></div><div class='empty' style='padding:8px'>未声明检测/响应指标（context.inspection_cols 或本体 role=response）——贡献分析未执行，声明目标指标后启用。</div></div>
+      <div class="panel" id="heat-panel"><div class="chart-title">参数相关热力图（滞后补偿 |Spearman|）</div>
+        <div id="heat-chart" class="chart"></div></div>
+    </div>
+  </section>
+
+  <section class="rpt-sec" id="s7">
+    <div class="rpt-sec-head"><span class="rpt-sec-no">07</span><h2>协同分析输入</h2>
+      <div class="rpt-sec-sub">sentinel 基线 / tuning-memory 归因 / DOE 操作窗的启用状态与降级说明。</div></div>
+    <div class="panel" id="integrations"><table><tbody><tr><th>sentinel 基线对照</th><td>未启用（未提供基线）</td></tr><tr><th>tuning-memory 调优归因</th><td>未启用（未提供 action_log）</td></tr><tr><th>doe-analyzer 操作窗</th><td>未启用（未提供 doe_run_dir）</td></tr></tbody></table></div>
+  </section>
+
+  <section class="rpt-sec rpt-appendix" id="s8">
+  <div class="rpt-sec-head"><span class="rpt-sec-no">08</span>
+    <h2>数据与口径（证据链附录）</h2>
+    <div class="rpt-sec-sub">数据指纹、评估口径、方法常数与假设局限；全部数值可复算。</div></div>
+  <div class="panel">
+    <table>
+      <tr><th>数据文件</th><td>D:/codes/myskills/idd-doe-impl/workspace/skill-pipeline-demo-20261119/08-stability-folder/run\00_input\primary_table.csv</td></tr>
+      <tr><th>数据指纹</th><td class="num">sha256:866591abcec93794bea7d28668cb7bcfdb87ee7a4515fd9686db23369c9b7f56</td></tr>
+      <tr><th>行数（原始/入评）</th><td class="num">240 / 240</td></tr>
+      <tr><th>时间列 / 采样间隔</th><td>timestamp /
+        <span class="num">120 s</span></td></tr>
+      <tr><th>缺失率 / 覆盖率</th><td class="num">0.00% /
+        100.00%</td></tr>
+      <tr><th>评估参数</th><td>film_tension_n、oven_temp_c、line_speed_mpm、cooling_water_flow_lpm、scrap_rate_pct</td></tr>
+      <tr><th>检测指标</th><td>—</td></tr>
+      
+    </table>
+    <div style='margin-top:12px'><b>方法与阈值（可复算）</b><ul><li><code>sentinelcore_nelson_episodes</code> — Nelson 判异复用 industrial-sentinel sentinelcore （R1 单点越 3σ；R2 连续 9 点同侧；R3 连续 6 点同向；R5 三点中两点越 2σ；R6 五点中四点越 1σ），单一事实源。</li><li><code>mrbar_sigma_1.128</code> — σ_within 由移动极差估计：σ = MR̄ / 1.128（与 industrial-sentinel 同口径）。</li><li><code>cpk_within_ppk_overall</code> — Cpk 用组内 σ（MR̄ 法），Ppk 用整体标准差；规格限来源：用户上下文 > 本体资产 normal_range > 不计算。</li><li><code>theil_sen_mk_drift</code> — 漂移：Theil–Sen 稳健斜率（每行斜率 ÷ 采样间隔换算每秒）+ Mann–Kendall 显著性（p&lt;0.01 且相对漂移≥0.1%/天才计入）。</li><li><code>lagged_spearman_max10</code> — 相关性：滞后 0–10 行逐行 Spearman 取最强，并记录领先行数；物理机制由本体 relationships/参数组校验（机制四条件）。</li><li><code>contribution_r2_share</code> — 贡献分解：目标指标上各驱动参数滞后补偿后 |r|² 归一化占比（阈值 |r|≥0.3），领先行数一并记录。</li><li><code>regime_segmentation_c3</code> — 运行状态分段：复用 industrial-sentinel regime_map（方差比+漂移坡道融合 + 二分分割显著变点），变点与主导状态逐段列出。</li><li><code>ontology_first_condition</code> — 本体优先：先于任何统计构建场景理解（显式路径 > 00_input/01_ontology 产物 > 本体资产库），每个推断字段带 assigned_by=ontology|user|auto。</li><li><code>weighted_penalty_score_v1</code> — 评分：每参数 100 分起，按 SPC 违规剧集率/CV/Cpk/漂移/基线偏离分档扣分，综合分为参数加权均值；A≥85 稳定，B≥70 亚稳定，C≥50 波动，D&lt;50 不稳定。</li><li><code>data_truth_limitations</code> — 数据真值与局限：全部数值可由原始表复算；推导字段标记 derived；假设、混杂因子与规格覆盖显式列出（见下）。</li></ul><span style='color:var(--mut)'>python 3.12.13 · numpy 2.5.2 · pandas 3.0.5 · spc sentinelcore · input sha256:866591abcec93794bea7d28668cb7bcfdb87ee7a4515fd9686db23369c9b7f56</span></div>
+    
+    <div style='margin-top:16px'>
+      <b>假设与局限（数据真值条款）</b>
+      <table>
+        <tr><th>数据来源</th><td>raw (this skill never cleans or imputes; every number is recomputable from the raw table)</td></tr>
+        <tr><th>抽样</th><td>全量入评（240 行）</td></tr>
+        <tr><th>规格覆盖</th><td>用户提供：无 ·
+          本体资产：无 ·
+          无规格（不评 Cpk）：film_tension_n、oven_temp_c、line_speed_mpm、cooling_water_flow_lpm、scrap_rate_pct</td></tr>
+      </table>
+      <div style='margin-top:6px'><b>模型假设</b><ul><li>lag-compensated Spearman window 0–10 rows (lead/lag beyond this window is invisible)</li><li>whole-period scoring assumes one dominant operating condition; use the regime table for segmented reading</li><li>Cpk treats within-sigma as MR̄/1.128 moving-range estimate</li></ul></div>
+      <div style='margin-top:6px'><b>混杂因子（本体登记）</b>
+        <table><thead><tr><th>变量</th><th>影响说明</th><th>状态</th></tr></thead>
+        <tbody><tr><td colspan=3 class=empty>本体未登记混杂因子</td></tr></tbody></table></div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <b>报告性质：</b>本报告由确定性统计脚本生成（零 LLM 参与，全部数值可复算），
+    属咨询性分析产物，不构成参数下发或控制指令；行动决策归业务管理方。<br>
+    <b>生成物：</b>LSR-1795069191-2j43d9 ·
+    contract line-stability-report/1.0 ·
+    script v1.0.0 ·
+    2026-11-19T06:19:51Z
+  </div>
+  </section>
+</main>
+</div>
+
+<script id="payload" type="application/json">{"report_id":"LSR-1795069191-2j43d9","charts":{"contract_version":"line-stability-charts/1.0","trend":[{"name":"film_tension_n","role":"parameter","n":240,"n_plotted":240,"t":[1794981600000,1794981720000,1794981840000,1794981960000,1794982080000,1794982200000,1794982320000,1794982440000,1794982560000,1794982680000,1794982800000,1794982920000,1794983040000,1794983160000,1794983280000,1794983400000,1794983520000,1794983640000,1794983760000,1794983880000,1794984000000,1794984120000,1794984240000,1794984360000,1794984480000,1794984600000,1794984720000,1794984840000,1794984960000,1794985080000,1794985200000,1794985320000,1794985440000,1794985560000,1794985680000,1794985800000,1794985920000,1794986040000,1794986160000,1794986280000,1794986400000,1794986520000,1794986640000,1794986760000,1794986880000,1794987000000,1794987120000,1794987240000,1794987360000,1794987480000,1794987600000,1794987720000,1794987840000,1794987960000,1794988080000,1794988200000,1794988320000,1794988440000,1794988560000,1794988680000,1794988800000,1794988920000,1794989040000,1794989160000,1794989280000,1794989400000,1794989520000,1794989640000,1794989760000,1794989880000,1794990000000,1794990120000,1794990240000,1794990360000,1794990480000,1794990600000,1794990720000,1794990840000,1794990960000,1794991080000,1794991200000,1794991320000,1794991440000,1794991560000,1794991680000,1794991800000,1794991920000,1794992040000,1794992160000,1794992280000,1794992400000,1794992520000,1794992640000,1794992760000,1794992880000,1794993000000,1794993120000,1794993240000,1794993360000,1794993480000,1794993600000,1794993720000,1794993840000,1794993960000,1794994080000,1794994200000,1794994320000,1794994440000,1794994560000,1794994680000,1794994800000,1794994920000,1794995040000,1794995160000,1794995280000,1794995400000,1794995520000,1794995640000,1794995760000,1794995880000,1794996000000,1794996120000,1794996240000,1794996360000,1794996480000,1794996600000,1794996720000,1794996840000,1794996960000,1794997080000,1794997200000,1794997320000,1794997440000,1794997560000,1794997680000,1794997800000,1794997920000,1794998040000,1794998160000,1794998280000,1794998400000,1794998520000,1794998640000,1794998760000,1794998880000,1794999000000,1794999120000,1794999240000,1794999360000,1794999480000,1794999600000,1794999720000,1794999840000,1794999960000,1795000080000,1795000200000,1795000320000,1795000440000,1795000560000,1795000680000,1795000800000,1795000920000,1795001040000,1795001160000,1795001280000,1795001400000,1795001520000,1795001640000,1795001760000,1795001880000,1795002000000,1795002120000,1795002240000,1795002360000,1795002480000,1795002600000,1795002720000,1795002840000,1795002960000,1795003080000,1795003200000,1795003320000,1795003440000,1795003560000,1795003680000,1795003800000,1795003920000,1795004040000,1795004160000,1795004280000,1795004400000,1795004520000,1795004640000,1795004760000,1795004880000,1795005000000,1795005120000,1795005240000,1795005360000,1795005480000,1795005600000,1795005720000,1795005840000,1795005960000,1795006080000,1795006200000,1795006320000,1795006440000,1795006560000,1795006680000,1795006800000,1795006920000,1795007040000,1795007160000,1795007280000,1795007400000,1795007520000,1795007640000,1795007760000,1795007880000,1795008000000,1795008120000,1795008240000,1795008360000,1795008480000,1795008600000,1795008720000,1795008840000,1795008960000,1795009080000,1795009200000,1795009320000,1795009440000,1795009560000,1795009680000,1795009800000,1795009920000,1795010040000,1795010160000,1795010280000],"v":[252.24,253.64,249.75,252.39,248.48,250.0,249.81,247.8,248.81,251.48,251.43,248.17,248.87,248.67,250.26,248.87,247.78,249.11,249.93,249.21,249.2,250.48,249.53,251.01,250.18,249.47,248.69,248.77,249.97,250.62,249.79,250.34,251.08,253.23,246.99,251.56,247.06,250.54,250.78,251.05,250.37,248.39,246.63,250.07,250.29,252.73,250.34,248.81,247.48,248.83,250.12,250.01,249.89,251.77,252.44,250.9,250.93,254.27,248.57,248.71,249.59,249.05,251.98,251.53,249.02,248.63,248.2,248.76,249.74,246.49,252.63,250.62,250.24,250.67,252.17,248.88,246.8,249.98,248.2,249.73,252.47,252.48,248.71,251.28,252.23,251.66,249.56,250.42,249.47,253.12,249.37,248.72,249.3,253.5,249.28,250.26,254.01,252.02,248.96,252.52,250.38,250.58,250.42,248.33,249.98,252.17,251.17,249.54,250.45,250.37,250.25,245.65,249.68,249.16,248.28,249.75,248.49,249.62,248.8,250.82,248.62,251.8,251.12,250.92,249.77,248.24,247.23,249.32,249.98,251.4,248.13,251.19,248.57,249.27,249.07,250.15,250.75,250.53,250.63,252.02,251.89,251.39,252.48,247.0,249.22,251.33,249.6,251.75,249.42,250.61,251.23,249.53,249.33,248.77,251.44,248.42,251.21,251.04,251.29,249.99,246.61,245.89,252.12,249.73,247.78,249.5,249.04,248.36,249.86,250.49,251.51,249.24,251.91,251.52,249.53,253.56,252.52,248.32,249.19,251.55,251.55,248.7,250.52,246.32,249.33,249.63,249.51,249.1,248.66,248.49,250.4,249.33,249.42,249.07,251.46,248.4,249.7,249.82,247.62,249.03,249.74,251.45,249.74,251.98,249.55,249.79,248.41,248.28,250.74,251.61,249.42,254.05,247.34,250.37,249.33,249.77,249.84,248.52,248.13,250.19,251.05,247.59,250.46,247.93,248.18,252.21,247.09,249.45,250.57,248.5,248.31,248.75,250.91,248.97,250.89,251.68,250.53,250.8,251.7,249.05],"center":249.79,"ucl":254.275111,"lcl":245.304889,"violation_indices_in_plot":[126,143,162,176],"spec":{"lsl":null,"usl":null,"target":null,"source":null}},{"name":"oven_temp_c","role":"parameter","n":240,"n_plotted":240,"t":[1794981600000,1794981720000,1794981840000,1794981960000,1794982080000,1794982200000,1794982320000,1794982440000,1794982560000,1794982680000,1794982800000,1794982920000,1794983040000,1794983160000,1794983280000,1794983400000,1794983520000,1794983640000,1794983760000,1794983880000,1794984000000,1794984120000,1794984240000,1794984360000,1794984480000,1794984600000,1794984720000,1794984840000,1794984960000,1794985080000,1794985200000,1794985320000,1794985440000,1794985560000,1794985680000,1794985800000,1794985920000,1794986040000,1794986160000,1794986280000,1794986400000,1794986520000,1794986640000,1794986760000,1794986880000,1794987000000,1794987120000,1794987240000,1794987360000,1794987480000,1794987600000,1794987720000,1794987840000,1794987960000,1794988080000,1794988200000,1794988320000,1794988440000,1794988560000,1794988680000,1794988800000,1794988920000,1794989040000,1794989160000,1794989280000,1794989400000,1794989520000,1794989640000,1794989760000,1794989880000,1794990000000,1794990120000,1794990240000,1794990360000,1794990480000,1794990600000,1794990720000,1794990840000,1794990960000,1794991080000,1794991200000,1794991320000,1794991440000,1794991560000,1794991680000,1794991800000,1794991920000,1794992040000,1794992160000,1794992280000,1794992400000,1794992520000,1794992640000,1794992760000,1794992880000,1794993000000,1794993120000,1794993240000,1794993360000,1794993480000,1794993600000,1794993720000,1794993840000,1794993960000,1794994080000,1794994200000,1794994320000,1794994440000,1794994560000,1794994680000,1794994800000,1794994920000,1794995040000,1794995160000,1794995280000,1794995400000,1794995520000,1794995640000,1794995760000,1794995880000,1794996000000,1794996120000,1794996240000,1794996360000,1794996480000,1794996600000,1794996720000,1794996840000,1794996960000,1794997080000,1794997200000,1794997320000,1794997440000,1794997560000,1794997680000,1794997800000,1794997920000,1794998040000,1794998160000,1794998280000,1794998400000,1794998520000,1794998640000,1794998760000,1794998880000,1794999000000,1794999120000,1794999240000,1794999360000,1794999480000,1794999600000,1794999720000,1794999840000,1794999960000,1795000080000,1795000200000,1795000320000,1795000440000,1795000560000,1795000680000,1795000800000,1795000920000,1795001040000,1795001160000,1795001280000,1795001400000,1795001520000,1795001640000,1795001760000,1795001880000,1795002000000,1795002120000,1795002240000,1795002360000,1795002480000,1795002600000,1795002720000,1795002840000,1795002960000,1795003080000,1795003200000,1795003320000,1795003440000,1795003560000,1795003680000,1795003800000,1795003920000,1795004040000,1795004160000,1795004280000,1795004400000,1795004520000,1795004640000,1795004760000,1795004880000,1795005000000,1795005120000,1795005240000,1795005360000,1795005480000,1795005600000,1795005720000,1795005840000,1795005960000,1795006080000,1795006200000,1795006320000,1795006440000,1795006560000,1795006680000,1795006800000,1795006920000,1795007040000,1795007160000,1795007280000,1795007400000,1795007520000,1795007640000,1795007760000,1795007880000,1795008000000,1795008120000,1795008240000,1795008360000,1795008480000,1795008600000,1795008720000,1795008840000,1795008960000,1795009080000,1795009200000,1795009320000,1795009440000,1795009560000,1795009680000,1795009800000,1795009920000,1795010040000,1795010160000,1795010280000],"v":[119.86,119.82,120.08,120.76,120.07,119.58,119.48,119.36,120.37,119.69,119.62,120.26,118.46,119.01,120.01,119.95,120.06,119.22,120.55,119.11,120.15,119.16,119.98,119.71,120.39,119.36,120.1,119.33,119.65,119.58,120.12,120.55,119.68,119.26,120.17,119.23,119.78,119.77,119.31,119.42,119.02,119.94,120.12,119.75,120.19,119.75,119.97,119.15,120.11,120.28,119.84,119.45,120.0,119.57,119.72,118.68,119.61,119.19,119.91,119.83,118.91,119.95,119.61,119.53,119.2,119.35,119.96,119.84,119.87,120.42,120.15,119.67,120.42,119.99,119.76,120.86,120.66,119.54,120.77,120.14,119.58,120.07,120.82,120.07,119.73,119.06,120.06,120.4,119.78,119.04,119.88,120.42,120.06,119.98,119.93,120.07,121.09,119.9,119.42,119.49,119.76,119.19,119.67,119.87,120.29,120.77,119.77,120.59,120.05,119.93,119.5,120.28,119.94,119.68,119.71,119.31,120.16,119.53,119.78,120.66,120.33,120.33,120.9,120.32,120.09,120.18,120.15,120.95,120.17,120.39,120.04,120.1,119.71,119.64,119.81,120.16,120.68,120.15,120.21,119.84,118.99,120.46,120.99,121.01,119.95,120.47,121.25,119.82,118.69,119.98,120.53,119.74,120.61,120.12,119.44,120.65,120.01,119.87,120.19,120.46,119.3,119.81,120.54,120.75,120.39,119.74,120.45,120.42,119.77,119.85,119.98,120.64,120.59,120.06,119.19,120.45,120.18,120.73,120.16,120.24,121.68,120.15,120.73,119.85,120.72,120.52,120.63,120.01,119.99,120.3,120.33,120.34,120.47,120.16,120.07,120.23,120.73,120.63,119.89,120.2,120.84,120.65,119.81,120.07,119.87,119.12,120.68,120.96,120.73,119.97,119.89,120.73,120.56,120.44,120.73,121.04,120.12,120.52,120.69,120.91,119.14,120.6,121.33,119.78,120.33,120.32,120.34,119.6,120.45,119.98,120.65,119.83,120.57,119.83,121.9,120.45,120.66,120.66,120.23,121.18],"center":120.06,"ucl":121.521543,"lcl":118.598457,"violation_indices_in_plot":[12,14,58,127,180,197,215,219,222,234],"spec":{"lsl":null,"usl":null,"target":null,"source":null}},{"name":"line_speed_mpm","role":"parameter","n":240,"n_plotted":240,"t":[1794981600000,1794981720000,1794981840000,1794981960000,1794982080000,1794982200000,1794982320000,1794982440000,1794982560000,1794982680000,1794982800000,1794982920000,1794983040000,1794983160000,1794983280000,1794983400000,1794983520000,1794983640000,1794983760000,1794983880000,1794984000000,1794984120000,1794984240000,1794984360000,1794984480000,1794984600000,1794984720000,1794984840000,1794984960000,1794985080000,1794985200000,1794985320000,1794985440000,1794985560000,1794985680000,1794985800000,1794985920000,1794986040000,1794986160000,1794986280000,1794986400000,1794986520000,1794986640000,1794986760000,1794986880000,1794987000000,1794987120000,1794987240000,1794987360000,1794987480000,1794987600000,1794987720000,1794987840000,1794987960000,1794988080000,1794988200000,1794988320000,1794988440000,1794988560000,1794988680000,1794988800000,1794988920000,1794989040000,1794989160000,1794989280000,1794989400000,1794989520000,1794989640000,1794989760000,1794989880000,1794990000000,1794990120000,1794990240000,1794990360000,1794990480000,1794990600000,1794990720000,1794990840000,1794990960000,1794991080000,1794991200000,1794991320000,1794991440000,1794991560000,1794991680000,1794991800000,1794991920000,1794992040000,1794992160000,1794992280000,1794992400000,1794992520000,1794992640000,1794992760000,1794992880000,1794993000000,1794993120000,1794993240000,1794993360000,1794993480000,1794993600000,1794993720000,1794993840000,1794993960000,1794994080000,1794994200000,1794994320000,1794994440000,1794994560000,1794994680000,1794994800000,1794994920000,1794995040000,1794995160000,1794995280000,1794995400000,1794995520000,1794995640000,1794995760000,1794995880000,1794996000000,1794996120000,1794996240000,1794996360000,1794996480000,1794996600000,1794996720000,1794996840000,1794996960000,1794997080000,1794997200000,1794997320000,1794997440000,1794997560000,1794997680000,1794997800000,1794997920000,1794998040000,1794998160000,1794998280000,1794998400000,1794998520000,1794998640000,1794998760000,1794998880000,1794999000000,1794999120000,1794999240000,1794999360000,1794999480000,1794999600000,1794999720000,1794999840000,1794999960000,1795000080000,1795000200000,1795000320000,1795000440000,1795000560000,1795000680000,1795000800000,1795000920000,1795001040000,1795001160000,1795001280000,1795001400000,1795001520000,1795001640000,1795001760000,1795001880000,1795002000000,1795002120000,1795002240000,1795002360000,1795002480000,1795002600000,1795002720000,1795002840000,1795002960000,1795003080000,1795003200000,1795003320000,1795003440000,1795003560000,1795003680000,1795003800000,1795003920000,1795004040000,1795004160000,1795004280000,1795004400000,1795004520000,1795004640000,1795004760000,1795004880000,1795005000000,1795005120000,1795005240000,1795005360000,1795005480000,1795005600000,1795005720000,1795005840000,1795005960000,1795006080000,1795006200000,1795006320000,1795006440000,1795006560000,1795006680000,1795006800000,1795006920000,1795007040000,1795007160000,1795007280000,1795007400000,1795007520000,1795007640000,1795007760000,1795007880000,1795008000000,1795008120000,1795008240000,1795008360000,1795008480000,1795008600000,1795008720000,1795008840000,1795008960000,1795009080000,1795009200000,1795009320000,1795009440000,1795009560000,1795009680000,1795009800000,1795009920000,1795010040000,1795010160000,1795010280000],"v":[119.6,120.0,121.4,120.0,120.8,120.9,119.5,119.2,120.5,119.4,119.9,119.1,119.7,120.2,120.0,119.9,119.6,118.8,119.5,120.6,118.6,120.5,120.8,119.1,121.0,119.1,121.4,120.1,120.0,120.1,120.0,120.5,121.1,119.5,121.0,118.9,120.5,119.9,121.2,120.8,119.9,119.4,121.1,119.2,119.9,120.3,120.7,120.1,121.1,121.1,120.4,120.3,119.2,119.8,120.3,120.8,118.8,120.5,118.9,118.7,119.9,119.8,120.6,121.0,120.0,121.2,118.9,119.7,119.9,119.1,118.9,118.9,119.6,121.5,121.5,119.5,120.5,117.3,120.3,121.4,118.6,120.4,121.0,120.1,120.5,118.8,120.9,118.6,120.0,119.8,118.6,120.4,120.2,120.0,120.6,121.5,120.2,119.2,119.8,121.1,120.3,120.4,119.5,120.0,118.9,120.3,119.1,118.2,119.5,120.7,120.0,118.5,120.5,121.3,120.5,120.9,120.4,120.0,120.2,119.1,121.5,119.8,118.5,120.2,121.1,120.0,119.8,120.0,119.9,119.7,120.5,119.2,119.9,119.7,120.2,118.8,120.3,120.3,119.2,120.6,120.8,120.0,119.2,121.1,120.0,120.1,121.2,120.2,119.1,121.4,119.9,121.4,120.6,120.5,120.1,121.1,120.3,120.0,120.6,120.3,119.6,118.9,120.0,120.4,120.1,118.6,119.4,121.4,120.1,120.1,120.0,121.5,119.7,119.8,118.8,118.9,120.1,120.1,121.0,121.6,121.0,120.3,121.0,120.2,120.1,119.0,118.5,120.5,119.0,117.8,119.7,119.2,119.5,120.3,121.0,119.8,120.4,121.1,120.8,121.4,119.0,120.3,118.6,119.8,120.9,119.2,119.8,121.4,118.8,119.7,121.2,119.6,120.0,121.3,120.3,120.3,120.5,120.2,119.6,119.9,120.0,119.1,118.8,121.2,120.0,119.5,119.5,120.9,120.1,118.3,119.6,120.3,119.8,120.9,119.4,119.9,119.6,119.7,120.5,120.1],"center":120.0,"ucl":122.513799,"lcl":117.486201,"violation_indices_in_plot":[77,182,184,189],"spec":{"lsl":null,"usl":null,"target":null,"source":null}},{"name":"cooling_water_flow_lpm","role":"parameter","n":240,"n_plotted":240,"t":[1794981600000,1794981720000,1794981840000,1794981960000,1794982080000,1794982200000,1794982320000,1794982440000,1794982560000,1794982680000,1794982800000,1794982920000,1794983040000,1794983160000,1794983280000,1794983400000,1794983520000,1794983640000,1794983760000,1794983880000,1794984000000,1794984120000,1794984240000,1794984360000,1794984480000,1794984600000,1794984720000,1794984840000,1794984960000,1794985080000,1794985200000,1794985320000,1794985440000,1794985560000,1794985680000,1794985800000,1794985920000,1794986040000,1794986160000,1794986280000,1794986400000,1794986520000,1794986640000,1794986760000,1794986880000,1794987000000,1794987120000,1794987240000,1794987360000,1794987480000,1794987600000,1794987720000,1794987840000,1794987960000,1794988080000,1794988200000,1794988320000,1794988440000,1794988560000,1794988680000,1794988800000,1794988920000,1794989040000,1794989160000,1794989280000,1794989400000,1794989520000,1794989640000,1794989760000,1794989880000,1794990000000,1794990120000,1794990240000,1794990360000,1794990480000,1794990600000,1794990720000,1794990840000,1794990960000,1794991080000,1794991200000,1794991320000,1794991440000,1794991560000,1794991680000,1794991800000,1794991920000,1794992040000,1794992160000,1794992280000,1794992400000,1794992520000,1794992640000,1794992760000,1794992880000,1794993000000,1794993120000,1794993240000,1794993360000,1794993480000,1794993600000,1794993720000,1794993840000,1794993960000,1794994080000,1794994200000,1794994320000,1794994440000,1794994560000,1794994680000,1794994800000,1794994920000,1794995040000,1794995160000,1794995280000,1794995400000,1794995520000,1794995640000,1794995760000,1794995880000,1794996000000,1794996120000,1794996240000,1794996360000,1794996480000,1794996600000,1794996720000,1794996840000,1794996960000,1794997080000,1794997200000,1794997320000,1794997440000,1794997560000,1794997680000,1794997800000,1794997920000,1794998040000,1794998160000,1794998280000,1794998400000,1794998520000,1794998640000,1794998760000,1794998880000,1794999000000,1794999120000,1794999240000,1794999360000,1794999480000,1794999600000,1794999720000,1794999840000,1794999960000,1795000080000,1795000200000,1795000320000,1795000440000,1795000560000,1795000680000,1795000800000,1795000920000,1795001040000,1795001160000,1795001280000,1795001400000,1795001520000,1795001640000,1795001760000,1795001880000,1795002000000,1795002120000,1795002240000,1795002360000,1795002480000,1795002600000,1795002720000,1795002840000,1795002960000,1795003080000,1795003200000,1795003320000,1795003440000,1795003560000,1795003680000,1795003800000,1795003920000,1795004040000,1795004160000,1795004280000,1795004400000,1795004520000,1795004640000,1795004760000,1795004880000,1795005000000,1795005120000,1795005240000,1795005360000,1795005480000,1795005600000,1795005720000,1795005840000,1795005960000,1795006080000,1795006200000,1795006320000,1795006440000,1795006560000,1795006680000,1795006800000,1795006920000,1795007040000,1795007160000,1795007280000,1795007400000,1795007520000,1795007640000,1795007760000,1795007880000,1795008000000,1795008120000,1795008240000,1795008360000,1795008480000,1795008600000,1795008720000,1795008840000,1795008960000,1795009080000,1795009200000,1795009320000,1795009440000,1795009560000,1795009680000,1795009800000,1795009920000,1795010040000,1795010160000,1795010280000],"v":[44.51,44.97,44.59,44.14,44.89,46.11,45.89,45.08,44.42,45.37,43.85,45.39,44.01,45.19,44.95,45.13,45.37,45.28,44.79,44.53,46.25,46.15,44.76,45.96,45.08,44.85,46.1,43.85,44.06,44.84,45.89,44.13,45.36,45.44,45.33,44.89,45.1,44.76,44.57,43.8,45.64,44.38,44.76,44.84,44.09,44.73,44.17,43.23,45.52,44.04,45.11,45.73,45.23,44.61,45.21,45.62,45.14,45.48,45.62,44.9,44.5,46.28,44.36,44.66,44.93,44.57,44.47,44.82,44.25,44.71,44.76,44.81,46.32,44.98,45.7,44.45,44.99,43.6,44.39,45.19,44.26,44.91,43.91,44.67,46.14,46.41,46.11,45.35,43.94,44.7,45.06,45.4,44.94,45.43,45.27,45.36,44.65,45.99,45.31,45.2,44.57,46.61,45.31,44.28,44.61,43.93,45.72,44.18,45.11,44.65,44.79,44.61,44.21,44.86,45.61,45.72,45.04,45.51,44.06,44.41,46.88,43.7,43.03,43.99,44.13,45.15,45.77,43.88,45.21,45.39,44.63,46.14,43.89,45.76,45.02,44.83,45.84,45.16,42.69,45.29,44.77,44.39,44.03,45.53,45.59,45.06,45.31,45.07,45.85,44.65,43.96,43.9,44.78,45.0,43.31,45.24,44.73,44.39,45.65,44.59,45.89,46.48,45.06,44.09,45.17,45.44,45.37,46.11,44.66,45.55,44.55,44.69,44.62,44.95,46.18,44.94,43.76,45.21,45.92,45.05,44.74,46.21,44.27,44.38,44.31,45.27,44.99,45.5,44.52,45.34,44.37,44.69,45.72,45.5,45.11,45.77,45.02,44.39,46.03,45.55,45.9,44.88,43.79,44.3,44.28,45.71,44.0,44.83,44.62,46.46,45.65,44.79,44.36,45.11,45.26,45.17,45.48,45.23,44.86,45.48,45.75,44.37,45.35,45.14,44.72,43.26,45.38,44.28,45.17,44.45,45.91,45.11,45.4,45.81,45.03,44.88,45.71,45.46,45.03,44.74],"center":44.99,"ucl":47.10731,"lcl":42.87269,"violation_indices_in_plot":[70,125,138],"spec":{"lsl":null,"usl":null,"target":null,"source":null}},{"name":"scrap_rate_pct","role":"parameter","n":240,"n_plotted":240,"t":[1794981600000,1794981720000,1794981840000,1794981960000,1794982080000,1794982200000,1794982320000,1794982440000,1794982560000,1794982680000,1794982800000,1794982920000,1794983040000,1794983160000,1794983280000,1794983400000,1794983520000,1794983640000,1794983760000,1794983880000,1794984000000,1794984120000,1794984240000,1794984360000,1794984480000,1794984600000,1794984720000,1794984840000,1794984960000,1794985080000,1794985200000,1794985320000,1794985440000,1794985560000,1794985680000,1794985800000,1794985920000,1794986040000,1794986160000,1794986280000,1794986400000,1794986520000,1794986640000,1794986760000,1794986880000,1794987000000,1794987120000,1794987240000,1794987360000,1794987480000,1794987600000,1794987720000,1794987840000,1794987960000,1794988080000,1794988200000,1794988320000,1794988440000,1794988560000,1794988680000,1794988800000,1794988920000,1794989040000,1794989160000,1794989280000,1794989400000,1794989520000,1794989640000,1794989760000,1794989880000,1794990000000,1794990120000,1794990240000,1794990360000,1794990480000,1794990600000,1794990720000,1794990840000,1794990960000,1794991080000,1794991200000,1794991320000,1794991440000,1794991560000,1794991680000,1794991800000,1794991920000,1794992040000,1794992160000,1794992280000,1794992400000,1794992520000,1794992640000,1794992760000,1794992880000,1794993000000,1794993120000,1794993240000,1794993360000,1794993480000,1794993600000,1794993720000,1794993840000,1794993960000,1794994080000,1794994200000,1794994320000,1794994440000,1794994560000,1794994680000,1794994800000,1794994920000,1794995040000,1794995160000,1794995280000,1794995400000,1794995520000,1794995640000,1794995760000,1794995880000,1794996000000,1794996120000,1794996240000,1794996360000,1794996480000,1794996600000,1794996720000,1794996840000,1794996960000,1794997080000,1794997200000,1794997320000,1794997440000,1794997560000,1794997680000,1794997800000,1794997920000,1794998040000,1794998160000,1794998280000,1794998400000,1794998520000,1794998640000,1794998760000,1794998880000,1794999000000,1794999120000,1794999240000,1794999360000,1794999480000,1794999600000,1794999720000,1794999840000,1794999960000,1795000080000,1795000200000,1795000320000,1795000440000,1795000560000,1795000680000,1795000800000,1795000920000,1795001040000,1795001160000,1795001280000,1795001400000,1795001520000,1795001640000,1795001760000,1795001880000,1795002000000,1795002120000,1795002240000,1795002360000,1795002480000,1795002600000,1795002720000,1795002840000,1795002960000,1795003080000,1795003200000,1795003320000,1795003440000,1795003560000,1795003680000,1795003800000,1795003920000,1795004040000,1795004160000,1795004280000,1795004400000,1795004520000,1795004640000,1795004760000,1795004880000,1795005000000,1795005120000,1795005240000,1795005360000,1795005480000,1795005600000,1795005720000,1795005840000,1795005960000,1795006080000,1795006200000,1795006320000,1795006440000,1795006560000,1795006680000,1795006800000,1795006920000,1795007040000,1795007160000,1795007280000,1795007400000,1795007520000,1795007640000,1795007760000,1795007880000,1795008000000,1795008120000,1795008240000,1795008360000,1795008480000,1795008600000,1795008720000,1795008840000,1795008960000,1795009080000,1795009200000,1795009320000,1795009440000,1795009560000,1795009680000,1795009800000,1795009920000,1795010040000,1795010160000,1795010280000],"v":[1.85,1.73,1.6,1.34,1.67,1.62,1.4,1.33,1.5,1.11,1.52,1.4,1.7,1.4,1.54,1.14,1.49,1.88,1.2,1.32,1.73,1.74,1.57,1.44,1.55,1.53,1.4,1.34,1.47,1.44,1.57,1.39,1.17,1.67,1.38,1.75,1.67,1.21,1.75,1.65,1.42,1.51,1.84,1.28,1.74,1.53,1.48,1.61,1.38,1.42,1.0,1.47,1.3,1.37,1.49,1.25,1.27,1.7,1.73,1.17,1.82,1.3,1.42,1.32,1.79,1.31,1.56,1.39,1.49,1.65,1.66,1.25,1.81,1.76,1.59,1.48,1.31,1.68,1.63,1.65,1.55,1.51,1.57,1.79,1.44,1.98,1.59,1.48,1.57,1.32,1.55,1.37,1.53,1.18,1.21,1.47,1.67,1.42,1.43,1.27,1.14,1.35,1.46,1.6,1.39,1.48,1.31,1.87,1.82,1.34,1.39,1.66,1.45,1.37,1.24,1.79,1.59,1.2,1.62,1.54,1.4,1.69,1.43,1.58,1.38,1.85,1.5,1.45,1.51,1.45,1.54,1.02,1.45,1.38,1.41,1.41,1.47,1.5,1.3,1.43,1.23,1.6,1.87,1.29,1.57,1.47,1.27,1.76,1.51,1.28,1.31,1.61,1.54,1.51,1.24,1.5,1.17,1.26,1.56,1.3,1.77,1.52,1.35,1.7,1.41,1.53,1.37,1.62,1.84,1.55,1.38,1.55,1.72,1.87,1.44,1.47,1.54,1.44,1.35,1.26,1.44,1.42,1.7,1.36,1.2,1.37,1.43,1.73,1.69,1.28,1.38,1.43,1.7,1.13,1.74,1.15,1.58,1.65,1.4,1.48,1.68,1.52,1.45,1.29,1.72,1.9,1.07,1.65,1.85,1.66,1.24,1.29,1.6,1.72,1.87,1.5,1.75,1.31,1.67,1.77,1.58,1.39,1.59,1.7,1.7,1.45,1.48,1.19,1.25,1.56,1.08,1.53,1.16,1.94,1.53,1.24,1.59,1.5,1.41,1.72],"center":1.485,"ucl":2.104491,"lcl":0.865509,"violation_indices_in_plot":[],"spec":{"lsl":null,"usl":null,"target":null,"source":null}}],"score_bars":[{"name":"film_tension_n","score":99,"role":"parameter"},{"name":"oven_temp_c","score":72,"role":"parameter"},{"name":"line_speed_mpm","score":99,"role":"parameter"},{"name":"cooling_water_flow_lpm","score":93,"role":"parameter"},{"name":"scrap_rate_pct","score":68,"role":"parameter"}],"corr_heatmap":{"labels":["film_tension_n","oven_temp_c","line_speed_mpm","cooling_water_flow_lpm","scrap_rate_pct"],"matrix":[[1.0,0.129086,0.142368,0.121832,0.140904],[0.129086,1.0,0.079879,0.148851,0.138587],[0.142368,0.079879,1.0,0.119691,0.168289],[0.121832,0.148851,0.119691,1.0,0.133361],[0.140904,0.138587,0.168289,0.133361,1.0]]},"contribution_bar":[]},"notAssessable":false}</script>
+<script>
+(function () {
+  var DATA = {};
+  try { DATA = JSON.parse(document.getElementById('payload').textContent); } catch (e) {}
+  function fallback() {
+    var host = document.getElementById('trend-charts');
+    var rows = [];
+    (DATA.charts.trend || []).forEach(function (s) {
+      var vs = s.v.filter(function (x) { return x !== null; });
+      var mn = Math.min.apply(null, vs), mx = Math.max.apply(null, vs);
+      var nBad = s.violation_indices_in_plot.length;
+      rows.push('<tr><td>' + s.name + '</td><td>' + vs.length + '</td><td>' +
+        mn.toFixed(4) + '</td><td>' + mx.toFixed(4) + '</td><td>' + nBad + '</td></tr>');
+    });
+    host.innerHTML = '<div class="panel"><div class="chart-title">静态模式（ECharts CDN 不可用）' +
+      '——各参数趋势摘要</div><div class="static-table"><table><thead><tr>' +
+      '<th>参数</th><th>点数</th><th>最小</th><th>最大</th><th>违规点</th></tr></thead>' +
+      '<tbody>' + rows.join('') + '</tbody></table></div></div>';
+    ['contrib-chart', 'heat-chart'].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) el.parentNode.style.display = 'none';
+    });
+  }
+  function init() {
+    if (!window.echarts) { fallback(); return; }
+    var charts = DATA.charts || {};
+    var host = document.getElementById('trend-charts');
+    (charts.trend || []).forEach(function (s) {
+      var box = document.createElement('div');
+      box.className = 'chart';
+      box.innerHTML = '<div class="chart-title">' + s.name +
+        '（中心=中位数，虚线=±3σ_within' + (s.spec && s.spec.lsl != null ? '，红线=规格限' : '') + '）</div>' +
+        '<div style="height:calc(100% - 30px)"></div>';
+      host.appendChild(box);
+      var el = box.lastChild;
+      var ch = echarts.init(el); allCharts.push(ch);
+      var series = [{ name: s.name, type: 'line', showSymbol: false,
+        data: s.t.map(function (t, i) { return [t, s.v[i]]; }),
+        lineStyle: { width: 1.2, color: '#1e3a54' } }];
+      [['UCL', s.ucl, '#c2673a', 'dashed'], ['LCL', s.lcl, '#c2673a', 'dashed'],
+       ['LSL', s.spec && s.spec.lsl, '#c4433b', 'solid'],
+       ['USL', s.spec && s.spec.usl, '#c4433b', 'solid']].forEach(function (m) {
+        if (m[1] !== null && m[1] !== undefined)
+          series.push({ name: m[0], type: 'line', data: [[s.t[0], m[1]], [s.t[s.t.length - 1], m[1]]],
+            symbol: 'none', lineStyle: { color: m[2], type: m[3], width: 1 },
+            endLabel: { show: true, formatter: m[0], color: m[2] } });
+      });
+      var bad = s.violation_indices_in_plot || [];
+      if (bad.length)
+        series.push({ name: '违规点', type: 'scatter',
+          data: bad.map(function (i) { return [s.t[i], s.v[i]]; }),
+          itemStyle: { color: '#c4433b' }, symbolSize: 7 });
+      ch.setOption({
+        grid: { left: 60, right: 60, top: 18, bottom: 44 },
+        tooltip: { trigger: 'axis' },
+        xAxis: { type: 'time' },
+        yAxis: { type: 'value', scale: true },
+        series: series
+      });
+    });
+    if ((charts.trend || []).length === 0) {
+      host.innerHTML = '<div class="panel empty">无可绘制的趋势数据。</div>';
+    }
+    var contrib = document.getElementById('contrib-chart');
+    if (contrib && (charts.contribution_bar || []).length) {
+      var cb = echarts.init(contrib); allCharts.push(cb);
+      var items = charts.contribution_bar.slice(0, 10);
+      cb.setOption({
+        grid: { left: 90, right: 30, top: 18, bottom: 40 },
+        tooltip: {},
+        xAxis: { type: 'value', max: 1, axisLabel: { formatter: function (v) {
+          return (v * 100).toFixed(0) + '%'; } } },
+        yAxis: { type: 'category', data: items.map(function (d) {
+          return d.driver + ' → ' + d.target; }).reverse() },
+        series: [{ type: 'bar', data: items.map(function (d) {
+          return Math.round(d.share * 1000) / 10; }).reverse(),
+          itemStyle: { color: '#e8a33d' }, barMaxWidth: 18 }]
+      });
+    } else if (contrib) { contrib.parentNode.style.display = 'none'; }
+    var heat = document.getElementById('heat-chart');
+    if (heat && charts.corr_heatmap && charts.corr_heatmap.labels.length > 1) {
+      var hm = echarts.init(heat); allCharts.push(hm);
+      var pts = [];
+      charts.corr_heatmap.matrix.forEach(function (row, i) {
+        row.forEach(function (v, j) {
+          if (v !== null && i !== j)
+            pts.push([j, charts.corr_heatmap.labels.length - 1 - i, v]);
+        });
+      });
+      hm.setOption({
+        grid: { left: 110, right: 60, top: 18, bottom: 60 },
+        tooltip: { position: 'top' },
+        xAxis: { type: 'category', data: charts.corr_heatmap.labels,
+          axisLabel: { rotate: 30 } },
+        yAxis: { type: 'category', data: charts.corr_heatmap.labels.slice().reverse() },
+        visualMap: { min: 0, max: 1, calculable: true, orient: 'horizontal',
+          left: 'center', bottom: 0, inRange: { color: ['#1d2a36', '#e8a33d', '#c4433b'] } },
+        series: [{ type: 'heatmap', data: pts,
+          label: { show: charts.corr_heatmap.labels.length <= 8, formatter: function (p) {
+            return p.value[2].toFixed(2); } } }]
+      });
+    } else if (heat) { heat.parentNode.style.display = 'none'; }
+  }
+  var allCharts = [];
+  function reflowCharts() { allCharts.forEach(function (c) { try { c.resize(); } catch (e) {} }); }
+  window.addEventListener('resize', reflowCharts);
+  if (document.readyState === 'complete') init();
+  else window.addEventListener('load', init);
+  // 布局稳定后强制重测一次尺寸：在后台/延迟渲染环境下，init 时容器宽度
+  // 可能被读成 0（canvas 宽 0、图空白），双 rAF 确保 DOM 布局完成后再 resize。
+  function reflowWhenSettled() {
+    requestAnimationFrame(function () { requestAnimationFrame(reflowCharts); });
+  }
+  if (document.readyState === 'complete') reflowWhenSettled();
+  else window.addEventListener('load', reflowWhenSettled);
+  setTimeout(function () { if (!window.echarts) fallback(); }, 4000);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "contract_version": "1.0",
+  "targets": [
+    { "metric": "energy_kwh_per_kg", "direction": "min", "tolerance": 0.03 }
+  ],
+  "constraints": [
+    { "param": "reject_rate_pct", "max": 3.0, "type": "box", "hard": false }
+  ],
+  "dead_time": 2,
+  "levers": ["barrel_temp_c", "injection_pressure_bar", "cooling_time_s", "back_pressure_bar"],
+  "notes": "场景目标:降低注塑单件能耗(KPI),约束废品率不超 3%;死区时间约 2 个采样步(10s/5s)。"
+}

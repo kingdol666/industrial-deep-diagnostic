@@ -1,0 +1,2 @@
+action_id,timestamp,lever,direction,magnitude,kpi_before,kpi_after,note
+OBS-001,2026-11-19T08:30:00Z,barrel_temp_c,down,,2.3298,,"新观察(检索查询,尚未执行动作):能耗偏高,拟下调 barrel_temp_c; 以 fault_signature.json 编码后做本地经验检索"

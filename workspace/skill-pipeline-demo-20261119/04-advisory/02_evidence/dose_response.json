@@ -1,0 +1,377 @@
+{
+  "contract_version": "improvement-evidence/1.0",
+  "leg": "dose_response",
+  "pairs": [
+    {
+      "lever": "barrel_temp_c",
+      "metric": "energy_kwh_per_kg",
+      "status": "emitted",
+      "r": 0.9111,
+      "p": 0.0,
+      "fdr_q": 0.0,
+      "temporal_ok": true,
+      "n_eff": 18.0,
+      "rho_lag1": 0.930121,
+      "gates": {
+        "lever_variance_ok": true,
+        "samples_ok": true,
+        "temporal_ok": true,
+        "fdr_ok": true,
+        "confound_ok": true,
+        "regime_stable_ok": true
+      },
+      "physics": {
+        "status": "known"
+      },
+      "attribution": {
+        "status": "absent",
+        "ci_excludes_zero": null
+      },
+      "flags": {
+        "objective_inferred": false,
+        "conflict": false,
+        "extrapolated": false,
+        "dead_time_missing": false,
+        "tradeoff_declared": false,
+        "designed_window": false,
+        "designed_effect": false,
+        "gain_ci_excludes_zero": true
+      },
+      "dose": {
+        "status": "estimable",
+        "slope": 0.026375,
+        "slope_ci95": [
+          0.020042,
+          0.032708
+        ],
+        "monotone": true,
+        "verified": true,
+        "reason": null,
+        "detail": null,
+        "bins": [
+          {
+            "b": 0,
+            "n": 63,
+            "x": 187.72,
+            "y": 0.6208
+          },
+          {
+            "b": 1,
+            "n": 62,
+            "x": 188.77,
+            "y": 0.6223
+          },
+          {
+            "b": 2,
+            "n": 63,
+            "x": 189.89,
+            "y": 0.6294
+          },
+          {
+            "b": 3,
+            "n": 62,
+            "x": 191.14,
+            "y": 0.6471
+          },
+          {
+            "b": 4,
+            "n": 63,
+            "x": 192.74,
+            "y": 0.7248
+          },
+          {
+            "b": 5,
+            "n": 62,
+            "x": 194.07,
+            "y": 0.7628
+          },
+          {
+            "b": 6,
+            "n": 63,
+            "x": 195.34,
+            "y": 0.809
+          },
+          {
+            "b": 7,
+            "n": 62,
+            "x": 196.235,
+            "y": 0.81635
+          }
+        ],
+        "r": 0.9111,
+        "p": 0.0,
+        "n_pairs": 500
+      },
+      "doe": null,
+      "window": null,
+      "action_id": "ACT-barrel_temp_c-822"
+    },
+    {
+      "lever": "injection_pressure_bar",
+      "metric": "energy_kwh_per_kg",
+      "status": "below_threshold",
+      "r": -0.0424,
+      "p": 0.3440744359,
+      "fdr_q": 0.28891508093333335,
+      "temporal_ok": false
+    },
+    {
+      "lever": "cooling_time_s",
+      "metric": "energy_kwh_per_kg",
+      "status": "below_threshold",
+      "r": 0.0147,
+      "p": 0.7429895356,
+      "fdr_q": 0.6117407476,
+      "temporal_ok": false
+    },
+    {
+      "lever": "back_pressure_bar",
+      "metric": "energy_kwh_per_kg",
+      "status": "below_threshold",
+      "r": -0.0717,
+      "p": 0.1093083975,
+      "fdr_q": 0.1418319508,
+      "temporal_ok": false
+    }
+  ],
+  "dose_leg": [
+    {
+      "lever": "barrel_temp_c",
+      "metric": "energy_kwh_per_kg",
+      "bins": [
+        {
+          "b": 0,
+          "n": 63,
+          "x": 187.72,
+          "y": 0.6208
+        },
+        {
+          "b": 1,
+          "n": 62,
+          "x": 188.77,
+          "y": 0.6223
+        },
+        {
+          "b": 2,
+          "n": 63,
+          "x": 189.89,
+          "y": 0.6294
+        },
+        {
+          "b": 3,
+          "n": 62,
+          "x": 191.14,
+          "y": 0.6471
+        },
+        {
+          "b": 4,
+          "n": 63,
+          "x": 192.74,
+          "y": 0.7248
+        },
+        {
+          "b": 5,
+          "n": 62,
+          "x": 194.07,
+          "y": 0.7628
+        },
+        {
+          "b": 6,
+          "n": 63,
+          "x": 195.34,
+          "y": 0.809
+        },
+        {
+          "b": 7,
+          "n": 62,
+          "x": 196.235,
+          "y": 0.81635
+        }
+      ],
+      "slope": 0.026375,
+      "slope_ci95": [
+        0.020042,
+        0.032708
+      ]
+    },
+    {
+      "lever": "injection_pressure_bar",
+      "metric": "energy_kwh_per_kg",
+      "bins": [
+        {
+          "b": 0,
+          "n": 63,
+          "x": 112.1,
+          "y": 0.6766
+        },
+        {
+          "b": 1,
+          "n": 62,
+          "x": 113.4,
+          "y": 0.7002
+        },
+        {
+          "b": 2,
+          "n": 63,
+          "x": 114.2,
+          "y": 0.6854
+        },
+        {
+          "b": 3,
+          "n": 62,
+          "x": 114.8,
+          "y": 0.6815
+        },
+        {
+          "b": 4,
+          "n": 63,
+          "x": 115.4,
+          "y": 0.7717
+        },
+        {
+          "b": 5,
+          "n": 62,
+          "x": 115.9,
+          "y": 0.65745
+        },
+        {
+          "b": 6,
+          "n": 63,
+          "x": 116.7,
+          "y": 0.7142
+        },
+        {
+          "b": 7,
+          "n": 62,
+          "x": 118.1,
+          "y": 0.6315
+        }
+      ],
+      "slope": -0.004339,
+      "slope_ci95": [
+        -0.025868,
+        0.01719
+      ]
+    },
+    {
+      "lever": "cooling_time_s",
+      "metric": "energy_kwh_per_kg",
+      "bins": [
+        {
+          "b": 0,
+          "n": 63,
+          "x": 25.6,
+          "y": 0.721
+        },
+        {
+          "b": 1,
+          "n": 62,
+          "x": 26.65,
+          "y": 0.65485
+        },
+        {
+          "b": 2,
+          "n": 63,
+          "x": 27.2,
+          "y": 0.7456
+        },
+        {
+          "b": 3,
+          "n": 62,
+          "x": 27.7,
+          "y": 0.6469
+        },
+        {
+          "b": 4,
+          "n": 63,
+          "x": 28.1,
+          "y": 0.6927
+        },
+        {
+          "b": 5,
+          "n": 62,
+          "x": 28.6,
+          "y": 0.6667
+        },
+        {
+          "b": 6,
+          "n": 63,
+          "x": 29.3,
+          "y": 0.7462
+        },
+        {
+          "b": 7,
+          "n": 62,
+          "x": 30.2,
+          "y": 0.69275
+        }
+      ],
+      "slope": 0.000706,
+      "slope_ci95": [
+        -0.025686,
+        0.027098
+      ]
+    },
+    {
+      "lever": "back_pressure_bar",
+      "metric": "energy_kwh_per_kg",
+      "bins": [
+        {
+          "b": 0,
+          "n": 63,
+          "x": 7.3,
+          "y": 0.7255
+        },
+        {
+          "b": 1,
+          "n": 62,
+          "x": 7.5,
+          "y": 0.6783
+        },
+        {
+          "b": 2,
+          "n": 63,
+          "x": 7.7,
+          "y": 0.7369
+        },
+        {
+          "b": 3,
+          "n": 62,
+          "x": 7.9,
+          "y": 0.75955
+        },
+        {
+          "b": 4,
+          "n": 63,
+          "x": 8.1,
+          "y": 0.6567
+        },
+        {
+          "b": 5,
+          "n": 62,
+          "x": 8.3,
+          "y": 0.63645
+        },
+        {
+          "b": 6,
+          "n": 63,
+          "x": 8.5,
+          "y": 0.7169
+        },
+        {
+          "b": 7,
+          "n": 62,
+          "x": 8.7,
+          "y": 0.6414
+        }
+      ],
+      "slope": -0.047613,
+      "slope_ci95": [
+        -0.130484,
+        0.035258
+      ]
+    }
+  ],
+  "fdr_alpha": 0.05,
+  "family_rule": "BH family = 每 KPI 内全部 (杠杆×滞后) 检验对"
+}

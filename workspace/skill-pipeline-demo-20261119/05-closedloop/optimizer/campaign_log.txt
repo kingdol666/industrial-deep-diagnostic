@@ -1,0 +1,27 @@
+[design] R001 method=lhs_fill trials=1 dup_ratio=0.0 -> D:\codes\myskills\idd-doe-impl\workspace\skill-pipeline-demo-20261119\05-closedloop\optimizer\02_rounds\R001\trial_design.json
+[csv] R001: [csv] wrote D:\codes\myskills\idd-doe-impl\workspace\skill-pipeline-demo-20261119\05-closedloop\optimizer\02_rounds\R001\trial_result.json (1 trials)
+[ingest] R001: phase exploring -> exploring (continue_exploit); stall=0, max_EI=None, best_D=0.0
+[design] R002 method=poly_refine trials=1 dup_ratio=0.0 -> D:\codes\myskills\idd-doe-impl\workspace\skill-pipeline-demo-20261119\05-closedloop\optimizer\02_rounds\R002\trial_design.json
+[csv] R002: [csv] wrote D:\codes\myskills\idd-doe-impl\workspace\skill-pipeline-demo-20261119\05-closedloop\optimizer\02_rounds\R002\trial_result.json (1 trials)
+[ingest] R002: phase exploring -> exploring (continue_exploit); stall=0, max_EI=None, best_D=0.173412
+[design] R003 method=poly_refine trials=1 dup_ratio=0.0 -> D:\codes\myskills\idd-doe-impl\workspace\skill-pipeline-demo-20261119\05-closedloop\optimizer\02_rounds\R003\trial_design.json
+[csv] R003: [csv] wrote D:\codes\myskills\idd-doe-impl\workspace\skill-pipeline-demo-20261119\05-closedloop\optimizer\02_rounds\R003\trial_result.json (1 trials)
+[ingest] R003: phase exploring -> exploring (continue_exploit); stall=0, max_EI=0.503243569664252, best_D=0.965223
+[design] R004 method=gp_ei trials=1 dup_ratio=0.0 -> D:\codes\myskills\idd-doe-impl\workspace\skill-pipeline-demo-20261119\05-closedloop\optimizer\02_rounds\R004\trial_design.json
+[csv] R004: [csv] wrote D:\codes\myskills\idd-doe-impl\workspace\skill-pipeline-demo-20261119\05-closedloop\optimizer\02_rounds\R004\trial_result.json (1 trials)
+[ingest] R004: phase exploring -> exploring (continue_exploit); stall=0, max_EI=0.0846796501916334, best_D=0.978982
+[design] R005 method=gp_ei trials=1 dup_ratio=0.0 -> D:\codes\myskills\idd-doe-impl\workspace\skill-pipeline-demo-20261119\05-closedloop\optimizer\02_rounds\R005\trial_design.json
+[csv] R005: [csv] wrote D:\codes\myskills\idd-doe-impl\workspace\skill-pipeline-demo-20261119\05-closedloop\optimizer\02_rounds\R005\trial_result.json (1 trials)
+[ingest] R005: phase exploring -> exploring (continue_exploit); stall=1, max_EI=0.019283011753321172, best_D=0.978982
+[design] R006 method=gp_ei trials=1 dup_ratio=0.0 -> D:\codes\myskills\idd-doe-impl\workspace\skill-pipeline-demo-20261119\05-closedloop\optimizer\02_rounds\R006\trial_design.json
+[csv] R006: [csv] wrote D:\codes\myskills\idd-doe-impl\workspace\skill-pipeline-demo-20261119\05-closedloop\optimizer\02_rounds\R006\trial_result.json (1 trials)
+[ingest] R006: phase exploring -> exploring (continue_exploit); stall=2, max_EI=0.009465222542254917, best_D=0.978982
+[design] R007 method=rsm_augment trials=8 dup_ratio=0.0 -> D:\codes\myskills\idd-doe-impl\workspace\skill-pipeline-demo-20261119\05-closedloop\optimizer\02_rounds\R007\trial_design.json
+[csv] R007: [csv] wrote D:\codes\myskills\idd-doe-impl\workspace\skill-pipeline-demo-20261119\05-closedloop\optimizer\02_rounds\R007\trial_result.json (8 trials)
+[ingest] R007: phase exploring -> exploiting (continue_exploit); stall=2, max_EI=2.3578953155403994e-06, best_D=1.0
+[design] R008 method=rsm_augment trials=8 dup_ratio=0.0 -> D:\codes\myskills\idd-doe-impl\workspace\skill-pipeline-demo-20261119\05-closedloop\optimizer\02_rounds\R008\trial_design.json
+[csv] R008: [csv] wrote D:\codes\myskills\idd-doe-impl\workspace\skill-pipeline-demo-20261119\05-closedloop\optimizer\02_rounds\R008\trial_result.json (8 trials)
+[ingest] R008: phase exploiting -> confirming (enter_confirm); stall=3, max_EI=1.702284833306395e-37, best_D=1.0
+[design] R009 method=confirm_replicates trials=1 dup_ratio=0.0 -> D:\codes\myskills\idd-doe-impl\workspace\skill-pipeline-demo-20261119\05-closedloop\optimizer\02_rounds\R009\trial_design.json
+[csv] R009: [csv] wrote D:\codes\myskills\idd-doe-impl\workspace\skill-pipeline-demo-20261119\05-closedloop\optimizer\02_rounds\R009\trial_result.json (1 trials)
+[ingest] R009: phase confirming -> converged (stop); stall=3, max_EI=3.2366507263460764e-38, best_D=1.0

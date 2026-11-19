@@ -1,0 +1,19 @@
+{
+  "contract_version": "1.0",
+  "artifact": "objective_resolved",
+  "mode": "explicit",
+  "inferred": false,
+  "targets": [
+    {
+      "metric": "energy_kwh_per_kg",
+      "direction": "min",
+      "target_value": null,
+      "tolerance": 0.03,
+      "weight": null
+    }
+  ],
+  "candidates": [],
+  "conflicts": [],
+  "rationale": null,
+  "note": "显式目标（objective.json）"
+}

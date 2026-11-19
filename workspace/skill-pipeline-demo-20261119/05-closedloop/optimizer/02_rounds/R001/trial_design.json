@@ -1,0 +1,31 @@
+{
+  "design_version": "1.0",
+  "campaign_id": "OPT-20261119-001",
+  "round_id": "R001",
+  "phase": "explore",
+  "method": "lhs_fill",
+  "trials": [
+    {
+      "trial_id": "R001-T01",
+      "setpoints": {
+        "barrel_temp_c": 192.830474,
+        "cooling_time_s": 16.31326
+      },
+      "extrapolation": true,
+      "safety_checked": true,
+      "selection_reason": "space-filling LHS (exploring); lhs_fill; dup_to_existing=False; nearest_data_coded=inf"
+    }
+  ],
+  "model_summary": null,
+  "gating": {
+    "domain_ok": true,
+    "safety_ok": true,
+    "duplication_ratio": 0.0
+  },
+  "provenance": {
+    "input_sha256": "dbab2c1420c5f49278f128ded37db86fdba8bddb327854a970497eab22b71de9",
+    "script_version": "1.0.0",
+    "seed": 42,
+    "authored_by": "script"
+  }
+}

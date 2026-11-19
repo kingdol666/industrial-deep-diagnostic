@@ -1,0 +1,47 @@
+{
+  "contract_version": "1.0",
+  "campaign_id": "OPT-20261119-001",
+  "target_metric": "energy_kwh_per_kg",
+  "goal": "minimize",
+  "weight": 1.0,
+  "factors": [
+    {
+      "name": "barrel_temp_c",
+      "type": "numeric",
+      "min": 170,
+      "max": 205,
+      "unit": "degC"
+    },
+    {
+      "name": "cooling_time_s",
+      "type": "numeric",
+      "min": 15,
+      "max": 45,
+      "unit": "s"
+    }
+  ],
+  "constraints": [
+    {
+      "type": "safety",
+      "factor": "barrel_temp_c",
+      "min": 170,
+      "max": 205,
+      "hard": true,
+      "expr": "barrel_temp_c within material degradation limits",
+      "source": "SOP-IMM-07"
+    }
+  ],
+  "budget": {
+    "max_rounds": 26,
+    "max_trials": 30,
+    "trials_per_round": [
+      1,
+      1
+    ]
+  },
+  "noise": {
+    "replicates_for_sigma": 3
+  },
+  "seed": 42,
+  "tolerance": 2.05
+}

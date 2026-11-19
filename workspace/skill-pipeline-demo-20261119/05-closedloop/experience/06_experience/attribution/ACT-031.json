@@ -1,0 +1,43 @@
+{
+  "report_version": "1.0",
+  "action_log_id": "ACT-031",
+  "bundle_scope": false,
+  "attribution_status": "not_estimable",
+  "reason_code": "outlier_driven",
+  "metric": "energy_kwh_per_kg",
+  "segments": {
+    "baseline": {
+      "row_range": [
+        6630,
+        6660
+      ],
+      "n": 30,
+      "n_eff": 68,
+      "lag1_autocorr": -0.3886126133602785
+    },
+    "effect": {
+      "row_range": [
+        6665,
+        6860
+      ],
+      "n": 195,
+      "n_eff": 166,
+      "lag1_autocorr": 0.07760439118579021,
+      "truncated_by": null
+    },
+    "dead_time_used": 0.0
+  },
+  "effect": null,
+  "confound_detected": false,
+  "attribution_compromised": false,
+  "anti_spurious": {
+    "trend_check": null,
+    "outlier_check": "FAIL"
+  },
+  "warnings": [],
+  "evidence_grade": "E0",
+  "provenance": {
+    "script_version": "tune_stats/1.0",
+    "authored_by": "script"
+  }
+}

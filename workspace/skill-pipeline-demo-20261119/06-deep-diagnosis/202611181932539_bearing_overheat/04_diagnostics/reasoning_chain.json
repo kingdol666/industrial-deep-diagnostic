@@ -1,0 +1,427 @@
+{
+  "run_id": "202611181932539_bearing_overheat",
+  "reasoning_chains": [
+    {
+      "step_id": 1,
+      "step_name": "R1 问题定义与数据受理",
+      "step_question": "用户主诉是什么?数据能否支撑诊断?",
+      "inputs": [
+        {
+          "source": "00_input/user_context.json",
+          "content_summary": "主诉:轴承温度偏高,请查根因;疑似伴随振动轻微上升",
+          "evidence_rank": 2
+        },
+        {
+          "source": "00_input/input_manifest.json",
+          "content_summary": "bearing_data.csv: 120行×6列, 2分钟间隔, 08:00–11:58 (+08:00), SHA-256 6d7590ff…; 无缺失",
+          "evidence_rank": 1
+        },
+        {
+          "source": "02_processed/scenario_classification.json",
+          "content_summary": "场景分类 bearing_overheat / rotating_equipment_cooling_water_disturbance, data view=process_plus_inspection",
+          "evidence_rank": 3
+        }
+      ],
+      "reasoning": {
+        "applied_logic": "问题界定: 单目标(bearing_temp_c)多驱动(process+inspection)时序诊断;数据完备性初判通过",
+        "step_by_step": "①主诉转化为可检验问题:何参数导致轴承温度自10:04起抬升?②数据120行无缺失、时间单调、2分钟等间隔,满足时序诊断最低要求;③含1个检查型目标+4个工艺/检查驱动,可执行竞争假设法",
+        "assumptions": [
+          "DCS 时间戳与实际采样时刻对齐",
+          "轴承温度传感器在窗口内无漂移(数据形态为平台保持,支持该假设)"
+        ]
+      },
+      "outputs": [
+        {
+          "finding": "数据可支撑竞争假设诊断;目标= bearing_temp_c,候选驱动= cooling_water_flow_lpm / motor_load_pct / ambient_temp_c",
+          "confidence": 98,
+          "supported_by": ["input_manifest.json", "scenario_classification.json"]
+        }
+      ],
+      "alternatives_considered": [
+        {
+          "alternative": "将 vibration_mm_s 也作为目标并行诊断",
+          "why_ruled_out": "振动为伴生症状且非用户主诉,作为驱动/症状纳入 H1 机制链"
+        }
+      ],
+      "uncertainty": {
+        "aleatory": "采样噪声(2分钟间隔随机波动)",
+        "epistemic": "低: 数据质量高(无缺失、单调、等间隔)",
+        "impact_on_conclusion": "不影响结论;若存在系统性时间戳偏移, 滞后估计可能整体平移"
+      },
+      "falsification_condition": "若数据存在大量缺失或时间乱序,需先修复再诊断"
+    },
+    {
+      "step_id": 2,
+      "step_name": "R2 本体与机理锚定",
+      "step_question": "信号语义与物理关系边如何声明?",
+      "inputs": [
+        {
+          "source": "01_ontology/ontology.json",
+          "content_summary": "快路径 miss 后手工构建: control=cooling_water_flow_lpm(setpoint, expected_sign −), targets=bearing_temp_c/vibration_mm_s, params=motor_load_pct/ambient_temp_c; 机制边 flow→temp (physical, direction −, delayed_response)",
+          "evidence_rank": 5
+        },
+        {
+          "source": "ontology_store.mjs find",
+          "content_summary": "确定性快路径未命中(schema_fp=sha256:3041773e…, reason: no compatible ontology in store)",
+          "evidence_rank": 3
+        }
+      ],
+      "reasoning": {
+        "applied_logic": "本体优先: 先声明信号角色与机制边,再让数据检验方向/时滞/幅值三要素",
+        "step_by_step": "①列名语义直读定角色(全部 INFERRED, 如实标注);②热平衡机理 Q=m·cp·ΔT 给出 flow→temp 负向机制边与时滞先验(约2个采样点);③声明负载/环境两条备择机制通道供排除",
+        "assumptions": [
+          "列名语义与实际物理量一致(INFERRED, 未经文档确认)",
+          "冷却水回路为闭式循环, cp 近似常数"
+        ]
+      },
+      "outputs": [
+        {
+          "finding": "机制边声明完成: H1 通道 flow→temp(direction −, 滞后~2步); H3 通道 load→temp(direction +); H2 通道 ambient→temp(direction +, 弱)",
+          "confidence": 90,
+          "supported_by": ["01_ontology/ontology.json"]
+        }
+      ],
+      "alternatives_considered": [
+        {
+          "alternative": "等待 RAG/网络检索补强本体",
+          "why_ruled_out": "provenance.rag_used=false, web_used=false; 机理常识足以建立可证伪先验, 由数据检验"
+        }
+      ],
+      "uncertainty": {
+        "aleatory": "无",
+        "epistemic": "中: 信号语义为列名推断(INFERRED), 方向先验为机理常识未经文档确认",
+        "impact_on_conclusion": "若列语义与实际不符, 本体角色与机制边需重建;数据方向/时滞检验不依赖语义, 结论稳健性不受方向先验影响"
+      },
+      "falsification_condition": "若数据方向与机制边方向矛盾,机制边应判 CONTRADICTED 并重审本体"
+    },
+    {
+      "step_id": 3,
+      "step_name": "R3 数据治理与反伪相关核验",
+      "step_question": "统计证据是否可信、是否存在伪相关风险?",
+      "inputs": [
+        {
+          "source": "02_processed/validate_report.json",
+          "content_summary": "run.py full 模式: 相关矩阵/去趋势/滞后CCF/Granger/变化点/多重检验 + anti_spurious 全套(分布/离群/留一/Simpson/秩分歧)",
+          "evidence_rank": 3
+        },
+        {
+          "source": "02_processed/anomaly_report.json",
+          "content_summary": "4个工艺参数波动筛查: 仅 flow cv=0.2001 abrupt=yes; 其余平稳",
+          "evidence_rank": 3
+        }
+      ],
+      "reasoning": {
+        "applied_logic": "反伪相关协议: 分布适用性→离群点敏感性→逐点留一→去趋势→分层/批完整性→多重检验校正",
+        "step_by_step": "①Pearson 适用性通过(全列非重偏);②离群点0个、留一最大位移0.0171(非单点撬动);③去趋势 r=−0.8501 仍显著(非共同趋势);④批完整性: 无批ID列, not applicable;⑤3组检验仅 flow→temp 幸存 Bonferroni(阈值0.016667);⑥两处警示如实记录: Spearman 秩分歧0.233(MODERATE, 阶跃数据固有)、跨regime相关警示(MODERATE_CONCERNS, 已用变化点时序+分段均值差交叉核验)",
+        "assumptions": ["样本独立同分布的噪声假设(2分钟间隔下近似成立)"]
+      },
+      "outputs": [
+        {
+          "finding": "统计证据可信度达标: flow→temp 相关通过全部反伪检验;两处 MODERATE 警示不影响方向/时序结论,已纳入置信扣分",
+          "confidence": 90,
+          "supported_by": ["validate_report.json anti_spurious.summary: fatal_issues=0"]
+        }
+      ],
+      "alternatives_considered": [
+        {
+          "alternative": "按 regime 分段(60/62)分别计算相关",
+          "why_ruled_out": "段内 flow 恒定(方差≈噪声), 段内相关无意义;改用变化点时序+分段均值差作为等价核验"
+        }
+      ],
+      "uncertainty": {
+        "aleatory": "采样噪声",
+        "epistemic": "低-中: Spearman 秩分歧 0.233 与跨 regime 相关警示两处 MODERATE 已定位并解释",
+        "impact_on_conclusion": "警示不改变方向/时序结论;已通过置信扣分体现"
+      },
+      "falsification_condition": "若 fatal_issues>0 或去趋势后相关消失,统计证据链作废"
+    },
+    {
+      "step_id": 4,
+      "step_name": "R4 假设生成",
+      "step_question": "有哪些机制上可行的候选根因?",
+      "inputs": [
+        {
+          "source": "01_ontology/ontology.json",
+          "content_summary": "三条机制通道: flow→temp(−), load→temp(+), ambient→temp(+)",
+          "evidence_rank": 5
+        },
+        {
+          "source": "02_processed/anomaly_report.json",
+          "content_summary": "唯一 abrupt 波动源 = cooling_water_flow_lpm",
+          "evidence_rank": 3
+        }
+      ],
+      "reasoning": {
+        "applied_logic": "机制枚举+数据初筛: 每个假设必须有本体机制通道且不与初筛波动图景矛盾",
+        "step_by_step": "H1 冷却水流量下降(结垢/阀故障): 通道存在, 与唯一abrupt源吻合;H2 环境温度升高: 通道存在(弱);H3 负载升高: 通道存在(中);其余类(WEAR磨损/DRIFT慢漂)与2步阶跃+平台保持形态不符, 初筛即不入围",
+        "assumptions": ["阶跃-保持形态意味着持续性的能力/边界变化, 非瞬时扰动"]
+      },
+      "outputs": [
+        {
+          "finding": "入围: H1(流量下降/CONTAMINATION), H2(环境/ENVIRONMENT), H3(负载/OPERATION)",
+          "confidence": 92,
+          "supported_by": ["ontology relationships", "anomaly_report.process_parameter_fluctuation"]
+        }
+      ],
+      "alternatives_considered": [
+        {
+          "alternative": "传感器漂移假说",
+          "why_ruled_out": "漂移通常缓变;本例为2步内完成的中断阶跃并保持,且振动同步共变,更符合真实状态变化"
+        }
+      ],
+      "uncertainty": {
+        "aleatory": "无",
+        "epistemic": "低: 入围假设覆盖全部已声明机制通道;未声明通道(如油冷回路)不在集合内",
+        "impact_on_conclusion": "若存在未记录机制通道, 假设集不完整, 结论需重审"
+      },
+      "falsification_condition": "若存在未声明的机制通道(如油冷回路),假设集不完整"
+    },
+    {
+      "step_id": 5,
+      "step_name": "R5 证据采集与可判别性评估",
+      "step_question": "每个假设获得什么强度的证据?假设间能否判别?",
+      "inputs": [
+        {
+          "source": "02_processed/validate_report.json",
+          "content_summary": "flow: r=−0.9626, CCF lag−2 r=−0.9959, Granger F=259.151; load r=0.0254 p=0.78; ambient r=0.0162 p=0.86; 变化点 flow@60 / temp@62",
+          "evidence_rank": 3
+        },
+        {
+          "source": "02_processed/time_lag_analysis.json",
+          "content_summary": "最优滞后 −2 步 (confidence=high, consistency_ratio=1.0), 与本体先验一致",
+          "evidence_rank": 3
+        },
+        {
+          "source": "03_figures/fig_adaptive_overlay.png",
+          "content_summary": "叠加图目视: 流量10:00下台阶→温度10:04上台阶, 负载/环境无台阶",
+          "evidence_rank": 4
+        }
+      ],
+      "reasoning": {
+        "applied_logic": "证据分级(L1–L7)+可判别性矩阵: 逐假设对齐方向/时滞/幅值三要素",
+        "step_by_step": "①H1: 方向✓(负相关) 时滞✓(2步, 一致率1.0) 幅值✓(+8.02℃ 与流量−33.2% 定性一致) → 证据级 L3/L4;②H2: r≈0 且无变化点 → 无支持证据;③H3: r≈0 且无变化点 → 无支持证据;④两两判别: H1-H2、H1-H3 均 DISCRIMINABLE(判别信号=变化点时序与相关显著性)",
+        "assumptions": ["滞后估计在等间隔采样下无偏"]
+      },
+      "outputs": [
+        {
+          "finding": "H1 证据充分(L3统计+L4目视), H2/H3 无证据; 假设集可判别, 无 INDISTINGUISHABLE 对",
+          "confidence": 88,
+          "supported_by": ["validate_report.json", "time_lag_analysis.json", "fig_adaptive_overlay.png"]
+        }
+      ],
+      "alternatives_considered": [
+        {
+          "alternative": "以 VLM 逐图细读替代人工目视",
+          "why_ruled_out": "fast mode 跳过 VLM(upper cap 4 critical 或 skip); 目视记录已在 evidence.json 注明生成方式与局限"
+        }
+      ],
+      "uncertainty": {
+        "aleatory": "滞后估计的抽样不确定(已由窗口一致性 1.0 缓解)",
+        "epistemic": "低: 判别信号清晰且多重检验受控",
+        "impact_on_conclusion": "判别矩阵不存 INDISTINGUISHABLE 对, 不触发 65 封顶"
+      },
+      "falsification_condition": "若 H2/H3 相关显著或存在变化点,判别性重估"
+    },
+    {
+      "step_id": 6,
+      "step_name": "R6 排除检验",
+      "step_question": "H2/H3 能否被确定性排除?",
+      "inputs": [
+        {
+          "source": "02_processed/validate_report.json",
+          "content_summary": "H2: r=0.0162/p=0.8608, 无变化点, cv=0.0167; H3: r=0.0254/p=0.7834, 无变化点, cv=0.0106",
+          "evidence_rank": 3
+        }
+      ],
+      "reasoning": {
+        "applied_logic": "排除三重判据: 时序形态不符 + 相关不显著 + 无变化点;任一假设须同时满足三判据方可排除",
+        "step_by_step": "H2: ①2分钟级阶跃 vs 日内缓变形态不符 ②相关不显著 ③环境无变化点 → STATISTICAL 排除(97);H3: 同三重判据 → STATISTICAL 排除(97);二者 revival_condition 已写入 diagnosis.json",
+        "assumptions": ["排除基于本窗口数据;窗口外行为不受本结论约束"]
+      },
+      "outputs": [
+        {
+          "finding": "H2/H3 确定性排除(exclusion_confidence 97/97);存活集仅 H1 → DETERMINED",
+          "confidence": 95,
+          "supported_by": ["validate_report.json target_analysis"]
+        }
+      ],
+      "alternatives_considered": [
+        {
+          "alternative": "H2/H3 与 H1 叠加共因(部分贡献)",
+          "why_ruled_out": "二者平稳无变化, 对阶跃贡献为零;平稳小波动的影响已含于65℃基线平台"
+        }
+      ],
+      "uncertainty": {
+        "aleatory": "无",
+        "epistemic": "低: 排除基于三重同向判据(形态/相关/变化点)",
+        "impact_on_conclusion": "排除置信 97;窗口外行为不受约束"
+      },
+      "falsification_condition": "见 diagnosis.json 各 revival_condition"
+    },
+    {
+      "step_id": 7,
+      "step_name": "R7 结论综合与四条件核验",
+      "step_question": "H1 是否满足反臆断四条件?结论与置信如何定?",
+      "inputs": [
+        {
+          "source": "02_processed/validate_report.json + time_lag_analysis.json",
+          "content_summary": "时序: flow@60 → temp@62; 统计: r=−0.9626/p≈0, Bonferroni幸存, Granger F=259.151; 机理: Q=m·cp·ΔT 方向 −; 反伪: fatal=0",
+          "evidence_rank": 3
+        },
+        {
+          "source": "04_diagnostics/confidence.json",
+          "content_summary": "五因子 112/125 → 89; L3 封顶85; 窗口局限 −3 → 82",
+          "evidence_rank": 3
+        }
+      ],
+      "reasoning": {
+        "applied_logic": "四条反臆断条件逐一核验 + 证据级封顶",
+        "step_by_step": "①时序先行: 流量变化点(60)先于温度变化点(62) ✓;②统计显著: p≈0 + Bonferroni 幸存 + Granger 显著 ✓;③物理机制: 热平衡机理边方向/时滞/形态三要素 MATCH ✓;④无矛盾: 去趋势/留一/离群检验通过, 无反向证据 ✓ → 四条件全满足, DETERMINED=H1;置信: 五因子基础 90/100 → (L3 封顶) 85 → (单窗口扣分) 82, 级别 HIGH",
+        "assumptions": ["结垢/阀故障的具体物理成因属现场点检范畴, 不影响数据层面结论"]
+      },
+      "outputs": [
+        {
+          "finding": "DETERMINED=H1, 置信 82 (HIGH); predicted_observables 与 falsification_conditions 已写入 diagnosis.json",
+          "confidence": 82,
+          "supported_by": ["validate_report.json", "time_lag_analysis.json", "confidence.json"]
+        }
+      ],
+      "alternatives_considered": [
+        {
+          "alternative": "升级为 NEEDS_DATA(等流量恢复试验再定)",
+          "why_ruled_out": "四条件已满足, 证据强度足以支撑可行动结论;恢复试验作为验证计划而非结论前置条件"
+        }
+      ],
+      "uncertainty": {
+        "aleatory": "采样噪声",
+        "epistemic": "置信 82 反映: 数据层面确定, 物理成因(结垢 vs 阀故障)待现场判别",
+        "impact_on_conclusion": "不影响 DETERMINED 判定;影响后续处方粒度(清洗 vs 换阀)"
+      },
+      "falsification_condition": "流量恢复后温度不回落 → H1 被证伪, 重新进入竞争假设"
+    },
+    {
+      "step_id": 8,
+      "step_name": "R8 交接与验证计划",
+      "step_question": "结论如何交接给改善建议/审计/报告?",
+      "inputs": [
+        {
+          "source": "04_diagnostics/diagnosis.json",
+          "content_summary": "DETERMINED=H1, 预测可观测量: 流量恢复→约2个采样点内温度回落至65℃平台",
+          "evidence_rank": 3
+        },
+        {
+          "source": "02_processed/data_analysis_conclusion.json",
+          "content_summary": "handoff_to_diagnostician: 建议竞争假设检验并交叉核对物理合理性(已完成)",
+          "evidence_rank": 3
+        }
+      ],
+      "reasoning": {
+        "applied_logic": "结论交接契约: 根因+机制链+可证伪预测+验证计划四件套",
+        "step_by_step": "①向 Step 5c 改善建议交接: 目标= bearing_temp_c(min), 关键杠杆= cooling_water_flow_lpm, dead_time=2步;②向 Step 7 审计交接: 机制方向核验点= flow↓→temp↑ 物理一致性;③验证计划: 恢复流量至12 L/min → 预期2采样点内(采样间隔2min, plot_manifest.metadata.time_alignment.median_interval_s=120.0)温度回落;不回落即证伪;④数据缺口移交: 冷却水温差/压差点检、流量设定值、油温/振动频谱",
+        "assumptions": ["验证期间工况不变"]
+      },
+      "outputs": [
+        {
+          "finding": "交接完成: 改善建议以冷却水流量恢复/清理为一号杠杆; 验证计划含恢复试验+点检清单",
+          "confidence": 90,
+          "supported_by": ["diagnosis.json predicted_observables", "input_manifest.sampling_interval"]
+        }
+      ],
+      "alternatives_considered": [
+        {
+          "alternative": "直接给出'清洗换热器'处方并声明收益幅度",
+          "why_ruled_out": "observational 窗口无 designed DOE 证据, 收益幅度不可承诺(95%CI 无法估计), 交由 Step 5c 按 A/B/C 分级裁决"
+        }
+      ],
+      "uncertainty": {
+        "aleatory": "验证期间的工况波动",
+        "epistemic": "低: 交接契约完整(根因+机制链+可证伪预测+验证计划)",
+        "impact_on_conclusion": "验证试验是结论的最终裁决者"
+      },
+      "falsification_condition": "恢复试验结果与预测不符时, 结论回退至 Step 4 重诊断"
+    }
+  ],
+  "hypothesis_evolution": [
+    {
+      "hypothesis_id": "H1",
+      "initial_confidence": 55,
+      "final_confidence": 82,
+      "confidence_adjustments": [
+        {
+          "adjustment_reason": "R3 反伪相关全套通过(离群0/留一0.0171/去趋势仍显著)",
+          "adjustment_points": 10,
+          "triggered_by": "validate_report.json anti_spurious"
+        },
+        {
+          "adjustment_reason": "R5 滞后CCF峰值 lag=−2 (r=−0.9959, 一致率1.0) + Granger F=259.151 锁定因果方向",
+          "adjustment_points": 14,
+          "triggered_by": "validate_report.json + time_lag_analysis.json"
+        },
+        {
+          "adjustment_reason": "R6 H2/H3 排除后存活集唯一",
+          "adjustment_points": 11,
+          "triggered_by": "target_analysis 相关不显著"
+        },
+        {
+          "adjustment_reason": "R7 五因子基础 90/100 → L3 证据级封顶85 (−5) → 单一4小时窗口扣3分 (−3)",
+          "adjustment_points": -8,
+          "triggered_by": "evidence levels L1-L7 + input_manifest 窗口"
+        }
+      ]
+    },
+    {
+      "hypothesis_id": "H2",
+      "initial_confidence": 30,
+      "final_confidence": 5,
+      "confidence_adjustments": [
+        {
+          "adjustment_reason": "R5/R6: 相关不显著 + 无变化点 + 形态不符, 统计排除",
+          "adjustment_points": -25,
+          "triggered_by": "validate_report.json target_analysis"
+        }
+      ]
+    },
+    {
+      "hypothesis_id": "H3",
+      "initial_confidence": 30,
+      "final_confidence": 5,
+      "confidence_adjustments": [
+        {
+          "adjustment_reason": "R5/R6: 相关不显著 + 无变化点 + 形态不符, 统计排除",
+          "adjustment_points": -25,
+          "triggered_by": "validate_report.json target_analysis"
+        }
+      ]
+    }
+  ],
+  "uncertainty_summary": {
+    "epistemic_gaps": [
+      "阶跃物理成因(结垢/阀故障/泵性能)需现场点检判别",
+      "缺少冷却水进出口温差/压差数据, 传热能力下降幅度无法定量",
+      "无流量设定值列, 无法区分人为设定变更与回路阻力增大",
+      "4小时窗口, 环境温度日内周期的影响幅度未采样到"
+    ],
+    "aleatory_limits": [
+      "单一事件不可重复观测(历史数据无法补采)",
+      "2分钟间隔以上的更快动态(若存在)不可见"
+    ],
+    "overall_confidence_ceiling": 85,
+    "what_would_change_conclusions": [
+      "流量恢复试验后温度不回落",
+      "现场点检证实流量计漂移(实际流量未降)",
+      "发现同期存在的未记录扰动(如油路切换)"
+    ],
+    "reasoning_weaknesses": [
+      {
+        "weakness": "振动-温度机制链仅凭波动统计与目视共变, 无独立相关检验与频谱证据",
+        "mitigation": "已在 inference_gaps 中如实披露, 证据级降为 L4 且不参与根因判定",
+        "residual_risk": "伴生症状解释可能不完整, 但不影响 H1 根因结论"
+      },
+      {
+        "weakness": "Spearman 秩相关分歧 0.233 未做非线性模型深挖",
+        "mitigation": "阶跃数据秩相关天然弱化;Pearson 适用性检查通过, 去趋势/留一/离群检验齐备",
+        "residual_risk": "低;若后续需要连续剂量-响应关系, 需补充稳态分段回归"
+      }
+    ]
+  }
+}

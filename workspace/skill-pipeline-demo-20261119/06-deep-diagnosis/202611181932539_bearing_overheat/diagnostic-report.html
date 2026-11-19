@@ -1,0 +1,522 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>轴承温升故障诊断 · DETERMINED · 置信 82</title>
+<style>
+/* IDD Report Design System · v1 (2026-11-17)
+ * 单一视觉权威 = 诊断设计权威色板（warm paper / ink / warm orange）。
+ * 本文件同时服务四个渲染器：stability / advisory / DOE / diagnostic。
+ * 骨架 = 证据账簿 Ledger（左导轨 + 编号章节 + 三栏含页边批注）。
+ * 约定：所有类名以 rpt- 前缀，作用域 .rpt-scope；页面无 JS 依赖。
+ */
+
+/* ---------------- tokens ---------------- */
+.rpt-scope{
+  --paper:#fafaf8; --panel:#fffefb; --ink:#1e3a54; --ink-soft:#41586e; --muted:#726b5f;
+  --hair:#e3ded3; --hair-strong:#cfc8b8; --accent:#a8542c; --warm:#c2673a;
+  --good:#2d7d4f; --warn:#8a6d3b; --bad:#c4433b; --wash:#f3f1ea;
+  --serif:'Noto Serif SC','Source Han Serif SC','Songti SC',Georgia,serif;
+  --sans:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;
+  --mono:'SFMono-Regular',Consolas,'JetBrains Mono',monospace;
+  background:var(--paper); color:var(--ink);
+  font:15px/1.7 var(--sans); -webkit-font-smoothing:antialiased; text-wrap:pretty;
+}
+.rpt-scope *{box-sizing:border-box}
+.rpt-scope a{color:inherit}
+
+/* ---------------- shell ---------------- */
+.rpt-page{display:grid;grid-template-columns:196px minmax(0,1fr);max-width:1280px;
+  margin:0 auto;padding:0 32px 90px;gap:44px}
+.rpt-main{min-width:0;padding-top:38px}
+
+/* ---------------- rail ---------------- */
+.rpt-rail{position:sticky;top:0;align-self:start;height:100vh;padding:38px 0 28px;
+  display:flex;flex-direction:column;gap:26px}
+.rpt-brand{font-family:var(--serif);font-size:15px;letter-spacing:.34em;font-weight:600}
+.rpt-brand span{display:block;margin-top:4px;font-family:var(--sans);font-size:11px;
+  letter-spacing:.22em;color:var(--muted);font-weight:400}
+.rpt-nav{display:flex;flex-direction:column;gap:1px;border-top:1px solid var(--hair-strong)}
+.rpt-nav a{display:flex;gap:10px;align-items:baseline;text-decoration:none;padding:8px 2px;
+  border-bottom:1px solid var(--hair);font-size:12.5px;color:var(--ink-soft)}
+.rpt-nav a b{font-family:var(--mono);font-size:10.5px;color:var(--muted);font-weight:400;
+  letter-spacing:.04em}
+.rpt-nav a:hover{color:var(--accent)}
+.rpt-nav a.is-on{color:var(--ink);font-weight:600}
+.rpt-nav a.is-on b{color:var(--accent)}
+.rpt-rail-foot{margin-top:auto;font-size:11px;line-height:1.7;color:var(--muted);
+  border-top:1px solid var(--hair-strong);padding-top:12px}
+.rpt-rail-foot code{font-family:var(--mono);font-size:10px;color:var(--ink-soft);word-break:break-all}
+
+/* ---------------- masthead ---------------- */
+.rpt-kicker{font-size:11px;letter-spacing:.26em;color:var(--accent);margin:0 0 14px;
+  text-transform:uppercase;font-weight:600}
+.rpt-masthead h1{font-family:var(--serif);font-size:33px;line-height:1.34;font-weight:600;
+  margin:0 0 18px;letter-spacing:.01em;max-width:21em;text-wrap:balance}
+.rpt-meta{display:flex;flex-wrap:wrap;gap:6px 18px;color:var(--muted);font-size:12.5px;
+  padding-bottom:18px;border-bottom:1px solid var(--hair-strong)}
+.rpt-meta b{color:var(--ink-soft);font-weight:600}
+
+/* verdict + seal */
+.rpt-verdict{display:grid;grid-template-columns:minmax(0,1fr) 148px;gap:34px;
+  align-items:center;padding:26px 0 6px}
+.rpt-verdict blockquote{margin:0;font-family:var(--serif);font-size:18.5px;line-height:1.72;
+  color:var(--ink);max-width:36em}
+.rpt-verdict blockquote em{font-style:normal;border-bottom:2px solid rgba(194,103,58,.45);
+  padding-bottom:1px}
+.rpt-seal{width:132px;justify-self:end;border:2px solid var(--ink);padding:3px}
+.rpt-seal-in{border:1px solid var(--ink);padding:12px 8px 10px;text-align:center}
+.rpt-seal-num{font-family:var(--serif);font-size:42px;line-height:1;font-weight:600;letter-spacing:-.01em}
+.rpt-seal-grade{margin-top:7px;font-size:12px;letter-spacing:.18em;color:var(--ink-soft)}
+.rpt-seal-cap{margin-top:6px;font-size:10.5px;letter-spacing:.1em;color:var(--muted)}
+.rpt-seal.is-c{border-color:#9a6a45}
+.rpt-seal.is-c .rpt-seal-in{border-color:#9a6a45}
+.rpt-seal.is-c .rpt-seal-num,.rpt-seal.is-c .rpt-seal-grade{color:#8a5a34}
+.rpt-seal.is-a{border-color:#2d7d4f}
+.rpt-seal.is-a .rpt-seal-in{border-color:#2d7d4f}
+.rpt-seal.is-a .rpt-seal-num,.rpt-seal.is-a .rpt-seal-grade{color:#2d7d4f}
+
+/* ---------------- sections ---------------- */
+.rpt-scope section.rpt-sec{margin-top:52px;scroll-margin-top:20px}
+.rpt-sec-head{display:grid;grid-template-columns:56px minmax(0,1fr);gap:16px;align-items:baseline;
+  border-top:1px solid var(--ink);padding-top:12px;margin-bottom:22px}
+.rpt-sec-no{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--accent);
+  padding-top:5px}
+.rpt-sec-head h2{font-family:var(--serif);font-size:23px;font-weight:600;margin:0;
+  letter-spacing:.015em}
+.rpt-sec-sub{grid-column:2;color:var(--muted);font-size:12.5px;margin-top:2px}
+.rpt-body-grid{display:grid;grid-template-columns:56px minmax(0,1fr) 208px;gap:16px}
+.rpt-body-grid.no-margin{grid-template-columns:56px minmax(0,1fr)}
+.rpt-body-grid>.rpt-content{grid-column:2;min-width:0}
+.rpt-margin{grid-column:3;font-size:12px;line-height:1.72;color:var(--ink-soft);
+  border-left:1px dotted var(--hair-strong);padding-left:14px}
+.rpt-margin h4{margin:0 0 6px;font-size:11px;letter-spacing:.16em;color:var(--muted);
+  font-weight:600;text-transform:uppercase}
+.rpt-margin p{margin:0 0 10px}
+.rpt-margin .rpt-mn-kicker{font-family:var(--serif);color:var(--accent)}
+
+/* ---------------- generic blocks ---------------- */
+.rpt-panel{background:var(--panel);border:1px solid var(--hair);border-radius:6px;padding:16px 18px}
+.rpt-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:26px}
+.rpt-h3{font-size:12px;letter-spacing:.16em;color:var(--muted);font-weight:600;margin:0 0 10px;
+  text-transform:uppercase}
+.rpt-note{font-size:12px;color:var(--muted);line-height:1.65;margin:10px 0 0}
+.rpt-strong{font-weight:600}
+.rpt-mono{font-family:var(--mono);font-size:12px;font-variant-numeric:tabular-nums}
+.rpt-chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--hair);
+  border-radius:999px;padding:2px 10px;font-size:12px;background:var(--panel);color:var(--ink-soft)}
+.rpt-chip i{width:7px;height:7px;border-radius:50%;background:var(--ink);font-style:normal}
+
+/* goal + waterline (stability/advisory) */
+.rpt-target{border:1px solid var(--hair);background:var(--panel);padding:14px 16px}
+.rpt-target .rpt-t-metric{font-family:var(--serif);font-size:20px;margin-bottom:2px}
+.rpt-target .rpt-t-line{font-size:13px;color:var(--ink-soft)}
+.rpt-target .rpt-t-note{margin-top:10px;font-size:12px;color:var(--muted);line-height:1.65}
+.rpt-wl{border:1px solid var(--hair);background:var(--panel);padding:14px 16px}
+.rpt-wl-top{display:flex;align-items:baseline;gap:10px;margin-bottom:8px}
+.rpt-wl-grade{font-family:var(--serif);font-size:26px;line-height:1}
+.rpt-wl ul{list-style:none;margin:0;padding:0;font-size:12.5px}
+.rpt-wl li{display:flex;gap:8px;align-items:baseline;padding:3px 0;color:var(--ink-soft)}
+.rpt-wl li i{font-style:normal;width:14px;text-align:center;color:var(--good)}
+.rpt-wl li i.is-no{color:var(--warn)}
+.rpt-wl li span{margin-left:auto;font-size:11.5px;color:var(--muted)}
+
+/* findings ledger */
+.rpt-finding{display:grid;grid-template-columns:56px minmax(0,1fr) 208px;gap:16px;
+  padding:20px 0 22px;border-top:1px solid var(--hair)}
+.rpt-finding:first-child{border-top:none;padding-top:2px}
+.rpt-f-id{font-family:var(--mono);font-size:11px;color:var(--muted);padding-top:4px;letter-spacing:.04em}
+.rpt-f-main h3{margin:0 0 6px;font-size:16.5px;font-weight:600;font-family:var(--serif);line-height:1.5}
+.rpt-f-main p{margin:0 0 10px;color:var(--ink-soft);font-size:14px}
+.rpt-f-sev{font-size:10.5px;letter-spacing:.14em;color:#fff;background:var(--warm);
+  padding:1px 7px;margin-right:8px;vertical-align:2px;font-family:var(--sans)}
+.rpt-f-mech{grid-column:3;font-size:12px;color:var(--ink-soft);
+  border-left:1px dotted var(--hair-strong);padding-left:14px;align-self:start;margin:0}
+.rpt-f-mech b{display:block;font-size:11px;letter-spacing:.14em;color:var(--muted);margin-bottom:5px;
+  font-weight:600}
+.rpt-ev{border-collapse:collapse;width:100%;font-size:12.5px}
+.rpt-ev th,.rpt-ev td{text-align:left;padding:4px 10px 4px 0;border-bottom:1px solid var(--hair)}
+.rpt-ev th{font-weight:600;color:var(--muted);font-size:11px;letter-spacing:.06em;
+  white-space:nowrap}
+.rpt-ev td.rpt-num{font-family:var(--mono);font-size:12px}
+.rpt-ev tr:last-child td{border-bottom:none}
+
+/* tables */
+.rpt-table-wrap{border:1px solid var(--hair);background:var(--panel);overflow:auto}
+table.rpt-table{border-collapse:collapse;width:100%;font-size:13px}
+.rpt-table th{font-size:11px;letter-spacing:.08em;color:var(--muted);font-weight:600;
+  text-align:left;padding:10px 12px;border-bottom:1px solid var(--hair-strong);white-space:nowrap}
+.rpt-table td{padding:9px 12px;border-bottom:1px solid var(--hair);vertical-align:middle}
+.rpt-table tr:last-child td{border-bottom:none}
+.rpt-table td.rpt-n{font-family:var(--mono);font-size:12px;font-variant-numeric:tabular-nums}
+.rpt-table .rpt-pname{font-weight:600}
+.rpt-role{font-size:10.5px;color:var(--muted);border:1px solid var(--hair);padding:0 5px;
+  margin-left:7px;white-space:nowrap}
+.rpt-score{display:flex;align-items:center;gap:9px;min-width:120px}
+.rpt-score .rpt-track{height:3px;background:var(--hair);flex:1;position:relative}
+.rpt-score .rpt-track i{position:absolute;inset:0 auto 0 0;background:var(--ink)}
+.rpt-score .rpt-val{font-family:var(--mono);font-size:12px;min-width:22px;text-align:right}
+.rpt-score.is-low .rpt-track i{background:var(--warm)}
+.rpt-dflag{color:var(--bad);font-size:10.5px;border:1px solid var(--hair);padding:0 4px;margin-left:5px}
+
+/* figures */
+.rpt-figure{border:1px solid var(--hair);background:var(--panel);padding:14px 16px 8px;margin:0}
+.rpt-fig-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;font-size:12px;
+  color:var(--muted);margin-bottom:6px;flex-wrap:wrap}
+.rpt-fig-head b{color:var(--ink-soft);font-size:13px;font-weight:600}
+.rpt-fig-head span{font-family:var(--mono);font-size:11px}
+.rpt-chart{width:100%;height:auto;display:block}
+.rpt-legend{display:flex;gap:16px;font-size:11px;color:var(--muted);margin-top:2px;padding-bottom:6px;
+  flex-wrap:wrap}
+.rpt-legend i{display:inline-block;width:16px;height:0;border-top:1px solid var(--ink);margin-right:5px;
+  vertical-align:3px}
+.rpt-legend i.is-dash{border-top-style:dashed;border-top-color:var(--muted)}
+
+/* ---------------- advisory ---------------- */
+.rpt-entry{display:grid;grid-template-columns:64px minmax(0,1fr);gap:18px;padding:22px 0;
+  border-top:1px solid var(--hair)}
+.rpt-entry:first-of-type{border-top:1px solid var(--hair-strong)}
+.rpt-grade{width:42px;height:42px;border:2px solid var(--g);color:var(--g);display:flex;
+  align-items:center;justify-content:center;font-family:var(--serif);font-size:20px;font-weight:600}
+.rpt-grade small{font-size:9px;font-family:var(--sans);letter-spacing:.06em;margin-left:2px}
+.rpt-g-a{--g:#2d7d4f}.rpt-g-b{--g:#8a6d3b}.rpt-g-c{--g:#7a6a52}
+.rpt-grade-cap{font-size:10.5px;color:var(--muted);margin-top:5px;letter-spacing:.04em}
+.rpt-entry-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:2px}
+.rpt-lever{font-family:var(--serif);font-size:19px;font-weight:600}
+.rpt-lever code{font-family:var(--mono);font-size:11px;color:var(--muted);font-weight:400;margin-left:6px}
+.rpt-arrow{color:var(--muted);font-size:12px}
+.rpt-entry-gain{display:flex;align-items:baseline;gap:22px;flex-wrap:wrap;margin:10px 0 12px}
+.rpt-gain-num{font-family:var(--serif);font-size:29px;line-height:1.1}
+.rpt-gain-num small{font-size:12px;color:var(--muted);margin-left:5px;font-family:var(--sans)}
+.rpt-gain-ci{font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+.rpt-entry dl{display:grid;grid-template-columns:88px minmax(0,1fr);gap:5px 16px;margin:0;
+  font-size:13px;color:var(--ink-soft)}
+.rpt-entry dt{font-size:11.5px;color:var(--muted);letter-spacing:.04em;padding-top:1px}
+.rpt-entry dd{margin:0}
+.rpt-presc{margin-top:26px;border-top:1px solid var(--hair-strong);padding-top:16px}
+.rpt-presc h3{font-size:12px;letter-spacing:.16em;color:var(--warm);font-weight:600;margin:0 0 10px;
+  text-transform:uppercase}
+.rpt-presc ol{margin:0;padding-left:0;list-style:none;counter-reset:pc}
+.rpt-presc li{counter-increment:pc;display:grid;grid-template-columns:26px 92px minmax(0,1fr);
+  gap:10px;padding:7px 0;border-bottom:1px solid var(--hair);font-size:12.5px;color:var(--ink-soft)}
+.rpt-presc li::before{content:counter(pc,decimal-leading-zero);font-family:var(--mono);
+  font-size:10.5px;color:var(--muted);padding-top:2px}
+.rpt-presc .rpt-kind{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;color:var(--warm);
+  padding-top:2px}
+.rpt-presc .rpt-addr{color:var(--muted);font-size:11px;display:block;margin-top:2px}
+.rpt-empty{color:var(--muted);font-size:13px;padding:10px 0}
+
+/* roadmap (advisory) */
+.rpt-roadmap{border:1px solid var(--hair);background:var(--panel)}
+.rpt-roadmap table{border-collapse:collapse;width:100%;font-size:13px}
+.rpt-roadmap th{font-size:11px;letter-spacing:.08em;color:var(--muted);text-align:left;
+  padding:10px 12px;border-bottom:1px solid var(--hair-strong)}
+.rpt-roadmap td{padding:9px 12px;border-bottom:1px solid var(--hair);vertical-align:middle}
+.rpt-roadmap tr:last-child td{border-bottom:none}
+.rpt-bar{height:5px;background:var(--hair);position:relative;min-width:70px;flex:1}
+.rpt-bar span{position:absolute;inset:0 auto 0 0;background:var(--ink)}
+
+/* ---------------- DOE ---------------- */
+.rpt-factors td.rpt-fname{font-weight:600}
+.rpt-factors td.rpt-low,.rpt-factors td.rpt-high{font-family:var(--mono);font-size:12px}
+.rpt-stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));
+  border:1px solid var(--hair);background:var(--panel)}
+.rpt-stat{padding:12px 14px;border-right:1px solid var(--hair)}
+.rpt-stat:last-child{border-right:none}
+.rpt-stat .rpt-s-cap{font-size:10.5px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
+.rpt-stat .rpt-s-val{font-family:var(--mono);font-size:22px;margin-top:2px}
+.rpt-stat .rpt-s-sub{font-size:11px;color:var(--muted)}
+.rpt-effect{display:grid;grid-template-columns:150px 88px minmax(0,1fr) 96px;gap:12px;
+  align-items:center;padding:9px 0;border-bottom:1px solid var(--hair);font-size:12.5px}
+.rpt-effect:last-child{border-bottom:none}
+.rpt-effect .rpt-e-term{font-family:var(--mono);font-size:12px;color:var(--ink)}
+.rpt-effect .rpt-e-coef{font-family:var(--mono);font-size:12px;text-align:right}
+.rpt-effect .rpt-e-track{height:6px;background:var(--hair);position:relative}
+.rpt-effect .rpt-e-track span{position:absolute;top:0;bottom:0;background:var(--ink)}
+.rpt-effect .rpt-e-track span.is-neg{background:var(--warm);right:0;left:auto}
+.rpt-effect .rpt-e-q{font-family:var(--mono);font-size:11px;color:var(--muted);text-align:right}
+.rpt-effect.is-head{border-bottom:1px solid var(--hair-strong);font-size:10.5px;letter-spacing:.08em;
+  color:var(--muted);text-transform:uppercase}
+.rpt-layer{list-style:none;margin:0;padding:0;font-size:13px;color:var(--ink-soft)}
+.rpt-layer li{padding:7px 0;border-bottom:1px solid var(--hair);display:grid;
+  grid-template-columns:64px minmax(0,1fr);gap:12px}
+.rpt-layer li:last-child{border-bottom:none}
+.rpt-layer b{font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:.06em}
+
+/* ---------------- appendix / foot ---------------- */
+.rpt-appendix{border-top:3px double var(--hair-strong);margin-top:56px;padding-top:16px}
+.rpt-appendix h2{font-size:12px;letter-spacing:.18em;color:var(--muted);font-weight:600;margin:0 0 12px}
+.rpt-kv{display:grid;grid-template-columns:130px minmax(0,1fr);gap:4px 18px;font-size:12.5px;
+  color:var(--ink-soft)}
+.rpt-kv dt{color:var(--muted)}
+.rpt-kv dd{margin:0}
+.rpt-kv code{font-family:var(--mono);font-size:11px;word-break:break-all}
+.rpt-foot{margin-top:34px;padding-top:14px;border-top:1px solid var(--hair);font-size:11.5px;
+  color:var(--muted);display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.rpt-foot b{color:var(--ink-soft)}
+
+/* ---------------- responsive ---------------- */
+@media (max-width:1120px){
+  .rpt-page{grid-template-columns:1fr;padding:0 24px 70px}
+  .rpt-rail{position:static;height:auto;padding:26px 0 0;flex-direction:row;align-items:baseline;
+    gap:18px;flex-wrap:wrap}
+  .rpt-nav{flex-direction:row;flex-wrap:wrap;border-top:none;gap:4px 14px}
+  .rpt-nav a{border-bottom:none;padding:2px 0}
+  .rpt-rail-foot{display:none}
+  .rpt-body-grid,.rpt-finding{grid-template-columns:44px minmax(0,1fr)}
+  .rpt-margin,.rpt-f-mech{grid-column:2;margin-top:10px}
+  .rpt-grid-2{grid-template-columns:1fr}
+}
+@media print{
+  .rpt-scope{background:#fff;font-size:11pt}
+  .rpt-rail{display:none}
+  .rpt-page{display:block;max-width:none;padding:0}
+  .rpt-verdict,.rpt-finding,.rpt-entry,.rpt-figure,.rpt-panel{break-inside:avoid}
+  .rpt-scope a{text-decoration:none}
+}
+
+</style>
+<style>
+/* minimal supplement — scoped, reuses report.css tokens only (no new colors) */
+.idd-hero-cells{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--hair);border:1px solid var(--hair);margin:18px 0}
+.idd-hero-cells div{background:var(--panel);padding:10px 12px}
+.idd-hero-cells b{display:block;font-size:11px;letter-spacing:.18em;color:var(--muted);font-weight:600;margin-bottom:4px}
+.idd-hero-cells span{font-size:13.5px;color:var(--ink)}
+.idd-cells4{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:16px 0}
+.idd-cell{background:var(--panel);border:1px solid var(--hair);border-left:3px solid var(--hair-strong);padding:12px 14px}
+.idd-cell.warm{border-left-color:var(--warm)} .idd-cell.good{border-left-color:var(--good)}
+.idd-cell.bad{border-left-color:var(--bad)} .idd-cell.ink{border-left-color:var(--ink)}
+.idd-cell b{font-size:12px;letter-spacing:.14em;color:var(--ink-soft);display:block;margin-bottom:6px}
+.idd-cell p{margin:0;font-size:13.5px;line-height:1.65;color:var(--ink-soft)}
+.idd-loader{position:fixed;right:14px;bottom:14px;background:var(--panel);border:1px solid var(--hair-strong);
+  padding:8px 12px;font:11px/1.6 var(--mono);color:var(--ink-soft);z-index:9}
+.idd-loader span{margin-right:10px;white-space:nowrap}
+.idd-degraded{display:none;background:var(--wash);border:1px solid var(--warn);color:var(--ink);
+  padding:10px 14px;margin:14px 0;font-size:13px}
+.idd-chart-wrap{background:var(--panel);border:1px solid var(--hair);padding:8px}
+#idd-main-chart{width:100%;height:420px}
+.chart-reading{border-top:1px dashed var(--hair-strong);padding:10px 4px 2px;font-size:13.5px;color:var(--ink-soft)}
+.chart-reading b{color:var(--ink)}
+.chart-reading .r1::before{content:'看见了 · ';color:var(--accent);font-weight:600}
+.chart-reading .r2::before{content:'意味着 · ';color:var(--accent);font-weight:600}
+.chart-reading .r3::before{content:'为什么重要 · ';color:var(--accent);font-weight:600}
+.idd-adv-card{background:var(--panel);border:1px solid var(--hair);border-left:3px solid var(--warm);padding:14px 16px;margin:12px 0}
+.idd-adv-head{display:flex;gap:10px;align-items:center;font-size:14px;color:var(--ink)}
+.idd-adv-line{margin-top:8px;font-size:13.5px;color:var(--ink-soft)}
+.idd-adv-line .rpt-s-cap{display:inline-block;width:52px;color:var(--muted);font-size:11px;letter-spacing:.18em}
+.idd-png{max-width:100%;border:1px solid var(--hair);margin:10px 0}
+@media (max-width:900px){.idd-hero-cells{grid-template-columns:repeat(2,1fr)}.idd-cells4{grid-template-columns:1fr}}
+</style>
+</head>
+<body class="rpt-scope">
+<div class="rpt-page">
+  <aside class="rpt-rail">
+    <div class="rpt-brand">工业深度诊断<span>DEEP DIAGNOSTIC · FAST</span></div>
+    <nav class="rpt-nav">
+      <a href="#hero"><b>01</b>结论先行</a>
+      <a href="#charts"><b>02</b>核心证据图</a>
+      <a href="#evidence"><b>03</b>证据链三层</a>
+      <a href="#exclusion"><b>04</b>排除逻辑</a>
+      <a href="#mechanism"><b>05</b>机制链</a>
+      <a href="#advisory"><b>06</b>改善建议</a>
+      <a href="#limitations"><b>07</b>局限与边界</a>
+    </nav>
+    <div class="rpt-rail-foot">run: <code>202611181932539_bearing_overheat</code><br>数据 SHA-256 <code>6d7590ff…905</code><br>Judge 91/100 pass · 审计 ENDORSED</div>
+  </aside>
+  <main class="rpt-main">
+    <header class="rpt-masthead">
+      <p class="rpt-kicker">Industrial Deep Diagnostic · Step 8 Visualization</p>
+      <h1>轴承温升根因:冷却水流量阶跃下降,散热能力不足</h1>
+      <div class="rpt-meta">
+        <span>运行 <b>202611181932539_bearing_overheat</b></span>
+        <span>日期 <b>2026-11-18</b></span>
+        <span>场景 <b>bearing_overheat</b></span>
+        <span>模式 <b>fast(会话智能体装配)</b></span>
+        <span>诊断 <b>DETERMINED</b></span>
+        <span>置信 <b>82/100</b></span>
+      </div>
+    </header>
+
+    <div class="rpt-verdict">
+      <blockquote>冷却水流量于 10:00 由 <em>12.0 L/min 阶跃降至 8.0 L/min(−33.2%)</em>,轴承温度滞后 2 个采样点于 10:04 由 <em>65.0℃ 阶跃升至 73.0℃(+8.02℃)并保持</em>——冷却能力下降是唯一存活根因(H1)。</blockquote>
+      <div class="rpt-seal"><div class="rpt-seal-grade">DETERMINED</div><div class="rpt-seal-num">82</div><div class="rpt-seal-cap">置信 /100 · 上限 85 (L3)</div></div>
+    </div>
+    <div id="idd-degraded" class="idd-degraded">⚠ 在线图表库加载失败 — 本页已降级:全部文字结论/要点卡/本地图片证据仍完整可用。</div>
+
+    
+  <div class="rpt-sec-head"><span class="rpt-sec-no">01</span><h2 class="rpt-sec">结论先行(Hero)</h2><span class="rpt-sec-sub">给决策者的一屏</span></div>
+    <section id="hero" class="rpt-sec">
+      <p class="rpt-content">就像把水龙头关小,散热器里流过的水变少,热量带不走,温度自然抬上去。</p><p class="rpt-content">流量台阶在温度台阶之前 2 个采样点出现、方向相反、幅度对应——这是本页最硬的因果证据。</p><p class="rpt-content">负载和环境温度全程平稳,只有冷却水流量发生了真实的阶跃变化。</p><p class="rpt-content">流量为什么跌(结垢还是阀故障)需要现场点检确认,页面如实标注这一边界。</p>
+      <div class="idd-hero-cells"><div><b>诊断类型</b><span>DETERMINED</span></div><div><b>Judge 评分</b><span>91/100 (pass, 第2轮)</span></div><div><b>综合置信度</b><span>82/100 (HIGH, 上限 85)</span></div><div><b>重点对象</b><span>产线关键风机驱动端轴承(EQ-FAN-01)</span></div><div><b>样本量</b><span>120 行 × 6 列 · 2 分钟间隔</span></div><div><b>异常区段</b><span>10:00–10:04 (+08:00): 流量台阶 @idx60 → 温度台阶 @idx62(+8.02℃)</span></div><div><b>数据窗口</b><span>2026-11-18 08:00–11:58 (+08:00)</span></div><div><b>证据级</b><span>L3 统计 + L4 读图 + L5 机理 (结论受 L3 封顶 85)</span></div></div>
+      <div class="idd-cells4"><div class="idd-cell good"><b>最强证据</b><p>滞后CCF峰值 lag=−2: r=−0.9959(n=118, 一致率1.0);变化点先后 60→62 恰 2 步</p></div><div class="idd-cell ink"><b>已排除因素</b><p>H2 环境温度(r=0.0162, p=0.86)、H3 电机负载(r=0.0254, p=0.78)均平稳无变化点, 统计排除(97/100)</p></div><div class="idd-cell warm"><b>建议动作</b><p>恢复冷却水流量并在线验证 ≥24h(改善 ≥0.979℃ 视为有效);C 级建议, 先现场点检成因</p></div><div class="idd-cell bad"><b>证据缺口</b><p>无冷却水温差/压差与流量设定值数据——结垢 vs 阀故障不可判别</p></div></div>
+      <div class="rpt-note"><b>如何读本页</b>: 先看 Hero 结论与四格要点 → 看『流量-温度对齐』图(谁先动、谁后动) → 顺三层证据链(统计Ⅰ→物理Ⅱ→排除Ⅲ)核对每个数字 → 行动建议在第10节, 局限如实标注</div>
+    </section>
+
+    
+  <div class="rpt-sec-head"><span class="rpt-sec-no">02</span><h2 class="rpt-sec">核心证据图</h2><span class="rpt-sec-sub">谁先动、谁后动、谁一起动</span></div>
+    <section id="charts" class="rpt-sec">
+      <div class="idd-chart-wrap"><div id="idd-main-chart"></div></div>
+      <div class="chart-reading">
+        <div class="r1">10:00 流量 12.0→8.0 下台阶;10:04 温度 65→73 上台阶并保持;振动 2.0→2.4 轻升</div>
+        <div class="r2">流量领先温度 2 个采样点, 方向相反、随后保持——因果时序的形态证据</div>
+        <div class="r3">备择假设(负载/环境)无台阶, 无法解释该形态;恢复流量是可证伪的干预检验</div>
+      </div>
+      
+      <div class="rpt-figure">
+        <div class="rpt-fig-head">五参数时间对齐叠加图 <span class="rpt-note">03_figures/fig_adaptive_overlay.png</span></div>
+        <img class="idd-png" src="03_figures/fig_adaptive_overlay.png" alt="五参数时间对齐叠加图" loading="lazy"
+             onerror="this.onerror=null;this.replaceWith(Object.assign(document.createElement('div'),{className:'rpt-note',textContent:'图片加载失败 — 降级说明: '+"image_captions.json fig_adaptive_overlay.png 条目"}))">
+      </div>
+      <div class="rpt-figure">
+        <div class="rpt-fig-head">bearing_temp_c 单列时序 <span class="rpt-note">03_figures/fig_adaptive_line_bearing_temp_c.png</span></div>
+        <img class="idd-png" src="03_figures/fig_adaptive_line_bearing_temp_c.png" alt="bearing_temp_c 单列时序" loading="lazy"
+             onerror="this.onerror=null;this.replaceWith(Object.assign(document.createElement('div'),{className:'rpt-note',textContent:'图片加载失败 — 降级说明: '+"image_captions.json fig_adaptive_line_bearing_temp_c.png 条目"}))">
+      </div>
+    </section>
+
+    
+  <div class="rpt-sec-head"><span class="rpt-sec-no">03</span><h2 class="rpt-sec">证据链三层</h2><span class="rpt-sec-sub">统计Ⅰ → 物理Ⅱ → 排除Ⅲ, 每层有真实工件支撑</span></div>
+    <section id="evidence" class="rpt-sec">
+    
+    <div class="rpt-layer ">
+      <div class="rpt-layer-head"><b>Ⅰ</b> 统计层 <span class="rpt-chip">available=true</span></div>
+      <ul class="rpt-finding"><li>Pearson r=−0.9626 (n=120, p≈0);去趋势 −0.8501 (trend_confounded=false)</li><li>滞后CCF峰值 lag=−2: r=−0.9959 (n=118);窗口一致率 1.0;补偿器 confidence=high</li><li>Granger flow→temp: F=91.53(lag1)/259.15(lag2), p≈0</li><li>多重检验: 3组仅 flow→temp 幸存 Bonferroni(0.0167)</li></ul>
+      <div class="rpt-note">来源: 02_processed/validate_report.json · 02_processed/time_lag_analysis.json</div>
+    </div>
+    
+    <div class="rpt-layer ">
+      <div class="rpt-layer-head"><b>Ⅱ</b> 物理层 <span class="rpt-chip">available=true</span></div>
+      <ul class="rpt-finding"><li>Q=m_water·cp·ΔT: 流量 −33.2% → 散热能力同比例下降(direction=− 与数据一致)</li><li>能量代理 −19.18% → FOULING_PROGRESSION(与渐进性结垢一致)</li><li>振动全程 ISO 10816 B区(1.86–2.52 mm/s), 无 cliff —— 伴生症状非根因</li><li>Arrhenius(默认Ea先验): 观测不一致 → 反应动力学非主导机制</li></ul>
+      <div class="rpt-note">来源: 02_processed/physics_check.json · 01_ontology/ontology.json</div>
+    </div>
+    
+    <div class="rpt-layer ">
+      <div class="rpt-layer-head"><b>Ⅲ</b> 排除层 <span class="rpt-chip">available=true</span></div>
+      <ul class="rpt-finding"><li>H2: r=0.0162/p=0.8608 不显著 + 无变化点 + 形态不符 → 排除(97)</li><li>H3: r=0.0254/p=0.7834 不显著 + detrended −0.0102 + 无变化点 → 排除(97)</li><li>判别矩阵: H1-H2/H1-H3 均 DISCRIMINABLE, 无 INDISTINGUISHABLE</li></ul>
+      <div class="rpt-note">来源: 04_diagnostics/diagnosis.json · 02_processed/anomaly_report.json</div>
+    </div>
+    </section>
+
+    
+  <div class="rpt-sec-head"><span class="rpt-sec-no">04</span><h2 class="rpt-sec">排除逻辑</h2><span class="rpt-sec-sub">竞争假设法:生成 → 判别 → 排除</span></div>
+    <section id="exclusion" class="rpt-sec">
+      <div class="rpt-table-wrap"><table class="rpt-table">
+        <thead><tr><th>假设</th><th>机制通道</th><th>判别证据</th><th>结论</th></tr></thead>
+        <tbody>
+          <tr><td><b>H1 冷却水流量下降</b>(CONTAMINATION)</td><td>流量↓ → Q=m·cp·ΔT↓ → 温度↑(方向 −, 滞后~2步)</td><td>方向✓ 时滞✓ 幅值✓ 三要素 MATCH;唯一 abrupt 波动源(cv=0.2001)</td><td class="rpt-high"><b>存活</b> · 置信 82</td></tr>
+          <tr><td>H2 环境温度升高(ENVIRONMENT)</td><td>散热终温上移(方向 +, 日内缓变)</td><td>r=0.0162, p=0.8608 不显著;无变化点;cv=0.0167 平稳;阶跃形态不符</td><td>排除 (97/100)</td></tr>
+          <tr><td>H3 电机负载升高(OPERATION)</td><td>负载↑ → 发热↑(方向 +)</td><td>r=0.0254, p=0.7834 不显著;detrended −0.0102;无变化点;cv=0.0106 平稳</td><td>排除 (97/100)</td></tr>
+        </tbody>
+      </table></div>
+      <div class="rpt-note">判别矩阵: H1-H2 与 H1-H3 均 DISCRIMINABLE(判别信号=变化点时序+相关显著性);无 INDISTINGUISHABLE 对, 不触发 65 分封顶。传感器漂移被"2 步内中断阶跃+振动共变"形态证据否决。各假设 revival_condition 见 04_diagnostics/diagnosis.json。</div>
+    </section>
+
+    
+  <div class="rpt-sec-head"><span class="rpt-sec-no">05</span><h2 class="rpt-sec">机制链</h2><span class="rpt-sec-sub">每条链可回溯控制方程</span></div>
+    <section id="mechanism" class="rpt-sec">
+      <div class="rpt-ev">
+        <div class="rpt-e-track"><span class="rpt-e-term">冷却水流量 12.0→8.0 L/min</span><span class="rpt-arrow">→</span><span class="rpt-e-term">带热量 Q=m·cp·ΔT 同比例下降</span><span class="rpt-arrow">→</span><span class="rpt-e-term">热平衡点上移</span><span class="rpt-arrow">→</span><span class="rpt-e-term rpt-low">轴承温度 +8.02℃ 保持</span></div>
+        <div class="rpt-e-q">控制方程: Q_cool = m_water·c_p·(T_out − T_in) · 机制边 type=physical / direction=− / delayed_response(01_ontology/ontology.json)</div>
+        <div class="rpt-t-line"><span class="rpt-e-coef">伴生</span> 温度↑ → 润滑粘度/游隙变化 → 振动 2.0→2.4 mm/s(ISO 10816 B 区, 无 cliff;伴生症状, 非根因)</div>
+        <div class="rpt-t-line"><span class="rpt-e-coef">独立核验</span> physics_check 能量代理 444.25→359.04(−19.18%) → FOULING_PROGRESSION(与渐进性结垢一致)</div>
+      </div>
+    </section>
+
+    
+  <div class="rpt-sec-head"><span class="rpt-sec-no">06</span><h2 class="rpt-sec">改善建议</h2><span class="rpt-sec-sub">advisory available=true · 动作 1 条 · 处方 0 条 · 可达上限 B</span></div>
+    <section id="advisory" class="rpt-sec">
+      
+    <div class="idd-adv-card">
+      <div class="idd-adv-head"><span class="rpt-grade">C</span>
+        <b>冷却水流量</b> · increase · 10.025 → 11.0125 L/min (Δ0.9875)</div>
+      <div class="idd-adv-line"><span class="rpt-s-cap">预期收益</span><span class="rpt-gain-num">1.9581858375</span>
+        <span class="rpt-gain-ci">95%CI [1.840121325, 2.0762493625] · 方法 dose_response · KPI bearing_temp_c</span></div>
+      <div class="idd-adv-line"><span class="rpt-s-cap">验证</span>bearing_temp_c · 在线连续 ≥24h 对比基线窗 · 改善 ≥ 0.9791(点估计的 50%)视为有效</div>
+      <div class="idd-adv-line"><span class="rpt-s-cap">回滚</span>回退至 10.025(调整前中位), 并复核工况前提</div>
+      <div class="rpt-note">action_id: ACT-cooling_water_flow_lpm-263 · 等级依据: 观察数据最高 B(无设计试验窗/无归因窗), 本动作 C</div>
+    </div>
+      <div class="rpt-note">处方区: 0 条(本轮无 not_actionable 触发项, 无须补冷却水流量归因窗处方——归因数据已在 dose_response 证据腿中估计)。来源: advisory/advisory_actions.json (IMA-20261118195337-279905)</div>
+      <div class="rpt-note"><b>本节为确定性脚本生成的咨询建议(advisory),不构成参数下发;执行须经产线审批 / optimizer-campaign 验证。</b></div>
+    </section>
+
+    
+  <div class="rpt-sec-head"><span class="rpt-sec-no">07</span><h2 class="rpt-sec">局限与边界</h2><span class="rpt-sec-sub">诚实清单</span></div>
+    <section id="limitations" class="rpt-sec">
+      <ul class="rpt-finding">
+        <li>数据缺口: 无冷却水进出口温差/压差(结垢直接证据)、无流量独立设定值(区分"设定被改"vs"回路阻力增大")、无润滑油温/振动频谱(伴生链无法定量)。</li>
+        <li>窗口局限: 单一 4 小时窗口、单次事件, 无跨运行重复验证;环境温度日内周期未采样到(置信 −3)。</li>
+        <li>证据级: 结论核心支撑为 L3 统计分析(封顶 85);视觉证据为会话智能体读图(fast mode 无 VLM)。</li>
+        <li>3D 模块: process_flow.recoverable=false(运行数据不含设备拓扑), 依据协议不渲染装饰性 3D。</li>
+        <li>本页与建议均为咨询参考, 不构成参数下发;执行须经产线审批 / optimizer-campaign 验证。</li>
+      </ul>
+    </section>
+
+    <footer class="rpt-foot">
+      <div>全部数字可溯源至本运行工件: 02_processed/{validate_report,time_lag_analysis,physics_check,anomaly_report,data_analysis_conclusion}.json · advisory/advisory_actions.json · 无跨运行污染。</div>
+      <div>Judge 91/100(pass, 第2轮) · 物理审计 ENDORSED(quality_gate 5/5) · pre_audit_lint PASS · 报告 10 章节检查 PASS</div>
+    </footer>
+  </main>
+</div>
+
+<div class="idd-loader" id="idd-status">
+  <span id="st-dom">DOM ●</span><span id="st-ech">ECharts …</span><span id="st-ech-bk">备源 待用</span>
+  <span id="st-chart">图表 …</span><span id="st-deg">降级 待定</span>
+</div>
+
+<script>
+// deterministic embedded data (from 02_processed/cleaned_data.json via manifest.charts[0])
+window.IDD_DATA = {"times":["08:00:00","08:02:00","08:04:00","08:06:00","08:08:00","08:10:00","08:12:00","08:14:00","08:16:00","08:18:00","08:20:00","08:22:00","08:24:00","08:26:00","08:28:00","08:30:00","08:32:00","08:34:00","08:36:00","08:38:00","08:40:00","08:42:00","08:44:00","08:46:00","08:48:00","08:50:00","08:52:00","08:54:00","08:56:00","08:58:00","09:00:00","09:02:00","09:04:00","09:06:00","09:08:00","09:10:00","09:12:00","09:14:00","09:16:00","09:18:00","09:20:00","09:22:00","09:24:00","09:26:00","09:28:00","09:30:00","09:32:00","09:34:00","09:36:00","09:38:00","09:40:00","09:42:00","09:44:00","09:46:00","09:48:00","09:50:00","09:52:00","09:54:00","09:56:00","09:58:00","10:00:00","10:02:00","10:04:00","10:06:00","10:08:00","10:10:00","10:12:00","10:14:00","10:16:00","10:18:00","10:20:00","10:22:00","10:24:00","10:26:00","10:28:00","10:30:00","10:32:00","10:34:00","10:36:00","10:38:00","10:40:00","10:42:00","10:44:00","10:46:00","10:48:00","10:50:00","10:52:00","10:54:00","10:56:00","10:58:00","11:00:00","11:02:00","11:04:00","11:06:00","11:08:00","11:10:00","11:12:00","11:14:00","11:16:00","11:18:00","11:20:00","11:22:00","11:24:00","11:26:00","11:28:00","11:30:00","11:32:00","11:34:00","11:36:00","11:38:00","11:40:00","11:42:00","11:44:00","11:46:00","11:48:00","11:50:00","11:52:00","11:54:00","11:56:00","11:58:00"],"flow":[11.96,11.94,11.83,12.06,11.94,12.28,11.97,12.07,12.14,11.94,11.87,12.16,12.08,11.97,11.95,12.03,12.09,11.77,12.11,12.06,11.91,11.73,11.99,12.12,12,12.24,12.01,12.03,11.96,12.05,11.98,12.21,12.15,12.09,11.79,11.88,12.16,11.97,12.11,11.75,12.02,11.9,12.04,12,12.18,12.2,11.89,11.84,11.97,12.15,11.7,12.11,12,12.05,11.9,12,11.97,11.99,12.01,11.97,8.18,8.07,8.05,8.17,8.3,7.95,8.31,7.68,8.14,7.66,8.1,8.12,7.86,8.14,8.04,8.35,7.9,8.11,8.25,8.29,7.98,7.81,7.97,8.06,7.93,8.05,8.31,7.96,8.1,7.97,7.81,7.96,8.1,8.08,7.92,7.87,7.89,8.12,8.16,7.76,7.92,8.06,7.9,8.06,7.9,8.18,7.81,7.81,8,8.01,7.89,8.03,8.07,8.05,8.01,8.1,8.2,7.99,8.11,7.77],"temp":[65.2,65.03,65.2,64.76,64.37,64.82,64.61,64.71,65.14,64.89,65.27,64.96,65.18,64.98,65.13,64.68,65.49,65.08,65.16,64.84,65.07,64.93,64.93,65.23,64.88,65.24,65.11,65.19,65.42,65.05,65.16,64.4,65.56,64.7,65.17,65.31,65.16,65.12,65.04,64.86,64.92,65.12,64.61,65.32,64.54,65.33,64.92,65.25,65.15,65.13,64.81,65.05,64.75,65.17,64.98,65.23,64.82,65.2,64.95,64.75,64.82,64.66,73.01,72.7,73.27,73.43,73.01,72.63,72.83,73.22,72.83,72.98,73.04,73.15,72.85,73.22,73.38,73.22,73.05,73.04,72.88,73.03,73.36,73.09,72.55,73.05,73.33,73.18,72.85,72.97,72.53,73.05,73.04,73.12,72.98,73.18,72.87,72.64,73.36,72.99,72.94,72.83,73.42,73.42,73.08,72.97,73.26,72.74,73.12,73.04,73.03,73.11,72.88,73.09,73.43,72.82,72.77,73.13,72.67,73.17],"vib":[2.036,1.952,1.968,1.86,1.993,2.068,2.005,1.991,2.046,2.045,2.015,1.965,1.958,1.989,1.976,2.105,1.967,1.899,2.051,1.923,2.018,1.978,1.931,1.988,2.002,1.951,1.991,2.045,2.071,1.991,1.968,1.976,2.027,1.991,2.003,2.055,1.999,2.009,2.054,1.993,1.933,1.987,2.05,2.049,2.029,1.982,2.111,2.02,2.145,2.046,1.958,1.99,1.987,1.944,1.995,2.092,1.983,2.028,1.994,1.995,1.907,2.015,2.39,2.337,2.392,2.409,2.432,2.454,2.514,2.394,2.448,2.364,2.392,2.357,2.384,2.358,2.338,2.395,2.457,2.382,2.367,2.414,2.415,2.441,2.395,2.451,2.315,2.365,2.43,2.373,2.307,2.456,2.357,2.346,2.429,2.466,2.303,2.281,2.44,2.321,2.349,2.521,2.369,2.394,2.406,2.426,2.419,2.369,2.369,2.443,2.463,2.365,2.462,2.355,2.434,2.443,2.403,2.441,2.471,2.302]};
+(function () {
+  var sources = ["https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js","https://unpkg.com/echarts@5/dist/echarts.min.js"];
+  var idx = 0;
+  function set(id, t) { var el = document.getElementById(id); if (el) el.textContent = t; }
+  function tryLoad() {
+    if (idx >= sources.length) {
+      set('st-ech', 'ECharts ✗'); set('st-ech-bk', '备源 ✗'); set('st-chart', '图表 静态'); set('st-deg', '降级 ✓');
+      var d = document.getElementById('idd-degraded'); if (d) d.style.display = 'block';
+      return;
+    }
+    var s = document.createElement('script');
+    s.src = sources[idx];
+    s.onload = function () {
+      if (window.echarts && window.echarts.getInstanceByDom !== undefined || window.echarts) {
+        set(idx === 0 ? 'st-ech' : 'st-ech-bk', (idx === 0 ? 'ECharts ✓' : '备源 ✓(第' + (idx + 1) + '源)'));
+        initChart();
+      } else { idx++; tryLoad(); }
+    };
+    s.onerror = function () { idx++; tryLoad(); };
+    document.head.appendChild(s);
+  }
+  function initChart() {
+    var el = document.getElementById('idd-main-chart');
+    if (!el || !window.echarts) return;
+    var d = window.IDD_DATA;
+    var chart = window.echarts.init(el);
+    chart.setOption({
+      color: ['#2d7d4f', '#1e3a54', '#8a6d3b'],
+      tooltip: { trigger: 'axis' },
+      legend: { data: ['cooling_water_flow_lpm', 'bearing_temp_c', 'vibration_mm_s'], textStyle: { fontSize: 11 } },
+      grid: { left: 56, right: 60, top: 40, bottom: 46 },
+      xAxis: { type: 'category', data: d.times, axisLabel: { interval: 19, fontSize: 10 } },
+      yAxis: [
+        { type: 'value', name: '流量 L/min', min: 6, max: 14, nameTextStyle: { fontSize: 10 } },
+        { type: 'value', name: '温度 ℃ / 振动 mm/s', min: 0, max: 80, nameTextStyle: { fontSize: 10 } }
+      ],
+      series: [
+        { name: 'cooling_water_flow_lpm', type: 'line', yAxisIndex: 0, data: d.flow, showSymbol: false, lineStyle: { width: 1.5, color: '#2d7d4f' } },
+        { name: 'bearing_temp_c', type: 'line', yAxisIndex: 1, data: d.temp, showSymbol: false, lineStyle: { width: 1.8, color: '#1e3a54' } },
+        { name: 'vibration_mm_s', type: 'line', yAxisIndex: 1, data: d.vib, showSymbol: false, lineStyle: { width: 1, type: 'dashed', opacity: 0.7 } },
+        { name: '温度台阶标记', type: 'line', yAxisIndex: 1, markLine: { silent: true, symbol: 'none', data: [{ xAxis: 62 }], lineStyle: { color: '#c2673a', type: 'dotted' }, label: { formatter: '温度台阶 idx62', fontSize: 10 } }, data: [] }
+      ]
+    });
+    set('st-chart', '图表 ✓ (getInstanceByDom=' + (window.echarts.getInstanceByDom(el) ? 'Y' : 'N') + ')');
+    set('st-deg', '降级 未触发');
+    window.addEventListener('resize', function () { chart.resize(); });
+  }
+  set('st-dom', 'DOM ✓');
+  tryLoad();
+})();
+</script>
+</body>
+</html>

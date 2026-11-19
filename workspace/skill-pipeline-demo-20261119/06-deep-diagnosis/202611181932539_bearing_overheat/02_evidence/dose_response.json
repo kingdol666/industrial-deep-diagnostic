@@ -1,0 +1,173 @@
+{
+  "contract_version": "improvement-evidence/1.0",
+  "leg": "dose_response",
+  "pairs": [
+    {
+      "lever": "cooling_water_flow_lpm",
+      "metric": "bearing_temp_c",
+      "status": "emitted",
+      "r": -0.9626,
+      "p": 0.0,
+      "fdr_q": 0.0,
+      "temporal_ok": true,
+      "n_eff": 2.0,
+      "rho_lag1": 0.978004,
+      "gates": {
+        "lever_variance_ok": true,
+        "samples_ok": false,
+        "temporal_ok": true,
+        "fdr_ok": true,
+        "confound_ok": true,
+        "regime_stable_ok": false
+      },
+      "physics": {
+        "status": "known"
+      },
+      "attribution": {
+        "status": "absent",
+        "ci_excludes_zero": null
+      },
+      "flags": {
+        "objective_inferred": false,
+        "conflict": false,
+        "extrapolated": false,
+        "dead_time_missing": false,
+        "tradeoff_declared": false,
+        "designed_window": false,
+        "designed_effect": false,
+        "gain_ci_excludes_zero": true
+      },
+      "dose": {
+        "status": "estimable",
+        "slope": -1.982973,
+        "slope_ci95": [
+          -2.102531,
+          -1.863414
+        ],
+        "monotone": true,
+        "verified": true,
+        "reason": null,
+        "detail": null,
+        "bins": [
+          {
+            "b": 0,
+            "n": 15,
+            "x": 7.81,
+            "y": 73.04
+          },
+          {
+            "b": 1,
+            "n": 15,
+            "x": 7.97,
+            "y": 73.05
+          },
+          {
+            "b": 2,
+            "n": 15,
+            "x": 8.07,
+            "y": 73.01
+          },
+          {
+            "b": 3,
+            "n": 15,
+            "x": 8.18,
+            "y": 73.01
+          },
+          {
+            "b": 4,
+            "n": 15,
+            "x": 11.87,
+            "y": 65.07
+          },
+          {
+            "b": 5,
+            "n": 15,
+            "x": 11.97,
+            "y": 65.12
+          },
+          {
+            "b": 6,
+            "n": 15,
+            "x": 12.04,
+            "y": 64.95
+          },
+          {
+            "b": 7,
+            "n": 15,
+            "x": 12.15,
+            "y": 65.13
+          }
+        ],
+        "r": -0.9626,
+        "p": 0.0,
+        "n_pairs": 120
+      },
+      "doe": null,
+      "window": null,
+      "action_id": "ACT-cooling_water_flow_lpm-263"
+    }
+  ],
+  "dose_leg": [
+    {
+      "lever": "cooling_water_flow_lpm",
+      "metric": "bearing_temp_c",
+      "bins": [
+        {
+          "b": 0,
+          "n": 15,
+          "x": 7.81,
+          "y": 73.04
+        },
+        {
+          "b": 1,
+          "n": 15,
+          "x": 7.97,
+          "y": 73.05
+        },
+        {
+          "b": 2,
+          "n": 15,
+          "x": 8.07,
+          "y": 73.01
+        },
+        {
+          "b": 3,
+          "n": 15,
+          "x": 8.18,
+          "y": 73.01
+        },
+        {
+          "b": 4,
+          "n": 15,
+          "x": 11.87,
+          "y": 65.07
+        },
+        {
+          "b": 5,
+          "n": 15,
+          "x": 11.97,
+          "y": 65.12
+        },
+        {
+          "b": 6,
+          "n": 15,
+          "x": 12.04,
+          "y": 64.95
+        },
+        {
+          "b": 7,
+          "n": 15,
+          "x": 12.15,
+          "y": 65.13
+        }
+      ],
+      "slope": -1.982973,
+      "slope_ci95": [
+        -2.102531,
+        -1.863414
+      ]
+    }
+  ],
+  "fdr_alpha": 0.05,
+  "family_rule": "BH family = 每 KPI 内全部 (杠杆×滞后) 检验对"
+}

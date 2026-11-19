@@ -1,0 +1,31 @@
+{
+  "contract_version": "1.0",
+  "targets": [
+    {
+      "metric": "bearing_temp_c",
+      "direction": "min",
+      "tolerance": 5.0,
+      "weight": 1.0
+    }
+  ],
+  "constraints": [
+    {
+      "param": "cooling_water_flow_lpm",
+      "min": 8.0,
+      "max": 12.0,
+      "type": "box",
+      "hard": false
+    },
+    {
+      "param": "bearing_temp_c",
+      "max": 80.0,
+      "type": "safety",
+      "hard": true
+    }
+  ],
+  "horizon": "2026-11-18 08:00–11:58 (+08:00) 观测窗口, 建议验证期为其后 24 小时",
+  "dead_time": 2,
+  "levers": ["cooling_water_flow_lpm"],
+  "kpis": ["bearing_temp_c"],
+  "notes": "语义: 最小化轴承温度(降温方向)。唯一可调杠杆为冷却水流量(本体 control 角色);motor_load_pct 为工况条件非自由杠杆, ambient_temp_c 不可控。dead_time=2 个采样步来自诊断证据(滞后CCF峰值 lag=−2, 变化点 60→62)。"
+}

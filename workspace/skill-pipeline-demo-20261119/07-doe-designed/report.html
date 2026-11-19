@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DOE 工况分析报告 — 07-doe-designed</title>
+<script id="report-meta" type="application/json">{"generated_at": "2026-11-19T06:18:40.191142+00:00", "script_version": "1.1.0", "mode": "designed", "design_type": "full_factorial", "artifacts": {"00_input/analysis_context.json": "551ee3b08c170c04c21c2995962b2546efcf5502de913c9fc32867f99ea36f85", "01_profile/data_profile.json": "ae453d59705e52c8d6ce8e037521b5a08daac34199388ce9e0144729a073a779", "02_analysis/effect_table.json": "f3dc9a06e534ff094b3230cdfa4483c87f0e50a6e0042ceb5d79ab9bde35ca71", "02_analysis/model.json": "75747647bf9b8c9a1b80c9da3c4cff19bcc4e39f5ac5fe8ed3ac32b28cb00867", "03_figures/plot_manifest.json": "e511b8d042eb0291422dda4465910d90a078606fef8c2f452ae14731783b330a", "conclusions/doe_conclusion.json": "7bb5e6f6119f54e556e6de9b65a093c8688779228e5838e730124223320b0b3f", "conclusions/recommendations.json": "4e9c4cede7a77a8a3c45edbf92ef0eb248b885bb27c640fc9cd2b54c99ee296c", "01_ontology/ontology_brief.json": "23a4768409abc80830adff030abf9e227593322018aa807b6d936dcb324b1305", "conclusions/next_design.json": "653fbcf65a6dfb90f84a6e794c16a36e0eab3057453d489a86474444314743e9", "advisory/advisory_actions.json": "e938eb8bbd58eac84f8a7d36c26218a8c32e9467465c82ac1075361899a5fd11", "advisory/step_status.json": "0a93dd0e3e869f13b9f45368912d2cb563e290bea085d3b5bd3b05b545703a22"}, "raw_data_sha256": "fc5c8e810c4a0abb6923d3119e4c0b7d7c53bd3f38831a9bc7dd94380fbd5d94"}</script>
+<script id="report-payload" type="application/json">{"mode": "designed", "charts": {"resid:energy_kwh_per_kg": {"fitted": [0.619933, 0.6249, 0.7568, 0.773167, 0.619933, 0.773167, 0.7568, 0.6152, 0.6196, 0.6249, 0.6152, 0.760067, 0.618533, 0.619933, 0.760067, 0.760067, 0.628333, 0.773167, 0.7568, 0.618533, 0.6196, 0.628333, 0.618533, 0.6249, 0.6152, 0.6196, 0.628333], "resid": [0.000367, -0.0032, -0.0035, 0.002033, -0.004533, -6.7e-05, -0.0007, -0.0089, -0.0028, -0.0003, 0.0109, 0.006933, -0.001933, 0.004167, -0.004467, -0.002467, 0.001967, -0.001967, 0.0042, -0.005433, 0.0051, 0.001667, 0.007367, 0.0035, -0.002, -0.0023, -0.003633], "qq": [[-1.954088, -0.0089], [-1.542438, -0.005433], [-1.292878, -0.004533], [-1.105047, -0.004467], [-0.949777, -0.003633], [-0.814582, -0.0035], [-0.69286, -0.0032], [-0.580639, -0.0028], [-0.475305, -0.002467], [-0.375006, -0.0023], [-0.278352, -0.002], [-0.184237, -0.001967], [-0.091728, -0.001933], [0.0, -0.0007], [0.091728, -0.0003], [0.184237, -6.7e-05], [0.278352, 0.000367], [0.375006, 0.001667], [0.475305, 0.001967], [0.580639, 0.002033], [0.69286, 0.0035], [0.814582, 0.004167], [0.949777, 0.0042], [1.105047, 0.0051], [1.292878, 0.006933], [1.542438, 0.007367], [1.954088, 0.0109]], "hist": {"counts": [1, 8, 8, 6, 3, 1], "edges": [-0.0089, -0.0056, -0.0023, 0.001, 0.0043, 0.0076, 0.0109]}, "order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26], "rows": [{"row_index": 0, "y": 0.6203, "yhat": 0.619933, "resid": 0.000367}, {"row_index": 1, "y": 0.6217, "yhat": 0.6249, "resid": -0.0032}, {"row_index": 2, "y": 0.7533, "yhat": 0.7568, "resid": -0.0035}, {"row_index": 3, "y": 0.7752, "yhat": 0.773167, "resid": 0.002033}, {"row_index": 4, "y": 0.6154, "yhat": 0.619933, "resid": -0.004533}, {"row_index": 5, "y": 0.7731, "yhat": 0.773167, "resid": -6.7e-05}, {"row_index": 6, "y": 0.7561, "yhat": 0.7568, "resid": -0.0007}, {"row_index": 7, "y": 0.6063, "yhat": 0.6152, "resid": -0.0089}, {"row_index": 8, "y": 0.6168, "yhat": 0.6196, "resid": -0.0028}, {"row_index": 9, "y": 0.6246, "yhat": 0.6249, "resid": -0.0003}, {"row_index": 10, "y": 0.6261, "yhat": 0.6152, "resid": 0.0109}, {"row_index": 11, "y": 0.767, "yhat": 0.760067, "resid": 0.006933}, {"row_index": 12, "y": 0.6166, "yhat": 0.618533, "resid": -0.001933}, {"row_index": 13, "y": 0.6241, "yhat": 0.619933, "resid": 0.004167}, {"row_index": 14, "y": 0.7556, "yhat": 0.760067, "resid": -0.004467}, {"row_index": 15, "y": 0.7576, "yhat": 0.760067, "resid": -0.002467}, {"row_index": 16, "y": 0.6303, "yhat": 0.628333, "resid": 0.001967}, {"row_index": 17, "y": 0.7712, "yhat": 0.773167, "resid": -0.001967}, {"row_index": 18, "y": 0.761, "yhat": 0.7568, "resid": 0.0042}, {"row_index": 19, "y": 0.6131, "yhat": 0.618533, "resid": -0.005433}, {"row_index": 20, "y": 0.6247, "yhat": 0.6196, "resid": 0.0051}, {"row_index": 21, "y": 0.63, "yhat": 0.628333, "resid": 0.001667}, {"row_index": 22, "y": 0.6259, "yhat": 0.618533, "resid": 0.007367}, {"row_index": 23, "y": 0.6284, "yhat": 0.6249, "resid": 0.0035}, {"row_index": 24, "y": 0.6132, "yhat": 0.6152, "resid": -0.002}, {"row_index": 25, "y": 0.6173, "yhat": 0.6196, "resid": -0.0023}, {"row_index": 26, "y": 0.6247, "yhat": 0.628333, "resid": -0.003633}], "response": "energy_kwh_per_kg"}, "interact:energy_kwh_per_kg:barrel_temp_c:cooling_time_s": {"xt": [{"coded": null, "level": "186"}, {"coded": null, "level": "190"}, {"coded": null, "level": "194"}], "series": [{"name": "24", "values": [0.628334, 0.6249, 0.773167]}, {"name": "28", "values": [0.619934, 0.6196, 0.760068]}, {"name": "32", "values": [0.6152, 0.618533, 0.7568]}], "xlabel": "barrel_temp_c", "sname": "cooling_time_s", "ylabel": "energy_kwh_per_kg", "xnumeric": false}}}</script>
+<style>/* IDD Report Design System · v1 (2026-11-17)
+ * 单一视觉权威 = 诊断设计权威色板（warm paper / ink / warm orange）。
+ * 本文件同时服务四个渲染器：stability / advisory / DOE / diagnostic。
+ * 骨架 = 证据账簿 Ledger（左导轨 + 编号章节 + 三栏含页边批注）。
+ * 约定：所有类名以 rpt- 前缀，作用域 .rpt-scope；页面无 JS 依赖。
+ */
+
+/* ---------------- tokens ---------------- */
+.rpt-scope{
+  --paper:#fafaf8; --panel:#fffefb; --ink:#1e3a54; --ink-soft:#41586e; --muted:#726b5f;
+  --hair:#e3ded3; --hair-strong:#cfc8b8; --accent:#a8542c; --warm:#c2673a;
+  --good:#2d7d4f; --warn:#8a6d3b; --bad:#c4433b; --wash:#f3f1ea;
+  --serif:'Noto Serif SC','Source Han Serif SC','Songti SC',Georgia,serif;
+  --sans:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;
+  --mono:'SFMono-Regular',Consolas,'JetBrains Mono',monospace;
+  background:var(--paper); color:var(--ink);
+  font:15px/1.7 var(--sans); -webkit-font-smoothing:antialiased; text-wrap:pretty;
+}
+.rpt-scope *{box-sizing:border-box}
+.rpt-scope a{color:inherit}
+
+/* ---------------- shell ---------------- */
+.rpt-page{display:grid;grid-template-columns:196px minmax(0,1fr);max-width:1280px;
+  margin:0 auto;padding:0 32px 90px;gap:44px}
+.rpt-main{min-width:0;padding-top:38px}
+
+/* ---------------- rail ---------------- */
+.rpt-rail{position:sticky;top:0;align-self:start;height:100vh;padding:38px 0 28px;
+  display:flex;flex-direction:column;gap:26px}
+.rpt-brand{font-family:var(--serif);font-size:15px;letter-spacing:.34em;font-weight:600}
+.rpt-brand span{display:block;margin-top:4px;font-family:var(--sans);font-size:11px;
+  letter-spacing:.22em;color:var(--muted);font-weight:400}
+.rpt-nav{display:flex;flex-direction:column;gap:1px;border-top:1px solid var(--hair-strong)}
+.rpt-nav a{display:flex;gap:10px;align-items:baseline;text-decoration:none;padding:8px 2px;
+  border-bottom:1px solid var(--hair);font-size:12.5px;color:var(--ink-soft)}
+.rpt-nav a b{font-family:var(--mono);font-size:10.5px;color:var(--muted);font-weight:400;
+  letter-spacing:.04em}
+.rpt-nav a:hover{color:var(--accent)}
+.rpt-nav a.is-on{color:var(--ink);font-weight:600}
+.rpt-nav a.is-on b{color:var(--accent)}
+.rpt-rail-foot{margin-top:auto;font-size:11px;line-height:1.7;color:var(--muted);
+  border-top:1px solid var(--hair-strong);padding-top:12px}
+.rpt-rail-foot code{font-family:var(--mono);font-size:10px;color:var(--ink-soft);word-break:break-all}
+
+/* ---------------- masthead ---------------- */
+.rpt-kicker{font-size:11px;letter-spacing:.26em;color:var(--accent);margin:0 0 14px;
+  text-transform:uppercase;font-weight:600}
+.rpt-masthead h1{font-family:var(--serif);font-size:33px;line-height:1.34;font-weight:600;
+  margin:0 0 18px;letter-spacing:.01em;max-width:21em;text-wrap:balance}
+.rpt-meta{display:flex;flex-wrap:wrap;gap:6px 18px;color:var(--muted);font-size:12.5px;
+  padding-bottom:18px;border-bottom:1px solid var(--hair-strong)}
+.rpt-meta b{color:var(--ink-soft);font-weight:600}
+
+/* verdict + seal */
+.rpt-verdict{display:grid;grid-template-columns:minmax(0,1fr) 148px;gap:34px;
+  align-items:center;padding:26px 0 6px}
+.rpt-verdict blockquote{margin:0;font-family:var(--serif);font-size:18.5px;line-height:1.72;
+  color:var(--ink);max-width:36em}
+.rpt-verdict blockquote em{font-style:normal;border-bottom:2px solid rgba(194,103,58,.45);
+  padding-bottom:1px}
+.rpt-seal{width:132px;justify-self:end;border:2px solid var(--ink);padding:3px}
+.rpt-seal-in{border:1px solid var(--ink);padding:12px 8px 10px;text-align:center}
+.rpt-seal-num{font-family:var(--serif);font-size:42px;line-height:1;font-weight:600;letter-spacing:-.01em}
+.rpt-seal-grade{margin-top:7px;font-size:12px;letter-spacing:.18em;color:var(--ink-soft)}
+.rpt-seal-cap{margin-top:6px;font-size:10.5px;letter-spacing:.1em;color:var(--muted)}
+.rpt-seal.is-c{border-color:#9a6a45}
+.rpt-seal.is-c .rpt-seal-in{border-color:#9a6a45}
+.rpt-seal.is-c .rpt-seal-num,.rpt-seal.is-c .rpt-seal-grade{color:#8a5a34}
+.rpt-seal.is-a{border-color:#2d7d4f}
+.rpt-seal.is-a .rpt-seal-in{border-color:#2d7d4f}
+.rpt-seal.is-a .rpt-seal-num,.rpt-seal.is-a .rpt-seal-grade{color:#2d7d4f}
+
+/* ---------------- sections ---------------- */
+.rpt-scope section.rpt-sec{margin-top:52px;scroll-margin-top:20px}
+.rpt-sec-head{display:grid;grid-template-columns:56px minmax(0,1fr);gap:16px;align-items:baseline;
+  border-top:1px solid var(--ink);padding-top:12px;margin-bottom:22px}
+.rpt-sec-no{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--accent);
+  padding-top:5px}
+.rpt-sec-head h2{font-family:var(--serif);font-size:23px;font-weight:600;margin:0;
+  letter-spacing:.015em}
+.rpt-sec-sub{grid-column:2;color:var(--muted);font-size:12.5px;margin-top:2px}
+.rpt-body-grid{display:grid;grid-template-columns:56px minmax(0,1fr) 208px;gap:16px}
+.rpt-body-grid.no-margin{grid-template-columns:56px minmax(0,1fr)}
+.rpt-body-grid>.rpt-content{grid-column:2;min-width:0}
+.rpt-margin{grid-column:3;font-size:12px;line-height:1.72;color:var(--ink-soft);
+  border-left:1px dotted var(--hair-strong);padding-left:14px}
+.rpt-margin h4{margin:0 0 6px;font-size:11px;letter-spacing:.16em;color:var(--muted);
+  font-weight:600;text-transform:uppercase}
+.rpt-margin p{margin:0 0 10px}
+.rpt-margin .rpt-mn-kicker{font-family:var(--serif);color:var(--accent)}
+
+/* ---------------- generic blocks ---------------- */
+.rpt-panel{background:var(--panel);border:1px solid var(--hair);border-radius:6px;padding:16px 18px}
+.rpt-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:26px}
+.rpt-h3{font-size:12px;letter-spacing:.16em;color:var(--muted);font-weight:600;margin:0 0 10px;
+  text-transform:uppercase}
+.rpt-note{font-size:12px;color:var(--muted);line-height:1.65;margin:10px 0 0}
+.rpt-strong{font-weight:600}
+.rpt-mono{font-family:var(--mono);font-size:12px;font-variant-numeric:tabular-nums}
+.rpt-chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--hair);
+  border-radius:999px;padding:2px 10px;font-size:12px;background:var(--panel);color:var(--ink-soft)}
+.rpt-chip i{width:7px;height:7px;border-radius:50%;background:var(--ink);font-style:normal}
+
+/* goal + waterline (stability/advisory) */
+.rpt-target{border:1px solid var(--hair);background:var(--panel);padding:14px 16px}
+.rpt-target .rpt-t-metric{font-family:var(--serif);font-size:20px;margin-bottom:2px}
+.rpt-target .rpt-t-line{font-size:13px;color:var(--ink-soft)}
+.rpt-target .rpt-t-note{margin-top:10px;font-size:12px;color:var(--muted);line-height:1.65}
+.rpt-wl{border:1px solid var(--hair);background:var(--panel);padding:14px 16px}
+.rpt-wl-top{display:flex;align-items:baseline;gap:10px;margin-bottom:8px}
+.rpt-wl-grade{font-family:var(--serif);font-size:26px;line-height:1}
+.rpt-wl ul{list-style:none;margin:0;padding:0;font-size:12.5px}
+.rpt-wl li{display:flex;gap:8px;align-items:baseline;padding:3px 0;color:var(--ink-soft)}
+.rpt-wl li i{font-style:normal;width:14px;text-align:center;color:var(--good)}
+.rpt-wl li i.is-no{color:var(--warn)}
+.rpt-wl li span{margin-left:auto;font-size:11.5px;color:var(--muted)}
+
+/* findings ledger */
+.rpt-finding{display:grid;grid-template-columns:56px minmax(0,1fr) 208px;gap:16px;
+  padding:20px 0 22px;border-top:1px solid var(--hair)}
+.rpt-finding:first-child{border-top:none;padding-top:2px}
+.rpt-f-id{font-family:var(--mono);font-size:11px;color:var(--muted);padding-top:4px;letter-spacing:.04em}
+.rpt-f-main h3{margin:0 0 6px;font-size:16.5px;font-weight:600;font-family:var(--serif);line-height:1.5}
+.rpt-f-main p{margin:0 0 10px;color:var(--ink-soft);font-size:14px}
+.rpt-f-sev{font-size:10.5px;letter-spacing:.14em;color:#fff;background:var(--warm);
+  padding:1px 7px;margin-right:8px;vertical-align:2px;font-family:var(--sans)}
+.rpt-f-mech{grid-column:3;font-size:12px;color:var(--ink-soft);
+  border-left:1px dotted var(--hair-strong);padding-left:14px;align-self:start;margin:0}
+.rpt-f-mech b{display:block;font-size:11px;letter-spacing:.14em;color:var(--muted);margin-bottom:5px;
+  font-weight:600}
+.rpt-ev{border-collapse:collapse;width:100%;font-size:12.5px}
+.rpt-ev th,.rpt-ev td{text-align:left;padding:4px 10px 4px 0;border-bottom:1px solid var(--hair)}
+.rpt-ev th{font-weight:600;color:var(--muted);font-size:11px;letter-spacing:.06em;
+  white-space:nowrap}
+.rpt-ev td.rpt-num{font-family:var(--mono);font-size:12px}
+.rpt-ev tr:last-child td{border-bottom:none}
+
+/* tables */
+.rpt-table-wrap{border:1px solid var(--hair);background:var(--panel);overflow:auto}
+table.rpt-table{border-collapse:collapse;width:100%;font-size:13px}
+.rpt-table th{font-size:11px;letter-spacing:.08em;color:var(--muted);font-weight:600;
+  text-align:left;padding:10px 12px;border-bottom:1px solid var(--hair-strong);white-space:nowrap}
+.rpt-table td{padding:9px 12px;border-bottom:1px solid var(--hair);vertical-align:middle}
+.rpt-table tr:last-child td{border-bottom:none}
+.rpt-table td.rpt-n{font-family:var(--mono);font-size:12px;font-variant-numeric:tabular-nums}
+.rpt-table .rpt-pname{font-weight:600}
+.rpt-role{font-size:10.5px;color:var(--muted);border:1px solid var(--hair);padding:0 5px;
+  margin-left:7px;white-space:nowrap}
+.rpt-score{display:flex;align-items:center;gap:9px;min-width:120px}
+.rpt-score .rpt-track{height:3px;background:var(--hair);flex:1;position:relative}
+.rpt-score .rpt-track i{position:absolute;inset:0 auto 0 0;background:var(--ink)}
+.rpt-score .rpt-val{font-family:var(--mono);font-size:12px;min-width:22px;text-align:right}
+.rpt-score.is-low .rpt-track i{background:var(--warm)}
+.rpt-dflag{color:var(--bad);font-size:10.5px;border:1px solid var(--hair);padding:0 4px;margin-left:5px}
+
+/* figures */
+.rpt-figure{border:1px solid var(--hair);background:var(--panel);padding:14px 16px 8px;margin:0}
+.rpt-fig-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;font-size:12px;
+  color:var(--muted);margin-bottom:6px;flex-wrap:wrap}
+.rpt-fig-head b{color:var(--ink-soft);font-size:13px;font-weight:600}
+.rpt-fig-head span{font-family:var(--mono);font-size:11px}
+.rpt-chart{width:100%;height:auto;display:block}
+.rpt-legend{display:flex;gap:16px;font-size:11px;color:var(--muted);margin-top:2px;padding-bottom:6px;
+  flex-wrap:wrap}
+.rpt-legend i{display:inline-block;width:16px;height:0;border-top:1px solid var(--ink);margin-right:5px;
+  vertical-align:3px}
+.rpt-legend i.is-dash{border-top-style:dashed;border-top-color:var(--muted)}
+
+/* ---------------- advisory ---------------- */
+.rpt-entry{display:grid;grid-template-columns:64px minmax(0,1fr);gap:18px;padding:22px 0;
+  border-top:1px solid var(--hair)}
+.rpt-entry:first-of-type{border-top:1px solid var(--hair-strong)}
+.rpt-grade{width:42px;height:42px;border:2px solid var(--g);color:var(--g);display:flex;
+  align-items:center;justify-content:center;font-family:var(--serif);font-size:20px;font-weight:600}
+.rpt-grade small{font-size:9px;font-family:var(--sans);letter-spacing:.06em;margin-left:2px}
+.rpt-g-a{--g:#2d7d4f}.rpt-g-b{--g:#8a6d3b}.rpt-g-c{--g:#7a6a52}
+.rpt-grade-cap{font-size:10.5px;color:var(--muted);margin-top:5px;letter-spacing:.04em}
+.rpt-entry-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:2px}
+.rpt-lever{font-family:var(--serif);font-size:19px;font-weight:600}
+.rpt-lever code{font-family:var(--mono);font-size:11px;color:var(--muted);font-weight:400;margin-left:6px}
+.rpt-arrow{color:var(--muted);font-size:12px}
+.rpt-entry-gain{display:flex;align-items:baseline;gap:22px;flex-wrap:wrap;margin:10px 0 12px}
+.rpt-gain-num{font-family:var(--serif);font-size:29px;line-height:1.1}
+.rpt-gain-num small{font-size:12px;color:var(--muted);margin-left:5px;font-family:var(--sans)}
+.rpt-gain-ci{font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+.rpt-entry dl{display:grid;grid-template-columns:88px minmax(0,1fr);gap:5px 16px;margin:0;
+  font-size:13px;color:var(--ink-soft)}
+.rpt-entry dt{font-size:11.5px;color:var(--muted);letter-spacing:.04em;padding-top:1px}
+.rpt-entry dd{margin:0}
+.rpt-presc{margin-top:26px;border-top:1px solid var(--hair-strong);padding-top:16px}
+.rpt-presc h3{font-size:12px;letter-spacing:.16em;color:var(--warm);font-weight:600;margin:0 0 10px;
+  text-transform:uppercase}
+.rpt-presc ol{margin:0;padding-left:0;list-style:none;counter-reset:pc}
+.rpt-presc li{counter-increment:pc;display:grid;grid-template-columns:26px 92px minmax(0,1fr);
+  gap:10px;padding:7px 0;border-bottom:1px solid var(--hair);font-size:12.5px;color:var(--ink-soft)}
+.rpt-presc li::before{content:counter(pc,decimal-leading-zero);font-family:var(--mono);
+  font-size:10.5px;color:var(--muted);padding-top:2px}
+.rpt-presc .rpt-kind{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;color:var(--warm);
+  padding-top:2px}
+.rpt-presc .rpt-addr{color:var(--muted);font-size:11px;display:block;margin-top:2px}
+.rpt-empty{color:var(--muted);font-size:13px;padding:10px 0}
+
+/* roadmap (advisory) */
+.rpt-roadmap{border:1px solid var(--hair);background:var(--panel)}
+.rpt-roadmap table{border-collapse:collapse;width:100%;font-size:13px}
+.rpt-roadmap th{font-size:11px;letter-spacing:.08em;color:var(--muted);text-align:left;
+  padding:10px 12px;border-bottom:1px solid var(--hair-strong)}
+.rpt-roadmap td{padding:9px 12px;border-bottom:1px solid var(--hair);vertical-align:middle}
+.rpt-roadmap tr:last-child td{border-bottom:none}
+.rpt-bar{height:5px;background:var(--hair);position:relative;min-width:70px;flex:1}
+.rpt-bar span{position:absolute;inset:0 auto 0 0;background:var(--ink)}
+
+/* ---------------- DOE ---------------- */
+.rpt-factors td.rpt-fname{font-weight:600}
+.rpt-factors td.rpt-low,.rpt-factors td.rpt-high{font-family:var(--mono);font-size:12px}
+.rpt-stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));
+  border:1px solid var(--hair);background:var(--panel)}
+.rpt-stat{padding:12px 14px;border-right:1px solid var(--hair)}
+.rpt-stat:last-child{border-right:none}
+.rpt-stat .rpt-s-cap{font-size:10.5px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
+.rpt-stat .rpt-s-val{font-family:var(--mono);font-size:22px;margin-top:2px}
+.rpt-stat .rpt-s-sub{font-size:11px;color:var(--muted)}
+.rpt-effect{display:grid;grid-template-columns:150px 88px minmax(0,1fr) 96px;gap:12px;
+  align-items:center;padding:9px 0;border-bottom:1px solid var(--hair);font-size:12.5px}
+.rpt-effect:last-child{border-bottom:none}
+.rpt-effect .rpt-e-term{font-family:var(--mono);font-size:12px;color:var(--ink)}
+.rpt-effect .rpt-e-coef{font-family:var(--mono);font-size:12px;text-align:right}
+.rpt-effect .rpt-e-track{height:6px;background:var(--hair);position:relative}
+.rpt-effect .rpt-e-track span{position:absolute;top:0;bottom:0;background:var(--ink)}
+.rpt-effect .rpt-e-track span.is-neg{background:var(--warm);right:0;left:auto}
+.rpt-effect .rpt-e-q{font-family:var(--mono);font-size:11px;color:var(--muted);text-align:right}
+.rpt-effect.is-head{border-bottom:1px solid var(--hair-strong);font-size:10.5px;letter-spacing:.08em;
+  color:var(--muted);text-transform:uppercase}
+.rpt-layer{list-style:none;margin:0;padding:0;font-size:13px;color:var(--ink-soft)}
+.rpt-layer li{padding:7px 0;border-bottom:1px solid var(--hair);display:grid;
+  grid-template-columns:64px minmax(0,1fr);gap:12px}
+.rpt-layer li:last-child{border-bottom:none}
+.rpt-layer b{font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:.06em}
+
+/* ---------------- appendix / foot ---------------- */
+.rpt-appendix{border-top:3px double var(--hair-strong);margin-top:56px;padding-top:16px}
+.rpt-appendix h2{font-size:12px;letter-spacing:.18em;color:var(--muted);font-weight:600;margin:0 0 12px}
+.rpt-kv{display:grid;grid-template-columns:130px minmax(0,1fr);gap:4px 18px;font-size:12.5px;
+  color:var(--ink-soft)}
+.rpt-kv dt{color:var(--muted)}
+.rpt-kv dd{margin:0}
+.rpt-kv code{font-family:var(--mono);font-size:11px;word-break:break-all}
+.rpt-foot{margin-top:34px;padding-top:14px;border-top:1px solid var(--hair);font-size:11.5px;
+  color:var(--muted);display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.rpt-foot b{color:var(--ink-soft)}
+
+/* ---------------- responsive ---------------- */
+@media (max-width:1120px){
+  .rpt-page{grid-template-columns:1fr;padding:0 24px 70px}
+  .rpt-rail{position:static;height:auto;padding:26px 0 0;flex-direction:row;align-items:baseline;
+    gap:18px;flex-wrap:wrap}
+  .rpt-nav{flex-direction:row;flex-wrap:wrap;border-top:none;gap:4px 14px}
+  .rpt-nav a{border-bottom:none;padding:2px 0}
+  .rpt-rail-foot{display:none}
+  .rpt-body-grid,.rpt-finding{grid-template-columns:44px minmax(0,1fr)}
+  .rpt-margin,.rpt-f-mech{grid-column:2;margin-top:10px}
+  .rpt-grid-2{grid-template-columns:1fr}
+}
+@media print{
+  .rpt-scope{background:#fff;font-size:11pt}
+  .rpt-rail{display:none}
+  .rpt-page{display:block;max-width:none;padding:0}
+  .rpt-verdict,.rpt-finding,.rpt-entry,.rpt-figure,.rpt-panel{break-inside:avoid}
+  .rpt-scope a{text-decoration:none}
+}
+
+/* DOE report component layer — legacy section classes mapped onto the shared
+ * evidence-ledger system (`report.css`). Tokens come from report.css; this file
+ * only re-skins the DOE-specific components (hero card, charts, badges, tabs).
+ * No new colors: everything resolves to the design-authority palette.
+ */
+.rpt-scope{
+  --bg:var(--paper); --bg-alt:#f4f1e7; --bg-card:var(--panel);
+  --hairline:var(--hair); --rule:var(--hair-strong);
+  --t1:var(--ink); --t2:var(--ink-soft); --t3:var(--muted);
+  --green:#2d7d4f; --red:#c4433b; --gold:#8a6d3b;
+}
+.rpt-scope .rpt-body-grid.no-margin{grid-template-columns:56px minmax(0,1fr)}
+.rpt-scope *{box-sizing:border-box}
+.rpt-scope code,.rpt-scope .mono{font-family:var(--mono);font-size:.78rem}
+.rpt-scope .num{font-family:var(--mono);text-align:right}
+.rpt-scope .sha{word-break:break-all;font-size:.68rem;color:var(--t3)}
+.rpt-scope .body-l{font-size:1.02rem;max-width:860px}
+.rpt-scope .body-note,.rpt-scope .t3{color:var(--t3);font-size:.82rem}
+.rpt-scope .t2{color:var(--t2)}
+.rpt-scope .twocol{display:flex;gap:40px;flex-wrap:wrap}
+.rpt-scope .twocol>div{flex:1 1 340px;min-width:0}
+.rpt-scope h3.block-title{font-family:var(--serif);font-size:1.05rem;font-weight:600;
+  margin:26px 0 10px;border-bottom:1px solid var(--hairline);padding-bottom:6px}
+
+/* hero card (10 秒结论) */
+.rpt-scope .hero-card{background:var(--bg-card);border:1px solid var(--hair);
+  border-top:3px solid var(--ink);padding:20px 22px}
+.rpt-scope .hero-badges{display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  border-bottom:1px solid var(--hair);padding-bottom:12px}
+.rpt-scope .grade-badge{font-family:var(--serif);font-size:1.9rem;font-weight:600;
+  line-height:1;padding:8px 14px;border:2px solid currentColor}
+.rpt-scope .g-green{color:var(--green)}
+.rpt-scope .g-gold{color:var(--gold)}
+.rpt-scope .g-warm{color:var(--warm)}
+.rpt-scope .mode-badge{font-size:.82rem;color:var(--ink);border:1px solid var(--hair);
+  padding:3px 10px}
+.rpt-scope .hero-meta{color:var(--t3)}
+.rpt-scope .hero-grid{display:flex;gap:30px;flex-wrap:wrap;margin-top:14px}
+.rpt-scope .hero-main{flex:1 1 420px;min-width:0}
+.rpt-scope .hero-sub{font-size:.8rem;color:var(--t3);font-weight:400;
+  letter-spacing:.06em;margin:0 0 8px}
+.rpt-scope .hero-findings{list-style:none;margin:0;padding:0}
+.rpt-scope .hero-findings li{padding:8px 0;border-bottom:1px solid var(--hairline)}
+.rpt-scope .kf-id{font-family:var(--mono);font-size:.72rem;color:var(--ink);margin-right:8px}
+.rpt-scope .kf-q{color:var(--t3);margin-left:8px}
+.rpt-scope .hero-side{display:flex;flex-direction:column;gap:8px;min-width:130px}
+.rpt-scope .hero-num{display:flex;align-items:baseline;gap:10px}
+.rpt-scope .hero-num b{font-family:var(--serif);font-size:1.6rem;color:var(--ink)}
+.rpt-scope .hero-num span{color:var(--t3);font-size:.8rem}
+.rpt-scope .hero-limit{margin-top:16px;padding:10px 14px;background:#fdf7f1;
+  border-left:3px solid var(--warm);font-size:.86rem}
+
+/* charts */
+.rpt-scope .chart{background:var(--bg-card);border:1px solid var(--hair);
+  padding:14px 16px 10px;margin:16px 0}
+.rpt-scope .chart-head{display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  border-bottom:1px solid var(--hairline);padding-bottom:8px;margin-bottom:10px}
+.rpt-scope .chart-title{font-family:var(--mono);font-size:.78rem;color:var(--ink)}
+.rpt-scope .chart-note{font-size:.74rem;color:var(--t3)}
+.rpt-scope .chart-body svg{max-width:100%;height:auto;display:block}
+.rpt-scope .chart-reading{display:grid;grid-template-columns:90px 1fr;gap:3px 12px;
+  margin-top:10px;padding-top:9px;border-top:1px dashed var(--hairline);font-size:.8rem}
+.rpt-scope .cr-label{font-family:var(--mono);font-size:.7rem;color:var(--ink);
+  letter-spacing:.06em}
+
+/* tables */
+.rpt-scope .stat-table{width:100%;border-collapse:collapse;font-size:.8rem}
+.rpt-scope .stat-table thead th{text-align:left;text-transform:uppercase;
+  letter-spacing:.08em;color:var(--t3);font-size:.66rem;font-weight:600;
+  border-bottom:1px solid var(--rule);padding:6px 8px;white-space:nowrap}
+.rpt-scope .stat-table tbody td{border-bottom:1px solid var(--hairline);padding:5px 8px}
+.rpt-scope .stat-table .hi{color:var(--ink);font-weight:600}
+.rpt-scope .stat-table .lo{color:var(--t3)}
+.rpt-scope .table-wrap{overflow-x:auto}
+
+/* badges / chips */
+.rpt-scope .sev-badge{display:inline-block;padding:0 8px;font-size:.7rem;font-weight:600;
+  font-family:var(--mono);border:1px solid currentColor}
+.rpt-scope .sev-ok{color:var(--green)}
+.rpt-scope .sev-warn{color:var(--warm)}
+.rpt-scope .sev-crit{color:var(--red)}
+.rpt-scope .sev-info{color:var(--t2)}
+.rpt-scope .sev-na{color:var(--t3)}
+.rpt-scope .role-chip{display:inline-block;padding:0 7px;font-size:.68rem;
+  font-family:var(--mono);border:1px solid var(--hairline)}
+.rpt-scope .r-response{color:var(--ink);border-color:var(--ink)}
+.rpt-scope .r-factor{color:var(--green);border-color:var(--green)}
+.rpt-scope .r-block,.rpt-scope .r-covariate{color:var(--gold);border-color:var(--gold)}
+.rpt-scope .r-index,.rpt-scope .r-ignore{color:var(--t3)}
+
+/* lists */
+.rpt-scope .caveat-list{margin:8px 0;padding-left:20px}
+.rpt-scope .caveat-list li{margin:5px 0}
+.rpt-scope .mono-list{list-style:none;padding-left:0}
+.rpt-scope .mono-list li{font-size:.72rem;margin:3px 0}
+.rpt-scope .kf-list{list-style:none;padding:0}
+.rpt-scope .kf-list li{padding:9px 0;border-bottom:1px solid var(--hairline)}
+.rpt-scope .ev-ref{background:var(--bg-alt);padding:1px 7px;margin-left:8px;color:var(--gold);
+  text-decoration:none;display:inline-block;max-width:100%;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap;vertical-align:bottom;font-family:var(--mono);
+  font-size:.72rem}
+.rpt-scope .check-card{background:var(--bg-card);border:1px solid var(--hairline);
+  border-left:3px solid var(--ink);padding:11px 14px;margin:10px 0}
+.rpt-scope .check-warn{border-left-color:var(--warm)}
+.rpt-scope .check-info{border-left-color:var(--gold)}
+.rpt-scope .check-card p{margin:6px 0}
+.rpt-scope .gate-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+  gap:10px}
+.rpt-scope .gate-cell{display:flex;align-items:center;gap:10px;padding:7px 11px;
+  border:1px solid var(--hairline);font-size:.8rem}
+.rpt-scope .kpi-row{display:flex;gap:12px;flex-wrap:wrap;margin:12px 0}
+.rpt-scope .kpi{flex:1 1 150px;background:var(--bg-card);border:1px solid var(--hairline);
+  padding:9px 13px;display:flex;flex-direction:column}
+.rpt-scope .kpi-wide{flex:2 1 320px}
+.rpt-scope .kpi-label{font-family:var(--mono);font-size:.66rem;color:var(--t3);
+  letter-spacing:.08em;text-transform:uppercase}
+.rpt-scope .kpi-value{font-size:1.2rem;color:var(--ink);margin-top:2px;
+  font-family:var(--mono)}
+.rpt-scope .kpi-note{font-size:.72rem;color:var(--t2)}
+.rpt-scope .tab-bar{display:flex;gap:8px;align-items:center;margin:10px 0;flex-wrap:wrap}
+.rpt-scope .tab-btn{border:1px solid var(--rule);background:var(--bg-card);color:var(--t2);
+  padding:2px 12px;font-size:.78rem;cursor:pointer}
+.rpt-scope .tab-btn.active{background:var(--ink);border-color:var(--ink);color:#fff}
+.rpt-scope .resp-block{display:none}
+.rpt-scope .resp-block.resp-active{display:block}
+.rpt-scope .sig-only .anova-table tbody tr[data-sig="0"]{display:none}
+.rpt-scope .hide-ci .ci-el{display:none}
+.rpt-scope .toggle{font-size:.76rem;color:var(--t2);display:inline-flex;
+  align-items:center;gap:5px;cursor:pointer}
+.rpt-scope .read-layers li,.rpt-scope .chap-map li{margin:7px 0}
+.rpt-scope .chap-map{list-style:none;padding:0}
+.rpt-scope .chap-map a{color:var(--ink);text-decoration:none;
+  border-bottom:1px dotted var(--rule)}
+.rpt-scope .alias-probe summary{cursor:pointer;color:var(--ink);font-size:.84rem}
+.rpt-scope .alias-list{columns:2;font-size:.74rem}
+.rpt-scope #tooltip{position:fixed;display:none;pointer-events:none;z-index:50;
+  background:#22303f;color:#f5f2ec;font-family:var(--mono);font-size:.7rem;
+  line-height:1.5;padding:8px 11px;white-space:pre;max-width:420px}
+.rpt-scope footer.run-foot{max-width:none;margin:0;padding:16px 0 0;color:var(--t3);
+  font-size:.74rem;border-top:1px solid var(--hairline)}
+@media (max-width:900px){
+  .rpt-scope .rpt-body-grid{grid-template-columns:44px minmax(0,1fr)}
+  .rpt-scope .rpt-margin{grid-column:2;margin-top:10px}
+  .rpt-scope .rpt-page{padding:0 20px 60px}
+}
+@media print{
+  .rpt-scope .toggle,.rpt-scope .tab-bar{display:none!important}
+  .rpt-scope .resp-block{display:block!important}
+  .rpt-scope .chart,.rpt-scope .check-card,.rpt-scope .hero-card{break-inside:avoid}
+}
+</style>
+</head>
+<body class="rpt-scope">
+<div class="rpt-page">
+<aside class="rpt-rail">
+  <div class="rpt-brand">IDD<span>试验分析</span></div>
+  <nav class="rpt-nav"><a href="#sec-hero"><b>★</b>10 秒结论</a><a href="#sec-0"><b>§0</b>导读</a><a href="#sec-1"><b>§1</b>数据概貌</a><a href="#sec-2"><b>§2</b>模式判定依据</a><a href="#sec-3"><b>§3</b>分析流程总览</a><a href="#sec-4"><b>§4</b>效应与 ANOVA</a><a href="#sec-5"><b>§5</b>模型与残差诊断</a><a href="#sec-6"><b>§6</b>响应面与驻点</a><a href="#sec-8"><b>§8</b>操作窗口</a><a href="#sec-9"><b>§9</b>结论与等级</a><a href="#sec-10"><b>§10</b>局限与确认实验</a><a href="#sec-11"><b>§11</b>本体依据与下一轮设计</a><a href="#sec-advisory"><b>§12</b>改善建议与验证计划</a><a href="#sec-appendix"><b>附录</b>工件索引</a></nav>
+  <div class="rpt-rail-foot">mode: designed<br>design: full_factorial<br>script v1.1.0</div>
+</aside>
+<main class="rpt-main">
+<header class="rpt-masthead"><p class="rpt-kicker">Industrial Deep Diagnostic · DOE Analysis</p><h1>DOE 试验分析报告 · 全因子设计</h1><div class="rpt-meta"><span>设计 <b>全因子设计</b></span><span>模式 <b>designed</b></span><span>试验点 <b>27</b></span><span>响应 <b>1</b></span><span>生成 <b>2026-11-19 06:18</b></span></div><div class="rpt-verdict"><blockquote>—</blockquote><div class="rpt-seal is-a"><div class="rpt-seal-in"><div class="rpt-seal-num">A</div><div class="rpt-seal-grade">证据等级</div><div class="rpt-seal-cap">全因子设计</div></div></div></div></header>
+<section class="rpt-sec" id="sec-hero"><div class="rpt-sec-head"><span class="rpt-sec-no">★</span><h2>10 秒结论</h2></div><div class="rpt-body-grid"><div class="rpt-content">
+<div class="hero-card">
+  <div class="hero-badges">
+    <span class="grade-badge g-green" title="证据等级（checklist 计算）">A</span>
+    <span class="mode-badge">designed · 全因子设计</span>
+    <span class="mono hero-meta">script v1.1.0 · 2026-11-19T06:18:40</span>
+  </div>
+  <div class="hero-grid">
+    <div class="hero-main">
+      <h3 class="hero-sub">前三条关键发现（脚本产出，agent 仅解读）</h3>
+      <ul class="hero-findings"><li>— 无关键发现（见 §10 局限）</li></ul>
+    </div>
+    <div class="hero-side">
+      <div class="hero-num"><b>0</b><span>操作窗口</span></div>
+      <div class="hero-num"><b>1</b><span>需确认试验</span></div>
+      <div class="hero-num"><b>0</b><span>观察清单条目</span></div>
+    </div>
+  </div>
+  <div class="hero-limit"><span class="cr-label">最重要限制</span>响应 energy_kwh_per_kg 的最大 Cook&#x27;s D=0.3416 超过 4/n 截断 — 个别试验点对系数影响过大，删除该点可能改变结论</div>
+</div></div><aside class="rpt-margin"><h4>怎么用这一页</h4><p>等级是上限，不是结论：先看等级与三条发现，再顺着左侧章节读证据。每张图都带三行读图。</p></aside></div></section><section class="sec" id="sec-0"><h2><span class="sec-num">§0</span>导读</h2>
+<div class="twocol">
+<div>
+<h3 class="block-title">三层读法</h3>
+<ol class="read-layers">
+<li><b>10 秒</b> — 只看上方 10 秒结论卡：等级徽标、前三条发现、窗口/确认数与最重要限制。</li>
+<li><b>1 分钟</b> — 顺着左侧导航读 §2（这个结论凭什么在 designed/observational 档）→ §9（等级四门）→ §10（必须做什么才能闭环）。</li>
+<li><b>深读</b> — 在证据章节（§4–§7 按模式裁剪）逐图核对：每张图都带三行读图，悬停可查看每个点/格/带的完整统计明细。</li>
+</ol>
+<p class="body-note">本页由脚本确定性渲染 9 个工件 JSON，页面内不做任何统计计算；数字如与工件不符即视为被篡改（附录含每个工件的 sha256）。</p>
+</div>
+<div>
+<h3 class="block-title">章节地图（本报告模式：designed）</h3>
+<ul class="chap-map"><li><a href="#sec-hero">10 秒结论</a></li><li><a href="#sec-0">导读</a></li><li><a href="#sec-1">数据概貌</a></li><li><a href="#sec-2">模式判定依据</a></li><li><a href="#sec-3">分析流程总览</a></li><li><a href="#sec-4">效应与 ANOVA</a></li><li><a href="#sec-5">模型与残差诊断</a></li><li><a href="#sec-6">响应面与驻点</a></li><li><a href="#sec-8">操作窗口</a></li><li><a href="#sec-9">结论与等级</a></li><li><a href="#sec-10">局限与确认实验</a></li><li><a href="#sec-appendix">附录：工件索引</a></li><li><a href="#sec-advisory">改善建议与验证计划</a></li></ul>
+<p class="body-note">章节编号为全局编号，按模式裁剪：observational 模式不产生设计实验章节 §4–§6，designed 模式不产生观测章节 §6b–§7 — 因此各自存在一次跳号，属预期。</p>
+</div>
+</div></section><section class="rpt-sec" id="sec-1"><div class="rpt-sec-head"><span class="rpt-sec-no">§1</span><h2>数据概貌</h2></div><div class="rpt-body-grid no-margin"><div class="rpt-content">
+<p class="body-l">数据文件 <code class="mono">D:\codes\myskills\idd-doe-impl\workspace\skill-pipeline-demo-20261119\07-doe-designed\00_input\run_table.csv</code>：
+<b>27</b> 行 × <b>5</b> 列
+（重复行 0，高缺失列 无）。</p>
+<figure class="chart"><figcaption class="chart-head"><span class="chart-title">列角色面板</span></figcaption>
+<table class="stat-table"><thead><tr><th>列名</th><th>角色</th><th>类型</th><th>缺失</th><th>唯一值</th></tr></thead>
+<tbody><tr><td class="mono">run_seq</td><td><span class="role-chip r-ignore">ignore</span></td><td class="mono">int64</td><td class="num">0</td><td class="num">27</td></tr><tr><td class="mono">barrel_temp_c</td><td><span class="role-chip r-factor">factor</span></td><td class="mono">int64</td><td class="num">0</td><td class="num">3</td></tr><tr><td class="mono">cooling_time_s</td><td><span class="role-chip r-factor">factor</span></td><td class="mono">int64</td><td class="num">0</td><td class="num">3</td></tr><tr><td class="mono">replicate</td><td><span class="role-chip r-ignore">ignore</span></td><td class="mono">int64</td><td class="num">0</td><td class="num">3</td></tr><tr><td class="mono">energy_kwh_per_kg</td><td><span class="role-chip r-response">response</span></td><td class="mono">float64</td><td class="num">0</td><td class="num">26</td></tr></tbody></table>
+<div class="chart-reading"><span class="cr-label">看到了什么</span><span>每列按 profile 赋予的角色着色：响应（蓝）/因子（绿）/区组·协变量（金）/索引（灰）。</span><span class="cr-label">意味着什么</span><span>角色由 user context 或自动推断赋予，决定它进入模型的位置。</span><span class="cr-label">为何重要</span><span>看错角色（例如把运行序当成因子）是工况分析最常见的翻车点。</span></div></figure>
+<h3 class="block-title">质量警示（caveats）</h3>
+<ul class="caveat-list"><li class="t3">无（本轮未检出结构性质量警示）</li></ul></div></div></section><section class="rpt-sec" id="sec-2"><div class="rpt-sec-head"><span class="rpt-sec-no">§2</span><h2>模式判定依据</h2></div><div class="rpt-body-grid no-margin"><div class="rpt-content"><p class="body-l">判定信号摘要：检测到试验设计签名 → 判定 <b>designed</b>（效应可作因果级解读，受别名约束）。</p><table class="stat-table"><tbody><tr><th>design_type</th><td class="mono">全因子设计</td></tr><tr><th>runs × 因子列 × 不同组合</th><td class="mono">27 × 2 × 9</td></tr><tr><th>resolution / 生成子</th><td class="mono">—</td></tr><tr><th>中心点 / 轴点 / α</th><td class="mono">— / — / —</td></tr><tr><th>balanced / balance_ratio</th><td class="mono">1 / 1</td></tr><tr><th>replicates / 最大|因子相关|</th><td class="mono">3 / —</td></tr></tbody></table><h3 class="block-title">判定过程记录（detection_notes）</h3><ul class="mono-list"><li class="mono t2">all 9 level combos present and balanced</li></ul><p class="t3">无别名链记录（全因子 / RSM / 观察档）</p></div></div></section><section class="rpt-sec" id="sec-3"><div class="rpt-sec-head"><span class="rpt-sec-no">§3</span><h2>分析流程总览</h2></div><div class="rpt-body-grid no-margin"><div class="rpt-content"><figure class="chart"><figcaption class="chart-head"><span class="chart-title">Phase 0 → 报告 流程带</span></figcaption><svg viewBox="0 0 1180 128" width="100%" role="img" aria-label="分析流程带"><rect x="0" y="16" width="173" height="92" rx="8" fill="#ffffff" stroke="#1e3a54" stroke-width="1.4"/><text x="87" y="46" text-anchor="middle" font-size="16" font-weight="700" fill="#1e3a54">Phase 0/1</text><text x="87" y="68" text-anchor="middle" font-size="13.5" fill="#1a1a1a">清单 + 探查 + 设计检测</text><text x="87" y="88" text-anchor="middle" font-size="12" fill="#555">run_manifest · data_profile</text><line x1="176" y1="62" x2="197" y2="62" stroke="#1a1a1a" stroke-width="1.4"/><polygon points="197,57 197,67 203,62" fill="#1a1a1a"/><rect x="201" y="16" width="173" height="92" rx="8" fill="#ffffff" stroke="#8a6d3b" stroke-width="1.4"/><text x="288" y="46" text-anchor="middle" font-size="16" font-weight="700" fill="#8a6d3b">分派</text><text x="288" y="68" text-anchor="middle" font-size="13.5" fill="#1a1a1a">designed / observational</text><text x="288" y="88" text-anchor="middle" font-size="12" fill="#555">模式决定方法链</text><line x1="378" y1="62" x2="399" y2="62" stroke="#1a1a1a" stroke-width="1.4"/><polygon points="399,57 399,67 405,62" fill="#1a1a1a"/><rect x="403" y="16" width="173" height="92" rx="8" fill="#ffffff" stroke="#1e3a54" stroke-width="1.4"/><text x="489" y="46" text-anchor="middle" font-size="16" font-weight="700" fill="#1e3a54">Phase 2</text><text x="489" y="68" text-anchor="middle" font-size="13.5" fill="#1a1a1a">确定性统计（numpy/scipy）</text><text x="489" y="88" text-anchor="middle" font-size="12" fill="#555">effect_table · model · correlation · stability</text><line x1="579" y1="62" x2="600" y2="62" stroke="#1a1a1a" stroke-width="1.4"/><polygon points="600,57 600,67 606,62" fill="#1a1a1a"/><rect x="604" y="16" width="173" height="92" rx="8" fill="#ffffff" stroke="#8a6d3b" stroke-width="1.4"/><text x="691" y="46" text-anchor="middle" font-size="16" font-weight="700" fill="#8a6d3b">Phase 3</text><text x="691" y="68" text-anchor="middle" font-size="13.5" fill="#1a1a1a">agent 仅解读，不改数</text><text x="691" y="88" text-anchor="middle" font-size="12" fill="#555">key_findings 措辞</text><line x1="780" y1="62" x2="801" y2="62" stroke="#1a1a1a" stroke-width="1.4"/><polygon points="801,57 801,67 807,62" fill="#1a1a1a"/><rect x="805" y="16" width="173" height="92" rx="8" fill="#ffffff" stroke="#2d7d4f" stroke-width="1.4"/><text x="892" y="46" text-anchor="middle" font-size="16" font-weight="700" fill="#2d7d4f">G1–G11</text><text x="892" y="68" text-anchor="middle" font-size="13.5" fill="#1a1a1a">质量门（Node 独立复核）</text><text x="892" y="88" text-anchor="middle" font-size="12" fill="#555">gate PASS 才允许交付</text><line x1="982" y1="62" x2="1003" y2="62" stroke="#1a1a1a" stroke-width="1.4"/><polygon points="1003,57 1003,67 1009,62" fill="#1a1a1a"/><rect x="1007" y="16" width="173" height="92" rx="8" fill="#ffffff" stroke="#1e3a54" stroke-width="1.4"/><text x="1093" y="46" text-anchor="middle" font-size="16" font-weight="700" fill="#1e3a54">报告</text><text x="1093" y="68" text-anchor="middle" font-size="13.5" fill="#1a1a1a">本页 report.html</text><text x="1093" y="88" text-anchor="middle" font-size="12" fill="#555">9 工件确定性渲染</text></svg><div class="chart-reading"><span class="cr-label">看到了什么</span><span>六段流程：profile 探查 → 模式分派 → 确定性统计 → agent 解读 → G1–G11 质量门 → 本页渲染。</span><span class="cr-label">意味着什么</span><span>脚本算数（numpy/scipy 固定口径），agent 只改措辞；质量门用独立 Node 进程复核工件。</span><span class="cr-label">为何重要</span><span>数字的产出与审计分离 — 页面上任何统计量都能在附录工件里找到原值与 sha256。</span></div></figure></div></div></section><section class="rpt-sec" id="sec-4"><div class="rpt-sec-head"><span class="rpt-sec-no">§4</span><h2>效应与 ANOVA</h2></div><div class="rpt-body-grid"><div class="rpt-content"><p class="body-l">效应估计口径：偏差编码 + extra-SS 单删法 + BH 校正（详见 §3 流程与 §2 警示卡）。</p></div><aside class="rpt-margin"><h4>怎么读效应</h4><p>编码系数是「因子从中心到 ±1 编码单位」的响应变化，不是原始单位；原始单位效应在关键发现里给出。</p><p>二次项显著 → 响应面弯曲，最优值可能在区间内部，不要线性外推。</p></aside></div></section><section class="rpt-sec" id="sec-5"><div class="rpt-sec-head"><span class="rpt-sec-no">§5</span><h2>模型与残差诊断</h2></div><div class="rpt-body-grid"><div class="rpt-content"><div class="resp-block resp-active" data-response="energy_kwh_per_kg"><h3 class="block-title">响应：energy_kwh_per_kg</h3><div class="kpi-row"><div class="kpi"><span class="kpi-label">R²</span><span class="kpi-value mono">0.996</span><span class="kpi-note">调整后 0.994</span></div><div class="kpi"><span class="kpi-label">Q² (LOO)</span><span class="kpi-value mono">0.99</span><span class="kpi-note">hat-matrix LOO; replicate (twin) rows can leak — treat as optimistic bound</span></div><div class="kpi"><span class="kpi-label">失拟检验</span><span class="kpi-value mono">不可估</span><span class="kpi-note">无纯误差重复</span></div><div class="kpi"><span class="kpi-label">饱和/池化</span><span class="kpi-value mono">否</span><span class="kpi-note">池化项: 无</span></div></div><figure class="chart" id="chart-01"><figcaption class="chart-head"><span class="chart-title">残差四联图 — energy_kwh_per_kg</span><span class="chart-note">共 27 行</span></figcaption><div class="chart-body" data-chart="resid" data-key="resid:energy_kwh_per_kg"></div><div class="chart-reading"><span class="cr-label">看到了什么</span><span>左上：残差对拟合值应无喇叭形/系统弯曲；右上：QQ 点应沿对角线；左下：直方应近似对称；右下：残差对运行序应无趋势（随机化检查）</span><span class="cr-label">意味着什么</span><span>任何一格违背 → 误差结构假设存疑，p 值与窗口置信界都打折扣</span><span class="cr-label">为何重要</span><span>残差诊断是否通过，直接决定 §4 结论能被信任到什么程度</span></div></figure><div class="check-card"><b>杠杆点 / 影响点摘要</b><p>max leverage = <span class="mono">0.333</span>（截断 2p/n = <span class="mono">0.667</span>，超限 0 点）；max Cook's D = <span class="mono">0.3416</span>；残差 &gt;3σ 共 0 点。</p><p class="t3">高杠杆 + 大 Cook's D 的点对系数有不成比例的影响 — 删除重算可检验结论稳健性。</p></div></div></div><aside class="rpt-margin"><h4>模型可信度</h4><p>R² 看解释力，Q² LOO 看外推，失拟 p&gt;0.05 才不拒绝模型；三者必须一起看。</p></aside></div></section><section class="rpt-sec" id="sec-6"><div class="rpt-sec-head"><span class="rpt-sec-no">§6</span><h2>响应面与驻点</h2></div><div class="rpt-body-grid no-margin"><div class="rpt-content"><p class="body-l">z 值由 model.json 序列化的 predict_raw 在 25×25 网格上预计算 — 页面只负责绘制，不做任何浏览器端统计。</p><div class="resp-block resp-active" data-response="energy_kwh_per_kg"><h3 class="block-title">响应：energy_kwh_per_kg</h3><figure class="chart" id="chart-02"><figcaption class="chart-head"><span class="chart-title">交互效应线图 — energy_kwh_per_kg（barrel_temp_c:cooling_time_s，q=0.556）</span></figcaption><div class="chart-body" data-chart="interact" data-key="interact:energy_kwh_per_kg:barrel_temp_c:cooling_time_s"></div><div class="chart-reading"><span class="cr-label">看到了什么</span><span>每个系列是一个 cooling_time_s 水平；线不平行 → 存在交互</span><span class="cr-label">意味着什么</span><span>线交叉/张合意味着一个因子的最优设置随另一因子变化 — 单因子窗口会误导</span><span class="cr-label">为何重要</span><span>存在显著交互时，§8 的单因子窗口必须配套使用（窗口随另一因子水平移动）</span></div></figure></div></div></div></section><section class="rpt-sec" id="sec-8"><div class="rpt-sec-head"><span class="rpt-sec-no">§8</span><h2>操作窗口</h2></div><div class="rpt-body-grid"><div class="rpt-content"><p class="body-note">编号说明：章节编号为全局编号 — designed 模式不产生观测章节 §6b–§7，故本章由 §6 直接跳至 §8（跳号属预期，非内容缺失）。</p><p class="body-l">本运行没有产出数值操作窗口 — 见 §10 的确认实验与观察清单，先满足其条件再谈窗口。</p></div><aside class="rpt-margin"><h4>窗口边界</h4><p>窗口是在设计包络内求解的；外推端点（extrapolation=true）必须工艺确认后才可执行。</p></aside></div></section><section class="rpt-sec" id="sec-9"><div class="rpt-sec-head"><span class="rpt-sec-no">§9</span><h2>结论与等级</h2></div><div class="rpt-body-grid no-margin"><div class="rpt-content"><figure class="chart"><figcaption class="chart-head"><span class="chart-title">等级四门（evidence_grade = A）</span><span class="chart-note">未评估项（—）不计入 fail，见 method_notes C11 等级规则</span></figcaption><div class="gate-grid"><div class="gate-cell"><span class="sev-badge sev-ok">通过</span><span>随机化检查（因子 × 运行顺序 ρ）</span></div><div class="gate-cell"><span class="sev-badge sev-ok">通过</span><span>纯误差自由度 &gt; 0（存在重复）</span></div><div class="gate-cell"><span class="sev-badge sev-ok">通过</span><span>分辨度 / 设计类型充分</span></div><div class="gate-cell"><span class="sev-badge sev-ok">通过</span><span>设计平衡</span></div><div class="gate-cell"><span class="sev-badge sev-na">— 未评估</span><span>模型适切性（失拟不显著且非饱和）</span></div><div class="gate-cell"><span class="sev-badge sev-na">— 未评估</span><span>防伪检查（|r|≥0.3 对无 FAIL）</span></div></div><div class="chart-reading"><span class="cr-label">看到了什么</span><span>每扇门是一个机械判据（随机化/纯误差/分辨度/平衡/模型适切/防伪），未评估显示 — 不计失败。</span><span class="cr-label">意味着什么</span><span>等级由 checklist 逐门计算：0 败=A、1 败=A−、其余=B；observational 恒为 B。</span><span class="cr-label">为何重要</span><span>等级决定下游能把它用到哪：A 才可作因果结论，B 只能作方向参考。</span></div></figure><h3 class="block-title">关键发现 ↔ 证据链接（悬停证据 chip 看全名）</h3><ul class="kf-list"><li class=t3>无（本轮无关键发现）</li></ul><h3 class="block-title">使用规则（usage_rules）</h3><ul class="caveat-list"><li>窗口外推端点（extrapolation=true）需工艺确认后方可执行</li><li>多响应窗口冲突以 conflicts[].chosen 为准</li></ul></div></div></section><section class="rpt-sec" id="sec-10"><div class="rpt-sec-head"><span class="rpt-sec-no">§10</span><h2>局限与确认实验</h2></div><div class="rpt-body-grid"><div class="rpt-content"><h3 class="block-title">局限（script-authored，全量）</h3><ul class="caveat-list"><li>响应 energy_kwh_per_kg 的最大 Cook&#x27;s D=0.3416 超过 4/n 截断 — 个别试验点对系数影响过大，删除该点可能改变结论</li></ul><h3 class="block-title">确认实验（执行任何窗口前必须完成）</h3><table class="stat-table"><thead><tr><th>ID</th><th>reason_code</th><th>原因</th><th>设计提示</th><th class="num">runs</th></tr></thead><tbody><tr><td class="mono">CF-001</td><td><span class="sev-badge sev-warn">linear_only</span></td><td>仅类别因子显著 — 无数值操作窗口，请按 setpoints 选择水平后补做数值寻优试验</td><td>固定类别因子于有利水平后，对数值因子补做小型 RSM</td><td class="num">—</td></tr></tbody></table><h3 class="block-title">观察清单（watchlist）</h3><ul class="caveat-list"><li class=t3>无（本轮无观察项）</li></ul><h3 class="block-title">失效条件（invalidation_conditions）</h3><ol class="caveat-list"><li>任一因子越出 applicability_domain.factor_observed_ranges 的 ±20%</li><li>stability_report 变点检测触发新 regime（漂移/换产）</li><li>确认试验结果与 expected_effect 的 CI95 不相交</li></ol><div class="check-card"><b>适用域（applicability_domain）</b><p>行数 27；时间跨度 —；工况 designed region。</p><table class="stat-table"><thead><tr><th>因子</th><th class="num">观测 min</th><th class="num">观测 max</th></tr></thead><tbody><tr><td colspan=3 class=t3>无（无因子观测范围记录）</td></tr></tbody></table><p class="t3">越出观测域 ±20% 或触发新变点即视为失效 — 见上方失效条件。</p></div></div><aside class="rpt-margin"><h4>确认实验</h4><p>本页列出的确认实验是结论闭环的最低条件；未做确认实验的窗口只算「推荐」。</p></aside></div></section><section class="rpt-sec" id="sec-11"><div class="rpt-sec-head"><span class="rpt-sec-no">§11</span><h2>本体依据与下一轮设计</h2></div><div class="rpt-body-grid no-margin"><div class="rpt-content"><h3>本体依据（ontology_brief.json）</h3><div class="table-wrap"><table class="stat-table"><tbody><tr><th>场景 (scene_key)</th><td>injection_energy_doe</td></tr><tr><th>本体 profile / 版本</th><td>doe / v1</td></tr><tr><th>映射覆盖</th><td>因子 2/2，响应 1/1，未匹配 0</td></tr><tr><th>本体 sha256</th><td><span class="mono">sha256:0f70f3d1a…</span></td></tr></tbody></table></div><ul class="notes"><li>先验本体：关系方向来自上下文声明与物理先验，未经实测数据验证</li><li>未声明任何 expected_sign —— 未生成因子→响应关系，一致性检查将如实记为 not_estimable</li></ul><h3>下一轮设计（next_design.json）</h3><p>推荐动作：<b>augment_star</b> — 线性模型且无曲率证据、设计无星点：补星点以估计曲率（避免把弯曲误判为线性）；同时可执行：space_filling</p><div class="table-wrap"><table class="stat-table"><thead><tr><th>id</th><th>动作</th><th>运行数</th><th>约束内</th></tr></thead><tbody><tr><td class="mono">ND-01</td><td>augment_star</td><td class="num">7</td><td>是</td></tr><tr><td class="mono">ND-02</td><td>space_filling</td><td class="num">8</td><td>是</td></tr></tbody></table></div></div></div></section><section class="rpt-sec" id="sec-advisory"><div class="rpt-sec-head"><span class="rpt-sec-no">§12</span><h2>改善建议与验证计划</h2></div><div class="rpt-body-grid"><div class="rpt-content"><section class="rpt-scope" id="sec-advisory-body" aria-label="sec-advisory-body">
+  <div id="sec-goal">
+<div class="rpt-grid-2">
+  <div>
+    <h3 class="rpt-h3">优化目标</h3>
+    <div class="rpt-panel">
+      <div class="rpt-note"><b>显式目标</b>：来自 objective.json，不触发「未确认目标封顶 B」条款。</div>
+      <table class="rpt-table"><tr><th>KPI</th><th>方向</th><th>目标值</th><th>容差</th></tr>
+      <tr><td class='rpt-strong'>energy_kwh_per_kg</td><td>target</td><td class='rpt-n'>0.66</td><td class='rpt-n'>0.075</td></tr></table>
+      
+    </div>
+  </div>
+  <div>
+    <h3 class="rpt-h3">证据水位线 · 本次最高可达 B</h3>
+    <div class="rpt-wl">
+      <div class="rpt-wl-top"><span class="rpt-wl-grade">B</span>
+        <span style="font-size:12px;color:var(--muted)">需小试验证</span></div>
+      <ul><li><i class="is-no">○</i>动作日志归因<span>缺失</span></li><li><i class="">✓</i>本体机制边<span>3 条</span></li><li><i class="is-no">○</i>dead_time 声明<span>缺失</span></li><li><i class="is-no">○</i>设计试验窗<span>缺失</span></li><li><i class="">✓</i>目标已确认<span>可用</span></li></ul>
+      <p class="rpt-note">无动作日志：观察数据最高 B；dead_time 缺省：时间先后未评估，相关动作封顶 B；无设计试验窗；目标已显式声明</p>
+    </div>
+  </div>
+</div></div>
+  <div id="sec-roadmap"><h3 class="rpt-h3" style="margin-top:26px">改善路线图</h3><div class='rpt-table-wrap'><table class='rpt-table'><tr><th>级别</th><th>杠杆</th><th>方向 → KPI</th><th>预期收益</th><th>95%CI</th><th>优先级</th></tr><tr><td><span class="rpt-grade rpt-g-c" style="width:26px;height:26px;font-size:13px" title="仅方向参考">C</span></td><td class='rpt-strong'>barrel_temp_c<div class='rpt-note' style='margin:0'>barrel_temp_c</div></td><td>上调 → energy_kwh_per_kg</td><td class='rpt-n'>—</td><td class='rpt-n'>不可估（effect=null）</td><td><div class='rpt-bar'><span style='width:100.0%'></span></div></td></tr></table></div></div>
+  <div id="sec-actions"><h3 class="rpt-h3" style="margin-top:26px">动作卡</h3>
+<article class="rpt-entry">
+  <div><div class="rpt-grade rpt-g-c">C</div>
+    <div class="rpt-grade-cap">仅方向参考</div></div>
+  <div>
+    <div class="rpt-entry-head">
+      <span class="rpt-lever">barrel_temp_c
+        <code>barrel_temp_c · ACT-barrel_temp_c-822</code></span>
+      <span class="rpt-arrow">→</span><b>energy_kwh_per_kg</b>
+    </div>
+    <div class="rpt-entry-gain">
+      <span class="rpt-gain-num">—
+        <small>预期收益（none）</small></span>
+      <span class="rpt-gain-ci">95%CI 不可估（effect=null）</span>
+    </div>
+    <dl>
+      <dt>动作</dt><dd>上调：
+        190 → 191.7
+        <span class="rpt-note">（Δ 1.664 ℃）</span></dd>
+      <dt>机理</dt><dd>same_domain</dd>
+      <dt>前提条件</dt><dd><ul><li>工况与本次数据窗一致（物料/批次/设备状态）</li></ul></dd>
+      <dt>联动影响</dt><dd><ul><li>无显著联动</li></ul></dd>
+      <dt>风险假设</dt><dd><ul><li>线性剂量响应假设（分箱中位斜率）</li><li>dead_time 未提供：时间先后条件未评估（禁假设 0）</li><li>无动作日志归因</li></ul></dd>
+      <dt>验证方案</dt><dd>energy_kwh_per_kg · 窗 在线连续 ≥24h 对比基线窗 ·
+        阈值 方向验证：监控目标 KPI 变化方向，连续 3 批同向视为初步有效</dd>
+      <dt>回滚条件</dt><dd>若调整后 barrel_temp_c 输出未按预期改善或任一受约束指标恶化，回退至 190.0（调整前中位），并复核工况前提</dd>
+    </dl>
+    <details class="rpt-details"><summary>物理机理链（422 环）</summary><ol><li>杠杆 barrel_temp_c 的物理含义：barrel_temp_c（由分析上下文声明；未提供独立物理机理描述） <span class='rpt-mono'>signals.control_variables[column=barrel_temp_c].physical_meaning</span></li><li>目标 KPI energy_kwh_per_kg 的物理含义：energy_kwh_per_kg（由分析上下文声明；未提供独立物理机理描述） <span class='rpt-mono'>signals.inspection_signals[column=energy_kwh_per_kg].physical_meaning</span></li><li>无方向声明：机制为同域先验（不构成因果边） <span class='rpt-mono'>ontology.limitations</span></li></ol></details>
+    <details class="rpt-details"><summary>分级理由（156 条）</summary><ol><li>dead_time 缺省：时间先后 not_assessable（禁假设 0 放行）</li><li>机制为同域先验（无方向边），封顶 B</li><li>无动作日志：观察数据最高 B</li><li>dead_time 缺省，相关动作封顶 B</li><li>预期收益 CI 跨 0 或不可估</li></ol></details>
+    <details class="rpt-details"><summary>证据引用（1 条）</summary>
+      <table class="rpt-table"><tr><th>类型</th><th>来源工件</th><th>finding</th></tr>
+      <tr><td>dose_response</td><td class='rpt-mono'>02_evidence/dose_response.json</td><td class='rpt-mono'>ccf:barrel_temp_c:energy_kwh_per_kg</td></tr></table></details>
+    
+  </div>
+</article></div>
+  <div id="sec-evidence"><h3 class="rpt-h3" style="margin-top:26px">证据链（剂量-响应与时序）</h3>
+    <div class="rpt-empty">无图表数据</div></div>
+  <div id="sec-prescriptions"><h3 class="rpt-h3" style="margin-top:26px">处方区（不成建议）</h3>
+    <div class="rpt-empty">无处方：所有进入评估的杠杆均已获得分级判定。</div></div>
+  <div class="rpt-foot" style="margin-top:30px"><b>咨询边界：</b>本节为确定性脚本生成的咨询建议
+    （advisory），不构成参数下发或控制指令，绝不下发参数；执行须经产线审批 /
+    optimizer-campaign 验证。数值与分级不可手改（quality_gate 重算密封）。</div></section></div><aside class="rpt-margin"><h4>分级口径</h4><p>A ＝ 干预性证据；B ＝ 观察性证据需小试；C ＝ 仅方向。收益一律 95%CI。</p></aside></div></section><section class="rpt-sec" id="sec-appendix"><div class="rpt-sec-head"><span class="rpt-sec-no">附录</span><h2>工件索引</h2></div><div class="rpt-body-grid no-margin"><div class="rpt-content"><h3 class="block-title">工件索引（sha256 — 篡改检测的锚点）</h3><div class="table-wrap"><table class="stat-table"><thead><tr><th>工件</th><th>sha256（前 16）</th><th>generated_at</th><th>状态</th></tr></thead><tbody><tr><td class="mono">00_input/analysis_context.json</td><td class="mono sha">551ee3b08c170c04c21c2995962b2546efcf5502de913c9fc32867f99ea36f85</td><td class="mono t3">—</td><td>在</td></tr><tr><td class="mono">01_profile/data_profile.json</td><td class="mono sha">ae453d59705e52c8d6ce8e037521b5a08daac34199388ce9e0144729a073a779</td><td class="mono t3">2026-11-19T06:18:39</td><td>在</td></tr><tr><td class="mono">02_analysis/effect_table.json</td><td class="mono sha">f3dc9a06e534ff094b3230cdfa4483c87f0e50a6e0042ceb5d79ab9bde35ca71</td><td class="mono t3">2026-11-19T06:18:39</td><td>在</td></tr><tr><td class="mono">02_analysis/model.json</td><td class="mono sha">75747647bf9b8c9a1b80c9da3c4cff19bcc4e39f5ac5fe8ed3ac32b28cb00867</td><td class="mono t3">—</td><td>在</td></tr><tr><td class="mono">02_analysis/correlation_report.json</td><td class="mono sha">—</td><td class="mono t3">—</td><td>不适用（designed 模式）</td></tr><tr><td class="mono">02_analysis/stability_report.json</td><td class="mono sha">—</td><td class="mono t3">—</td><td>不适用（designed 模式）</td></tr><tr><td class="mono">03_figures/plot_manifest.json</td><td class="mono sha">e511b8d042eb0291422dda4465910d90a078606fef8c2f452ae14731783b330a</td><td class="mono t3">2026-11-19T06:18:40</td><td>在</td></tr><tr><td class="mono">conclusions/doe_conclusion.json</td><td class="mono sha">7bb5e6f6119f54e556e6de9b65a093c8688779228e5838e730124223320b0b3f</td><td class="mono t3">2026-11-19T06:18:40</td><td>在</td></tr><tr><td class="mono">conclusions/recommendations.json</td><td class="mono sha">4e9c4cede7a77a8a3c45edbf92ef0eb248b885bb27c640fc9cd2b54c99ee296c</td><td class="mono t3">—</td><td>在</td></tr><tr><td class="mono">01_ontology/ontology_brief.json</td><td class="mono sha">23a4768409abc80830adff030abf9e227593322018aa807b6d936dcb324b1305</td><td class="mono t3">—</td><td>在</td></tr><tr><td class="mono">conclusions/next_design.json</td><td class="mono sha">653fbcf65a6dfb90f84a6e794c16a36e0eab3057453d489a86474444314743e9</td><td class="mono t3">—</td><td>在</td></tr><tr><td class="mono">advisory/advisory_actions.json</td><td class="mono sha">e938eb8bbd58eac84f8a7d36c26218a8c32e9467465c82ac1075361899a5fd11</td><td class="mono t3">2026-11-19T06:18:40</td><td>在</td></tr><tr><td class="mono">advisory/step_status.json</td><td class="mono sha">0a93dd0e3e869f13b9f45368912d2cb563e290bea085d3b5bd3b05b545703a22</td><td class="mono t3">2026-11-19T06:18:40</td><td>在</td></tr></tbody></table></div><p class="body-note">原始数据 sha256：<span class="mono sha">fc5c8e810c4a0abb6923d3119e4c0b7d7c53bd3f38831a9bc7dd94380fbd5d94</span>（只读输入；观测档用于稳定性序列图形，designed 档仅作指纹留存）</p><h3 class="block-title">plot_manifest 逐图 ink 结果</h3><div class="table-wrap"><table class="stat-table"><thead><tr><th>文件</th><th>类型</th><th>标题</th><th>ink</th><th>bytes</th><th>详情</th></tr></thead><tbody><tr><td class="mono">residuals_energy_kwh_per_kg.png</td><td>residual_diagnostics</td><td>Residual diagnostics — energy_kwh_per_kg</td><td><span class="sev-badge sev-ok">ink PASS</span></td><td class="num">94220</td><td class="mono t3">ink ratio 0.088 ok; ink ratio 8.8% across 4 quadrants</td></tr><tr><td class="mono">main_effects_energy_kwh_per_kg.png</td><td>main_effects</td><td>Main effects — energy_kwh_per_kg</td><td><span class="sev-badge sev-ok">ink PASS</span></td><td class="num">43576</td><td class="mono t3">ink ratio 0.0572 ok; ink ratio 5.7% across 4 quadrants</td></tr></tbody></table></div></div></div></section>
+<footer class="run-foot">generated 2026-11-19T06:18:40 · 由 industrial-doe-analyzer 脚本确定性渲染（9 工件 · sha256 见附录） · 页面无外部请求、无浏览器端统计</footer>
+</main>
+</div>
+<div id="tooltip"></div>
+<script>
+(function () {
+"use strict";
+var PAYLOAD = JSON.parse(document.getElementById("report-payload").textContent);
+var NS = "http://www.w3.org/2000/svg";
+var C = { ink: "#1e3a54", warm: "#c2673a", green: "#2d7d4f", red: "#c4433b",
+          grey: "#8a8a8a", gold: "#8a6d3b", grid: "rgba(0,0,0,0.08)", t3: "#888" };
+
+function fmt(v, digits) {
+  if (v === null || v === undefined) return "\u2014";
+  if (typeof v !== "number") return String(v);
+  if (!isFinite(v)) return "\u2014";
+  var d = digits === undefined ? 4 : digits;
+  var s = v.toPrecision(Math.max(1, d));
+  if (Math.abs(v) >= 1e5 || (Math.abs(v) < 1e-4 && v !== 0)) {
+    var e = v.toExponential(2);
+    return e;
+  }
+  return String(parseFloat(s));
+}
+function S(tag, attrs, parent, txt) {
+  var e = document.createElementNS(NS, tag);
+  for (var k in attrs) e.setAttribute(k, attrs[k]);
+  if (txt !== null && txt !== undefined) e.textContent = txt;
+  if (parent) parent.appendChild(e);
+  return e;
+}
+function H(tag, cls, parent, txt) {
+  var e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (txt !== null && txt !== undefined) e.textContent = txt;
+  if (parent) parent.appendChild(e);
+  return e;
+}
+function lin(v, d0, d1, r0, r1) {
+  if (d1 - d0 === 0) return (r0 + r1) / 2;
+  return r0 + (v - d0) * (r1 - r0) / (d1 - d0);
+}
+function mix(a, b, t) {
+  function p(h, i) { return parseInt(h.substr(i, 2), 16); }
+  var r = Math.round(p(a, 1) + (p(b, 1) - p(a, 1)) * t);
+  var g = Math.round(p(a, 3) + (p(b, 3) - p(a, 3)) * t);
+  var bl = Math.round(p(a, 5) + (p(b, 5) - p(a, 5)) * t);
+  return "rgb(" + r + "," + g + "," + bl + ")";
+}
+function ramp(t) { /* ink -> warm paper -> warm */
+  if (t < 0.5) return mix("#1e3a54", "#f4f3f0", t * 2);
+  return mix("#f4f3f0", "#c2673a", (t - 0.5) * 2);
+}
+function chartSvg(el, w, h) {
+  var svg = S("svg", { viewBox: "0 0 " + w + " " + h, width: w, height: h });
+  el.appendChild(svg);
+  return svg;
+}
+
+/* ---------------- tooltip ---------------- */
+var tip = document.getElementById("tooltip");
+document.addEventListener("mousemove", function (ev) {
+  var t = ev.target;
+  while (t && t.getAttribute && !t.getAttribute("data-tip")) t = t.parentNode;
+  var msg = t && t.getAttribute ? t.getAttribute("data-tip") : null;
+  if (msg) {
+    tip.textContent = msg;
+    tip.style.display = "block";
+    var x = ev.clientX + 14, y = ev.clientY + 14;
+    if (x + 440 > window.innerWidth) x = ev.clientX - 440;
+    if (y + 180 > window.innerHeight) y = ev.clientY - 120;
+    tip.style.left = x + "px";
+    tip.style.top = y + "px";
+  } else {
+    tip.style.display = "none";
+  }
+});
+
+/* ---------------- builders ---------------- */
+var BUILDERS = {};
+
+BUILDERS.pareto = function (el, d) {
+  var rows = d.rows.slice().sort(function (a, b) { return (b.t || 0) - (a.t || 0); });
+  var L = 180, R = 60, T = 18, rowH = 24;
+  var W = 760, H = rows.length * rowH + T + 40;
+  var maxT = Math.max.apply(null, rows.map(function (r) { return r.t || 0; }).concat([0.001]));
+  var svg = chartSvg(el, W, H);
+  var steps = [0, 0.25, 0.5, 0.75, 1];
+  steps.forEach(function (s) {
+    var x = lin(s * maxT, 0, maxT, L, W - R);
+    S("line", { x1: x, y1: T, x2: x, y2: H - 34, stroke: s === 0 ? C.t3 : C.grid, "stroke-width": 1 }, svg);
+    S("text", { x: x, y: H - 20, "text-anchor": "middle", "font-size": 10, fill: C.t3 }, svg, fmt(s * maxT, 3));
+  });
+  if (d.ref !== null && d.ref !== undefined) {
+    var xr = lin(d.ref, 0, maxT, L, W - R);
+    S("line", { x1: xr, y1: T, x2: xr, y2: H - 34, stroke: C.red, "stroke-width": 1.2, "stroke-dasharray": "5 4" }, svg);
+    /* label ABOVE the plot area (T-5): never collides with the longest bar */
+    S("text", { x: xr + 4, y: T - 5, "font-size": 10.5, fill: C.red }, svg, "t*=" + fmt(d.ref, 3));
+  }
+  rows.forEach(function (r, i) {
+    var y = T + rowH * i + rowH / 2;
+    var w = lin(r.t || 0, 0, maxT, L, W - R) - L;
+    var col = r.sig ? C.warm : C.grey;
+    S("text", { x: L - 8, y: y + 3, "text-anchor": "end", "font-size": 10.5,
+                fill: r.sig ? C.ink : C.t2 }, svg, String(r.term));
+    var bar = S("rect", { x: L, y: y - 8, width: Math.max(w, 1), height: 16, rx: 3, fill: col,
+                          opacity: r.sig ? 0.95 : 0.65 }, svg);
+    bar.setAttribute("data-tip", "term: " + r.term + "\n|t|: " + fmt(r.t, 4) +
+      "\ncoef: " + fmt(r.coef) + "\nSE: " + fmt(r.se) + "\nq(BH): " + fmt(r.q, 4) +
+      "\npartial eta2: " + fmt(r.eta) + (r.rank ? "\npareto rank: " + r.rank : ""));
+    S("text", { x: L + Math.max(w, 1) + 5, y: y + 3, "font-size": 11,
+                fill: r.sig ? C.warm : C.t3, "class": "mono-lbl" }, svg, fmt(r.t, 3));
+  });
+};
+
+BUILDERS.eta = function (el, d) {
+  var rows = d.rows;
+  var L = 180, R = 70, T = 10, rowH = 22;
+  var W = 700, H = rows.length * rowH + T + 26;
+  var max = Math.max.apply(null, rows.map(function (r) { return r.eta || 0; }).concat([1e-9]));
+  var svg = chartSvg(el, W, H);
+  rows.forEach(function (r, i) {
+    var y = T + rowH * i + rowH / 2;
+    var w = lin(r.eta || 0, 0, max, 0, W - L - R);
+    S("text", { x: L - 8, y: y + 3, "text-anchor": "end", "font-size": 10.5, fill: C.t2 }, svg, String(r.term));
+    var bar = S("rect", { x: L, y: y - 7, width: Math.max(w, 1), height: 14, rx: 3, fill: C.ink, opacity: 0.85 }, svg);
+    bar.setAttribute("data-tip", "term: " + r.term + "\npartial eta2: " + fmt(r.eta, 5) + "\nq(BH): " + fmt(r.q, 4));
+    S("text", { x: L + Math.max(w, 1) + 6, y: y + 3, "font-size": 11.5, fill: C.t3, "class": "mono-lbl" }, svg, fmt(r.eta, 3));
+  });
+};
+
+BUILDERS.resid = function (el, d) {
+  var PW = 350, PH = 240, GAP = 24;
+  var W = PW * 2 + GAP * 3, H = PH * 2 + GAP * 2;
+  var svg = chartSvg(el, W, H);
+  var n = d.fitted.length;
+  function panel(px, py, title) {
+    S("rect", { x: px, y: py, width: PW, height: PH, fill: "#fdfdfc", stroke: C.grid }, svg);
+    S("text", { x: px + 10, y: py + 16, "font-size": 11, fill: C.ink }, svg, title);
+  }
+  function scatter(px, py, xs, ys, tipFn, color) {
+    var x0 = Math.min.apply(null, xs), x1 = Math.max.apply(null, xs);
+    var y0 = Math.min.apply(null, ys), y1 = Math.max.apply(null, ys);
+    if (x1 - x0 === 0) { x0 -= 1; x1 += 1; }
+    if (y1 - y0 === 0) { y0 -= 1; y1 += 1; }
+    var pad = 0.08;
+    x0 -= (x1 - x0) * pad; x1 += (x1 - x0) * pad;
+    y0 -= (y1 - y0) * pad; y1 += (y1 - y0) * pad;
+    var ox = px + 42, oy = py + 30, iw = PW - 58, ih = PH - 52;
+    for (var k = 0; k <= 4; k++) {
+      var gy = oy + ih * k / 4;
+      S("line", { x1: ox, y1: gy, x2: ox + iw, y2: gy, stroke: C.grid }, svg);
+      var gx = ox + iw * k / 4;
+      S("line", { x1: gx, y1: oy, x2: gx, y2: oy + ih, stroke: C.grid }, svg);
+    }
+    xs.forEach(function (xv, i) {
+      var c = S("circle", { cx: lin(xv, x0, x1, ox, ox + iw), cy: lin(ys[i], y0, y1, oy + ih, oy),
+                            r: 2.6, fill: color || C.ink, opacity: 0.8 }, svg);
+      if (tipFn) c.setAttribute("data-tip", tipFn(i));
+    });
+    return { ox: ox, oy: oy, iw: iw, ih: ih, x0: x0, x1: x1, y0: y0, y1: y1 };
+  }
+  var r0 = d.resid;
+  /* panel() (opaque backing + title) MUST be painted BEFORE each panel's
+     data: it fills the full panel rect and would otherwise cover everything. */
+  panel(GAP, GAP, "Residuals vs fitted");
+  var p1 = scatter(GAP, GAP, d.fitted, r0, function (i) {
+    var row = d.rows[i] || {};
+    return "row " + row.row_index + "\ny: " + fmt(row.y) + "\nyhat: " + fmt(row.yhat) + "\nresid: " + fmt(row.resid);
+  });
+  S("line", { x1: p1.ox, y1: lin(0, p1.y0, p1.y1, p1.oy + p1.ih, p1.oy),
+              x2: p1.ox + p1.iw, y2: lin(0, p1.y0, p1.y1, p1.oy + p1.ih, p1.oy),
+              stroke: C.red, "stroke-width": 1.2 }, svg);
+  panel(PW + GAP * 2, GAP, "Normal Q-Q");
+  if (d.qq.length > 1) {
+    var qxs = d.qq.map(function (p) { return p[0]; });
+    var qys = d.qq.map(function (p) { return p[1]; });
+    var p2 = scatter(PW + GAP * 2, GAP, qxs, qys, null);
+    S("line", { x1: lin(qxs[0], p2.x0, p2.x1, p2.ox, p2.ox + p2.iw), y1: lin(qys[0], p2.y0, p2.y1, p2.oy + p2.ih, p2.oy),
+                x2: lin(qxs[qxs.length - 1], p2.x0, p2.x1, p2.ox, p2.ox + p2.iw),
+                y2: lin(qys[qys.length - 1], p2.y0, p2.y1, p2.oy + p2.ih, p2.oy),
+                stroke: C.t3, "stroke-dasharray": "4 3" }, svg);
+  }
+  panel(GAP, PH + GAP * 2, "Residual histogram");
+  var counts = d.hist.counts, edges = d.hist.edges;
+  var maxC = Math.max.apply(null, counts.concat([1]));
+  var ox3 = GAP + 42, oy3 = GAP + 30 + PH, iw3 = PW - 58, ih3 = PH - 52;
+  S("line", { x1: ox3, y1: oy3 + ih3, x2: ox3 + iw3, y2: oy3 + ih3, stroke: C.t3 }, svg);
+  counts.forEach(function (c, i) {
+    var bx0 = lin(edges[i], edges[0], edges[edges.length - 1], ox3, ox3 + iw3);
+    var bx1 = lin(edges[i + 1], edges[0], edges[edges.length - 1], ox3, ox3 + iw3);
+    var bh2 = ih3 * c / maxC;
+    var b = S("rect", { x: bx0 + 1, y: oy3 + ih3 - bh2, width: Math.max(bx1 - bx0 - 2, 1),
+                        height: bh2, fill: C.green, opacity: 0.85 }, svg);
+    b.setAttribute("data-tip", "bin [" + fmt(edges[i], 3) + ", " + fmt(edges[i + 1], 3) + ")\ncount: " + c);
+  });
+  panel(PW + GAP * 2, PH + GAP * 2, "Residuals vs run order");
+  var idx = d.order;
+  var p4 = scatter(PW + GAP * 2, PH + GAP * 2, idx, r0, function (i) {
+    var row = d.rows[i] || {};
+    return "run order " + i + " (row " + row.row_index + ")\nresid: " + fmt(row.resid);
+  });
+  S("line", { x1: p4.ox, y1: lin(0, p4.y0, p4.y1, p4.oy + p4.ih, p4.oy),
+              x2: p4.ox + p4.iw, y2: lin(0, p4.y0, p4.y1, p4.oy + p4.ih, p4.oy),
+              stroke: C.red, "stroke-width": 1.2 }, svg);
+};
+
+BUILDERS.contour = function (el, d) {
+  var PW = 350, PH = 320, L = 64, T = 16, Rm = 60;
+  var W = L + PW + Rm + 30, H = T + PH + 54;
+  var svg = chartSvg(el, W, H);
+  var g = d.z.length, flat = [];
+  d.z.forEach(function (row) { row.forEach(function (v) { if (v !== null) flat.push(v); }); });
+  var zmin = Math.min.apply(null, flat), zmax = Math.max.apply(null, flat);
+  var x0 = -1, x1 = 1;
+  for (var a = 0; a < g; a++) {
+    for (var b = 0; b < g; b++) {
+      var v = d.z[a][b];
+      var rx = lin(b, 0, g, L, L + PW), ry = lin(a, 0, g, T + PH, T);
+      if (v === null) {
+        S("rect", { x: rx, y: ry, width: PW / g + 0.5, height: PH / g + 0.5, fill: "#eee" }, svg);
+        continue;
+      }
+      var t = (zmax - zmin) === 0 ? 0.5 : (v - zmin) / (zmax - zmin);
+      var cell = S("rect", { x: rx, y: ry, width: PW / g + 0.6, height: PH / g + 0.6, fill: ramp(t) }, svg);
+      cell.setAttribute("data-tip", d.xlabel + " (coded): " + fmt(-1 + 2 * b / (g - 1), 2) +
+        "\n" + d.ylabel + " (coded): " + fmt(-1 + 2 * a / (g - 1), 2) +
+        "\npredicted: " + fmt(v, 5));
+    }
+  }
+  [0, 0.25, 0.5, 0.75, 1].forEach(function (s, i) {
+    var x = lin(s, 0, 1, L, L + PW);
+    S("text", { x: x, y: T + PH + 16, "text-anchor": "middle", "font-size": 9.5, fill: C.t3, "class": "mono-lbl" }, svg, fmt(d.xraw[i], 3));
+    var y = lin(s, 0, 1, T + PH, T);
+    S("text", { x: L - 6, y: y + 3, "text-anchor": "end", "font-size": 9.5, fill: C.t3, "class": "mono-lbl" }, svg, fmt(d.yraw[i], 3));
+  });
+  S("text", { x: L + PW / 2, y: T + PH + 34, "text-anchor": "middle", "font-size": 10.5, fill: C.ink }, svg, d.xlabel + " (raw)");
+  S("text", { x: 14, y: T + PH / 2, "font-size": 10.5, fill: C.ink,
+              transform: "rotate(-90 14 " + (T + PH / 2) + ")", "text-anchor": "middle" }, svg, d.ylabel + " (raw)");
+  if (d.st && d.st.x !== null && d.st.x !== undefined) {
+    var sx = lin((d.st.x + 1) / 2, 0, 1, L, L + PW);
+    var sy = lin((d.st.y + 1) / 2, 0, 1, T + PH, T);
+    S("rect", { x: sx - 6, y: sy - 6, width: 12, height: 12, fill: "none",
+                stroke: C.red, "stroke-width": 2, transform: "rotate(45 " + sx + " " + sy + ")" }, svg);
+    S("text", { x: sx + 10, y: sy - 8, "font-size": 10, fill: C.red }, svg,
+      ({ max: "\u9A7B\u70B9=max", min: "\u9A7B\u70B9=min", saddle: "\u9A7B\u70B9=saddle" })[d.st.classification] || d.st.classification);
+  }
+  var lgx = L + PW + 16, lgy = T + 10, lgh = PH - 40;
+  var grad = S("linearGradient", { id: "cg" + el.parentNode.parentNode.id }, svg);
+  var defs = S("defs", {}, svg);
+  defs.appendChild(grad);
+  [0, 0.25, 0.5, 0.75, 1].forEach(function (o) {
+    var st = document.createElementNS(NS, "stop");
+    st.setAttribute("offset", (o * 100) + "%");
+    st.setAttribute("stop-color", ramp(1 - o));
+    grad.appendChild(st);
+  });
+  svg.appendChild(defs);
+  S("rect", { x: lgx, y: lgy, width: 14, height: lgh, fill: "url(#cg" + el.parentNode.parentNode.id + ")", stroke: C.grid }, svg);
+  S("text", { x: lgx + 18, y: lgy + 10, "font-size": 9.5, fill: C.t3, "class": "mono-lbl" }, svg, fmt(zmax, 4));
+  S("text", { x: lgx + 18, y: lgy + lgh, "font-size": 9.5, fill: C.t3, "class": "mono-lbl" }, svg, fmt(zmin, 4));
+};
+
+BUILDERS.interact = function (el, d) {
+  var PW = 640, PH = 300, L = 70, T = 30, Rm = 30;
+  var W = L + PW + Rm, H = T + PH + 46;
+  var svg = chartSvg(el, W, H);
+  var all = [];
+  d.series.forEach(function (s) { all = all.concat(s.values); });
+  var ymin = Math.min.apply(null, all), ymax = Math.max.apply(null, all);
+  if (ymax - ymin === 0) { ymin -= 1; ymax += 1; }
+  var pad = (ymax - ymin) * 0.1;
+  ymin -= pad; ymax += pad;
+  var n = d.xt.length;
+  function xpos(i) { return lin(i, 0, n - 1, L + 20, L + PW - 20); }
+  for (var k = 0; k <= 4; k++) {
+    var gy = T + PH * k / 4;
+    S("line", { x1: L, y1: gy, x2: L + PW, y2: gy, stroke: C.grid }, svg);
+    S("text", { x: L - 6, y: gy + 3, "text-anchor": "end", "font-size": 9.5, fill: C.t3, "class": "mono-lbl" }, svg,
+      fmt(ymax - (ymax - ymin) * k / 4, 3));
+  }
+  d.xt.forEach(function (x, i) {
+    S("text", { x: xpos(i), y: T + PH + 18, "text-anchor": "middle", "font-size": 9.5, fill: C.t3, "class": "mono-lbl" }, svg,
+      x.raw !== null && x.raw !== undefined ? fmt(x.raw, 3) : String(x.level));
+  });
+  S("text", { x: L + PW / 2, y: T + PH + 36, "text-anchor": "middle", "font-size": 10.5, fill: C.ink }, svg, d.xlabel);
+  var cols = [C.ink, C.warm, C.green, C.gold];
+  d.series.forEach(function (s, si) {
+    var pts = s.values.map(function (v, i) { return xpos(i) + "," + lin(v, ymin, ymax, T + PH, T); }).join(" ");
+    S("polyline", { points: pts, fill: "none", stroke: cols[si % cols.length], "stroke-width": 2 }, svg);
+    s.values.forEach(function (v, i) {
+      var c = S("circle", { cx: xpos(i), cy: lin(v, ymin, ymax, T + PH, T), r: 3.5,
+                            fill: cols[si % cols.length] }, svg);
+      c.setAttribute("data-tip", d.sname + ": " + s.name + "\n" + d.xlabel + ": " +
+        (d.xt[i].raw !== null && d.xt[i].raw !== undefined ? fmt(d.xt[i].raw, 3) : d.xt[i].level) +
+        "\npredicted " + d.ylabel + ": " + fmt(v, 5));
+    });
+    S("text", { x: L + PW + 4, y: lin(s.values[s.values.length - 1], ymin, ymax, T + PH, T) + 3,
+                "font-size": 9.5, fill: cols[si % cols.length] }, svg, s.name);
+  });
+};
+
+BUILDERS.corrheat = function (el, d) {
+  var CW = 56, CH = 30, L = 120, T = 46;
+  var W = L + d.params.length * CW + 20, H = T + d.targets.length * CH + 30;
+  var svg = chartSvg(el, W, H);
+  d.params.forEach(function (p, j) {
+    S("text", { x: L + j * CW + CW / 2, y: T - 8, "font-size": 9.5, fill: C.t2,
+                transform: "rotate(-38 " + (L + j * CW + CW / 2) + " " + (T - 8) + ")", "text-anchor": "start" }, svg, p);
+  });
+  d.targets.forEach(function (tg, i) {
+    S("text", { x: L - 8, y: T + i * CH + CH / 2 + 4, "text-anchor": "end", "font-size": 10.5, fill: C.ink }, svg, tg);
+  });
+  var drawn = {};
+  d.cells.forEach(function (c) { drawn[c.ti + "_" + c.pi] = c; });
+  d.targets.forEach(function (tg, i) {
+    d.params.forEach(function (p, j) {
+      var c = drawn[i + "_" + j];
+      var x = L + j * CW, y = T + i * CH;
+      var vdot = c && c.r !== null && c.r !== undefined ? c.r : 0;
+      var fill = c ? ramp((vdot + 1) / 2) : "#f0efec";
+      var rect = S("rect", { x: x, y: y, width: CW - 2, height: CH - 2, rx: 3, fill: fill }, svg);
+      if (c) {
+        rect.setAttribute("data-tip", c.tip);
+        var light = vdot > -0.85 && vdot < 0.6;
+        S("text", { x: x + CW / 2 - 1, y: y + CH / 2 + 4, "text-anchor": "middle", "font-size": 9.5,
+                    fill: light ? "#222" : "#fff", "class": "mono-lbl" }, svg, fmt(c.r, 3));
+        var ring = c.verdict === "PASS" ? C.green : (c.verdict === "CAUTION" ? C.warm : C.red);
+        S("circle", { cx: x + CW - 8, cy: y + 8, r: 3.5, fill: "none", stroke: ring, "stroke-width": 2 }, svg);
+      }
+    });
+  });
+  var ly = T + d.targets.length * CH + 14;
+  [["PASS", C.green], ["CAUTION", C.warm], ["FAIL", C.red]].forEach(function (it, i) {
+    S("circle", { cx: L + i * 110 + 5, cy: ly + 4, r: 4, fill: "none", stroke: it[1], "stroke-width": 2 }, svg);
+    S("text", { x: L + i * 110 + 14, y: ly + 8, "font-size": 9.5, fill: C.t2 }, svg, it[0]);
+  });
+};
+
+BUILDERS.dr2 = function (el, d) {
+  var rows = d.rows;
+  var L = 210, R = 80, T = 10, rowH = 22;
+  var W = 760, H = rows.length * rowH + T + 20;
+  var max = Math.max.apply(null, rows.map(function (r) { return r.value || 0; }).concat([1e-9]));
+  var svg = chartSvg(el, W, H);
+  rows.forEach(function (r, i) {
+    var y = T + rowH * i + rowH / 2;
+    var w = lin(r.value || 0, 0, max, 0, W - L - R);
+    S("text", { x: L - 8, y: y + 3, "text-anchor": "end", "font-size": 10, fill: C.t2 }, svg, r.label);
+    var bar = S("rect", { x: L, y: y - 7, width: Math.max(w, 1), height: 14, rx: 3, fill: C.ink, opacity: 0.85 }, svg);
+    bar.setAttribute("data-tip", r.label + "\ndelta R2: " + fmt(r.value, 5));
+    S("text", { x: L + Math.max(w, 1) + 6, y: y + 3, "font-size": 11.5, fill: C.t3, "class": "mono-lbl" }, svg, fmt(r.value, 3));
+  });
+};
+
+BUILDERS.timeline = function (el, d) {
+  var PW = 900, PH = 210, L = 60, T = 16, Rm = 24;
+  var W = L + PW + Rm, H = T + PH + 40;
+  var svg = chartSvg(el, W, H);
+  var vals = d.values.filter(function (v) { return v !== null; });
+  var ymin = Math.min.apply(null, vals), ymax = Math.max.apply(null, vals);
+  if (ymax - ymin === 0) { ymin -= 1; ymax += 1; }
+  var pad = (ymax - ymin) * 0.08;
+  ymin -= pad; ymax += pad;
+  var n = d.values.length;
+  [0, 0.25, 0.5, 0.75, 1].forEach(function (s) {
+    var gy = lin(s, 0, 1, T + PH, T);
+    S("line", { x1: L, y1: gy, x2: L + PW, y2: gy, stroke: C.grid }, svg);
+    S("text", { x: L - 6, y: gy + 3, "text-anchor": "end", "font-size": 9.5, fill: C.t3, "class": "mono-lbl" }, svg,
+      fmt(ymax - (ymax - ymin) * s, 3));
+  });
+  d.segments.forEach(function (s) {
+    var x0 = lin(s.start / n, 0, 1, L, L + PW), x1 = lin((s.end + 1) / n, 0, 1, L, L + PW);
+    var seg = S("rect", { x: x0, y: T, width: Math.max(x1 - x0, 1), height: PH,
+                          fill: C.green, opacity: s.selected ? 0.22 : 0.10 }, svg);
+    seg.setAttribute("data-tip", "steady segment rows " + s.label +
+      (s.selected ? "\nselected for windows" : ""));
+  });
+  var pts = [];
+  d.values.forEach(function (v, i) {
+    if (v === null) return;
+    pts.push(lin(i / n, 0, 1, L, L + PW) + "," + lin(v, ymin, ymax, T + PH, T));
+  });
+  S("polyline", { points: pts.join(" "), fill: "none", stroke: C.ink, "stroke-width": 0.8, opacity: 0.9 }, svg);
+  d.cps.forEach(function (cp) {
+    var x = lin(cp / n, 0, 1, L, L + PW);
+    S("line", { x1: x, y1: T, x2: x, y2: T + PH, stroke: C.warm, "stroke-width": 1.2, "stroke-dasharray": "5 4" }, svg);
+  });
+  S("text", { x: L + PW / 2, y: H - 8, "text-anchor": "middle", "font-size": 9.5, fill: C.t3 }, svg,
+    "run order (" + n + " pts" + (d.stride > 1 ? ", 1/" + d.stride + " of " + d.n_total : "") + ")");
+};
+
+BUILDERS.hist = function (el, d) {
+  var PW = 640, PH = 260, L = 60, T = 24, Rm = 30;
+  var W = L + PW + Rm, H = T + PH + 46;
+  var svg = chartSvg(el, W, H);
+  var counts = d.counts, edges = d.edges;
+  var e0 = edges[0], e1 = edges[edges.length - 1];
+  var maxC = Math.max.apply(null, counts.concat([1]));
+  [0, 0.25, 0.5, 0.75, 1].forEach(function (s) {
+    var gy = lin(s, 0, 1, T + PH, T);
+    S("line", { x1: L, y1: gy, x2: L + PW, y2: gy, stroke: C.grid }, svg);
+    S("text", { x: L - 6, y: gy + 3, "text-anchor": "end", "font-size": 9.5, fill: C.t3, "class": "mono-lbl" }, svg,
+      fmt(maxC * (1 - s), 0));
+  });
+  counts.forEach(function (c, i) {
+    var bx0 = lin(edges[i], e0, e1, L, L + PW), bx1 = lin(edges[i + 1], e0, e1, L, L + PW);
+    var bh2 = PH * c / maxC;
+    var b = S("rect", { x: bx0 + 1, y: T + PH - bh2, width: Math.max(bx1 - bx0 - 2, 1), height: bh2,
+                        fill: C.ink, opacity: 0.82 }, svg);
+    b.setAttribute("data-tip", "bin [" + fmt(edges[i], 4) + ", " + fmt(edges[i + 1], 4) + ")\ncount: " + c);
+  });
+  [e0, (e0 + e1) / 2, e1].forEach(function (v) {
+    var x = lin(v, e0, e1, L, L + PW);
+    S("text", { x: x, y: T + PH + 16, "text-anchor": "middle", "font-size": 9.5, fill: C.t3, "class": "mono-lbl" }, svg, fmt(v, 4));
+  });
+  function spec(v, label, color, dash) {
+    if (v === null || v === undefined) return;
+    var x = lin(v, e0, e1, L, L + PW);
+    S("line", { x1: x, y1: T - 6, x2: x, y2: T + PH, stroke: color, "stroke-width": 1.6,
+                "stroke-dasharray": dash ? "5 4" : "" }, svg);
+    S("text", { x: x + 3, y: T - 9, "font-size": 9.5, fill: color }, svg, label + " " + fmt(v, 4));
+  }
+  spec(d.lsl, "LSL", C.red, false);
+  spec(d.usl, "USL", C.red, false);
+  spec(d.target, "T", C.ink, true);
+  spec(d.mean, "mean", C.green, true);
+};
+
+BUILDERS.forest = function (el, d) {
+  var rows = d.rows;
+  var L = 230, Rm = 120, T = 14, rowH = 44;
+  var W = L + 460 + Rm + 60, H = T + rows.length * rowH + 30;
+  var svg = chartSvg(el, W, H);
+  rows.forEach(function (r, i) {
+    var y = T + rowH * i + rowH / 2;
+    var omin = r.obsmin !== null ? r.obsmin : (r.lo - (r.hi - r.lo) * 0.2);
+    var omax = r.obsmax !== null ? r.obsmax : (r.hi + (r.hi - r.lo) * 0.2);
+    var pl = L, pr = L + 460;
+    function xs(v) { return lin(v, omin, omax, pl, pr); }
+    S("rect", { x: pl, y: y - 13, width: pr - pl, height: 26, fill: "#efeeea" }, svg);
+    S("line", { x1: pl, y1: y, x2: pr, y2: y, stroke: C.grid }, svg);
+    S("text", { x: L - 8, y: y - 3, "text-anchor": "end", "font-size": 10.5, fill: C.ink, "font-weight": 600 },
+      svg, String(r.id));
+    S("text", { x: L - 8, y: y + 12, "text-anchor": "end", "font-size": 9.5, fill: C.t3 }, svg,
+      r.factor + " \u2190 " + r.response + (r.chosen_conflict ? " \u2713" : ""));
+    var col = r.confirm ? C.warm : C.green;
+    var confCN = ({ high: "置信：高", medium: "置信：中", low: "置信：低" })[r.confidence] || r.confidence;
+    var x0 = xs(r.lo), x1 = xs(r.hi);
+    var band = S("rect", { x: x0, y: y - 11, width: Math.max(x1 - x0, 2), height: 22, rx: 3,
+                           fill: col, opacity: r.loser ? 0.25 : 0.8 }, svg);
+    var tipTxt = r.id + " " + r.factor + "\nwindow: [" + fmt(r.lo) + ", " + fmt(r.hi) + "]" +
+      "\nobserved: [" + fmt(r.obsmin) + ", " + fmt(r.obsmax) + "]" +
+      "\ndelta: " + fmt(r.delta) + " " + (r.unit || "") + "\n" + confCN +
+      "\nconfirmation needed: " + (r.confirm ? "yes" : "no");
+    if (r.loser) tipTxt += "\nconflict loser (reference only)";
+    band.setAttribute("data-tip", tipTxt);
+    if (r.loser) {
+      S("text", { x: (x0 + x1) / 2, y: y + 3, "text-anchor": "middle", "font-size": 9, fill: "#fff" }, svg,
+        "\u843D\u9009");
+    }
+    if (r.ci && r.ci[0] !== null && r.ci[1] !== null) {
+      var c0 = xs(Math.max(r.ci[0], omin - (omax - omin) * 0.1));
+      var c1 = xs(Math.min(r.ci[1], omax + (omax - omin) * 0.1));
+      var g = S("g", { "class": "ci-el" }, svg);
+      S("line", { x1: c0, y1: y, x2: c1, y2: y, stroke: C.ink, "stroke-width": 1.4 }, g);
+      S("line", { x1: c0, y1: y - 5, x2: c0, y2: y + 5, stroke: C.ink, "stroke-width": 1.4 }, g);
+      S("line", { x1: c1, y1: y - 5, x2: c1, y2: y + 5, stroke: C.ink, "stroke-width": 1.4 }, g);
+    }
+    if (r.baseline !== null && r.baseline !== undefined) {
+      var bx = xs(r.baseline);
+      var dm = S("rect", { x: bx - 6, y: y - 6, width: 12, height: 12, fill: C.ink,
+                           stroke: "#fff", "stroke-width": 1.5,
+                           transform: "rotate(45 " + bx + " " + y + ")" }, svg);
+      dm.setAttribute("data-tip", "current baseline: " + fmt(r.baseline));
+    }
+    S("text", { x: pr + 10, y: y - 3, "font-size": 11, fill: C.t3, "class": "mono-lbl" }, svg,
+      "[" + fmt(r.lo) + ", " + fmt(r.hi) + "]");
+    S("text", { x: pr + 10, y: y + 13, "font-size": 11,
+                fill: r.confirm ? C.warm : C.green }, svg,
+      r.confirm ? "\u9700\u786E\u8BA4 \u00B7 " + confCN : confCN);
+  });
+};
+
+/* ---------------- mount ---------------- */
+var mounted = 0;
+document.querySelectorAll(".chart-body[data-chart]").forEach(function (body) {
+  var kind = body.getAttribute("data-chart");
+  var key = body.getAttribute("data-key");
+  var data = (PAYLOAD.charts || {})[key];
+  if (!data || !BUILDERS[kind]) {
+    H("p", "t3", body, "\u672c\u56fe\u65e0\u53ef\u7528\u6570\u636e\u3002");
+    return;
+  }
+  BUILDERS[kind](body, data);
+  mounted++;
+});
+
+/* ---------------- interactions ---------------- */
+/* Default-activate the first resp-block of EVERY section that has one —
+   single-response sections have no tab bar, so without this their charts
+   would stay display:none forever. */
+document.querySelectorAll("section").forEach(function (sec) {
+  var blocks = sec.querySelectorAll(".resp-block");
+  if (blocks.length && !sec.querySelector(".resp-block.resp-active")) {
+    blocks[0].classList.add("resp-active");
+  }
+});
+document.querySelectorAll(".tab-bar").forEach(function (bar) {
+  var sec = bar.closest("section");
+  if (!sec) return;
+  var blocks = sec.querySelectorAll(".resp-block");
+  bar.querySelectorAll(".tab-btn").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      bar.querySelectorAll(".tab-btn").forEach(function (b) { b.classList.remove("active"); });
+      btn.classList.add("active");
+      blocks.forEach(function (b) {
+        b.classList.toggle("resp-active", b.getAttribute("data-response") === btn.getAttribute("data-target"));
+      });
+    });
+  });
+});
+document.querySelectorAll(".toggle-sig").forEach(function (cb) {
+  cb.addEventListener("change", function () {
+    document.body.classList.toggle("sig-only", cb.checked);
+  });
+});
+var tci = document.getElementById("toggle-ci");
+if (tci) {
+  tci.addEventListener("change", function () {
+    document.body.classList.toggle("hide-ci", !tci.checked);
+  });
+}
+var meta = {};
+try { meta = JSON.parse(document.getElementById("report-meta").textContent); } catch (e) { meta = {}; }
+console.log("report.html ready: mode=" + (meta.mode || "?") + ", charts=" + mounted);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+{
+  "contract_version": "1.0",
+  "targets": [
+    {
+      "metric": "scrap_rate_pct",
+      "direction": "min"
+    }
+  ],
+  "notes": "derived from stability_report.json inspection_cols"
+}

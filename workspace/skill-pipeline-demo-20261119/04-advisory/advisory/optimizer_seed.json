@@ -1,0 +1,40 @@
+{
+  "contract_version": "1.0",
+  "campaign_id": "OPT-20261119-001",
+  "target_metric": "energy_kwh_per_kg",
+  "goal": "minimize",
+  "target_range": null,
+  "tolerance": 0.03,
+  "factors": [
+    {
+      "name": "barrel_temp_c",
+      "type": "numeric",
+      "min": 186.3,
+      "max": 198.3,
+      "unit": null
+    }
+  ],
+  "constraints": [],
+  "budget": {
+    "max_rounds": 5,
+    "max_trials": 30
+  },
+  "prior": {
+    "advisory_report_id": "IMA-20261119061803-6992fd",
+    "advisory_action_id": "ACT-barrel_temp_c-822",
+    "advisory_expected_gain": {
+      "metric": "energy_kwh_per_kg",
+      "current": 0.68755,
+      "point": 0.0393974584,
+      "ci95": [
+        0.0299375872,
+        0.0488573297
+      ],
+      "method": "dose_response",
+      "verified": true,
+      "not_estimable_reason": null
+    }
+  },
+  "seed": 42,
+  "note": "由 improvement-advisory 自动生成：验证型 campaign 种子（需人工确认后使用）"
+}

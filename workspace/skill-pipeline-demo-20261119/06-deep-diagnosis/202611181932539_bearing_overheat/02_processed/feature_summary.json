@@ -1,0 +1,120 @@
+{
+  "generated_at": "2026-11-18T19:47:21.436Z",
+  "source": "02_inspect_raw.json (inspect.mjs)",
+  "n_rows": 120,
+  "columns": {
+    "timestamp": {
+      "type": "datetime",
+      "stats": {
+        "count": 120,
+        "missing": 0,
+        "missing_pct": 0,
+        "unique": 120,
+        "top_values": [
+          [
+            "2026-11-18T08:00:00+08:00",
+            1
+          ],
+          [
+            "2026-11-18T08:02:00+08:00",
+            1
+          ],
+          [
+            "2026-11-18T08:04:00+08:00",
+            1
+          ],
+          [
+            "2026-11-18T08:06:00+08:00",
+            1
+          ],
+          [
+            "2026-11-18T08:08:00+08:00",
+            1
+          ]
+        ]
+      }
+    },
+    "bearing_temp_c": {
+      "type": "number",
+      "stats": {
+        "count": 120,
+        "missing": 0,
+        "missing_pct": 0,
+        "mean": 68.8862,
+        "std": 4.0165,
+        "min": 64.37,
+        "max": 73.43,
+        "p25": 65.05,
+        "p50": 65.49,
+        "p75": 73.04
+      }
+    },
+    "motor_load_pct": {
+      "type": "number",
+      "stats": {
+        "count": 120,
+        "missing": 0,
+        "missing_pct": 0,
+        "mean": 75.088,
+        "std": 0.7929,
+        "min": 72.96,
+        "max": 77.1,
+        "p25": 74.57,
+        "p50": 75.19,
+        "p75": 75.53
+      }
+    },
+    "cooling_water_flow_lpm": {
+      "type": "number",
+      "stats": {
+        "count": 120,
+        "missing": 0,
+        "missing_pct": 0,
+        "mean": 10.0132,
+        "std": 1.9957,
+        "min": 7.66,
+        "max": 12.28,
+        "p25": 8.05,
+        "p50": 11.7,
+        "p75": 12
+      }
+    },
+    "ambient_temp_c": {
+      "type": "number",
+      "stats": {
+        "count": 120,
+        "missing": 0,
+        "missing_pct": 0,
+        "mean": 28.0028,
+        "std": 0.4659,
+        "min": 26.9,
+        "max": 29.15,
+        "p25": 27.69,
+        "p50": 27.99,
+        "p75": 28.34
+      }
+    },
+    "vibration_mm_s": {
+      "type": "number",
+      "stats": {
+        "count": 120,
+        "missing": 0,
+        "missing_pct": 0,
+        "mean": 2.193,
+        "std": 0.2047,
+        "min": 1.86,
+        "max": 2.521,
+        "p25": 1.993,
+        "p50": 2.111,
+        "p75": 2.394
+      }
+    }
+  },
+  "feature_notes": {
+    "bearing_temp_c": "target; 平台阶跃(65→73 degC)@idx62",
+    "cooling_water_flow_lpm": "control proxy; 平台阶跃(12→8 L/min)@idx60",
+    "vibration_mm_s": "inspection; 双平台 2.0→2.4 mm/s",
+    "motor_load_pct": "process param; 平稳 cv~0.011",
+    "ambient_temp_c": "process param/confounder; 平稳 cv~0.017"
+  }
+}

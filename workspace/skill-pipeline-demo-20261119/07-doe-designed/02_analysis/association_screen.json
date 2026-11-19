@@ -1,0 +1,151 @@
+{
+  "contract_version": "1.0",
+  "causal_claim": "none",
+  "n_rows": 27,
+  "n_pairs": 4,
+  "design_adjusted": true,
+  "alpha": 0.05,
+  "responses": [
+    "energy_kwh_per_kg"
+  ],
+  "design_columns": [
+    "barrel_temp_c",
+    "cooling_time_s"
+  ],
+  "model_columns": [],
+  "adjustment_method": "每对 (response, variable) 回归：y ~ 设计列(该变量自身列除外) + 该变量；报告该变量系数与双侧 t 检验 p（秩亏则不报告）",
+  "window_emission": "forbidden (gate G8: association pairs never enter a window)",
+  "n_confounded_pairs": 0,
+  "excluded": [
+    {
+      "column": "energy_kwh_per_kg",
+      "reason": "design/model metadata column"
+    }
+  ],
+  "pairs": [
+    {
+      "factor": "barrel_temp_c",
+      "response": "energy_kwh_per_kg",
+      "kind": "designed_factor",
+      "marginal": {
+        "r": 0.861,
+        "p": 0.0,
+        "n": 27,
+        "method": "core_stats.pearson"
+      },
+      "design_adjusted": {
+        "coef": 0.0178,
+        "p": 0.0,
+        "n": 27,
+        "method": "ols_design_adjusted",
+        "strata": [
+          "cooling_time_s[24]",
+          "cooling_time_s[28]"
+        ],
+        "std_err": 0.0022,
+        "t": 8.2078,
+        "df": 23
+      },
+      "verdict": "design_adjusted",
+      "note": "边际 r=0.861 (p=0.0, n=27, core_stats)；设计调整后 coef=0.0178 (p=0.0, n=27, 调整列=2)",
+      "confounded": false,
+      "marginal_significant": true,
+      "adjusted_significant": true,
+      "evidence_level": "L3"
+    },
+    {
+      "factor": "cooling_time_s",
+      "response": "energy_kwh_per_kg",
+      "kind": "designed_factor",
+      "marginal": {
+        "r": -0.0724,
+        "p": 0.7197,
+        "n": 27,
+        "method": "core_stats.pearson"
+      },
+      "design_adjusted": {
+        "coef": -0.0015,
+        "p": 0.0001,
+        "n": 27,
+        "method": "ols_design_adjusted",
+        "strata": [
+          "barrel_temp_c[186]",
+          "barrel_temp_c[190]"
+        ],
+        "std_err": 0.0003,
+        "t": -4.7208,
+        "df": 23
+      },
+      "verdict": "design_adjusted",
+      "note": "边际 r=-0.0724 (p=0.7197, n=27, core_stats)；设计调整后 coef=-0.0015 (p=0.0001, n=27, 调整列=2)",
+      "confounded": false,
+      "marginal_significant": false,
+      "adjusted_significant": true,
+      "evidence_level": "L3"
+    },
+    {
+      "factor": "replicate",
+      "response": "energy_kwh_per_kg",
+      "kind": "unmodeled",
+      "marginal": {
+        "r": 0.004,
+        "p": 0.9843,
+        "n": 27,
+        "method": "core_stats.pearson"
+      },
+      "design_adjusted": {
+        "coef": 0.0003,
+        "p": 0.7988,
+        "n": 27,
+        "method": "ols_design_adjusted",
+        "strata": [
+          "barrel_temp_c[186]",
+          "barrel_temp_c[190]",
+          "cooling_time_s[24]",
+          "cooling_time_s[28]"
+        ],
+        "std_err": 0.0013,
+        "t": 0.2581,
+        "df": 21
+      },
+      "verdict": "unmodeled",
+      "note": "该列未进入拟合模型（未建模）：只能作描述性线索，禁止进入任何窗口；边际 r=0.004 (p=0.9843, n=27, core_stats)；设计调整后 coef=0.0003 (p=0.7988, n=27, 调整列=4)",
+      "confounded": false,
+      "marginal_significant": false,
+      "adjusted_significant": false,
+      "evidence_level": "L3"
+    },
+    {
+      "factor": "run_seq",
+      "response": "energy_kwh_per_kg",
+      "kind": "unmodeled",
+      "marginal": {
+        "r": -0.2464,
+        "p": 0.2153,
+        "n": 27,
+        "method": "core_stats.pearson"
+      },
+      "design_adjusted": {
+        "coef": 0.0001,
+        "p": 0.3913,
+        "n": 27,
+        "method": "ols_design_adjusted",
+        "strata": [
+          "barrel_temp_c[186]",
+          "barrel_temp_c[190]",
+          "cooling_time_s[24]",
+          "cooling_time_s[28]"
+        ],
+        "std_err": 0.0001,
+        "t": 0.8753,
+        "df": 21
+      },
+      "verdict": "unmodeled",
+      "note": "该列未进入拟合模型（未建模）：只能作描述性线索，禁止进入任何窗口；边际 r=-0.2464 (p=0.2153, n=27, core_stats)；设计调整后 coef=0.0001 (p=0.3913, n=27, 调整列=4)",
+      "confounded": false,
+      "marginal_significant": false,
+      "adjusted_significant": false,
+      "evidence_level": "L3"
+    }
+  ]
+}

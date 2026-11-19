@@ -1,0 +1,118 @@
+{
+  "scene": {
+    "name": "injection_energy_advisory",
+    "process_type": "production_line"
+  },
+  "signals": {
+    "inspection_signals": [],
+    "process_parameters": [
+      {
+        "name": "barrel_temp_c",
+        "column": "barrel_temp_c",
+        "role": "control",
+        "auto_inferred": true,
+        "inference_basis": "declared by objective/context role, no dictionary hit",
+        "knowledge_source": "auto_inferred",
+        "physical_meaning_confidence": "INFERRED",
+        "observed_data_behavior": "NOT_APPLICABLE",
+        "behavior_match": "UNVERIFIED"
+      },
+      {
+        "name": "injection_pressure_bar",
+        "column": "injection_pressure_bar",
+        "role": "predictor",
+        "auto_inferred": true,
+        "inference_basis": "declared by objective/context role, no dictionary hit",
+        "knowledge_source": "auto_inferred",
+        "physical_meaning_confidence": "INFERRED",
+        "observed_data_behavior": "NOT_APPLICABLE",
+        "behavior_match": "UNVERIFIED"
+      },
+      {
+        "name": "cooling_time_s",
+        "column": "cooling_time_s",
+        "role": "predictor",
+        "auto_inferred": true,
+        "inference_basis": "declared by objective/context role, no dictionary hit",
+        "knowledge_source": "auto_inferred",
+        "physical_meaning_confidence": "INFERRED",
+        "observed_data_behavior": "NOT_APPLICABLE",
+        "behavior_match": "UNVERIFIED"
+      },
+      {
+        "name": "back_pressure_bar",
+        "column": "back_pressure_bar",
+        "role": "predictor",
+        "auto_inferred": true,
+        "inference_basis": "declared by objective/context role, no dictionary hit",
+        "knowledge_source": "auto_inferred",
+        "physical_meaning_confidence": "INFERRED",
+        "observed_data_behavior": "NOT_APPLICABLE",
+        "behavior_match": "UNVERIFIED"
+      },
+      {
+        "name": "energy_kwh_per_kg",
+        "column": "energy_kwh_per_kg",
+        "role": "predictor",
+        "auto_inferred": true,
+        "inference_basis": "declared by objective/context role, no dictionary hit",
+        "knowledge_source": "auto_inferred",
+        "physical_meaning_confidence": "INFERRED",
+        "observed_data_behavior": "NOT_APPLICABLE",
+        "behavior_match": "UNVERIFIED"
+      },
+      {
+        "name": "reject_rate_pct",
+        "column": "reject_rate_pct",
+        "role": "predictor",
+        "auto_inferred": true,
+        "inference_basis": "declared by objective/context role, no dictionary hit",
+        "knowledge_source": "auto_inferred",
+        "physical_meaning_confidence": "INFERRED",
+        "observed_data_behavior": "NOT_APPLICABLE",
+        "behavior_match": "UNVERIFIED"
+      }
+    ],
+    "control_variables": [],
+    "events": [],
+    "metadata_columns": [
+      {
+        "name": "timestamp",
+        "column": "timestamp",
+        "role": "timestamp"
+      }
+    ]
+  },
+  "relationships": [
+    {
+      "from": "barrel_temp_c",
+      "to": "energy_kwh_per_kg",
+      "type": "physical",
+      "mechanism": "料筒温度高于工艺最优点时,加热与保温功耗随温差单调上升(热损失主导);INFERRED — 需以剂量-响应与小试验证",
+      "direction": "+",
+      "inferred": true,
+      "data_direction_validated": "untested"
+    }
+  ],
+  "metadata": {
+    "units": {}
+  },
+  "provenance": {
+    "engine": "industrial-ontology-builder",
+    "profile": "improvement",
+    "build_mode": "prior_knowledge",
+    "data_stage": "collected",
+    "rag_used": false,
+    "web_used": false,
+    "physics_prior_used": true,
+    "source": "declared prior from objective.json/report_context + table probe + physics dictionary unique hits; no RAG/web"
+  },
+  "improvement": {
+    "profile": "improvement",
+    "scene_key": "injection_energy_advisory",
+    "data_stage": "collected",
+    "levers": [],
+    "kpis": [],
+    "objective_present": false
+  }
+}

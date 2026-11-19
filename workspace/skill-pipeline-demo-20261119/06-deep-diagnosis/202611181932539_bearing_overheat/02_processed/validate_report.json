@@ -1,0 +1,1005 @@
+{
+  "correlation": {
+    "data_summary": {
+      "data_view_mode": "process_plus_inspection",
+      "total_rows": 120,
+      "numeric_columns_total": 5,
+      "numeric_columns_analyzed": 5,
+      "excluded_columns": [],
+      "dropped_requested_columns": [],
+      "target_columns": [
+        "bearing_temp_c"
+      ],
+      "predictor_columns": [
+        "cooling_water_flow_lpm",
+        "motor_load_pct",
+        "ambient_temp_c"
+      ],
+      "time_column": "timestamp",
+      "group_column": null,
+      "group_values": [],
+      "max_lag": 10,
+      "alpha": 0.05
+    },
+    "sorting_validation": {
+      "time_sorted": true,
+      "time_column": "timestamp",
+      "n_rows": 120,
+      "n_time_values": 120,
+      "message": "Time-sorted"
+    },
+    "correlation_matrices": {
+      "pearson": {
+        "bearing_temp_c": {
+          "bearing_temp_c": 1.0,
+          "motor_load_pct": 0.0254,
+          "cooling_water_flow_lpm": -0.9626,
+          "ambient_temp_c": 0.0162,
+          "vibration_mm_s": 0.9668
+        },
+        "motor_load_pct": {
+          "bearing_temp_c": 0.0254,
+          "motor_load_pct": 1.0,
+          "cooling_water_flow_lpm": -0.0166,
+          "ambient_temp_c": 0.1907,
+          "vibration_mm_s": 0.0481
+        },
+        "cooling_water_flow_lpm": {
+          "bearing_temp_c": -0.9626,
+          "motor_load_pct": -0.0166,
+          "cooling_water_flow_lpm": 1.0,
+          "ambient_temp_c": 0.0134,
+          "vibration_mm_s": -0.9276
+        },
+        "ambient_temp_c": {
+          "bearing_temp_c": 0.0162,
+          "motor_load_pct": 0.1907,
+          "cooling_water_flow_lpm": 0.0134,
+          "ambient_temp_c": 1.0,
+          "vibration_mm_s": 0.0464
+        },
+        "vibration_mm_s": {
+          "bearing_temp_c": 0.9668,
+          "motor_load_pct": 0.0481,
+          "cooling_water_flow_lpm": -0.9276,
+          "ambient_temp_c": 0.0464,
+          "vibration_mm_s": 1.0
+        }
+      },
+      "spearman": {
+        "bearing_temp_c": {
+          "bearing_temp_c": 1.0,
+          "motor_load_pct": 0.0098,
+          "cooling_water_flow_lpm": -0.7295,
+          "ambient_temp_c": 0.0068,
+          "vibration_mm_s": 0.7587
+        },
+        "motor_load_pct": {
+          "bearing_temp_c": 0.0098,
+          "motor_load_pct": 1.0,
+          "cooling_water_flow_lpm": 0.0433,
+          "ambient_temp_c": 0.2001,
+          "vibration_mm_s": 0.0553
+        },
+        "cooling_water_flow_lpm": {
+          "bearing_temp_c": -0.7295,
+          "motor_load_pct": 0.0433,
+          "cooling_water_flow_lpm": 1.0,
+          "ambient_temp_c": 0.0093,
+          "vibration_mm_s": -0.7255
+        },
+        "ambient_temp_c": {
+          "bearing_temp_c": 0.0068,
+          "motor_load_pct": 0.2001,
+          "cooling_water_flow_lpm": 0.0093,
+          "ambient_temp_c": 1.0,
+          "vibration_mm_s": 0.0524
+        },
+        "vibration_mm_s": {
+          "bearing_temp_c": 0.7587,
+          "motor_load_pct": 0.0553,
+          "cooling_water_flow_lpm": -0.7255,
+          "ambient_temp_c": 0.0524,
+          "vibration_mm_s": 1.0
+        }
+      }
+    },
+    "mutual_information": {
+      "bearing_temp_c": {
+        "bearing_temp_c": {
+          "mi": 1.0,
+          "mi_normalized": 1.0
+        },
+        "motor_load_pct": {
+          "mi": 0.0,
+          "mi_normalized": 0.0,
+          "n": 120,
+          "k": 3
+        },
+        "cooling_water_flow_lpm": {
+          "mi": 0.6823,
+          "mi_normalized": 0.1976,
+          "n": 120,
+          "k": 3
+        },
+        "vibration_mm_s": {
+          "mi": 0.6433,
+          "mi_normalized": 0.1863,
+          "n": 120,
+          "k": 3
+        },
+        "ambient_temp_c": {
+          "mi": 0.0991,
+          "mi_normalized": 0.0287,
+          "n": 120,
+          "k": 3
+        }
+      },
+      "motor_load_pct": {
+        "motor_load_pct": {
+          "mi": 1.0,
+          "mi_normalized": 1.0
+        },
+        "vibration_mm_s": {
+          "mi": 0.0,
+          "mi_normalized": 0.0,
+          "n": 120,
+          "k": 3
+        },
+        "cooling_water_flow_lpm": {
+          "mi": 0.0,
+          "mi_normalized": 0.0,
+          "n": 120,
+          "k": 3
+        },
+        "ambient_temp_c": {
+          "mi": 0.0814,
+          "mi_normalized": 0.0236,
+          "n": 120,
+          "k": 3
+        }
+      },
+      "cooling_water_flow_lpm": {
+        "motor_load_pct": {
+          "mi": 0.0,
+          "mi_normalized": 0.0,
+          "n": 120,
+          "k": 3
+        },
+        "cooling_water_flow_lpm": {
+          "mi": 1.0,
+          "mi_normalized": 1.0
+        },
+        "vibration_mm_s": {
+          "mi": 0.6685,
+          "mi_normalized": 0.1936,
+          "n": 120,
+          "k": 3
+        },
+        "ambient_temp_c": {
+          "mi": 0.06,
+          "mi_normalized": 0.0174,
+          "n": 120,
+          "k": 3
+        }
+      },
+      "vibration_mm_s": {
+        "vibration_mm_s": {
+          "mi": 1.0,
+          "mi_normalized": 1.0
+        }
+      },
+      "ambient_temp_c": {
+        "bearing_temp_c": {
+          "mi": 0.0991,
+          "mi_normalized": 0.0287,
+          "n": 120,
+          "k": 3
+        },
+        "motor_load_pct": {
+          "mi": 0.0814,
+          "mi_normalized": 0.0236,
+          "n": 120,
+          "k": 3
+        },
+        "cooling_water_flow_lpm": {
+          "mi": 0.06,
+          "mi_normalized": 0.0174,
+          "n": 120,
+          "k": 3
+        },
+        "ambient_temp_c": {
+          "mi": 1.0,
+          "mi_normalized": 1.0
+        },
+        "vibration_mm_s": {
+          "mi": 0.0396,
+          "mi_normalized": 0.0115,
+          "n": 120,
+          "k": 3
+        }
+      }
+    },
+    "target_analysis": {
+      "bearing_temp_c": {
+        "pearson_correlations": {
+          "cooling_water_flow_lpm": {
+            "r": -0.9626,
+            "n": 120,
+            "p": 0.0
+          },
+          "motor_load_pct": {
+            "r": 0.0254,
+            "n": 120,
+            "p": 0.7834
+          },
+          "ambient_temp_c": {
+            "r": 0.0162,
+            "n": 120,
+            "p": 0.8608
+          }
+        },
+        "spearman_correlations": {
+          "cooling_water_flow_lpm": {
+            "r": -0.7295,
+            "n": 120,
+            "p": 0.0
+          },
+          "motor_load_pct": {
+            "r": 0.0098,
+            "n": 120,
+            "p": 0.9158
+          },
+          "ambient_temp_c": {
+            "r": 0.0068,
+            "n": 120,
+            "p": 0.9413
+          }
+        },
+        "detrended_correlations": {
+          "cooling_water_flow_lpm": {
+            "raw_r": -0.9626,
+            "raw_p": 0.0,
+            "detrended_r": -0.8501,
+            "detrended_p": 0.0,
+            "attenuation_pct": -11.7,
+            "trend_confounded": false,
+            "n": 120
+          },
+          "motor_load_pct": {
+            "raw_r": 0.0254,
+            "raw_p": 0.7834,
+            "detrended_r": -0.0102,
+            "detrended_p": 0.912,
+            "attenuation_pct": 140.2,
+            "trend_confounded": true,
+            "n": 120
+          },
+          "ambient_temp_c": {
+            "raw_r": 0.0162,
+            "raw_p": 0.8608,
+            "detrended_r": -0.0339,
+            "detrended_p": 0.7131,
+            "attenuation_pct": 309.3,
+            "trend_confounded": true,
+            "n": 120
+          }
+        },
+        "lagged_ccf": {
+          "cooling_water_flow_lpm": [
+            {
+              "lag": -10,
+              "r": -0.8628,
+              "n": 110
+            },
+            {
+              "lag": -9,
+              "r": -0.8799,
+              "n": 111
+            },
+            {
+              "lag": -8,
+              "r": -0.8973,
+              "n": 112
+            },
+            {
+              "lag": -7,
+              "r": -0.911,
+              "n": 113
+            },
+            {
+              "lag": -6,
+              "r": -0.9283,
+              "n": 114
+            },
+            {
+              "lag": -5,
+              "r": -0.9452,
+              "n": 115
+            },
+            {
+              "lag": -4,
+              "r": -0.9642,
+              "n": 116
+            },
+            {
+              "lag": -3,
+              "r": -0.9788,
+              "n": 117
+            },
+            {
+              "lag": -2,
+              "r": -0.9959,
+              "n": 118
+            },
+            {
+              "lag": -1,
+              "r": -0.9788,
+              "n": 119
+            },
+            {
+              "lag": 0,
+              "r": -0.9626,
+              "n": 120
+            },
+            {
+              "lag": 1,
+              "r": -0.9458,
+              "n": 119
+            },
+            {
+              "lag": 2,
+              "r": -0.9299,
+              "n": 118
+            },
+            {
+              "lag": 3,
+              "r": -0.9171,
+              "n": 117
+            },
+            {
+              "lag": 4,
+              "r": -0.8994,
+              "n": 116
+            },
+            {
+              "lag": 5,
+              "r": -0.8872,
+              "n": 115
+            },
+            {
+              "lag": 6,
+              "r": -0.8659,
+              "n": 114
+            },
+            {
+              "lag": 7,
+              "r": -0.853,
+              "n": 113
+            },
+            {
+              "lag": 8,
+              "r": -0.8316,
+              "n": 112
+            },
+            {
+              "lag": 9,
+              "r": -0.8161,
+              "n": 111
+            },
+            {
+              "lag": 10,
+              "r": -0.799,
+              "n": 110
+            }
+          ],
+          "motor_load_pct": [
+            {
+              "lag": -10,
+              "r": 0.0739,
+              "n": 110
+            },
+            {
+              "lag": -9,
+              "r": 0.0471,
+              "n": 111
+            },
+            {
+              "lag": -8,
+              "r": 0.0809,
+              "n": 112
+            },
+            {
+              "lag": -7,
+              "r": 0.0495,
+              "n": 113
+            },
+            {
+              "lag": -6,
+              "r": 0.035,
+              "n": 114
+            },
+            {
+              "lag": -5,
+              "r": 0.057,
+              "n": 115
+            },
+            {
+              "lag": -4,
+              "r": 0.0161,
+              "n": 116
+            },
+            {
+              "lag": -3,
+              "r": 0.0285,
+              "n": 117
+            },
+            {
+              "lag": -2,
+              "r": 0.0123,
+              "n": 118
+            },
+            {
+              "lag": -1,
+              "r": 0.048,
+              "n": 119
+            },
+            {
+              "lag": 0,
+              "r": 0.0254,
+              "n": 120
+            },
+            {
+              "lag": 1,
+              "r": 0.0158,
+              "n": 119
+            },
+            {
+              "lag": 2,
+              "r": 0.0157,
+              "n": 118
+            },
+            {
+              "lag": 3,
+              "r": 0.0222,
+              "n": 117
+            },
+            {
+              "lag": 4,
+              "r": 0.0299,
+              "n": 116
+            },
+            {
+              "lag": 5,
+              "r": 0.0194,
+              "n": 115
+            },
+            {
+              "lag": 6,
+              "r": 0.0315,
+              "n": 114
+            },
+            {
+              "lag": 7,
+              "r": 0.0339,
+              "n": 113
+            },
+            {
+              "lag": 8,
+              "r": 0.0222,
+              "n": 112
+            },
+            {
+              "lag": 9,
+              "r": -0.018,
+              "n": 111
+            },
+            {
+              "lag": 10,
+              "r": -0.0248,
+              "n": 110
+            }
+          ],
+          "ambient_temp_c": [
+            {
+              "lag": -10,
+              "r": -0.0285,
+              "n": 110
+            },
+            {
+              "lag": -9,
+              "r": -0.0164,
+              "n": 111
+            },
+            {
+              "lag": -8,
+              "r": -0.0098,
+              "n": 112
+            },
+            {
+              "lag": -7,
+              "r": -0.014,
+              "n": 113
+            },
+            {
+              "lag": -6,
+              "r": 0.0311,
+              "n": 114
+            },
+            {
+              "lag": -5,
+              "r": 0.0314,
+              "n": 115
+            },
+            {
+              "lag": -4,
+              "r": 0.0176,
+              "n": 116
+            },
+            {
+              "lag": -3,
+              "r": 0.0043,
+              "n": 117
+            },
+            {
+              "lag": -2,
+              "r": -0.0107,
+              "n": 118
+            },
+            {
+              "lag": -1,
+              "r": 0.016,
+              "n": 119
+            },
+            {
+              "lag": 0,
+              "r": 0.0162,
+              "n": 120
+            },
+            {
+              "lag": 1,
+              "r": 0.0207,
+              "n": 119
+            },
+            {
+              "lag": 2,
+              "r": 0.0446,
+              "n": 118
+            },
+            {
+              "lag": 3,
+              "r": 0.0403,
+              "n": 117
+            },
+            {
+              "lag": 4,
+              "r": 0.0511,
+              "n": 116
+            },
+            {
+              "lag": 5,
+              "r": 0.0718,
+              "n": 115
+            },
+            {
+              "lag": 6,
+              "r": 0.0823,
+              "n": 114
+            },
+            {
+              "lag": 7,
+              "r": 0.1115,
+              "n": 113
+            },
+            {
+              "lag": 8,
+              "r": 0.1332,
+              "n": 112
+            },
+            {
+              "lag": 9,
+              "r": 0.1088,
+              "n": 111
+            },
+            {
+              "lag": 10,
+              "r": 0.0947,
+              "n": 110
+            }
+          ]
+        },
+        "best_lags": {
+          "cooling_water_flow_lpm": {
+            "lag": -2,
+            "r": -0.9959,
+            "n": 118
+          },
+          "motor_load_pct": {
+            "lag": -8,
+            "r": 0.0809,
+            "n": 112
+          },
+          "ambient_temp_c": {
+            "lag": 8,
+            "r": 0.1332,
+            "n": 112
+          }
+        },
+        "lag_window_consistency": {
+          "cooling_water_flow_lpm": {
+            "best_lag": -2,
+            "best_r": -0.9959,
+            "adjacent_r": [
+              {
+                "lag": -5,
+                "r": -0.9452
+              },
+              {
+                "lag": -4,
+                "r": -0.9642
+              },
+              {
+                "lag": -3,
+                "r": -0.9788
+              },
+              {
+                "lag": -1,
+                "r": -0.9788
+              },
+              {
+                "lag": 0,
+                "r": -0.9626
+              },
+              {
+                "lag": 1,
+                "r": -0.9458
+              }
+            ],
+            "consistent": true,
+            "isolated_spike": false,
+            "consistent_count": 6
+          }
+        }
+      }
+    },
+    "granger_causality": {
+      "bearing_temp_c": {
+        "cooling_water_flow_lpm": {
+          "best_lag": 1,
+          "best_f_stat": 91.5337,
+          "best_p_value": 0.0,
+          "significant": true,
+          "all_lags": [
+            {
+              "lag": 1,
+              "f_stat": 91.5337,
+              "p_value": 0.0,
+              "significant": true,
+              "ssr_restricted": 83.6277,
+              "ssr_unrestricted": 46.7433
+            },
+            {
+              "lag": 2,
+              "f_stat": 259.151,
+              "p_value": 0.0,
+              "significant": true,
+              "ssr_restricted": 81.582,
+              "ssr_unrestricted": 14.6028
+            },
+            {
+              "lag": 3,
+              "f_stat": 171.6414,
+              "p_value": 0.0,
+              "significant": true,
+              "ssr_restricted": 81.0783,
+              "ssr_unrestricted": 14.2715
+            },
+            {
+              "lag": 4,
+              "f_stat": 129.0863,
+              "p_value": 0.0,
+              "significant": true,
+              "ssr_restricted": 80.7707,
+              "ssr_unrestricted": 13.8647
+            },
+            {
+              "lag": 5,
+              "f_stat": 112.6772,
+              "p_value": 0.0,
+              "significant": true,
+              "ssr_restricted": 80.141,
+              "ssr_unrestricted": 12.4885
+            }
+          ],
+          "direction": "X → Y (Granger-causes)",
+          "warning": null
+        },
+        "motor_load_pct": {
+          "best_lag": 5,
+          "best_f_stat": 1.1944,
+          "best_p_value": 0.3171,
+          "significant": false,
+          "all_lags": [
+            {
+              "lag": 1,
+              "f_stat": 0.7484,
+              "p_value": 0.3888,
+              "significant": false,
+              "ssr_restricted": 83.6277,
+              "ssr_unrestricted": 83.0916
+            },
+            {
+              "lag": 2,
+              "f_stat": 1.0896,
+              "p_value": 0.3399,
+              "significant": false,
+              "ssr_restricted": 81.582,
+              "ssr_unrestricted": 80.0385
+            },
+            {
+              "lag": 3,
+              "f_stat": 0.8621,
+              "p_value": 0.4631,
+              "significant": false,
+              "ssr_restricted": 81.0783,
+              "ssr_unrestricted": 79.2157
+            },
+            {
+              "lag": 4,
+              "f_stat": 0.6131,
+              "p_value": 0.6541,
+              "significant": false,
+              "ssr_restricted": 80.7707,
+              "ssr_unrestricted": 78.9609
+            },
+            {
+              "lag": 5,
+              "f_stat": 1.1944,
+              "p_value": 0.3171,
+              "significant": false,
+              "ssr_restricted": 80.141,
+              "ssr_unrestricted": 75.789
+            }
+          ],
+          "direction": "no evidence of Granger causality",
+          "warning": null
+        },
+        "ambient_temp_c": {
+          "best_lag": 3,
+          "best_f_stat": 0.8943,
+          "best_p_value": 0.4466,
+          "significant": false,
+          "all_lags": [
+            {
+              "lag": 1,
+              "f_stat": 0.0009,
+              "p_value": 0.976,
+              "significant": false,
+              "ssr_restricted": 83.6277,
+              "ssr_unrestricted": 83.627
+            },
+            {
+              "lag": 2,
+              "f_stat": 0.6336,
+              "p_value": 0.5325,
+              "significant": false,
+              "ssr_restricted": 81.582,
+              "ssr_unrestricted": 80.6772
+            },
+            {
+              "lag": 3,
+              "f_stat": 0.8943,
+              "p_value": 0.4466,
+              "significant": false,
+              "ssr_restricted": 81.0783,
+              "ssr_unrestricted": 79.1479
+            },
+            {
+              "lag": 4,
+              "f_stat": 0.6743,
+              "p_value": 0.6113,
+              "significant": false,
+              "ssr_restricted": 80.7707,
+              "ssr_unrestricted": 78.7848
+            },
+            {
+              "lag": 5,
+              "f_stat": 0.6157,
+              "p_value": 0.6881,
+              "significant": false,
+              "ssr_restricted": 80.141,
+              "ssr_unrestricted": 77.8369
+            }
+          ],
+          "direction": "no evidence of Granger causality",
+          "warning": null
+        }
+      }
+    },
+    "interaction_effects": [],
+    "multiple_testing": {
+      "total_tests": 3,
+      "nominally_significant_p0_05": 1,
+      "expected_false_positives": 0.2,
+      "bonferroni_threshold": 0.016667,
+      "bonferroni_significant": 1
+    },
+    "stratified_analysis": null
+  },
+  "anti_spurious": {
+    "generated_at": "2026-11-19T03:35:57.525659",
+    "summary": {
+      "total_targets": 1,
+      "total_parameters": 4,
+      "skew_affected_columns": 0,
+      "outlier_driven_correlations": 0,
+      "trend_confounded_correlations": 0,
+      "simpson_paradox_findings": 0,
+      "spearman_divergence_findings": 0,
+      "change_points_detected": 2,
+      "fatal_issues": 0,
+      "serious_count": 2,
+      "moderate_count": 0
+    },
+    "sorting_validation": {
+      "time_sorted": true,
+      "time_column": "timestamp",
+      "n_rows": 120,
+      "n_time_values": 120,
+      "message": "Time-sorted"
+    },
+    "lag_warning": null,
+    "distribution_analysis": {
+      "bearing_temp_c": {
+        "skewness": 0.065,
+        "mean_median_ratio": 1.052,
+        "is_heavily_skewed": false,
+        "pearson_appropriate": true,
+        "recommendation": "NORMAL_ENOUGH: Pearson correlation is appropriate."
+      },
+      "motor_load_pct": {
+        "skewness": -0.123,
+        "mean_median_ratio": 0.999,
+        "is_heavily_skewed": false,
+        "pearson_appropriate": true,
+        "recommendation": "NORMAL_ENOUGH: Pearson correlation is appropriate."
+      },
+      "cooling_water_flow_lpm": {
+        "skewness": -0.003,
+        "mean_median_ratio": 0.999,
+        "is_heavily_skewed": false,
+        "pearson_appropriate": true,
+        "recommendation": "NORMAL_ENOUGH: Pearson correlation is appropriate."
+      },
+      "ambient_temp_c": {
+        "skewness": -0.014,
+        "mean_median_ratio": 1.001,
+        "is_heavily_skewed": false,
+        "pearson_appropriate": true,
+        "recommendation": "NORMAL_ENOUGH: Pearson correlation is appropriate."
+      },
+      "vibration_mm_s": {
+        "skewness": 0.066,
+        "mean_median_ratio": 1.04,
+        "is_heavily_skewed": false,
+        "pearson_appropriate": true,
+        "recommendation": "NORMAL_ENOUGH: Pearson correlation is appropriate."
+      }
+    },
+    "outlier_sensitivity": [
+      {
+        "target": "bearing_temp_c",
+        "parameter": "cooling_water_flow_lpm",
+        "full_r": -0.9626,
+        "clean_r": -0.9626,
+        "r_change_pct": 0.0,
+        "outliers_removed": 0,
+        "outlier_driven": false,
+        "severity": "OK"
+      }
+    ],
+    "leave_one_out_leverage": [
+      {
+        "target": "bearing_temp_c",
+        "parameter": "cooling_water_flow_lpm",
+        "full_r": -0.9626,
+        "leveraged": false,
+        "max_shift": 0.0171,
+        "message": "Leave-one-out check passed: correlation is robust to single-point removal.",
+        "severity": "OK"
+      }
+    ],
+    "time_trend_confounding": [],
+    "simpson_paradox": [],
+    "spearman_divergence": [
+      {
+        "target": "bearing_temp_c",
+        "parameter": "cooling_water_flow_lpm",
+        "pearson_r": -0.9626,
+        "spearman_r": -0.7295,
+        "divergence": 0.233,
+        "severity": "MODERATE",
+        "interpretation": "Moderate divergence. Consider checking scatter plot for nonlinearity or outlier influence."
+      }
+    ],
+    "change_point_detection": {
+      "bearing_temp_c": {
+        "change_points": [
+          62
+        ],
+        "n_segments": 2,
+        "n_changes": 1,
+        "segments": [
+          {
+            "start_idx": 0,
+            "end_idx": 61,
+            "length": 62,
+            "mean": 65.0082
+          },
+          {
+            "start_idx": 62,
+            "end_idx": 119,
+            "length": 58,
+            "mean": 73.0316
+          }
+        ],
+        "regime_shifts": [
+          {
+            "position": 62,
+            "from_mean": 65.0082,
+            "to_mean": 73.0316,
+            "relative_change_pct": 12.3,
+            "significant": true
+          }
+        ],
+        "has_regime_change": true,
+        "warning": "Detected 1 significant regime shifts. Correlations computed across regime boundaries may be spurious. Consider analyzing each segment separately."
+      },
+      "cooling_water_flow_lpm": {
+        "change_points": [
+          60
+        ],
+        "n_segments": 2,
+        "n_changes": 1,
+        "segments": [
+          {
+            "start_idx": 0,
+            "end_idx": 59,
+            "length": 60,
+            "mean": 12.004
+          },
+          {
+            "start_idx": 60,
+            "end_idx": 119,
+            "length": 60,
+            "mean": 8.0225
+          }
+        ],
+        "regime_shifts": [
+          {
+            "position": 60,
+            "from_mean": 12.004,
+            "to_mean": 8.0225,
+            "relative_change_pct": 33.2,
+            "significant": true
+          }
+        ],
+        "has_regime_change": true,
+        "warning": "Detected 1 significant regime shifts. Correlations computed across regime boundaries may be spurious. Consider analyzing each segment separately."
+      }
+    },
+    "multiple_testing_warning": {
+      "severity": "MODERATE",
+      "message": "Only 1 significant results vs 0.2 expected false positives. Many 'significant' correlations may be chance findings.",
+      "action": "Focus interpretation on correlations that survive Bonferroni correction or have |r| > 0.5 with p < 0.001."
+    },
+    "overall_validity": "MODERATE_CONCERNS — Some statistical issues found. Flag them in the report and adjust confidence scores accordingly."
+  },
+  "batch": {
+    "applicable": false,
+    "id_col": null,
+    "duplicate_batches": [],
+    "split_record_count": 0,
+    "action": "none"
+  }
+}

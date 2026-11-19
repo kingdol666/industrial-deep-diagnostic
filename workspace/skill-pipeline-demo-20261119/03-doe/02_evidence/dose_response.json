@@ -1,0 +1,165 @@
+{
+  "contract_version": "improvement-evidence/1.0",
+  "leg": "dose_response",
+  "pairs": [
+    {
+      "lever": "oven1_temp_c",
+      "metric": "coat_weight_gsm",
+      "status": "emitted",
+      "r": 0.7632,
+      "p": 3.6613e-06,
+      "fdr_q": 3.0337e-06,
+      "temporal_ok": null,
+      "n_eff": 69.0,
+      "rho_lag1": -0.439824,
+      "gates": {
+        "lever_variance_ok": true,
+        "samples_ok": true,
+        "temporal_ok": null,
+        "fdr_ok": true,
+        "confound_ok": true,
+        "regime_stable_ok": true
+      },
+      "physics": {
+        "status": "same_domain"
+      },
+      "attribution": {
+        "status": "absent",
+        "ci_excludes_zero": null
+      },
+      "flags": {
+        "objective_inferred": false,
+        "conflict": false,
+        "extrapolated": false,
+        "dead_time_missing": true,
+        "tradeoff_declared": false,
+        "designed_window": false,
+        "designed_effect": false,
+        "gain_ci_excludes_zero": false
+      },
+      "dose": {
+        "status": "not_estimable",
+        "slope": null,
+        "slope_ci95": null,
+        "monotone": null,
+        "verified": null,
+        "reason": "no_significant_relation",
+        "detail": "n=27 below binning floor",
+        "bins": null,
+        "r": null,
+        "p": null,
+        "n_pairs": null
+      },
+      "doe": null,
+      "window": null,
+      "action_id": "ACT-oven1_temp_c-064"
+    },
+    {
+      "lever": "solid_content_pct",
+      "metric": "coat_weight_gsm",
+      "status": "emitted",
+      "r": 0.7632,
+      "p": 3.6613e-06,
+      "fdr_q": 3.0337e-06,
+      "temporal_ok": null,
+      "n_eff": 69.0,
+      "rho_lag1": -0.439824,
+      "gates": {
+        "lever_variance_ok": true,
+        "samples_ok": true,
+        "temporal_ok": null,
+        "fdr_ok": true,
+        "confound_ok": true,
+        "regime_stable_ok": true
+      },
+      "physics": {
+        "status": "same_domain"
+      },
+      "attribution": {
+        "status": "absent",
+        "ci_excludes_zero": null
+      },
+      "flags": {
+        "objective_inferred": false,
+        "conflict": false,
+        "extrapolated": false,
+        "dead_time_missing": true,
+        "tradeoff_declared": false,
+        "designed_window": false,
+        "designed_effect": false,
+        "gain_ci_excludes_zero": false
+      },
+      "dose": {
+        "status": "not_estimable",
+        "slope": null,
+        "slope_ci95": null,
+        "monotone": null,
+        "verified": null,
+        "reason": "no_significant_relation",
+        "detail": "n=27 below binning floor",
+        "bins": null,
+        "r": null,
+        "p": null,
+        "n_pairs": null
+      },
+      "doe": null,
+      "window": null,
+      "action_id": "ACT-solid_content_pct-270"
+    },
+    {
+      "lever": "tension_n",
+      "metric": "coat_weight_gsm",
+      "status": "emitted",
+      "r": 0.7632,
+      "p": 3.6613e-06,
+      "fdr_q": 3.0337e-06,
+      "temporal_ok": null,
+      "n_eff": 69.0,
+      "rho_lag1": -0.439824,
+      "gates": {
+        "lever_variance_ok": true,
+        "samples_ok": true,
+        "temporal_ok": null,
+        "fdr_ok": true,
+        "confound_ok": true,
+        "regime_stable_ok": true
+      },
+      "physics": {
+        "status": "same_domain"
+      },
+      "attribution": {
+        "status": "absent",
+        "ci_excludes_zero": null
+      },
+      "flags": {
+        "objective_inferred": false,
+        "conflict": false,
+        "extrapolated": false,
+        "dead_time_missing": true,
+        "tradeoff_declared": false,
+        "designed_window": false,
+        "designed_effect": false,
+        "gain_ci_excludes_zero": false
+      },
+      "dose": {
+        "status": "not_estimable",
+        "slope": null,
+        "slope_ci95": null,
+        "monotone": null,
+        "verified": null,
+        "reason": "no_significant_relation",
+        "detail": "n=27 below binning floor",
+        "bins": null,
+        "r": null,
+        "p": null,
+        "n_pairs": null
+      },
+      "doe": null,
+      "window": null,
+      "action_id": "ACT-tension_n-462"
+    }
+  ],
+  "dose_leg": [],
+  "fdr_alpha": 0.05,
+  "family_rule": "BH family = 每 KPI 内全部 (杠杆×滞后) 检验对"
+}

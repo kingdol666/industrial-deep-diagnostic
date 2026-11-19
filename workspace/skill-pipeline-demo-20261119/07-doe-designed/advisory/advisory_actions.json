@@ -1,0 +1,265 @@
+{
+  "contract_version": "improvement-advisory/1.0",
+  "report_id": "IMA-20261119061840-bd5d94",
+  "generated_at": "2026-11-19T06:18:40.180624+00:00",
+  "mode": "advisory",
+  "status": "advisory_only",
+  "goal": {
+    "mode": "explicit",
+    "targets": [
+      {
+        "metric": "energy_kwh_per_kg",
+        "direction": "target",
+        "target_value": 0.66,
+        "tolerance": 0.07500000000000001,
+        "weight": null
+      }
+    ],
+    "conflicts": [],
+    "inferred_rationale": null,
+    "inferred_candidates": []
+  },
+  "data": {
+    "path": "D:\\codes\\myskills\\idd-doe-impl\\workspace\\skill-pipeline-demo-20261119\\07-doe-designed\\00_input\\run_table.csv",
+    "sha256": "sha256:fc5c8e810c4a0abb6923d3119e4c0b7d7c53bd3f38831a9bc7dd94380fbd5d94",
+    "n_rows": 27,
+    "n_rows_used": 27,
+    "time_col": "numeric",
+    "levers": [
+      "barrel_temp_c",
+      "cooling_time_s"
+    ],
+    "kpis": [
+      "energy_kwh_per_kg"
+    ],
+    "sampled": false
+  },
+  "waterline": {
+    "max_achievable_grade": "B",
+    "factors": {
+      "attribution_available": false,
+      "mechanism_edges": 3,
+      "dead_time_provided": false,
+      "designed_window_available": false,
+      "objective_confirmed": true
+    },
+    "note": "无动作日志：观察数据最高 B；dead_time 缺省：时间先后未评估，相关动作封顶 B；无设计试验窗；目标已显式声明"
+  },
+  "actions": [
+    {
+      "action_id": "ACT-barrel_temp_c-822",
+      "lever_param": "barrel_temp_c",
+      "lever_column": "barrel_temp_c",
+      "direction": "increase",
+      "magnitude": {
+        "from": 190.0,
+        "to": 191.6641005,
+        "delta": 1.6641005,
+        "unit": "℃"
+      },
+      "expected_gain": {
+        "metric": "energy_kwh_per_kg",
+        "current": 0.6259,
+        "point": null,
+        "ci95": null,
+        "method": "none",
+        "verified": false,
+        "not_estimable_reason": "no_significant_relation"
+      },
+      "evidence_refs": [
+        {
+          "type": "dose_response",
+          "source_file": "02_evidence/dose_response.json",
+          "finding_id": "ccf:barrel_temp_c:energy_kwh_per_kg",
+          "stat": {
+            "r": 0.861,
+            "p": 8.3e-09,
+            "fdr_q": 1.66e-08,
+            "peak_lag": 0,
+            "peak_r": 0.861
+          }
+        }
+      ],
+      "mechanism_chain": [
+        {
+          "step": "杠杆 barrel_temp_c 的物理含义：barrel_temp_c（由分析上下文声明；未提供独立物理机理描述）",
+          "ontology_ref": "signals.control_variables[column=barrel_temp_c].physical_meaning"
+        },
+        {
+          "step": "目标 KPI energy_kwh_per_kg 的物理含义：energy_kwh_per_kg（由分析上下文声明；未提供独立物理机理描述）",
+          "ontology_ref": "signals.inspection_signals[column=energy_kwh_per_kg].physical_meaning"
+        },
+        {
+          "step": "无方向声明：机制为同域先验（不构成因果边）",
+          "ontology_ref": "ontology.limitations"
+        }
+      ],
+      "mechanism_status": "same_domain",
+      "affected_kpis": [],
+      "grade": "C",
+      "grade_reasons": [
+        "dead_time 缺省：时间先后 not_assessable（禁假设 0 放行）",
+        "机制为同域先验（无方向边），封顶 B",
+        "无动作日志：观察数据最高 B",
+        "dead_time 缺省，相关动作封顶 B",
+        "预期收益 CI 跨 0 或不可估"
+      ],
+      "priority_score": 0.064575,
+      "risk": {
+        "assumptions": [
+          "线性剂量响应假设（分箱中位斜率）",
+          "dead_time 未提供：时间先后条件未评估（禁假设 0）",
+          "无动作日志归因"
+        ],
+        "confidence_cap": 50
+      },
+      "preconditions": [
+        "工况与本次数据窗一致（物料/批次/设备状态）"
+      ],
+      "side_effects": [],
+      "verification_plan": {
+        "metric": "energy_kwh_per_kg",
+        "window": "在线连续 ≥24h 对比基线窗",
+        "threshold": "方向验证：监控目标 KPI 变化方向，连续 3 批同向视为初步有效"
+      },
+      "rollback_condition": "若调整后 barrel_temp_c 输出未按预期改善或任一受约束指标恶化，回退至 190.0（调整前中位），并复核工况前提",
+      "prescription_tags": [],
+      "advisory": true,
+      "grade_inputs": {
+        "data": {
+          "lever_variance_ok": true,
+          "samples_ok": true,
+          "temporal_ok": null,
+          "fdr_ok": true,
+          "confound_ok": true,
+          "regime_stable_ok": true
+        },
+        "physics": {
+          "status": "same_domain"
+        },
+        "attribution": {
+          "status": "absent",
+          "ci_excludes_zero": null
+        },
+        "flags": {
+          "objective_inferred": false,
+          "conflict": false,
+          "extrapolated": false,
+          "dead_time_missing": true,
+          "tradeoff_declared": false,
+          "designed_window": false,
+          "designed_effect": false,
+          "gain_ci_excludes_zero": false
+        }
+      },
+      "interpretation": null
+    }
+  ],
+  "prescriptions": [],
+  "excluded_levers": [],
+  "degradations": [
+    {
+      "leg": "doe_windows",
+      "status": "used",
+      "reason": "used"
+    },
+    {
+      "leg": "tuning_memory_attribution",
+      "status": "skipped",
+      "reason": "no action_log supplied"
+    },
+    {
+      "leg": "temporal_precedence",
+      "status": "not_estimable",
+      "reason": "dead_time 缺省：时间先后条件 not_assessable（禁假设 0 放行），相关动作封顶 B"
+    }
+  ],
+  "provenance": {
+    "authored_by": "imacore",
+    "engine": "industrial-improvement-advisor",
+    "ontology": null,
+    "reuses": [
+      "core_stats: ok",
+      "doestats: ok",
+      "lstcore_io: ok",
+      "closedloop_enums: ok",
+      "ontology_common: ok",
+      "tune_stats: ok",
+      "anti_spurious: ok"
+    ],
+    "data_source": "raw"
+  },
+  "limitations": [
+    "线性剂量响应假设（分箱中位 OLS 斜率）；非线性/阈值效应需设计试验确认。",
+    "观察性结论为相关级；A 级需归因或设计窗的干预性证据。",
+    "dead_time 未提供：时间先后条件未评估，滞后关系可能错配。"
+  ],
+  "evidence": {
+    "dose_response": [],
+    "window_notes": [],
+    "pairs": [
+      {
+        "lever": "barrel_temp_c",
+        "metric": "energy_kwh_per_kg",
+        "status": "emitted",
+        "r": 0.861,
+        "p": 8.3e-09,
+        "fdr_q": 1.66e-08,
+        "temporal_ok": null,
+        "n_eff": 20.0,
+        "rho_lag1": 0.131125,
+        "gates": {
+          "lever_variance_ok": true,
+          "samples_ok": true,
+          "temporal_ok": null,
+          "fdr_ok": true,
+          "confound_ok": true,
+          "regime_stable_ok": true
+        },
+        "physics": {
+          "status": "same_domain"
+        },
+        "attribution": {
+          "status": "absent",
+          "ci_excludes_zero": null
+        },
+        "flags": {
+          "objective_inferred": false,
+          "conflict": false,
+          "extrapolated": false,
+          "dead_time_missing": true,
+          "tradeoff_declared": false,
+          "designed_window": false,
+          "designed_effect": false,
+          "gain_ci_excludes_zero": false
+        },
+        "dose": {
+          "status": "not_estimable",
+          "slope": null,
+          "slope_ci95": null,
+          "monotone": null,
+          "verified": null,
+          "reason": "no_significant_relation",
+          "detail": "n=27 below binning floor",
+          "bins": null,
+          "r": null,
+          "p": null,
+          "n_pairs": null
+        },
+        "doe": null,
+        "window": null,
+        "action_id": "ACT-barrel_temp_c-822"
+      },
+      {
+        "lever": "cooling_time_s",
+        "metric": "energy_kwh_per_kg",
+        "status": "below_threshold",
+        "r": -0.0724,
+        "p": 0.7196911503,
+        "fdr_q": 0.0881581151,
+        "temporal_ok": null
+      }
+    ],
+    "window_contrasts": []
+  }
+}

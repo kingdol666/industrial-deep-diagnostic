@@ -1,0 +1,22 @@
+{
+  "result_version": "1.0",
+  "campaign_id": "OPT-20261119-001",
+  "round_id": "R004",
+  "trials": [
+    {
+      "trial_id": "R004-T01",
+      "status": "completed",
+      "measurements": {
+        "energy_kwh_per_kg": [
+          2.0137,
+          2.0833,
+          2.0973
+        ]
+      }
+    }
+  ],
+  "ingest_meta": {
+    "source": "manual_csv",
+    "ingested_at": "2026-11-18T19:53:58.450575+00:00"
+  }
+}

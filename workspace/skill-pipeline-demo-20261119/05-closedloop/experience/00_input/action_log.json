@@ -1,0 +1,1724 @@
+[
+  {
+    "schema_version": "1.0",
+    "action_log_id": "ACT-001",
+    "ts": "2026-11-08T07:00:00Z",
+    "actor": {
+      "actor_id": "EMP-023",
+      "actor_type": "engineer",
+      "display_alias": null
+    },
+    "actions": [
+      {
+        "parameter": "barrel_temp_c",
+        "from": 200.0,
+        "to": 195.0,
+        "unit": "degC"
+      }
+    ],
+    "bundled_action": {
+      "is_bundle": false,
+      "bundle_reason": "single",
+      "note": null
+    },
+    "context": {
+      "product": "PP-Cup-330ml",
+      "machine": "IMM-07",
+      "regime_label": "normal"
+    },
+    "trigger": {
+      "trigger_type": "manual",
+      "ref_id": null
+    },
+    "outcome": {
+      "metric": "energy_kwh_per_kg",
+      "observed_trajectory": "settled_to_target",
+      "observed_by": "engineer_reported"
+    },
+    "ingest_meta": {
+      "source": "csv_import",
+      "ingested_at": null
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "action_log_id": "ACT-002",
+    "ts": "2026-11-08T10:40:00Z",
+    "actor": {
+      "actor_id": "EMP-041",
+      "actor_type": "engineer",
+      "display_alias": null
+    },
+    "actions": [
+      {
+        "parameter": "barrel_temp_c",
+        "from": 195.0,
+        "to": 190.0,
+        "unit": "degC"
+      }
+    ],
+    "bundled_action": {
+      "is_bundle": false,
+      "bundle_reason": "single",
+      "note": null
+    },
+    "context": {
+      "product": "PP-Cup-330ml",
+      "machine": "IMM-07",
+      "regime_label": "normal"
+    },
+    "trigger": {
+      "trigger_type": "manual",
+      "ref_id": null
+    },
+    "outcome": {
+      "metric": "energy_kwh_per_kg",
+      "observed_trajectory": "settled_to_target",
+      "observed_by": "engineer_reported"
+    },
+    "ingest_meta": {
+      "source": "csv_import",
+      "ingested_at": null
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "action_log_id": "ACT-003",
+    "ts": "2026-11-08T14:20:00Z",
+    "actor": {
+      "actor_id": "EMP-077",
+      "actor_type": "engineer",
+      "display_alias": null
+    },
+    "actions": [
+      {
+        "parameter": "barrel_temp_c",
+        "from": 190.0,
+        "to": 185.0,
+        "unit": "degC"
+      }
+    ],
+    "bundled_action": {
+      "is_bundle": false,
+      "bundle_reason": "single",
+      "note": null
+    },
+    "context": {
+      "product": "PP-Cup-330ml",
+      "machine": "IMM-07",
+      "regime_label": "normal"
+    },
+    "trigger": {
+      "trigger_type": "manual",
+      "ref_id": null
+    },
+    "outcome": {
+      "metric": "energy_kwh_per_kg",
+      "observed_trajectory": "settled_to_target",
+      "observed_by": "engineer_reported"
+    },
+    "ingest_meta": {
+      "source": "csv_import",
+      "ingested_at": null
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "action_log_id": "ACT-004",
+    "ts": "2026-11-08T18:00:00Z",
+    "actor": {
+      "actor_id": "EMP-115",
+      "actor_type": "engineer",
+      "display_alias": null
+    },
+    "actions": [
+      {
+        "parameter": "barrel_temp_c",
+        "from": 185.0,
+        "to": 200.0,
+        "unit": "degC"
+      }
+    ],
+    "bundled_action": {
+      "is_bundle": false,
+      "bundle_reason": "single",
+      "note": null
+    },
+    "context": {
+      "product": "PP-Cup-330ml",
+      "machine": "IMM-07",
+      "regime_label": "normal"
+    },
+    "trigger": {
+      "trigger_type": "manual",
+      "ref_id": null
+    },
+    "outcome": {
+      "metric": "energy_kwh_per_kg",
+      "observed_trajectory": "settled_to_target",
+      "observed_by": "engineer_reported"
+    },
+    "ingest_meta": {
+      "source": "csv_import",
+      "ingested_at": null
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "action_log_id": "ACT-005",
+    "ts": "2026-11-08T21:40:00Z",
+    "actor": {
+      "actor_id": "EMP-023",
+      "actor_type": "engineer",
+      "display_alias": null
+    },
+    "actions": [
+      {
+        "parameter": "barrel_temp_c",
+        "from": 200.0,
+        "to": 195.0,
+        "unit": "degC"
+      }
+    ],
+    "bundled_action": {
+      "is_bundle": false,
+      "bundle_reason": "single",
+      "note": null
+    },
+    "context": {
+      "product": "PP-Cup-330ml",
+      "machine": "IMM-07",
+      "regime_label": "normal"
+    },
+    "trigger": {
+      "trigger_type": "manual",
+      "ref_id": null
+    },
+    "outcome": {
+      "metric": "energy_kwh_per_kg",
+      "observed_trajectory": "settled_to_target",
+      "observed_by": "engineer_reported"
+    },
+    "ingest_meta": {
+      "source": "csv_import",
+      "ingested_at": null
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "action_log_id": "ACT-006",
+    "ts": "2026-11-09T01:20:00Z",
+    "actor": {
+      "actor_id": "EMP-041",
+      "actor_type": "engineer",
+      "display_alias": null
+    },
+    "actions": [
+      {
+        "parameter": "barrel_temp_c",
+        "from": 195.0,
+        "to": 190.0,
+        "unit": "degC"
+      }
+    ],
+    "bundled_action": {
+      "is_bundle": false,
+      "bundle_reason": "single",
+      "note": null
+    },
+    "context": {
+      "product": "PP-Cup-330ml",
+      "machine": "IMM-07",
+      "regime_label": "normal"
+    },
+    "trigger": {
+      "trigger_type": "manual",
+      "ref_id": null
+    },
+    "outcome": {
+      "metric": "energy_kwh_per_kg",
+      "observed_trajectory": "settled_to_target",
+      "observed_by": "engineer_reported"
+    },
+    "ingest_meta": {
+      "source": "csv_import",
+      "ingested_at": null
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "action_log_id": "ACT-007",
+    "ts": "2026-11-09T05:00:00Z",
+    "actor": {
+      "actor_id": "EMP-077",
+      "actor_type": "engineer",
+      "display_alias": null
+    },
+    "actions": [
+      {
+        "parameter": "barrel_temp_c",
+        "from": 190.0,
+        "to": 185.0,
+        "unit": "degC"
+      }
+    ],
+    "bundled_action": {
+      "is_bundle": false,
+      "bundle_reason": "single",
+      "note": null
+    },
+    "context": {
+      "product": "PP-Cup-330ml",
+      "machine": "IMM-07",
+      "regime_label": "normal"
+    },
+    "trigger": {
+      "trigger_type": "manual",
+      "ref_id": null
+    },
+    "outcome": {
+      "metric": "energy_kwh_per_kg",
+      "observed_trajectory": "settled_to_target",
+      "observed_by": "engineer_reported"
+    },
+    "ingest_meta": {
+      "source": "csv_import",
+      "ingested_at": null
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "action_log_id": "ACT-008",
+    "ts": "2026-11-09T08:40:00Z",
+    "actor": {
+      "actor_id": "EMP-115",
+      "actor_type": "engineer",
+      "display_alias": null
+    },
+    "actions": [
+      {
+        "parameter": "barrel_temp_c",
+        "from": 185.0,
+        "to": 199.0,
+        "unit": "degC"
+      }
+    ],
+    "bundled_action": {
+      "is_bundle": false,
+      "bundle_reason": "single",
+      "note": null
+    },
+    "context": {
+      "product": "PP-Cup-330ml",
+      "machine": "IMM-07",
+      "regime_label": "normal"
+    },
+    "trigger": {
+      "trigger_type": "manual",
+      "ref_id": null
+    },
+    "outcome": {
+      "metric": "energy_kwh_per_kg",
+      "observed_trajectory": "settled_to_target",
+      "observed_by": "engineer_reported"
+    },
+    "ingest_meta": {
+      "source": "csv_import",
+      "ingested_at": null
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "action_log_id": "ACT-009",
+    "ts": "2026-11-09T12:20:00Z",
+    "actor": {
+      "actor_id": "EMP-023",
+      "actor_type": "engineer",
+      "display_alias": null
+    },
+    "actions": [
+      {
+        "parameter": "barrel_temp_c",
+        "from": 199.0,
+        "to": 195.0,
+        "unit": "degC"
+      }
+    ],
+    "bundled_action": {
+      "is_bundle": false,
+      "bundle_reason": "single",
+      "note": null
+    },
+    "context": {
+      "product": "PP-Cup-330ml",
+      "machine": "IMM-07",
+      "regime_label": "normal"
+    },
+    "trigger": {
+      "trigger_type": "manual",
+      "ref_id": null
+    },
+    "outcome": {
+      "metric": "energy_kwh_per_kg",
+      "observed_trajectory": "settled_to_target",
+      "observed_by": "engineer_reported"
+    },
+    "ingest_meta": {
+      "source": "csv_import",
+      "ingested_at": null
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "action_log_id": "ACT-010",
+    "ts": "2026-11-09T16:00:00Z",
+    "actor": {
+      "actor_id": "EMP-041",
+      "actor_type": "engineer",
+      "display_alias": null
+    },
+    "actions": [
+      {
+        "parameter": "barrel_temp_c",
+        "from": 195.0,
+        "to": 190.0,
+        "unit": "degC"
+      }
+    ],
+    "bundled_action": {
+      "is_bundle": false,
+      "bundle_reason": "single",
+      "note": null
+    },
+    "context": {
+      "product": "PP-Cup-330ml",
+      "machine": "IMM-07",
+      "regime_label": "normal"
+    },
+    "trigger": {
+      "trigger_type": "manual",
+      "ref_id": null
+    },
+    "outcome": {
+      "metric": "energy_kwh_per_kg",
+      "observed_trajectory": "settled_to_target",
+      "observed_by": "engineer_reported"
+    },
+    "ingest_meta": {
+      "source": "csv_import",
+      "ingested_at": null
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "action_log_id": "ACT-011",
+    "ts": "2026-11-09T19:40:00Z",
+    "actor": {
+      "actor_id": "EMP-077",
+      "actor_type": "engineer",
+      "display_alias": null
+    },
+    "actions": [
+      {
+        "parameter": "barrel_temp_c",
+        "from": 190.0,
+        "to": 185.0,
+        "unit": "degC"
+      }
+    ],
+    "bundled_action": {
+      "is_bundle": false,
+      "bundle_reason": "single",
+      "note": null
+    },
+    "context": {
+      "product": "PP-Cup-330ml",
+      "machine": "IMM-07",
+      "regime_label": "high_output"
+    },
+    "trigger": {
+      "trigger_type": "manual",
+      "ref_id": null
+    },
+    "outcome": {
+      "metric": "energy_kwh_per_kg",
+      "observed_trajectory": "settled_to_target",
+      "observed_by": "engineer_reported"
+    },
+    "ingest_meta": {
+      "source": "csv_import",
+      "ingested_at": null
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "action_log_id": "ACT-012",
+    "ts": "2026-11-09T23:20:00Z",
+    "actor": {
+      "actor_id": "EMP-115",
+      "actor_type": "engineer",
+      "display_alias": null
+    },
+    "actions": [
+      {
+        "parameter": "barrel_temp_c",
+        "from": 185.0,
+        "to": 180.0,
+        "unit": "degC"
+      }
+    ],
+    "bundled_action": {
+      "is_bundle": false,
+      "bundle_reason": "single",
+      "note": null
+    },
+    "context": {
+      "product": "PP-Cup-330ml",
+      "machine": "IMM-07",
+      "regime_label": "high_output"
+    },
+    "trigger": {
+      "trigger_type": "manual",
+      "ref_id": null
+    },
+    "outcome": {
+      "metric": "energy_kwh_per_kg",
+      "observed_trajectory": "settled_to_target",
+      "observed_by": "engineer_reported"
+    },
+    "ingest_meta": {
+      "source": "csv_import",
+      "ingested_at": null
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "action_log_id": "ACT-013",
+    "ts": "2026-11-10T03:00:00Z",
+    "actor": {
+      "actor_id": "EMP-023",
+      "actor_type": "engineer",
+      "display_alias": null
+    },
+    "actions": [
+      {
+        "parameter": "barrel_temp_c",
+        "from": 180.0,
+        "to": 190.0,
+        "unit": "degC"
+      }
+    ],
+    "bundled_action": {
+      "is_bundle": false,
+      "bundle_reason": "single",
+      "note": null
+    },
+    "context": {
+      "product": "PP-Cup-330ml",
+      "machine": "IMM-07",
+      "regime_label": "high_output"
+    },
+    "trigger": {
+      "trigger_type": "manual",
+      "ref_id": null
+    },
+    "outcome": {
+      "metric": "energy_kwh_per_kg",
+      "observed_trajectory": "settled_to_target",
+      "observed_by": "engineer_reported"
+    },
+    "ingest_meta": {
+      "source": "csv_import",
+      "ingested_at": null
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "action_log_id": "ACT-014",
+    "ts": "2026-11-10T06:40:00Z",
+    "actor": {
+      "actor_id": "EMP-041",
+      "actor_type": "engineer",
+      "display_alias": null
+    },
+    "actions": [
+      {
+        "parameter": "barrel_temp_c",
+        "from": 190.0,
+        "to": 185.0,
+        "unit": "degC"
+      }
+    ],
+    "bundled_action": {
+      "is_bundle": false,
+      "bundle_reason": "single",
+      "note": null
+    },
+    "context": {
+      "product": "PP-Cup-330ml",
+      "machine": "IMM-07",
+      "regime_label": "high_output"
+    },
+    "trigger": {
+      "trigger_type": "manual",
+      "ref_id": null
+    },
+    "outcome": {
+      "metric": "energy_kwh_per_kg",
+      "observed_trajectory": "settled_to_target",
+      "observed_by": "engineer_reported"
+    },
+    "ingest_meta": {
+      "source": "csv_import",
+      "ingested_at": null
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "action_log_id": "ACT-015",
+    "ts": "2026-11-10T10:20:00Z",
+    "actor": {
+      "actor_id": "EMP-077",
+      "actor_type": "engineer",
+      "display_alias": null
+    },
+    "actions": [
+      {
+        "parameter": "cooling_time_s",
+        "from": 28.0,
+        "to": 26.0,
+        "unit": "s"
+      }
+    ],
+    "bundled_action": {
+      "is_bundle": false,
+      "bundle_reason": "single",
+      "note": null
+    },
+    "context": {
+      "product": "PP-Cup-330ml",
+      "machine": "IMM-07",
+      "regime_label": "normal"
+    },
+    "trigger": {
+      "trigger_type": "manual",
+      "ref_id": null
+    },
+    "outcome": {
+      "metric": "energy_kwh_per_kg",
+      "observed_trajectory": "settled_to_target",
+      "observed_by": "engineer_reported"
+    },
+    "ingest_meta": {
+      "source": "csv_import",
+      "ingested_at": null
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "action_log_id": "ACT-016",
+    "ts": "2026-11-10T14:00:00Z",
+    "actor": {
+      "actor_id": "EMP-115",
+      "actor_type": "engineer",
+      "display_alias": null
+    },
+    "actions": [
+      {
+        "parameter": "cooling_time_s",
+        "from": 26.0,
+        "to": 24.0,
+        "unit": "s"
+      }
+    ],
+    "bundled_action": {
+      "is_bundle": false,
+      "bundle_reason": "single",
+      "note": null
+    },
+    "context": {
+      "product": "PP-Cup-330ml",
+      "machine": "IMM-07",
+      "regime_label": "normal"
+    },
+    "trigger": {
+      "trigger_type": "manual",
+      "ref_id": null
+    },
+    "outcome": {
+      "metric": "energy_kwh_per_kg",
+      "observed_trajectory": "settled_to_target",
+      "observed_by": "engineer_reported"
+    },
+    "ingest_meta": {
+      "source": "csv_import",
+      "ingested_at": null
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "action_log_id": "ACT-017",
+    "ts": "2026-11-10T17:40:00Z",
+    "actor": {
+      "actor_id": "EMP-023",
+      "actor_type": "engineer",
+      "display_alias": null
+    },
+    "actions": [
+      {
+        "parameter": "cooling_time_s",
+        "from": 24.0,
+        "to": 28.0,
+        "unit": "s"
+      }
+    ],
+    "bundled_action": {
+      "is_bundle": false,
+      "bundle_reason": "single",
+      "note": null
+    },
+    "context": {
+      "product": "PP-Cup-330ml",
+      "machine": "IMM-07",
+      "regime_label": "normal"
+    },
+    "trigger": {
+      "trigger_type": "manual",
+      "ref_id": null
+    },
+    "outcome": {
+      "metric": "energy_kwh_per_kg",
+      "observed_trajectory": "settled_to_target",
+      "observed_by": "engineer_reported"
+    },
+    "ingest_meta": {
+      "source": "csv_import",
+      "ingested_at": null
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "action_log_id": "ACT-018",
+    "ts": "2026-11-10T21:20:00Z",
+    "actor": {
+      "actor_id": "EMP-041",
+      "actor_type": "engineer",
+      "display_alias": null
+    },
+    "actions": [
+      {
+        "parameter": "cooling_time_s",
+        "from": 28.0,
+        "to": 26.0,
+        "unit": "s"
+      }
+    ],
+    "bundled_action": {
+      "is_bundle": false,
+      "bundle_reason": "single",
+      "note": null
+    },
+    "context": {
+      "product": "PP-Cup-330ml",
+      "machine": "IMM-07",
+      "regime_label": "normal"
+    },
+    "trigger": {
+      "trigger_type": "manual",
+      "ref_id": null
+    },
+    "outcome": {
+      "metric": "energy_kwh_per_kg",
+      "observed_trajectory": "settled_to_target",
+      "observed_by": "engineer_reported"
+    },
+    "ingest_meta": {
+      "source": "csv_import",
+      "ingested_at": null
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "action_log_id": "ACT-019",
+    "ts": "2026-11-11T01:00:00Z",
+    "actor": {
+      "actor_id": "EMP-077",
+      "actor_type": "engineer",
+      "display_alias": null
+    },
+    "actions": [
+      {
+        "parameter": "cooling_time_s",
+        "from": 26.0,
+        "to": 24.0,
+        "unit": "s"
+      }
+    ],
+    "bundled_action": {
+      "is_bundle": false,
+      "bundle_reason": "single",
+      "note": null
+    },
+    "context": {
+      "product": "PP-Cup-330ml",
+      "machine": "IMM-07",
+      "regime_label": "normal"
+    },
+    "trigger": {
+      "trigger_type": "manual",
+      "ref_id": null
+    },
+    "outcome": {
+      "metric": "energy_kwh_per_kg",
+      "observed_trajectory": "settled_to_target",
+      "observed_by": "engineer_reported"
+    },
+    "ingest_meta": {
+      "source": "csv_import",
+      "ingested_at": null
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "action_log_id": "ACT-020",
+    "ts": "2026-11-11T04:40:00Z",
+    "actor": {
+      "actor_id": "EMP-115",
+      "actor_type": "engineer",
+      "display_alias": null
+    },
+    "actions": [
+      {
+        "parameter": "cooling_time_s",
+        "from": 24.0,
+        "to": 30.0,
+        "unit": "s"
+      }
+    ],
+    "bundled_action": {
+      "is_bundle": false,
+      "bundle_reason": "single",
+      "note": null
+    },
+    "context": {
+      "product": "PP-Cup-330ml",
+      "machine": "IMM-07",
+      "regime_label": "normal"
+    },
+    "trigger": {
+      "trigger_type": "manual",
+      "ref_id": null
+    },
+    "outcome": {
+      "metric": "energy_kwh_per_kg",
+      "observed_trajectory": "settled_to_target",
+      "observed_by": "engineer_reported"
+    },
+    "ingest_meta": {
+      "source": "csv_import",
+      "ingested_at": null
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "action_log_id": "ACT-021",
+    "ts": "2026-11-11T08:20:00Z",
+    "actor": {
+      "actor_id": "EMP-023",
+      "actor_type": "engineer",
+      "display_alias": null
+    },
+    "actions": [
+      {
+        "parameter": "cooling_time_s",
+        "from": 30.0,
+        "to": 26.0,
+        "unit": "s"
+      }
+    ],
+    "bundled_action": {
+      "is_bundle": false,
+      "bundle_reason": "single",
+      "note": null
+    },
+    "context": {
+      "product": "PP-Cup-330ml",
+      "machine": "IMM-07",
+      "regime_label": "normal"
+    },
+    "trigger": {
+      "trigger_type": "manual",
+      "ref_id": null
+    },
+    "outcome": {
+      "metric": "energy_kwh_per_kg",
+      "observed_trajectory": "settled_to_target",
+      "observed_by": "engineer_reported"
+    },
+    "ingest_meta": {
+      "source": "csv_import",
+      "ingested_at": null
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "action_log_id": "ACT-022",
+    "ts": "2026-11-11T12:00:00Z",
+    "actor": {
+      "actor_id": "EMP-041",
+      "actor_type": "engineer",
+      "display_alias": null
+    },
+    "actions": [
+      {
+        "parameter": "injection_pressure_bar",
+        "from": 115.0,
+        "to": 118.0,
+        "unit": "bar"
+      }
+    ],
+    "bundled_action": {
+      "is_bundle": false,
+      "bundle_reason": "single",
+      "note": null
+    },
+    "context": {
+      "product": "PP-Cup-330ml",
+      "machine": "IMM-07",
+      "regime_label": "normal"
+    },
+    "trigger": {
+      "trigger_type": "manual",
+      "ref_id": null
+    },
+    "outcome": {
+      "metric": "energy_kwh_per_kg",
+      "observed_trajectory": "no_change",
+      "observed_by": "engineer_reported"
+    },
+    "ingest_meta": {
+      "source": "csv_import",
+      "ingested_at": null
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "action_log_id": "ACT-023",
+    "ts": "2026-11-11T15:40:00Z",
+    "actor": {
+      "actor_id": "EMP-077",
+      "actor_type": "engineer",
+      "display_alias": null
+    },
+    "actions": [
+      {
+        "parameter": "injection_pressure_bar",
+        "from": 118.0,
+        "to": 112.0,
+        "unit": "bar"
+      }
+    ],
+    "bundled_action": {
+      "is_bundle": false,
+      "bundle_reason": "single",
+      "note": null
+    },
+    "context": {
+      "product": "PP-Cup-330ml",
+      "machine": "IMM-07",
+      "regime_label": "normal"
+    },
+    "trigger": {
+      "trigger_type": "manual",
+      "ref_id": null
+    },
+    "outcome": {
+      "metric": "energy_kwh_per_kg",
+      "observed_trajectory": "no_change",
+      "observed_by": "engineer_reported"
+    },
+    "ingest_meta": {
+      "source": "csv_import",
+      "ingested_at": null
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "action_log_id": "ACT-024",
+    "ts": "2026-11-11T19:20:00Z",
+    "actor": {
+      "actor_id": "EMP-115",
+      "actor_type": "engineer",
+      "display_alias": null
+    },
+    "actions": [
+      {
+        "parameter": "injection_pressure_bar",
+        "from": 112.0,
+        "to": 115.0,
+        "unit": "bar"
+      }
+    ],
+    "bundled_action": {
+      "is_bundle": false,
+      "bundle_reason": "single",
+      "note": null
+    },
+    "context": {
+      "product": "PP-Cup-330ml",
+      "machine": "IMM-07",
+      "regime_label": "normal"
+    },
+    "trigger": {
+      "trigger_type": "manual",
+      "ref_id": null
+    },
+    "outcome": {
+      "metric": "energy_kwh_per_kg",
+      "observed_trajectory": "no_change",
+      "observed_by": "engineer_reported"
+    },
+    "ingest_meta": {
+      "source": "csv_import",
+      "ingested_at": null
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "action_log_id": "ACT-025",
+    "ts": "2026-11-11T23:00:00Z",
+    "actor": {
+      "actor_id": "EMP-023",
+      "actor_type": "engineer",
+      "display_alias": null
+    },
+    "actions": [
+      {
+        "parameter": "injection_pressure_bar",
+        "from": 115.0,
+        "to": 118.0,
+        "unit": "bar"
+      }
+    ],
+    "bundled_action": {
+      "is_bundle": false,
+      "bundle_reason": "single",
+      "note": null
+    },
+    "context": {
+      "product": "PP-Cup-330ml",
+      "machine": "IMM-07",
+      "regime_label": "normal"
+    },
+    "trigger": {
+      "trigger_type": "manual",
+      "ref_id": null
+    },
+    "outcome": {
+      "metric": "energy_kwh_per_kg",
+      "observed_trajectory": "no_change",
+      "observed_by": "engineer_reported"
+    },
+    "ingest_meta": {
+      "source": "csv_import",
+      "ingested_at": null
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "action_log_id": "ACT-026",
+    "ts": "2026-11-12T02:40:00Z",
+    "actor": {
+      "actor_id": "EMP-041",
+      "actor_type": "engineer",
+      "display_alias": null
+    },
+    "actions": [
+      {
+        "parameter": "injection_pressure_bar",
+        "from": 118.0,
+        "to": 115.0,
+        "unit": "bar"
+      }
+    ],
+    "bundled_action": {
+      "is_bundle": false,
+      "bundle_reason": "single",
+      "note": null
+    },
+    "context": {
+      "product": "PP-Cup-330ml",
+      "machine": "IMM-07",
+      "regime_label": "normal"
+    },
+    "trigger": {
+      "trigger_type": "manual",
+      "ref_id": null
+    },
+    "outcome": {
+      "metric": "energy_kwh_per_kg",
+      "observed_trajectory": "no_change",
+      "observed_by": "engineer_reported"
+    },
+    "ingest_meta": {
+      "source": "csv_import",
+      "ingested_at": null
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "action_log_id": "ACT-027",
+    "ts": "2026-11-12T06:20:00Z",
+    "actor": {
+      "actor_id": "EMP-077",
+      "actor_type": "engineer",
+      "display_alias": null
+    },
+    "actions": [
+      {
+        "parameter": "injection_pressure_bar",
+        "from": 115.0,
+        "to": 110.0,
+        "unit": "bar"
+      }
+    ],
+    "bundled_action": {
+      "is_bundle": false,
+      "bundle_reason": "single",
+      "note": null
+    },
+    "context": {
+      "product": "PP-Cup-330ml",
+      "machine": "IMM-07",
+      "regime_label": "normal"
+    },
+    "trigger": {
+      "trigger_type": "manual",
+      "ref_id": null
+    },
+    "outcome": {
+      "metric": "energy_kwh_per_kg",
+      "observed_trajectory": "no_change",
+      "observed_by": "engineer_reported"
+    },
+    "ingest_meta": {
+      "source": "csv_import",
+      "ingested_at": null
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "action_log_id": "ACT-028",
+    "ts": "2026-11-12T10:00:00Z",
+    "actor": {
+      "actor_id": "EMP-115",
+      "actor_type": "engineer",
+      "display_alias": null
+    },
+    "actions": [
+      {
+        "parameter": "injection_pressure_bar",
+        "from": 110.0,
+        "to": 115.0,
+        "unit": "bar"
+      }
+    ],
+    "bundled_action": {
+      "is_bundle": false,
+      "bundle_reason": "single",
+      "note": null
+    },
+    "context": {
+      "product": "PP-Cup-330ml",
+      "machine": "IMM-07",
+      "regime_label": "normal"
+    },
+    "trigger": {
+      "trigger_type": "manual",
+      "ref_id": null
+    },
+    "outcome": {
+      "metric": "energy_kwh_per_kg",
+      "observed_trajectory": "no_change",
+      "observed_by": "engineer_reported"
+    },
+    "ingest_meta": {
+      "source": "csv_import",
+      "ingested_at": null
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "action_log_id": "ACT-029",
+    "ts": "2026-11-12T13:40:00Z",
+    "actor": {
+      "actor_id": "EMP-023",
+      "actor_type": "engineer",
+      "display_alias": null
+    },
+    "actions": [
+      {
+        "parameter": "injection_pressure_bar",
+        "from": 115.0,
+        "to": 118.0,
+        "unit": "bar"
+      }
+    ],
+    "bundled_action": {
+      "is_bundle": false,
+      "bundle_reason": "single",
+      "note": null
+    },
+    "context": {
+      "product": "PP-Cup-330ml",
+      "machine": "IMM-07",
+      "regime_label": "normal"
+    },
+    "trigger": {
+      "trigger_type": "manual",
+      "ref_id": null
+    },
+    "outcome": {
+      "metric": "energy_kwh_per_kg",
+      "observed_trajectory": "no_change",
+      "observed_by": "engineer_reported"
+    },
+    "ingest_meta": {
+      "source": "csv_import",
+      "ingested_at": null
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "action_log_id": "ACT-030",
+    "ts": "2026-11-12T17:20:00Z",
+    "actor": {
+      "actor_id": "EMP-041",
+      "actor_type": "engineer",
+      "display_alias": null
+    },
+    "actions": [
+      {
+        "parameter": "injection_pressure_bar",
+        "from": 118.0,
+        "to": 115.0,
+        "unit": "bar"
+      }
+    ],
+    "bundled_action": {
+      "is_bundle": false,
+      "bundle_reason": "single",
+      "note": null
+    },
+    "context": {
+      "product": "PP-Cup-330ml",
+      "machine": "IMM-07",
+      "regime_label": "normal"
+    },
+    "trigger": {
+      "trigger_type": "manual",
+      "ref_id": null
+    },
+    "outcome": {
+      "metric": "energy_kwh_per_kg",
+      "observed_trajectory": "no_change",
+      "observed_by": "engineer_reported"
+    },
+    "ingest_meta": {
+      "source": "csv_import",
+      "ingested_at": null
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "action_log_id": "ACT-031",
+    "ts": "2026-11-12T21:00:00Z",
+    "actor": {
+      "actor_id": "EMP-077",
+      "actor_type": "engineer",
+      "display_alias": null
+    },
+    "actions": [
+      {
+        "parameter": "injection_pressure_bar",
+        "from": 115.0,
+        "to": 112.0,
+        "unit": "bar"
+      }
+    ],
+    "bundled_action": {
+      "is_bundle": false,
+      "bundle_reason": "single",
+      "note": null
+    },
+    "context": {
+      "product": "PP-Cup-330ml",
+      "machine": "IMM-07",
+      "regime_label": "normal"
+    },
+    "trigger": {
+      "trigger_type": "manual",
+      "ref_id": null
+    },
+    "outcome": {
+      "metric": "energy_kwh_per_kg",
+      "observed_trajectory": "no_change",
+      "observed_by": "engineer_reported"
+    },
+    "ingest_meta": {
+      "source": "csv_import",
+      "ingested_at": null
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "action_log_id": "ACT-032",
+    "ts": "2026-11-13T00:40:00Z",
+    "actor": {
+      "actor_id": "EMP-115",
+      "actor_type": "engineer",
+      "display_alias": null
+    },
+    "actions": [
+      {
+        "parameter": "back_pressure_bar",
+        "from": 12.0,
+        "to": 13.5,
+        "unit": "bar"
+      }
+    ],
+    "bundled_action": {
+      "is_bundle": false,
+      "bundle_reason": "single",
+      "note": null
+    },
+    "context": {
+      "product": "PP-Cup-330ml",
+      "machine": "IMM-07",
+      "regime_label": "high_output"
+    },
+    "trigger": {
+      "trigger_type": "manual",
+      "ref_id": null
+    },
+    "outcome": {
+      "metric": "energy_kwh_per_kg",
+      "observed_trajectory": "no_change",
+      "observed_by": "engineer_reported"
+    },
+    "ingest_meta": {
+      "source": "csv_import",
+      "ingested_at": null
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "action_log_id": "ACT-033",
+    "ts": "2026-11-13T04:20:00Z",
+    "actor": {
+      "actor_id": "EMP-023",
+      "actor_type": "engineer",
+      "display_alias": null
+    },
+    "actions": [
+      {
+        "parameter": "back_pressure_bar",
+        "from": 13.5,
+        "to": 12.0,
+        "unit": "bar"
+      }
+    ],
+    "bundled_action": {
+      "is_bundle": false,
+      "bundle_reason": "single",
+      "note": null
+    },
+    "context": {
+      "product": "PP-Cup-330ml",
+      "machine": "IMM-07",
+      "regime_label": "high_output"
+    },
+    "trigger": {
+      "trigger_type": "manual",
+      "ref_id": null
+    },
+    "outcome": {
+      "metric": "energy_kwh_per_kg",
+      "observed_trajectory": "no_change",
+      "observed_by": "engineer_reported"
+    },
+    "ingest_meta": {
+      "source": "csv_import",
+      "ingested_at": null
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "action_log_id": "ACT-034",
+    "ts": "2026-11-13T08:00:00Z",
+    "actor": {
+      "actor_id": "EMP-041",
+      "actor_type": "engineer",
+      "display_alias": null
+    },
+    "actions": [
+      {
+        "parameter": "back_pressure_bar",
+        "from": 12.0,
+        "to": 13.5,
+        "unit": "bar"
+      }
+    ],
+    "bundled_action": {
+      "is_bundle": false,
+      "bundle_reason": "single",
+      "note": null
+    },
+    "context": {
+      "product": "PP-Cup-330ml",
+      "machine": "IMM-07",
+      "regime_label": "high_output"
+    },
+    "trigger": {
+      "trigger_type": "manual",
+      "ref_id": null
+    },
+    "outcome": {
+      "metric": "energy_kwh_per_kg",
+      "observed_trajectory": "no_change",
+      "observed_by": "engineer_reported"
+    },
+    "ingest_meta": {
+      "source": "csv_import",
+      "ingested_at": null
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "action_log_id": "ACT-035",
+    "ts": "2026-11-13T11:40:00Z",
+    "actor": {
+      "actor_id": "EMP-077",
+      "actor_type": "engineer",
+      "display_alias": null
+    },
+    "actions": [
+      {
+        "parameter": "back_pressure_bar",
+        "from": 13.5,
+        "to": 10.5,
+        "unit": "bar"
+      }
+    ],
+    "bundled_action": {
+      "is_bundle": false,
+      "bundle_reason": "single",
+      "note": null
+    },
+    "context": {
+      "product": "PP-Cup-330ml",
+      "machine": "IMM-07",
+      "regime_label": "high_output"
+    },
+    "trigger": {
+      "trigger_type": "manual",
+      "ref_id": null
+    },
+    "outcome": {
+      "metric": "energy_kwh_per_kg",
+      "observed_trajectory": "no_change",
+      "observed_by": "engineer_reported"
+    },
+    "ingest_meta": {
+      "source": "csv_import",
+      "ingested_at": null
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "action_log_id": "ACT-036",
+    "ts": "2026-11-13T15:20:00Z",
+    "actor": {
+      "actor_id": "EMP-115",
+      "actor_type": "engineer",
+      "display_alias": null
+    },
+    "actions": [
+      {
+        "parameter": "back_pressure_bar",
+        "from": 10.5,
+        "to": 13.5,
+        "unit": "bar"
+      }
+    ],
+    "bundled_action": {
+      "is_bundle": false,
+      "bundle_reason": "single",
+      "note": null
+    },
+    "context": {
+      "product": "PP-Cup-330ml",
+      "machine": "IMM-07",
+      "regime_label": "high_output"
+    },
+    "trigger": {
+      "trigger_type": "manual",
+      "ref_id": null
+    },
+    "outcome": {
+      "metric": "energy_kwh_per_kg",
+      "observed_trajectory": "no_change",
+      "observed_by": "engineer_reported"
+    },
+    "ingest_meta": {
+      "source": "csv_import",
+      "ingested_at": null
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "action_log_id": "ACT-037",
+    "ts": "2026-11-13T19:00:00Z",
+    "actor": {
+      "actor_id": "EMP-023",
+      "actor_type": "engineer",
+      "display_alias": null
+    },
+    "actions": [
+      {
+        "parameter": "back_pressure_bar",
+        "from": 13.5,
+        "to": 12.0,
+        "unit": "bar"
+      }
+    ],
+    "bundled_action": {
+      "is_bundle": false,
+      "bundle_reason": "single",
+      "note": null
+    },
+    "context": {
+      "product": "PP-Cup-330ml",
+      "machine": "IMM-07",
+      "regime_label": "normal"
+    },
+    "trigger": {
+      "trigger_type": "manual",
+      "ref_id": null
+    },
+    "outcome": {
+      "metric": "energy_kwh_per_kg",
+      "observed_trajectory": "no_change",
+      "observed_by": "engineer_reported"
+    },
+    "ingest_meta": {
+      "source": "csv_import",
+      "ingested_at": null
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "action_log_id": "ACT-038",
+    "ts": "2026-11-13T22:40:00Z",
+    "actor": {
+      "actor_id": "EMP-041",
+      "actor_type": "engineer",
+      "display_alias": null
+    },
+    "actions": [
+      {
+        "parameter": "back_pressure_bar",
+        "from": 12.0,
+        "to": 14.0,
+        "unit": "bar"
+      }
+    ],
+    "bundled_action": {
+      "is_bundle": false,
+      "bundle_reason": "single",
+      "note": null
+    },
+    "context": {
+      "product": "PP-Cup-330ml",
+      "machine": "IMM-07",
+      "regime_label": "normal"
+    },
+    "trigger": {
+      "trigger_type": "manual",
+      "ref_id": null
+    },
+    "outcome": {
+      "metric": "energy_kwh_per_kg",
+      "observed_trajectory": "no_change",
+      "observed_by": "engineer_reported"
+    },
+    "ingest_meta": {
+      "source": "csv_import",
+      "ingested_at": null
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "action_log_id": "ACT-039",
+    "ts": "2026-11-14T02:20:00Z",
+    "actor": {
+      "actor_id": "EMP-077",
+      "actor_type": "engineer",
+      "display_alias": null
+    },
+    "actions": [
+      {
+        "parameter": "back_pressure_bar",
+        "from": 14.0,
+        "to": 12.0,
+        "unit": "bar"
+      }
+    ],
+    "bundled_action": {
+      "is_bundle": false,
+      "bundle_reason": "single",
+      "note": null
+    },
+    "context": {
+      "product": "PP-Cup-330ml",
+      "machine": "IMM-07",
+      "regime_label": "normal"
+    },
+    "trigger": {
+      "trigger_type": "manual",
+      "ref_id": null
+    },
+    "outcome": {
+      "metric": "energy_kwh_per_kg",
+      "observed_trajectory": "no_change",
+      "observed_by": "engineer_reported"
+    },
+    "ingest_meta": {
+      "source": "csv_import",
+      "ingested_at": null
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "action_log_id": "ACT-040",
+    "ts": "2026-11-14T06:00:00Z",
+    "actor": {
+      "actor_id": "EMP-115",
+      "actor_type": "engineer",
+      "display_alias": null
+    },
+    "actions": [
+      {
+        "parameter": "back_pressure_bar",
+        "from": 12.0,
+        "to": 13.5,
+        "unit": "bar"
+      }
+    ],
+    "bundled_action": {
+      "is_bundle": false,
+      "bundle_reason": "single",
+      "note": null
+    },
+    "context": {
+      "product": "PP-Cup-330ml",
+      "machine": "IMM-07",
+      "regime_label": "normal"
+    },
+    "trigger": {
+      "trigger_type": "manual",
+      "ref_id": null
+    },
+    "outcome": {
+      "metric": "energy_kwh_per_kg",
+      "observed_trajectory": "no_change",
+      "observed_by": "engineer_reported"
+    },
+    "ingest_meta": {
+      "source": "csv_import",
+      "ingested_at": null
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "action_log_id": "ACT-041",
+    "ts": "2026-11-14T09:40:00Z",
+    "actor": {
+      "actor_id": "EMP-023",
+      "actor_type": "engineer",
+      "display_alias": null
+    },
+    "actions": [
+      {
+        "parameter": "back_pressure_bar",
+        "from": 13.5,
+        "to": 12.0,
+        "unit": "bar"
+      }
+    ],
+    "bundled_action": {
+      "is_bundle": false,
+      "bundle_reason": "single",
+      "note": null
+    },
+    "context": {
+      "product": "PP-Cup-330ml",
+      "machine": "IMM-07",
+      "regime_label": "normal"
+    },
+    "trigger": {
+      "trigger_type": "manual",
+      "ref_id": null
+    },
+    "outcome": {
+      "metric": "energy_kwh_per_kg",
+      "observed_trajectory": "no_change",
+      "observed_by": "engineer_reported"
+    },
+    "ingest_meta": {
+      "source": "csv_import",
+      "ingested_at": null
+    }
+  },
+  {
+    "schema_version": "1.0",
+    "action_log_id": "ACT-042",
+    "ts": "2026-11-14T13:20:00Z",
+    "actor": {
+      "actor_id": "EMP-041",
+      "actor_type": "engineer",
+      "display_alias": null
+    },
+    "actions": [
+      {
+        "parameter": "back_pressure_bar",
+        "from": 12.0,
+        "to": 10.5,
+        "unit": "bar"
+      }
+    ],
+    "bundled_action": {
+      "is_bundle": false,
+      "bundle_reason": "single",
+      "note": null
+    },
+    "context": {
+      "product": "PP-Cup-330ml",
+      "machine": "IMM-07",
+      "regime_label": "normal"
+    },
+    "trigger": {
+      "trigger_type": "manual",
+      "ref_id": null
+    },
+    "outcome": {
+      "metric": "energy_kwh_per_kg",
+      "observed_trajectory": "no_change",
+      "observed_by": "engineer_reported"
+    },
+    "ingest_meta": {
+      "source": "csv_import",
+      "ingested_at": null
+    }
+  }
+]

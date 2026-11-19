@@ -1,0 +1,1594 @@
+{
+  "contract_version": "line-stability-report/1.0",
+  "report_id": "LSR-1795030063-idulkh",
+  "generated_at": "2026-11-18T19:27:43Z",
+  "status": "ok",
+  "line": {
+    "line_id": "包装线烘箱段",
+    "product": null
+  },
+  "period": {
+    "start": "2026-11-18T06:00:00+08:00",
+    "end": "2026-11-18T14:00:00+08:00",
+    "tz_offset": "8:00:00",
+    "requested": {
+      "start": "2026-11-18T06:00:00+08:00",
+      "end": "2026-11-18T14:00:00+08:00"
+    }
+  },
+  "data": {
+    "path": "D:/codes/myskills/idd-doe-impl/workspace/skill-pipeline-demo-20261119/01-stability/00_input/dcs_export.csv",
+    "sha256": "sha256:4626a86c2da76415b1ab6d465bb9b6e24c675c2a2f25595710a1903af487da6b",
+    "time_col": "timestamp",
+    "group_col": null,
+    "group_used": null,
+    "parameter_cols": [
+      "scrap_rate_pct",
+      "film_tension_n",
+      "oven_temp_c",
+      "line_speed_mpm",
+      "cooling_water_flow_lpm"
+    ],
+    "inspection_cols": [
+      "scrap_rate_pct"
+    ],
+    "ignored_cols": [],
+    "sampled": false,
+    "stride": 1,
+    "n_rows_raw": 5761,
+    "n_rows_used": 5761,
+    "time_span_seconds": 28800.0,
+    "sampling_interval_median_seconds": 5.0,
+    "missing_rate": 0.0,
+    "coverage_ratio": 1.0,
+    "time_invariant_channels": {
+      "count": 0,
+      "total": 5,
+      "share": 0.0,
+      "examples": []
+    }
+  },
+  "condition": {
+    "ontology": {
+      "mode": "ontology",
+      "path": "D:/codes/myskills/idd-doe-impl/workspace/skill-pipeline-demo-20261119/01-stability\\01_ontology\\ontology.json",
+      "source": "run_dir",
+      "reason": null
+    },
+    "scene": {
+      "name": "packaging_line_oven",
+      "process_type": "包装产线烘箱段 8 小时 DCS 导出运行稳定性评估",
+      "production_goal": "评估包装线烘箱段本班次 8 小时运行稳定性并识别主要波动来源",
+      "equipment": null,
+      "stages": null
+    },
+    "columns": {
+      "film_tension_n": {
+        "assigned_by": "auto",
+        "label": "film_tension_n",
+        "unit": "N",
+        "role": "parameter",
+        "spec": null,
+        "normal_range": null,
+        "knowledge_source": null,
+        "stage": null,
+        "equipment": null,
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null
+      },
+      "oven_temp_c": {
+        "assigned_by": "auto",
+        "label": "oven_temp_c",
+        "unit": "℃",
+        "role": "parameter",
+        "spec": null,
+        "normal_range": null,
+        "knowledge_source": null,
+        "stage": null,
+        "equipment": null,
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null
+      },
+      "line_speed_mpm": {
+        "assigned_by": "auto",
+        "label": "line_speed_mpm",
+        "unit": "m/min",
+        "role": "parameter",
+        "spec": null,
+        "normal_range": null,
+        "knowledge_source": null,
+        "stage": null,
+        "equipment": null,
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null
+      },
+      "cooling_water_flow_lpm": {
+        "assigned_by": "auto",
+        "label": "cooling_water_flow_lpm",
+        "unit": "L/min",
+        "role": "parameter",
+        "spec": null,
+        "normal_range": null,
+        "knowledge_source": null,
+        "stage": null,
+        "equipment": null,
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null
+      },
+      "scrap_rate_pct": {
+        "assigned_by": "user",
+        "label": "scrap_rate_pct",
+        "unit": "%",
+        "role": "inspection",
+        "spec": null,
+        "normal_range": null,
+        "knowledge_source": "user_provided",
+        "stage": null,
+        "equipment": null,
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": "inspection_signals"
+      }
+    },
+    "relationships": [],
+    "regimes": {
+      "available": true,
+      "method": "fast",
+      "change_points": [],
+      "regimes": [
+        {
+          "start": 0,
+          "end": 5760,
+          "label": "steady",
+          "n_rows": 5761
+        }
+      ],
+      "abnormal_ratio": 0.0
+    }
+  },
+  "parameters": [
+    {
+      "name": "scrap_rate_pct",
+      "role": "inspection",
+      "condition": {
+        "label": "scrap_rate_pct",
+        "unit": "%",
+        "assigned_by": "user",
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": "inspection_signals",
+        "stage": null,
+        "equipment": null
+      },
+      "n": 5761,
+      "row_range": [
+        0,
+        5760
+      ],
+      "data_source": "raw",
+      "mu": 1.199769,
+      "median": 1.201,
+      "sigma": 0.080894,
+      "sigma_within_mr": 0.080975,
+      "cv": 0.067419,
+      "min": 0.903,
+      "max": 1.492,
+      "spec": {
+        "lsl": null,
+        "usl": null,
+        "target": null,
+        "source": null
+      },
+      "capability": {
+        "cp": null,
+        "cpk": null,
+        "pp": null,
+        "ppk": null
+      },
+      "nelson": {
+        "NELSON_R2": {
+          "n_episodes": 10,
+          "indices": [
+            18,
+            660,
+            1151,
+            1453,
+            1756,
+            3082,
+            4148,
+            4197,
+            4813,
+            4990
+          ]
+        },
+        "NELSON_R1": {
+          "n_episodes": 21,
+          "indices": [
+            69,
+            354,
+            410,
+            1078,
+            1567,
+            1762,
+            1911,
+            2126,
+            2160,
+            2195,
+            2922,
+            3059,
+            3698,
+            3718,
+            4182,
+            4250,
+            4303,
+            5095,
+            5269,
+            5324,
+            5599
+          ]
+        },
+        "NELSON_R6": {
+          "n_episodes": 24,
+          "indices": [
+            404,
+            418,
+            436,
+            660,
+            690,
+            1452,
+            1757,
+            1820,
+            1893,
+            2160,
+            2195,
+            2373,
+            2791,
+            3353,
+            3680,
+            3887,
+            4193,
+            4434,
+            4710,
+            4826,
+            4953,
+            4991,
+            5013,
+            5083
+          ]
+        },
+        "NELSON_R3": {
+          "n_episodes": 16,
+          "indices": [
+            1289,
+            1449,
+            1929,
+            2064,
+            2222,
+            2324,
+            2397,
+            2820,
+            3488,
+            3920,
+            4162,
+            4462,
+            4714,
+            5512,
+            5664,
+            5686
+          ]
+        },
+        "NELSON_R5": {
+          "n_episodes": 11,
+          "indices": [
+            1636,
+            2128,
+            2161,
+            2246,
+            2572,
+            3061,
+            4920,
+            4982,
+            5268,
+            5632,
+            5667
+          ]
+        }
+      },
+      "n_violation_points": 82,
+      "drift": {
+        "slope_per_second": -0.0,
+        "per_day_relative": 0.005146,
+        "mk_p": 0.769908,
+        "significant": false,
+        "theil_sen_stride": 2
+      },
+      "baseline_ref": null,
+      "score": 77,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -1,
+        "cv_penalty": -22,
+        "capability_penalty": 0,
+        "drift_penalty": 0,
+        "baseline_penalty": 0,
+        "total": 77
+      }
+    },
+    {
+      "name": "film_tension_n",
+      "role": "parameter",
+      "condition": {
+        "label": "film_tension_n",
+        "unit": "N",
+        "assigned_by": "auto",
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null,
+        "stage": null,
+        "equipment": null
+      },
+      "n": 5761,
+      "row_range": [
+        0,
+        5760
+      ],
+      "data_source": "raw",
+      "mu": 250.008965,
+      "median": 250.0,
+      "sigma": 1.52508,
+      "sigma_within_mr": 1.506281,
+      "cv": 0.0061,
+      "min": 245.09,
+      "max": 255.43,
+      "spec": {
+        "lsl": null,
+        "usl": null,
+        "target": null,
+        "source": null
+      },
+      "capability": {
+        "cp": null,
+        "cpk": null,
+        "pp": null,
+        "ppk": null
+      },
+      "nelson": {
+        "NELSON_R3": {
+          "n_episodes": 17,
+          "indices": [
+            152,
+            508,
+            617,
+            1452,
+            1468,
+            1787,
+            1828,
+            2385,
+            2756,
+            3043,
+            3393,
+            3954,
+            4027,
+            4525,
+            4533,
+            5701,
+            5708
+          ]
+        },
+        "NELSON_R5": {
+          "n_episodes": 12,
+          "indices": [
+            154,
+            701,
+            1050,
+            1157,
+            2382,
+            2426,
+            2663,
+            3014,
+            3304,
+            3662,
+            4958,
+            5045
+          ]
+        },
+        "NELSON_R6": {
+          "n_episodes": 26,
+          "indices": [
+            179,
+            350,
+            508,
+            1051,
+            1286,
+            1297,
+            1522,
+            1834,
+            2058,
+            2427,
+            2496,
+            3134,
+            3305,
+            3403,
+            4055,
+            4126,
+            4305,
+            4577,
+            4642,
+            4710,
+            4791,
+            4806,
+            5060,
+            5096,
+            5446,
+            5493
+          ]
+        },
+        "NELSON_R2": {
+          "n_episodes": 17,
+          "indices": [
+            193,
+            333,
+            559,
+            576,
+            698,
+            1286,
+            1466,
+            1702,
+            2319,
+            2847,
+            4074,
+            4530,
+            4821,
+            5463,
+            5543,
+            5728,
+            5737
+          ]
+        },
+        "NELSON_R1": {
+          "n_episodes": 12,
+          "indices": [
+            265,
+            979,
+            1102,
+            2298,
+            2661,
+            2937,
+            4136,
+            4274,
+            4534,
+            5308,
+            5354,
+            5567
+          ]
+        }
+      },
+      "n_violation_points": 84,
+      "drift": {
+        "slope_per_second": -8e-06,
+        "per_day_relative": 0.002683,
+        "mk_p": 0.013454,
+        "significant": false,
+        "theil_sen_stride": 2
+      },
+      "baseline_ref": null,
+      "score": 99,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -1,
+        "cv_penalty": 0,
+        "capability_penalty": 0,
+        "drift_penalty": 0,
+        "baseline_penalty": 0,
+        "total": 99
+      }
+    },
+    {
+      "name": "oven_temp_c",
+      "role": "parameter",
+      "condition": {
+        "label": "oven_temp_c",
+        "unit": "℃",
+        "assigned_by": "auto",
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null,
+        "stage": null,
+        "equipment": null
+      },
+      "n": 5761,
+      "row_range": [
+        0,
+        5760
+      ],
+      "data_source": "raw",
+      "mu": 120.372733,
+      "median": 120.119,
+      "sigma": 0.856672,
+      "sigma_within_mr": 0.344286,
+      "cv": 0.007116,
+      "min": 118.851,
+      "max": 123.792,
+      "spec": {
+        "lsl": null,
+        "usl": null,
+        "target": null,
+        "source": null
+      },
+      "capability": {
+        "cp": null,
+        "cpk": null,
+        "pp": null,
+        "ppk": null
+      },
+      "nelson": {
+        "NELSON_R2": {
+          "n_episodes": 34,
+          "indices": [
+            98,
+            204,
+            388,
+            508,
+            536,
+            692,
+            1058,
+            1500,
+            1762,
+            1783,
+            1877,
+            2062,
+            2103,
+            2300,
+            2799,
+            3125,
+            3159,
+            3292,
+            3315,
+            3458,
+            3619,
+            3701,
+            3777,
+            4037,
+            4320,
+            4550,
+            4592,
+            4613,
+            4648,
+            4658,
+            4676,
+            4706,
+            4793,
+            4817
+          ]
+        },
+        "NELSON_R6": {
+          "n_episodes": 54,
+          "indices": [
+            101,
+            156,
+            202,
+            353,
+            385,
+            574,
+            965,
+            1059,
+            1093,
+            1144,
+            1519,
+            1621,
+            1821,
+            1866,
+            1877,
+            1944,
+            1962,
+            2106,
+            2300,
+            2335,
+            2420,
+            2758,
+            2972,
+            3286,
+            3350,
+            3379,
+            3618,
+            3634,
+            3655,
+            3824,
+            3853,
+            3970,
+            4057,
+            4081,
+            4135,
+            4272,
+            4294,
+            4302,
+            4320,
+            4389,
+            4505,
+            4524,
+            4548,
+            4583,
+            4604,
+            4616,
+            4639,
+            4648,
+            4655,
+            4705,
+            4747,
+            4783,
+            4804,
+            5760
+          ]
+        },
+        "NELSON_R1": {
+          "n_episodes": 100,
+          "indices": [
+            479,
+            941,
+            960,
+            1101,
+            1209,
+            1251,
+            1496,
+            1746,
+            1764,
+            2373,
+            2399,
+            2540,
+            2859,
+            3022,
+            3243,
+            3286,
+            3295,
+            4029,
+            4494,
+            4634,
+            4681,
+            4684,
+            4689,
+            4701,
+            4705,
+            4708,
+            4712,
+            4725,
+            4738,
+            4745,
+            4751,
+            4754,
+            4763,
+            4775,
+            4777,
+            4782,
+            4785,
+            4794,
+            4796,
+            4799,
+            4802,
+            4806,
+            4809,
+            4812,
+            4816,
+            4818,
+            4824,
+            4830,
+            4833,
+            4835,
+            4838,
+            4841,
+            4845,
+            4849,
+            4854,
+            4857,
+            4859,
+            4862,
+            4866,
+            4868,
+            4877,
+            4880,
+            4885,
+            4888,
+            4892,
+            4902,
+            4906,
+            4908,
+            4912,
+            4918,
+            4921,
+            4929,
+            4933,
+            4935,
+            4941,
+            4946,
+            4951,
+            4955,
+            4957,
+            4968,
+            4971,
+            4992,
+            4997,
+            4999,
+            5003,
+            5009,
+            5011,
+            5026,
+            5042,
+            5050,
+            5066,
+            5073,
+            5082,
+            5145,
+            5158,
+            5166,
+            5183,
+            5225,
+            5234,
+            5760
+          ]
+        },
+        "NELSON_R5": {
+          "n_episodes": 39,
+          "indices": [
+            481,
+            664,
+            1253,
+            1291,
+            1518,
+            1701,
+            2078,
+            2433,
+            3133,
+            3287,
+            3633,
+            3913,
+            4065,
+            4550,
+            4557,
+            4574,
+            4583,
+            4604,
+            4628,
+            4638,
+            4646,
+            4663,
+            4673,
+            4686,
+            4691,
+            4696,
+            4706,
+            4710,
+            4719,
+            4725,
+            4742,
+            4747,
+            4757,
+            4783,
+            4803,
+            4839,
+            4850,
+            4864,
+            5760
+          ]
+        },
+        "NELSON_R3": {
+          "n_episodes": 7,
+          "indices": [
+            701,
+            1142,
+            1323,
+            2052,
+            2989,
+            4194,
+            4219
+          ]
+        }
+      },
+      "n_violation_points": 234,
+      "drift": {
+        "slope_per_second": 4.7e-05,
+        "per_day_relative": 0.034139,
+        "mk_p": 0.0,
+        "significant": true,
+        "theil_sen_stride": 2
+      },
+      "baseline_ref": null,
+      "score": 72,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -3,
+        "cv_penalty": 0,
+        "capability_penalty": 0,
+        "drift_penalty": -25,
+        "baseline_penalty": 0,
+        "total": 72
+      }
+    },
+    {
+      "name": "line_speed_mpm",
+      "role": "parameter",
+      "condition": {
+        "label": "line_speed_mpm",
+        "unit": "m/min",
+        "assigned_by": "auto",
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null,
+        "stage": null,
+        "equipment": null
+      },
+      "n": 5761,
+      "row_range": [
+        0,
+        5760
+      ],
+      "data_source": "raw",
+      "mu": 119.986129,
+      "median": 119.98,
+      "sigma": 0.792954,
+      "sigma_within_mr": 0.792082,
+      "cv": 0.006608,
+      "min": 116.96,
+      "max": 122.91,
+      "spec": {
+        "lsl": null,
+        "usl": null,
+        "target": null,
+        "source": null
+      },
+      "capability": {
+        "cp": null,
+        "cpk": null,
+        "pp": null,
+        "ppk": null
+      },
+      "nelson": {
+        "NELSON_R1": {
+          "n_episodes": 21,
+          "indices": [
+            1,
+            61,
+            105,
+            530,
+            801,
+            839,
+            1100,
+            1317,
+            1721,
+            2061,
+            2177,
+            2667,
+            2745,
+            3272,
+            4656,
+            4677,
+            4837,
+            4902,
+            5130,
+            5259,
+            5577
+          ]
+        },
+        "NELSON_R6": {
+          "n_episodes": 22,
+          "indices": [
+            16,
+            45,
+            234,
+            779,
+            1076,
+            1282,
+            2130,
+            2254,
+            2442,
+            2726,
+            3055,
+            3334,
+            3607,
+            3806,
+            4107,
+            4442,
+            4482,
+            4540,
+            4736,
+            5027,
+            5504,
+            5524
+          ]
+        },
+        "NELSON_R2": {
+          "n_episodes": 15,
+          "indices": [
+            18,
+            1255,
+            1285,
+            1626,
+            1800,
+            1892,
+            1969,
+            2524,
+            2626,
+            3200,
+            4363,
+            4497,
+            4729,
+            5150,
+            5442
+          ]
+        },
+        "NELSON_R5": {
+          "n_episodes": 13,
+          "indices": [
+            196,
+            484,
+            779,
+            1016,
+            1018,
+            2068,
+            2295,
+            2626,
+            3214,
+            4209,
+            4735,
+            5369,
+            5522
+          ]
+        },
+        "NELSON_R3": {
+          "n_episodes": 11,
+          "indices": [
+            1006,
+            1194,
+            1587,
+            1709,
+            2002,
+            3058,
+            3411,
+            3864,
+            4631,
+            4974,
+            5753
+          ]
+        }
+      },
+      "n_violation_points": 82,
+      "drift": {
+        "slope_per_second": 4e-06,
+        "per_day_relative": 0.002684,
+        "mk_p": 0.552,
+        "significant": false,
+        "theil_sen_stride": 2
+      },
+      "baseline_ref": null,
+      "score": 99,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -1,
+        "cv_penalty": 0,
+        "capability_penalty": 0,
+        "drift_penalty": 0,
+        "baseline_penalty": 0,
+        "total": 99
+      }
+    },
+    {
+      "name": "cooling_water_flow_lpm",
+      "role": "parameter",
+      "condition": {
+        "label": "cooling_water_flow_lpm",
+        "unit": "L/min",
+        "assigned_by": "auto",
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null,
+        "stage": null,
+        "equipment": null
+      },
+      "n": 5761,
+      "row_range": [
+        0,
+        5760
+      ],
+      "data_source": "raw",
+      "mu": 44.165869,
+      "median": 44.84,
+      "sigma": 2.396788,
+      "sigma_within_mr": 0.868479,
+      "cv": 0.054263,
+      "min": 36.18,
+      "max": 48.13,
+      "spec": {
+        "lsl": null,
+        "usl": null,
+        "target": null,
+        "source": null
+      },
+      "capability": {
+        "cp": null,
+        "cpk": null,
+        "pp": null,
+        "ppk": null
+      },
+      "nelson": {
+        "NELSON_R1": {
+          "n_episodes": 21,
+          "indices": [
+            37,
+            414,
+            759,
+            867,
+            930,
+            1774,
+            1788,
+            1814,
+            2137,
+            2250,
+            3239,
+            3336,
+            3415,
+            3540,
+            3982,
+            4817,
+            4855,
+            5092,
+            5193,
+            5333,
+            5707
+          ]
+        },
+        "NELSON_R6": {
+          "n_episodes": 33,
+          "indices": [
+            95,
+            108,
+            329,
+            423,
+            574,
+            728,
+            879,
+            932,
+            1203,
+            1320,
+            1532,
+            1678,
+            1934,
+            2083,
+            2207,
+            2217,
+            2257,
+            2352,
+            3242,
+            3400,
+            3449,
+            3583,
+            3783,
+            3850,
+            3892,
+            4087,
+            4095,
+            4211,
+            4531,
+            4610,
+            4923,
+            5545,
+            5658
+          ]
+        },
+        "NELSON_R2": {
+          "n_episodes": 15,
+          "indices": [
+            159,
+            1536,
+            1553,
+            2071,
+            2209,
+            2342,
+            2528,
+            3559,
+            3720,
+            3964,
+            4346,
+            4922,
+            5040,
+            5110,
+            5545
+          ]
+        },
+        "NELSON_R5": {
+          "n_episodes": 11,
+          "indices": [
+            444,
+            841,
+            878,
+            930,
+            1488,
+            1555,
+            3240,
+            3984,
+            4085,
+            4209,
+            5135
+          ]
+        },
+        "NELSON_R3": {
+          "n_episodes": 12,
+          "indices": [
+            636,
+            753,
+            1043,
+            1345,
+            2353,
+            2395,
+            2674,
+            3130,
+            3395,
+            3580,
+            3787,
+            4349
+          ]
+        }
+      },
+      "n_violation_points": 92,
+      "drift": {
+        "slope_per_second": 1e-06,
+        "per_day_relative": 0.002309,
+        "mk_p": 0.124964,
+        "significant": false,
+        "theil_sen_stride": 2
+      },
+      "baseline_ref": null,
+      "score": 77,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -1,
+        "cv_penalty": -22,
+        "capability_penalty": 0,
+        "drift_penalty": 0,
+        "baseline_penalty": 0,
+        "total": 77
+      }
+    }
+  ],
+  "correlations": {
+    "max_lag": 10,
+    "pairs": [
+      {
+        "pearson": 0.15995,
+        "spearman": 0.097523,
+        "best_abs_r": 0.097523,
+        "best_lag_rows": 0,
+        "leader": null,
+        "pearson_at_best": 0.15995,
+        "spearman_at_best": 0.097523,
+        "a": "oven_temp_c",
+        "b": "cooling_water_flow_lpm",
+        "n": 5761
+      },
+      {
+        "pearson": -0.034596,
+        "spearman": -0.028033,
+        "best_abs_r": 0.055564,
+        "best_lag_rows": 4,
+        "leader": "oven_temp_c",
+        "pearson_at_best": -0.051311,
+        "spearman_at_best": -0.055564,
+        "a": "film_tension_n",
+        "b": "oven_temp_c",
+        "n": 5761
+      },
+      {
+        "pearson": 0.020921,
+        "spearman": 0.017949,
+        "best_abs_r": 0.035041,
+        "best_lag_rows": 7,
+        "leader": "scrap_rate_pct",
+        "pearson_at_best": 0.036599,
+        "spearman_at_best": 0.035041,
+        "a": "scrap_rate_pct",
+        "b": "film_tension_n",
+        "n": 5761
+      },
+      {
+        "pearson": -0.007799,
+        "spearman": -0.002546,
+        "best_abs_r": 0.034023,
+        "best_lag_rows": 3,
+        "leader": "line_speed_mpm",
+        "pearson_at_best": -0.036213,
+        "spearman_at_best": -0.034023,
+        "a": "film_tension_n",
+        "b": "line_speed_mpm",
+        "n": 5761
+      },
+      {
+        "pearson": 0.002646,
+        "spearman": 0.002437,
+        "best_abs_r": 0.032063,
+        "best_lag_rows": 4,
+        "leader": "scrap_rate_pct",
+        "pearson_at_best": 0.03253,
+        "spearman_at_best": 0.032063,
+        "a": "scrap_rate_pct",
+        "b": "line_speed_mpm",
+        "n": 5761
+      },
+      {
+        "pearson": -0.007695,
+        "spearman": -0.020748,
+        "best_abs_r": 0.024852,
+        "best_lag_rows": 10,
+        "leader": "oven_temp_c",
+        "pearson_at_best": -0.014299,
+        "spearman_at_best": -0.024852,
+        "a": "oven_temp_c",
+        "b": "line_speed_mpm",
+        "n": 5761
+      },
+      {
+        "pearson": -0.01231,
+        "spearman": -0.009443,
+        "best_abs_r": 0.024719,
+        "best_lag_rows": 1,
+        "leader": "film_tension_n",
+        "pearson_at_best": -0.018652,
+        "spearman_at_best": -0.024719,
+        "a": "film_tension_n",
+        "b": "cooling_water_flow_lpm",
+        "n": 5761
+      },
+      {
+        "pearson": 0.010245,
+        "spearman": 0.009087,
+        "best_abs_r": 0.021228,
+        "best_lag_rows": 9,
+        "leader": "cooling_water_flow_lpm",
+        "pearson_at_best": 0.018575,
+        "spearman_at_best": 0.021228,
+        "a": "scrap_rate_pct",
+        "b": "cooling_water_flow_lpm",
+        "n": 5761
+      },
+      {
+        "pearson": 0.003223,
+        "spearman": 0.005575,
+        "best_abs_r": 0.017279,
+        "best_lag_rows": 8,
+        "leader": "scrap_rate_pct",
+        "pearson_at_best": 0.001699,
+        "spearman_at_best": 0.017279,
+        "a": "scrap_rate_pct",
+        "b": "oven_temp_c",
+        "n": 5761
+      },
+      {
+        "pearson": 0.004669,
+        "spearman": 0.015308,
+        "best_abs_r": 0.015647,
+        "best_lag_rows": 5,
+        "leader": "cooling_water_flow_lpm",
+        "pearson_at_best": 0.006358,
+        "spearman_at_best": 0.015647,
+        "a": "line_speed_mpm",
+        "b": "cooling_water_flow_lpm",
+        "n": 5761
+      }
+    ],
+    "contributions": []
+  },
+  "integrations": {
+    "sentinel_baseline": {
+      "used": false,
+      "path": null
+    },
+    "tuning_memory": {
+      "used": false
+    },
+    "doe_analyzer": {
+      "used": false
+    }
+  },
+  "degradations": [
+    {
+      "check": "drift_decimation",
+      "reason": "5/5 个通道的 Theil–Sen 斜率在确定性整数网格上估计（stride=2，保留原始行号作时间轴），以规避 scipy 全量两两斜率的内存爆炸；趋势方向与量级不变，Mann-Kendall 仍在全长序列上计算"
+    }
+  ],
+  "limitations": {
+    "data_source": "raw (this skill never cleans or imputes; every number is recomputable from the raw table)",
+    "sampling": {
+      "n_rows_analyzed": 5761,
+      "sampled": false,
+      "stride": 1,
+      "note": null
+    },
+    "missing_rate": 0.0,
+    "sampling_interval_seconds": 5.0,
+    "spec_coverage": {
+      "user": [],
+      "ontology": [],
+      "none": [
+        "scrap_rate_pct",
+        "film_tension_n",
+        "oven_temp_c",
+        "line_speed_mpm",
+        "cooling_water_flow_lpm"
+      ]
+    },
+    "model_assumptions": [
+      "lag-compensated Spearman window 0–10 rows (lead/lag beyond this window is invisible)",
+      "whole-period scoring assumes one dominant operating condition; use the regime table for segmented reading",
+      "Cpk treats within-sigma as MR̄/1.128 moving-range estimate"
+    ],
+    "confounders": [],
+    "derived_fields": [
+      "baseline_ref.robust_z",
+      "correlations.contributions.share",
+      "correlations.pairs.best_abs_r"
+    ]
+  },
+  "subject": {
+    "noun": "产线",
+    "display": "包装产线烘箱段 8 小时 DCS 导出运行稳定性评估",
+    "source": "context.scenario"
+  },
+  "objective": "评估包装线烘箱段本班次 8 小时运行稳定性并识别主要波动来源",
+  "provenance": {
+    "input_sha256": "sha256:4626a86c2da76415b1ab6d465bb9b6e24c675c2a2f25595710a1903af487da6b",
+    "script_version": "1.0.0",
+    "authored_by": "lstcore/stability_analyzer.py",
+    "zero_llm": true,
+    "spc_source": "sentinelcore",
+    "regime_method": "fast",
+    "ontology_source": "run_dir",
+    "ontology": {
+      "source": "run_dir",
+      "action": "extended",
+      "scene_key": "packaging_line_oven",
+      "rag_used": false,
+      "brief_summary": {
+        "build_mode": "extend",
+        "n_columns_total": 1,
+        "n_matched": 1,
+        "n_inferred": 0,
+        "n_unmatched": 0,
+        "coverage_ratio": 1.0
+      }
+    },
+    "weights_source": "role_weights",
+    "python": "3.12.13",
+    "numpy": "2.5.2",
+    "pandas": "3.0.5",
+    "methods": [
+      "sentinelcore_nelson_episodes",
+      "mrbar_sigma_1.128",
+      "cpk_within_ppk_overall",
+      "theil_sen_mk_drift",
+      "lagged_spearman_max10",
+      "contribution_r2_share",
+      "regime_segmentation_c3",
+      "ontology_first_condition",
+      "weighted_penalty_score_v1",
+      "data_truth_limitations"
+    ]
+  },
+  "findings": [
+    {
+      "finding_id": "F001",
+      "severity": "high",
+      "category": "spc",
+      "title": "oven_temp_c 检出 SPC 违规",
+      "detail": "共 234 个判异剧集命中（每百点 4.1 个，规则：NELSON_R1/NELSON_R2/NELSON_R3/NELSON_R5/NELSON_R6），控制限为中心值120.119 ℃±3σ_within（σ=0.3443）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 234,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 4.06,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 0.344286,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "oven_temp_c"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F002",
+      "severity": "high",
+      "category": "drift",
+      "title": "oven_temp_c 存在显著漂移",
+      "detail": "Theil–Sen 斜率显著（Mann–Kendall p=0.0，且相对漂移≥0.1%/天才计入），相对漂移约 3.414%/天，方向对应斜率 0/秒。",
+      "evidence": [
+        {
+          "metric": "mk_p",
+          "value": 0.0,
+          "source": "lstcore",
+          "threshold": "<0.01 且 >=0.1%/天"
+        },
+        {
+          "metric": "per_day_relative",
+          "value": 0.034139,
+          "source": "lstcore",
+          "threshold": "<0.001 ok; >=0.01 high"
+        },
+        {
+          "metric": "slope_per_second",
+          "value": 4.7e-05,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "oven_temp_c"
+      ],
+      "confidence": 80
+    },
+    {
+      "finding_id": "F003",
+      "severity": "warn",
+      "category": "spc",
+      "title": "scrap_rate_pct 检出 SPC 违规",
+      "detail": "共 82 个判异剧集命中（每百点 1.4 个，规则：NELSON_R1/NELSON_R2/NELSON_R3/NELSON_R5/NELSON_R6），控制限为中心值1.201 %±3σ_within（σ=0.081）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 82,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 1.42,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 0.080975,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "scrap_rate_pct"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F004",
+      "severity": "warn",
+      "category": "spc",
+      "title": "film_tension_n 检出 SPC 违规",
+      "detail": "共 84 个判异剧集命中（每百点 1.5 个，规则：NELSON_R1/NELSON_R2/NELSON_R3/NELSON_R5/NELSON_R6），控制限为中心值250 N±3σ_within（σ=1.5063）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 84,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 1.46,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 1.506281,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "film_tension_n"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F005",
+      "severity": "warn",
+      "category": "spc",
+      "title": "line_speed_mpm 检出 SPC 违规",
+      "detail": "共 82 个判异剧集命中（每百点 1.4 个，规则：NELSON_R1/NELSON_R2/NELSON_R3/NELSON_R5/NELSON_R6），控制限为中心值119.98 m/min±3σ_within（σ=0.7921）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 82,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 1.42,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 0.792082,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "line_speed_mpm"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F006",
+      "severity": "warn",
+      "category": "spc",
+      "title": "cooling_water_flow_lpm 检出 SPC 违规",
+      "detail": "共 92 个判异剧集命中（每百点 1.6 个，规则：NELSON_R1/NELSON_R2/NELSON_R3/NELSON_R5/NELSON_R6），控制限为中心值44.84 L/min±3σ_within（σ=0.8685）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 92,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 1.6,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 0.868479,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "cooling_water_flow_lpm"
+      ],
+      "confidence": 90
+    }
+  ],
+  "conclusion": {
+    "score": 83.5,
+    "grade": "B",
+    "grade_key": "sub_stable",
+    "label": "亚稳定",
+    "statement": "该产线在本时段总体运行亚稳定（83.5 分，B 级）：评估 5 个参数，检出 574 个 SPC 违规剧集、1 项显著漂移。",
+    "n_parameters_assessed": 5,
+    "n_findings": 6,
+    "findings_by_severity": {
+      "info": 0,
+      "warn": 4,
+      "high": 2,
+      "critical": 0
+    }
+  },
+  "advisory": {
+    "status": "used",
+    "origin": "stability",
+    "exit_code": 2,
+    "objective_source": "stability_report.inspection_cols",
+    "actions_path": "advisory/advisory_actions.json",
+    "chapter_path": "advisory/chapter.md",
+    "summary": {
+      "report_status": "not_actionable",
+      "n_actions": 0,
+      "grades": {
+        "A": 0,
+        "B": 0,
+        "C": 0
+      },
+      "n_prescriptions": 1,
+      "max_achievable_grade": "none",
+      "report_id": "IMA-20261118192743-87da6b"
+    },
+    "reason": null
+  }
+}

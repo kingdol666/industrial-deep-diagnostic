@@ -1,0 +1,397 @@
+{
+  "contract_version": "1.0",
+  "artifact": "ontology_brief",
+  "scene_key": "lithium_coating_doe",
+  "profile": "doe",
+  "data_stage": "collected",
+  "ontology_version": 1,
+  "ontology_sha256": "sha256:51364d135eec2af4859ae3acee58266a04a58d0ce8bf2679090d7ca80dcf2604",
+  "context_fp": "sha256:e508b7eeba0ea30bdb196a0ba3c389185189a66f6eac5390918a9aedbeba1e62",
+  "scene": {
+    "name": "lithium_coating_doe",
+    "process_type": "designed_experiment",
+    "production_goal": null,
+    "objective": null,
+    "equipment": [],
+    "stages": [],
+    "design_type": "partial_factorial_3level",
+    "design_region": null,
+    "experiment_id": null,
+    "line_id": null,
+    "product_id": null,
+    "recipe_id": null
+  },
+  "factors": [
+    {
+      "name": "coat_speed_mpm",
+      "col": "coat_speed_mpm",
+      "type": null,
+      "unit": [
+        120,
+        150,
+        180
+      ],
+      "expected_sign": null,
+      "physical_meaning": "coat_speed_mpm（由分析上下文声明；未提供独立物理机理描述）",
+      "ontology_signal": "coat_speed_mpm",
+      "confidence": "INFERRED",
+      "mapping_status": "matched",
+      "mapping_reason": "factor 'coat_speed_mpm' bound to ontology signal 'coat_speed_mpm'",
+      "role": null,
+      "min": "/",
+      "max": "n",
+      "levels": "m/min",
+      "expected_data_behavior": "先验声明：/~n [120, 150, 180] 区间内可设定；方向预期 未声明",
+      "observed_data_behavior": null,
+      "governing_law": null
+    },
+    {
+      "name": "oven1_temp_c",
+      "col": "oven1_temp_c",
+      "type": null,
+      "unit": [
+        80,
+        90,
+        100
+      ],
+      "expected_sign": null,
+      "physical_meaning": "oven1_temp_c（由分析上下文声明；未提供独立物理机理描述）",
+      "ontology_signal": "oven1_temp_c",
+      "confidence": "INFERRED",
+      "mapping_status": "matched",
+      "mapping_reason": "factor 'oven1_temp_c' bound to ontology signal 'oven1_temp_c'",
+      "role": null,
+      "min": "℃",
+      "max": "℃",
+      "levels": "℃",
+      "expected_data_behavior": "先验声明：℃~℃ [80, 90, 100] 区间内可设定；方向预期 未声明",
+      "observed_data_behavior": null,
+      "governing_law": null
+    },
+    {
+      "name": "oven2_temp_c",
+      "col": "oven2_temp_c",
+      "type": null,
+      "unit": [
+        70,
+        80,
+        90
+      ],
+      "expected_sign": null,
+      "physical_meaning": "oven2_temp_c（由分析上下文声明；未提供独立物理机理描述）",
+      "ontology_signal": "oven2_temp_c",
+      "confidence": "INFERRED",
+      "mapping_status": "matched",
+      "mapping_reason": "factor 'oven2_temp_c' bound to ontology signal 'oven2_temp_c'",
+      "role": null,
+      "min": "℃",
+      "max": "℃",
+      "levels": "℃",
+      "expected_data_behavior": "先验声明：℃~℃ [70, 80, 90] 区间内可设定；方向预期 未声明",
+      "observed_data_behavior": null,
+      "governing_law": null
+    },
+    {
+      "name": "gap_um",
+      "col": "gap_um",
+      "type": null,
+      "unit": [
+        150,
+        180,
+        210
+      ],
+      "expected_sign": null,
+      "physical_meaning": "gap_um（由分析上下文声明；未提供独立物理机理描述）",
+      "ontology_signal": "gap_um",
+      "confidence": "INFERRED",
+      "mapping_status": "matched",
+      "mapping_reason": "factor 'gap_um' bound to ontology signal 'gap_um'",
+      "role": null,
+      "min": "m",
+      "max": "µ",
+      "levels": "µm",
+      "expected_data_behavior": "先验声明：m~µ [150, 180, 210] 区间内可设定；方向预期 未声明",
+      "observed_data_behavior": null,
+      "governing_law": null
+    },
+    {
+      "name": "solid_content_pct",
+      "col": "solid_content_pct",
+      "type": null,
+      "unit": [
+        55,
+        60,
+        65
+      ],
+      "expected_sign": null,
+      "physical_meaning": "solid_content_pct（由分析上下文声明；未提供独立物理机理描述）",
+      "ontology_signal": "solid_content_pct",
+      "confidence": "INFERRED",
+      "mapping_status": "matched",
+      "mapping_reason": "factor 'solid_content_pct' bound to ontology signal 'solid_content_pct'",
+      "role": null,
+      "min": "%",
+      "max": "%",
+      "levels": "%",
+      "expected_data_behavior": "先验声明：%~% [55, 60, 65] 区间内可设定；方向预期 未声明",
+      "observed_data_behavior": null,
+      "governing_law": null
+    },
+    {
+      "name": "substrate_gsm",
+      "col": "substrate_gsm",
+      "type": null,
+      "unit": [
+        95,
+        105,
+        115
+      ],
+      "expected_sign": null,
+      "physical_meaning": "substrate_gsm（由分析上下文声明；未提供独立物理机理描述）",
+      "ontology_signal": "substrate_gsm",
+      "confidence": "INFERRED",
+      "mapping_status": "matched",
+      "mapping_reason": "factor 'substrate_gsm' bound to ontology signal 'substrate_gsm'",
+      "role": null,
+      "min": "/",
+      "max": "²",
+      "levels": "g/m²",
+      "expected_data_behavior": "先验声明：/~² [95, 105, 115] 区间内可设定；方向预期 未声明",
+      "observed_data_behavior": null,
+      "governing_law": null
+    },
+    {
+      "name": "humidity_rh",
+      "col": "humidity_rh",
+      "type": null,
+      "unit": [
+        35,
+        50,
+        65
+      ],
+      "expected_sign": null,
+      "physical_meaning": "humidity_rh（由分析上下文声明；未提供独立物理机理描述）",
+      "ontology_signal": "humidity_rh",
+      "confidence": "INFERRED",
+      "mapping_status": "matched",
+      "mapping_reason": "factor 'humidity_rh' bound to ontology signal 'humidity_rh'",
+      "role": null,
+      "min": "%",
+      "max": "R",
+      "levels": "%RH",
+      "expected_data_behavior": "先验声明：%~R [35, 50, 65] 区间内可设定；方向预期 未声明",
+      "observed_data_behavior": null,
+      "governing_law": null
+    },
+    {
+      "name": "tension_n",
+      "col": "tension_n",
+      "type": null,
+      "unit": [
+        300,
+        350,
+        400
+      ],
+      "expected_sign": null,
+      "physical_meaning": "tension_n（由分析上下文声明；未提供独立物理机理描述）",
+      "ontology_signal": "tension_n",
+      "confidence": "INFERRED",
+      "mapping_status": "matched",
+      "mapping_reason": "factor 'tension_n' bound to ontology signal 'tension_n'",
+      "role": null,
+      "min": "N",
+      "max": "N",
+      "levels": "N",
+      "expected_data_behavior": "先验声明：N~N [300, 350, 400] 区间内可设定；方向预期 未声明",
+      "observed_data_behavior": null,
+      "governing_law": null
+    }
+  ],
+  "responses": [
+    {
+      "name": "coat_weight_gsm",
+      "col": "coat_weight_gsm",
+      "type": null,
+      "unit": "g/m²",
+      "expected_sign": null,
+      "physical_meaning": "coat_weight_gsm（由分析上下文声明；未提供独立物理机理描述）",
+      "ontology_signal": "coat_weight_gsm",
+      "confidence": "INFERRED",
+      "mapping_status": "matched",
+      "mapping_reason": "response 'coat_weight_gsm' bound to ontology signal 'coat_weight_gsm'",
+      "role": null,
+      "min": null,
+      "max": null,
+      "levels": null,
+      "expected_data_behavior": null,
+      "observed_data_behavior": null,
+      "governing_law": null,
+      "goal": "target",
+      "lsl": 3.8,
+      "usl": 4.2,
+      "target": 4.0,
+      "weight": null
+    },
+    {
+      "name": "coating_thick_um",
+      "col": "coating_thick_um",
+      "type": null,
+      "unit": "µm",
+      "expected_sign": null,
+      "physical_meaning": "coating_thick_um（由分析上下文声明；未提供独立物理机理描述）",
+      "ontology_signal": "coating_thick_um",
+      "confidence": "INFERRED",
+      "mapping_status": "matched",
+      "mapping_reason": "response 'coating_thick_um' bound to ontology signal 'coating_thick_um'",
+      "role": null,
+      "min": null,
+      "max": null,
+      "levels": null,
+      "expected_data_behavior": null,
+      "observed_data_behavior": null,
+      "governing_law": null,
+      "goal": "target",
+      "lsl": 9.5,
+      "usl": 11.5,
+      "target": 10.5,
+      "weight": null
+    },
+    {
+      "name": "defect_rate_pct",
+      "col": "defect_rate_pct",
+      "type": null,
+      "unit": "%",
+      "expected_sign": null,
+      "physical_meaning": "defect_rate_pct（由分析上下文声明；未提供独立物理机理描述）",
+      "ontology_signal": "defect_rate_pct",
+      "confidence": "INFERRED",
+      "mapping_status": "matched",
+      "mapping_reason": "response 'defect_rate_pct' bound to ontology signal 'defect_rate_pct'",
+      "role": null,
+      "min": null,
+      "max": null,
+      "levels": null,
+      "expected_data_behavior": null,
+      "observed_data_behavior": null,
+      "governing_law": null,
+      "goal": "minimize",
+      "lsl": null,
+      "usl": 0.5,
+      "target": null,
+      "weight": null
+    }
+  ],
+  "relationships": [],
+  "confounders": [],
+  "limitations": [
+    "先验本体：关系方向来自上下文声明与物理先验，未经实测数据验证",
+    "未声明任何 expected_sign —— 未生成因子→响应关系，一致性检查将如实记为 not_estimable"
+  ],
+  "column_mapping": {
+    "matched": [
+      {
+        "kind": "factor",
+        "col": "coat_speed_mpm",
+        "name": "coat_speed_mpm",
+        "status": "matched",
+        "reason": "factor 'coat_speed_mpm' bound to ontology signal 'coat_speed_mpm'"
+      },
+      {
+        "kind": "factor",
+        "col": "oven1_temp_c",
+        "name": "oven1_temp_c",
+        "status": "matched",
+        "reason": "factor 'oven1_temp_c' bound to ontology signal 'oven1_temp_c'"
+      },
+      {
+        "kind": "factor",
+        "col": "oven2_temp_c",
+        "name": "oven2_temp_c",
+        "status": "matched",
+        "reason": "factor 'oven2_temp_c' bound to ontology signal 'oven2_temp_c'"
+      },
+      {
+        "kind": "factor",
+        "col": "gap_um",
+        "name": "gap_um",
+        "status": "matched",
+        "reason": "factor 'gap_um' bound to ontology signal 'gap_um'"
+      },
+      {
+        "kind": "factor",
+        "col": "solid_content_pct",
+        "name": "solid_content_pct",
+        "status": "matched",
+        "reason": "factor 'solid_content_pct' bound to ontology signal 'solid_content_pct'"
+      },
+      {
+        "kind": "factor",
+        "col": "substrate_gsm",
+        "name": "substrate_gsm",
+        "status": "matched",
+        "reason": "factor 'substrate_gsm' bound to ontology signal 'substrate_gsm'"
+      },
+      {
+        "kind": "factor",
+        "col": "humidity_rh",
+        "name": "humidity_rh",
+        "status": "matched",
+        "reason": "factor 'humidity_rh' bound to ontology signal 'humidity_rh'"
+      },
+      {
+        "kind": "factor",
+        "col": "tension_n",
+        "name": "tension_n",
+        "status": "matched",
+        "reason": "factor 'tension_n' bound to ontology signal 'tension_n'"
+      },
+      {
+        "kind": "response",
+        "col": "coat_weight_gsm",
+        "name": "coat_weight_gsm",
+        "status": "matched",
+        "reason": "response 'coat_weight_gsm' bound to ontology signal 'coat_weight_gsm'"
+      },
+      {
+        "kind": "response",
+        "col": "coating_thick_um",
+        "name": "coating_thick_um",
+        "status": "matched",
+        "reason": "response 'coating_thick_um' bound to ontology signal 'coating_thick_um'"
+      },
+      {
+        "kind": "response",
+        "col": "defect_rate_pct",
+        "name": "defect_rate_pct",
+        "status": "matched",
+        "reason": "response 'defect_rate_pct' bound to ontology signal 'defect_rate_pct'"
+      }
+    ],
+    "inferred": [],
+    "unmatched": []
+  },
+  "coverage": {
+    "n_factors_matched": 8,
+    "n_responses_matched": 3,
+    "n_factors_covered": 8,
+    "n_responses_covered": 3,
+    "n_factors_declared": 8,
+    "n_responses_declared": 3,
+    "n_unmatched": 0,
+    "ratio": 1.0,
+    "matched_ratio": 1.0
+  },
+  "provenance": {
+    "build_mode": "prior_knowledge",
+    "build_seconds": 0.111,
+    "rag_used": false,
+    "web_used": false,
+    "physics_prior_used": true,
+    "engine": "industrial-ontology-builder",
+    "store_version": 1,
+    "store_profile": "doe",
+    "source_note": "prior-knowledge build from declarations (no RAG/web)",
+    "lookup_status": "miss",
+    "seed": null
+  }
+}

@@ -1,0 +1,156 @@
+{
+  "overall_score": 89,
+  "verdict": "needs_repair",
+  "criteria_scores": {
+    "data_quality_awareness": {
+      "score": 9,
+      "notes": "input_manifest 含 SHA-256 与行列数;120行×6列无缺失、时间单调(time_sorted=true);data_gaps 明确列出缺设定值列/温差压差/油温。扣1分: 特征摘要 feature_summary 为诊断阶段补建(来自 inspect 输出), 非上游原生产出。"
+    },
+    "variable_classification": {
+      "score": 9,
+      "notes": "本体角色声明完整(control/target/inspection/process/confounder), 快路径 miss 后手工构建并如实标注全部 INFERRED;以流量测量值代理设定值的局限已声明。扣1分: vibration_mm_s 在本体中为 predictor 而数据上呈伴生症状特征, 角色边界描述可再明确。"
+    },
+    "time_alignment_and_sorting": {
+      "score": 10,
+      "notes": "time_sorted=true;自适应图时间对齐记录 median_interval_s=120.0、monotonic=true、0行丢弃;滞后补偿器 consistency_ratio=1.0;单位语义规则(不得将步数叙述为时长)得到遵守——报告口径引用 plot_manifest 对齐记录。"
+    },
+    "visualization_quality": {
+      "score": 8,
+      "notes": "2 张确定性图表: temporal overlay(MANDATORY) + target line, plot_manifest schema-valid。扣2分: image_captions.json 为脚本兜底, key_observations 为占位文本('unknown of …'), 无实质读图内容;evidence.json 虽以会话智能体读图补足, 但 captions 文件本身对 Reporter 的 L4 交接价值不足。→ 列入 repair_instructions(非阻断)。"
+    },
+    "evidence_based_conclusions": {
+      "score": 9,
+      "notes": "诊断 4 件套全部 schema-valid;每个数字可溯源到 validate_report/time_lag_analysis/physics_check/anomaly_report;diagnostic-quality-check PASS(0 critical 0 warning)。扣1分: 振动-温度链无独立相关检验(已在 inference_gaps 如实披露并降级 L4, 但证据面仍偏薄)。"
+    },
+    "correlation_vs_causation": {
+      "score": 9,
+      "notes": "未把相关当因果: 滞后CCF峰值(lag=−2, r=−0.9959, 一致率1.0)+ Granger F=259.151 + 变化点先后(60→62)三线锁定因果方向;备择假设均有 revival_condition;Spearman 分歧如实披露。"
+    },
+    "uncertainty_disclosure": {
+      "score": 9,
+      "notes": "uncertainty_summary 含 epistemic/aleatory/ceiling=85/what_would_change_conclusions/reasoning_weaknesses;置信记账闭合(五因子21+21+17+16+7=82=confidence_score);L3 封顶与窗口扣分以 already_included_in_factors 声明。扣1分: H2/H3 排除档五因子仅作记录, 未逐项给排除后的残差说明。"
+    },
+    "report_quality": {
+      "score": 9,
+      "notes": "诊断工件结构化程度高: 判别矩阵/链路校验/ontology_data_physics_proof/预测可观测量/证伪条件齐备, 可直接支撑 Reporter 金字塔写作。扣1分: report.md 尚未产出(Judge 位于 Reporter 前, 此项按诊断工件质量评估)。"
+    },
+    "no_over_claiming": {
+      "score": 9,
+      "notes": "DETERMINED 但物理成因(结垢 vs 阀故障)明确'需现场点检';能量代理 caveat(体积/质量流量)保留;Arrhenius 观测不一致(INCONSISTENT)如实引用且不作主导机制声称;置信 82 未越 L3 上限。"
+    },
+    "completeness": {
+      "score": 9,
+      "notes": "R1–R8 全 8 段、竞争假设 3 条全处理、四条反臆断条件逐一核验、falsification_conditions/预测可观测量/revival_condition 齐备;delivery_contract 的 Step1-5a 关键工件全部存在。扣1分: physics_manual_verification.md 未写(不适用——physics_check.py 已实际执行3项检查, 非零检查豁免该文件, 但工件索引中未显式记录该豁免)。"
+    }
+  },
+  "reasoning_chain_audit": {
+    "segments": 8,
+    "complete_r1_r8": true,
+    "inference_gaps_annotated": true,
+    "falsifiability": "每个 R 段含 falsification_condition;H1 含 3 条证伪条件与 3 条预测可观测量",
+    "hallucination_audit": "6 项抽查( Pearson/分段均值/滞后CCF/负载相关/负载均值)独立重算全部与声明一致;无虚构数字",
+    "notes": "链路完整无跳跃;假设显式声明;反事实(排除)有定量依据"
+  },
+  "spot_check_findings": {
+    "correlations_sampled": 6,
+    "verified": 6,
+    "questionable": 0,
+    "details": [
+      {
+        "claim": "Pearson r(flow,temp)=−0.9626 (n=120)",
+        "sample_verified": true,
+        "note": "Judge 独立重算 = −0.9626, 一致"
+      },
+      {
+        "claim": "flow 分段均值 12.004/8.0225 (变化点 idx60)",
+        "sample_verified": true,
+        "note": "独立重算 = 12.0040/8.0225, 一致"
+      },
+      {
+        "claim": "temp 分段均值 65.0082/73.0316 (变化点 idx62, +8.0234 degC)",
+        "sample_verified": true,
+        "note": "独立重算 = 65.0082/73.0316, 一致"
+      },
+      {
+        "claim": "滞后 CCF 峰值 lag=−2: r=−0.9959 (n=118)",
+        "sample_verified": true,
+        "note": "Judge 以 flow[0..117] vs temp[2..119] 独立重算 = −0.9959, 一致"
+      },
+      {
+        "claim": "r(load,temp)=0.0254 (p=0.7834, 不显著)",
+        "sample_verified": true,
+        "note": "独立重算 = 0.0254, 一致"
+      },
+      {
+        "claim": "负载 mean=75.09, std≈0.79 (cv≈0.0106, 平稳)",
+        "sample_verified": true,
+        "note": "独立重算 mean=75.09, std=0.7929, 一致"
+      }
+    ]
+  },
+  "blocking_issues": [],
+  "repair_instructions": {
+    "summary": "2 条非阻断修复: (1)充实 image_captions.json 描述性字段; (2)在诊断工件记录 physics_check 豁免说明",
+    "steps_to_rerun": [
+      "data_processor.captions_enrich",
+      "diagnostician.note_append",
+      "judge(round2)"
+    ],
+    "key_changes": [
+      "03_figures/image_captions.json: key_observations/trend_shapes/description 以直接读图记录充实, chart_type 对齐 plot_manifest;不新增统计量",
+      "04_diagnostics/diagnosis.json: chain_link_validation 补记 physics_check.py 已执行 3 项检查, checks_performed>0 → physics_manual_verification.md 豁免"
+    ]
+  },
+  "warnings": [
+    {
+      "description": "fast mode 无 VLM: visual_evidence 来自会话智能体读图, 已在 evidence.json 注明",
+      "suggestion": "visual_evidence 已在 evidence.json 注明生成方式;维持现状即可",
+      "validation_source": "05_review/judge_feedback.json"
+    },
+    {
+      "description": "Spearman/Pearson 分歧 0.233 (MODERATE): 阶跃数据固有, 已披露",
+      "suggestion": "已在 reasoning_chain R3 与 uncertainty_summary 披露;维持现状",
+      "validation_source": "05_review/judge_feedback.json"
+    },
+    {
+      "description": "overall_validity=MODERATE_CONCERNS(跨 regime 相关警示): 已用变化点时序与分段均值差交叉核验并计入置信扣分",
+      "suggestion": "已计入置信扣分;维持现状",
+      "validation_source": "05_review/judge_feedback.json"
+    }
+  ],
+  "evidence_gaps": [
+    "冷却水进出口温差/压差(结垢直接证据)",
+    "冷却水流量独立设定值(区分设定变更 vs 回路阻力)",
+    "润滑油温/振动频谱(伴生机理链定量)"
+  ],
+  "strengths": [
+    "全部统计数字 100% 可复算(6/6 抽查通过)",
+    "置信记账以五因子为唯一正则口径且闭合(82=Σ)",
+    "反伪相关全套(离群/留一/去趋势/Simpson/多重检验)通过且 fatal=0",
+    "变化点时序(60→62)与滞后CCF峰值(−2)互证, 因果方向证据链闭合"
+  ],
+  "validation_findings_cited": [
+    "02_processed/validate_report.json (run.py full, alpha=0.05, max_lag=10)",
+    "02_processed/time_lag_analysis.json (time_lag_compensator)",
+    "02_processed/physics_check.json (3 checks: heat_transfer/vibration_threshold/arrhenius_kinetics)",
+    "04_diagnostics/quality_check_round1.json (diagnostic-quality-check PASS, 0 critical 0 warning)"
+  ],
+  "iteration": 1,
+  "max_iterations": 3,
+  "repair_scope": [
+    {
+      "dimension": "visualization_quality",
+      "files": [
+        "03_figures/image_captions.json"
+      ],
+      "instructions": "以直接读图记录充实描述性字段;不新增统计量"
+    },
+    {
+      "dimension": "completeness",
+      "files": [
+        "04_diagnostics/diagnosis.json"
+      ],
+      "instructions": "补记 physics_check 豁免说明(在 chain_link_validation.correction_applied 或附注字段)"
+    }
+  ]
+}

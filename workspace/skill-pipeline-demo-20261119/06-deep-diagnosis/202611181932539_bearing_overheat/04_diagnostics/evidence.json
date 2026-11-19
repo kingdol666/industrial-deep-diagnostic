@@ -1,0 +1,157 @@
+{
+  "run_id": "202611181932539_bearing_overheat",
+  "evidence_inventory": {
+    "visual_evidence": [
+      {
+        "source": "03_figures/fig_adaptive_overlay.png",
+        "finding": "时间对齐叠加图(z-normalized, 5参数): cooling_water_flow_lpm(绿)于10:00由z≈+1.0跳落至z≈−1.05并保持; bearing_temp_c(蓝)于10:04由z≈−0.97跳升至z≈+1.05并保持; vibration_mm_s(紫)10:04同步轻升; motor_load_pct(橙)与ambient_temp_c(红)全程围绕z=0无规则波动、无台阶",
+        "rank": 4,
+        "implication": "流量阶跃先于温度阶跃2个采样点,方向相反、幅度对应;负载/环境无阶跃,排除 H2/H3 的时序前提",
+        "generation_method": {
+          "source": "adaptive_charts.py",
+          "figure_type": "temporal_overlay",
+          "priority": 1,
+          "time_alignment": "single-source-parse, median_interval_s=120.0, monotonic_after_sort=true, n_rows_dropped_unparsable=0"
+        },
+        "confidence_note": "fast mode 跳过 VLM: 本条为会话智能体直接读图记录;image_captions.json 为确定性兜底(无逐图解读),L4 证据级以目视为准"
+      },
+      {
+        "source": "03_figures/fig_adaptive_line_bearing_temp_c.png",
+        "finding": "bearing_temp_c 单列时序: 08:00–10:02 稳定在65℃平台,10:04 起抬升至73℃平台并保持至11:58,无回落;过渡段无振荡",
+        "rank": 4,
+        "implication": "阶跃后保持(hold)形态与'持续性冷却能力下降'一致,与'瞬时异常/传感器毛刺'不符",
+        "generation_method": {
+          "source": "adaptive_charts.py",
+          "figure_type": "line",
+          "priority": 3
+        },
+        "confidence_note": "同上,fast mode 无 VLM 逐图解读"
+      }
+    ],
+    "numerical_evidence": [
+      {
+        "source": "02_processed/validate_report.json",
+        "finding": "冷却水流量与轴承温度 Pearson 相关 r=−0.9626 (n=120, p≈0); 去趋势后 r=−0.8501 (p=0, trend_confounded=false)",
+        "rank": 3,
+        "metric": "pearson_r",
+        "value": -0.9626,
+        "interpretation": "强负相关且非趋势混杂,方向与本体机制边(direction=−)一致"
+      },
+      {
+        "source": "02_processed/validate_report.json",
+        "finding": "滞后CCF峰值位于 lag=−2: r=−0.9959 (n=118); best_lags.flow→temp; 窗口一致性 consistent=true, consistent_count=6, isolated_spike=false",
+        "rank": 3,
+        "metric": "best_lag_r",
+        "value": -0.9959,
+        "interpretation": "流量领先温度2个采样点;峰值非孤立尖峰,滞后结构可靠"
+      },
+      {
+        "source": "02_processed/time_lag_analysis.json",
+        "finding": "time_lag_compensator: optimal_lag.steps=−2, confidence=high, consistency_ratio=1.0; lag_compensated_correlation r=−0.9959 (n=118); 原始相关 −0.9626 → 补偿后提升 3.5%",
+        "rank": 3,
+        "metric": "optimal_lag_steps",
+        "value": -2,
+        "interpretation": "数据最优滞后与本体先验(约2个采样点)一致; lag_agreement=consistent"
+      },
+      {
+        "source": "02_processed/validate_report.json",
+        "finding": "Granger 因果: flow→temp lag1 F=91.5337 (p≈0), lag2 F=259.151 (p≈0), 滞后1–3均显著; 反向检验未通过显著性",
+        "rank": 3,
+        "metric": "granger_f_lag2",
+        "value": 259.151,
+        "interpretation": "流量对温度有显著预测力,支持因果方向为 flow→temp"
+      },
+      {
+        "source": "02_processed/validate_report.json",
+        "finding": "change_point_detection: flow 变化点 idx60 (mean 12.004→8.0225, −33.2%, significant); temp 变化点 idx62 (mean 65.0082→73.0316, +12.3%, significant); 两变化点相距2个采样点",
+        "rank": 3,
+        "metric": "temp_step_delta_c",
+        "value": 8.0234,
+        "interpretation": "阶跃-滞后-保持结构与 H1 机制链逐环对应"
+      },
+      {
+        "source": "02_processed/validate_report.json",
+        "finding": "备择假设相关均不显著: motor_load_pct r=0.0254 (p=0.7834), ambient_temp_c r=0.0162 (p=0.8608); 两者 detrended 相关亦接近0",
+        "rank": 3,
+        "metric": "load_r",
+        "value": 0.0254,
+        "interpretation": "H2/H3 无统计支撑"
+      },
+      {
+        "source": "02_processed/validate_report.json",
+        "finding": "多重检验: 共3组检验, 期望假阳性0.2, Bonferroni阈值0.016667, 仅 flow→temp 幸存校正",
+        "rank": 3,
+        "metric": "bonferroni_significant",
+        "value": 1,
+        "interpretation": "唯一显著关系即 H1 通道,假阳性风险受控"
+      },
+      {
+        "source": "02_processed/anomaly_report.json",
+        "finding": "工艺参数波动筛查: cooling_water_flow_lpm cv=0.2001 abrupt=yes; motor_load_pct cv=0.0106, ambient_temp_c cv=0.0167, vibration_mm_s cv=0.0937 (p05–p95 span 0.524) 均 abrupt=no; 轴承温度无越限区间(threshold 76.95, 0%超限)",
+        "rank": 3,
+        "metric": "flow_cv",
+        "value": 0.2001,
+        "interpretation": "唯一异常波动源为冷却水流量;振动呈双平台(2.0→2.4)非尖峰异常"
+      }
+    ],
+    "physical_evidence": [
+      {
+        "source": "02_processed/physics_check.json (heat_transfer check, run.py: Q=m·cp·ΔT 能量代理)",
+        "finding": "能量代理(流量×轴承-环境温差)前半段均值 444.25 → 后半段 359.04, 下降 19.18% — FOULING_PROGRESSION: 与渐进性结垢/换热能力退化一致",
+        "rank": 5,
+        "implication": "物理量级独立核验支持 H1 机制链的'换热能力下降'环节",
+        "caveat": "flow 按质量流量处理;若为体积流量, U 量级按密度平移, 相对趋势结论不受影响"
+      },
+      {
+        "source": "02_processed/physics_check.json (vibration_threshold check, ISO 10816)",
+        "finding": "全部120个样本振动处于 ISO 10816 B区(可接受), 范围 1.86–2.521 mm/s, 无 cliff — 振动轻升为伴生症状而非突发损伤",
+        "rank": 5,
+        "implication": "支持'振动为温度/润滑状态变化的伴生症状'而非独立根因"
+      },
+      {
+        "source": "01_ontology/ontology.json relationships[0] governing_equation + 传热学常识",
+        "finding": "闭式回路换热速率 Q=m_water·cp·ΔT: 流量 −33.2% → 单位时间带热量同比例下降 → 轴承热平衡点上移, 温度上升方向与数据一致(负相关)",
+        "rank": 5,
+        "implication": "H1 机制方向(design direction=−)与数据方向 MATCH"
+      },
+      {
+        "source": "02_processed/physics_check.json (arrhenius_kinetics check)",
+        "finding": "以默认 Ea=80 kJ/mol 先验: 预测速率比 74.1 vs 观测 1.14, observational_consistency=INCONSISTENT — 温度驱动反应动力学非主导机制",
+        "rank": 6,
+        "implication": "排除'材料反应动力学加速'类机制为根因的备选解释(如需定量结论须提供本体 Ea 值;当前为中性先验带)"
+      }
+    ],
+    "validation_evidence": [
+      {
+        "source": "02_processed/validate_report.json (leave_one_out_leverage)",
+        "finding": "逐点留一检验: r 最大位移 0.0171, leveraged=false — 相关非单点撬动",
+        "affected_hypotheses": ["H1"]
+      },
+      {
+        "source": "02_processed/validate_report.json (outlier_sensitivity)",
+        "finding": "离群点敏感性: 剔除0个离群点, r变化 0% — 非离群点驱动",
+        "affected_hypotheses": ["H1"]
+      },
+      {
+        "source": "02_processed/validate_report.json (time_trend_confounding)",
+        "finding": "去趋势相关 −0.8501 仍强显著, trend_confounded=false — 排除共同趋势伪相关",
+        "affected_hypotheses": ["H1", "H2", "H3"]
+      },
+      {
+        "source": "02_processed/validate_report.json (distribution_analysis)",
+        "finding": "全部5列偏度正常(is_heavily_skewed=false), Pearson 适用性通过",
+        "affected_hypotheses": ["H1"]
+      },
+      {
+        "source": "02_processed/validate_report.json (spearman_divergence)",
+        "finding": "Spearman/Pearson 分歧 0.233 (MODERATE) — 阶跃数据弱化秩相关;已在结论中如实标注",
+        "affected_hypotheses": ["H1"]
+      },
+      {
+        "source": "02_processed/validate_report.json (overall_validity)",
+        "finding": "overall_validity=MODERATE_CONCERNS: 跨 regime 边界相关可能虚假 — 已用变化点时序(60→62)与分段均值差交叉核验,置信相应封顶",
+        "affected_hypotheses": ["H1"]
+      }
+    ]
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "source": "Phase 0.4 ontology-guided analysis selection",
+  "ontology_file": "01_ontology/ontology.json",
+  "parameter_physical_groups": {
+    "cooling_capacity": [
+      "cooling_water_flow_lpm"
+    ],
+    "heat_generation": [
+      "motor_load_pct"
+    ],
+    "heat_sink_boundary": [
+      "ambient_temp_c"
+    ],
+    "bearing_condition": [
+      "bearing_temp_c",
+      "vibration_mm_s"
+    ]
+  },
+  "quality_targets": [
+    "bearing_temp_c",
+    "vibration_mm_s"
+  ],
+  "analysis_tiers": {
+    "tier_1": [
+      {
+        "target": "bearing_temp_c",
+        "predictor": "cooling_water_flow_lpm",
+        "justification": "同回路同阶段已知因果物理: Q=m_water·cp·ΔT, 流量下降→散热能力下降→温度上升(direction=−); 本体机制边 type=physical/strength=strong, 优先分析"
+      }
+    ],
+    "tier_2": [
+      {
+        "target": "bearing_temp_c",
+        "predictor": "motor_load_pct",
+        "justification": "上游参数有可信传播路径: 负载↑→轴承机械发热↑→温度↑(方向+); 本体机制边 strength=moderate, 作为备择假设 H3 通道"
+      }
+    ],
+    "tier_3": [
+      {
+        "target": "bearing_temp_c",
+        "predictor": "ambient_temp_c",
+        "justification": "间接/弱连接: 环境温度经散热终温缓变影响温度(日内尺度), 与2采样点级阶跃的形态匹配度低; 作为备择假设 H2/混杂对照"
+      }
+    ]
+  },
+  "pruned": [
+    {
+      "predictor": "motor_load_pct",
+      "target": "vibration_mm_s",
+      "reason": "无直接物理通道声明(振动经温度/润滑状态间接关联); 避免无机制支撑的伪相关检验"
+    },
+    {
+      "predictor": "ambient_temp_c",
+      "target": "vibration_mm_s",
+      "reason": "无直接物理通道声明; 环境温度与轴承振动的耦合弱且间接"
+    },
+    {
+      "predictor": "cooling_water_flow_lpm",
+      "target": "vibration_mm_s",
+      "reason": "流量对振动无直接机制边(须以温度为中介); 直接检验会稀释机制链"
+    }
+  ],
+  "predictor_cols": [
+    "cooling_water_flow_lpm",
+    "motor_load_pct",
+    "ambient_temp_c"
+  ],
+  "exclude_cols": [
+    "timestamp"
+  ],
+  "derived_features_to_compute": [],
+  "notes": "与 stats/run.py 实际调用一致(target=bearing_temp_c; predictors=flow/load/ambient; time-col=timestamp; max_lag=10); 无派生特征需求(单源等间隔时序)"
+}

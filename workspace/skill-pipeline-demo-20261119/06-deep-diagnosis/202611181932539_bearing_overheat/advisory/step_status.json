@@ -1,0 +1,33 @@
+{
+  "contract_version": "improvement-advisory-step/1.0",
+  "origin": "diagnosis",
+  "run_dir": "D:\\codes\\myskills\\idd-doe-impl\\workspace\\skill-pipeline-demo-20261119\\06-deep-diagnosis\\202611181932539_bearing_overheat",
+  "started_at": "2026-11-18T19:53:37.412649+00:00",
+  "status": "used",
+  "exit_code": 0,
+  "objective_source": "explicit",
+  "data_path": "D:\\codes\\myskills\\idd-doe-impl\\workspace\\skill-pipeline-demo-20261119\\06-deep-diagnosis\\202611181932539_bearing_overheat\\00_input\\bearing_data.csv",
+  "artifacts": [
+    "advisory/advisory_actions.json",
+    "advisory/objective_resolved.json",
+    "advisory/charts.json",
+    "advisory/improvement_advisory.html",
+    "advisory/improvement_advisory.md",
+    "advisory/html_selfcheck.json",
+    "advisory/chapter.md"
+  ],
+  "summary": {
+    "report_status": "advisory_only",
+    "n_actions": 1,
+    "grades": {
+      "A": 0,
+      "B": 0,
+      "C": 1
+    },
+    "n_prescriptions": 0,
+    "max_achievable_grade": "B",
+    "report_id": "IMA-20261118195337-279905"
+  },
+  "chapter_written": true,
+  "generated_at": "2026-11-18T19:53:37.455170+00:00"
+}

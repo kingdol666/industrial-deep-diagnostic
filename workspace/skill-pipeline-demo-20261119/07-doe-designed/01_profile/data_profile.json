@@ -1,0 +1,102 @@
+{
+  "generated_at": "2026-11-19T06:18:39.453282+00:00",
+  "data_path": "D:\\codes\\myskills\\idd-doe-impl\\workspace\\skill-pipeline-demo-20261119\\07-doe-designed\\00_input\\run_table.csv",
+  "n_rows": 27,
+  "n_cols": 5,
+  "columns": [
+    {
+      "name": "run_seq",
+      "dtype": "int64",
+      "role": "ignore",
+      "role_assigned_by": "user",
+      "n_unique": 27,
+      "n_missing": 0,
+      "n_valid": 27,
+      "notes": ""
+    },
+    {
+      "name": "barrel_temp_c",
+      "dtype": "int64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 3,
+      "n_missing": 0,
+      "n_valid": 27,
+      "notes": ""
+    },
+    {
+      "name": "cooling_time_s",
+      "dtype": "int64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 3,
+      "n_missing": 0,
+      "n_valid": 27,
+      "notes": ""
+    },
+    {
+      "name": "replicate",
+      "dtype": "int64",
+      "role": "ignore",
+      "role_assigned_by": "user",
+      "n_unique": 3,
+      "n_missing": 0,
+      "n_valid": 27,
+      "notes": ""
+    },
+    {
+      "name": "energy_kwh_per_kg",
+      "dtype": "float64",
+      "role": "response",
+      "role_assigned_by": "user",
+      "n_unique": 26,
+      "n_missing": 0,
+      "n_valid": 27,
+      "notes": ""
+    }
+  ],
+  "roles": {
+    "responses": [
+      "energy_kwh_per_kg"
+    ],
+    "factors": [
+      "barrel_temp_c",
+      "cooling_time_s"
+    ],
+    "blocks": [],
+    "covariates": [],
+    "index": [],
+    "ignore": [
+      "run_seq",
+      "replicate"
+    ]
+  },
+  "design": {
+    "n_runs": 27,
+    "n_factor_cols": 2,
+    "n_distinct_combos": 9,
+    "balanced": true,
+    "balance_ratio": 1.0,
+    "max_abs_factor_corr": null,
+    "resolution": null,
+    "generators": [],
+    "defining_relation": [],
+    "alias_chains": {},
+    "center_points": null,
+    "axial_points": null,
+    "alpha_axial": null,
+    "replicates": 3,
+    "detection_notes": [
+      "all 9 level combos present and balanced"
+    ],
+    "design_type": "full_factorial",
+    "mode": "designed"
+  },
+  "quality": {
+    "duplicate_rows": 0,
+    "constant_cols": [],
+    "high_missing_cols": [],
+    "rows_dropped_missing_targets": 0
+  },
+  "caveats": []
+}

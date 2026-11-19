@@ -1,0 +1,26 @@
+{
+  "generated_at": "2026-11-19T06:18:40.128065+00:00",
+  "mode": "designed",
+  "plots": [
+    {
+      "file": "residuals_energy_kwh_per_kg.png",
+      "type": "residual_diagnostics",
+      "title": "Residual diagnostics — energy_kwh_per_kg",
+      "response": "energy_kwh_per_kg",
+      "bytes": 94220,
+      "min_ink_ratio": 0.01,
+      "ink_ok": true,
+      "ink_detail": "ink ratio 0.0880 ok; ink ratio 8.8% across 4 quadrants"
+    },
+    {
+      "file": "main_effects_energy_kwh_per_kg.png",
+      "type": "main_effects",
+      "title": "Main effects — energy_kwh_per_kg",
+      "response": "energy_kwh_per_kg",
+      "bytes": 43576,
+      "min_ink_ratio": 0.01,
+      "ink_ok": true,
+      "ink_detail": "ink ratio 0.0572 ok; ink ratio 5.7% across 4 quadrants"
+    }
+  ]
+}

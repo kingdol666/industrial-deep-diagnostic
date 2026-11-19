@@ -1,0 +1,11 @@
+{
+  "user_complaint": "轴承温度偏高,请查根因",
+  "scene": "bearing_overheat",
+  "reported_symptoms": [
+    "轴承温度(bearing_temp_c)较正常水平明显偏高",
+    "疑似伴随振动轻微上升"
+  ],
+  "operating_context": "电机驱动产线关键风机轴承,冷却水回路为闭式循环,DCS 每 2 分钟采集一次",
+  "expectation": "给出根因结论与置信度,如需整改请附验证计划",
+  "language": "zh"
+}

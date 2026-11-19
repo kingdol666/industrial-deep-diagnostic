@@ -1,0 +1,52 @@
+{
+  "scene": {
+    "name": "injection_energy_doe",
+    "process_type": "injection_molding",
+    "equipment": [
+      "IMM-07"
+    ]
+  },
+  "factors": [
+    {
+      "col": "barrel_temp_c",
+      "unit": "℃",
+      "min": 186,
+      "max": 194,
+      "levels": [
+        186,
+        190,
+        194
+      ]
+    },
+    {
+      "col": "cooling_time_s",
+      "unit": "s",
+      "min": 24,
+      "max": 32,
+      "levels": [
+        24,
+        28,
+        32
+      ]
+    }
+  ],
+  "responses": [
+    {
+      "col": "energy_kwh_per_kg",
+      "unit": "kWh/kg",
+      "goal": "minimize",
+      "usl": 0.75,
+      "target": 0.66,
+      "lsl": 0.6
+    }
+  ],
+  "design_type_declared": "full_factorial_randomized",
+  "data_stage": "collected",
+  "inference": {
+    "assigned_by": "user"
+  },
+  "_predictor_cols": [
+    "barrel_temp_c",
+    "cooling_time_s"
+  ]
+}

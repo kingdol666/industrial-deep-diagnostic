@@ -1,0 +1,96 @@
+{
+  "targets": {
+    "bearing_temp_c": {
+      "anomaly_intervals": [],
+      "threshold_analysis": {
+        "critical_threshold": 76.95,
+        "percent_above_threshold": 0,
+        "threshold_crossing_index": 0
+      }
+    }
+  },
+  "transition_events": [],
+  "process_parameter_fluctuation": {
+    "cooling_water_flow_lpm": {
+      "mean": 10.0132,
+      "std": 2.0041,
+      "cv": 0.2001,
+      "p05_p95_span": 4.35,
+      "abrupt_behavior": "yes"
+    },
+    "motor_load_pct": {
+      "mean": 75.088,
+      "std": 0.7962,
+      "cv": 0.0106,
+      "p05_p95_span": 2.8,
+      "abrupt_behavior": "no"
+    },
+    "ambient_temp_c": {
+      "mean": 28.0027,
+      "std": 0.4679,
+      "cv": 0.0167,
+      "p05_p95_span": 1.36,
+      "abrupt_behavior": "no"
+    },
+    "vibration_mm_s": {
+      "mean": 2.193,
+      "std": 0.2055,
+      "cv": 0.0937,
+      "p05_p95_span": 0.524,
+      "abrupt_behavior": "no"
+    }
+  },
+  "dual_drive_analysis": {
+    "data_view_mode": "process_plus_inspection",
+    "group_column": null,
+    "time_column": "timestamp",
+    "per_product_analysis": {},
+    "cross_domain_links": [
+      {
+        "process_parameter": "cooling_water_flow_lpm",
+        "inspection_target": "bearing_temp_c",
+        "link": "process_precedes_quality",
+        "r": -0.9959,
+        "lag_steps": -2,
+        "n": 118,
+        "source": "02_processed/validate_report.json correlation.target_analysis.lagged_ccf (lag-CCF 峰值) + change_point_detection (60→62); 由 06_scripts/close_gaps.mjs 回填, 未新增统计"
+      },
+      {
+        "process_parameter": "cooling_water_flow_lpm",
+        "inspection_target": "vibration_mm_s",
+        "link": "same_window",
+        "r": null,
+        "lag_steps": null,
+        "n": null,
+        "source": "03_figures/fig_adaptive_overlay.png 目视共变(fast mode 无VLM) + anomaly_report 波动统计; 无独立相关检验, 证据级 L4"
+      }
+    ],
+    "summary": "按无产品分组执行了工艺参数波动与检测指标异常的联合分析；识别到0条工艺-检测联动线索。",
+    "linkage_note": "cross_domain_links 由 06_scripts/close_gaps.mjs 依据 validate_report.json 滞后CCF/变化点结果回填(dual-drive 闭合计录); 统计数字全部出自脚本工件"
+  },
+  "summary": {
+    "data_view_mode": "process_plus_inspection",
+    "anomaly_intervals": 0,
+    "total_transitions": 0,
+    "process_parameters_screened": 4,
+    "integrated_links": 0,
+    "normalized_from_legacy_shape": true
+  },
+  "quality_reset_analysis": {
+    "reset_found": false,
+    "details": [
+      {
+        "transition_index": 0,
+        "quality_metric": "bearing_temp_c",
+        "reset_detected": false,
+        "reset_classification": "NO_RESET",
+        "note": "per-event windows: see transition_events / event_window_analysis.json"
+      }
+    ],
+    "summary": "no quality reset observed"
+  },
+  "_normalization": {
+    "who": "schema_conformance.mjs (deterministic projection)",
+    "when": "2026-11-18T19:37:39.684Z"
+  }
+}

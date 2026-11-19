@@ -1,0 +1,169 @@
+{
+  "file": "D:\\codes\\myskills\\idd-doe-impl\\workspace\\skill-pipeline-demo-20261119\\06-deep-diagnosis\\202611181932539_bearing_overheat\\00_input\\bearing_data.csv",
+  "format": "csv",
+  "rows": 120,
+  "columns": 6,
+  "time_column": "timestamp",
+  "column_details": [
+    {
+      "name": "timestamp",
+      "index": 0,
+      "type": "datetime",
+      "stats": {
+        "count": 120,
+        "missing": 0,
+        "missing_pct": 0,
+        "unique": 120,
+        "top_values": [
+          [
+            "2026-11-18T08:00:00+08:00",
+            1
+          ],
+          [
+            "2026-11-18T08:02:00+08:00",
+            1
+          ],
+          [
+            "2026-11-18T08:04:00+08:00",
+            1
+          ],
+          [
+            "2026-11-18T08:06:00+08:00",
+            1
+          ],
+          [
+            "2026-11-18T08:08:00+08:00",
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "name": "bearing_temp_c",
+      "index": 1,
+      "type": "number",
+      "stats": {
+        "count": 120,
+        "missing": 0,
+        "missing_pct": 0,
+        "mean": 68.8862,
+        "std": 4.0165,
+        "min": 64.37,
+        "max": 73.43,
+        "p25": 65.05,
+        "p50": 65.49,
+        "p75": 73.04
+      }
+    },
+    {
+      "name": "motor_load_pct",
+      "index": 2,
+      "type": "number",
+      "stats": {
+        "count": 120,
+        "missing": 0,
+        "missing_pct": 0,
+        "mean": 75.088,
+        "std": 0.7929,
+        "min": 72.96,
+        "max": 77.1,
+        "p25": 74.57,
+        "p50": 75.19,
+        "p75": 75.53
+      }
+    },
+    {
+      "name": "cooling_water_flow_lpm",
+      "index": 3,
+      "type": "number",
+      "stats": {
+        "count": 120,
+        "missing": 0,
+        "missing_pct": 0,
+        "mean": 10.0132,
+        "std": 1.9957,
+        "min": 7.66,
+        "max": 12.28,
+        "p25": 8.05,
+        "p50": 11.7,
+        "p75": 12
+      }
+    },
+    {
+      "name": "ambient_temp_c",
+      "index": 4,
+      "type": "number",
+      "stats": {
+        "count": 120,
+        "missing": 0,
+        "missing_pct": 0,
+        "mean": 28.0028,
+        "std": 0.4659,
+        "min": 26.9,
+        "max": 29.15,
+        "p25": 27.69,
+        "p50": 27.99,
+        "p75": 28.34
+      }
+    },
+    {
+      "name": "vibration_mm_s",
+      "index": 5,
+      "type": "number",
+      "stats": {
+        "count": 120,
+        "missing": 0,
+        "missing_pct": 0,
+        "mean": 2.193,
+        "std": 0.2047,
+        "min": 1.86,
+        "max": 2.521,
+        "p25": 1.993,
+        "p50": 2.111,
+        "p75": 2.394
+      }
+    }
+  ],
+  "preview": [
+    {
+      "timestamp": "2026-11-18T08:00:00+08:00",
+      "bearing_temp_c": "65.20",
+      "motor_load_pct": "74.42",
+      "cooling_water_flow_lpm": "11.96",
+      "ambient_temp_c": "27.88",
+      "vibration_mm_s": "2.036"
+    },
+    {
+      "timestamp": "2026-11-18T08:02:00+08:00",
+      "bearing_temp_c": "65.03",
+      "motor_load_pct": "75.41",
+      "cooling_water_flow_lpm": "11.94",
+      "ambient_temp_c": "28.58",
+      "vibration_mm_s": "1.952"
+    },
+    {
+      "timestamp": "2026-11-18T08:04:00+08:00",
+      "bearing_temp_c": "65.20",
+      "motor_load_pct": "75.09",
+      "cooling_water_flow_lpm": "11.83",
+      "ambient_temp_c": "27.52",
+      "vibration_mm_s": "1.968"
+    },
+    {
+      "timestamp": "2026-11-18T08:06:00+08:00",
+      "bearing_temp_c": "64.76",
+      "motor_load_pct": "75.53",
+      "cooling_water_flow_lpm": "12.06",
+      "ambient_temp_c": "27.39",
+      "vibration_mm_s": "1.860"
+    },
+    {
+      "timestamp": "2026-11-18T08:08:00+08:00",
+      "bearing_temp_c": "64.37",
+      "motor_load_pct": "73.78",
+      "cooling_water_flow_lpm": "11.94",
+      "ambient_temp_c": "28.08",
+      "vibration_mm_s": "1.993"
+    }
+  ]
+}

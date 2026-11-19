@@ -1,0 +1,128 @@
+{
+  "contract_version": "improvement-advisory-charts/1.0",
+  "kpi_series": [
+    {
+      "metric": "coat_weight_gsm",
+      "direction": "target",
+      "points": [
+        [
+          0,
+          4.208
+        ],
+        [
+          1,
+          4.218
+        ],
+        [
+          2,
+          4.234
+        ],
+        [
+          3,
+          4.103
+        ],
+        [
+          4,
+          4.225
+        ],
+        [
+          5,
+          4.354
+        ],
+        [
+          6,
+          4.078
+        ],
+        [
+          7,
+          4.156
+        ],
+        [
+          8,
+          4.399
+        ],
+        [
+          9,
+          3.977
+        ],
+        [
+          10,
+          4.191
+        ],
+        [
+          11,
+          4.338
+        ],
+        [
+          12,
+          4.155
+        ],
+        [
+          13,
+          4.179
+        ],
+        [
+          14,
+          4.235
+        ],
+        [
+          15,
+          4.205
+        ],
+        [
+          16,
+          4.114
+        ],
+        [
+          17,
+          4.337
+        ],
+        [
+          18,
+          4.154
+        ],
+        [
+          19,
+          4.251
+        ],
+        [
+          20,
+          4.303
+        ],
+        [
+          21,
+          4.126
+        ],
+        [
+          22,
+          4.278
+        ],
+        [
+          23,
+          4.3
+        ],
+        [
+          24,
+          4.104
+        ],
+        [
+          25,
+          4.187
+        ],
+        [
+          26,
+          4.182
+        ]
+      ],
+      "n": 27
+    }
+  ],
+  "dose_response": [],
+  "windows": [],
+  "levers": [
+    "oven1_temp_c",
+    "solid_content_pct",
+    "tension_n"
+  ],
+  "note": "downsampled stride disclosure: see points density; charts are script-authored, agent must not alter numbers"
+}

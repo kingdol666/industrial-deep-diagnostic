@@ -1,0 +1,38 @@
+{
+ "source_data": "D:\\codes\\myskills\\idd-doe-impl\\workspace\\skill-pipeline-demo-20261119\\06-deep-diagnosis\\202611181932539_bearing_overheat\\00_input\\bearing_data.csv",
+ "time_alignment": {
+  "time_col": "timestamp",
+  "method": "single-source-parse",
+  "merged_sources": [],
+  "n_rows_total": 120,
+  "n_rows_dropped_unparsable": 0,
+  "monotonic_after_sort": true,
+  "median_interval_s": 120.0,
+  "span_s": 14280.0
+ },
+ "decisions": [
+  {
+   "target": [
+    "bearing_temp_c",
+    "motor_load_pct",
+    "cooling_water_flow_lpm",
+    "ambient_temp_c",
+    "vibration_mm_s"
+   ],
+   "shape": "multi_parameter_time_series",
+   "chart_type": "z_overlay",
+   "reason": "2..8 numeric series on one aligned time axis"
+  },
+  {
+   "target": "bearing_temp_c",
+   "shape": "single_time_series",
+   "chart_type": "line",
+   "reason": "single measurement channel over the aligned time axis"
+  }
+ ],
+ "files": [
+  "D:\\codes\\myskills\\idd-doe-impl\\workspace\\skill-pipeline-demo-20261119\\06-deep-diagnosis\\202611181932539_bearing_overheat\\03_figures\\fig_adaptive_overlay.png",
+  "D:\\codes\\myskills\\idd-doe-impl\\workspace\\skill-pipeline-demo-20261119\\06-deep-diagnosis\\202611181932539_bearing_overheat\\03_figures\\fig_adaptive_line_bearing_temp_c.png"
+ ],
+ "chart_policy": "2d_field->contour_cloud; multi_parameter_time_series->z_overlay; single_time_series->line; all temporal charts on the aligned axis"
+}

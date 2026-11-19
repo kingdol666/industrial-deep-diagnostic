@@ -1,0 +1,53 @@
+{
+  "design_version": "1.0",
+  "campaign_id": "OPT-20261119-001",
+  "round_id": "R004",
+  "phase": "explore",
+  "method": "gp_ei",
+  "trials": [
+    {
+      "trial_id": "R004-T01",
+      "setpoints": {
+        "barrel_temp_c": 189.506638,
+        "cooling_time_s": 32.016595
+      },
+      "extrapolation": false,
+      "safety_checked": true,
+      "distance_to_incumbent_coded": 0.083654,
+      "expected": {
+        "energy_kwh_per_kg": {
+          "mean": 2.071685,
+          "ci95": [
+            1.939197,
+            2.204172
+          ]
+        }
+      },
+      "predicted_D": 0.969135,
+      "selection_reason": "gp_ei pick (EI=0.01546, path=closed_form); gp_ei; dup_to_existing=False; nearest_data_coded=0.084",
+      "ei": 0.015462,
+      "ucb": 2.204172
+    }
+  ],
+  "model_summary": {
+    "kind": "gp_ard_rbf",
+    "log_ml": -4.187682,
+    "lengthscales": {
+      "x0": 0.693147,
+      "x1": -1.07439
+    },
+    "sigma_noise": 0.014759,
+    "fallback_active": false
+  },
+  "gating": {
+    "domain_ok": true,
+    "safety_ok": true,
+    "duplication_ratio": 0.0
+  },
+  "provenance": {
+    "input_sha256": "dbab2c1420c5f49278f128ded37db86fdba8bddb327854a970497eab22b71de9",
+    "script_version": "1.0.0",
+    "seed": 42,
+    "authored_by": "script"
+  }
+}

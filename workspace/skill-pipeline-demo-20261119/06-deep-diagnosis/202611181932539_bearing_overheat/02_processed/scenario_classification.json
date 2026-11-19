@@ -1,0 +1,17 @@
+{
+  "scene_type": "bearing_overheat",
+  "process_category": "rotating_equipment_cooling_water_disturbance",
+  "confidence": "high",
+  "classification_basis": ["ontology", "column_name_heuristics", "value_range_patterns", "user_provided"],
+  "ontology_available": true,
+  "adaptive_visualization_plan": {
+    "primary": "temporal_overlay_of_target_and_drivers",
+    "rationale": "单时序源、2 分钟等间隔、含明确 time column;目标列 bearing_temp_c 与控制变量 cooling_water_flow_lpm 叠加对齐可同时呈现阶跃-滞后结构",
+    "charts": [
+      {"figure_type": "temporal_overlay", "columns": ["bearing_temp_c", "cooling_water_flow_lpm", "vibration_mm_s", "motor_load_pct", "ambient_temp_c"], "priority": "MANDATORY"},
+      {"figure_type": "line", "columns": ["bearing_temp_c"], "priority": "SUPPLEMENTARY"}
+    ]
+  },
+  "data_view_mode": "process_plus_inspection",
+  "notes": "数据同时含工艺参数(冷却水流量/负载/环境温度)与检查信号(轴承温度/振动),按 process_plus_inspection 视图分析;分类依据 01_ontology/ontology.json 与列名语义"
+}

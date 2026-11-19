@@ -1,0 +1,55 @@
+{
+  "report_version": "1.0",
+  "action_log_id": "ACT-013",
+  "bundle_scope": false,
+  "attribution_status": "estimable",
+  "reason_code": null,
+  "metric": "energy_kwh_per_kg",
+  "segments": {
+    "baseline": {
+      "row_range": [
+        2670,
+        2700
+      ],
+      "n": 30,
+      "n_eff": 30,
+      "lag1_autocorr": -0.012951942924782035
+    },
+    "effect": {
+      "row_range": [
+        2705,
+        2900
+      ],
+      "n": 195,
+      "n_eff": 170,
+      "lag1_autocorr": 0.06721383212908225,
+      "truncated_by": null
+    },
+    "dead_time_used": 0.0
+  },
+  "effect": {
+    "delta": 0.17390333333333308,
+    "ci95": [
+      0.16547074649639998,
+      0.18233592017026617
+    ],
+    "n_eff_hi": 170,
+    "n_eff_lo": 30,
+    "direction_established": true,
+    "direction_withheld": false,
+    "stop_suspected": false,
+    "stratified": null
+  },
+  "confound_detected": false,
+  "attribution_compromised": false,
+  "anti_spurious": {
+    "trend_check": "CAUTION",
+    "outlier_check": "PASS"
+  },
+  "warnings": [],
+  "evidence_grade": "E1",
+  "provenance": {
+    "script_version": "tune_stats/1.0",
+    "authored_by": "script"
+  }
+}

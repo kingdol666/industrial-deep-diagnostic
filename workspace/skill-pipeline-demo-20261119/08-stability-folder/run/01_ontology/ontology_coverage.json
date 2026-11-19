@@ -1,0 +1,28 @@
+{
+  "contract_version": "1.0",
+  "artifact": "ontology_coverage",
+  "scene_key": "packaging_folder_profile",
+  "profile": "stability",
+  "data_stage": "collected",
+  "context_fp": "sha256:5938a212cd72d69a4a6cd3d95501bd0c773a4943bda1032d1fcc266a272dffef",
+  "ontology_version": 1,
+  "ontology_sha256": "sha256:1c97d8c542f8cfedfd71e508a5135de0cfa6130982c8f51428c1f90db19c1c63",
+  "generated_by": "ontology_prepare.py",
+  "columns": [],
+  "column_mapping": {
+    "matched": [],
+    "inferred": [],
+    "unmatched": []
+  },
+  "coverage": {
+    "n_columns_total": 0,
+    "n_columns_mapped": 0,
+    "n_matched": 0,
+    "n_inferred": 0,
+    "n_unmatched": 0,
+    "ratio": 1.0,
+    "matched_ratio": 1.0
+  },
+  "elapsed_ms": 224,
+  "generated_at": "2026-11-19T06:19:50.796220+00:00"
+}

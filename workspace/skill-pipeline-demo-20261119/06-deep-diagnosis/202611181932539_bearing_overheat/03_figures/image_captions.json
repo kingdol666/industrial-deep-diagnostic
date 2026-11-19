@@ -1,0 +1,51 @@
+{
+  "generated_at": "2026-11-18T19:37:39.475Z",
+  "source_files": {
+    "plot_manifest": "03_figures/plot_manifest.json",
+    "feature_summary": null,
+    "validate_report": "02_processed/validate_report.json"
+  },
+  "total_figures": 2,
+  "figures": {
+    "fig_adaptive_overlay.png": {
+      "figure_id": "fig_adaptive_overlay.png",
+      "title": "Adaptive temporal overlay",
+      "chart_type": "temporal_overlay",
+      "axes": {
+        "x": "timestamp (+08:00, 08:00–11:58, 2min间隔)",
+        "y": "z-score (各列独立标准化)"
+      },
+      "key_observations": [
+        "(会话智能体直接读图, fast mode 无 VLM) cooling_water_flow_lpm(绿) 于 10:00 自 z≈+1.0 跳落至 z≈−1.05 并保持",
+        "bearing_temp_c(蓝) 于 10:04 自 z≈−0.97 跳升至 z≈+1.05 并保持, 滞后流量台阶 2 个采样点",
+        "vibration_mm_s(紫) 于 10:04 同步轻升(约 +0.4 mm/s 量级), 与温度共变",
+        "motor_load_pct(橙) 与 ambient_temp_c(红) 全程围绕 z=0 无规则波动, 未见台阶",
+        "全过程除 10:00/10:04 两次台阶外无其他结构性变化"
+      ],
+      "trend_shapes": "flow: 平台(12)→下台阶→平台(8);temp: 平台(65)→上台阶(滞后2步)→平台(73);load/ambient: 平稳噪声",
+      "validation_issues": [],
+      "diagnostic_implication": "流量阶跃先于温度阶跃2个采样点、方向相反且随后保持——与 H1(冷却水流量下降→冷却能力不足) 机制链逐环对应;负载/环境无台阶, 不支持 H2/H3",
+      "description": "5参数时间对齐叠加图: 10:00 流量下台阶, 10:04 温度上台阶(+8.02 degC 量级, 数字以 validate_report.json 为准), 振动同步轻升, 负载/环境平稳",
+      "vlm_notes": "judge round-1 repair: 会话智能体直接读图(fast mode 无 VLM);未新增统计量, 所有数字以 02_processed/validate_report.json 为准"
+    },
+    "fig_adaptive_line_bearing_temp_c.png": {
+      "figure_id": "fig_adaptive_line_bearing_temp_c.png",
+      "title": "bearing_temp_c (line)",
+      "chart_type": "line",
+      "axes": {
+        "x": "timestamp (+08:00)",
+        "y": "bearing_temp_c (degC)"
+      },
+      "key_observations": [
+        "(会话智能体直接读图, fast mode 无 VLM) 08:00–10:02 稳定于 65 degC 平台",
+        "10:04 起抬升至 73 degC 平台并保持至 11:58, 无回落、无振荡",
+        "过渡段陡峭(2个采样点内完成), 符合阶跃-保持形态"
+      ],
+      "trend_shapes": "平台(65)→滞后2步上台阶(+8)→平台(73)",
+      "validation_issues": [],
+      "diagnostic_implication": "阶跃后保持形态与持续性冷却能力下降一致, 与传感器毛刺/瞬时异常不符",
+      "description": "bearing_temp_c 单列时序: 65→73 degC 阶跃保持(数字以 validate_report.json 为准)",
+      "vlm_notes": "judge round-1 repair: 会话智能体直接读图(fast mode 无 VLM);未新增统计量, 所有数字以 02_processed/validate_report.json 为准"
+    }
+  }
+}

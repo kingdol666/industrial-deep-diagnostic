@@ -1,0 +1,184 @@
+{
+  "contract_version": "1.0",
+  "campaign_id": "OPT-20261119-001",
+  "phase": "converged",
+  "verification": "verified",
+  "objective": {
+    "target_metric": "energy_kwh_per_kg",
+    "goal": "minimize",
+    "target_range": null,
+    "tolerance": 2.05
+  },
+  "incumbent": {
+    "setpoints": {
+      "barrel_temp_c": 184.980584,
+      "cooling_time_s": 28.609994
+    },
+    "measured": {
+      "energy_kwh_per_kg": {
+        "mean": 1.9021,
+        "sd": 0.031125,
+        "n": 3
+      }
+    },
+    "in_target": true,
+    "predicted_D": 1.0,
+    "round_id": "R007"
+  },
+  "confirm_round": "R009",
+  "confirm_values": {
+    "energy_kwh_per_kg": [
+      1.8859,
+      1.9581,
+      1.9261
+    ]
+  },
+  "dual_gate": {
+    "replicates_in_window": true,
+    "ci_in_limits": true,
+    "desirability_gate": true,
+    "D": 1.0,
+    "D_max": 1.0
+  },
+  "D_max": 1.0,
+  "D_span": 1.0,
+  "domain": {
+    "barrel_temp_c": {
+      "lo": 170.0,
+      "hi": 205.0
+    },
+    "cooling_time_s": {
+      "lo": 15.0,
+      "hi": 45.0
+    }
+  },
+  "model": {
+    "kind": "gp_ard_rbf",
+    "fallback_active": false,
+    "data_n": 23,
+    "noise_source": "replicates",
+    "fit_quality": {
+      "log_ml": -3.950157811169813,
+      "cond_K": 17737.46297201165
+    }
+  },
+  "stationary_point": {
+    "coded": [
+      -0.13628795999521703,
+      -0.1304690704799313
+    ],
+    "classification": "min",
+    "eigenvalues": [
+      1.7437186263910183,
+      3.14506146748025
+    ],
+    "inside_box": true
+  },
+  "in_tolerance_off_optimum": false,
+  "recommended_refinement": null,
+  "history": [
+    {
+      "round_id": "R001",
+      "phase": "explore",
+      "method": "lhs_fill",
+      "n_trials": 1,
+      "best_D": 0.0,
+      "failures": 0,
+      "notes": "duplication_ratio=0.0"
+    },
+    {
+      "round_id": "R002",
+      "phase": "explore",
+      "method": "poly_refine",
+      "n_trials": 1,
+      "best_D": 0.173412,
+      "failures": 0,
+      "notes": "duplication_ratio=0.0"
+    },
+    {
+      "round_id": "R003",
+      "phase": "explore",
+      "method": "poly_refine",
+      "n_trials": 1,
+      "best_D": 0.965223,
+      "failures": 0,
+      "notes": "duplication_ratio=0.0"
+    },
+    {
+      "round_id": "R004",
+      "phase": "explore",
+      "method": "gp_ei",
+      "n_trials": 1,
+      "best_D": 0.978982,
+      "failures": 0,
+      "notes": "duplication_ratio=0.0"
+    },
+    {
+      "round_id": "R005",
+      "phase": "explore",
+      "method": "gp_ei",
+      "n_trials": 1,
+      "best_D": 0.978982,
+      "failures": 0,
+      "notes": "duplication_ratio=0.0"
+    },
+    {
+      "round_id": "R006",
+      "phase": "explore",
+      "method": "gp_ei",
+      "n_trials": 1,
+      "best_D": 0.978982,
+      "failures": 0,
+      "notes": "duplication_ratio=0.0"
+    },
+    {
+      "round_id": "R007",
+      "phase": "explore",
+      "method": "rsm_augment",
+      "n_trials": 8,
+      "best_D": 1.0,
+      "failures": 0,
+      "notes": "duplication_ratio=0.0"
+    },
+    {
+      "round_id": "R008",
+      "phase": "exploit",
+      "method": "rsm_augment",
+      "n_trials": 8,
+      "best_D": 1.0,
+      "failures": 0,
+      "notes": "duplication_ratio=0.0"
+    },
+    {
+      "round_id": "R009",
+      "phase": "confirm",
+      "method": "confirm_replicates",
+      "n_trials": 1,
+      "best_D": 1.0,
+      "failures": 0,
+      "notes": "duplication_ratio=0.0; dual_gate=PASS"
+    }
+  ],
+  "guardrail_log": [
+    {
+      "code": "CONFIRM_EVAL",
+      "ts": "2026-11-18T19:54:16.300139+00:00",
+      "detail": "confirm round R009: values=[1.8859, 1.9581, 1.9261], ci_in_limits=True, desirability_gate=True"
+    }
+  ],
+  "budget": {
+    "max_rounds": 26,
+    "max_trials": 30,
+    "deadline": null,
+    "rounds_used": 9,
+    "trials_used": 23,
+    "replicates_used": 25
+  },
+  "generated_at": "2026-11-18T19:54:19.207504+00:00",
+  "provenance": {
+    "script_version": "1.0.0",
+    "input_sha256": "dbab2c1420c5f49278f128ded37db86fdba8bddb327854a970497eab22b71de9",
+    "seed": 42,
+    "authored_by": "script"
+  }
+}

@@ -1,0 +1,945 @@
+{
+  "contract_version": "line-stability-report/1.0",
+  "report_id": "LSR-1795069191-2j43d9",
+  "generated_at": "2026-11-19T06:19:51Z",
+  "status": "ok",
+  "line": {
+    "line_id": null,
+    "product": null
+  },
+  "period": {
+    "start": "2026-11-18 06:00:00",
+    "end": "2026-11-18 13:58:00",
+    "tz_offset": null,
+    "requested": {
+      "start": null,
+      "end": null
+    }
+  },
+  "data": {
+    "path": "D:/codes/myskills/idd-doe-impl/workspace/skill-pipeline-demo-20261119/08-stability-folder/run\\00_input\\primary_table.csv",
+    "sha256": "sha256:866591abcec93794bea7d28668cb7bcfdb87ee7a4515fd9686db23369c9b7f56",
+    "time_col": "timestamp",
+    "group_col": null,
+    "group_used": null,
+    "parameter_cols": [
+      "film_tension_n",
+      "oven_temp_c",
+      "line_speed_mpm",
+      "cooling_water_flow_lpm",
+      "scrap_rate_pct"
+    ],
+    "inspection_cols": [],
+    "ignored_cols": [],
+    "sampled": false,
+    "stride": 1,
+    "n_rows_raw": 240,
+    "n_rows_used": 240,
+    "time_span_seconds": 28680.0,
+    "sampling_interval_median_seconds": 120.0,
+    "missing_rate": 0.0,
+    "coverage_ratio": 1.0,
+    "time_invariant_channels": {
+      "count": 0,
+      "total": 5,
+      "share": 0.0,
+      "examples": []
+    }
+  },
+  "condition": {
+    "ontology": {
+      "mode": "ontology",
+      "path": "D:/codes/myskills/idd-doe-impl/workspace/skill-pipeline-demo-20261119/08-stability-folder/run\\01_ontology\\ontology.json",
+      "source": "run_dir",
+      "reason": null
+    },
+    "scene": {
+      "name": "offline-data_diag",
+      "process_type": "挤出/注塑式热工艺产线（PROTO3-B3 文档驱动接入线）时序数据稳定性评估",
+      "production_goal": "评估 2026-11-01 11:03 ~ 12:03 窗口内该产线 7 个标量节点的运行稳定性，给出评分与分级、证据链与中文落地报告",
+      "equipment": null,
+      "stages": null
+    },
+    "columns": {
+      "film_tension_n": {
+        "assigned_by": "auto",
+        "label": "film_tension_n",
+        "unit": null,
+        "role": "parameter",
+        "spec": null,
+        "normal_range": null,
+        "knowledge_source": null,
+        "stage": null,
+        "equipment": null,
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null
+      },
+      "oven_temp_c": {
+        "assigned_by": "auto",
+        "label": "oven_temp_c",
+        "unit": null,
+        "role": "parameter",
+        "spec": null,
+        "normal_range": null,
+        "knowledge_source": null,
+        "stage": null,
+        "equipment": null,
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null
+      },
+      "line_speed_mpm": {
+        "assigned_by": "auto",
+        "label": "line_speed_mpm",
+        "unit": null,
+        "role": "parameter",
+        "spec": null,
+        "normal_range": null,
+        "knowledge_source": null,
+        "stage": null,
+        "equipment": null,
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null
+      },
+      "cooling_water_flow_lpm": {
+        "assigned_by": "auto",
+        "label": "cooling_water_flow_lpm",
+        "unit": null,
+        "role": "parameter",
+        "spec": null,
+        "normal_range": null,
+        "knowledge_source": null,
+        "stage": null,
+        "equipment": null,
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null
+      },
+      "scrap_rate_pct": {
+        "assigned_by": "auto",
+        "label": "scrap_rate_pct",
+        "unit": null,
+        "role": "parameter",
+        "spec": null,
+        "normal_range": null,
+        "knowledge_source": null,
+        "stage": null,
+        "equipment": null,
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null
+      }
+    },
+    "relationships": [],
+    "regimes": {
+      "available": true,
+      "method": "fast",
+      "change_points": [],
+      "regimes": [
+        {
+          "start": 0,
+          "end": 239,
+          "label": "steady",
+          "n_rows": 240
+        }
+      ],
+      "abnormal_ratio": 0.0
+    }
+  },
+  "parameters": [
+    {
+      "name": "film_tension_n",
+      "role": "parameter",
+      "condition": {
+        "label": "film_tension_n",
+        "unit": null,
+        "assigned_by": "auto",
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null,
+        "stage": null,
+        "equipment": null
+      },
+      "n": 240,
+      "row_range": [
+        0,
+        239
+      ],
+      "data_source": "raw",
+      "mu": 249.948083,
+      "median": 249.79,
+      "sigma": 1.584192,
+      "sigma_within_mr": 1.495037,
+      "cv": 0.006325,
+      "min": 245.65,
+      "max": 254.27,
+      "spec": {
+        "lsl": null,
+        "usl": null,
+        "target": null,
+        "source": null
+      },
+      "capability": {
+        "cp": null,
+        "cpk": null,
+        "pp": null,
+        "ppk": null
+      },
+      "nelson": {
+        "NELSON_R3": {
+          "n_episodes": 1,
+          "indices": [
+            126
+          ]
+        },
+        "NELSON_R6": {
+          "n_episodes": 2,
+          "indices": [
+            143,
+            176
+          ]
+        },
+        "NELSON_R5": {
+          "n_episodes": 1,
+          "indices": [
+            162
+          ]
+        }
+      },
+      "n_violation_points": 4,
+      "drift": {
+        "slope_per_second": -1e-05,
+        "per_day_relative": 0.003348,
+        "mk_p": 0.456351,
+        "significant": false,
+        "theil_sen_stride": 1
+      },
+      "baseline_ref": null,
+      "score": 99,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -1,
+        "cv_penalty": 0,
+        "capability_penalty": 0,
+        "drift_penalty": 0,
+        "baseline_penalty": 0,
+        "total": 99
+      }
+    },
+    {
+      "name": "oven_temp_c",
+      "role": "parameter",
+      "condition": {
+        "label": "oven_temp_c",
+        "unit": null,
+        "assigned_by": "auto",
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null,
+        "stage": null,
+        "equipment": null
+      },
+      "n": 240,
+      "row_range": [
+        0,
+        239
+      ],
+      "data_source": "raw",
+      "mu": 120.06,
+      "median": 120.06,
+      "sigma": 0.543201,
+      "sigma_within_mr": 0.487181,
+      "cv": 0.004515,
+      "min": 118.46,
+      "max": 121.9,
+      "spec": {
+        "lsl": null,
+        "usl": null,
+        "target": null,
+        "source": null
+      },
+      "capability": {
+        "cp": null,
+        "cpk": null,
+        "pp": null,
+        "ppk": null
+      },
+      "nelson": {
+        "NELSON_R1": {
+          "n_episodes": 3,
+          "indices": [
+            12,
+            180,
+            234
+          ]
+        },
+        "NELSON_R5": {
+          "n_episodes": 1,
+          "indices": [
+            14
+          ]
+        },
+        "NELSON_R2": {
+          "n_episodes": 4,
+          "indices": [
+            58,
+            127,
+            197,
+            219
+          ]
+        },
+        "NELSON_R6": {
+          "n_episodes": 2,
+          "indices": [
+            215,
+            222
+          ]
+        }
+      },
+      "n_violation_points": 10,
+      "drift": {
+        "slope_per_second": 2.9e-05,
+        "per_day_relative": 0.020927,
+        "mk_p": 0.0,
+        "significant": true,
+        "theil_sen_stride": 1
+      },
+      "baseline_ref": null,
+      "score": 72,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -3,
+        "cv_penalty": 0,
+        "capability_penalty": 0,
+        "drift_penalty": -25,
+        "baseline_penalty": 0,
+        "total": 72
+      }
+    },
+    {
+      "name": "line_speed_mpm",
+      "role": "parameter",
+      "condition": {
+        "label": "line_speed_mpm",
+        "unit": null,
+        "assigned_by": "auto",
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null,
+        "stage": null,
+        "equipment": null
+      },
+      "n": 240,
+      "row_range": [
+        0,
+        239
+      ],
+      "data_source": "raw",
+      "mu": 120.027917,
+      "median": 120.0,
+      "sigma": 0.810194,
+      "sigma_within_mr": 0.837933,
+      "cv": 0.006736,
+      "min": 117.3,
+      "max": 121.6,
+      "spec": {
+        "lsl": null,
+        "usl": null,
+        "target": null,
+        "source": null
+      },
+      "capability": {
+        "cp": null,
+        "cpk": null,
+        "pp": null,
+        "ppk": null
+      },
+      "nelson": {
+        "NELSON_R1": {
+          "n_episodes": 1,
+          "indices": [
+            77
+          ]
+        },
+        "NELSON_R6": {
+          "n_episodes": 2,
+          "indices": [
+            182,
+            189
+          ]
+        },
+        "NELSON_R2": {
+          "n_episodes": 1,
+          "indices": [
+            184
+          ]
+        }
+      },
+      "n_violation_points": 4,
+      "drift": {
+        "slope_per_second": -0.0,
+        "per_day_relative": 0.0,
+        "mk_p": null,
+        "significant": false,
+        "theil_sen_stride": 1,
+        "mk_skipped": "相对漂移低于 0.1%/天 门槛，Mann-Kendall 检验未执行"
+      },
+      "baseline_ref": null,
+      "score": 99,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -1,
+        "cv_penalty": 0,
+        "capability_penalty": 0,
+        "drift_penalty": 0,
+        "baseline_penalty": 0,
+        "total": 99
+      }
+    },
+    {
+      "name": "cooling_water_flow_lpm",
+      "role": "parameter",
+      "condition": {
+        "label": "cooling_water_flow_lpm",
+        "unit": null,
+        "assigned_by": "auto",
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null,
+        "stage": null,
+        "equipment": null
+      },
+      "n": 240,
+      "row_range": [
+        0,
+        239
+      ],
+      "data_source": "raw",
+      "mu": 44.9745,
+      "median": 44.99,
+      "sigma": 0.704491,
+      "sigma_within_mr": 0.70577,
+      "cv": 0.015632,
+      "min": 42.69,
+      "max": 46.88,
+      "spec": {
+        "lsl": null,
+        "usl": null,
+        "target": null,
+        "source": null
+      },
+      "capability": {
+        "cp": null,
+        "cpk": null,
+        "pp": null,
+        "ppk": null
+      },
+      "nelson": {
+        "NELSON_R2": {
+          "n_episodes": 1,
+          "indices": [
+            70
+          ]
+        },
+        "NELSON_R6": {
+          "n_episodes": 1,
+          "indices": [
+            125
+          ]
+        },
+        "NELSON_R1": {
+          "n_episodes": 1,
+          "indices": [
+            138
+          ]
+        }
+      },
+      "n_violation_points": 3,
+      "drift": {
+        "slope_per_second": 6e-06,
+        "per_day_relative": 0.011054,
+        "mk_p": 0.324425,
+        "significant": false,
+        "theil_sen_stride": 1
+      },
+      "baseline_ref": null,
+      "score": 93,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": -1,
+        "cv_penalty": -6,
+        "capability_penalty": 0,
+        "drift_penalty": 0,
+        "baseline_penalty": 0,
+        "total": 93
+      }
+    },
+    {
+      "name": "scrap_rate_pct",
+      "role": "parameter",
+      "condition": {
+        "label": "scrap_rate_pct",
+        "unit": null,
+        "assigned_by": "auto",
+        "governing_law": null,
+        "physical_meaning": null,
+        "group": null,
+        "stage": null,
+        "equipment": null
+      },
+      "n": 240,
+      "row_range": [
+        0,
+        239
+      ],
+      "data_source": "raw",
+      "mu": 1.493917,
+      "median": 1.485,
+      "sigma": 0.196133,
+      "sigma_within_mr": 0.206497,
+      "cv": 0.131014,
+      "min": 1.0,
+      "max": 1.98,
+      "spec": {
+        "lsl": null,
+        "usl": null,
+        "target": null,
+        "source": null
+      },
+      "capability": {
+        "cp": null,
+        "cpk": null,
+        "pp": null,
+        "ppk": null
+      },
+      "nelson": {},
+      "n_violation_points": 0,
+      "drift": {
+        "slope_per_second": -0.0,
+        "per_day_relative": 0.0,
+        "mk_p": null,
+        "significant": false,
+        "theil_sen_stride": 1,
+        "mk_skipped": "相对漂移低于 0.1%/天 门槛，Mann-Kendall 检验未执行"
+      },
+      "baseline_ref": null,
+      "score": 68,
+      "score_breakdown": {
+        "base": 100,
+        "nelson_penalty": 0,
+        "cv_penalty": -32,
+        "capability_penalty": 0,
+        "drift_penalty": 0,
+        "baseline_penalty": 0,
+        "total": 68
+      }
+    }
+  ],
+  "correlations": {
+    "max_lag": 10,
+    "pairs": [
+      {
+        "pearson": -0.049666,
+        "spearman": -0.03354,
+        "best_abs_r": 0.168289,
+        "best_lag_rows": 9,
+        "leader": "line_speed_mpm",
+        "pearson_at_best": 0.17664,
+        "spearman_at_best": 0.168289,
+        "a": "line_speed_mpm",
+        "b": "scrap_rate_pct",
+        "n": 240
+      },
+      {
+        "pearson": -0.117966,
+        "spearman": -0.113591,
+        "best_abs_r": 0.148851,
+        "best_lag_rows": 3,
+        "leader": "oven_temp_c",
+        "pearson_at_best": 0.097067,
+        "spearman_at_best": 0.148851,
+        "a": "oven_temp_c",
+        "b": "cooling_water_flow_lpm",
+        "n": 240
+      },
+      {
+        "pearson": -0.026207,
+        "spearman": -0.051614,
+        "best_abs_r": 0.142368,
+        "best_lag_rows": 7,
+        "leader": "line_speed_mpm",
+        "pearson_at_best": 0.152853,
+        "spearman_at_best": 0.142368,
+        "a": "film_tension_n",
+        "b": "line_speed_mpm",
+        "n": 240
+      },
+      {
+        "pearson": -0.018424,
+        "spearman": -0.023178,
+        "best_abs_r": 0.140904,
+        "best_lag_rows": 8,
+        "leader": "film_tension_n",
+        "pearson_at_best": -0.11626,
+        "spearman_at_best": -0.140904,
+        "a": "film_tension_n",
+        "b": "scrap_rate_pct",
+        "n": 240
+      },
+      {
+        "pearson": -0.002026,
+        "spearman": 0.035324,
+        "best_abs_r": 0.138587,
+        "best_lag_rows": 1,
+        "leader": "oven_temp_c",
+        "pearson_at_best": 0.13354,
+        "spearman_at_best": 0.138587,
+        "a": "oven_temp_c",
+        "b": "scrap_rate_pct",
+        "n": 240
+      },
+      {
+        "pearson": -0.011244,
+        "spearman": -0.041146,
+        "best_abs_r": 0.133361,
+        "best_lag_rows": 1,
+        "leader": "scrap_rate_pct",
+        "pearson_at_best": 0.130686,
+        "spearman_at_best": 0.133361,
+        "a": "cooling_water_flow_lpm",
+        "b": "scrap_rate_pct",
+        "n": 240
+      },
+      {
+        "pearson": -0.055412,
+        "spearman": -0.08531,
+        "best_abs_r": 0.129086,
+        "best_lag_rows": 9,
+        "leader": "film_tension_n",
+        "pearson_at_best": -0.118231,
+        "spearman_at_best": -0.129086,
+        "a": "film_tension_n",
+        "b": "oven_temp_c",
+        "n": 240
+      },
+      {
+        "pearson": -0.109369,
+        "spearman": -0.099631,
+        "best_abs_r": 0.121832,
+        "best_lag_rows": 3,
+        "leader": "film_tension_n",
+        "pearson_at_best": -0.101563,
+        "spearman_at_best": -0.121832,
+        "a": "film_tension_n",
+        "b": "cooling_water_flow_lpm",
+        "n": 240
+      },
+      {
+        "pearson": 0.055872,
+        "spearman": 0.015061,
+        "best_abs_r": 0.119691,
+        "best_lag_rows": 8,
+        "leader": "line_speed_mpm",
+        "pearson_at_best": -0.12968,
+        "spearman_at_best": -0.119691,
+        "a": "line_speed_mpm",
+        "b": "cooling_water_flow_lpm",
+        "n": 240
+      },
+      {
+        "pearson": 0.019186,
+        "spearman": 0.005135,
+        "best_abs_r": 0.079879,
+        "best_lag_rows": 4,
+        "leader": "oven_temp_c",
+        "pearson_at_best": 0.077109,
+        "spearman_at_best": 0.079879,
+        "a": "oven_temp_c",
+        "b": "line_speed_mpm",
+        "n": 240
+      }
+    ],
+    "contributions": [],
+    "contributions_skipped": "未声明检测/响应指标（inspection_cols 或本体 role=response），贡献分析未执行——默认目标列不可解释"
+  },
+  "integrations": {
+    "sentinel_baseline": {
+      "used": false,
+      "path": null
+    },
+    "tuning_memory": {
+      "used": false
+    },
+    "doe_analyzer": {
+      "used": false
+    }
+  },
+  "degradations": [],
+  "limitations": {
+    "data_source": "raw (this skill never cleans or imputes; every number is recomputable from the raw table)",
+    "sampling": {
+      "n_rows_analyzed": 240,
+      "sampled": false,
+      "stride": 1,
+      "note": null
+    },
+    "missing_rate": 0.0,
+    "sampling_interval_seconds": 120.0,
+    "spec_coverage": {
+      "user": [],
+      "ontology": [],
+      "none": [
+        "film_tension_n",
+        "oven_temp_c",
+        "line_speed_mpm",
+        "cooling_water_flow_lpm",
+        "scrap_rate_pct"
+      ]
+    },
+    "model_assumptions": [
+      "lag-compensated Spearman window 0–10 rows (lead/lag beyond this window is invisible)",
+      "whole-period scoring assumes one dominant operating condition; use the regime table for segmented reading",
+      "Cpk treats within-sigma as MR̄/1.128 moving-range estimate"
+    ],
+    "confounders": [],
+    "derived_fields": [
+      "baseline_ref.robust_z",
+      "correlations.contributions.share",
+      "correlations.pairs.best_abs_r"
+    ]
+  },
+  "subject": {
+    "noun": "产线",
+    "display": "offline-data_diag",
+    "source": "ontology.scene"
+  },
+  "provenance": {
+    "input_sha256": "sha256:866591abcec93794bea7d28668cb7bcfdb87ee7a4515fd9686db23369c9b7f56",
+    "script_version": "1.0.0",
+    "authored_by": "lstcore/stability_analyzer.py",
+    "zero_llm": true,
+    "spc_source": "sentinelcore",
+    "regime_method": "fast",
+    "ontology_source": "run_dir",
+    "ontology": {
+      "source": "run_dir",
+      "action": "reused",
+      "scene_key": "packaging_folder_profile",
+      "rag_used": false,
+      "brief_summary": {
+        "build_mode": "prior_knowledge",
+        "n_columns_total": 0,
+        "n_matched": 0,
+        "n_inferred": 0,
+        "n_unmatched": 0,
+        "coverage_ratio": 1.0
+      }
+    },
+    "weights_source": "equal",
+    "python": "3.12.13",
+    "numpy": "2.5.2",
+    "pandas": "3.0.5",
+    "methods": [
+      "sentinelcore_nelson_episodes",
+      "mrbar_sigma_1.128",
+      "cpk_within_ppk_overall",
+      "theil_sen_mk_drift",
+      "lagged_spearman_max10",
+      "contribution_r2_share",
+      "regime_segmentation_c3",
+      "ontology_first_condition",
+      "weighted_penalty_score_v1",
+      "data_truth_limitations"
+    ]
+  },
+  "findings": [
+    {
+      "finding_id": "F001",
+      "severity": "high",
+      "category": "spc",
+      "title": "oven_temp_c 检出 SPC 违规",
+      "detail": "共 10 个判异剧集命中（每百点 4.2 个，规则：NELSON_R1/NELSON_R2/NELSON_R5/NELSON_R6），控制限为中心值120.06±3σ_within（σ=0.4872）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 10,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 4.17,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 0.487181,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "oven_temp_c"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F002",
+      "severity": "high",
+      "category": "drift",
+      "title": "oven_temp_c 存在显著漂移",
+      "detail": "Theil–Sen 斜率显著（Mann–Kendall p=0.0，且相对漂移≥0.1%/天才计入），相对漂移约 2.093%/天，方向对应斜率 0/秒。",
+      "evidence": [
+        {
+          "metric": "mk_p",
+          "value": 0.0,
+          "source": "lstcore",
+          "threshold": "<0.01 且 >=0.1%/天"
+        },
+        {
+          "metric": "per_day_relative",
+          "value": 0.020927,
+          "source": "lstcore",
+          "threshold": "<0.001 ok; >=0.01 high"
+        },
+        {
+          "metric": "slope_per_second",
+          "value": 2.9e-05,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "oven_temp_c"
+      ],
+      "confidence": 80
+    },
+    {
+      "finding_id": "F003",
+      "severity": "warn",
+      "category": "spc",
+      "title": "film_tension_n 检出 SPC 违规",
+      "detail": "共 4 个判异剧集命中（每百点 1.7 个，规则：NELSON_R3/NELSON_R5/NELSON_R6），控制限为中心值249.79±3σ_within（σ=1.495）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 4,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 1.67,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 1.495037,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "film_tension_n"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F004",
+      "severity": "warn",
+      "category": "spc",
+      "title": "line_speed_mpm 检出 SPC 违规",
+      "detail": "共 4 个判异剧集命中（每百点 1.7 个，规则：NELSON_R1/NELSON_R2/NELSON_R6），控制限为中心值120±3σ_within（σ=0.8379）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 4,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 1.67,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 0.837933,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "line_speed_mpm"
+      ],
+      "confidence": 90
+    },
+    {
+      "finding_id": "F005",
+      "severity": "warn",
+      "category": "spc",
+      "title": "cooling_water_flow_lpm 检出 SPC 违规",
+      "detail": "共 3 个判异剧集命中（每百点 1.2 个，规则：NELSON_R1/NELSON_R2/NELSON_R6），控制限为中心值44.99±3σ_within（σ=0.7058）。",
+      "evidence": [
+        {
+          "metric": "violation_episodes",
+          "value": 3,
+          "source": "lstcore",
+          "threshold": "0"
+        },
+        {
+          "metric": "rate_per_100",
+          "value": 1.25,
+          "source": "lstcore",
+          "threshold": "<2 for warn; >=2 for high"
+        },
+        {
+          "metric": "sigma_within_mr",
+          "value": 0.70577,
+          "source": "lstcore"
+        }
+      ],
+      "affected": [
+        "cooling_water_flow_lpm"
+      ],
+      "confidence": 90
+    }
+  ],
+  "conclusion": {
+    "score": 86.2,
+    "grade": "A",
+    "grade_key": "stable",
+    "label": "稳定",
+    "statement": "该产线在本时段总体运行稳定（86.2 分，A 级）：评估 5 个参数，检出 21 个 SPC 违规剧集、1 项显著漂移；最需关注：scrap_rate_pct。",
+    "n_parameters_assessed": 5,
+    "n_findings": 5,
+    "findings_by_severity": {
+      "info": 0,
+      "warn": 3,
+      "high": 2,
+      "critical": 0
+    }
+  },
+  "advisory": {
+    "status": "used",
+    "origin": "stability",
+    "exit_code": 2,
+    "objective_source": "stability_report.parameters[]",
+    "actions_path": "advisory/advisory_actions.json",
+    "chapter_path": "advisory/chapter.md",
+    "summary": {
+      "report_status": "not_actionable",
+      "n_actions": 0,
+      "grades": {
+        "A": 0,
+        "B": 0,
+        "C": 0
+      },
+      "n_prescriptions": 1,
+      "max_achievable_grade": "none",
+      "report_id": "IMA-20261119061951-9b7f56"
+    },
+    "reason": null
+  }
+}

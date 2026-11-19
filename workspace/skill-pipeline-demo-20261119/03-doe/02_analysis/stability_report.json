@@ -1,0 +1,123 @@
+{
+  "generated_at": "2026-11-18T19:27:18.895103+00:00",
+  "n_rows": 27,
+  "time_col": null,
+  "capability": [
+    {
+      "response": "coat_weight_gsm",
+      "n": 27,
+      "mean": 4.207074,
+      "std_overall": 0.095211,
+      "sigma_within_mr": null,
+      "has_specs": true,
+      "lsl": 3.8,
+      "usl": 4.2,
+      "target": 4.0,
+      "cp": null,
+      "cpk": null,
+      "cpk_label": null,
+      "pp": 0.700199,
+      "ppk": -0.024766,
+      "cnp": null,
+      "normality": {
+        "skew": -0.0686,
+        "excess_kurtosis": -0.0631,
+        "ad_statistic": 0.1873,
+        "ad_critical_5pct": 0.729,
+        "normal": true
+      },
+      "autocorr_lag1": null,
+      "n_eff": null,
+      "note": null
+    },
+    {
+      "response": "coating_thick_um",
+      "n": 27,
+      "mean": 10.171852,
+      "std_overall": 0.359423,
+      "sigma_within_mr": null,
+      "has_specs": true,
+      "lsl": 9.5,
+      "usl": 11.5,
+      "target": 10.5,
+      "cp": null,
+      "cpk": null,
+      "cpk_label": null,
+      "pp": 0.927412,
+      "ppk": 0.623084,
+      "cnp": null,
+      "normality": {
+        "skew": 0.736,
+        "excess_kurtosis": 0.4589,
+        "ad_statistic": 0.3144,
+        "ad_critical_5pct": 0.729,
+        "normal": true
+      },
+      "autocorr_lag1": null,
+      "n_eff": null,
+      "note": null
+    },
+    {
+      "response": "defect_rate_pct",
+      "n": 27,
+      "mean": 0.175741,
+      "std_overall": 0.267097,
+      "sigma_within_mr": null,
+      "has_specs": true,
+      "lsl": null,
+      "usl": 0.5,
+      "target": null,
+      "cp": null,
+      "cpk": null,
+      "cpk_label": null,
+      "pp": null,
+      "ppk": 0.404671,
+      "cnp": null,
+      "normality": {
+        "skew": 1.0261,
+        "excess_kurtosis": -0.5607,
+        "ad_statistic": 4.1416,
+        "ad_critical_5pct": 0.729,
+        "normal": false
+      },
+      "autocorr_lag1": null,
+      "n_eff": null,
+      "note": null
+    }
+  ],
+  "steady_segments": [],
+  "change_points": [
+    {
+      "response": "coat_weight_gsm",
+      "positions": [
+        10
+      ],
+      "detail": {
+        "n_segments": 2,
+        "n_changes": 1
+      }
+    },
+    {
+      "response": "coating_thick_um",
+      "positions": [
+        17
+      ],
+      "detail": {
+        "n_segments": 2,
+        "n_changes": 1
+      }
+    },
+    {
+      "response": "defect_rate_pct",
+      "positions": [
+        15
+      ],
+      "detail": {
+        "n_segments": 2,
+        "n_changes": 1
+      }
+    }
+  ],
+  "drift_flags": [],
+  "regime_summary": null
+}

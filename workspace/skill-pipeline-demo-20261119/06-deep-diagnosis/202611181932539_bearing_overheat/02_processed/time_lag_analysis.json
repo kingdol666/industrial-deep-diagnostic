@@ -1,0 +1,154 @@
+{
+  "run_id": "lag_1795030763482",
+  "generated_at": "2026-11-18T19:39:23.482Z",
+  "sampling_interval_seconds": null,
+  "interval_source": null,
+  "lag_axis": "process_grid",
+  "step_interval_seconds": null,
+  "unit_conversion_available": false,
+  "unit_semantics": {
+    "note": "Step interval unknown for the 'process_grid' axis — all seconds fields are null and physics lag comparisons abstain (agreement='unknown_interval'). Do NOT narrate step counts as time durations.",
+    "downstream_rule": "Reports/diagnoses may convert steps to durations ONLY via step_interval_seconds recorded here. When unit_conversion_available=false, any step→time narrative is a unit error."
+  },
+  "max_lag_steps": 10,
+  "max_lag_seconds": null,
+  "pair_analyses": [
+    {
+      "target": "bearing_temp_c",
+      "predictor": "cooling_water_flow_lpm",
+      "ontology_relationship": {
+        "type": "physical",
+        "mechanism": "冷却水流量下降→单位时间带走热量下降→轴承热平衡点上移→轴承温度上升(负向:流量越低温度越高)",
+        "strength": "strong"
+      },
+      "expected_lag": {
+        "min_seconds": null,
+        "max_seconds": null,
+        "parseable": false,
+        "raw": "约 2 个采样点(约 4 分钟,热惯性滞后)"
+      },
+      "raw_correlation": {
+        "r": -0.9626,
+        "n": 120
+      },
+      "optimal_lag": {
+        "steps": -2,
+        "seconds": null,
+        "confidence": "high",
+        "consistent": true,
+        "consistency_ratio": 1
+      },
+      "ccf_at_optimal": {
+        "r": -0.9959,
+        "n": 118
+      },
+      "lag_compensated_correlation": {
+        "r": -0.9959,
+        "n": 118,
+        "p": null,
+        "method": "ccf_at_optimal_lag"
+      },
+      "r_improvement": {
+        "absolute": 0.033299999999999996,
+        "relative_pct": 3.5,
+        "significant": false
+      },
+      "physics_agreement": {
+        "agreement": "no_physics_prior",
+        "discrepancy": null,
+        "message": "Physics prior unavailable or unparseable"
+      }
+    },
+    {
+      "target": "bearing_temp_c",
+      "predictor": "motor_load_pct",
+      "ontology_relationship": {
+        "type": "physical",
+        "mechanism": "负载升高→轴承机械发热增加→温度上升(备择假设 H3 的机制通道)",
+        "strength": "moderate"
+      },
+      "expected_lag": null,
+      "raw_correlation": {
+        "r": 0.0254,
+        "n": 120
+      },
+      "optimal_lag": {
+        "steps": -8,
+        "seconds": null,
+        "confidence": "negligible_correlation",
+        "consistent": true,
+        "consistency_ratio": 0.6
+      },
+      "ccf_at_optimal": {
+        "r": 0.0809,
+        "n": 112
+      },
+      "lag_compensated_correlation": {
+        "r": 0.0809,
+        "n": 112,
+        "p": null,
+        "method": "ccf_at_optimal_lag"
+      },
+      "r_improvement": {
+        "absolute": 0.0555,
+        "relative_pct": 218.5,
+        "significant": true
+      },
+      "physics_agreement": {
+        "agreement": "no_physics_prior",
+        "discrepancy": null,
+        "message": "No physics prior available for this pair"
+      }
+    },
+    {
+      "target": "bearing_temp_c",
+      "predictor": "ambient_temp_c",
+      "ontology_relationship": {
+        "type": "physical",
+        "mechanism": "环境温度升高→散热终温上移→轴承温度缓升(备择假设 H2 的机制通道,量级小、时间尺度为日内)",
+        "strength": "weak"
+      },
+      "expected_lag": null,
+      "raw_correlation": {
+        "r": 0.0162,
+        "n": 120
+      },
+      "optimal_lag": {
+        "steps": 8,
+        "seconds": null,
+        "confidence": "negligible_correlation",
+        "consistent": true,
+        "consistency_ratio": 0.8
+      },
+      "ccf_at_optimal": {
+        "r": 0.1332,
+        "n": 112
+      },
+      "lag_compensated_correlation": {
+        "r": 0.1332,
+        "n": 112,
+        "p": null,
+        "method": "ccf_at_optimal_lag"
+      },
+      "r_improvement": {
+        "absolute": 0.11700000000000002,
+        "relative_pct": 722.2,
+        "significant": true
+      },
+      "physics_agreement": {
+        "agreement": "no_physics_prior",
+        "discrepancy": null,
+        "message": "No physics prior available for this pair"
+      }
+    }
+  ],
+  "summary": {
+    "total_pairs": 3,
+    "significant_lags_found": 1,
+    "physics_consistent": 0,
+    "physics_discrepancy": 0,
+    "no_physics_prior": 2
+  },
+  "recommendations": [],
+  "physics_discrepancy_alerts": []
+}

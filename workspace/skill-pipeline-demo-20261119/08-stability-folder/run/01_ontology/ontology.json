@@ -1,0 +1,57 @@
+{
+  "scene": {
+    "name": "offline-data_diag",
+    "process_type": "挤出/注塑式热工艺产线（PROTO3-B3 文档驱动接入线）时序数据稳定性评估",
+    "production_goal": "评估 2026-11-01 11:03 ~ 12:03 窗口内该产线 7 个标量节点的运行稳定性，给出评分与分级、证据链与中文落地报告",
+    "objectives": [
+      "评估 2026-11-01 11:03 ~ 12:03 窗口内该产线 7 个标量节点的运行稳定性，给出评分与分级、证据链与中文落地报告"
+    ]
+  },
+  "signals": {
+    "inspection_signals": [],
+    "process_parameters": [],
+    "control_variables": [],
+    "events": [],
+    "metadata_columns": []
+  },
+  "relationships": [],
+  "metadata": {
+    "units": {
+      "PROTO3-B3-PV-熔体压力": "bar",
+      "PROTO3-B3-PV-瓶坯温度": "℃",
+      "PROTO3-B3-PV-环境温度": "℃",
+      "PROTO3-B3-PV-环境湿度": "%RH",
+      "PROTO3-B3-回读-吹气压力": "bar",
+      "PROTO3-B3-PV-壁厚截面": "mm",
+      "PROTO3-B3-PV-Modbus熔体温度": "℃"
+    }
+  },
+  "watch": {
+    "profile": "stability",
+    "scene_key": "offline-data_diag",
+    "roles": {},
+    "units": {},
+    "reference_bands": {},
+    "column_mapping": {
+      "matched": [],
+      "inferred": [],
+      "unmatched": []
+    }
+  },
+  "limitations": [
+    "声明先验本体：全部字段来自 report_context 声明、数据表头探测或物理词典唯一命中，不含任何实测行为（observed_data_behavior=NOT_APPLICABLE / behavior_match=UNVERIFIED）",
+    "词典纪律：parameter_to_physics.json 的 typical_ranges 是参考区间（非规格），只展示在本体 watch.reference_bands 与简报中，永不写入 normal_range/spec/Cpk",
+    "关系边留空：无方向声明不造因果边（relationships=[]），相关性发现的机理校验将按 unknown 处理并打 [MECHANISM_UNKNOWN]",
+    "数据表头不可探测（缺失或非 CSV/TSV）：先验仅来自上下文声明"
+  ],
+  "provenance": {
+    "engine": "industrial-ontology-builder",
+    "profile": "stability",
+    "build_mode": "prior_knowledge",
+    "data_stage": "collected",
+    "rag_used": false,
+    "web_used": false,
+    "physics_prior_used": true,
+    "source": "report_context declarations + table header probe + shipped physics dictionary (unique hits only; typical_ranges = reference bands)"
+  }
+}

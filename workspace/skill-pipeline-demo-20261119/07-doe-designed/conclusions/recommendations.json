@@ -1,0 +1,165 @@
+{
+  "contract_version": "1.1",
+  "audience": "downstream_agent",
+  "analysis_mode": "designed",
+  "operating_windows": [],
+  "current_baseline": {
+    "point": {},
+    "distance_to_window": {},
+    "move_instruction": null,
+    "source": {}
+  },
+  "setpoints": [],
+  "interactions": [],
+  "conflicts": [],
+  "response_specs": {
+    "energy_kwh_per_kg": {
+      "lsl": 0.6,
+      "usl": 0.75,
+      "target": 0.66,
+      "goal": "minimize",
+      "current": 0.668504
+    }
+  },
+  "confirmations": [
+    {
+      "id": "CF-001",
+      "reason": "仅类别因子显著 — 无数值操作窗口，请按 setpoints 选择水平后补做数值寻优试验",
+      "reason_code": "linear_only",
+      "design_hint": "固定类别因子于有利水平后，对数值因子补做小型 RSM",
+      "runs": null
+    }
+  ],
+  "watchlist": [],
+  "constraints": [],
+  "applicability_domain": {
+    "n_rows": 27,
+    "time_span": null,
+    "regime": "designed region",
+    "factor_observed_ranges": {}
+  },
+  "invalidation_conditions": [
+    "任一因子越出 applicability_domain.factor_observed_ranges 的 ±20%",
+    "stability_report 变点检测触发新 regime（漂移/换产）",
+    "确认试验结果与 expected_effect 的 CI95 不相交"
+  ],
+  "usage_rules": [
+    "窗口外推端点（extrapolation=true）需工艺确认后方可执行",
+    "多响应窗口冲突以 conflicts[].chosen 为准"
+  ],
+  "provenance": {
+    "input_sha256": "fc5c8e810c4a0abb6923d3119e4c0b7d7c53bd3f38831a9bc7dd94380fbd5d94",
+    "script_version": "1.1.0",
+    "seed": null,
+    "authored_by": "script"
+  },
+  "joint_windows": [],
+  "joint_setpoints": [],
+  "units": {
+    "factors": {
+      "barrel_temp_c": {
+        "canonical": "degC",
+        "display": "℃",
+        "unit_status": "valid",
+        "source": "analysis_context.factors[].unit"
+      },
+      "cooling_time_s": {
+        "canonical": "s",
+        "display": "s",
+        "unit_status": "valid",
+        "source": "analysis_context.factors[].unit"
+      }
+    },
+    "responses": {
+      "energy_kwh_per_kg": {
+        "canonical": "kWh/kg",
+        "display": "kWh/kg",
+        "unit_status": "valid",
+        "source": "analysis_context.responses[].unit"
+      }
+    },
+    "conflicts": []
+  },
+  "design_region": {
+    "type": "full_factorial",
+    "hull": "unbounded",
+    "coded_bounds": {},
+    "axial_alpha": null,
+    "max_leverage": 0.333333,
+    "mean_leverage": 0.333333,
+    "leverage_threshold": 0.666667,
+    "n_exceed": 0,
+    "extrapolation_risk": "high",
+    "evaluated_points": 0,
+    "design_hull_confidence": "low",
+    "factor_order": [],
+    "n_design_rows": 27,
+    "note": "no designed region (observational mode or no numeric factors) — the hull is the observed range"
+  },
+  "grid_plan": {
+    "n_active": 2,
+    "top_k": 8,
+    "grid_n": 9,
+    "n_grid_points": 0,
+    "approach": "grid",
+    "max_grid_points": 200000,
+    "deferred_factors": [],
+    "truncated": false,
+    "n_grid_factors": 0
+  },
+  "factor_response_matrix": [
+    {
+      "factor": "barrel_temp_c",
+      "response": "energy_kwh_per_kg",
+      "window_id": null,
+      "no_window_reason": "DIRECTION_ONLY",
+      "delta": null,
+      "effect_size": 0.995722,
+      "direction": null,
+      "fdr_q": 1.4384274776815816e-21,
+      "evidence_level": "L3",
+      "confidence": "high"
+    },
+    {
+      "factor": "cooling_time_s",
+      "response": "energy_kwh_per_kg",
+      "window_id": null,
+      "no_window_reason": "DIRECTION_ONLY",
+      "delta": null,
+      "effect_size": 0.571458,
+      "direction": null,
+      "fdr_q": 0.0007311959704725903,
+      "evidence_level": "L3",
+      "confidence": "high"
+    }
+  ],
+  "actionable_summary": {
+    "n_actionable": 0,
+    "n_blocked": 0,
+    "blocked": []
+  },
+  "interval_disclosure": {
+    "pi_method": "ŷ ± t_{0.975,df_resid} · sqrt((1 + x0'(X'X)⁻¹x0) · MSE)",
+    "ci_method": "ŷ ± t_{0.975,df_resid} · sqrt(x0'(X'X)⁻¹x0 · MSE)（均值响应，不是预测区间）",
+    "effect_ci_method": "β̂ ± t_{0.975,df_resid} · sqrt(diag((X'X)⁻¹) · MSE)",
+    "tolerance_method": "ŷ ± k·s, k = sqrt(ν(1+1/n)·z²_{(1+p)/2} / χ²_{ν,α}), p=0.95, α=0.05, ν=df_resid, s=sqrt(MSE)",
+    "note": "四类区间互不替代：ci95/mean_ci95=均值响应 95% CI（既有 ci95 语义，本版未改写）；pi95=单个未来观测预测区间（含 1 +，同点宽度必大于均值 CI）；pi95 不是合格率/通过率/收率，禁止据此宣称达标；tolerance_interval_95_95=95% 总体 @95% 置信容差区间。joint_coverage 为多响应联合覆盖的 Bonferroni 名义值 1-0.05*m。联合选优标度：std_effect（禁止跨单位比较 raw delta，DS-04）。",
+    "joint_coverage": null,
+    "coverage_check": {
+      "n": 2000,
+      "pi_point_coverage": 0.95
+    }
+  },
+  "association_screen_ref": {
+    "path": "02_analysis/association_screen.json",
+    "sha256": "e5e174a3c021c952981afc19f825ea494d3cab0e2cb051f244dcc378bea43c5d",
+    "n_pairs": 4,
+    "causal_claim": "none"
+  },
+  "next_design_ref": {
+    "path": "conclusions/next_design.json",
+    "sha256": "653fbcf65a6dfb90f84a6e794c16a36e0eab3057453d489a86474444314743e9",
+    "recommended_action": "augment_star",
+    "primary_action_id": "ND-01"
+  }
+}

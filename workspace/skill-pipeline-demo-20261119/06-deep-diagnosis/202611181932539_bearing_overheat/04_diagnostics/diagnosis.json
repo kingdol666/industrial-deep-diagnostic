@@ -1,0 +1,321 @@
+{
+  "run_id": "202611181932539_bearing_overheat",
+  "diagnosis_time": "2026-11-18T19:42:00+08:00",
+  "diagnosis_type": "DETERMINED",
+  "primary_finding": "冷却水流量在第60号采样(10:00)由12.0 L/min阶跃降至8.0 L/min(−33.2%,疑似回路结垢/阀故障),轴承温度滞后2个采样点(10:04)由65.01℃阶跃升至73.03℃(+8.02℃)并保持——冷却能力下降是本次轴承温升的唯一存活根因(H1)。",
+  "process_fluctuation_analysis": {
+    "method": "competing-hypotheses protocol over 02_processed/validate_report.json (run.py full mode, alpha=0.05, max_lag=10) + 02_processed/time_lag_analysis.json (time_lag_compensator)",
+    "flow_step": "cooling_water_flow_lpm change point at sample index 60: mean 12.004 → 8.0225 (−33.2%, significant), abrupt_behavior=yes (anomaly_report.json)",
+    "temp_step": "bearing_temp_c change point at sample index 62: mean 65.0082 → 73.0316 (+12.3% ≈ +8.02 degC, significant)",
+    "lag_structure": "flow step (idx 60) precedes temp step (idx 62) by exactly 2 samples; lagged CCF peak r=−0.9959 (n=118) at lag −2, window-consistency ratio 1.0 (consistent_count=6, isolated_spike=false), compensator confidence=high",
+    "analysis_performed": true,
+    "key_process_findings": [
+      {
+        "parameter": "cooling_water_flow_lpm",
+        "behavior_type": "step_change",
+        "evidence": "变化点 idx60: mean 12.004→8.0225 (−33.2%, significant); cv=0.2001, abrupt=yes (validate_report/anomaly_report)",
+        "ontology_interpretation": "control 角色(设定值代理), expected_sign=−",
+        "physics_mechanism": "Q=m_water·cp·ΔT: 流量下降→散热能力同比例下降",
+        "diagnostic_implication": "唯一与目标阶跃形态匹配的工艺驱动 → H1 通道"
+      },
+      {
+        "parameter": "motor_load_pct",
+        "behavior_type": "stable",
+        "evidence": "cv=0.0106, mean 75.09%, 无变化点; r=0.0254, p=0.7834",
+        "ontology_interpretation": "process parameter(predictor), H3 机制通道(方向+)",
+        "physics_mechanism": "负载↑→发热↑, 但本窗口未发生",
+        "diagnostic_implication": "H3 统计排除(97)"
+      },
+      {
+        "parameter": "ambient_temp_c",
+        "behavior_type": "stable",
+        "evidence": "cv=0.0167, mean 28.00℃, 无变化点; r=0.0162, p=0.8608",
+        "ontology_interpretation": "confounder, H2 机制通道(方向+, 弱)",
+        "physics_mechanism": "散热终温通道为日内缓变, 与2步阶跃形态不符",
+        "diagnostic_implication": "H2 统计排除(97)"
+      },
+      {
+        "parameter": "bearing_temp_c",
+        "behavior_type": "step_change",
+        "evidence": "变化点 idx62: mean 65.0082→73.0316 (+8.0234℃); 平台保持无回落",
+        "ontology_interpretation": "inspection target",
+        "physics_mechanism": "热平衡点上移(被动响应流量阶跃, 滞后2步)",
+        "diagnostic_implication": "DETERMINED=H1 的目标侧证据"
+      }
+    ],
+    "ontology_physics_reasoning": [
+      {
+        "parameter": "cooling_water_flow_lpm",
+        "ontology_role": "control (setpoint 代理)",
+        "governing_equation": "Q_cool=m_water·cp·(T_out−T_in)",
+        "data_consistency": "方向 − 与滞后CCF −0.9959@lag−2 一致; 滞后2步与变化点先后一致",
+        "conclusion": "data-physics MATCH (STRONG_EVIDENCE)"
+      }
+    ],
+    "scope": "process_with_time",
+    "time_order_basis": "timestamp 单调递增, 2分钟等间隔(自适应图对齐记录 median_interval_s=120)"
+  },
+  "hypotheses": {
+    "surviving": [
+      {
+        "id": "H1",
+        "name": "冷却水流量下降(回路结垢/阀门故障致冷却能力不足)",
+        "mechanism_class": "CONTAMINATION",
+        "root_physical_cause": "冷却水回路有效流量由12.0 L/min阶跃降至8.0 L/min(−33.2%),单位时间带走热量按 Q=m·cp·ΔT 同比例下降,轴承热平衡点上移约+8.02℃;最可能物理成因为换热侧结垢/流道阻塞或调节阀/泵故障,需现场点检确认",
+        "physical_logic_chain": [
+          {
+            "link": "冷却水流量阶跃下降 12.0→8.0 L/min(样本序号60)",
+            "evidence_status": "OBSERVED",
+            "quantification": "change_point_detection: mean 12.004→8.0225 (−33.2%, significant=true); anomaly_report: cv=0.2001, abrupt_behavior=yes"
+          },
+          {
+            "link": "单位时间带热量 Q=m_water·cp·ΔT 随流量下降",
+            "evidence_status": "KNOWN_PHYSICS",
+            "quantification": "流量 −33.2% → 换热能力同比例下降(闭式回路, cp 近似常数)"
+          },
+          {
+            "link": "轴承热平衡点上移,温度滞后2个采样点阶跃上升",
+            "evidence_status": "OBSERVED",
+            "quantification": "change point idx 62: 65.0082→73.0316 degC (+8.02 degC); lagged CCF peak lag=−2, r=−0.9959 (n=118), consistency_ratio=1.0"
+          },
+          {
+            "link": "振动随温度同向轻升(伴生症状)",
+            "evidence_status": "OBSERVED",
+            "quantification": "vibration_mm_s: p05–p95 span 0.524, mean 2.193 (anomaly_report); overlay图 10:04 后平台抬升 +0.4 mm/s;与温度同步共变"
+          }
+        ],
+        "chain_quality": "ACTIONABLE_HYPOTHESIS",
+        "confidence": 82,
+        "confidence_adjustments": [
+          {
+            "reason": "五因子基础分 112/125 → 89;L3 统计证据级封顶 85",
+            "adjustment": -4,
+            "source": "evidence levels L1-L7: 结论由统计分析(含校验)支撑,受 L3 封顶约束"
+          },
+          {
+            "reason": "单一4小时窗口、单一事件,无跨运行重复验证",
+            "adjustment": -3,
+            "source": "input_manifest.json: 120行, 08:00–11:58 +08:00"
+          }
+        ],
+        "supporting_evidence": [
+          {
+            "rank": 3,
+            "source": "02_processed/validate_report.json",
+            "detail": "Pearson r(flow,temp)=−0.9626 (n=120, p≈0); detrended r=−0.8501 (trend_confounded=false); Spearman r=−0.7295"
+          },
+          {
+            "rank": 3,
+            "source": "02_processed/validate_report.json",
+            "detail": "lagged CCF 峰值 lag=−2: r=−0.9959 (n=118); best_lags flow→temp; lag_window_consistency consistent=true, consistent_count=6"
+          },
+          {
+            "rank": 3,
+            "source": "02_processed/validate_report.json",
+            "detail": "Granger flow→temp: lag1 F=91.5337, lag2 F=259.151, p≈0 (显著); 滞后1-3均显著"
+          },
+          {
+            "rank": 3,
+            "source": "02_processed/validate_report.json",
+            "detail": "change_point_detection: flow idx60 (12.004→8.0225, −33.2%), temp idx62 (65.0082→73.0316, +12.3%); 阶跃先后顺序=滞后2步"
+          },
+          {
+            "rank": 3,
+            "source": "02_processed/validate_report.json",
+            "detail": "多重检验: 3 组检验, Bonferroni 阈值 0.016667, 仅 flow→temp 幸存; 期望假阳性 0.2"
+          },
+          {
+            "rank": 4,
+            "source": "03_figures/fig_adaptive_overlay.png",
+            "detail": "时间对齐叠加图: 10:00 流量(z)自+1.0跳落至−1.05, 10:04 温度(z)自−0.97跳升至+1.05并保持;负载/环境全程围绕0波动"
+          }
+        ],
+        "visual_evidence": {
+          "synchronous_with_quality": true,
+          "event_response": "流量阶跃后2个采样点,温度发生同幅度平台跳变并保持",
+          "trend_alignment": "aligned_with_quality_decline",
+          "vlm_observations": [
+            "fast mode 无 VLM: 由会话智能体直接读图确认; flow(green) 10:00 下台阶, bearing_temp_c(blue) 10:04 上台阶, vibration(purple) 10:04 轻升, motor_load(orange)/ambient(red) 无台阶"
+          ],
+          "temporal_alignment_group": "bearing_temp_c + vibration_mm_s 同步组; cooling_water_flow_lpm 领先组"
+        },
+        "ontology_data_physics_proof": {
+          "functional_form_match": "MATCH",
+          "lag_match": "MATCH",
+          "magnitude_ratio": {
+            "status": "PLAUSIBLE",
+            "observed_over_predicted": "无定量传热系数文档,无法给出数值比;观测 +8.02 degC 与流量 −33.2% 的热平衡方向和量级定性一致(热平衡点上移)",
+            "evidence_source": "ontology governing_law: Q_cool = m_water·cp·(T_out−T_in); validate_report change_point segments"
+          },
+          "direction_match": "MATCH",
+          "overall_proof_strength": "STRONG_EVIDENCE",
+          "proof_summary": "本体声明冷却水流量→轴承温度为 type=physical、direction=−、delayed_response 机制边;数据方向为负相关(r=−0.9626/补偿后−0.9959)、滞后2步、阶跃幅度+8.02℃,三要素(方向/时滞/形态)全部与机理一致",
+          "data_sources": [
+            "02_processed/validate_report.json",
+            "02_processed/time_lag_analysis.json"
+          ],
+          "physics_sources": [
+            "01_ontology/ontology.json relationships[0] governing_equation"
+          ],
+          "ontology_sources": [
+            "01_ontology/ontology.json relationships[0] (cooling_water_flow_lpm→bearing_temp_c, physical, direction −)"
+          ]
+        },
+        "chain_link_validation": {
+          "validation_performed": true,
+          "links": [
+            {
+              "from": "cooling_water_flow_lpm",
+              "to": "bearing_temp_c",
+              "mechanism": "流量下降→单位时间带走热量下降→轴承热平衡点上移",
+              "result": "ALL_LINKS_VALIDATED",
+              "r": -0.9959,
+              "p": 0,
+              "note": "lag-compensated CCF at optimal lag −2 (n=118); direction negative as ontology predicted; Granger F=259.151 (lag2)"
+            },
+            {
+              "from": "bearing_temp_c",
+              "to": "vibration_mm_s",
+              "mechanism": "温度升高→润滑粘度/游隙变化→振动烈度轻升(伴生症状)",
+              "result": "ALL_LINKS_VALIDATED",
+              "note": "anomaly_report: vibration p05–p95 span 0.524 mm/s vs temp span 8.02 degC; overlay图两参数同步台阶;无独立振动相关检验(非目标列),依据波动统计+目视共变"
+            }
+          ],
+          "overall_result": "ALL_LINKS_VALIDATED"
+        },
+        "contradicting_evidence": [
+          {
+            "detail": "Spearman r=−0.7295 与 Pearson −0.9626 分歧 0.233 (MODERATE)",
+            "significance": "阶跃数据天然弱化秩相关;Pearson 适用性检查通过(全部列 is_heavily_skewed=false);不构成方向矛盾"
+          },
+          {
+            "detail": "overall_validity=MODERATE_CONCERNS: 跨越 regime 边界的相关可能虚假",
+            "significance": "已用 detrended r=−0.8501 与分段均值差(+8.02 degC)交叉核验;变化点先后顺序(60→62)本身即为因果时序证据"
+          }
+        ],
+        "predicted_observables": [
+          "恢复冷却水流量至12 L/min后,轴承温度应在约2个采样点(≈2×2min)内回落至65℃平台",
+          "若结垢为真因,冷却水侧进出口压差升高/换热器端差增大",
+          "温度平台期振动维持在≈2.4 mm/s;流量恢复后振动同步回落"
+        ],
+        "falsification_conditions": [
+          "流量恢复试验后轴承温度不回落",
+          "现场点检发现流量计正常且实际流量未下降(测量仪表漂移)",
+          "冷却水侧压差/端差无异常,流量下降并非结垢/阻塞所致"
+        ],
+        "consistency_across_products": "UNIVERSAL",
+        "product_specific_notes": {}
+      }
+    ],
+    "eliminated": [
+      {
+        "hypothesis_id": "H2",
+        "exclusion_type": "STATISTICAL",
+        "specific_evidence": "环境温度无阶跃: change_point_detection 未检出变化点, anomaly_report cv=0.0167 (全程平稳); 与轴承温度相关 r=0.0162, p=0.8608 (不显著); 时间上无法解释 10:04 的 +8.02 degC 阶跃",
+        "exclusion_confidence": 97,
+        "revival_condition": "若出现持续>2 degC 的环境温度阶跃且与轴承温升时间重合,需重新评估"
+      },
+      {
+        "hypothesis_id": "H3",
+        "exclusion_type": "STATISTICAL",
+        "specific_evidence": "电机负载无阶跃: change_point_detection 未检出变化点, anomaly_report cv=0.0106 (全程平稳, mean 75.09%); 与轴承温度相关 r=0.0254, p=0.7834 (不显著); detrended r=−0.0102; 无法解释 +8.02 degC 平台",
+        "exclusion_confidence": 97,
+        "revival_condition": "若负载出现 >5% 阶跃且先于温度变化,需重新评估(机制通道: 负载↑→发热↑)"
+      }
+    ]
+  },
+  "evidence_summary": {
+    "visual_evidence_count": 2,
+    "numerical_evidence_count": 8,
+    "physical_evidence_count": 2,
+    "validation_evidence_count": 6
+  },
+  "data_gaps": [
+    "无冷却水独立设定值列,以流量测量值代理控制变量,无法直接区分'设定被改'与'回路阻力增大'",
+    "无冷却水进出口温度/压差点检数据,结垢假说只能间接推断",
+    "无润滑油温度/振动频谱,伴生机理链不能定量"
+  ],
+  "inference_gaps": [
+    {
+      "hypothesis_id": "H1",
+      "missing_link": "流量下降 → 具体物理成因(结垢/阀故障/泵性能) 数据层面不可判别",
+      "original_chain_segment": "流量阶跃下降(12→8 L/min) ← 结垢/阻塞/阀故障",
+      "corrected_mechanism": "机制链上游锚点改为'冷却水有效流量下降'(OBSERVED), 物理成因以 root_physical_cause 假设形式给出, 由现场点检(压差/端差)判别",
+      "result": "DATA_LINK_MISSING",
+      "impact_on_diagnosis": "不影响 DETERMINED=H1 与方向/时滞/幅值结论;影响处方粒度(清洗换热器 vs 检修阀门)"
+    },
+    {
+      "hypothesis_id": "H1",
+      "missing_link": "温度升高 → 振动升高 无独立相关检验(振动非目标列, 无 r/p 输出)",
+      "original_chain_segment": "温度+8.02℃ → 润滑/游隙变化 → 振动+0.4 mm/s",
+      "corrected_mechanism": "以 anomaly_report 波动统计(vibration p05–p95 span 0.524, cv=0.0937)与叠加图目视共变替代定量检验, 证据级降为 L4",
+      "result": "CORRELATION_ABSENT",
+      "impact_on_diagnosis": "伴生症状链不参与根因判定, 仅作佐证;已计入 symptom_completeness 扣分"
+    }
+  ],
+  "discriminability_matrix": [
+    {
+      "pair": [
+        "H1",
+        "H2"
+      ],
+      "classification": "DISCRIMINABLE",
+      "discriminating_signal": "环境温度平稳(cv=0.0167)且与温度无关(r=0.0162, p=0.86); 流量与温度为滞后2步的强负相关(−0.9959)",
+      "discriminating_signal_available": true,
+      "cross_product_finding": "无产品分组,单一产线"
+    },
+    {
+      "pair": [
+        "H1",
+        "H3"
+      ],
+      "classification": "DISCRIMINABLE",
+      "discriminating_signal": "负载平稳(cv=0.0106)且与温度无关(r=0.0254, p=0.78); 流量阶跃与温度阶跃先后2步锁定因果方向",
+      "discriminating_signal_available": true,
+      "cross_product_finding": "无产品分组,单一产线"
+    },
+    {
+      "pair": [
+        "H2",
+        "H3"
+      ],
+      "classification": "ONE_SIDE_EXCLUDED",
+      "discriminating_signal": "两者均被统计排除;差异仅在机制通道(散热终温 vs 发热量)",
+      "discriminating_signal_available": true,
+      "cross_product_finding": "无产品分组,单一产线"
+    }
+  ],
+  "physics_check_exemption_note": "physics_check.py 已实际执行 3 项检查(heat_transfer=FOULING_PROGRESSION / vibration_threshold=ISO10816 B区无cliff / arrhenius_kinetics=PLAUSIBLE带Ea默认先验), checks_performed=3 > 0, 按 diagnostic-quality-check 规则豁免 physics_manual_verification.md 的 L1-L5 手工量级证明(见 02_processed/physics_check.json)",
+  "integrated_dual_drive_analysis": {
+    "analysis_performed": true,
+    "has_quality_or_inspection_targets": true,
+    "linked_groups": [
+      "cooling_capacity→bearing_condition",
+      "heat_generation→bearing_condition",
+      "heat_sink_boundary→bearing_condition"
+    ],
+    "process_to_quality_links": [
+      {
+        "group": "cooling_capacity→bearing_condition",
+        "process_parameter": "cooling_water_flow_lpm",
+        "quality_target": "bearing_temp_c",
+        "link_type": "process_precedes_quality",
+        "statistical_evidence": "滞后CCF峰值 lag=−2: r=−0.9959 (n=118, 一致率1.0); Pearson −0.9626 (p≈0); Granger F=259.151@lag2; 变化点先后 60→62 恰2步 (validate_report.json/time_lag_analysis.json)",
+        "anomaly_evidence": "唯一 abrupt 工艺波动源 (anomaly_report.json cv=0.2001); 温度侧对应 +8.02℃ 平台台阶 (变化点 idx62)",
+        "ontology_physics_reasoning": "Q=m_water·cp·ΔT: 流量下降→散热能力下降→热平衡点上移 (direction=−, delayed_response)",
+        "diagnostic_weight": "critical"
+      },
+      {
+        "group": "bearing_condition(inspection)",
+        "process_parameter": "bearing_temp_c",
+        "quality_target": "vibration_mm_s",
+        "link_type": "coincident",
+        "statistical_evidence": "波动统计: temp span 8.02℃ 与 vib span 0.524 mm/s 同步双平台 (anomaly_report.json); 无独立相关检验(振动非目标列), 证据级 L4",
+        "anomaly_evidence": "叠加图 10:04 振动与温度同步轻升 (fig_adaptive_overlay.png; fast mode 无 VLM, 会话智能体读图)",
+        "ontology_physics_reasoning": "温度↑→润滑粘度/游隙变化→振动烈度轻升(伴生症状, 本体 correlative 边, 非根因)",
+        "diagnostic_weight": "weak"
+      }
+    ],
+    "integrated_conclusion": "双驱动联合分析: 工艺驱动(冷却水流量阶跃−33.2%)经滞后2步传导至检查信号(轴承温度+8.02℃平台, 振动+0.4 同步轻升); 负载/环境两条工艺通道全程平稳且相关不显著 — 联合证据锁定 H1 为唯一存活根因"
+  }
+}

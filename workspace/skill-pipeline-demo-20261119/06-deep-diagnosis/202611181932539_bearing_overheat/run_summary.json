@@ -1,0 +1,97 @@
+{
+  "run_id": "202611181932539_bearing_overheat",
+  "scene_name": "bearing_overheat",
+  "timestamp": "2026-11-18T19:56:00+08:00",
+  "pipeline_steps_completed": [
+    "setup",
+    "inspect",
+    "context_builder",
+    "clarification_gate",
+    "data_processor",
+    "diagnostician",
+    "judge",
+    "reporter",
+    "audit"
+  ],
+  "diagnosis_type": "DETERMINED",
+  "primary_finding": "冷却水流量在第60号采样(10:00)由12.0 L/min阶跃降至8.0 L/min(−33.2%,疑似回路结垢/阀故障),轴承温度滞后2个采样点(10:04)由65.01℃阶跃升至73.03℃(+8.02℃)并保持——冷却能力下降是本次轴承温升的唯一存活根因(H1)。",
+  "judge_verdict": {
+    "score": 91,
+    "verdict": "pass",
+    "iteration": 2,
+    "max_iterations": 3,
+    "round1": {
+      "overall_score": 89,
+      "verdict": "needs_repair",
+      "blocking_issues": 0,
+      "archived_to": "05_review/judge_feedback_round1.json"
+    }
+  },
+  "report_stats": {
+    "total_lines": 219,
+    "sections_count": 10,
+    "figures_referenced": 2,
+    "file_size_bytes": 16912
+  },
+  "figure_count": 2,
+  "data_sources": [
+    {
+      "source": "00_input/bearing_data.csv (SHA-256 6d7590ff…905)",
+      "rows": 120,
+      "columns": 6
+    },
+    {
+      "source": "00_input/user_context.json",
+      "rows": 1,
+      "columns": 5
+    },
+    {
+      "source": "01_ontology/ontology.json"
+    },
+    {
+      "source": "02_processed/validate_report.json"
+    },
+    {
+      "source": "02_processed/time_lag_analysis.json"
+    },
+    {
+      "source": "02_processed/physics_check.json"
+    },
+    {
+      "source": "02_processed/anomaly_report.json"
+    },
+    {
+      "source": "02_processed/data_analysis_conclusion.json"
+    }
+  ],
+  "diagnostic_iterations": 1,
+  "advisory": {
+    "status": "used",
+    "exit_code": 0,
+    "n_actions": 1,
+    "grades": {
+      "A": 0,
+      "B": 0,
+      "C": 1
+    },
+    "chapter_verbatim": "advisory/chapter.md appended as report.md section 10"
+  },
+  "key_statistics": {
+    "pearson_r_flow_temp": -0.9626,
+    "lag_ccf_peak": {
+      "lag_steps": -2,
+      "r": -0.9959,
+      "n": 118
+    },
+    "granger_f_lag2": 259.151,
+    "flow_step_pct": -33.2,
+    "temp_step_delta_c": 8.02,
+    "confidence_score": 82,
+    "confidence_level": "HIGH"
+  },
+  "conditional_steps_note": "Step 5c advisory 已执行(exit 0, status=used);Step 7 审计未完成, audit_verdict 字段按 schema 于审计完成后补写",
+  "audit_verdict": {
+    "verdict": "ENDORSED",
+    "physical_match_rating": 9
+  }
+}

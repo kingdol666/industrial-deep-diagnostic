@@ -1,0 +1,155 @@
+{
+  "contract_version": "1.0",
+  "artifact": "ontology_brief",
+  "scene_key": "injection_energy_doe",
+  "profile": "doe",
+  "data_stage": "collected",
+  "ontology_version": 1,
+  "ontology_sha256": "sha256:0f70f3d1a2e3dd6382aedda2baeca95bc28d3ca7f4c6aff746be5f554d6ad5f0",
+  "context_fp": "sha256:d492c75d095621f84d72f87a2f255ce945e6ec22db80a045416d2edb42deb497",
+  "scene": {
+    "name": "injection_energy_doe",
+    "process_type": "designed_experiment",
+    "production_goal": null,
+    "objective": null,
+    "equipment": [],
+    "stages": [],
+    "design_type": "full_factorial_randomized",
+    "design_region": null,
+    "experiment_id": null,
+    "line_id": null,
+    "product_id": null,
+    "recipe_id": null
+  },
+  "factors": [
+    {
+      "name": "barrel_temp_c",
+      "col": "barrel_temp_c",
+      "type": null,
+      "unit": "℃",
+      "expected_sign": null,
+      "physical_meaning": "barrel_temp_c（由分析上下文声明；未提供独立物理机理描述）",
+      "ontology_signal": "barrel_temp_c",
+      "confidence": "INFERRED",
+      "mapping_status": "matched",
+      "mapping_reason": "factor 'barrel_temp_c' bound to ontology signal 'barrel_temp_c'",
+      "role": null,
+      "min": 186,
+      "max": 194,
+      "levels": [
+        186,
+        190,
+        194
+      ],
+      "expected_data_behavior": "先验声明：186~194 ℃ 区间内可设定；方向预期 未声明",
+      "observed_data_behavior": null,
+      "governing_law": null
+    },
+    {
+      "name": "cooling_time_s",
+      "col": "cooling_time_s",
+      "type": null,
+      "unit": "s",
+      "expected_sign": null,
+      "physical_meaning": "cooling_time_s（由分析上下文声明；未提供独立物理机理描述）",
+      "ontology_signal": "cooling_time_s",
+      "confidence": "INFERRED",
+      "mapping_status": "matched",
+      "mapping_reason": "factor 'cooling_time_s' bound to ontology signal 'cooling_time_s'",
+      "role": null,
+      "min": 24,
+      "max": 32,
+      "levels": [
+        24,
+        28,
+        32
+      ],
+      "expected_data_behavior": "先验声明：24~32 s 区间内可设定；方向预期 未声明",
+      "observed_data_behavior": null,
+      "governing_law": null
+    }
+  ],
+  "responses": [
+    {
+      "name": "energy_kwh_per_kg",
+      "col": "energy_kwh_per_kg",
+      "type": null,
+      "unit": "kWh/kg",
+      "expected_sign": null,
+      "physical_meaning": "energy_kwh_per_kg（由分析上下文声明；未提供独立物理机理描述）",
+      "ontology_signal": "energy_kwh_per_kg",
+      "confidence": "INFERRED",
+      "mapping_status": "matched",
+      "mapping_reason": "response 'energy_kwh_per_kg' bound to ontology signal 'energy_kwh_per_kg'",
+      "role": null,
+      "min": null,
+      "max": null,
+      "levels": null,
+      "expected_data_behavior": null,
+      "observed_data_behavior": null,
+      "governing_law": null,
+      "goal": "minimize",
+      "lsl": null,
+      "usl": 0.75,
+      "target": null,
+      "weight": null
+    }
+  ],
+  "relationships": [],
+  "confounders": [],
+  "limitations": [
+    "先验本体：关系方向来自上下文声明与物理先验，未经实测数据验证",
+    "未声明任何 expected_sign —— 未生成因子→响应关系，一致性检查将如实记为 not_estimable"
+  ],
+  "column_mapping": {
+    "matched": [
+      {
+        "kind": "factor",
+        "col": "barrel_temp_c",
+        "name": "barrel_temp_c",
+        "status": "matched",
+        "reason": "factor 'barrel_temp_c' bound to ontology signal 'barrel_temp_c'"
+      },
+      {
+        "kind": "factor",
+        "col": "cooling_time_s",
+        "name": "cooling_time_s",
+        "status": "matched",
+        "reason": "factor 'cooling_time_s' bound to ontology signal 'cooling_time_s'"
+      },
+      {
+        "kind": "response",
+        "col": "energy_kwh_per_kg",
+        "name": "energy_kwh_per_kg",
+        "status": "matched",
+        "reason": "response 'energy_kwh_per_kg' bound to ontology signal 'energy_kwh_per_kg'"
+      }
+    ],
+    "inferred": [],
+    "unmatched": []
+  },
+  "coverage": {
+    "n_factors_matched": 2,
+    "n_responses_matched": 1,
+    "n_factors_covered": 2,
+    "n_responses_covered": 1,
+    "n_factors_declared": 2,
+    "n_responses_declared": 1,
+    "n_unmatched": 0,
+    "ratio": 1.0,
+    "matched_ratio": 1.0
+  },
+  "provenance": {
+    "build_mode": "prior_knowledge",
+    "build_seconds": 0.087,
+    "rag_used": false,
+    "web_used": false,
+    "physics_prior_used": true,
+    "engine": "industrial-ontology-builder",
+    "store_version": 1,
+    "store_profile": "doe",
+    "source_note": "prior-knowledge build from declarations (no RAG/web)",
+    "lookup_status": "miss",
+    "seed": null
+  }
+}

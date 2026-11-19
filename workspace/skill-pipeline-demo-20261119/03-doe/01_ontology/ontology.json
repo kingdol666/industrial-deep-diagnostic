@@ -1,0 +1,536 @@
+{
+  "ontology_version": null,
+  "scene": {
+    "name": "lithium_coating_doe",
+    "process_type": "designed_experiment",
+    "production_goal": null,
+    "equipment": [],
+    "stages": [],
+    "objectives": []
+  },
+  "signals": {
+    "inspection_signals": [
+      {
+        "name": "coat_weight_gsm",
+        "column": "coat_weight_gsm",
+        "unit": "g/m²",
+        "role": "target",
+        "physical_meaning": "coat_weight_gsm（由分析上下文声明；未提供独立物理机理描述）",
+        "physical_meaning_confidence": "INFERRED",
+        "auto_inferred": true,
+        "inference_basis": "declared in analysis_context/doe_context as target",
+        "expected_sign": null,
+        "knowledge_source": "auto_inferred",
+        "target": 4.0,
+        "tolerance": 0.20000000000000018,
+        "expected_data_behavior": null,
+        "observed_data_behavior": null,
+        "behavior_match": "UNVERIFIED"
+      },
+      {
+        "name": "coating_thick_um",
+        "column": "coating_thick_um",
+        "unit": "µm",
+        "role": "target",
+        "physical_meaning": "coating_thick_um（由分析上下文声明；未提供独立物理机理描述）",
+        "physical_meaning_confidence": "INFERRED",
+        "auto_inferred": true,
+        "inference_basis": "declared in analysis_context/doe_context as target",
+        "expected_sign": null,
+        "knowledge_source": "auto_inferred",
+        "target": 10.5,
+        "tolerance": 1.0,
+        "expected_data_behavior": null,
+        "observed_data_behavior": null,
+        "behavior_match": "UNVERIFIED"
+      },
+      {
+        "name": "defect_rate_pct",
+        "column": "defect_rate_pct",
+        "unit": "%",
+        "role": "target",
+        "physical_meaning": "defect_rate_pct（由分析上下文声明；未提供独立物理机理描述）",
+        "physical_meaning_confidence": "INFERRED",
+        "auto_inferred": true,
+        "inference_basis": "declared in analysis_context/doe_context as target",
+        "expected_sign": null,
+        "knowledge_source": "auto_inferred",
+        "target": null,
+        "tolerance": null,
+        "expected_data_behavior": null,
+        "observed_data_behavior": null,
+        "behavior_match": "UNVERIFIED"
+      }
+    ],
+    "process_parameters": [],
+    "control_variables": [
+      {
+        "name": "coat_speed_mpm",
+        "column": "coat_speed_mpm",
+        "unit": [
+          120,
+          150,
+          180
+        ],
+        "role": "control",
+        "physical_meaning": "coat_speed_mpm（由分析上下文声明；未提供独立物理机理描述）",
+        "physical_meaning_confidence": "INFERRED",
+        "auto_inferred": true,
+        "inference_basis": "declared in analysis_context/doe_context as control",
+        "expected_sign": null,
+        "knowledge_source": "auto_inferred",
+        "control_type": "setpoint",
+        "normal_range": [
+          "/",
+          "n"
+        ],
+        "setpoint": null,
+        "expected_data_behavior": "先验声明：/~n [120, 150, 180] 区间内可设定；方向预期 未声明",
+        "observed_data_behavior": null,
+        "behavior_match": "UNVERIFIED",
+        "governing_law": null
+      },
+      {
+        "name": "oven1_temp_c",
+        "column": "oven1_temp_c",
+        "unit": [
+          80,
+          90,
+          100
+        ],
+        "role": "control",
+        "physical_meaning": "oven1_temp_c（由分析上下文声明；未提供独立物理机理描述）",
+        "physical_meaning_confidence": "INFERRED",
+        "auto_inferred": true,
+        "inference_basis": "declared in analysis_context/doe_context as control",
+        "expected_sign": null,
+        "knowledge_source": "auto_inferred",
+        "control_type": "setpoint",
+        "normal_range": [
+          "℃",
+          "℃"
+        ],
+        "setpoint": null,
+        "expected_data_behavior": "先验声明：℃~℃ [80, 90, 100] 区间内可设定；方向预期 未声明",
+        "observed_data_behavior": null,
+        "behavior_match": "UNVERIFIED",
+        "governing_law": null
+      },
+      {
+        "name": "oven2_temp_c",
+        "column": "oven2_temp_c",
+        "unit": [
+          70,
+          80,
+          90
+        ],
+        "role": "control",
+        "physical_meaning": "oven2_temp_c（由分析上下文声明；未提供独立物理机理描述）",
+        "physical_meaning_confidence": "INFERRED",
+        "auto_inferred": true,
+        "inference_basis": "declared in analysis_context/doe_context as control",
+        "expected_sign": null,
+        "knowledge_source": "auto_inferred",
+        "control_type": "setpoint",
+        "normal_range": [
+          "℃",
+          "℃"
+        ],
+        "setpoint": null,
+        "expected_data_behavior": "先验声明：℃~℃ [70, 80, 90] 区间内可设定；方向预期 未声明",
+        "observed_data_behavior": null,
+        "behavior_match": "UNVERIFIED",
+        "governing_law": null
+      },
+      {
+        "name": "gap_um",
+        "column": "gap_um",
+        "unit": [
+          150,
+          180,
+          210
+        ],
+        "role": "control",
+        "physical_meaning": "gap_um（由分析上下文声明；未提供独立物理机理描述）",
+        "physical_meaning_confidence": "INFERRED",
+        "auto_inferred": true,
+        "inference_basis": "declared in analysis_context/doe_context as control",
+        "expected_sign": null,
+        "knowledge_source": "auto_inferred",
+        "control_type": "setpoint",
+        "normal_range": [
+          "m",
+          "µ"
+        ],
+        "setpoint": null,
+        "expected_data_behavior": "先验声明：m~µ [150, 180, 210] 区间内可设定；方向预期 未声明",
+        "observed_data_behavior": null,
+        "behavior_match": "UNVERIFIED",
+        "governing_law": null
+      },
+      {
+        "name": "solid_content_pct",
+        "column": "solid_content_pct",
+        "unit": [
+          55,
+          60,
+          65
+        ],
+        "role": "control",
+        "physical_meaning": "solid_content_pct（由分析上下文声明；未提供独立物理机理描述）",
+        "physical_meaning_confidence": "INFERRED",
+        "auto_inferred": true,
+        "inference_basis": "declared in analysis_context/doe_context as control",
+        "expected_sign": null,
+        "knowledge_source": "auto_inferred",
+        "control_type": "setpoint",
+        "normal_range": [
+          "%",
+          "%"
+        ],
+        "setpoint": null,
+        "expected_data_behavior": "先验声明：%~% [55, 60, 65] 区间内可设定；方向预期 未声明",
+        "observed_data_behavior": null,
+        "behavior_match": "UNVERIFIED",
+        "governing_law": null
+      },
+      {
+        "name": "substrate_gsm",
+        "column": "substrate_gsm",
+        "unit": [
+          95,
+          105,
+          115
+        ],
+        "role": "control",
+        "physical_meaning": "substrate_gsm（由分析上下文声明；未提供独立物理机理描述）",
+        "physical_meaning_confidence": "INFERRED",
+        "auto_inferred": true,
+        "inference_basis": "declared in analysis_context/doe_context as control",
+        "expected_sign": null,
+        "knowledge_source": "auto_inferred",
+        "control_type": "setpoint",
+        "normal_range": [
+          "/",
+          "²"
+        ],
+        "setpoint": null,
+        "expected_data_behavior": "先验声明：/~² [95, 105, 115] 区间内可设定；方向预期 未声明",
+        "observed_data_behavior": null,
+        "behavior_match": "UNVERIFIED",
+        "governing_law": null
+      },
+      {
+        "name": "humidity_rh",
+        "column": "humidity_rh",
+        "unit": [
+          35,
+          50,
+          65
+        ],
+        "role": "control",
+        "physical_meaning": "humidity_rh（由分析上下文声明；未提供独立物理机理描述）",
+        "physical_meaning_confidence": "INFERRED",
+        "auto_inferred": true,
+        "inference_basis": "declared in analysis_context/doe_context as control",
+        "expected_sign": null,
+        "knowledge_source": "auto_inferred",
+        "control_type": "setpoint",
+        "normal_range": [
+          "%",
+          "R"
+        ],
+        "setpoint": null,
+        "expected_data_behavior": "先验声明：%~R [35, 50, 65] 区间内可设定；方向预期 未声明",
+        "observed_data_behavior": null,
+        "behavior_match": "UNVERIFIED",
+        "governing_law": null
+      },
+      {
+        "name": "tension_n",
+        "column": "tension_n",
+        "unit": [
+          300,
+          350,
+          400
+        ],
+        "role": "control",
+        "physical_meaning": "tension_n（由分析上下文声明；未提供独立物理机理描述）",
+        "physical_meaning_confidence": "INFERRED",
+        "auto_inferred": true,
+        "inference_basis": "declared in analysis_context/doe_context as control",
+        "expected_sign": null,
+        "knowledge_source": "auto_inferred",
+        "control_type": "setpoint",
+        "normal_range": [
+          "N",
+          "N"
+        ],
+        "setpoint": null,
+        "expected_data_behavior": "先验声明：N~N [300, 350, 400] 区间内可设定；方向预期 未声明",
+        "observed_data_behavior": null,
+        "behavior_match": "UNVERIFIED",
+        "governing_law": null
+      }
+    ],
+    "events": [],
+    "metadata_columns": []
+  },
+  "parameter_groups": {
+    "factors": [
+      "coat_speed_mpm",
+      "oven1_temp_c",
+      "oven2_temp_c",
+      "gap_um",
+      "solid_content_pct",
+      "substrate_gsm",
+      "humidity_rh",
+      "tension_n"
+    ]
+  },
+  "relationships": [],
+  "confounders": [],
+  "metadata": {
+    "units": {
+      "coat_speed_mpm": [
+        120,
+        150,
+        180
+      ],
+      "oven1_temp_c": [
+        80,
+        90,
+        100
+      ],
+      "oven2_temp_c": [
+        70,
+        80,
+        90
+      ],
+      "gap_um": [
+        150,
+        180,
+        210
+      ],
+      "solid_content_pct": [
+        55,
+        60,
+        65
+      ],
+      "substrate_gsm": [
+        95,
+        105,
+        115
+      ],
+      "humidity_rh": [
+        35,
+        50,
+        65
+      ],
+      "tension_n": [
+        300,
+        350,
+        400
+      ],
+      "coat_weight_gsm": "g/m²",
+      "coating_thick_um": "µm",
+      "defect_rate_pct": "%"
+    },
+    "sampling_rate": null,
+    "batch_id": null,
+    "timezone": null
+  },
+  "doe": {
+    "profile": "doe",
+    "scene_key": "lithium_coating_doe",
+    "data_stage": "collected",
+    "design_type": "partial_factorial_3level",
+    "design_region": null,
+    "constraints": [],
+    "objectives": [],
+    "factors": [
+      {
+        "col": "coat_speed_mpm",
+        "name": "coat_speed_mpm",
+        "expected_sign": null,
+        "physical_meaning": null,
+        "ontology_signal": null,
+        "unit": [
+          120,
+          150,
+          180
+        ],
+        "min": "/",
+        "max": "n",
+        "levels": "m/min",
+        "confidence": "INFERRED"
+      },
+      {
+        "col": "oven1_temp_c",
+        "name": "oven1_temp_c",
+        "expected_sign": null,
+        "physical_meaning": null,
+        "ontology_signal": null,
+        "unit": [
+          80,
+          90,
+          100
+        ],
+        "min": "℃",
+        "max": "℃",
+        "levels": "℃",
+        "confidence": "INFERRED"
+      },
+      {
+        "col": "oven2_temp_c",
+        "name": "oven2_temp_c",
+        "expected_sign": null,
+        "physical_meaning": null,
+        "ontology_signal": null,
+        "unit": [
+          70,
+          80,
+          90
+        ],
+        "min": "℃",
+        "max": "℃",
+        "levels": "℃",
+        "confidence": "INFERRED"
+      },
+      {
+        "col": "gap_um",
+        "name": "gap_um",
+        "expected_sign": null,
+        "physical_meaning": null,
+        "ontology_signal": null,
+        "unit": [
+          150,
+          180,
+          210
+        ],
+        "min": "m",
+        "max": "µ",
+        "levels": "µm",
+        "confidence": "INFERRED"
+      },
+      {
+        "col": "solid_content_pct",
+        "name": "solid_content_pct",
+        "expected_sign": null,
+        "physical_meaning": null,
+        "ontology_signal": null,
+        "unit": [
+          55,
+          60,
+          65
+        ],
+        "min": "%",
+        "max": "%",
+        "levels": "%",
+        "confidence": "INFERRED"
+      },
+      {
+        "col": "substrate_gsm",
+        "name": "substrate_gsm",
+        "expected_sign": null,
+        "physical_meaning": null,
+        "ontology_signal": null,
+        "unit": [
+          95,
+          105,
+          115
+        ],
+        "min": "/",
+        "max": "²",
+        "levels": "g/m²",
+        "confidence": "INFERRED"
+      },
+      {
+        "col": "humidity_rh",
+        "name": "humidity_rh",
+        "expected_sign": null,
+        "physical_meaning": null,
+        "ontology_signal": null,
+        "unit": [
+          35,
+          50,
+          65
+        ],
+        "min": "%",
+        "max": "R",
+        "levels": "%RH",
+        "confidence": "INFERRED"
+      },
+      {
+        "col": "tension_n",
+        "name": "tension_n",
+        "expected_sign": null,
+        "physical_meaning": null,
+        "ontology_signal": null,
+        "unit": [
+          300,
+          350,
+          400
+        ],
+        "min": "N",
+        "max": "N",
+        "levels": "N",
+        "confidence": "INFERRED"
+      }
+    ],
+    "responses": [
+      {
+        "col": "coat_weight_gsm",
+        "name": "coat_weight_gsm",
+        "unit": "g/m²",
+        "goal": "target",
+        "lsl": 3.8,
+        "usl": 4.2,
+        "target": 4.0,
+        "ontology_signal": null,
+        "confidence": "INFERRED"
+      },
+      {
+        "col": "coating_thick_um",
+        "name": "coating_thick_um",
+        "unit": "µm",
+        "goal": "target",
+        "lsl": 9.5,
+        "usl": 11.5,
+        "target": 10.5,
+        "ontology_signal": null,
+        "confidence": "INFERRED"
+      },
+      {
+        "col": "defect_rate_pct",
+        "name": "defect_rate_pct",
+        "unit": "%",
+        "goal": "minimize",
+        "lsl": null,
+        "usl": 0.5,
+        "target": null,
+        "ontology_signal": null,
+        "confidence": "INFERRED"
+      }
+    ],
+    "limitations": [
+      "先验本体：关系方向来自上下文声明与物理先验，未经实测数据验证",
+      "未声明任何 expected_sign —— 未生成因子→响应关系，一致性检查将如实记为 not_estimable"
+    ]
+  },
+  "limitations": [
+    "先验本体：关系方向来自上下文声明与物理先验，未经实测数据验证",
+    "未声明任何 expected_sign —— 未生成因子→响应关系，一致性检查将如实记为 not_estimable"
+  ],
+  "provenance": {
+    "engine": "industrial-ontology-builder",
+    "profile": "doe",
+    "build_mode": "prior_knowledge",
+    "data_stage": "collected",
+    "rag_used": false,
+    "web_used": false,
+    "physics_prior_used": true,
+    "source": "doe_context / analysis_context declarations + physics priors",
+    "context_fp_version": "doe-context-v1"
+  }
+}

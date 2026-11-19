@@ -1,0 +1,20 @@
+{
+  "contract_version": "improvement-advisory-selfcheck/1.0",
+  "checks": {
+    "sections_goal": true,
+    "sections_roadmap": true,
+    "sections_actions": true,
+    "sections_evidence": true,
+    "sections_execution": true,
+    "sections_data": true,
+    "footer_disclaimer": true,
+    "no_placeholder": true,
+    "inline_svg": true,
+    "hash_in_page": true,
+    "md_companion": true,
+    "advisory_language": true,
+    "pass": true
+  },
+  "html_bytes": 28901,
+  "generated_at": "2026-11-19T06:18:40.184631+00:00"
+}

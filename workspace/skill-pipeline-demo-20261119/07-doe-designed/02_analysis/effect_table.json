@@ -1,0 +1,151 @@
+{
+  "generated_at": "2026-11-19T06:18:39.460782+00:00",
+  "mode": "designed",
+  "model_spec": {
+    "main_effects": [
+      "barrel_temp_c",
+      "cooling_time_s"
+    ],
+    "interactions": [
+      "barrel_temp_c:cooling_time_s"
+    ],
+    "quadratic": [],
+    "blocks": [],
+    "covariates": [],
+    "pooled_terms": [],
+    "term_status": {
+      "barrel_temp_c": {
+        "estimated": true,
+        "reason_code": null,
+        "detail": null,
+        "alias_chain": []
+      },
+      "cooling_time_s": {
+        "estimated": true,
+        "reason_code": null,
+        "detail": null,
+        "alias_chain": []
+      },
+      "barrel_temp_c:cooling_time_s": {
+        "estimated": true,
+        "reason_code": null,
+        "detail": null,
+        "alias_chain": []
+      }
+    }
+  },
+  "coding": {
+    "method": "deviation",
+    "continuous_scaling": "(x - mean) / half_range (coded to [-1, 1])",
+    "columns": {
+      "barrel_temp_c": {
+        "type": "categorical",
+        "zero_variance": false
+      },
+      "cooling_time_s": {
+        "type": "categorical",
+        "zero_variance": false
+      }
+    }
+  },
+  "families": [
+    {
+      "response": "energy_kwh_per_kg",
+      "n": 27,
+      "df_resid": 18,
+      "df_pure_error": 18,
+      "df_lack_of_fit": 0,
+      "mse": 2.9e-05,
+      "mse_pure_error": 2.9e-05,
+      "sigma_pure_error": 0.005383,
+      "r_squared": 0.99575,
+      "adj_r_squared": 0.993861,
+      "q_squared_loo": 0.990437,
+      "mde": 0.006139,
+      "mde_note": "2 水平编码主效应的最小可检效应（α=0.05, power=0.8）",
+      "saturated": false,
+      "lack_of_fit": {
+        "estimable": false,
+        "reason": null,
+        "f_stat": null,
+        "p_value": null
+      },
+      "tests": [
+        {
+          "term": "barrel_temp_c",
+          "order": 1,
+          "coefficient": null,
+          "std_err": null,
+          "df": 2,
+          "ss_extra_ss": 0.121429,
+          "n": 27,
+          "estimable": true,
+          "reason_code": null,
+          "alias_chain": [],
+          "effect_ci95": null,
+          "std_effect": null,
+          "term_unit": "℃/coded",
+          "f_stat": 2095.002288,
+          "p_value": 4.794758258938605e-22,
+          "eta_squared": 0.989351,
+          "partial_eta_squared": 0.995722,
+          "effect_size_std": null,
+          "q_value_bh": 1.4384274776815816e-21
+        },
+        {
+          "term": "cooling_time_s",
+          "order": 1,
+          "coefficient": null,
+          "std_err": null,
+          "df": 2,
+          "ss_extra_ss": 0.000696,
+          "n": 27,
+          "estimable": true,
+          "reason_code": null,
+          "alias_chain": [],
+          "effect_ci95": null,
+          "std_effect": null,
+          "term_unit": "s/coded",
+          "f_stat": 12.001431,
+          "p_value": 0.0004874639803150602,
+          "eta_squared": 0.005668,
+          "partial_eta_squared": 0.571458,
+          "effect_size_std": null,
+          "q_value_bh": 0.0007311959704725903
+        },
+        {
+          "term": "barrel_temp_c:cooling_time_s",
+          "order": 2,
+          "coefficient": null,
+          "std_err": null,
+          "df": 4,
+          "ss_extra_ss": 9e-05,
+          "n": 27,
+          "estimable": true,
+          "reason_code": null,
+          "alias_chain": [],
+          "effect_ci95": null,
+          "std_effect": null,
+          "term_unit": "coded",
+          "f_stat": 0.774128,
+          "p_value": 0.5562020766841727,
+          "eta_squared": 0.000731,
+          "partial_eta_squared": 0.146778,
+          "effect_size_std": null,
+          "q_value_bh": 0.5562020766841727
+        }
+      ]
+    }
+  ],
+  "multiple_testing": {
+    "method": "BH",
+    "n_families": 1,
+    "total_tests": 3,
+    "total_significant_q05": 2,
+    "excluded_from_family": 0
+  },
+  "interval_semantics": "四类区间互不替代（effect_table.json v1.1）：① 效应 CI effect_ci95（每行）= β̂ ± t_{0.975,df_resid} · sqrt(diag((X'X)⁻¹) · MSE)（编码尺度，跨响应比较用 std_effect）；② 均值 CI mean_ci95（= 既有 ci95 语义）= ŷ ± t_{0.975,df_resid} · sqrt(x0'(X'X)⁻¹x0 · MSE)；③ 预测区间 pi95 = ŷ ± t_{0.975,df_resid} · sqrt((1 + x0'(X'X)⁻¹x0) · MSE)（覆盖单个未来观测；宽度必大于同点均值 CI；禁止当作合格率/通过率）；④ 容差区间 tolerance_interval_95_95 = ŷ ± k·s, k = sqrt(ν(1+1/n)·z²_{(1+p)/2} / χ²_{ν,α}), p=0.95, α=0.05, ν=df_resid, s=sqrt(MSE)（覆盖 95% 总体 @95% 置信）。",
+  "response_units": {
+    "energy_kwh_per_kg": "kWh/kg"
+  }
+}

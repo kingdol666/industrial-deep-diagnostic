@@ -1,0 +1,13 @@
+{
+  "purpose": "scenario ground truth used ONLY by the generator to synthesize 00_input/data.csv; tuning-memory scripts never read this file",
+  "seed": 20261119,
+  "sigma": 0.02,
+  "base": 2.62,
+  "coef_barrel_temp_c_per_degC": 0.018,
+  "coef_cooling_time_s_per_s": 0.01,
+  "coef_injection_pressure_bar": 0.0,
+  "coef_back_pressure_bar": 0.0,
+  "row_spacing": 220,
+  "first_action_row": 60,
+  "n_rows": 9600
+}

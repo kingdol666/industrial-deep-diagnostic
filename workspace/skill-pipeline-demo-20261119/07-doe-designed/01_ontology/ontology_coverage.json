@@ -1,0 +1,79 @@
+{
+  "contract_version": "1.0",
+  "artifact": "ontology_coverage",
+  "scene_key": "injection_energy_doe",
+  "profile": "doe",
+  "data_stage": "collected",
+  "context_fp": "sha256:d492c75d095621f84d72f87a2f255ce945e6ec22db80a045416d2edb42deb497",
+  "ontology_version": 1,
+  "ontology_sha256": "sha256:0f70f3d1a2e3dd6382aedda2baeca95bc28d3ca7f4c6aff746be5f554d6ad5f0",
+  "generated_by": "doe_ontology_prepare.py",
+  "factors": [
+    {
+      "col": "barrel_temp_c",
+      "name": "barrel_temp_c",
+      "status": "matched",
+      "reason": "factor 'barrel_temp_c' bound to ontology signal 'barrel_temp_c'",
+      "unit": "℃",
+      "ontology_signal": "barrel_temp_c"
+    },
+    {
+      "col": "cooling_time_s",
+      "name": "cooling_time_s",
+      "status": "matched",
+      "reason": "factor 'cooling_time_s' bound to ontology signal 'cooling_time_s'",
+      "unit": "s",
+      "ontology_signal": "cooling_time_s"
+    }
+  ],
+  "responses": [
+    {
+      "col": "energy_kwh_per_kg",
+      "name": "energy_kwh_per_kg",
+      "status": "matched",
+      "reason": "response 'energy_kwh_per_kg' bound to ontology signal 'energy_kwh_per_kg'",
+      "unit": "kWh/kg",
+      "ontology_signal": "energy_kwh_per_kg"
+    }
+  ],
+  "column_mapping": {
+    "matched": [
+      {
+        "kind": "factor",
+        "col": "barrel_temp_c",
+        "name": "barrel_temp_c",
+        "status": "matched",
+        "reason": "factor 'barrel_temp_c' bound to ontology signal 'barrel_temp_c'"
+      },
+      {
+        "kind": "factor",
+        "col": "cooling_time_s",
+        "name": "cooling_time_s",
+        "status": "matched",
+        "reason": "factor 'cooling_time_s' bound to ontology signal 'cooling_time_s'"
+      },
+      {
+        "kind": "response",
+        "col": "energy_kwh_per_kg",
+        "name": "energy_kwh_per_kg",
+        "status": "matched",
+        "reason": "response 'energy_kwh_per_kg' bound to ontology signal 'energy_kwh_per_kg'"
+      }
+    ],
+    "inferred": [],
+    "unmatched": []
+  },
+  "coverage": {
+    "n_factors_matched": 2,
+    "n_responses_matched": 1,
+    "n_factors_covered": 2,
+    "n_responses_covered": 1,
+    "n_factors_declared": 2,
+    "n_responses_declared": 1,
+    "n_unmatched": 0,
+    "ratio": 1.0,
+    "matched_ratio": 1.0
+  },
+  "elapsed_ms": 87,
+  "generated_at": "2026-11-19T06:17:46.115247+00:00"
+}

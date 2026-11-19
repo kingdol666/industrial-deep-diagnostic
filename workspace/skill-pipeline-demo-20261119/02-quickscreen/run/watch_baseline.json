@@ -1,0 +1,175 @@
+{
+  "contract_version": "sentinel-baseline/1.0",
+  "baseline_version": "v1.0.0",
+  "generated_at": "2026-11-18T19:25:13.628440+00:00",
+  "generated_from": {
+    "doe_recommendations_path": null,
+    "doe_run_dir": null,
+    "history_csv_sha256": "38c692928586b8c6fe784fbbfd1e362f52ddf76b21ea1387d603b6285607a0bc",
+    "recommendations_contract_version": null
+  },
+  "global": {
+    "time_col": "timestamp",
+    "group_col": null,
+    "numeric_columns": [
+      "film_tension_n",
+      "oven_temp_c",
+      "line_speed_mpm",
+      "cooling_water_flow_lpm",
+      "scrap_rate_pct"
+    ],
+    "fast_path_min_rows": 20000,
+    "window_rows": null
+  },
+  "groups": {
+    "__ALL__": {
+      "parameters": {
+        "film_tension_n": {
+          "center": 184.986875,
+          "sigma_within_mr": 0.4000026662400684,
+          "sigma_overall": 0.38727566470950675,
+          "median": 184.99,
+          "mad": 0.28999999999999204,
+          "q10": 184.48,
+          "q90": 185.51,
+          "cv": 0.0020935304989043507,
+          "variance_ratio_baseline_std": 0.38727566470950675,
+          "ar1_rho": -0.061
+        },
+        "oven_temp_c": {
+          "center": 167.982775,
+          "sigma_within_mr": 0.5172950105760863,
+          "sigma_overall": 0.5012961139482823,
+          "median": 167.98,
+          "mad": 0.3499999999999943,
+          "q10": 167.339,
+          "q90": 168.621,
+          "cv": 0.002984211410653755,
+          "variance_ratio_baseline_std": 0.5012961139482823,
+          "ar1_rho": -0.0474
+        },
+        "line_speed_mpm": {
+          "center": 319.96675,
+          "sigma_within_mr": 1.16892408325779,
+          "sigma_overall": 1.1881914554637614,
+          "median": 320.0,
+          "mad": 0.8000000000000114,
+          "q10": 318.5,
+          "q90": 321.40999999999997,
+          "cv": 0.003713484152536979,
+          "variance_ratio_baseline_std": 1.1881914554637614,
+          "ar1_rho": 0.0506
+        },
+        "cooling_water_flow_lpm": {
+          "center": 11.986025,
+          "sigma_within_mr": 0.15459748662436232,
+          "sigma_overall": 0.15665503942882308,
+          "median": 11.99,
+          "mad": 0.09999999999999964,
+          "q10": 11.78,
+          "q90": 12.19,
+          "cv": 0.013069807499051862,
+          "variance_ratio_baseline_std": 0.15665503942882308,
+          "ar1_rho": 0.0204
+        },
+        "scrap_rate_pct": {
+          "center": 1.52405,
+          "sigma_within_mr": 0.24409427824881355,
+          "sigma_overall": 0.25345650118903534,
+          "median": 1.52,
+          "mad": 0.16499999999999992,
+          "q10": 1.229,
+          "q90": 1.84,
+          "cv": 0.16630458396314776,
+          "variance_ratio_baseline_std": 0.25345650118903534,
+          "ar1_rho": 0.0595
+        }
+      },
+      "indicators": {},
+      "operating_windows": [],
+      "applicability_domain": null,
+      "correlation": {
+        "cols": [
+          "film_tension_n",
+          "oven_temp_c",
+          "line_speed_mpm",
+          "cooling_water_flow_lpm",
+          "scrap_rate_pct"
+        ],
+        "corr_matrix_flat": [
+          1.0,
+          -0.03142364431126169,
+          0.02884724367974595,
+          -0.03622819060408051,
+          0.04844043031840707,
+          -0.03142364431126169,
+          1.0,
+          0.04803068029833228,
+          0.032068106493294016,
+          0.005807293487926544,
+          0.028847243679745952,
+          0.048030680298332275,
+          1.0,
+          0.057630650649861205,
+          -0.021280944568734392,
+          -0.03622819060408051,
+          0.03206810649329402,
+          0.057630650649861205,
+          1.0,
+          -0.04843716751207032,
+          0.04844043031840707,
+          0.005807293487926543,
+          -0.021280944568734392,
+          -0.04843716751207032,
+          1.0
+        ],
+        "cholesky_lower": [
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          -0.03142364431126169,
+          0.9995061553478294,
+          0.0,
+          0.0,
+          0.0,
+          0.028847243679745952,
+          0.04896134512153626,
+          0.998384005889503,
+          0.0,
+          0.0,
+          -0.03622819060408051,
+          0.03094496672403907,
+          0.057253147646146856,
+          0.9972221439201052,
+          0.0,
+          0.04844043031840707,
+          0.007333089747692409,
+          -0.02307464389265755,
+          -0.045715074491729235,
+          0.9974855604362213
+        ]
+      },
+      "regime": {
+        "variance_threshold": 3.0,
+        "ramp_threshold": 0.03,
+        "window_rows": 10,
+        "known_change_points": []
+      },
+      "validity": {
+        "n_steady_rows": 400,
+        "steady_ratio": 1.0,
+        "time_span": "0.000h .. 0.554h (relative)",
+        "self_baseline_ttl_hours": null,
+        "invalidation_conditions": []
+      }
+    }
+  },
+  "state": null,
+  "provenance": {
+    "input_sha256": "38c692928586b8c6fe784fbbfd1e362f52ddf76b21ea1387d603b6285607a0bc",
+    "script_version": "1.0.0",
+    "authored_by": "script"
+  }
+}

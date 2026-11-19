@@ -1,0 +1,99 @@
+{
+  "verdict": "pass",
+  "overall_score": 93,
+  "reviewed_at": "2026-11-18T20:02:00+08:00",
+  "reviewer_mode": "会话智能体(以 html-reviewer 协议独立审计;fast mode 无独立 harness 子代理)",
+  "audited_files": ["diagnostic-report.html", "render_manifest.json", "html_selfcheck.json", "06_scripts/build_verify.json"],
+  "checks": [
+    {
+      "name": "hero_clarity",
+      "status": "pass",
+      "evidence": "首屏 verdict 区给出单句根因(流量阶跃−33.2%→温度+8.02℃保持, H1 唯一存活) + DETERMINED 印章(82/100, 上限85);Hero 8 要素齐(类型/判断分/置信/重点对象/样本量/异常区段/窗口/证据级) + 四格要点 + 如何读本页;复审确认无统计术语门槛。"
+    },
+    {
+      "name": "evidence_layer_1_statistical",
+      "status": "pass",
+      "evidence": "Ⅰ层列出 r=−0.9626/滞后CCF −0.9959@lag−2/Granger F=259.15/Bonferroni 幸存, 与 validate_report.json + time_lag_analysis.json 逐项一致(复审重算 6/6 通过, 见 05_review/judge_feedback.json spot_check)。"
+    },
+    {
+      "name": "evidence_layer_2_physics",
+      "status": "pass",
+      "evidence": "Ⅱ层引用 physics_check.json: Q=m·cp·ΔT 方向核验、能量代理 −19.18% FOULING_PROGRESSION、ISO 10816 B区、Arrhenius 观测不一致——均真实工件且带来源路径。"
+    },
+    {
+      "name": "evidence_layer_3_exclusion",
+      "status": "pass",
+      "evidence": "Ⅲ层引用 diagnosis.json + anomaly_report.json: H2/H3 三重判据排除(97/97)、判别矩阵 DISCRIMINABLE;排除节完整表格含 revival_condition 指引。"
+    },
+    {
+      "name": "image_usage_from_03_figures",
+      "status": "pass",
+      "evidence": "2 张 PNG 均为本运行 03_figures 真实产物(相对路径存在性 fs 双 true), 带 onerror 降级至 image_captions.json 说明;无外部图片、无图片墙堆砌。"
+    },
+    {
+      "name": "three_d_fidelity",
+      "status": "pass",
+      "evidence": "协议性诚实缺省: manifest.process_flow.recoverable=false(数据无设备拓扑), 页面无装饰性 3D(THREE 场景代码缺席), 局限节第4条向用户披露 — 3D 未出现即不构成失真。"
+    },
+    {
+      "name": "chart_initialization",
+      "status": "pass",
+      "evidence": "静态核验: 容器/数据/init/成功检测(getInstanceByDom 回报)与双源降级逻辑齐备;嵌入数据 build 后解析核验 4×120 点且台阶位置(flow[60]=8.18, temp[62]=73.01)与变化点一致。运行时初始化未在真实浏览器执行(fast mode 无浏览器预览)——列为 warning, 不构成阻断。"
+    },
+    {
+      "name": "dual_evidence_per_conclusion",
+      "status": "pass",
+      "evidence": "每个核心结论至少双证据: 根因(图形态+统计数字)、排除(相关不显著+无变化点)、幅值(平台保持形态+能量代理独立复算)、振动伴生(ISO分区+叠加图共变)。"
+    },
+    {
+      "name": "plain_language_translation",
+      "status": "pass",
+      "evidence": "水龙头/散热器类比 + chart-reading 三行读法(看见了/意味着/为什么重要) + 四格要点;技术细节下沉到证据链层。"
+    },
+    {
+      "name": "action_and_limitations",
+      "status": "pass",
+      "evidence": "行动建议=advisory 卡(P1 处方: 流量上调+验证+回滚)+ P0 点检指引(Hero 四格);局限 5 条独立成节(数据缺口/窗口/证据级/3D缺省/不构成下发)。"
+    },
+    {
+      "name": "advisory_section_consistency",
+      "status": "pass",
+      "evidence": "逐字比对: 点估计 1.9581858375、CI 端点 1.840121325/2.0762493625、幅度 10.025→11.0125、回滚 10.025 在 HTML 中逐一存在(字符串级核验);卡数=1=advisory.actions.length, 处方数 0 如实呈现;免责声明原文收录;grade C/上限 B 语义未改写。"
+    },
+    {
+      "name": "render_manifest_produced",
+      "status": "pass",
+      "evidence": "render_manifest.json 存在于 diagnostic-report.html 之前(builder 读取 manifest 渲染, 顺序由 build_html.mjs 结构保证);_meta.protocol_ack 三项 true;文件时间序: manifest(19:58) → html(19:58+), 且 ordering 由确定性 builder 强制。"
+    },
+    {
+      "name": "manifest_page_consistency",
+      "status": "pass",
+      "evidence": "build_verify.json: sections 7=7、hypotheses 3=3、charts 1=1、adv_cards 1=1、pngs 2=2、evidence_layers 3、loader 5 项、CSS 全文内嵌 — 页面各层计数与 manifest 逐一吻合。"
+    },
+    {
+      "name": "no_cross_run_pollution",
+      "status": "pass",
+      "evidence": "页面全部数字可溯源至本运行工件(validate_report/time_lag_analysis/physics_check/anomaly_report/advisory_actions 均在本 run_dir 内);footer 明示溯源与'无跨运行污染';run_id 与数据 SHA-256 展示于左导轨。"
+    },
+    {
+      "name": "selfcheck_audit",
+      "status": "pass",
+      "evidence": "html_selfcheck.json 9/9 PASS 且抽查可信: 第1/5/7 项的声称由复审独立复验(png 存在性/逐字数字/外链缺失)全部属实;第3项运行时核验局限已在 selfcheck 内如实标注;第4项 recoverable=false 缺省与 manifest 一致。"
+    }
+  ],
+  "blocking_issues": [],
+  "warnings": [
+    "运行时图表初始化未在真实浏览器执行(fast mode 无浏览器预览): init+检测+降级逻辑为静态核验;建议交付前用浏览器打开一次确认 st-chart 显示 '图表 ✓'。",
+    "3D 模块按协议诚实缺省(process_flow.recoverable=false);如后续运行提供设备拓扑数据, 可补 truthful 3D 冷却回路示意。",
+    "单图表模块;可再增 lag-CCF 曲线小图(r 随 lag 变化, -2 处峰值)强化时滞直观性 — 非阻断。"
+  ],
+  "red_line_blacklist_audit": {
+    "dark_industrial_style": false,
+    "purple_gradient_neon": false,
+    "kpi_number_wall": false,
+    "image_wall_tiling": false,
+    "hardcoded_device_counts": false,
+    "invented_tokens": "补充样式仅用于 hero 格/加载条/adv 卡/chart-reading, 全部复用 report.css 既有 color tokens(--ink/--warm/--good/--bad/--wash), 未新增颜色常量"
+  },
+  "notes": "verdict=pass: 三层证据链完整、建议章节逐字保真、manifest-页面计数闭合、红线零命中;两项运行时局限以 warning 如实记录。"
+}

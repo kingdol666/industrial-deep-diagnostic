@@ -1,0 +1,87 @@
+{
+  "log_path": ".pipeline_events.jsonl",
+  "validation": "PASS",
+  "summary": {
+    "required_agents": [
+      "context-builder",
+      "data-processor",
+      "diagnostician",
+      "judge",
+      "reporter",
+      "report-reviewer"
+    ],
+    "total_lines": 32,
+    "parsed_events": 32,
+    "malformed_lines": 0,
+    "repair_spawn_count": 0,
+    "repair_cap_reached_count": 0
+  },
+  "agent_counts": {
+    "context-builder": {
+      "starts": 0,
+      "completes": 0
+    },
+    "data-processor": {
+      "starts": 0,
+      "completes": 0
+    },
+    "vlm-visual-analyzer": {
+      "starts": 0,
+      "completes": 0
+    },
+    "diagnostician": {
+      "starts": 0,
+      "completes": 0
+    },
+    "judge": {
+      "starts": 0,
+      "completes": 0
+    },
+    "reporter": {
+      "starts": 0,
+      "completes": 0
+    },
+    "report-reviewer": {
+      "starts": 0,
+      "completes": 0
+    }
+  },
+  "issues": [
+    {
+      "severity": "warning",
+      "code": "MANIFEST_LOG_COMPLETION_MISMATCH",
+      "step": "context_builder",
+      "message": "run_manifest marks context_builder completed but log lacks agent_complete."
+    },
+    {
+      "severity": "warning",
+      "code": "MANIFEST_LOG_COMPLETION_MISMATCH",
+      "step": "data_processor",
+      "message": "run_manifest marks data_processor completed but log lacks agent_complete."
+    },
+    {
+      "severity": "warning",
+      "code": "MANIFEST_LOG_COMPLETION_MISMATCH",
+      "step": "diagnostician",
+      "message": "run_manifest marks diagnostician completed but log lacks agent_complete."
+    },
+    {
+      "severity": "warning",
+      "code": "MANIFEST_LOG_COMPLETION_MISMATCH",
+      "step": "judge",
+      "message": "run_manifest marks judge completed but log lacks agent_complete."
+    },
+    {
+      "severity": "warning",
+      "code": "MANIFEST_LOG_COMPLETION_MISMATCH",
+      "step": "reporter",
+      "message": "run_manifest marks reporter completed but log lacks agent_complete."
+    },
+    {
+      "severity": "warning",
+      "code": "MANIFEST_LOG_COMPLETION_MISMATCH",
+      "step": "audit",
+      "message": "run_manifest marks audit completed but log lacks agent_complete."
+    }
+  ]
+}

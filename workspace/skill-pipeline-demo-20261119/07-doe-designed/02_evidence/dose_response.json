@@ -1,0 +1,70 @@
+{
+  "contract_version": "improvement-evidence/1.0",
+  "leg": "dose_response",
+  "pairs": [
+    {
+      "lever": "barrel_temp_c",
+      "metric": "energy_kwh_per_kg",
+      "status": "emitted",
+      "r": 0.861,
+      "p": 8.3e-09,
+      "fdr_q": 1.66e-08,
+      "temporal_ok": null,
+      "n_eff": 20.0,
+      "rho_lag1": 0.131125,
+      "gates": {
+        "lever_variance_ok": true,
+        "samples_ok": true,
+        "temporal_ok": null,
+        "fdr_ok": true,
+        "confound_ok": true,
+        "regime_stable_ok": true
+      },
+      "physics": {
+        "status": "same_domain"
+      },
+      "attribution": {
+        "status": "absent",
+        "ci_excludes_zero": null
+      },
+      "flags": {
+        "objective_inferred": false,
+        "conflict": false,
+        "extrapolated": false,
+        "dead_time_missing": true,
+        "tradeoff_declared": false,
+        "designed_window": false,
+        "designed_effect": false,
+        "gain_ci_excludes_zero": false
+      },
+      "dose": {
+        "status": "not_estimable",
+        "slope": null,
+        "slope_ci95": null,
+        "monotone": null,
+        "verified": null,
+        "reason": "no_significant_relation",
+        "detail": "n=27 below binning floor",
+        "bins": null,
+        "r": null,
+        "p": null,
+        "n_pairs": null
+      },
+      "doe": null,
+      "window": null,
+      "action_id": "ACT-barrel_temp_c-822"
+    },
+    {
+      "lever": "cooling_time_s",
+      "metric": "energy_kwh_per_kg",
+      "status": "below_threshold",
+      "r": -0.0724,
+      "p": 0.7196911503,
+      "fdr_q": 0.0881581151,
+      "temporal_ok": null
+    }
+  ],
+  "dose_leg": [],
+  "fdr_alpha": 0.05,
+  "family_rule": "BH family = 每 KPI 内全部 (杠杆×滞后) 检验对"
+}

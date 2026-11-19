@@ -1,0 +1,33 @@
+{
+  "contract_version": "improvement-advisory-step/1.0",
+  "origin": "doe",
+  "run_dir": "D:\\codes\\myskills\\idd-doe-impl\\workspace\\skill-pipeline-demo-20261119\\03-doe",
+  "started_at": "2026-11-18T19:27:19.859870+00:00",
+  "status": "used",
+  "exit_code": 1,
+  "objective_source": "recommendations.response_specs",
+  "data_path": "D:\\codes\\myskills\\idd-doe-impl\\workspace\\skill-pipeline-demo-20261119\\03-doe\\00_input\\run_table.csv",
+  "artifacts": [
+    "advisory/advisory_actions.json",
+    "advisory/objective_resolved.json",
+    "advisory/charts.json",
+    "advisory/improvement_advisory.html",
+    "advisory/improvement_advisory.md",
+    "advisory/html_selfcheck.json",
+    "advisory/chapter.md"
+  ],
+  "summary": {
+    "report_status": "advisory_only",
+    "n_actions": 3,
+    "grades": {
+      "A": 0,
+      "B": 0,
+      "C": 3
+    },
+    "n_prescriptions": 0,
+    "max_achievable_grade": "B",
+    "report_id": "IMA-20261118192719-ccfdbb"
+  },
+  "chapter_written": true,
+  "generated_at": "2026-11-18T19:27:19.930399+00:00"
+}

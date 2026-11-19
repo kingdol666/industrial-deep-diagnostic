@@ -1,0 +1,16 @@
+{
+  "scenario": "run",
+  "generation_time": "2026-11-18T19:37:39.684Z",
+  "data_points_used": 0,
+  "edges": [],
+  "colinear_groups": [],
+  "root_cause_candidates": [],
+  "_sources": {
+    "edges": "02_processed/time_lag_analysis.json + validate_report.json",
+    "candidates": "04_diagnostics/diagnosis.json + confidence.json (when present)"
+  },
+  "_normalization": {
+    "who": "schema_conformance.mjs (deterministic projection)",
+    "when": "2026-11-18T19:37:39.684Z"
+  }
+}

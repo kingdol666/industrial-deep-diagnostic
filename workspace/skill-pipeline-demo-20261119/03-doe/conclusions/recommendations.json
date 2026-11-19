@@ -1,0 +1,483 @@
+{
+  "contract_version": "1.1",
+  "audience": "downstream_agent",
+  "analysis_mode": "observational",
+  "operating_windows": [],
+  "current_baseline": {
+    "point": {},
+    "distance_to_window": {},
+    "move_instruction": null,
+    "source": {}
+  },
+  "setpoints": [],
+  "interactions": [],
+  "conflicts": [],
+  "response_specs": {
+    "coat_weight_gsm": {
+      "lsl": 3.8,
+      "usl": 4.2,
+      "target": 4.0,
+      "goal": "target",
+      "current": 4.207074
+    },
+    "coating_thick_um": {
+      "lsl": 9.5,
+      "usl": 11.5,
+      "target": 10.5,
+      "goal": "target",
+      "current": 10.171852
+    },
+    "defect_rate_pct": {
+      "lsl": null,
+      "usl": 0.5,
+      "target": null,
+      "goal": "minimize",
+      "current": 0.175741
+    }
+  },
+  "confirmations": [
+    {
+      "id": "CF-001",
+      "reason": "未检出稳态段 — 无法产出可信窗口",
+      "reason_code": "observational",
+      "design_hint": "按当前工况补做小型试验设计（因子数 + 2 个中心点）",
+      "runs": null
+    }
+  ],
+  "watchlist": [
+    {
+      "code": "NO_STEADY_SEGMENTS",
+      "message": "无稳态段可用 — 建议基于全部数据的方向性结论并安排确认试验"
+    }
+  ],
+  "constraints": [],
+  "applicability_domain": {
+    "n_rows": 27,
+    "time_span": null,
+    "regime": "steady-state segments",
+    "factor_observed_ranges": {}
+  },
+  "invalidation_conditions": [
+    "任一因子越出 applicability_domain.factor_observed_ranges 的 ±20%",
+    "stability_report 变点检测触发新 regime（漂移/换产）",
+    "确认试验结果与 expected_effect 的 CI95 不相交"
+  ],
+  "usage_rules": [
+    "observational 窗口在闭环执行前必须先跑 confirmations",
+    "confidence=low 的窗口仅可用于人工参考与试验设计，不得直接下发控制"
+  ],
+  "provenance": {
+    "input_sha256": "d26889c5b1963565c42aa066c1e3740bc3dbedbfba8bd0da5eb71026e9ccfdbb",
+    "script_version": "1.1.0",
+    "seed": null,
+    "authored_by": "script"
+  },
+  "joint_windows": [],
+  "joint_setpoints": [],
+  "units": {
+    "factors": {
+      "coat_speed_mpm": {
+        "canonical": "[120, 150, 180]",
+        "display": "[120, 150, 180]",
+        "unit_status": "valid",
+        "source": "analysis_context.factors[].unit"
+      },
+      "gap_um": {
+        "canonical": "[150, 180, 210]",
+        "display": "[150, 180, 210]",
+        "unit_status": "valid",
+        "source": "analysis_context.factors[].unit"
+      },
+      "humidity_rh": {
+        "canonical": "[35, 50, 65]",
+        "display": "[35, 50, 65]",
+        "unit_status": "valid",
+        "source": "analysis_context.factors[].unit"
+      },
+      "oven1_temp_c": {
+        "canonical": "[80, 90, 100]",
+        "display": "[80, 90, 100]",
+        "unit_status": "valid",
+        "source": "analysis_context.factors[].unit"
+      },
+      "oven2_temp_c": {
+        "canonical": "[70, 80, 90]",
+        "display": "[70, 80, 90]",
+        "unit_status": "valid",
+        "source": "analysis_context.factors[].unit"
+      },
+      "solid_content_pct": {
+        "canonical": "[55, 60, 65]",
+        "display": "[55, 60, 65]",
+        "unit_status": "valid",
+        "source": "analysis_context.factors[].unit"
+      },
+      "substrate_gsm": {
+        "canonical": "[95, 105, 115]",
+        "display": "[95, 105, 115]",
+        "unit_status": "valid",
+        "source": "analysis_context.factors[].unit"
+      },
+      "tension_n": {
+        "canonical": "[300, 350, 400]",
+        "display": "[300, 350, 400]",
+        "unit_status": "valid",
+        "source": "analysis_context.factors[].unit"
+      }
+    },
+    "responses": {
+      "coat_weight_gsm": {
+        "canonical": "g/m²",
+        "display": "g/m²",
+        "unit_status": "valid",
+        "source": "analysis_context.responses[].unit"
+      },
+      "coating_thick_um": {
+        "canonical": "um",
+        "display": "µm",
+        "unit_status": "valid",
+        "source": "analysis_context.responses[].unit"
+      },
+      "defect_rate_pct": {
+        "canonical": "%",
+        "display": "%",
+        "unit_status": "valid",
+        "source": "analysis_context.responses[].unit"
+      }
+    },
+    "conflicts": []
+  },
+  "design_region": {
+    "type": null,
+    "hull": "unbounded",
+    "coded_bounds": {},
+    "axial_alpha": null,
+    "max_leverage": null,
+    "mean_leverage": null,
+    "leverage_threshold": null,
+    "n_exceed": null,
+    "extrapolation_risk": "high",
+    "evaluated_points": 0,
+    "design_hull_confidence": "low",
+    "factor_order": [],
+    "n_design_rows": 0,
+    "note": "observational data: no designed region (hull unbounded)"
+  },
+  "grid_plan": null,
+  "factor_response_matrix": [
+    {
+      "factor": "coat_speed_mpm",
+      "response": "coat_weight_gsm",
+      "window_id": null,
+      "no_window_reason": "NO_SIGNIFICANT_FACTOR",
+      "delta": null,
+      "effect_size": null,
+      "direction": null,
+      "fdr_q": null,
+      "evidence_level": null,
+      "confidence": "low"
+    },
+    {
+      "factor": "coat_speed_mpm",
+      "response": "coating_thick_um",
+      "window_id": null,
+      "no_window_reason": "NO_SIGNIFICANT_FACTOR",
+      "delta": null,
+      "effect_size": null,
+      "direction": null,
+      "fdr_q": null,
+      "evidence_level": null,
+      "confidence": "low"
+    },
+    {
+      "factor": "coat_speed_mpm",
+      "response": "defect_rate_pct",
+      "window_id": null,
+      "no_window_reason": "NO_SIGNIFICANT_FACTOR",
+      "delta": null,
+      "effect_size": null,
+      "direction": null,
+      "fdr_q": null,
+      "evidence_level": null,
+      "confidence": "low"
+    },
+    {
+      "factor": "gap_um",
+      "response": "coat_weight_gsm",
+      "window_id": null,
+      "no_window_reason": "NO_SIGNIFICANT_FACTOR",
+      "delta": null,
+      "effect_size": null,
+      "direction": null,
+      "fdr_q": null,
+      "evidence_level": null,
+      "confidence": "low"
+    },
+    {
+      "factor": "gap_um",
+      "response": "coating_thick_um",
+      "window_id": null,
+      "no_window_reason": "NO_SIGNIFICANT_FACTOR",
+      "delta": null,
+      "effect_size": null,
+      "direction": null,
+      "fdr_q": null,
+      "evidence_level": null,
+      "confidence": "low"
+    },
+    {
+      "factor": "gap_um",
+      "response": "defect_rate_pct",
+      "window_id": null,
+      "no_window_reason": "NO_SIGNIFICANT_FACTOR",
+      "delta": null,
+      "effect_size": null,
+      "direction": null,
+      "fdr_q": null,
+      "evidence_level": null,
+      "confidence": "low"
+    },
+    {
+      "factor": "humidity_rh",
+      "response": "coat_weight_gsm",
+      "window_id": null,
+      "no_window_reason": "NO_SIGNIFICANT_FACTOR",
+      "delta": null,
+      "effect_size": null,
+      "direction": null,
+      "fdr_q": null,
+      "evidence_level": null,
+      "confidence": "low"
+    },
+    {
+      "factor": "humidity_rh",
+      "response": "coating_thick_um",
+      "window_id": null,
+      "no_window_reason": "NO_SIGNIFICANT_FACTOR",
+      "delta": null,
+      "effect_size": null,
+      "direction": null,
+      "fdr_q": null,
+      "evidence_level": null,
+      "confidence": "low"
+    },
+    {
+      "factor": "humidity_rh",
+      "response": "defect_rate_pct",
+      "window_id": null,
+      "no_window_reason": "NO_SIGNIFICANT_FACTOR",
+      "delta": null,
+      "effect_size": null,
+      "direction": null,
+      "fdr_q": null,
+      "evidence_level": null,
+      "confidence": "low"
+    },
+    {
+      "factor": "oven1_temp_c",
+      "response": "coat_weight_gsm",
+      "window_id": null,
+      "no_window_reason": "NO_SIGNIFICANT_FACTOR",
+      "delta": null,
+      "effect_size": null,
+      "direction": null,
+      "fdr_q": null,
+      "evidence_level": null,
+      "confidence": "low"
+    },
+    {
+      "factor": "oven1_temp_c",
+      "response": "coating_thick_um",
+      "window_id": null,
+      "no_window_reason": "NO_SIGNIFICANT_FACTOR",
+      "delta": null,
+      "effect_size": null,
+      "direction": null,
+      "fdr_q": null,
+      "evidence_level": null,
+      "confidence": "low"
+    },
+    {
+      "factor": "oven1_temp_c",
+      "response": "defect_rate_pct",
+      "window_id": null,
+      "no_window_reason": "NO_SIGNIFICANT_FACTOR",
+      "delta": null,
+      "effect_size": null,
+      "direction": null,
+      "fdr_q": null,
+      "evidence_level": null,
+      "confidence": "low"
+    },
+    {
+      "factor": "oven2_temp_c",
+      "response": "coat_weight_gsm",
+      "window_id": null,
+      "no_window_reason": "NO_SIGNIFICANT_FACTOR",
+      "delta": null,
+      "effect_size": null,
+      "direction": null,
+      "fdr_q": null,
+      "evidence_level": null,
+      "confidence": "low"
+    },
+    {
+      "factor": "oven2_temp_c",
+      "response": "coating_thick_um",
+      "window_id": null,
+      "no_window_reason": "NO_SIGNIFICANT_FACTOR",
+      "delta": null,
+      "effect_size": null,
+      "direction": null,
+      "fdr_q": null,
+      "evidence_level": null,
+      "confidence": "low"
+    },
+    {
+      "factor": "oven2_temp_c",
+      "response": "defect_rate_pct",
+      "window_id": null,
+      "no_window_reason": "NO_SIGNIFICANT_FACTOR",
+      "delta": null,
+      "effect_size": null,
+      "direction": null,
+      "fdr_q": null,
+      "evidence_level": null,
+      "confidence": "low"
+    },
+    {
+      "factor": "solid_content_pct",
+      "response": "coat_weight_gsm",
+      "window_id": null,
+      "no_window_reason": "NO_SIGNIFICANT_FACTOR",
+      "delta": null,
+      "effect_size": null,
+      "direction": null,
+      "fdr_q": null,
+      "evidence_level": null,
+      "confidence": "low"
+    },
+    {
+      "factor": "solid_content_pct",
+      "response": "coating_thick_um",
+      "window_id": null,
+      "no_window_reason": "NO_SIGNIFICANT_FACTOR",
+      "delta": null,
+      "effect_size": null,
+      "direction": null,
+      "fdr_q": null,
+      "evidence_level": null,
+      "confidence": "low"
+    },
+    {
+      "factor": "solid_content_pct",
+      "response": "defect_rate_pct",
+      "window_id": null,
+      "no_window_reason": "NO_SIGNIFICANT_FACTOR",
+      "delta": null,
+      "effect_size": null,
+      "direction": null,
+      "fdr_q": null,
+      "evidence_level": null,
+      "confidence": "low"
+    },
+    {
+      "factor": "substrate_gsm",
+      "response": "coat_weight_gsm",
+      "window_id": null,
+      "no_window_reason": "NO_SIGNIFICANT_FACTOR",
+      "delta": null,
+      "effect_size": null,
+      "direction": null,
+      "fdr_q": null,
+      "evidence_level": null,
+      "confidence": "low"
+    },
+    {
+      "factor": "substrate_gsm",
+      "response": "coating_thick_um",
+      "window_id": null,
+      "no_window_reason": "NO_SIGNIFICANT_FACTOR",
+      "delta": null,
+      "effect_size": null,
+      "direction": null,
+      "fdr_q": null,
+      "evidence_level": null,
+      "confidence": "low"
+    },
+    {
+      "factor": "substrate_gsm",
+      "response": "defect_rate_pct",
+      "window_id": null,
+      "no_window_reason": "NO_SIGNIFICANT_FACTOR",
+      "delta": null,
+      "effect_size": null,
+      "direction": null,
+      "fdr_q": null,
+      "evidence_level": null,
+      "confidence": "low"
+    },
+    {
+      "factor": "tension_n",
+      "response": "coat_weight_gsm",
+      "window_id": null,
+      "no_window_reason": "NO_SIGNIFICANT_FACTOR",
+      "delta": null,
+      "effect_size": null,
+      "direction": null,
+      "fdr_q": null,
+      "evidence_level": null,
+      "confidence": "low"
+    },
+    {
+      "factor": "tension_n",
+      "response": "coating_thick_um",
+      "window_id": null,
+      "no_window_reason": "NO_SIGNIFICANT_FACTOR",
+      "delta": null,
+      "effect_size": null,
+      "direction": null,
+      "fdr_q": null,
+      "evidence_level": null,
+      "confidence": "low"
+    },
+    {
+      "factor": "tension_n",
+      "response": "defect_rate_pct",
+      "window_id": null,
+      "no_window_reason": "NO_SIGNIFICANT_FACTOR",
+      "delta": null,
+      "effect_size": null,
+      "direction": null,
+      "fdr_q": null,
+      "evidence_level": null,
+      "confidence": "low"
+    }
+  ],
+  "actionable_summary": {
+    "n_actionable": 0,
+    "n_blocked": 0,
+    "blocked": []
+  },
+  "interval_disclosure": {
+    "pi_method": null,
+    "ci_method": "Welch t CI of the tercile-Q3 - Q1 mean difference (observational)",
+    "effect_ci_method": "Welch t CI of the tercile delta (same as ci95)",
+    "tolerance_method": null,
+    "note": "观察性模式无回归模型：不产出均值 CI / 预测区间 / 容差区间，也不可计算 PI 覆盖率。expected_effect.ci95/effect_ci95 为三分位差值的 Welch CI（相关级证据，方向已按目标校正），闭环执行前必须完成确认试验。选优标度：std_effect。",
+    "joint_coverage": null,
+    "coverage_check": null
+  },
+  "association_screen_ref": {
+    "path": "02_analysis/association_screen.json",
+    "sha256": "733115bc4c4b357dbdec280a17ea175f40cc42985cfb9f2364b1d39b979ca803",
+    "n_pairs": 24,
+    "causal_claim": "none"
+  },
+  "next_design_ref": {
+    "path": "conclusions/next_design.json",
+    "sha256": "5723ac1296919890a0a447d13124ee6f6d0c019f15ba69b974494d2f69a13689",
+    "recommended_action": "none",
+    "primary_action_id": "ND-01"
+  }
+}

@@ -1,0 +1,127 @@
+{
+  "contract_version": "improvement-advisory-charts/1.0",
+  "kpi_series": [
+    {
+      "metric": "energy_kwh_per_kg",
+      "direction": "target",
+      "points": [
+        [
+          0,
+          0.6203
+        ],
+        [
+          1,
+          0.6217
+        ],
+        [
+          2,
+          0.7533
+        ],
+        [
+          3,
+          0.7752
+        ],
+        [
+          4,
+          0.6154
+        ],
+        [
+          5,
+          0.7731
+        ],
+        [
+          6,
+          0.7561
+        ],
+        [
+          7,
+          0.6063
+        ],
+        [
+          8,
+          0.6168
+        ],
+        [
+          9,
+          0.6246
+        ],
+        [
+          10,
+          0.6261
+        ],
+        [
+          11,
+          0.767
+        ],
+        [
+          12,
+          0.6166
+        ],
+        [
+          13,
+          0.6241
+        ],
+        [
+          14,
+          0.7556
+        ],
+        [
+          15,
+          0.7576
+        ],
+        [
+          16,
+          0.6303
+        ],
+        [
+          17,
+          0.7712
+        ],
+        [
+          18,
+          0.761
+        ],
+        [
+          19,
+          0.6131
+        ],
+        [
+          20,
+          0.6247
+        ],
+        [
+          21,
+          0.63
+        ],
+        [
+          22,
+          0.6259
+        ],
+        [
+          23,
+          0.6284
+        ],
+        [
+          24,
+          0.6132
+        ],
+        [
+          25,
+          0.6173
+        ],
+        [
+          26,
+          0.6247
+        ]
+      ],
+      "n": 27
+    }
+  ],
+  "dose_response": [],
+  "windows": [],
+  "levers": [
+    "barrel_temp_c",
+    "cooling_time_s"
+  ],
+  "note": "downsampled stride disclosure: see points density; charts are script-authored, agent must not alter numbers"
+}

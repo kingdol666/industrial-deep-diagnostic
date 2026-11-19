@@ -1,0 +1,35 @@
+{
+  "t_action_row": 60,
+  "baseline": {
+    "row_range": [
+      30,
+      60
+    ],
+    "n": 30,
+    "n_eff": 18,
+    "lag1_autocorr": 0.22829728180211203
+  },
+  "effect": {
+    "row_range": [
+      65,
+      260
+    ],
+    "n": 195,
+    "n_eff": 225,
+    "lag1_autocorr": -0.07226291421325806,
+    "truncated_by": null
+  },
+  "dead_time_used": 0.0,
+  "dead_time_assumed": true,
+  "constants": {
+    "baseline_points": 30,
+    "tau_steps": 5,
+    "settle_steps": 200,
+    "min_baseline_points": 10
+  },
+  "admissible_baseline": true,
+  "admissible_effect": true,
+  "script_version": "segment_selector/1.0",
+  "generated_at": "2026-11-18T19:45:19.753612+00:00",
+  "action_log_id": "ACT-001"
+}

@@ -1,0 +1,117 @@
+{
+ "stage": "data-processor",
+ "schema": "stage_digest/1.0",
+ "scenario": null,
+ "data_shape": {
+  "n_rows": null,
+  "n_columns": null,
+  "time_col": "timestamp",
+  "time_method": "single-source-parse",
+  "median_interval_s": 120,
+  "index_implied_only": false
+ },
+ "anomaly_counts": {
+  "data_view_mode": "process_plus_inspection",
+  "anomaly_intervals": 0,
+  "total_transitions": 0,
+  "process_parameters_screened": 4,
+  "integrated_links": 0,
+  "normalized_from_legacy_shape": true
+ },
+ "top_anomalies": [
+  {
+   "column": "cooling_water_flow_lpm",
+   "cv": 0.2001,
+   "abrupt": "yes"
+  },
+  {
+   "column": "vibration_mm_s",
+   "cv": 0.0937,
+   "abrupt": "no"
+  },
+  {
+   "column": "ambient_temp_c",
+   "cv": 0.0167,
+   "abrupt": "no"
+  },
+  {
+   "column": "motor_load_pct",
+   "cv": 0.0106,
+   "abrupt": "no"
+  }
+ ],
+ "fluctuation_top_cv": [
+  {
+   "column": "cooling_water_flow_lpm",
+   "cv": 0.2001,
+   "abrupt": "yes"
+  },
+  {
+   "column": "vibration_mm_s",
+   "cv": 0.0937,
+   "abrupt": "no"
+  },
+  {
+   "column": "ambient_temp_c",
+   "cv": 0.0167,
+   "abrupt": "no"
+  },
+  {
+   "column": "motor_load_pct",
+   "cv": 0.0106,
+   "abrupt": "no"
+  }
+ ],
+ "top_correlations": [
+  {
+   "pair": "bearing_temp_c~vibration_mm_s",
+   "r": 0.967
+  },
+  {
+   "pair": "bearing_temp_c~cooling_water_flow_lpm",
+   "r": -0.963
+  },
+  {
+   "pair": "cooling_water_flow_lpm~vibration_mm_s",
+   "r": -0.928
+  },
+  {
+   "pair": "ambient_temp_c~motor_load_pct",
+   "r": 0.191
+  },
+  {
+   "pair": "motor_load_pct~vibration_mm_s",
+   "r": 0.048
+  }
+ ],
+ "segment_contrast": null,
+ "robustness": "MODERATE_CONCERNS — Some statistical issues found. Flag them in the report and adjust confidence scores accordingly.",
+ "analysis_mode": "baseline_plus_custom",
+ "key_findings": [],
+ "charts": {
+  "adaptive_plan": [
+   {
+    "chart": "z_overlay",
+    "target": [
+     "bearing_temp_c",
+     "motor_load_pct",
+     "cooling_water_flow_lpm",
+     "ambient_temp_c",
+     "vibration_mm_s"
+    ]
+   },
+   {
+    "chart": "line",
+    "target": "bearing_temp_c"
+   }
+  ],
+  "n_pngs": 2
+ },
+ "read_full": {
+  "data_analysis_conclusion": "02_processed/data_analysis_conclusion.json",
+  "validate_report": "02_processed/validate_report.json",
+  "anomaly_report": "02_processed/anomaly_report.json",
+  "segment_statistics": "02_processed/segment_statistics.json",
+  "adaptive_chart_plan": "03_figures/adaptive_chart_plan.json"
+ }
+}

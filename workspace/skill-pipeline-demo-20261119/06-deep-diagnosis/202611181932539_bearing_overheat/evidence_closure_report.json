@@ -1,0 +1,26 @@
+{
+  "run_dir": ".",
+  "checked_at": "2026-11-18T20:09:42.116Z",
+  "status": "PASS",
+  "summary": {
+    "critical_issues": 0,
+    "warnings": 1,
+    "process_fluctuation_entry_present": true,
+    "process_fluctuation_diagnosed": true,
+    "data_view_mode": "process_plus_inspection",
+    "dual_drive_applicable": true,
+    "dual_drive_entry_present": true,
+    "dual_drive_diagnosed": true,
+    "ontology_bridge_present": true,
+    "validation_carried_forward": true,
+    "visual_evidence_carried_forward": false,
+    "report_sections_present": true
+  },
+  "issues": [
+    {
+      "severity": "warning",
+      "code": "VISUAL_EVIDENCE_CARRY_FORWARD_WEAK",
+      "message": "visual_analysis observations not fully closed to evidence.json or surviving hypotheses."
+    }
+  ]
+}

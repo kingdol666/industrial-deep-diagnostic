@@ -1,0 +1,19 @@
+{
+  "contract_version": "1.0",
+  "artifact": "objective_resolved",
+  "mode": "explicit",
+  "inferred": false,
+  "targets": [
+    {
+      "metric": "coat_weight_gsm",
+      "direction": "target",
+      "target_value": 4.0,
+      "tolerance": 0.20000000000000018,
+      "weight": null
+    }
+  ],
+  "candidates": [],
+  "conflicts": [],
+  "rationale": null,
+  "note": "显式目标（objective.json）"
+}

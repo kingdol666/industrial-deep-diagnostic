@@ -1,0 +1,139 @@
+{
+  "_meta": {
+    "protocol_ack": {
+      "read_all_run_artifacts": true,
+      "manifest_modeled_before_render": true,
+      "render_strictly_per_manifest": true
+    },
+    "built_by": "06_scripts/build_html.mjs (deterministic assembly, fast mode, session-agent builder)",
+    "design_system": ".claude/shared/report-design/report.css (rpt ledger skeleton) + diagnostic-html-visualizer visual identity (warm paper/ink/warm-orange, ECharts palette)",
+    "generated_at": "2026-11-18T19:58:00+08:00"
+  },
+  "conclusion_type": "DETERMINED",
+  "hero": {
+    "one_line_conclusion": "冷却水流量 10:00 由 12.0 L/min 阶跃降至 8.0 L/min(−33.2%),轴承温度滞后 2 个采样点阶跃 +8.02℃ 并保持——冷却能力下降是唯一存活根因(H1)。",
+    "plain_explanation": [
+      "就像把水龙头关小,散热器里流过的水变少,热量带不走,温度自然抬上去。",
+      "流量台阶在温度台阶之前 2 个采样点出现、方向相反、幅度对应——这是本页最硬的因果证据。",
+      "负载和环境温度全程平稳,只有冷却水流量发生了真实的阶跃变化。",
+      "流量为什么跌(结垢还是阀故障)需要现场点检确认,页面如实标注这一边界。"
+    ],
+    "diagnosis_type": "DETERMINED",
+    "judge_score": 91,
+    "judge_verdict": "pass",
+    "confidence": 82,
+    "confidence_ceiling": 85,
+    "focus_object": "产线关键风机驱动端轴承(EQ-FAN-01)",
+    "sample_size": 120,
+    "anomaly_section": "10:00–10:04 (+08:00): 流量台阶 @idx60 → 温度台阶 @idx62(+8.02℃)",
+    "key_findings_4cell": {
+      "strongest_evidence": "滞后CCF峰值 lag=−2: r=−0.9959(n=118, 一致率1.0);变化点先后 60→62 恰 2 步",
+      "excluded_factors": "H2 环境温度(r=0.0162, p=0.86)、H3 电机负载(r=0.0254, p=0.78)均平稳无变化点, 统计排除(97/100)",
+      "recommended_action": "恢复冷却水流量并在线验证 ≥24h(改善 ≥0.979℃ 视为有效);C 级建议, 先现场点检成因",
+      "evidence_gap": "无冷却水温差/压差与流量设定值数据——结垢 vs 阀故障不可判别"
+    },
+    "how_to_read": "先看 Hero 结论与四格要点 → 看『流量-温度对齐』图(谁先动、谁后动) → 顺三层证据链(统计Ⅰ→物理Ⅱ→排除Ⅲ)核对每个数字 → 行动建议在第10节, 局限如实标注"
+  },
+  "hypotheses": [
+    { "id": "H1", "name": "冷却水流量下降(CONTAMINATION)", "status": "SURVIVING", "confidence": 82 },
+    { "id": "H2", "name": "环境温度升高(ENVIRONMENT)", "status": "ELIMINATED", "exclusion_confidence": 97 },
+    { "id": "H3", "name": "电机负载升高(OPERATION)", "status": "ELIMINATED", "exclusion_confidence": 97 }
+  ],
+  "evidence_layers": {
+    "layer_1_statistics": {
+      "available": true,
+      "sources": ["02_processed/validate_report.json", "02_processed/time_lag_analysis.json"],
+      "key_items": [
+        "Pearson r=−0.9626 (n=120, p≈0);去趋势 −0.8501 (trend_confounded=false)",
+        "滞后CCF峰值 lag=−2: r=−0.9959 (n=118);窗口一致率 1.0;补偿器 confidence=high",
+        "Granger flow→temp: F=91.53(lag1)/259.15(lag2), p≈0",
+        "多重检验: 3组仅 flow→temp 幸存 Bonferroni(0.0167)"
+      ]
+    },
+    "layer_2_physics": {
+      "available": true,
+      "sources": ["02_processed/physics_check.json", "01_ontology/ontology.json"],
+      "key_items": [
+        "Q=m_water·cp·ΔT: 流量 −33.2% → 散热能力同比例下降(direction=− 与数据一致)",
+        "能量代理 −19.18% → FOULING_PROGRESSION(与渐进性结垢一致)",
+        "振动全程 ISO 10816 B区(1.86–2.52 mm/s), 无 cliff —— 伴生症状非根因",
+        "Arrhenius(默认Ea先验): 观测不一致 → 反应动力学非主导机制"
+      ]
+    },
+    "layer_3_exclusion": {
+      "available": true,
+      "sources": ["04_diagnostics/diagnosis.json", "02_processed/anomaly_report.json"],
+      "key_items": [
+        "H2: r=0.0162/p=0.8608 不显著 + 无变化点 + 形态不符 → 排除(97)",
+        "H3: r=0.0254/p=0.7834 不显著 + detrended −0.0102 + 无变化点 → 排除(97)",
+        "判别矩阵: H1-H2/H1-H3 均 DISCRIMINABLE, 无 INDISTINGUISHABLE"
+      ]
+    }
+  },
+  "charts": [
+    {
+      "id": "overlay_chart",
+      "type": "echarts_line",
+      "title": "流量-温度-振动 时间对齐(双轴)",
+      "data_source": "02_processed/cleaned_data.json (120行, 2min)",
+      "series": [
+        { "column": "cooling_water_flow_lpm", "axis": "y_flow", "color": "#2d7d4f" },
+        { "column": "bearing_temp_c", "axis": "y_temp", "color": "#1e3a54" },
+        { "column": "vibration_mm_s", "axis": "y_temp", "color": "#8a6d3b", "muted": true }
+      ],
+      "reading": {
+        "seen": "10:00 流量 12.0→8.0 下台阶;10:04 温度 65→73 上台阶并保持;振动 2.0→2.4 轻升",
+        "means": "流量领先温度 2 个采样点, 方向相反、随后保持——因果时序的形态证据",
+        "matters": "备择假设(负载/环境)无台阶, 无法解释该形态;恢复流量是可证伪的干预检验"
+      }
+    }
+  ],
+  "available_pngs": [
+    { "path": "03_figures/fig_adaptive_overlay.png", "title": "五参数时间对齐叠加图", "fallback": "image_captions.json fig_adaptive_overlay.png 条目" },
+    { "path": "03_figures/fig_adaptive_line_bearing_temp_c.png", "title": "bearing_temp_c 单列时序", "fallback": "image_captions.json fig_adaptive_line_bearing_temp_c.png 条目" }
+  ],
+  "process_flow": {
+    "recoverable": false,
+    "reason": "运行数据不含设备拓扑/工艺结构信息(仅 120 行时序 + 设备名录), 依据协议 3D 模块仅在 process_flow.recoverable=true 时渲染;不做装饰性 3D"
+  },
+  "sections": [
+    { "id": "hero", "title": "结论先行(Hero)", "elements": 8 },
+    { "id": "charts", "title": "核心证据图", "count": 1, "pngs": 2 },
+    { "id": "evidence", "title": "证据链三层", "layers": 3 },
+    { "id": "exclusion", "title": "排除逻辑", "hypotheses": 3 },
+    { "id": "mechanism", "title": "机制链", "links": 2 },
+    { "id": "advisory", "title": "改善建议", "adv_cards": 1, "prescriptions": 0 },
+    { "id": "limitations", "title": "局限与边界" }
+  ],
+  "advisory": {
+    "available": true,
+    "source": "advisory/advisory_actions.json (IMA-20261118195337-279905)",
+    "actions_count": 1,
+    "prescriptions_count": 0,
+    "max_achievable_grade": "B",
+    "actions_verbatim": [
+      {
+        "action_id": "ACT-cooling_water_flow_lpm-263",
+        "lever_param": "冷却水流量",
+        "lever_column": "cooling_water_flow_lpm",
+        "direction": "increase",
+        "magnitude": { "from": 10.025, "to": 11.0125, "delta": 0.9875, "unit": "L/min" },
+        "grade": "C",
+        "expected_gain": { "metric": "bearing_temp_c", "point": 1.9581858375, "ci95": [1.840121325, 2.0762493625], "method": "dose_response" },
+        "verification": "bearing_temp_c · 在线连续 ≥24h 对比基线窗 · 改善 ≥ 0.9791(点估计的 50%)视为有效",
+        "rollback": "回退至 10.025(调整前中位), 并复核工况前提"
+      }
+    ],
+    "disclaimer": "本节为确定性脚本生成的咨询建议(advisory),不构成参数下发;执行须经产线审批 / optimizer-campaign 验证。"
+  },
+  "loader": {
+    "echarts_sources": ["https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js", "https://unpkg.com/echarts@5/dist/echarts.min.js"],
+    "three_sources": ["https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js", "https://unpkg.com/three@0.160.0/build/three.min.js"],
+    "status_strip_items": 5,
+    "degraded_mode": "静态要点卡 + 本地 PNG 证据 + 全部文字结论保留(无 JS 亦可读)"
+  },
+  "traceability": {
+    "all_numbers_from": "本 run_dir 内 JSON 工件(validate_report/time_lag_analysis/physics_check/anomaly_report/advisory_actions)",
+    "cross_run_contamination": false
+  }
+}

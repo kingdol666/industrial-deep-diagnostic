@@ -1,0 +1,174 @@
+{
+  "ontology_version": null,
+  "scene": {
+    "name": "injection_energy_doe",
+    "process_type": "designed_experiment",
+    "production_goal": null,
+    "equipment": [],
+    "stages": [],
+    "objectives": []
+  },
+  "signals": {
+    "inspection_signals": [
+      {
+        "name": "energy_kwh_per_kg",
+        "column": "energy_kwh_per_kg",
+        "unit": "kWh/kg",
+        "role": "target",
+        "physical_meaning": "energy_kwh_per_kg（由分析上下文声明；未提供独立物理机理描述）",
+        "physical_meaning_confidence": "INFERRED",
+        "auto_inferred": true,
+        "inference_basis": "declared in analysis_context/doe_context as target",
+        "expected_sign": null,
+        "knowledge_source": "auto_inferred",
+        "target": null,
+        "tolerance": null,
+        "expected_data_behavior": null,
+        "observed_data_behavior": null,
+        "behavior_match": "UNVERIFIED"
+      }
+    ],
+    "process_parameters": [],
+    "control_variables": [
+      {
+        "name": "barrel_temp_c",
+        "column": "barrel_temp_c",
+        "unit": "℃",
+        "role": "control",
+        "physical_meaning": "barrel_temp_c（由分析上下文声明；未提供独立物理机理描述）",
+        "physical_meaning_confidence": "INFERRED",
+        "auto_inferred": true,
+        "inference_basis": "declared in analysis_context/doe_context as control",
+        "expected_sign": null,
+        "knowledge_source": "auto_inferred",
+        "control_type": "setpoint",
+        "normal_range": [
+          186,
+          194
+        ],
+        "setpoint": null,
+        "expected_data_behavior": "先验声明：186~194 ℃ 区间内可设定；方向预期 未声明",
+        "observed_data_behavior": null,
+        "behavior_match": "UNVERIFIED",
+        "governing_law": null
+      },
+      {
+        "name": "cooling_time_s",
+        "column": "cooling_time_s",
+        "unit": "s",
+        "role": "control",
+        "physical_meaning": "cooling_time_s（由分析上下文声明；未提供独立物理机理描述）",
+        "physical_meaning_confidence": "INFERRED",
+        "auto_inferred": true,
+        "inference_basis": "declared in analysis_context/doe_context as control",
+        "expected_sign": null,
+        "knowledge_source": "auto_inferred",
+        "control_type": "setpoint",
+        "normal_range": [
+          24,
+          32
+        ],
+        "setpoint": null,
+        "expected_data_behavior": "先验声明：24~32 s 区间内可设定；方向预期 未声明",
+        "observed_data_behavior": null,
+        "behavior_match": "UNVERIFIED",
+        "governing_law": null
+      }
+    ],
+    "events": [],
+    "metadata_columns": []
+  },
+  "parameter_groups": {
+    "factors": [
+      "barrel_temp_c",
+      "cooling_time_s"
+    ]
+  },
+  "relationships": [],
+  "confounders": [],
+  "metadata": {
+    "units": {
+      "barrel_temp_c": "℃",
+      "cooling_time_s": "s",
+      "energy_kwh_per_kg": "kWh/kg"
+    },
+    "sampling_rate": null,
+    "batch_id": null,
+    "timezone": null
+  },
+  "doe": {
+    "profile": "doe",
+    "scene_key": "injection_energy_doe",
+    "data_stage": "collected",
+    "design_type": "full_factorial_randomized",
+    "design_region": null,
+    "constraints": [],
+    "objectives": [],
+    "factors": [
+      {
+        "col": "barrel_temp_c",
+        "name": "barrel_temp_c",
+        "expected_sign": null,
+        "physical_meaning": null,
+        "ontology_signal": null,
+        "unit": "℃",
+        "min": 186,
+        "max": 194,
+        "levels": [
+          186,
+          190,
+          194
+        ],
+        "confidence": "INFERRED"
+      },
+      {
+        "col": "cooling_time_s",
+        "name": "cooling_time_s",
+        "expected_sign": null,
+        "physical_meaning": null,
+        "ontology_signal": null,
+        "unit": "s",
+        "min": 24,
+        "max": 32,
+        "levels": [
+          24,
+          28,
+          32
+        ],
+        "confidence": "INFERRED"
+      }
+    ],
+    "responses": [
+      {
+        "col": "energy_kwh_per_kg",
+        "name": "energy_kwh_per_kg",
+        "unit": "kWh/kg",
+        "goal": "minimize",
+        "lsl": null,
+        "usl": 0.75,
+        "target": null,
+        "ontology_signal": null,
+        "confidence": "INFERRED"
+      }
+    ],
+    "limitations": [
+      "先验本体：关系方向来自上下文声明与物理先验，未经实测数据验证",
+      "未声明任何 expected_sign —— 未生成因子→响应关系，一致性检查将如实记为 not_estimable"
+    ]
+  },
+  "limitations": [
+    "先验本体：关系方向来自上下文声明与物理先验，未经实测数据验证",
+    "未声明任何 expected_sign —— 未生成因子→响应关系，一致性检查将如实记为 not_estimable"
+  ],
+  "provenance": {
+    "engine": "industrial-ontology-builder",
+    "profile": "doe",
+    "build_mode": "prior_knowledge",
+    "data_stage": "collected",
+    "rag_used": false,
+    "web_used": false,
+    "physics_prior_used": true,
+    "source": "doe_context / analysis_context declarations + physics priors",
+    "context_fp_version": "doe-context-v1"
+  }
+}

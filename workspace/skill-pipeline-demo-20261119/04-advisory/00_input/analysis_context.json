@@ -1,0 +1,53 @@
+{
+  "kpi": {
+    "col": "energy_kwh_per_kg",
+    "unit": "kWh/kg",
+    "goal": "minimize",
+    "statement": "降低注塑单件能耗"
+  },
+  "levers": [
+    {
+      "col": "barrel_temp_c",
+      "unit": "℃",
+      "role": "lever",
+      "normal_range": [
+        186,
+        196
+      ]
+    },
+    {
+      "col": "injection_pressure_bar",
+      "unit": "bar",
+      "role": "lever",
+      "normal_range": [
+        105,
+        125
+      ]
+    },
+    {
+      "col": "cooling_time_s",
+      "unit": "s",
+      "role": "lever",
+      "normal_range": [
+        24,
+        32
+      ]
+    },
+    {
+      "col": "back_pressure_bar",
+      "unit": "bar",
+      "role": "lever",
+      "normal_range": [
+        6,
+        10
+      ]
+    }
+  ],
+  "dead_time": {
+    "seconds": 10
+  },
+  "data_window": {
+    "rows": 500,
+    "sampling_seconds": 5
+  }
+}

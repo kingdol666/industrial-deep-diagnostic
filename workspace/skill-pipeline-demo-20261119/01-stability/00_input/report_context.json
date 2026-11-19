@@ -1,0 +1,19 @@
+{
+  "line_id": "包装线烘箱段",
+  "time_col": "timestamp",
+  "start": "2026-11-18T06:00:00+08:00",
+  "end": "2026-11-18T14:00:00+08:00",
+  "inspection_cols": ["scrap_rate_pct"],
+  "units": {
+    "film_tension_n": "N",
+    "oven_temp_c": "℃",
+    "line_speed_mpm": "m/min",
+    "cooling_water_flow_lpm": "L/min",
+    "scrap_rate_pct": "%"
+  },
+  "scenario": "包装产线烘箱段 8 小时 DCS 导出运行稳定性评估",
+  "objective": "评估包装线烘箱段本班次 8 小时运行稳定性并识别主要波动来源",
+  "ontology": {
+    "scene_key": "packaging_line_oven"
+  }
+}

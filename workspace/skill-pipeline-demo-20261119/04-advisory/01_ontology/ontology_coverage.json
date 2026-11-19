@@ -1,0 +1,78 @@
+{
+  "contract_version": "1.0",
+  "artifact": "ontology_coverage",
+  "scene_key": "injection_energy_advisory",
+  "profile": "improvement",
+  "context_fp": "sha256:bca61f4689f0dde89aba4cdbc9b194d0c6299d7bec9ecfdd5e42637e178c3d7c",
+  "ontology_version": 1,
+  "columns": [
+    {
+      "col": "barrel_temp_c",
+      "bucket": "process_parameters",
+      "schema_role": "predictor",
+      "unit": null,
+      "unit_status": "undeclared",
+      "mechanism_status": "unknown",
+      "knowledge_source": "auto_inferred",
+      "normal_range": null
+    },
+    {
+      "col": "injection_pressure_bar",
+      "bucket": "process_parameters",
+      "schema_role": "predictor",
+      "unit": null,
+      "unit_status": "undeclared",
+      "mechanism_status": "unknown",
+      "knowledge_source": "auto_inferred",
+      "normal_range": null
+    },
+    {
+      "col": "cooling_time_s",
+      "bucket": "process_parameters",
+      "schema_role": "predictor",
+      "unit": null,
+      "unit_status": "undeclared",
+      "mechanism_status": "unknown",
+      "knowledge_source": "auto_inferred",
+      "normal_range": null
+    },
+    {
+      "col": "back_pressure_bar",
+      "bucket": "process_parameters",
+      "schema_role": "predictor",
+      "unit": null,
+      "unit_status": "undeclared",
+      "mechanism_status": "unknown",
+      "knowledge_source": "auto_inferred",
+      "normal_range": null
+    },
+    {
+      "col": "energy_kwh_per_kg",
+      "bucket": "process_parameters",
+      "schema_role": "predictor",
+      "unit": null,
+      "unit_status": "undeclared",
+      "mechanism_status": "unknown",
+      "knowledge_source": "auto_inferred",
+      "normal_range": null
+    },
+    {
+      "col": "reject_rate_pct",
+      "bucket": "process_parameters",
+      "schema_role": "predictor",
+      "unit": null,
+      "unit_status": "undeclared",
+      "mechanism_status": "unknown",
+      "knowledge_source": "auto_inferred",
+      "normal_range": null
+    }
+  ],
+  "coverage": {
+    "declared_columns": 0,
+    "total_columns": 6,
+    "mechanism_matched": 0,
+    "mechanism_unknown": 6
+  },
+  "generated_by": "ontology_prepare.py",
+  "generated_at": "2026-11-18T19:29:01.167182+00:00"
+}

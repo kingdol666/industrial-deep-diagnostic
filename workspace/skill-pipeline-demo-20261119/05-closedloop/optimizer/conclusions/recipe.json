@@ -1,0 +1,61 @@
+{
+  "contract_version": "1.0",
+  "campaign_id": "OPT-20261119-001",
+  "regime_key": "energy_kwh_per_kg_2f_minimize",
+  "final_setpoints": {
+    "barrel_temp_c": 184.980584,
+    "cooling_time_s": 28.609994
+  },
+  "achieved": {
+    "energy_kwh_per_kg": {
+      "mean": 1.9233666666666664,
+      "sd": 0.03617752525164394,
+      "n": 3,
+      "ci95_one_sided": [
+        1.8623766243387758,
+        1.984356708994557
+      ],
+      "values": [
+        1.8859,
+        1.9581,
+        1.9261
+      ]
+    }
+  },
+  "guardrails": {
+    "barrel_temp_c": {
+      "value": 184.980584,
+      "envelope": [
+        184.105584,
+        185.855584
+      ]
+    },
+    "cooling_time_s": {
+      "value": 28.609994,
+      "envelope": [
+        27.859994,
+        29.359994
+      ]
+    }
+  },
+  "verification_status": "verified",
+  "dual_gate": {
+    "replicates_in_window": true,
+    "ci_in_limits": true,
+    "desirability_gate": true,
+    "D": 1.0,
+    "D_max": 1.0
+  },
+  "notes": [],
+  "usage_rules": [
+    "本文件为纯分析建议（advisory），IDD 不下发参数；执行决策由 AWS 侧做出",
+    "仅在 guardrails 包络内、非外推点直接复用；越包络或越支撑需重新验证",
+    "regime_key 场景化复用；跨工况使用前必须重新验证"
+  ],
+  "provenance": {
+    "script_version": "1.0.0",
+    "input_sha256": "dbab2c1420c5f49278f128ded37db86fdba8bddb327854a970497eab22b71de9",
+    "seed": 42,
+    "authored_by": "script"
+  }
+}

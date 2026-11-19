@@ -1,0 +1,99 @@
+{
+  "result_version": "1.0",
+  "campaign_id": "OPT-20261119-001",
+  "round_id": "R008",
+  "trials": [
+    {
+      "trial_id": "R008-T01",
+      "status": "completed",
+      "measurements": {
+        "energy_kwh_per_kg": [
+          2.4922,
+          2.5095,
+          2.4927
+        ]
+      }
+    },
+    {
+      "trial_id": "R008-T02",
+      "status": "completed",
+      "measurements": {
+        "energy_kwh_per_kg": [
+          2.0124,
+          2.0331,
+          2.0803
+        ]
+      }
+    },
+    {
+      "trial_id": "R008-T03",
+      "status": "completed",
+      "measurements": {
+        "energy_kwh_per_kg": [
+          2.557,
+          2.5999,
+          2.6214
+        ]
+      }
+    },
+    {
+      "trial_id": "R008-T04",
+      "status": "completed",
+      "measurements": {
+        "energy_kwh_per_kg": [
+          4.2351,
+          4.1713,
+          4.3038
+        ]
+      }
+    },
+    {
+      "trial_id": "R008-T05",
+      "status": "completed",
+      "measurements": {
+        "energy_kwh_per_kg": [
+          3.6895,
+          3.6644,
+          3.6771
+        ]
+      }
+    },
+    {
+      "trial_id": "R008-T06",
+      "status": "completed",
+      "measurements": {
+        "energy_kwh_per_kg": [
+          3.039,
+          3.0085,
+          3.0292
+        ]
+      }
+    },
+    {
+      "trial_id": "R008-T07",
+      "status": "completed",
+      "measurements": {
+        "energy_kwh_per_kg": [
+          2.4275,
+          2.4582,
+          2.5381
+        ]
+      }
+    },
+    {
+      "trial_id": "R008-T08",
+      "status": "completed",
+      "measurements": {
+        "energy_kwh_per_kg": [
+          1.9765,
+          1.8727,
+          1.9729
+        ]
+      }
+    }
+  ],
+  "ingest_meta": {
+    "source": "manual_csv",
+    "ingested_at": "2026-11-18T19:54:11.796841+00:00"
+  }
+}

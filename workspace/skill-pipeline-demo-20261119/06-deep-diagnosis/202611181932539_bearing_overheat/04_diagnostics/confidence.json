@@ -1,0 +1,144 @@
+{
+  "run_id": "202611181932539_bearing_overheat",
+  "diagnosis_time": "2026-11-18T19:42:00+08:00",
+  "confidence_breakdown": {
+    "H1": {
+      "hypothesis_id": "H1",
+      "confidence_score": 82,
+      "level": "HIGH",
+      "five_factor_breakdown": {
+        "statistical_strength": {
+          "score": 21,
+          "max": 25,
+          "note": "r=−0.9626 (p≈0), 滞后补偿后 r=−0.9959 (n=118), Granger F=259.151, Bonferroni 幸存;留一检验位移≤0.0171、离群点0个;扣分: Spearman 分歧 0.233 (MODERATE);含 L3 证据级折减 −2( adjustment_log 已声明 already_included_in_factors)"
+        },
+        "physical_plausibility": {
+          "score": 21,
+          "max": 25,
+          "note": "Q=m·cp·ΔT 热平衡机理明确且 physics_check heat_transfer 判 FOULING_PROGRESSION(能量代理 −19.18%), 本体物理边 direction=− 与数据方向一致;扣分: 机理为 INFERRED 先验(无SOP/手册佐证), 结垢物理成因未经现场点检确认;含 L3 证据级折减 −1(already_included_in_factors)"
+        },
+        "temporal_evidence": {
+          "score": 17,
+          "max": 20,
+          "note": "流量变化点 idx60 先于温度变化点 idx62 恰为2个采样点, 与滞后CCF峰值 lag=−2 (consistency_ratio=1.0) 互证;扣分: 时序仅单次事件, 非重复激发;含 L3 折减 −1 与窗口局限折减 −1(already_included_in_factors)"
+        },
+        "absence_of_confounds": {
+          "score": 16,
+          "max": 20,
+          "note": "负载(cv=0.0106)/环境(cv=0.0167)平稳且相关不显著, 去趋势相关仍 −0.8501;扣分: 4小时窗口内未测量的慢变量(如水温、油质)无法排除(含窗口局限折减 −2)"
+        },
+        "symptom_completeness": {
+          "score": 7,
+          "max": 10,
+          "note": "温度 +8.02℃ 平台、振动 +0.4 mm/s 同步(ISO 10816 B区, 无cliff);扣分: 缺冷却水温差/压差/油温等下游症状数据, 幅值比无法定量核验"
+        }
+      },
+      "computation_note": "五因子为唯一正则口径: 21/25 + 21/25 + 17/20 + 16/20 + 7/10 = 82/100 = confidence_score;L3 证据级封顶(−5: stat −2/phys −1/temporal −1/symptom −1)与单一4小时窗口局限(−3: temporal −1/confounds −2)已折入各因子分值, adjustment_log 中以 already_included_in_factors:true 声明"
+    },
+    "H2": {
+      "hypothesis_id": "H2",
+      "confidence_score": 5,
+      "level": "EXCLUDED",
+      "five_factor_breakdown": {
+        "statistical_strength": {
+          "score": 1,
+          "max": 25,
+          "note": "r=0.0162, p=0.8608 不显著"
+        },
+        "physical_plausibility": {
+          "score": 8,
+          "max": 25,
+          "note": "机制通道存在(散热终温)但量级小、时间尺度为日内缓变, 与2步阶跃形态不符"
+        },
+        "temporal_evidence": {
+          "score": 0,
+          "max": 20,
+          "note": "环境温度无变化点, 无时序对应"
+        },
+        "absence_of_confounds": {
+          "score": 10,
+          "max": 20,
+          "note": "不适用(已被排除)"
+        },
+        "symptom_completeness": {
+          "score": 0,
+          "max": 10,
+          "note": "无法解释 +8.02℃ 平台保持"
+        }
+      }
+    },
+    "H3": {
+      "hypothesis_id": "H3",
+      "confidence_score": 5,
+      "level": "EXCLUDED",
+      "five_factor_breakdown": {
+        "statistical_strength": {
+          "score": 1,
+          "max": 25,
+          "note": "r=0.0254, p=0.7834 不显著; detrended r=−0.0102"
+        },
+        "physical_plausibility": {
+          "score": 8,
+          "max": 25,
+          "note": "机制通道存在(负载↑→发热↑)但负载全程平稳"
+        },
+        "temporal_evidence": {
+          "score": 0,
+          "max": 20,
+          "note": "负载无变化点, 无时序对应"
+        },
+        "absence_of_confounds": {
+          "score": 10,
+          "max": 20,
+          "note": "不适用(已被排除)"
+        },
+        "symptom_completeness": {
+          "score": 0,
+          "max": 10,
+          "note": "无法解释 +8.02℃ 平台保持"
+        }
+      }
+    }
+  },
+  "overall_confidence": {
+    "score": 82,
+    "level": "HIGH",
+    "summary": "DETERMINED=H1(冷却水流量下降→冷却能力不足)。统计/时序/机理三线互证,四条反臆断条件全部满足;受 L3 统计证据级(85 封顶)与单一4小时窗口约束,最终置信 82。恢复流量验证试验可在约2个采样点内证伪或加固本结论。"
+  },
+  "adjustment_log": [
+    {
+      "hypothesis_id": "H1",
+      "adjustment": -5,
+      "already_included_in_factors": true,
+      "reason": "证据级别封顶: 结论核心支撑为统计分析(L3), 按 L1–L7 证据体系结论置信受最低证据级约束, 上限 85;已折入 statistical_strength(−2)/physical_plausibility(−1)/temporal_evidence(−1)/symptom_completeness(−1)",
+      "source": "validate_report.json (all statistics L3); evidence levels L1-L7"
+    },
+    {
+      "hypothesis_id": "H1",
+      "adjustment": -3,
+      "already_included_in_factors": true,
+      "reason": "观察窗口局限: 单一4小时窗口、单一事件, 无跨运行/跨批次重复验证;已折入 temporal_evidence(−1)/absence_of_confounds(−2)",
+      "source": "00_input/input_manifest.json (120行, 08:00–11:58)"
+    },
+    {
+      "hypothesis_id": "H2",
+      "adjustment": -95,
+      "reason": "统计排除: 相关不显著 + 无变化点 + 无法解释阶跃时序 (置信置至排除档 5)",
+      "source": "validate_report.json (target_analysis, change_point_detection)"
+    },
+    {
+      "hypothesis_id": "H3",
+      "adjustment": -95,
+      "reason": "统计排除: 相关不显著 + 无变化点 + 无法解释阶跃时序 (置信置至排除档 5)",
+      "source": "validate_report.json (target_analysis, change_point_detection)"
+    }
+  ],
+  "confidence_ceilings_applied": [
+    {
+      "hypothesis_id": "H1",
+      "ceiling": 85,
+      "reason": "ALL_CRITERIA_VERIFIED"
+    }
+  ],
+  "ceiling_note": "H1 四条反臆断条件(时序先行/统计显著/物理机制/无矛盾)均已核验, 适用 ALL_CRITERIA_VERIFIED 上限; 但结论证据级为 L3, 故实际封顶取 min(85, L3级约束)=85, 再经窗口调整至 82"
+}

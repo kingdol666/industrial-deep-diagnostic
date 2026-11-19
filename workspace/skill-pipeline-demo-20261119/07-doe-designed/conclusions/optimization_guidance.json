@@ -1,0 +1,94 @@
+{
+  "contract_version": "1.0",
+  "schema_version": "1.0",
+  "generated_at": "2026-11-19T06:18:40.133082+00:00",
+  "run_id": "07-doe-designed",
+  "experiment_id": null,
+  "ontology_basis": {
+    "profile": "doe",
+    "scene_key": "injection_energy_doe",
+    "version": 1,
+    "sha256": "sha256:0f70f3d1a2e3dd6382aedda2baeca95bc28d3ca7f4c6aff746be5f554d6ad5f0",
+    "reused": false,
+    "brief_ref": "01_ontology/ontology_brief.json"
+  },
+  "objective": null,
+  "recipe_patch": [],
+  "node_setpoints": [],
+  "constraints": [],
+  "next_design": {
+    "ref": "conclusions/next_design.json",
+    "primary_action_id": "ND-01",
+    "recommended_action": "augment_star",
+    "n_runs": 7
+  },
+  "lineage": {
+    "parent_run_id": null,
+    "round": null,
+    "campaign_id": null
+  },
+  "provenance": {
+    "authored_by": "script",
+    "script_version": "1.0",
+    "recommended_point_source": null,
+    "actionable": false,
+    "actionable_blockers": [
+      "no_actionable_setpoint"
+    ],
+    "inputs": [
+      {
+        "key": "analysis_context",
+        "path": "00_input/analysis_context.json",
+        "sha256": "551ee3b08c170c04c21c2995962b2546efcf5502de913c9fc32867f99ea36f85",
+        "bytes": 907
+      },
+      {
+        "key": "data_profile",
+        "path": "01_profile/data_profile.json",
+        "sha256": "ae453d59705e52c8d6ce8e037521b5a08daac34199388ce9e0144729a073a779",
+        "bytes": 2299
+      },
+      {
+        "key": "next_design",
+        "path": "conclusions/next_design.json",
+        "sha256": "653fbcf65a6dfb90f84a6e794c16a36e0eab3057453d489a86474444314743e9",
+        "bytes": 5088
+      },
+      {
+        "key": "ontology_brief",
+        "path": "01_ontology/ontology_brief.json",
+        "sha256": "23a4768409abc80830adff030abf9e227593322018aa807b6d936dcb324b1305",
+        "bytes": 4885
+      },
+      {
+        "key": "recommendations",
+        "path": "conclusions/recommendations.json",
+        "sha256": "4e9c4cede7a77a8a3c45edbf92ef0eb248b885bb27c640fc9cd2b54c99ee296c",
+        "bytes": 5418
+      },
+      {
+        "key": "run_manifest",
+        "path": "run_manifest.json",
+        "sha256": "f0cf31835c4c2391fdb79df3baac151b6938ffbdb7fa5680d21364ae70d95fa0",
+        "bytes": 211
+      }
+    ],
+    "notes": [
+      "objective 未在 doe_context/analysis_context 中声明",
+      "recommendations.json 没有可用的推荐点：recipe_patch 为空（不编造数值）",
+      "响应 energy_kwh_per_kg 缺少 platform_metric_ref.node_id：已从 node_setpoints 移除（OD-11）",
+      "lineage 全部为 null（doe_context/analysis_context 未带 parent_run_id/round/campaign_id）"
+    ]
+  },
+  "platform_ref_missing": [
+    {
+      "kind": "node_setpoint",
+      "metric": "energy_kwh_per_kg",
+      "value": 0.668504,
+      "unit": "kWh/kg",
+      "reason": "platform_ref_missing",
+      "platform_ref": null
+    }
+  ],
+  "value_semantics": "recipe_patch.to 已应用 platform_ref.unit_conversion 与 rounding（平台单位）；value_analysis_units 为分析单位原值；within_limits 依据 platform_ref.hard_limits 计算"
+}

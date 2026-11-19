@@ -1,0 +1,170 @@
+{
+  "contract_version": "1.0",
+  "recommended_action": "augment_star",
+  "rationale": "线性模型且无曲率证据、设计无星点：补星点以估计曲率（避免把弯曲误判为线性）；同时可执行：space_filling",
+  "primary_action_id": "ND-01",
+  "actions": [
+    {
+      "id": "ND-01",
+      "action": "augment_star",
+      "settings": [
+        {
+          "factor": "barrel_temp_c",
+          "value": 190.0
+        },
+        {
+          "factor": "cooling_time_s",
+          "value": 28.0
+        },
+        {
+          "factor": "barrel_temp_c",
+          "low": 186.0,
+          "high": 194.0
+        },
+        {
+          "factor": "cooling_time_s",
+          "low": 24.0,
+          "high": 32.0
+        }
+      ],
+      "star_values": {
+        "barrel_temp_c": [
+          186.0,
+          194.0
+        ],
+        "cooling_time_s": [
+          24.0,
+          32.0
+        ]
+      },
+      "n_runs": 7,
+      "block_policy": "new_block_for_augmentation",
+      "replicate_policy": "3 centre replicates (pure-error df gain)",
+      "expected_information": {
+        "power_at_2mde": 0.999996,
+        "power_at_2mde_note": "orthogonal-design approximation: ncp = mde*sqrt(n)/sigma with mde=0.0061 (from effect_table, df_resid=18), sigma=0.0054, n=34",
+        "d_efficiency": null,
+        "d_efficiency_note": "augmented-design D-efficiency needs the parent coded run table (not an artifact input) — rerun design_build on the merged table to obtain it",
+        "coverage_gain": {
+          "value": 0.2593,
+          "note": "augmentation runs / parent runs (design-support gain)"
+        },
+        "star_geometry": "2k=4 axial points at ±alpha plus 3 centre points (k=2)",
+        "alpha_requested": 1.414214,
+        "alpha_used": 1.0,
+        "alpha_limited_by": "hard constraints",
+        "recentred_to_feasible_region": false,
+        "region_clipping": []
+      },
+      "source_evidence": [
+        "no quadratic term is significant (curvature evidence absent)",
+        "design_type=full_factorial has no axial star points",
+        "curvature evidence: none",
+        "alpha_requested=1.414214 alpha_used=1.0, n_center=3"
+      ],
+      "constraints_ok": true,
+      "constraint_violations": [],
+      "primary": true
+    },
+    {
+      "id": "ND-02",
+      "action": "space_filling",
+      "settings": [
+        {
+          "factor": "barrel_temp_c",
+          "low": 186.0,
+          "high": 194.0
+        },
+        {
+          "factor": "cooling_time_s",
+          "low": 24.0,
+          "high": 32.0
+        }
+      ],
+      "n_runs": 8,
+      "block_policy": "single_block (natural order; pass seed to randomize)",
+      "replicate_policy": "none (space-filling exploration; centre repeats optional)",
+      "expected_information": {
+        "coverage_gain": {
+          "value": 0.319438,
+          "note": "normalized minimum pairwise distance of the emitted LHS points (0..1; larger = better region coverage)"
+        },
+        "d_efficiency": 0.4624147639,
+        "d_efficiency_note": "D-efficiency of the space-filling design for its linear model",
+        "power_at_2mde": null,
+        "alias_break": null,
+        "region_clipping": []
+      },
+      "source_evidence": [
+        "design hull=unbounded (low confidence)",
+        "design_type=full_factorial",
+        "lhs n=8, min_distance=0.319438"
+      ],
+      "design_points": [
+        {
+          "barrel_temp_c": 186.5,
+          "cooling_time_s": 29.5
+        },
+        {
+          "barrel_temp_c": 192.5,
+          "cooling_time_s": 24.5
+        },
+        {
+          "barrel_temp_c": 188.5,
+          "cooling_time_s": 31.5
+        },
+        {
+          "barrel_temp_c": 187.5,
+          "cooling_time_s": 25.5
+        },
+        {
+          "barrel_temp_c": 190.5,
+          "cooling_time_s": 30.5
+        },
+        {
+          "barrel_temp_c": 189.5,
+          "cooling_time_s": 26.5
+        },
+        {
+          "barrel_temp_c": 191.5,
+          "cooling_time_s": 28.5
+        },
+        {
+          "barrel_temp_c": 193.5,
+          "cooling_time_s": 27.5
+        }
+      ],
+      "constraints_ok": true,
+      "constraint_violations": []
+    }
+  ],
+  "skipped_actions": [],
+  "design_type": "full_factorial",
+  "design_mode": "designed",
+  "resolution": null,
+  "randomization": {
+    "non_randomized": null,
+    "evidence": "no run_order column and no randomization declaration"
+  },
+  "curvature_evidence": [],
+  "has_quadratic_terms": false,
+  "design_region_bounds": {
+    "barrel_temp_c": {
+      "low": 186.0,
+      "high": 194.0,
+      "source": "ctx.factors[].low/high"
+    },
+    "cooling_time_s": {
+      "low": 24.0,
+      "high": 32.0,
+      "source": "ctx.factors[].low/high"
+    }
+  },
+  "hard_constraints": {},
+  "seed": null,
+  "provenance": {
+    "authored_by": "script",
+    "script_version": "1.0",
+    "window_emission": "forbidden (design-only artifact)"
+  }
+}

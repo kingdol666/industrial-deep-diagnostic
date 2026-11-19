@@ -1,0 +1,112 @@
+{
+  "contract_version": "1.0",
+  "schema_version": "1.0",
+  "generated_at": "2026-11-18T19:27:19.838350+00:00",
+  "run_id": "03-doe",
+  "experiment_id": null,
+  "ontology_basis": {
+    "profile": "doe",
+    "scene_key": "lithium_coating_doe",
+    "version": 1,
+    "sha256": "sha256:51364d135eec2af4859ae3acee58266a04a58d0ce8bf2679090d7ca80dcf2604",
+    "reused": false,
+    "brief_ref": "01_ontology/ontology_brief.json"
+  },
+  "objective": null,
+  "recipe_patch": [],
+  "node_setpoints": [],
+  "constraints": [],
+  "next_design": {
+    "ref": "conclusions/next_design.json",
+    "primary_action_id": "ND-01",
+    "recommended_action": "none",
+    "n_runs": 0
+  },
+  "lineage": {
+    "parent_run_id": null,
+    "round": null,
+    "campaign_id": null
+  },
+  "provenance": {
+    "authored_by": "script",
+    "script_version": "1.0",
+    "recommended_point_source": null,
+    "actionable": false,
+    "actionable_blockers": [
+      "no_actionable_setpoint"
+    ],
+    "inputs": [
+      {
+        "key": "analysis_context",
+        "path": "00_input/analysis_context.json",
+        "sha256": "08341db803d9bc99b164b8bdde64aef164f33a5ffd745d839efc8f8687ae5c00",
+        "bytes": 2355
+      },
+      {
+        "key": "data_profile",
+        "path": "01_profile/data_profile.json",
+        "sha256": "1d26a1f01b2c45fb678ee3418851e4da1174fe32e78d011e6f6e0ed1be42a00f",
+        "bytes": 4005
+      },
+      {
+        "key": "next_design",
+        "path": "conclusions/next_design.json",
+        "sha256": "5723ac1296919890a0a447d13124ee6f6d0c019f15ba69b974494d2f69a13689",
+        "bytes": 1563
+      },
+      {
+        "key": "ontology_brief",
+        "path": "01_ontology/ontology_brief.json",
+        "sha256": "04cd31b500a44f1a4f139d3b699b90203ad3f488b38cfcd8c20e2a4cb585de96",
+        "bytes": 12849
+      },
+      {
+        "key": "recommendations",
+        "path": "conclusions/recommendations.json",
+        "sha256": "fec01c0229672a949593d0ca63324384bffba78b17349f13e99c9b271fd5c9b5",
+        "bytes": 13727
+      },
+      {
+        "key": "run_manifest",
+        "path": "run_manifest.json",
+        "sha256": "069a58626cf9647e5b4b9bef466be7b9d47722139c3200aa37eff545f56c433f",
+        "bytes": 202
+      }
+    ],
+    "notes": [
+      "objective 未在 doe_context/analysis_context 中声明",
+      "recommendations.json 没有可用的推荐点：recipe_patch 为空（不编造数值）",
+      "响应 coat_weight_gsm 缺少 platform_metric_ref.node_id：已从 node_setpoints 移除（OD-11）",
+      "响应 coating_thick_um 缺少 platform_metric_ref.node_id：已从 node_setpoints 移除（OD-11）",
+      "响应 defect_rate_pct 缺少 platform_metric_ref.node_id：已从 node_setpoints 移除（OD-11）",
+      "lineage 全部为 null（doe_context/analysis_context 未带 parent_run_id/round/campaign_id）"
+    ]
+  },
+  "platform_ref_missing": [
+    {
+      "kind": "node_setpoint",
+      "metric": "coat_weight_gsm",
+      "value": 4.207074,
+      "unit": "g/m²",
+      "reason": "platform_ref_missing",
+      "platform_ref": null
+    },
+    {
+      "kind": "node_setpoint",
+      "metric": "coating_thick_um",
+      "value": 10.171852,
+      "unit": "µm",
+      "reason": "platform_ref_missing",
+      "platform_ref": null
+    },
+    {
+      "kind": "node_setpoint",
+      "metric": "defect_rate_pct",
+      "value": 0.175741,
+      "unit": "%",
+      "reason": "platform_ref_missing",
+      "platform_ref": null
+    }
+  ],
+  "value_semantics": "recipe_patch.to 已应用 platform_ref.unit_conversion 与 rounding（平台单位）；value_analysis_units 为分析单位原值；within_limits 依据 platform_ref.hard_limits 计算"
+}

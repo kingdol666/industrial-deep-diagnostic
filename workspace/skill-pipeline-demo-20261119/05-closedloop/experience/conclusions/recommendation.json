@@ -1,0 +1,152 @@
+{
+  "contract_version": "1.0",
+  "recommendation_id": "REC-20261118-194532-679",
+  "generated_at": "2026-11-18T19:45:32.728Z",
+  "source": {
+    "fault_signature": {
+      "signature_version": "1.0",
+      "source_ref": "manual-observation-20261119-IMM07",
+      "anomalous_params": [
+        {
+          "parameter": "barrel_temp_c",
+          "direction": "low",
+          "severity": 1.6
+        }
+      ],
+      "regime": {
+        "product": "PP-Cup-330ml",
+        "machine": "IMM-07",
+        "regime_label": "normal"
+      },
+      "degraded_metric": "energy_kwh_per_kg"
+    },
+    "trigger_alert_id": "manual-observation-20261119-IMM07",
+    "campaign_id": null
+  },
+  "recommendation_status": "playbook_hit",
+  "match_scope": "regime",
+  "degradation_path": [
+    "regime: best 1.0000 (exp_tuning_action_effect_PP-Cup-3_33cb431d2d5b8b58)",
+    "-> playbook_hit @regime"
+  ],
+  "playbooks": [
+    {
+      "experience_id": "exp_tuning_action_effect_PP-Cup-3_33cb431d2d5b8b58",
+      "action_sequence": [
+        {
+          "parameter": "barrel_temp_c",
+          "to": 190,
+          "to_level": null,
+          "unit": "degC",
+          "step_order": 1,
+          "expected_effect": {
+            "delta": -0.08954948717948685,
+            "ci95": [
+              -0.09735903923682258,
+              -0.08173993512215112
+            ]
+          }
+        }
+      ],
+      "expected_effect": {
+        "delta": -0.08954948717948685,
+        "ci95": [
+          -0.09735903923682258,
+          -0.08173993512215112
+        ],
+        "metric": "energy_kwh_per_kg",
+        "direction_established": true
+      },
+      "evidence_grade": "E2",
+      "corroboration_count": 3,
+      "refutation_count": 0,
+      "provenance_alias": "eng_02",
+      "invalidation_conditions": [
+        "超出该 regime_key 工况范围的应用未经本经验支持，不得直接外推"
+      ],
+      "match_score": 1,
+      "autonomy_level": null
+    },
+    {
+      "experience_id": "exp_tuning_action_effect_PP-Cup-3_79cd9594557b3acb",
+      "action_sequence": [
+        {
+          "parameter": "barrel_temp_c",
+          "to": 185,
+          "to_level": null,
+          "unit": "degC",
+          "step_order": 1,
+          "expected_effect": {
+            "delta": -0.0903974358974362,
+            "ci95": [
+              -0.09855068627488736,
+              -0.08224418551998505
+            ]
+          }
+        }
+      ],
+      "expected_effect": {
+        "delta": -0.0903974358974362,
+        "ci95": [
+          -0.09855068627488736,
+          -0.08224418551998505
+        ],
+        "metric": "energy_kwh_per_kg",
+        "direction_established": true
+      },
+      "evidence_grade": "E3",
+      "corroboration_count": 2,
+      "refutation_count": 0,
+      "provenance_alias": "eng_03",
+      "invalidation_conditions": [
+        "超出该 regime_key 工况范围的应用未经本经验支持，不得直接外推"
+      ],
+      "match_score": 1,
+      "autonomy_level": null
+    },
+    {
+      "experience_id": "exp_tuning_action_effect_PP-Cup-3_a59fd6e77409398f",
+      "action_sequence": [
+        {
+          "parameter": "barrel_temp_c",
+          "to": 195,
+          "to_level": null,
+          "unit": "degC",
+          "step_order": 1,
+          "expected_effect": {
+            "delta": -0.0870776923076928,
+            "ci95": [
+              -0.09650274164117942,
+              -0.07765264297420618
+            ]
+          }
+        }
+      ],
+      "expected_effect": {
+        "delta": -0.0870776923076928,
+        "ci95": [
+          -0.09650274164117942,
+          -0.07765264297420618
+        ],
+        "metric": "energy_kwh_per_kg",
+        "direction_established": true
+      },
+      "evidence_grade": "E2",
+      "corroboration_count": 3,
+      "refutation_count": 0,
+      "provenance_alias": "eng_01",
+      "invalidation_conditions": [
+        "超出该 regime_key 工况范围的应用未经本经验支持，不得直接外推"
+      ],
+      "match_score": 1,
+      "autonomy_level": null
+    }
+  ],
+  "final_setpoints": null,
+  "fallback": null,
+  "ack": null,
+  "provenance": {
+    "script_version": "match_playbook/1.0",
+    "authored_by": "script"
+  }
+}

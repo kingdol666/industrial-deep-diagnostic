@@ -1,0 +1,180 @@
+{
+  "generated_at": "2026-11-18T19:27:18.793562+00:00",
+  "data_path": "D:\\codes\\myskills\\idd-doe-impl\\workspace\\skill-pipeline-demo-20261119\\03-doe\\00_input\\run_table.csv",
+  "n_rows": 27,
+  "n_cols": 12,
+  "columns": [
+    {
+      "name": "run_id",
+      "dtype": "str",
+      "role": "ignore",
+      "role_assigned_by": "user",
+      "n_unique": 27,
+      "n_missing": 0,
+      "n_valid": 27,
+      "notes": ""
+    },
+    {
+      "name": "coat_speed_mpm",
+      "dtype": "int64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 1,
+      "n_missing": 0,
+      "n_valid": 27,
+      "notes": ""
+    },
+    {
+      "name": "oven1_temp_c",
+      "dtype": "int64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 3,
+      "n_missing": 0,
+      "n_valid": 27,
+      "notes": ""
+    },
+    {
+      "name": "oven2_temp_c",
+      "dtype": "int64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 3,
+      "n_missing": 0,
+      "n_valid": 27,
+      "notes": ""
+    },
+    {
+      "name": "gap_um",
+      "dtype": "int64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 1,
+      "n_missing": 0,
+      "n_valid": 27,
+      "notes": ""
+    },
+    {
+      "name": "solid_content_pct",
+      "dtype": "int64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 3,
+      "n_missing": 0,
+      "n_valid": 27,
+      "notes": ""
+    },
+    {
+      "name": "substrate_gsm",
+      "dtype": "int64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 3,
+      "n_missing": 0,
+      "n_valid": 27,
+      "notes": ""
+    },
+    {
+      "name": "humidity_rh",
+      "dtype": "int64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 1,
+      "n_missing": 0,
+      "n_valid": 27,
+      "notes": ""
+    },
+    {
+      "name": "tension_n",
+      "dtype": "int64",
+      "role": "factor",
+      "role_assigned_by": "user",
+      "n_unique": 3,
+      "n_missing": 0,
+      "n_valid": 27,
+      "notes": ""
+    },
+    {
+      "name": "coat_weight_gsm",
+      "dtype": "float64",
+      "role": "response",
+      "role_assigned_by": "user",
+      "n_unique": 27,
+      "n_missing": 0,
+      "n_valid": 27,
+      "notes": ""
+    },
+    {
+      "name": "coating_thick_um",
+      "dtype": "float64",
+      "role": "response",
+      "role_assigned_by": "user",
+      "n_unique": 25,
+      "n_missing": 0,
+      "n_valid": 27,
+      "notes": ""
+    },
+    {
+      "name": "defect_rate_pct",
+      "dtype": "float64",
+      "role": "response",
+      "role_assigned_by": "user",
+      "n_unique": 10,
+      "n_missing": 0,
+      "n_valid": 27,
+      "notes": ""
+    }
+  ],
+  "roles": {
+    "responses": [
+      "coat_weight_gsm",
+      "coating_thick_um",
+      "defect_rate_pct"
+    ],
+    "factors": [
+      "coat_speed_mpm",
+      "oven1_temp_c",
+      "oven2_temp_c",
+      "gap_um",
+      "solid_content_pct",
+      "substrate_gsm",
+      "humidity_rh",
+      "tension_n"
+    ],
+    "blocks": [],
+    "covariates": [],
+    "index": [],
+    "ignore": [
+      "run_id"
+    ]
+  },
+  "design": {
+    "design_type": "observational",
+    "mode": "observational",
+    "resolution": null,
+    "generators": [],
+    "defining_relation": [],
+    "alias_chains": {},
+    "detection_notes": [
+      "LHS occupancy only 0.00 (<0.85)",
+      "no designed-experiment signature matched"
+    ]
+  },
+  "quality": {
+    "duplicate_rows": 0,
+    "constant_cols": [
+      "coat_speed_mpm",
+      "gap_um",
+      "humidity_rh"
+    ],
+    "high_missing_cols": [],
+    "rows_dropped_missing_targets": 0
+  },
+  "caveats": [
+    {
+      "code": "ZERO_VARIANCE_FACTORS",
+      "message": "零方差因子: ['coat_speed_mpm', 'gap_um', 'humidity_rh']",
+      "severity": "warn"
+    }
+  ]
+}

@@ -1,0 +1,231 @@
+{
+  "contract_version": "1.0",
+  "artifact": "ontology_coverage",
+  "scene_key": "lithium_coating_doe",
+  "profile": "doe",
+  "data_stage": "collected",
+  "context_fp": "sha256:e508b7eeba0ea30bdb196a0ba3c389185189a66f6eac5390918a9aedbeba1e62",
+  "ontology_version": 1,
+  "ontology_sha256": "sha256:51364d135eec2af4859ae3acee58266a04a58d0ce8bf2679090d7ca80dcf2604",
+  "generated_by": "doe_ontology_prepare.py",
+  "factors": [
+    {
+      "col": "coat_speed_mpm",
+      "name": "coat_speed_mpm",
+      "status": "matched",
+      "reason": "factor 'coat_speed_mpm' bound to ontology signal 'coat_speed_mpm'",
+      "unit": [
+        120,
+        150,
+        180
+      ],
+      "ontology_signal": "coat_speed_mpm"
+    },
+    {
+      "col": "oven1_temp_c",
+      "name": "oven1_temp_c",
+      "status": "matched",
+      "reason": "factor 'oven1_temp_c' bound to ontology signal 'oven1_temp_c'",
+      "unit": [
+        80,
+        90,
+        100
+      ],
+      "ontology_signal": "oven1_temp_c"
+    },
+    {
+      "col": "oven2_temp_c",
+      "name": "oven2_temp_c",
+      "status": "matched",
+      "reason": "factor 'oven2_temp_c' bound to ontology signal 'oven2_temp_c'",
+      "unit": [
+        70,
+        80,
+        90
+      ],
+      "ontology_signal": "oven2_temp_c"
+    },
+    {
+      "col": "gap_um",
+      "name": "gap_um",
+      "status": "matched",
+      "reason": "factor 'gap_um' bound to ontology signal 'gap_um'",
+      "unit": [
+        150,
+        180,
+        210
+      ],
+      "ontology_signal": "gap_um"
+    },
+    {
+      "col": "solid_content_pct",
+      "name": "solid_content_pct",
+      "status": "matched",
+      "reason": "factor 'solid_content_pct' bound to ontology signal 'solid_content_pct'",
+      "unit": [
+        55,
+        60,
+        65
+      ],
+      "ontology_signal": "solid_content_pct"
+    },
+    {
+      "col": "substrate_gsm",
+      "name": "substrate_gsm",
+      "status": "matched",
+      "reason": "factor 'substrate_gsm' bound to ontology signal 'substrate_gsm'",
+      "unit": [
+        95,
+        105,
+        115
+      ],
+      "ontology_signal": "substrate_gsm"
+    },
+    {
+      "col": "humidity_rh",
+      "name": "humidity_rh",
+      "status": "matched",
+      "reason": "factor 'humidity_rh' bound to ontology signal 'humidity_rh'",
+      "unit": [
+        35,
+        50,
+        65
+      ],
+      "ontology_signal": "humidity_rh"
+    },
+    {
+      "col": "tension_n",
+      "name": "tension_n",
+      "status": "matched",
+      "reason": "factor 'tension_n' bound to ontology signal 'tension_n'",
+      "unit": [
+        300,
+        350,
+        400
+      ],
+      "ontology_signal": "tension_n"
+    }
+  ],
+  "responses": [
+    {
+      "col": "coat_weight_gsm",
+      "name": "coat_weight_gsm",
+      "status": "matched",
+      "reason": "response 'coat_weight_gsm' bound to ontology signal 'coat_weight_gsm'",
+      "unit": "g/m²",
+      "ontology_signal": "coat_weight_gsm"
+    },
+    {
+      "col": "coating_thick_um",
+      "name": "coating_thick_um",
+      "status": "matched",
+      "reason": "response 'coating_thick_um' bound to ontology signal 'coating_thick_um'",
+      "unit": "µm",
+      "ontology_signal": "coating_thick_um"
+    },
+    {
+      "col": "defect_rate_pct",
+      "name": "defect_rate_pct",
+      "status": "matched",
+      "reason": "response 'defect_rate_pct' bound to ontology signal 'defect_rate_pct'",
+      "unit": "%",
+      "ontology_signal": "defect_rate_pct"
+    }
+  ],
+  "column_mapping": {
+    "matched": [
+      {
+        "kind": "factor",
+        "col": "coat_speed_mpm",
+        "name": "coat_speed_mpm",
+        "status": "matched",
+        "reason": "factor 'coat_speed_mpm' bound to ontology signal 'coat_speed_mpm'"
+      },
+      {
+        "kind": "factor",
+        "col": "oven1_temp_c",
+        "name": "oven1_temp_c",
+        "status": "matched",
+        "reason": "factor 'oven1_temp_c' bound to ontology signal 'oven1_temp_c'"
+      },
+      {
+        "kind": "factor",
+        "col": "oven2_temp_c",
+        "name": "oven2_temp_c",
+        "status": "matched",
+        "reason": "factor 'oven2_temp_c' bound to ontology signal 'oven2_temp_c'"
+      },
+      {
+        "kind": "factor",
+        "col": "gap_um",
+        "name": "gap_um",
+        "status": "matched",
+        "reason": "factor 'gap_um' bound to ontology signal 'gap_um'"
+      },
+      {
+        "kind": "factor",
+        "col": "solid_content_pct",
+        "name": "solid_content_pct",
+        "status": "matched",
+        "reason": "factor 'solid_content_pct' bound to ontology signal 'solid_content_pct'"
+      },
+      {
+        "kind": "factor",
+        "col": "substrate_gsm",
+        "name": "substrate_gsm",
+        "status": "matched",
+        "reason": "factor 'substrate_gsm' bound to ontology signal 'substrate_gsm'"
+      },
+      {
+        "kind": "factor",
+        "col": "humidity_rh",
+        "name": "humidity_rh",
+        "status": "matched",
+        "reason": "factor 'humidity_rh' bound to ontology signal 'humidity_rh'"
+      },
+      {
+        "kind": "factor",
+        "col": "tension_n",
+        "name": "tension_n",
+        "status": "matched",
+        "reason": "factor 'tension_n' bound to ontology signal 'tension_n'"
+      },
+      {
+        "kind": "response",
+        "col": "coat_weight_gsm",
+        "name": "coat_weight_gsm",
+        "status": "matched",
+        "reason": "response 'coat_weight_gsm' bound to ontology signal 'coat_weight_gsm'"
+      },
+      {
+        "kind": "response",
+        "col": "coating_thick_um",
+        "name": "coating_thick_um",
+        "status": "matched",
+        "reason": "response 'coating_thick_um' bound to ontology signal 'coating_thick_um'"
+      },
+      {
+        "kind": "response",
+        "col": "defect_rate_pct",
+        "name": "defect_rate_pct",
+        "status": "matched",
+        "reason": "response 'defect_rate_pct' bound to ontology signal 'defect_rate_pct'"
+      }
+    ],
+    "inferred": [],
+    "unmatched": []
+  },
+  "coverage": {
+    "n_factors_matched": 8,
+    "n_responses_matched": 3,
+    "n_factors_covered": 8,
+    "n_responses_covered": 3,
+    "n_factors_declared": 8,
+    "n_responses_declared": 3,
+    "n_unmatched": 0,
+    "ratio": 1.0,
+    "matched_ratio": 1.0
+  },
+  "elapsed_ms": 111,
+  "generated_at": "2026-11-18T19:27:02.863428+00:00"
+}

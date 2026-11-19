@@ -1,0 +1,243 @@
+{
+  "scene": {
+    "name": "bearing_overheat",
+    "process_type": "rotating_equipment_cooling",
+    "production_goal": "维持风机驱动端轴承温度在正常工况范围,保障连续稳定运行",
+    "equipment": [
+      {
+        "id": "EQ-FAN-01",
+        "name": "产线关键风机(电机驱动端轴承)",
+        "type": "centrifugal_fan",
+        "function": "产线送风;驱动端轴承由闭式冷却水回路冷却",
+        "location": "产线主厂房"
+      },
+      {
+        "id": "EQ-CW-01",
+        "name": "轴承冷却水回路",
+        "type": "closed_loop_cooling_water",
+        "function": "带出轴承摩擦与传导热量,维持轴承温度"
+      }
+    ],
+    "stages": [
+      {
+        "id": "ST-RUN",
+        "name": "稳态运行",
+        "sequence": 0,
+        "key_physics": "轴承发热与冷却水换热平衡决定轴承温度;流量下降→换热能力下降→温度上升",
+        "key_parameters": ["bearing_temp_c", "cooling_water_flow_lpm", "vibration_mm_s", "motor_load_pct", "ambient_temp_c"]
+      }
+    ],
+    "objectives": [
+      "诊断轴承温度偏高的根因",
+      "量化冷却水流量与轴承温度的因果强度与时滞"
+    ]
+  },
+  "signals": {
+    "inspection_signals": [
+      {
+        "name": "轴承温度",
+        "column": "bearing_temp_c",
+        "unit": "degC",
+        "role": "target",
+        "physical_meaning": "风机驱动端轴承温度,反映发热-散热平衡状态",
+        "physical_meaning_confidence": "INFERRED",
+        "auto_inferred": true,
+        "inference_basis": "列名 bearing_temp_c 语义直读;无随附点检表或SOP文档佐证",
+        "normal_range": [60, 70],
+        "governing_law": "轴承热平衡: Q_gen = Q_cool(T_bearing, m_water); m_water 下降则稳态温度上升",
+        "expected_data_behavior": "稳态小幅波动;冷却能力下降时出现阶跃式抬升并保持",
+        "observed_data_behavior": "UNVERIFIED(待 Step 3 数据处理回填)",
+        "behavior_match": "UNVERIFIED",
+        "knowledge_source": "auto_inferred"
+      },
+      {
+        "name": "轴承振动",
+        "column": "vibration_mm_s",
+        "unit": "mm/s",
+        "role": "predictor",
+        "physical_meaning": "轴承振动烈度,温度升高导致游隙/润滑状态变化时同向轻升",
+        "physical_meaning_confidence": "INFERRED",
+        "auto_inferred": true,
+        "inference_basis": "列名 vibration_mm_s 语义直读;与轴承温度的关联为常见机理先验",
+        "governing_law": "ISO 10816 振动烈度评价:温度/润滑恶化通常伴随振动缓升",
+        "expected_data_behavior": "正常小范围波动;轴承状态恶化时同向缓升",
+        "observed_data_behavior": "UNVERIFIED(待 Step 3 数据处理回填)",
+        "behavior_match": "UNVERIFIED",
+        "knowledge_source": "auto_inferred"
+      }
+    ],
+    "process_parameters": [
+      {
+        "name": "电机负载率",
+        "column": "motor_load_pct",
+        "unit": "%",
+        "role": "predictor",
+        "physical_meaning": "电机负载率,决定轴承机械发热量",
+        "physical_meaning_confidence": "INFERRED",
+        "auto_inferred": true,
+        "inference_basis": "列名 motor_load_pct 语义直读",
+        "governing_law": "轴承发热量与负载/转速正相关",
+        "expected_data_behavior": "稳态小波动;若负载升高则发热增加、温度上升",
+        "observed_data_behavior": "UNVERIFIED(待 Step 3 数据处理回填)",
+        "behavior_match": "UNVERIFIED",
+        "knowledge_source": "auto_inferred"
+      },
+      {
+        "name": "环境温度",
+        "column": "ambient_temp_c",
+        "unit": "degC",
+        "role": "confounder",
+        "physical_meaning": "环境温度,影响散热终温,是轴承温度的潜在混杂因素",
+        "physical_meaning_confidence": "INFERRED",
+        "auto_inferred": true,
+        "inference_basis": "列名 ambient_temp_c 语义直读",
+        "governing_law": "换热器端差受环境温度影响",
+        "expected_data_behavior": "日内缓变;若无强波动则不是阶跃根因",
+        "observed_data_behavior": "UNVERIFIED(待 Step 3 数据处理回填)",
+        "behavior_match": "UNVERIFIED",
+        "knowledge_source": "auto_inferred"
+      }
+    ],
+    "control_variables": [
+      {
+        "name": "冷却水流量",
+        "column": "cooling_water_flow_lpm",
+        "unit": "L/min",
+        "role": "control",
+        "physical_meaning": "轴承冷却水回路流量(测量值),决定轴承散热能力",
+        "physical_meaning_confidence": "INFERRED",
+        "auto_inferred": true,
+        "inference_basis": "列名 cooling_water_flow_lpm 语义直读;本数据中未见独立设定值列,以流量测量值作控制变量代理",
+        "control_type": "setpoint",
+        "setpoint": 12.0,
+        "controlled_by": "冷却水回路调节阀/泵",
+        "equipment_ref": "EQ-CW-01",
+        "stage_ref": "ST-RUN",
+        "governing_law": "换热速率 Q = m_w * c_p * ΔT;流量下降→换热能力线性下降",
+        "expected_data_behavior": "稳定在设定值附近;结垢/阀门故障时出现向下阶跃",
+        "observed_data_behavior": "UNVERIFIED(待 Step 3 数据处理回填)",
+        "behavior_match": "UNVERIFIED",
+        "expected_sign": "-",
+        "knowledge_source": "auto_inferred"
+      }
+    ],
+    "events": [],
+    "metadata_columns": [
+      {
+        "name": "时间戳",
+        "column": "timestamp",
+        "role": "timestamp",
+        "description": "采样时间,ISO 8601 含 +08:00 时区,2 分钟间隔"
+      }
+    ]
+  },
+  "parameter_groups": {
+    "cooling_capacity": ["cooling_water_flow_lpm"],
+    "heat_generation": ["motor_load_pct"],
+    "heat_sink_boundary": ["ambient_temp_c"],
+    "bearing_condition": ["bearing_temp_c", "vibration_mm_s"]
+  },
+  "relationships": [
+    {
+      "from": "cooling_water_flow_lpm",
+      "to": "bearing_temp_c",
+      "type": "physical",
+      "strength": "strong",
+      "direction": "-",
+      "mechanism": "冷却水流量下降→单位时间带走热量下降→轴承热平衡点上移→轴承温度上升(负向:流量越低温度越高)",
+      "time_lag": "约 2 个采样点(约 4 分钟,热惯性滞后)",
+      "inferred": true,
+      "governing_equation": "Q_cool = m_water * c_p * (T_out - T_in); dT_bearing/dt ∝ Q_gen - Q_cool",
+      "predicted_functional_form": "delayed_response",
+      "rag_validated": false,
+      "data_direction_validated": "untested",
+      "lag_detection_method": "not_applicable",
+      "lag_agreement": "not_tested"
+    },
+    {
+      "from": "bearing_temp_c",
+      "to": "vibration_mm_s",
+      "type": "correlative",
+      "strength": "weak",
+      "direction": "+",
+      "mechanism": "温度升高→润滑油粘度下降/游隙变化→振动烈度同向轻升(伴生症状,非根因)",
+      "time_lag": "与温度同步或略滞后",
+      "inferred": true,
+      "predicted_functional_form": "monotonic",
+      "rag_validated": false,
+      "data_direction_validated": "untested",
+      "lag_detection_method": "not_applicable",
+      "lag_agreement": "not_tested"
+    },
+    {
+      "from": "motor_load_pct",
+      "to": "bearing_temp_c",
+      "type": "physical",
+      "strength": "moderate",
+      "direction": "+",
+      "mechanism": "负载升高→轴承机械发热增加→温度上升(备择假设 H3 的机制通道)",
+      "inferred": true,
+      "predicted_functional_form": "monotonic",
+      "rag_validated": false,
+      "data_direction_validated": "untested",
+      "lag_detection_method": "not_applicable",
+      "lag_agreement": "not_tested"
+    },
+    {
+      "from": "ambient_temp_c",
+      "to": "bearing_temp_c",
+      "type": "physical",
+      "strength": "weak",
+      "direction": "+",
+      "mechanism": "环境温度升高→散热终温上移→轴承温度缓升(备择假设 H2 的机制通道,量级小、时间尺度为日内)",
+      "inferred": true,
+      "predicted_functional_form": "monotonic",
+      "rag_validated": false,
+      "data_direction_validated": "untested",
+      "lag_detection_method": "not_applicable",
+      "lag_agreement": "not_tested"
+    }
+  ],
+  "confounders": [
+    {
+      "variable": "ambient_temp_c",
+      "why": "环境温度同时影响冷却水换热终温与轴承散热,可能伪装成流量效应",
+      "controlled": false
+    },
+    {
+      "variable": "motor_load_pct",
+      "why": "负载变化同时改变发热量,与流量效应方向可叠加",
+      "controlled": false
+    }
+  ],
+  "metadata": {
+    "units": {
+      "bearing_temp_c": "degC",
+      "motor_load_pct": "%",
+      "cooling_water_flow_lpm": "L/min",
+      "ambient_temp_c": "degC",
+      "vibration_mm_s": "mm/s"
+    },
+    "sampling_rate": "2min",
+    "batch_id": null,
+    "timezone": "+08:00",
+    "start_time": "2026-11-18T08:00:00+08:00",
+    "end_time": "2026-11-18T11:58:00+08:00"
+  },
+  "provenance": {
+    "engine": "manual_agent_build",
+    "profile": "diagnosis",
+    "build_mode": "full",
+    "data_stage": "collected",
+    "rag_used": false,
+    "web_used": false,
+    "physics_prior_used": true,
+    "source": "store fast-path miss (schema_fp=sha256:3041773e…) 后按 ontology_schema.json 手工构建;信号语义来自列名直读,物理边为机理先验,均标注 INFERRED",
+    "built_from_run": "202611181932539_bearing_overheat"
+  },
+  "limitations": [
+    "所有信号物理含义均为列名语义推断(INFERRED),未经点检表/SOP文档确认",
+    "数据无冷却水流量独立设定值列,以流量测量值代理控制变量",
+    "本体为 120 行、约 4 小时窗口的短时序构建,关系强度先验为机理常识,未经长周期数据验证"
+  ]
+}

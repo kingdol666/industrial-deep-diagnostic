@@ -1,0 +1,343 @@
+[
+  {
+    "response": "energy_kwh_per_kg",
+    "n": 27,
+    "df_resid": 18,
+    "mse": 2.9e-05,
+    "coded_coefficients": {},
+    "r_squared": 0.99575,
+    "adj_r_squared": 0.993861,
+    "q_squared_loo": 0.990437,
+    "q_squared_note": "hat-matrix LOO; replicate (twin) rows can leak — treat as optimistic bound",
+    "saturated": false,
+    "pooled_terms": [],
+    "lack_of_fit": {
+      "estimable": false,
+      "reason": null,
+      "f_stat": null,
+      "p_value": null
+    },
+    "residual_diagnostics": {
+      "n": 27,
+      "n_params": 9,
+      "sigma_residual": 0.005383,
+      "n_high_residual_abs_gt3sigma": 0,
+      "max_leverage": 0.333333,
+      "leverage_cutoff_2p_over_n": 0.666667,
+      "n_leverage_gt": 0,
+      "max_cooks_d": 0.341635,
+      "preview_stride": 1,
+      "preview_truncated": false,
+      "residuals_preview": [
+        {
+          "row_index": 0,
+          "y": 0.6203,
+          "yhat": 0.619933,
+          "resid": 0.000367
+        },
+        {
+          "row_index": 1,
+          "y": 0.6217,
+          "yhat": 0.6249,
+          "resid": -0.0032
+        },
+        {
+          "row_index": 2,
+          "y": 0.7533,
+          "yhat": 0.7568,
+          "resid": -0.0035
+        },
+        {
+          "row_index": 3,
+          "y": 0.7752,
+          "yhat": 0.773167,
+          "resid": 0.002033
+        },
+        {
+          "row_index": 4,
+          "y": 0.6154,
+          "yhat": 0.619933,
+          "resid": -0.004533
+        },
+        {
+          "row_index": 5,
+          "y": 0.7731,
+          "yhat": 0.773167,
+          "resid": -6.7e-05
+        },
+        {
+          "row_index": 6,
+          "y": 0.7561,
+          "yhat": 0.7568,
+          "resid": -0.0007
+        },
+        {
+          "row_index": 7,
+          "y": 0.6063,
+          "yhat": 0.6152,
+          "resid": -0.0089
+        },
+        {
+          "row_index": 8,
+          "y": 0.6168,
+          "yhat": 0.6196,
+          "resid": -0.0028
+        },
+        {
+          "row_index": 9,
+          "y": 0.6246,
+          "yhat": 0.6249,
+          "resid": -0.0003
+        },
+        {
+          "row_index": 10,
+          "y": 0.6261,
+          "yhat": 0.6152,
+          "resid": 0.0109
+        },
+        {
+          "row_index": 11,
+          "y": 0.767,
+          "yhat": 0.760067,
+          "resid": 0.006933
+        },
+        {
+          "row_index": 12,
+          "y": 0.6166,
+          "yhat": 0.618533,
+          "resid": -0.001933
+        },
+        {
+          "row_index": 13,
+          "y": 0.6241,
+          "yhat": 0.619933,
+          "resid": 0.004167
+        },
+        {
+          "row_index": 14,
+          "y": 0.7556,
+          "yhat": 0.760067,
+          "resid": -0.004467
+        },
+        {
+          "row_index": 15,
+          "y": 0.7576,
+          "yhat": 0.760067,
+          "resid": -0.002467
+        },
+        {
+          "row_index": 16,
+          "y": 0.6303,
+          "yhat": 0.628333,
+          "resid": 0.001967
+        },
+        {
+          "row_index": 17,
+          "y": 0.7712,
+          "yhat": 0.773167,
+          "resid": -0.001967
+        },
+        {
+          "row_index": 18,
+          "y": 0.761,
+          "yhat": 0.7568,
+          "resid": 0.0042
+        },
+        {
+          "row_index": 19,
+          "y": 0.6131,
+          "yhat": 0.618533,
+          "resid": -0.005433
+        },
+        {
+          "row_index": 20,
+          "y": 0.6247,
+          "yhat": 0.6196,
+          "resid": 0.0051
+        },
+        {
+          "row_index": 21,
+          "y": 0.63,
+          "yhat": 0.628333,
+          "resid": 0.001667
+        },
+        {
+          "row_index": 22,
+          "y": 0.6259,
+          "yhat": 0.618533,
+          "resid": 0.007367
+        },
+        {
+          "row_index": 23,
+          "y": 0.6284,
+          "yhat": 0.6249,
+          "resid": 0.0035
+        },
+        {
+          "row_index": 24,
+          "y": 0.6132,
+          "yhat": 0.6152,
+          "resid": -0.002
+        },
+        {
+          "row_index": 25,
+          "y": 0.6173,
+          "yhat": 0.6196,
+          "resid": -0.0023
+        },
+        {
+          "row_index": 26,
+          "y": 0.6247,
+          "yhat": 0.628333,
+          "resid": -0.003633
+        }
+      ],
+      "normality": {
+        "skew": 0.491578,
+        "excess_kurtosis": -0.081188
+      }
+    },
+    "predictor": {
+      "base": {
+        "barrel_temp_c[186]": {
+          "kind": "level",
+          "factor": "barrel_temp_c",
+          "level": "186",
+          "reference": "194"
+        },
+        "barrel_temp_c[190]": {
+          "kind": "level",
+          "factor": "barrel_temp_c",
+          "level": "190",
+          "reference": "194"
+        },
+        "cooling_time_s[24]": {
+          "kind": "level",
+          "factor": "cooling_time_s",
+          "level": "24",
+          "reference": "32"
+        },
+        "cooling_time_s[28]": {
+          "kind": "level",
+          "factor": "cooling_time_s",
+          "level": "28",
+          "reference": "32"
+        }
+      },
+      "terms": [
+        {
+          "term": "barrel_temp_c",
+          "specs": [
+            {
+              "name": "barrel_temp_c[186]",
+              "fn": "identity",
+              "inputs": [
+                "barrel_temp_c[186]"
+              ]
+            }
+          ]
+        },
+        {
+          "term": "barrel_temp_c",
+          "specs": [
+            {
+              "name": "barrel_temp_c[190]",
+              "fn": "identity",
+              "inputs": [
+                "barrel_temp_c[190]"
+              ]
+            }
+          ]
+        },
+        {
+          "term": "cooling_time_s",
+          "specs": [
+            {
+              "name": "cooling_time_s[24]",
+              "fn": "identity",
+              "inputs": [
+                "cooling_time_s[24]"
+              ]
+            }
+          ]
+        },
+        {
+          "term": "cooling_time_s",
+          "specs": [
+            {
+              "name": "cooling_time_s[28]",
+              "fn": "identity",
+              "inputs": [
+                "cooling_time_s[28]"
+              ]
+            }
+          ]
+        },
+        {
+          "term": "barrel_temp_c:cooling_time_s",
+          "specs": [
+            {
+              "name": "barrel_temp_c[186]*cooling_time_s[24]",
+              "fn": "product",
+              "inputs": [
+                "barrel_temp_c[186]",
+                "cooling_time_s[24]"
+              ]
+            }
+          ]
+        },
+        {
+          "term": "barrel_temp_c:cooling_time_s",
+          "specs": [
+            {
+              "name": "barrel_temp_c[186]*cooling_time_s[28]",
+              "fn": "product",
+              "inputs": [
+                "barrel_temp_c[186]",
+                "cooling_time_s[28]"
+              ]
+            }
+          ]
+        },
+        {
+          "term": "barrel_temp_c:cooling_time_s",
+          "specs": [
+            {
+              "name": "barrel_temp_c[190]*cooling_time_s[24]",
+              "fn": "product",
+              "inputs": [
+                "barrel_temp_c[190]",
+                "cooling_time_s[24]"
+              ]
+            }
+          ]
+        },
+        {
+          "term": "barrel_temp_c:cooling_time_s",
+          "specs": [
+            {
+              "name": "barrel_temp_c[190]*cooling_time_s[28]",
+              "fn": "product",
+              "inputs": [
+                "barrel_temp_c[190]",
+                "cooling_time_s[28]"
+              ]
+            }
+          ]
+        }
+      ],
+      "coefficients": {
+        "barrel_temp_c[186]": -0.047348,
+        "barrel_temp_c[190]": -0.047493,
+        "cooling_time_s[24]": 0.006963,
+        "cooling_time_s[28]": -0.00197,
+        "barrel_temp_c[186]*cooling_time_s[24]": 0.000215,
+        "barrel_temp_c[186]*cooling_time_s[28]": 0.000748,
+        "barrel_temp_c[190]*cooling_time_s[24]": -0.003074,
+        "barrel_temp_c[190]*cooling_time_s[28]": 0.000559
+      },
+      "intercept": 0.668504
+    },
+    "stationary_point": null
+  }
+]

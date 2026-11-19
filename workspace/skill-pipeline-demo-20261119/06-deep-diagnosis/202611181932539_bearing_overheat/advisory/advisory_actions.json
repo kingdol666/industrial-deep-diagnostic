@@ -1,0 +1,394 @@
+{
+  "contract_version": "improvement-advisory/1.0",
+  "report_id": "IMA-20261118195337-279905",
+  "generated_at": "2026-11-18T19:53:37.447670+00:00",
+  "mode": "advisory",
+  "status": "advisory_only",
+  "goal": {
+    "mode": "explicit",
+    "targets": [
+      {
+        "metric": "bearing_temp_c",
+        "direction": "min",
+        "target_value": null,
+        "tolerance": 5.0,
+        "weight": 1.0
+      }
+    ],
+    "conflicts": [],
+    "inferred_rationale": null,
+    "inferred_candidates": []
+  },
+  "data": {
+    "path": "D:\\codes\\myskills\\idd-doe-impl\\workspace\\skill-pipeline-demo-20261119\\06-deep-diagnosis\\202611181932539_bearing_overheat\\00_input\\bearing_data.csv",
+    "sha256": "sha256:6d7590ffc05d044fe3caa7e2ee7e3a17938306c07d43da03b34ca7d83b279905",
+    "n_rows": 120,
+    "n_rows_used": 120,
+    "time_col": "datetime",
+    "levers": [
+      "cooling_water_flow_lpm"
+    ],
+    "kpis": [
+      "bearing_temp_c"
+    ],
+    "sampled": false
+  },
+  "waterline": {
+    "max_achievable_grade": "B",
+    "factors": {
+      "attribution_available": false,
+      "mechanism_edges": 5,
+      "dead_time_provided": true,
+      "designed_window_available": false,
+      "objective_confirmed": true
+    },
+    "note": "无动作日志：观察数据最高 B；dead_time 已提供；无设计试验窗；目标已显式声明"
+  },
+  "actions": [
+    {
+      "action_id": "ACT-cooling_water_flow_lpm-263",
+      "lever_param": "冷却水流量",
+      "lever_column": "cooling_water_flow_lpm",
+      "direction": "increase",
+      "magnitude": {
+        "from": 10.025,
+        "to": 11.0125,
+        "delta": 0.9875,
+        "unit": "L/min"
+      },
+      "expected_gain": {
+        "metric": "bearing_temp_c",
+        "current": 65.455,
+        "point": 1.9581858375,
+        "ci95": [
+          1.840121325,
+          2.0762493625
+        ],
+        "method": "dose_response",
+        "verified": true,
+        "not_estimable_reason": null
+      },
+      "evidence_refs": [
+        {
+          "type": "dose_response",
+          "source_file": "02_evidence/dose_response.json",
+          "finding_id": "dose:cooling_water_flow_lpm:bearing_temp_c",
+          "stat": {
+            "slope": -1.982973,
+            "ci95": [
+              -2.102531,
+              -1.863414
+            ],
+            "monotone": true,
+            "r": -0.9626,
+            "n": 120
+          }
+        },
+        {
+          "type": "dose_response",
+          "source_file": "02_evidence/dose_response.json",
+          "finding_id": "ccf:cooling_water_flow_lpm:bearing_temp_c",
+          "stat": {
+            "r": -0.9626,
+            "p": 0.0,
+            "fdr_q": 0.0,
+            "peak_lag": 2,
+            "peak_r": -0.9959
+          }
+        }
+      ],
+      "mechanism_chain": [
+        {
+          "step": "杠杆 cooling_water_flow_lpm 的物理含义：轴承冷却水回路流量(测量值),决定轴承散热能力",
+          "ontology_ref": "signals.control_variables[column=cooling_water_flow_lpm].physical_meaning"
+        },
+        {
+          "step": "控制方程/物理律：换热速率 Q = m_w * c_p * ΔT;流量下降→换热能力线性下降",
+          "ontology_ref": "signals.control_variables[column=cooling_water_flow_lpm].governing_law"
+        },
+        {
+          "step": "目标 KPI bearing_temp_c 的物理含义：风机驱动端轴承温度,反映发热-散热平衡状态",
+          "ontology_ref": "signals.inspection_signals[column=bearing_temp_c].physical_meaning"
+        },
+        {
+          "step": "机制边 cooling_water_flow_lpm→bearing_temp_c (physical)：冷却水流量下降→单位时间带走热量下降→轴承热平衡点上移→轴承温度上升(负向:流量越低温度越高)",
+          "ontology_ref": "relationships[from=cooling_water_flow_lpm,to=bearing_temp_c]"
+        },
+        {
+          "step": "声明机制方向与本次数据建议方向一致",
+          "ontology_ref": "relationships[*].expected_sign"
+        }
+      ],
+      "mechanism_status": "known",
+      "affected_kpis": [
+        {
+          "metric": "vibration_mm_s",
+          "direction": "decrease",
+          "significant": true
+        }
+      ],
+      "grade": "C",
+      "grade_reasons": [
+        "有效样本不足",
+        "工况分段方向翻转（direction_uncertain）",
+        "无动作日志：观察数据最高 B"
+      ],
+      "priority_score": 0.24065,
+      "risk": {
+        "assumptions": [
+          "线性剂量响应假设（分箱中位斜率）",
+          "无 DOE 操作窗对照",
+          "无动作日志归因"
+        ],
+        "confidence_cap": 50
+      },
+      "preconditions": [
+        "工况与本次数据窗一致（物料/批次/设备状态）",
+        "未使用 DOE 操作窗：以数据包络为界"
+      ],
+      "side_effects": [
+        "vibration_mm_s 将下降"
+      ],
+      "verification_plan": {
+        "metric": "bearing_temp_c",
+        "window": "在线连续 ≥24h 对比基线窗",
+        "threshold": "目标 bearing_temp_c 改善 ≥ 0.9791（点估计的 50%）视为有效"
+      },
+      "rollback_condition": "若调整后 cooling_water_flow_lpm 输出未按预期改善或任一受约束指标恶化，回退至 10.025（调整前中位），并复核工况前提",
+      "prescription_tags": [],
+      "advisory": true,
+      "grade_inputs": {
+        "data": {
+          "lever_variance_ok": true,
+          "samples_ok": false,
+          "temporal_ok": true,
+          "fdr_ok": true,
+          "confound_ok": true,
+          "regime_stable_ok": false
+        },
+        "physics": {
+          "status": "known"
+        },
+        "attribution": {
+          "status": "absent",
+          "ci_excludes_zero": null
+        },
+        "flags": {
+          "objective_inferred": false,
+          "conflict": false,
+          "extrapolated": false,
+          "dead_time_missing": false,
+          "tradeoff_declared": false,
+          "designed_window": false,
+          "designed_effect": false,
+          "gain_ci_excludes_zero": true
+        }
+      },
+      "interpretation": null
+    }
+  ],
+  "prescriptions": [],
+  "excluded_levers": [],
+  "degradations": [
+    {
+      "leg": "doe_windows",
+      "status": "skipped",
+      "reason": "not requested"
+    },
+    {
+      "leg": "tuning_memory_attribution",
+      "status": "skipped",
+      "reason": "no action_log supplied"
+    }
+  ],
+  "provenance": {
+    "authored_by": "imacore",
+    "engine": "industrial-improvement-advisor",
+    "ontology": null,
+    "reuses": [
+      "core_stats: ok",
+      "doestats: ok",
+      "lstcore_io: ok",
+      "closedloop_enums: ok",
+      "ontology_common: ok",
+      "tune_stats: ok",
+      "anti_spurious: ok"
+    ],
+    "data_source": "raw"
+  },
+  "limitations": [
+    "线性剂量响应假设（分箱中位 OLS 斜率）；非线性/阈值效应需设计试验确认。",
+    "观察性结论为相关级；A 级需归因或设计窗的干预性证据。"
+  ],
+  "evidence": {
+    "dose_response": [
+      {
+        "lever": "cooling_water_flow_lpm",
+        "metric": "bearing_temp_c",
+        "bins": [
+          {
+            "b": 0,
+            "n": 15,
+            "x": 7.81,
+            "y": 73.04
+          },
+          {
+            "b": 1,
+            "n": 15,
+            "x": 7.97,
+            "y": 73.05
+          },
+          {
+            "b": 2,
+            "n": 15,
+            "x": 8.07,
+            "y": 73.01
+          },
+          {
+            "b": 3,
+            "n": 15,
+            "x": 8.18,
+            "y": 73.01
+          },
+          {
+            "b": 4,
+            "n": 15,
+            "x": 11.87,
+            "y": 65.07
+          },
+          {
+            "b": 5,
+            "n": 15,
+            "x": 11.97,
+            "y": 65.12
+          },
+          {
+            "b": 6,
+            "n": 15,
+            "x": 12.04,
+            "y": 64.95
+          },
+          {
+            "b": 7,
+            "n": 15,
+            "x": 12.15,
+            "y": 65.13
+          }
+        ],
+        "slope": -1.982973,
+        "slope_ci95": [
+          -2.102531,
+          -1.863414
+        ]
+      }
+    ],
+    "window_notes": [],
+    "pairs": [
+      {
+        "lever": "cooling_water_flow_lpm",
+        "metric": "bearing_temp_c",
+        "status": "emitted",
+        "r": -0.9626,
+        "p": 0.0,
+        "fdr_q": 0.0,
+        "temporal_ok": true,
+        "n_eff": 2.0,
+        "rho_lag1": 0.978004,
+        "gates": {
+          "lever_variance_ok": true,
+          "samples_ok": false,
+          "temporal_ok": true,
+          "fdr_ok": true,
+          "confound_ok": true,
+          "regime_stable_ok": false
+        },
+        "physics": {
+          "status": "known"
+        },
+        "attribution": {
+          "status": "absent",
+          "ci_excludes_zero": null
+        },
+        "flags": {
+          "objective_inferred": false,
+          "conflict": false,
+          "extrapolated": false,
+          "dead_time_missing": false,
+          "tradeoff_declared": false,
+          "designed_window": false,
+          "designed_effect": false,
+          "gain_ci_excludes_zero": true
+        },
+        "dose": {
+          "status": "estimable",
+          "slope": -1.982973,
+          "slope_ci95": [
+            -2.102531,
+            -1.863414
+          ],
+          "monotone": true,
+          "verified": true,
+          "reason": null,
+          "detail": null,
+          "bins": [
+            {
+              "b": 0,
+              "n": 15,
+              "x": 7.81,
+              "y": 73.04
+            },
+            {
+              "b": 1,
+              "n": 15,
+              "x": 7.97,
+              "y": 73.05
+            },
+            {
+              "b": 2,
+              "n": 15,
+              "x": 8.07,
+              "y": 73.01
+            },
+            {
+              "b": 3,
+              "n": 15,
+              "x": 8.18,
+              "y": 73.01
+            },
+            {
+              "b": 4,
+              "n": 15,
+              "x": 11.87,
+              "y": 65.07
+            },
+            {
+              "b": 5,
+              "n": 15,
+              "x": 11.97,
+              "y": 65.12
+            },
+            {
+              "b": 6,
+              "n": 15,
+              "x": 12.04,
+              "y": 64.95
+            },
+            {
+              "b": 7,
+              "n": 15,
+              "x": 12.15,
+              "y": 65.13
+            }
+          ],
+          "r": -0.9626,
+          "p": 0.0,
+          "n_pairs": 120
+        },
+        "doe": null,
+        "window": null,
+        "action_id": "ACT-cooling_water_flow_lpm-263"
+      }
+    ],
+    "window_contrasts": []
+  }
+}

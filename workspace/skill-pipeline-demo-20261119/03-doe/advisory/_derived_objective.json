@@ -1,0 +1,12 @@
+{
+  "contract_version": "1.0",
+  "targets": [
+    {
+      "metric": "coat_weight_gsm",
+      "direction": "target",
+      "target_value": 4.0,
+      "tolerance": 0.20000000000000018
+    }
+  ],
+  "notes": "derived from recommendations.json response_specs"
+}

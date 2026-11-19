@@ -1,0 +1,164 @@
+{
+  "run_name": "",
+  "input_path": "08-stability-folder\\00_input\\dcs_days",
+  "input_is_directory": true,
+  "recursive_discovery": true,
+  "mode": "stability_single_primary_v1",
+  "sources": [],
+  "source_dispositions": [
+    {
+      "relative_path": "day1.csv",
+      "sheet": null,
+      "role": "candidate",
+      "disposition": "excluded_from_scoring",
+      "reason": "tabular candidate; role determined by table score and time-axis checks; stability folder mode uses one primary time-series table; no resampling or blind merge",
+      "rows": 240,
+      "columns": 6,
+      "time_column": "timestamp",
+      "score": 4.94,
+      "time_parseability": 1.0,
+      "reason_code": "single_primary_policy"
+    },
+    {
+      "relative_path": "day2.csv",
+      "sheet": null,
+      "role": "candidate",
+      "disposition": "excluded_from_scoring",
+      "reason": "tabular candidate; role determined by table score and time-axis checks; stability folder mode uses one primary time-series table; no resampling or blind merge",
+      "rows": 240,
+      "columns": 6,
+      "time_column": "timestamp",
+      "score": 4.94,
+      "time_parseability": 1.0,
+      "reason_code": "single_primary_policy"
+    },
+    {
+      "relative_path": "day3.csv",
+      "sheet": null,
+      "role": "primary_time_series",
+      "disposition": "selected",
+      "reason": "highest-scoring eligible time-series table",
+      "rows": 240,
+      "columns": 6,
+      "time_column": "timestamp",
+      "score": 4.94,
+      "time_parseability": 1.0
+    }
+  ],
+  "tables": [
+    {
+      "file": "day1.csv",
+      "sheet": null,
+      "format": "delimited",
+      "n_rows": 240,
+      "n_cols": 6,
+      "time_column": "timestamp",
+      "time_parseability": 1.0,
+      "score": 4.94,
+      "quality_flags": {
+        "exact_duplicate_rows": {
+          "count": 0,
+          "row_indices_0based": [],
+          "row_indices_truncated": false,
+          "note": "count = redundant occurrences beyond the first (dedup is NOT applied); row_indices_0based lists the rows involved in exact duplication, 0-based within the parsed table (header excluded), capped at 10"
+        },
+        "null_cell_count": 0,
+        "encoding": "utf-8-sig",
+        "delimiter": ","
+      }
+    },
+    {
+      "file": "day2.csv",
+      "sheet": null,
+      "format": "delimited",
+      "n_rows": 240,
+      "n_cols": 6,
+      "time_column": "timestamp",
+      "time_parseability": 1.0,
+      "score": 4.94,
+      "quality_flags": {
+        "exact_duplicate_rows": {
+          "count": 0,
+          "row_indices_0based": [],
+          "row_indices_truncated": false,
+          "note": "count = redundant occurrences beyond the first (dedup is NOT applied); row_indices_0based lists the rows involved in exact duplication, 0-based within the parsed table (header excluded), capped at 10"
+        },
+        "null_cell_count": 0,
+        "encoding": "utf-8-sig",
+        "delimiter": ","
+      }
+    },
+    {
+      "file": "day3.csv",
+      "sheet": null,
+      "format": "delimited",
+      "n_rows": 240,
+      "n_cols": 6,
+      "time_column": "timestamp",
+      "time_parseability": 1.0,
+      "score": 4.94,
+      "quality_flags": {
+        "exact_duplicate_rows": {
+          "count": 0,
+          "row_indices_0based": [],
+          "row_indices_truncated": false,
+          "note": "count = redundant occurrences beyond the first (dedup is NOT applied); row_indices_0based lists the rows involved in exact duplication, 0-based within the parsed table (header excluded), capped at 10"
+        },
+        "null_cell_count": 0,
+        "encoding": "utf-8-sig",
+        "delimiter": ","
+      }
+    }
+  ],
+  "selected_table": {
+    "file": "day3.csv",
+    "sheet": null,
+    "format": "delimited",
+    "n_rows": 240,
+    "n_cols": 6,
+    "time_column": "timestamp",
+    "time_parseability": 1.0,
+    "score": 4.94,
+    "why": "highest-scoring time-series candidate (premerged filename gets priority)"
+  },
+  "merge": {
+    "strategy": "single_primary_no_merge",
+    "reason": "folder stability mode does not resample or combine different acquisition cadences",
+    "merged_files": []
+  },
+  "merge_exclusions": [
+    {
+      "file": "day1.csv",
+      "sheet": null,
+      "reason_code": "single_primary_policy",
+      "detail": "tabular candidate; role determined by table score and time-axis checks; stability folder mode uses one primary time-series table; no resampling or blind merge"
+    },
+    {
+      "file": "day2.csv",
+      "sheet": null,
+      "reason_code": "single_primary_policy",
+      "detail": "tabular candidate; role determined by table score and time-axis checks; stability folder mode uses one primary time-series table; no resampling or blind merge"
+    }
+  ],
+  "quality": {
+    "rows": 240,
+    "cols": 6,
+    "time_column": "timestamp",
+    "numeric_columns": [
+      "film_tension_n",
+      "oven_temp_c",
+      "line_speed_mpm",
+      "cooling_water_flow_lpm",
+      "scrap_rate_pct"
+    ],
+    "missing_cell_pct": 0.0
+  },
+  "context_files": [],
+  "skipped_files": [],
+  "status": "ok",
+  "outputs": {
+    "preprocessed_data.csv": "08-stability-folder\\preprocess_out\\preprocessed_data.csv",
+    "preprocessed_data.json": "08-stability-folder\\preprocess_out\\preprocessed_data.json",
+    "context_dir": "08-stability-folder\\preprocess_out\\context"
+  }
+}

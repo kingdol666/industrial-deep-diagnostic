@@ -1,0 +1,19 @@
+{
+  "contract_version": "1.0",
+  "artifact": "objective_resolved",
+  "mode": "explicit",
+  "inferred": false,
+  "targets": [
+    {
+      "metric": "bearing_temp_c",
+      "direction": "min",
+      "target_value": null,
+      "tolerance": 5.0,
+      "weight": 1.0
+    }
+  ],
+  "candidates": [],
+  "conflicts": [],
+  "rationale": null,
+  "note": "显式目标（objective.json）"
+}

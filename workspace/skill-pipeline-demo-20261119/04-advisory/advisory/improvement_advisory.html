@@ -1,0 +1,325 @@
+<!DOCTYPE html><html lang='zh-CN'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>产线优化改善指导报告</title><style>/* IDD Report Design System · v1 (2026-11-17)
+ * 单一视觉权威 = 诊断设计权威色板（warm paper / ink / warm orange）。
+ * 本文件同时服务四个渲染器：stability / advisory / DOE / diagnostic。
+ * 骨架 = 证据账簿 Ledger（左导轨 + 编号章节 + 三栏含页边批注）。
+ * 约定：所有类名以 rpt- 前缀，作用域 .rpt-scope；页面无 JS 依赖。
+ */
+
+/* ---------------- tokens ---------------- */
+.rpt-scope{
+  --paper:#fafaf8; --panel:#fffefb; --ink:#1e3a54; --ink-soft:#41586e; --muted:#726b5f;
+  --hair:#e3ded3; --hair-strong:#cfc8b8; --accent:#a8542c; --warm:#c2673a;
+  --good:#2d7d4f; --warn:#8a6d3b; --bad:#c4433b; --wash:#f3f1ea;
+  --serif:'Noto Serif SC','Source Han Serif SC','Songti SC',Georgia,serif;
+  --sans:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;
+  --mono:'SFMono-Regular',Consolas,'JetBrains Mono',monospace;
+  background:var(--paper); color:var(--ink);
+  font:15px/1.7 var(--sans); -webkit-font-smoothing:antialiased; text-wrap:pretty;
+}
+.rpt-scope *{box-sizing:border-box}
+.rpt-scope a{color:inherit}
+
+/* ---------------- shell ---------------- */
+.rpt-page{display:grid;grid-template-columns:196px minmax(0,1fr);max-width:1280px;
+  margin:0 auto;padding:0 32px 90px;gap:44px}
+.rpt-main{min-width:0;padding-top:38px}
+
+/* ---------------- rail ---------------- */
+.rpt-rail{position:sticky;top:0;align-self:start;height:100vh;padding:38px 0 28px;
+  display:flex;flex-direction:column;gap:26px}
+.rpt-brand{font-family:var(--serif);font-size:15px;letter-spacing:.34em;font-weight:600}
+.rpt-brand span{display:block;margin-top:4px;font-family:var(--sans);font-size:11px;
+  letter-spacing:.22em;color:var(--muted);font-weight:400}
+.rpt-nav{display:flex;flex-direction:column;gap:1px;border-top:1px solid var(--hair-strong)}
+.rpt-nav a{display:flex;gap:10px;align-items:baseline;text-decoration:none;padding:8px 2px;
+  border-bottom:1px solid var(--hair);font-size:12.5px;color:var(--ink-soft)}
+.rpt-nav a b{font-family:var(--mono);font-size:10.5px;color:var(--muted);font-weight:400;
+  letter-spacing:.04em}
+.rpt-nav a:hover{color:var(--accent)}
+.rpt-nav a.is-on{color:var(--ink);font-weight:600}
+.rpt-nav a.is-on b{color:var(--accent)}
+.rpt-rail-foot{margin-top:auto;font-size:11px;line-height:1.7;color:var(--muted);
+  border-top:1px solid var(--hair-strong);padding-top:12px}
+.rpt-rail-foot code{font-family:var(--mono);font-size:10px;color:var(--ink-soft);word-break:break-all}
+
+/* ---------------- masthead ---------------- */
+.rpt-kicker{font-size:11px;letter-spacing:.26em;color:var(--accent);margin:0 0 14px;
+  text-transform:uppercase;font-weight:600}
+.rpt-masthead h1{font-family:var(--serif);font-size:33px;line-height:1.34;font-weight:600;
+  margin:0 0 18px;letter-spacing:.01em;max-width:21em;text-wrap:balance}
+.rpt-meta{display:flex;flex-wrap:wrap;gap:6px 18px;color:var(--muted);font-size:12.5px;
+  padding-bottom:18px;border-bottom:1px solid var(--hair-strong)}
+.rpt-meta b{color:var(--ink-soft);font-weight:600}
+
+/* verdict + seal */
+.rpt-verdict{display:grid;grid-template-columns:minmax(0,1fr) 148px;gap:34px;
+  align-items:center;padding:26px 0 6px}
+.rpt-verdict blockquote{margin:0;font-family:var(--serif);font-size:18.5px;line-height:1.72;
+  color:var(--ink);max-width:36em}
+.rpt-verdict blockquote em{font-style:normal;border-bottom:2px solid rgba(194,103,58,.45);
+  padding-bottom:1px}
+.rpt-seal{width:132px;justify-self:end;border:2px solid var(--ink);padding:3px}
+.rpt-seal-in{border:1px solid var(--ink);padding:12px 8px 10px;text-align:center}
+.rpt-seal-num{font-family:var(--serif);font-size:42px;line-height:1;font-weight:600;letter-spacing:-.01em}
+.rpt-seal-grade{margin-top:7px;font-size:12px;letter-spacing:.18em;color:var(--ink-soft)}
+.rpt-seal-cap{margin-top:6px;font-size:10.5px;letter-spacing:.1em;color:var(--muted)}
+.rpt-seal.is-c{border-color:#9a6a45}
+.rpt-seal.is-c .rpt-seal-in{border-color:#9a6a45}
+.rpt-seal.is-c .rpt-seal-num,.rpt-seal.is-c .rpt-seal-grade{color:#8a5a34}
+.rpt-seal.is-a{border-color:#2d7d4f}
+.rpt-seal.is-a .rpt-seal-in{border-color:#2d7d4f}
+.rpt-seal.is-a .rpt-seal-num,.rpt-seal.is-a .rpt-seal-grade{color:#2d7d4f}
+
+/* ---------------- sections ---------------- */
+.rpt-scope section.rpt-sec{margin-top:52px;scroll-margin-top:20px}
+.rpt-sec-head{display:grid;grid-template-columns:56px minmax(0,1fr);gap:16px;align-items:baseline;
+  border-top:1px solid var(--ink);padding-top:12px;margin-bottom:22px}
+.rpt-sec-no{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--accent);
+  padding-top:5px}
+.rpt-sec-head h2{font-family:var(--serif);font-size:23px;font-weight:600;margin:0;
+  letter-spacing:.015em}
+.rpt-sec-sub{grid-column:2;color:var(--muted);font-size:12.5px;margin-top:2px}
+.rpt-body-grid{display:grid;grid-template-columns:56px minmax(0,1fr) 208px;gap:16px}
+.rpt-body-grid.no-margin{grid-template-columns:56px minmax(0,1fr)}
+.rpt-body-grid>.rpt-content{grid-column:2;min-width:0}
+.rpt-margin{grid-column:3;font-size:12px;line-height:1.72;color:var(--ink-soft);
+  border-left:1px dotted var(--hair-strong);padding-left:14px}
+.rpt-margin h4{margin:0 0 6px;font-size:11px;letter-spacing:.16em;color:var(--muted);
+  font-weight:600;text-transform:uppercase}
+.rpt-margin p{margin:0 0 10px}
+.rpt-margin .rpt-mn-kicker{font-family:var(--serif);color:var(--accent)}
+
+/* ---------------- generic blocks ---------------- */
+.rpt-panel{background:var(--panel);border:1px solid var(--hair);border-radius:6px;padding:16px 18px}
+.rpt-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:26px}
+.rpt-h3{font-size:12px;letter-spacing:.16em;color:var(--muted);font-weight:600;margin:0 0 10px;
+  text-transform:uppercase}
+.rpt-note{font-size:12px;color:var(--muted);line-height:1.65;margin:10px 0 0}
+.rpt-strong{font-weight:600}
+.rpt-mono{font-family:var(--mono);font-size:12px;font-variant-numeric:tabular-nums}
+.rpt-chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--hair);
+  border-radius:999px;padding:2px 10px;font-size:12px;background:var(--panel);color:var(--ink-soft)}
+.rpt-chip i{width:7px;height:7px;border-radius:50%;background:var(--ink);font-style:normal}
+
+/* goal + waterline (stability/advisory) */
+.rpt-target{border:1px solid var(--hair);background:var(--panel);padding:14px 16px}
+.rpt-target .rpt-t-metric{font-family:var(--serif);font-size:20px;margin-bottom:2px}
+.rpt-target .rpt-t-line{font-size:13px;color:var(--ink-soft)}
+.rpt-target .rpt-t-note{margin-top:10px;font-size:12px;color:var(--muted);line-height:1.65}
+.rpt-wl{border:1px solid var(--hair);background:var(--panel);padding:14px 16px}
+.rpt-wl-top{display:flex;align-items:baseline;gap:10px;margin-bottom:8px}
+.rpt-wl-grade{font-family:var(--serif);font-size:26px;line-height:1}
+.rpt-wl ul{list-style:none;margin:0;padding:0;font-size:12.5px}
+.rpt-wl li{display:flex;gap:8px;align-items:baseline;padding:3px 0;color:var(--ink-soft)}
+.rpt-wl li i{font-style:normal;width:14px;text-align:center;color:var(--good)}
+.rpt-wl li i.is-no{color:var(--warn)}
+.rpt-wl li span{margin-left:auto;font-size:11.5px;color:var(--muted)}
+
+/* findings ledger */
+.rpt-finding{display:grid;grid-template-columns:56px minmax(0,1fr) 208px;gap:16px;
+  padding:20px 0 22px;border-top:1px solid var(--hair)}
+.rpt-finding:first-child{border-top:none;padding-top:2px}
+.rpt-f-id{font-family:var(--mono);font-size:11px;color:var(--muted);padding-top:4px;letter-spacing:.04em}
+.rpt-f-main h3{margin:0 0 6px;font-size:16.5px;font-weight:600;font-family:var(--serif);line-height:1.5}
+.rpt-f-main p{margin:0 0 10px;color:var(--ink-soft);font-size:14px}
+.rpt-f-sev{font-size:10.5px;letter-spacing:.14em;color:#fff;background:var(--warm);
+  padding:1px 7px;margin-right:8px;vertical-align:2px;font-family:var(--sans)}
+.rpt-f-mech{grid-column:3;font-size:12px;color:var(--ink-soft);
+  border-left:1px dotted var(--hair-strong);padding-left:14px;align-self:start;margin:0}
+.rpt-f-mech b{display:block;font-size:11px;letter-spacing:.14em;color:var(--muted);margin-bottom:5px;
+  font-weight:600}
+.rpt-ev{border-collapse:collapse;width:100%;font-size:12.5px}
+.rpt-ev th,.rpt-ev td{text-align:left;padding:4px 10px 4px 0;border-bottom:1px solid var(--hair)}
+.rpt-ev th{font-weight:600;color:var(--muted);font-size:11px;letter-spacing:.06em;
+  white-space:nowrap}
+.rpt-ev td.rpt-num{font-family:var(--mono);font-size:12px}
+.rpt-ev tr:last-child td{border-bottom:none}
+
+/* tables */
+.rpt-table-wrap{border:1px solid var(--hair);background:var(--panel);overflow:auto}
+table.rpt-table{border-collapse:collapse;width:100%;font-size:13px}
+.rpt-table th{font-size:11px;letter-spacing:.08em;color:var(--muted);font-weight:600;
+  text-align:left;padding:10px 12px;border-bottom:1px solid var(--hair-strong);white-space:nowrap}
+.rpt-table td{padding:9px 12px;border-bottom:1px solid var(--hair);vertical-align:middle}
+.rpt-table tr:last-child td{border-bottom:none}
+.rpt-table td.rpt-n{font-family:var(--mono);font-size:12px;font-variant-numeric:tabular-nums}
+.rpt-table .rpt-pname{font-weight:600}
+.rpt-role{font-size:10.5px;color:var(--muted);border:1px solid var(--hair);padding:0 5px;
+  margin-left:7px;white-space:nowrap}
+.rpt-score{display:flex;align-items:center;gap:9px;min-width:120px}
+.rpt-score .rpt-track{height:3px;background:var(--hair);flex:1;position:relative}
+.rpt-score .rpt-track i{position:absolute;inset:0 auto 0 0;background:var(--ink)}
+.rpt-score .rpt-val{font-family:var(--mono);font-size:12px;min-width:22px;text-align:right}
+.rpt-score.is-low .rpt-track i{background:var(--warm)}
+.rpt-dflag{color:var(--bad);font-size:10.5px;border:1px solid var(--hair);padding:0 4px;margin-left:5px}
+
+/* figures */
+.rpt-figure{border:1px solid var(--hair);background:var(--panel);padding:14px 16px 8px;margin:0}
+.rpt-fig-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;font-size:12px;
+  color:var(--muted);margin-bottom:6px;flex-wrap:wrap}
+.rpt-fig-head b{color:var(--ink-soft);font-size:13px;font-weight:600}
+.rpt-fig-head span{font-family:var(--mono);font-size:11px}
+.rpt-chart{width:100%;height:auto;display:block}
+.rpt-legend{display:flex;gap:16px;font-size:11px;color:var(--muted);margin-top:2px;padding-bottom:6px;
+  flex-wrap:wrap}
+.rpt-legend i{display:inline-block;width:16px;height:0;border-top:1px solid var(--ink);margin-right:5px;
+  vertical-align:3px}
+.rpt-legend i.is-dash{border-top-style:dashed;border-top-color:var(--muted)}
+
+/* ---------------- advisory ---------------- */
+.rpt-entry{display:grid;grid-template-columns:64px minmax(0,1fr);gap:18px;padding:22px 0;
+  border-top:1px solid var(--hair)}
+.rpt-entry:first-of-type{border-top:1px solid var(--hair-strong)}
+.rpt-grade{width:42px;height:42px;border:2px solid var(--g);color:var(--g);display:flex;
+  align-items:center;justify-content:center;font-family:var(--serif);font-size:20px;font-weight:600}
+.rpt-grade small{font-size:9px;font-family:var(--sans);letter-spacing:.06em;margin-left:2px}
+.rpt-g-a{--g:#2d7d4f}.rpt-g-b{--g:#8a6d3b}.rpt-g-c{--g:#7a6a52}
+.rpt-grade-cap{font-size:10.5px;color:var(--muted);margin-top:5px;letter-spacing:.04em}
+.rpt-entry-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:2px}
+.rpt-lever{font-family:var(--serif);font-size:19px;font-weight:600}
+.rpt-lever code{font-family:var(--mono);font-size:11px;color:var(--muted);font-weight:400;margin-left:6px}
+.rpt-arrow{color:var(--muted);font-size:12px}
+.rpt-entry-gain{display:flex;align-items:baseline;gap:22px;flex-wrap:wrap;margin:10px 0 12px}
+.rpt-gain-num{font-family:var(--serif);font-size:29px;line-height:1.1}
+.rpt-gain-num small{font-size:12px;color:var(--muted);margin-left:5px;font-family:var(--sans)}
+.rpt-gain-ci{font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+.rpt-entry dl{display:grid;grid-template-columns:88px minmax(0,1fr);gap:5px 16px;margin:0;
+  font-size:13px;color:var(--ink-soft)}
+.rpt-entry dt{font-size:11.5px;color:var(--muted);letter-spacing:.04em;padding-top:1px}
+.rpt-entry dd{margin:0}
+.rpt-presc{margin-top:26px;border-top:1px solid var(--hair-strong);padding-top:16px}
+.rpt-presc h3{font-size:12px;letter-spacing:.16em;color:var(--warm);font-weight:600;margin:0 0 10px;
+  text-transform:uppercase}
+.rpt-presc ol{margin:0;padding-left:0;list-style:none;counter-reset:pc}
+.rpt-presc li{counter-increment:pc;display:grid;grid-template-columns:26px 92px minmax(0,1fr);
+  gap:10px;padding:7px 0;border-bottom:1px solid var(--hair);font-size:12.5px;color:var(--ink-soft)}
+.rpt-presc li::before{content:counter(pc,decimal-leading-zero);font-family:var(--mono);
+  font-size:10.5px;color:var(--muted);padding-top:2px}
+.rpt-presc .rpt-kind{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;color:var(--warm);
+  padding-top:2px}
+.rpt-presc .rpt-addr{color:var(--muted);font-size:11px;display:block;margin-top:2px}
+.rpt-empty{color:var(--muted);font-size:13px;padding:10px 0}
+
+/* roadmap (advisory) */
+.rpt-roadmap{border:1px solid var(--hair);background:var(--panel)}
+.rpt-roadmap table{border-collapse:collapse;width:100%;font-size:13px}
+.rpt-roadmap th{font-size:11px;letter-spacing:.08em;color:var(--muted);text-align:left;
+  padding:10px 12px;border-bottom:1px solid var(--hair-strong)}
+.rpt-roadmap td{padding:9px 12px;border-bottom:1px solid var(--hair);vertical-align:middle}
+.rpt-roadmap tr:last-child td{border-bottom:none}
+.rpt-bar{height:5px;background:var(--hair);position:relative;min-width:70px;flex:1}
+.rpt-bar span{position:absolute;inset:0 auto 0 0;background:var(--ink)}
+
+/* ---------------- DOE ---------------- */
+.rpt-factors td.rpt-fname{font-weight:600}
+.rpt-factors td.rpt-low,.rpt-factors td.rpt-high{font-family:var(--mono);font-size:12px}
+.rpt-stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));
+  border:1px solid var(--hair);background:var(--panel)}
+.rpt-stat{padding:12px 14px;border-right:1px solid var(--hair)}
+.rpt-stat:last-child{border-right:none}
+.rpt-stat .rpt-s-cap{font-size:10.5px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
+.rpt-stat .rpt-s-val{font-family:var(--mono);font-size:22px;margin-top:2px}
+.rpt-stat .rpt-s-sub{font-size:11px;color:var(--muted)}
+.rpt-effect{display:grid;grid-template-columns:150px 88px minmax(0,1fr) 96px;gap:12px;
+  align-items:center;padding:9px 0;border-bottom:1px solid var(--hair);font-size:12.5px}
+.rpt-effect:last-child{border-bottom:none}
+.rpt-effect .rpt-e-term{font-family:var(--mono);font-size:12px;color:var(--ink)}
+.rpt-effect .rpt-e-coef{font-family:var(--mono);font-size:12px;text-align:right}
+.rpt-effect .rpt-e-track{height:6px;background:var(--hair);position:relative}
+.rpt-effect .rpt-e-track span{position:absolute;top:0;bottom:0;background:var(--ink)}
+.rpt-effect .rpt-e-track span.is-neg{background:var(--warm);right:0;left:auto}
+.rpt-effect .rpt-e-q{font-family:var(--mono);font-size:11px;color:var(--muted);text-align:right}
+.rpt-effect.is-head{border-bottom:1px solid var(--hair-strong);font-size:10.5px;letter-spacing:.08em;
+  color:var(--muted);text-transform:uppercase}
+.rpt-layer{list-style:none;margin:0;padding:0;font-size:13px;color:var(--ink-soft)}
+.rpt-layer li{padding:7px 0;border-bottom:1px solid var(--hair);display:grid;
+  grid-template-columns:64px minmax(0,1fr);gap:12px}
+.rpt-layer li:last-child{border-bottom:none}
+.rpt-layer b{font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:.06em}
+
+/* ---------------- appendix / foot ---------------- */
+.rpt-appendix{border-top:3px double var(--hair-strong);margin-top:56px;padding-top:16px}
+.rpt-appendix h2{font-size:12px;letter-spacing:.18em;color:var(--muted);font-weight:600;margin:0 0 12px}
+.rpt-kv{display:grid;grid-template-columns:130px minmax(0,1fr);gap:4px 18px;font-size:12.5px;
+  color:var(--ink-soft)}
+.rpt-kv dt{color:var(--muted)}
+.rpt-kv dd{margin:0}
+.rpt-kv code{font-family:var(--mono);font-size:11px;word-break:break-all}
+.rpt-foot{margin-top:34px;padding-top:14px;border-top:1px solid var(--hair);font-size:11.5px;
+  color:var(--muted);display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.rpt-foot b{color:var(--ink-soft)}
+
+/* ---------------- responsive ---------------- */
+@media (max-width:1120px){
+  .rpt-page{grid-template-columns:1fr;padding:0 24px 70px}
+  .rpt-rail{position:static;height:auto;padding:26px 0 0;flex-direction:row;align-items:baseline;
+    gap:18px;flex-wrap:wrap}
+  .rpt-nav{flex-direction:row;flex-wrap:wrap;border-top:none;gap:4px 14px}
+  .rpt-nav a{border-bottom:none;padding:2px 0}
+  .rpt-rail-foot{display:none}
+  .rpt-body-grid,.rpt-finding{grid-template-columns:44px minmax(0,1fr)}
+  .rpt-margin,.rpt-f-mech{grid-column:2;margin-top:10px}
+  .rpt-grid-2{grid-template-columns:1fr}
+}
+@media print{
+  .rpt-scope{background:#fff;font-size:11pt}
+  .rpt-rail{display:none}
+  .rpt-page{display:block;max-width:none;padding:0}
+  .rpt-verdict,.rpt-finding,.rpt-entry,.rpt-figure,.rpt-panel{break-inside:avoid}
+  .rpt-scope a{text-decoration:none}
+}
+</style></head><body class='rpt-scope'><div class='rpt-page'><aside class='rpt-rail'><div class='rpt-brand'>IDD<span>改善建议</span></div><nav class='rpt-nav'><a href="#sec-goal" class='is-on'><b>01</b>目标与水位线</a><a href="#sec-roadmap"><b>02</b>路线图</a><a href="#sec-actions"><b>03</b>动作卡</a><a href="#sec-evidence"><b>04</b>证据链</a><a href="#sec-prescriptions"><b>05</b>处方区</a><a href="#sec-execution"><b>06</b>执行验证</a><a href="#sec-data"><b>07</b>数据口径</a></nav><div class='rpt-rail-foot'>纯咨询 · 不下发参数<br>A/B/C 三重门 · 95%CI<br><code>IMA-20261118193119-6992fd</code></div></aside><main class='rpt-main'><header class='rpt-masthead'><p class='rpt-kicker'>Industrial Deep Diagnostic · Improvement Advisory</p><h1>产线优化改善指导报告</h1><div class='rpt-meta'><span>目标 <b>energy_kwh_per_kg</b></span><span>建议 <b>1 条</b></span><span>处方 <b>0 条</b></span><span>水位线 <b>C</b></span><span>生成 <b>2026-11-18 19:31</b></span></div><div class='rpt-verdict'><blockquote>本次数据给出 <em>1 条分级建议</em>：最高 B 级 barrel_temp_c，预期收益 0.0394 energy_kwh_per_kg；其余条目见路线图与动作卡。</blockquote><div class='rpt-seal '><div class='rpt-seal-in'><div class='rpt-seal-num'>B</div><div class='rpt-seal-grade'>1 条建议</div><div class='rpt-seal-cap'>B 级 · 水位线 C</div></div></div></div></header><section class='rpt-sec' id="sec-goal"><div class='rpt-sec-head'><span class='rpt-sec-no'>01</span><h2>优化目标与证据水位线</h2><div class='rpt-sec-sub'>目标是谁定的、这次数据最高能支撑到哪一级。</div></div><div class='rpt-body-grid'><div class='rpt-content'>
+<div class="rpt-grid-2">
+  <div>
+    <h3 class="rpt-h3">优化目标</h3>
+    <div class="rpt-panel">
+      <div class="rpt-note"><b>显式目标</b>：来自 objective.json，不触发「未确认目标封顶 B」条款。</div>
+      <table class="rpt-table"><tr><th>KPI</th><th>方向</th><th>目标值</th><th>容差</th></tr>
+      <tr><td class='rpt-strong'>energy_kwh_per_kg</td><td>min</td><td class='rpt-n'>—</td><td class='rpt-n'>0.03</td></tr></table>
+      
+    </div>
+  </div>
+  <div>
+    <h3 class="rpt-h3">证据水位线 · 本次最高可达 C</h3>
+    <div class="rpt-wl">
+      <div class="rpt-wl-top"><span class="rpt-wl-grade">C</span>
+        <span style="font-size:12px;color:var(--muted)">仅方向参考</span></div>
+      <ul><li><i class="is-no">○</i>动作日志归因<span>缺失</span></li><li><i class="is-no">○</i>本体机制边<span>0 条</span></li><li><i class="">✓</i>dead_time 声明<span>可用</span></li><li><i class="is-no">○</i>设计试验窗<span>缺失</span></li><li><i class="">✓</i>目标已确认<span>可用</span></li></ul>
+      <p class="rpt-note">无动作日志：观察数据最高 B；dead_time 已提供；无设计试验窗；目标已显式声明</p>
+    </div>
+  </div>
+</div></div><aside class='rpt-margin'><h4>分级口径</h4><p>A ＝ 干预性证据（设计窗 / 随机化 DOE / 归因 CI 不含 0）；B ＝ 观察性证据，需小试验证；C ＝ 方向可信但不足以执行。</p><p>收益一律给 95%CI；不可估时写 <code>effect=null</code> 并说明原因，不给点估计。</p></aside></div></section><section class='rpt-sec' id="sec-roadmap"><div class='rpt-sec-head'><span class='rpt-sec-no'>02</span><h2>改善路线图</h2><div class='rpt-sec-sub'>按 priority_score 排序；优先级条为相对值，不是收益绝对值。</div></div><div class='rpt-table-wrap'><table class='rpt-table'><tr><th>级别</th><th>杠杆</th><th>方向 → KPI</th><th>预期收益</th><th>95%CI</th><th>优先级</th></tr><tr><td><span class="rpt-grade rpt-g-b" style="width:26px;height:26px;font-size:13px" title="需小试验证">B</span></td><td class='rpt-strong'>barrel_temp_c<div class='rpt-note' style='margin:0'>barrel_temp_c</div></td><td>下调 → energy_kwh_per_kg</td><td class='rpt-n'>0.0394</td><td class='rpt-n'>[0.02994, 0.04886]</td><td><div class='rpt-bar'><span style='width:100.0%'></span></div></td></tr></table></div></section><section class='rpt-sec' id="sec-actions"><div class='rpt-sec-head'><span class='rpt-sec-no'>03</span><h2>动作卡</h2><div class='rpt-sec-sub'>等级 / 杠杆 / 方向 / 收益 95%CI / 机理 / 验证 / 回滚；全部 1 条展示。</div></div><div class='rpt-body-grid'><div class='rpt-content'>
+<article class="rpt-entry">
+  <div><div class="rpt-grade rpt-g-b">B</div>
+    <div class="rpt-grade-cap">需小试验证</div></div>
+  <div>
+    <div class="rpt-entry-head">
+      <span class="rpt-lever">barrel_temp_c
+        <code>barrel_temp_c · ACT-barrel_temp_c-822</code></span>
+      <span class="rpt-arrow">→</span><b>energy_kwh_per_kg</b>
+    </div>
+    <div class="rpt-entry-gain">
+      <span class="rpt-gain-num">0.0394
+        <small>预期收益（dose_response）</small></span>
+      <span class="rpt-gain-ci">95%CI [0.02994, 0.04886]</span>
+    </div>
+    <dl>
+      <dt>动作</dt><dd>下调：
+        191.8 → 190.3
+        <span class="rpt-note">（Δ -1.494 单位未声明）</span></dd>
+      <dt>机理</dt><dd>known</dd>
+      <dt>前提条件</dt><dd><ul><li>工况与本次数据窗一致（物料/批次/设备状态）</li><li>未使用 DOE 操作窗：以数据包络为界</li></ul></dd>
+      <dt>联动影响</dt><dd><ul><li>reject_rate_pct：decrease（显著）</li></ul></dd>
+      <dt>风险假设</dt><dd><ul><li>线性剂量响应假设（分箱中位斜率）</li><li>无 DOE 操作窗对照</li><li>无动作日志归因</li></ul></dd>
+      <dt>验证方案</dt><dd>energy_kwh_per_kg · 窗 小试 ≥3 批（同工况确认） ·
+        阈值 目标 energy_kwh_per_kg 改善 ≥ 0.0197（点估计的 50%）视为有效</dd>
+      <dt>回滚条件</dt><dd>若调整后 barrel_temp_c 输出未按预期改善或任一受约束指标恶化，回退至 191.765（调整前中位），并复核工况前提</dd>
+    </dl>
+    <details class="rpt-details"><summary>物理机理链（286 环）</summary><ol><li>机制边 barrel_temp_c→energy_kwh_per_kg (physical)：料筒温度高于工艺最优点时,加热与保温功耗随温差单调上升(热损失主导);INFERRED — 需以剂量-响应与小试验证 <span class='rpt-mono'>relationships[from=barrel_temp_c,to=energy_kwh_per_kg]</span></li><li>声明机制方向与本次数据建议方向一致 <span class='rpt-mono'>relationships[*].expected_sign</span></li></ol></details>
+    <details class="rpt-details"><summary>分级理由（23 条）</summary><ol><li>无动作日志：观察数据最高 B</li></ol></details>
+    <details class="rpt-details"><summary>证据引用（2 条）</summary>
+      <table class="rpt-table"><tr><th>类型</th><th>来源工件</th><th>finding</th></tr>
+      <tr><td>dose_response</td><td class='rpt-mono'>02_evidence/dose_response.json</td><td class='rpt-mono'>dose:barrel_temp_c:energy_kwh_per_kg</td></tr><tr><td>dose_response</td><td class='rpt-mono'>02_evidence/dose_response.json</td><td class='rpt-mono'>ccf:barrel_temp_c:energy_kwh_per_kg</td></tr></table></details>
+    
+  </div>
+</article></div><aside class='rpt-margin'><h4>执行边界</h4><p>建议是「决议」，处方是「待补清单」；两者不可混淆。A 级可直接进入验证，B 级须小试，C 级仅方向。</p><p style='color:var(--accent)'>本报告不构成参数下发指令。</p></aside></div></section><section class='rpt-sec' id="sec-evidence"><div class='rpt-sec-head'><span class='rpt-sec-no'>04</span><h2>证据链（剂量-响应与时序）</h2><div class='rpt-sec-sub'>图表数值直接来自 charts.json；页面不做统计计算。</div></div><div class='rpt-figure' style='margin:14px 0'><div class='rpt-fig-head'><b>energy_kwh_per_kg 时序</b><span>n=500 · 方向 min</span></div><svg class="rpt-chart" viewBox="0 0 560 110" width="100%" height="110" role="img" aria-label="时序曲线"><polyline fill="none" stroke="#1e3a54" stroke-width="1.4" points="10.0,70.2 11.1,70.7 12.2,77.4 13.2,61.6 14.3,56.5 15.4,60.5 16.5,61.4 17.6,72.5 18.7,73.9 19.7,75.0 20.8,67.7 21.9,62.2 23.0,57.4 24.1,68.5 25.2,66.1 26.2,57.8 27.3,60.7 28.4,66.0 29.5,51.0 30.6,70.9 31.6,52.2 32.7,57.2 33.8,67.4 34.9,56.4 36.0,42.8 37.1,64.5 38.1,63.8 39.2,59.1 40.3,43.0 41.4,47.1 42.5,36.8 43.5,63.3 44.6,42.7 45.7,47.4 46.8,54.0 47.9,46.1 49.0,55.9 50.0,42.4 51.1,43.9 52.2,44.9 53.3,50.8 54.4,31.3 55.5,52.0 56.5,44.5 57.6,41.8 58.7,38.3 59.8,38.6 60.9,51.5 61.9,51.8 63.0,50.3 64.1,48.3 65.2,41.4 66.3,48.2 67.4,55.3 68.4,44.8 69.5,49.6 70.6,38.3 71.7,47.1 72.8,38.8 73.8,40.2 74.9,47.9 76.0,43.3 77.1,46.4 78.2,35.8 79.3,54.1 80.3,34.5 81.4,32.2 82.5,45.8 83.6,48.6 84.7,37.9 85.8,39.0 86.8,33.2 87.9,43.8 89.0,26.4 90.1,28.7 91.2,44.2 92.2,29.1 93.3,40.6 94.4,22.4 95.5,47.4 96.6,37.3 97.7,45.8 98.7,40.4 99.8,23.6 100.9,35.6 102.0,32.9 103.1,48.4 104.1,24.4 105.2,45.1 106.3,34.2 107.4,36.2 108.5,38.3 109.6,31.0 110.6,35.5 111.7,39.8 112.8,34.5 113.9,39.0 115.0,28.9 116.1,30.9 117.1,41.7 118.2,22.6 119.3,36.2 120.4,33.7 121.5,38.6 122.5,27.4 123.6,26.9 124.7,29.5 125.8,31.4 126.9,28.0 128.0,37.4 129.0,26.7 130.1,12.0 131.2,17.8 132.3,20.9 133.4,16.4 134.4,28.5 135.5,22.6 136.6,34.5 137.7,33.2 138.8,22.7 139.9,13.0 140.9,28.3 142.0,38.0 143.1,37.0 144.2,22.0 145.3,28.1 146.4,23.2 147.4,25.2 148.5,28.0 149.6,36.4 150.7,39.6 151.8,32.0 152.8,34.0 153.9,33.3 155.0,24.3 156.1,16.7 157.2,28.5 158.3,41.0 159.3,28.9 160.4,29.0 161.5,17.2 162.6,26.8 163.7,28.0 164.7,30.4 165.8,30.8 166.9,13.4 168.0,33.4 169.1,29.4 170.2,41.3 171.2,29.9 172.3,26.5 173.4,29.0 174.5,35.9 175.6,18.8 176.7,31.6 177.7,28.9 178.8,26.7 179.9,23.6 181.0,32.6 182.1,37.1 183.1,33.1 184.2,34.5 185.3,47.2 186.4,36.2 187.5,39.2 188.6,36.8 189.6,18.4 190.7,29.2 191.8,33.3 192.9,44.1 194.0,29.5 195.1,42.3 196.1,33.1 197.2,32.9 198.3,34.3 199.4,23.2 200.5,31.2 201.5,37.6 202.6,31.7 203.7,41.0 204.8,42.0 205.9,36.6 207.0,35.1 208.0,25.5 209.1,36.9 210.2,30.1 211.3,40.4 212.4,35.4 213.4,43.0 214.5,40.3 215.6,35.0 216.7,38.1 217.8,46.6 218.9,40.2 219.9,44.4 221.0,45.1 222.1,39.0 223.2,52.7 224.3,46.3 225.4,57.4 226.4,61.4 227.5,48.0 228.6,30.8 229.7,46.4 230.8,40.8 231.8,36.5 232.9,43.1 234.0,50.6 235.1,49.4 236.2,49.2 237.3,54.2 238.3,43.4 239.4,61.0 240.5,57.1 241.6,47.0 242.7,64.5 243.7,39.1 244.8,37.7 245.9,38.9 247.0,55.4 248.1,52.2 249.2,55.0 250.2,57.2 251.3,58.4 252.4,51.3 253.5,64.0 254.6,63.6 255.7,49.4 256.7,45.1 257.8,59.5 258.9,58.2 260.0,53.9 261.1,40.1 262.1,52.4 263.2,61.7 264.3,59.1 265.4,52.5 266.5,63.6 267.6,65.3 268.6,69.9 269.7,54.7 270.8,72.1 271.9,61.2 273.0,58.1 274.0,51.1 275.1,42.1 276.2,74.8 277.3,69.5 278.4,63.8 279.5,62.7 280.5,57.1 281.6,74.6 282.7,78.0 283.8,93.3 284.9,62.3 286.0,75.6 287.0,73.2 288.1,76.2 289.2,68.1 290.3,65.0 291.4,66.7 292.4,87.7 293.5,72.1 294.6,67.5 295.7,75.9 296.8,77.8 297.9,80.5 298.9,87.6 300.0,72.9 301.1,64.1 302.2,72.9 303.3,77.3 304.3,77.6 305.4,71.5 306.5,82.9 307.6,65.0 308.7,88.6 309.8,80.7 310.8,89.8 311.9,88.2 313.0,69.6 314.1,87.2 315.2,70.0 316.3,87.8 317.3,79.4 318.4,83.7 319.5,83.3 320.6,75.5 321.7,85.5 322.7,87.2 323.8,80.5 324.9,85.7 326.0,91.5 327.1,66.4 328.2,89.8 329.2,88.4 330.3,87.2 331.4,85.3 332.5,90.1 333.6,88.5 334.6,90.0 335.7,83.1 336.8,87.3 337.9,92.1 339.0,82.7 340.1,87.9 341.1,83.3 342.2,86.4 343.3,88.3 344.4,89.7 345.5,93.3 346.6,88.5 347.6,85.5 348.7,95.0 349.8,85.9 350.9,82.9 352.0,91.7 353.0,85.7 354.1,88.1 355.2,89.7 356.3,91.5 357.4,89.3 358.5,92.3 359.5,88.4 360.6,85.7 361.7,89.1 362.8,80.2 363.9,87.1 364.9,94.1 366.0,83.8 367.1,88.9 368.2,85.3 369.3,86.3 370.4,85.3 371.4,90.0 372.5,88.7 373.6,84.7 374.7,88.0 375.8,89.4 376.9,96.8 377.9,81.7 379.0,93.2 380.1,87.4 381.2,91.9 382.3,92.1 383.3,87.7 384.4,89.5 385.5,81.1 386.6,84.1 387.7,91.5 388.8,91.3 389.8,86.4 390.9,89.5 392.0,91.2 393.1,91.4 394.2,89.3 395.3,85.9 396.3,92.5 397.4,86.3 398.5,88.0 399.6,93.8 400.7,86.1 401.7,83.6 402.8,95.9 403.9,95.6 405.0,91.1 406.1,89.1 407.2,86.1 408.2,84.2 409.3,91.6 410.4,91.7 411.5,84.2 412.6,87.9 413.6,91.2 414.7,87.1 415.8,87.5 416.9,94.5 418.0,83.8 419.1,85.6 420.1,92.1 421.2,94.8 422.3,81.3 423.4,87.8 424.5,89.5 425.6,83.6 426.6,89.9 427.7,89.4 428.8,90.2 429.9,88.9 431.0,89.5 432.0,91.3 433.1,89.5 434.2,85.0 435.3,87.5 436.4,81.6 437.5,84.7 438.5,86.9 439.6,88.8 440.7,85.8 441.8,86.7 442.9,91.6 443.9,95.6 445.0,95.2 446.1,90.8 447.2,90.4 448.3,87.1 449.4,85.5 450.4,84.0 451.5,91.5 452.6,87.4 453.7,85.7 454.8,86.1 455.9,84.0 456.9,83.4 458.0,85.5 459.1,94.8 460.2,78.0 461.3,87.6 462.3,81.7 463.4,88.7 464.5,83.8 465.6,84.3 466.7,86.4 467.8,85.7 468.8,85.3 469.9,86.4 471.0,91.0 472.1,92.7 473.2,98.0 474.2,90.8 475.3,86.8 476.4,93.7 477.5,88.4 478.6,88.9 479.7,86.1 480.7,84.9 481.8,87.8 482.9,87.2 484.0,87.3 485.1,89.0 486.2,88.0 487.2,90.8 488.3,91.6 489.4,84.3 490.5,86.3 491.6,84.8 492.6,86.6 493.7,85.6 494.8,96.5 495.9,87.1 497.0,92.6 498.1,82.8 499.1,86.4 500.2,75.0 501.3,84.8 502.4,87.2 503.5,87.8 504.5,82.2 505.6,80.9 506.7,86.3 507.8,91.6 508.9,86.9 510.0,81.4 511.0,80.9 512.1,80.5 513.2,93.0 514.3,85.1 515.4,85.9 516.5,90.1 517.5,81.2 518.6,88.6 519.7,85.9 520.8,91.4 521.9,78.0 522.9,85.6 524.0,81.5 525.1,78.2 526.2,80.4 527.3,90.1 528.4,70.7 529.4,93.8 530.5,87.4 531.6,83.1 532.7,80.5 533.8,76.9 534.8,69.7 535.9,84.7 537.0,73.4 538.1,80.6 539.2,77.8 540.3,78.4 541.3,69.6 542.4,69.6 543.5,78.8 544.6,80.4 545.7,84.0 546.8,72.3 547.8,66.1 548.9,73.5 550.0,65.5"/></svg></div><div class='rpt-figure' style='margin:14px 0'><div class='rpt-fig-head'><b>barrel_temp_c → energy_kwh_per_kg</b><span>slope 0.02637 · CI [0.02004, 0.03271]</span></div><svg class="rpt-chart" viewBox="0 0 560 180" width="100%" height="180" role="img" aria-label="剂量-响应分箱图"><line x1="20" y1="181.0" x2="540" y2="20.2" stroke="#c2673a" stroke-width="1.6" stroke-dasharray="5 3"/><circle cx="20.0" cy="160.0" r="4" fill="#1e3a54"/><circle cx="84.1" cy="158.9" r="4" fill="#1e3a54"/><circle cx="152.5" cy="153.8" r="4" fill="#1e3a54"/><circle cx="228.9" cy="141.2" r="4" fill="#1e3a54"/><circle cx="326.6" cy="85.5" r="4" fill="#1e3a54"/><circle cx="407.8" cy="58.3" r="4" fill="#1e3a54"/><circle cx="485.3" cy="25.3" r="4" fill="#1e3a54"/><circle cx="540.0" cy="20.0" r="4" fill="#1e3a54"/></svg></div><div class='rpt-figure' style='margin:14px 0'><div class='rpt-fig-head'><b>injection_pressure_bar → energy_kwh_per_kg</b><span>slope -0.004339 · CI [-0.02587, 0.01719]</span></div><svg class="rpt-chart" viewBox="0 0 560 180" width="100%" height="180" role="img" aria-label="剂量-响应分箱图"><line x1="20" y1="88.9" x2="540" y2="114.9" stroke="#c2673a" stroke-width="1.6" stroke-dasharray="5 3"/><circle cx="20.0" cy="115.0" r="4" fill="#1e3a54"/><circle cx="132.7" cy="91.4" r="4" fill="#1e3a54"/><circle cx="202.0" cy="106.2" r="4" fill="#1e3a54"/><circle cx="254.0" cy="110.1" r="4" fill="#1e3a54"/><circle cx="306.0" cy="20.0" r="4" fill="#1e3a54"/><circle cx="349.3" cy="134.1" r="4" fill="#1e3a54"/><circle cx="418.7" cy="77.4" r="4" fill="#1e3a54"/><circle cx="540.0" cy="160.0" r="4" fill="#1e3a54"/></svg></div><div class='rpt-figure' style='margin:14px 0'><div class='rpt-fig-head'><b>cooling_time_s → energy_kwh_per_kg</b><span>slope 7.060e-04 · CI [-0.02569, 0.0271]</span></div><svg class="rpt-chart" viewBox="0 0 560 180" width="100%" height="180" role="img" aria-label="剂量-响应分箱图"><line x1="20" y1="93.3" x2="540" y2="88.7" stroke="#c2673a" stroke-width="1.6" stroke-dasharray="5 3"/><circle cx="20.0" cy="55.5" r="4" fill="#1e3a54"/><circle cx="138.7" cy="148.8" r="4" fill="#1e3a54"/><circle cx="200.9" cy="20.8" r="4" fill="#1e3a54"/><circle cx="257.4" cy="160.0" r="4" fill="#1e3a54"/><circle cx="302.6" cy="95.4" r="4" fill="#1e3a54"/><circle cx="359.1" cy="132.1" r="4" fill="#1e3a54"/><circle cx="438.3" cy="20.0" r="4" fill="#1e3a54"/><circle cx="540.0" cy="95.4" r="4" fill="#1e3a54"/></svg></div><div class='rpt-figure' style='margin:14px 0'><div class='rpt-fig-head'><b>back_pressure_bar → energy_kwh_per_kg</b><span>slope -0.04761 · CI [-0.1305, 0.03526]</span></div><svg class="rpt-chart" viewBox="0 0 560 180" width="100%" height="180" role="img" aria-label="剂量-响应分箱图"><line x1="20" y1="56.7" x2="540" y2="132.5" stroke="#c2673a" stroke-width="1.6" stroke-dasharray="5 3"/><circle cx="20.0" cy="58.7" r="4" fill="#1e3a54"/><circle cx="94.3" cy="112.4" r="4" fill="#1e3a54"/><circle cx="168.6" cy="45.8" r="4" fill="#1e3a54"/><circle cx="242.9" cy="20.0" r="4" fill="#1e3a54"/><circle cx="317.1" cy="137.0" r="4" fill="#1e3a54"/><circle cx="391.4" cy="160.0" r="4" fill="#1e3a54"/><circle cx="465.7" cy="68.5" r="4" fill="#1e3a54"/><circle cx="540.0" cy="154.4" r="4" fill="#1e3a54"/></svg></div></section><section class='rpt-sec' id="sec-prescriptions"><div class='rpt-sec-head'><span class='rpt-sec-no'>05</span><h2>处方区（不成建议）</h2><div class='rpt-sec-sub'>「接下来该补什么」的清单，不是参数指令。</div></div><div class="rpt-empty">无处方：所有进入评估的杠杆均已获得分级判定。</div></section><section class='rpt-sec' id="sec-execution"><div class='rpt-sec-head'><span class='rpt-sec-no'>06</span><h2>执行与验证计划</h2><div class='rpt-sec-sub'>B 级自动序列化 optimizer_seed；执行须经审批或 campaign 验证。</div></div><div class='rpt-panel'><ul><li><span class='rpt-strong'>ACT-barrel_temp_c-822</span>：按验证方案执行小试（≥3 批同工况），可用 optimizer_seed.json 一键升级为闭环验证 campaign</li></ul><p class='rpt-note'>advisory/optimizer_seed.json 为 B 级 top-1 动作序列化的 optimizer-loop objective 种子（需人工确认后使用）。</p></div></section><section class='rpt-sec rpt-appendix' id="sec-data"><h2>07 · 数据与口径（证据链附录）</h2><dl class='rpt-kv'><dt>数据文件</dt><dd><code>D:\codes\myskills\idd-doe-impl\workspace\skill-pipeline-demo-20261119\04-advisory\00_input\process_data.csv</code></dd><dt>数据指纹</dt><dd><code>sha256:c9c94c43336cccec8a3d1acb1bd8a3905990b266d0bcc4470d15740a6f6992fd</code></dd><dt>行数</dt><dd>500</dd><dt>口径</dt><dd>BH-FDR q&lt;0.05（每 KPI 内全部杠杆×滞后为一族）· |r|≥0.2 · 分箱≥5 且每箱≥8 · 外推越包络即未验证 · 收益一律 95%CI</dd></dl><h3 class='rpt-h3' style='margin-top:20px'>假设与局限</h3><ul><li>线性剂量响应假设（分箱中位 OLS 斜率）；非线性/阈值效应需设计试验确认。</li><li>观察性结论为相关级；A 级需归因或设计窗的干预性证据。</li></ul><h3 class='rpt-h3' style='margin-top:20px'>复用与降级披露</h3><div class='rpt-table-wrap'><table class='rpt-table'><tr><th>证据腿</th><th>状态</th><th>原因</th></tr><tr><td>doe_windows</td><td>skipped</td><td>not requested</td></tr><tr><td>tuning_memory_attribution</td><td>skipped</td><td>no action_log supplied</td></tr></table></div><h3 class='rpt-h3' style='margin-top:20px'>复用组件状态</h3><ul><li class='rpt-mono'>core_stats: ok</li><li class='rpt-mono'>doestats: ok</li><li class='rpt-mono'>lstcore_io: ok</li><li class='rpt-mono'>closedloop_enums: ok</li><li class='rpt-mono'>ontology_common: ok</li><li class='rpt-mono'>tune_stats: ok</li><li class='rpt-mono'>anti_spurious: ok</li></ul><footer class='rpt-foot' id="sec-footer"><span><b>咨询边界声明</b>：本页为纯分析咨询产物（advisory），不构成参数下发指令，绝不下发参数；执行须经产线审批 / optimizer-campaign 验证流程。数值与分级由确定性脚本产出，agent 仅追加解读。</span><span>IMA-20261118193119-6992fd · generated 2026-11-18T19:31:52.877393+00:00</span></footer></section></main></div></body></html>

@@ -1,0 +1,711 @@
+{
+  "contract_version": "improvement-advisory/1.0",
+  "report_id": "IMA-20261118192719-ccfdbb",
+  "generated_at": "2026-11-18T19:27:19.922400+00:00",
+  "mode": "advisory",
+  "status": "advisory_only",
+  "goal": {
+    "mode": "explicit",
+    "targets": [
+      {
+        "metric": "coat_weight_gsm",
+        "direction": "target",
+        "target_value": 4.0,
+        "tolerance": 0.20000000000000018,
+        "weight": null
+      }
+    ],
+    "conflicts": [],
+    "inferred_rationale": null,
+    "inferred_candidates": []
+  },
+  "data": {
+    "path": "D:\\codes\\myskills\\idd-doe-impl\\workspace\\skill-pipeline-demo-20261119\\03-doe\\00_input\\run_table.csv",
+    "sha256": "sha256:d26889c5b1963565c42aa066c1e3740bc3dbedbfba8bd0da5eb71026e9ccfdbb",
+    "n_rows": 27,
+    "n_rows_used": 27,
+    "time_col": "numeric",
+    "levers": [
+      "oven1_temp_c",
+      "solid_content_pct",
+      "tension_n"
+    ],
+    "kpis": [
+      "coat_weight_gsm"
+    ],
+    "sampled": false
+  },
+  "waterline": {
+    "max_achievable_grade": "B",
+    "factors": {
+      "attribution_available": false,
+      "mechanism_edges": 11,
+      "dead_time_provided": false,
+      "designed_window_available": false,
+      "objective_confirmed": true
+    },
+    "note": "无动作日志：观察数据最高 B；dead_time 缺省：时间先后未评估，相关动作封顶 B；无设计试验窗；目标已显式声明"
+  },
+  "actions": [
+    {
+      "action_id": "ACT-oven1_temp_c-064",
+      "lever_param": "oven1_temp_c",
+      "lever_column": "oven1_temp_c",
+      "direction": "decrease",
+      "magnitude": {
+        "from": 90.0,
+        "to": 85.8397485,
+        "delta": -4.1602515,
+        "unit": [
+          80,
+          90,
+          100
+        ]
+      },
+      "expected_gain": {
+        "metric": "coat_weight_gsm",
+        "current": 4.205,
+        "point": null,
+        "ci95": null,
+        "method": "none",
+        "verified": false,
+        "not_estimable_reason": "no_significant_relation"
+      },
+      "evidence_refs": [
+        {
+          "type": "dose_response",
+          "source_file": "02_evidence/dose_response.json",
+          "finding_id": "ccf:oven1_temp_c:coat_weight_gsm",
+          "stat": {
+            "r": 0.7632,
+            "p": 3.6613e-06,
+            "fdr_q": 3.0337e-06,
+            "peak_lag": 3,
+            "peak_r": 0.7977
+          }
+        }
+      ],
+      "mechanism_chain": [
+        {
+          "step": "杠杆 oven1_temp_c 的物理含义：oven1_temp_c（由分析上下文声明；未提供独立物理机理描述）",
+          "ontology_ref": "signals.control_variables[column=oven1_temp_c].physical_meaning"
+        },
+        {
+          "step": "目标 KPI coat_weight_gsm 的物理含义：coat_weight_gsm（由分析上下文声明；未提供独立物理机理描述）",
+          "ontology_ref": "signals.inspection_signals[column=coat_weight_gsm].physical_meaning"
+        },
+        {
+          "step": "无方向声明：机制为同域先验（不构成因果边）",
+          "ontology_ref": "ontology.limitations"
+        }
+      ],
+      "mechanism_status": "same_domain",
+      "affected_kpis": [
+        {
+          "metric": "oven2_temp_c",
+          "direction": "decrease",
+          "significant": true
+        },
+        {
+          "metric": "solid_content_pct",
+          "direction": "decrease",
+          "significant": true
+        },
+        {
+          "metric": "substrate_gsm",
+          "direction": "decrease",
+          "significant": true
+        },
+        {
+          "metric": "tension_n",
+          "direction": "decrease",
+          "significant": true
+        },
+        {
+          "metric": "defect_rate_pct",
+          "direction": "decrease",
+          "significant": true
+        }
+      ],
+      "grade": "C",
+      "grade_reasons": [
+        "dead_time 缺省：时间先后 not_assessable（禁假设 0 放行）",
+        "机制为同域先验（无方向边），封顶 B",
+        "无动作日志：观察数据最高 B",
+        "dead_time 缺省，相关动作封顶 B",
+        "预期收益 CI 跨 0 或不可估"
+      ],
+      "priority_score": 0.05724,
+      "risk": {
+        "assumptions": [
+          "线性剂量响应假设（分箱中位斜率）",
+          "dead_time 未提供：时间先后条件未评估（禁假设 0）",
+          "无动作日志归因"
+        ],
+        "confidence_cap": 50
+      },
+      "preconditions": [
+        "工况与本次数据窗一致（物料/批次/设备状态）"
+      ],
+      "side_effects": [
+        "oven2_temp_c 将下降",
+        "solid_content_pct 将下降",
+        "substrate_gsm 将下降",
+        "tension_n 将下降",
+        "defect_rate_pct 将下降"
+      ],
+      "verification_plan": {
+        "metric": "coat_weight_gsm",
+        "window": "在线连续 ≥24h 对比基线窗",
+        "threshold": "方向验证：监控目标 KPI 变化方向，连续 3 批同向视为初步有效"
+      },
+      "rollback_condition": "若调整后 oven1_temp_c 输出未按预期改善或任一受约束指标恶化，回退至 90.0（调整前中位），并复核工况前提",
+      "prescription_tags": [],
+      "advisory": true,
+      "grade_inputs": {
+        "data": {
+          "lever_variance_ok": true,
+          "samples_ok": true,
+          "temporal_ok": null,
+          "fdr_ok": true,
+          "confound_ok": true,
+          "regime_stable_ok": true
+        },
+        "physics": {
+          "status": "same_domain"
+        },
+        "attribution": {
+          "status": "absent",
+          "ci_excludes_zero": null
+        },
+        "flags": {
+          "objective_inferred": false,
+          "conflict": false,
+          "extrapolated": false,
+          "dead_time_missing": true,
+          "tradeoff_declared": false,
+          "designed_window": false,
+          "designed_effect": false,
+          "gain_ci_excludes_zero": false
+        }
+      },
+      "interpretation": null
+    },
+    {
+      "action_id": "ACT-solid_content_pct-270",
+      "lever_param": "solid_content_pct",
+      "lever_column": "solid_content_pct",
+      "direction": "decrease",
+      "magnitude": {
+        "from": 60.0,
+        "to": 57.9198745,
+        "delta": -2.0801255,
+        "unit": [
+          55,
+          60,
+          65
+        ]
+      },
+      "expected_gain": {
+        "metric": "coat_weight_gsm",
+        "current": 4.205,
+        "point": null,
+        "ci95": null,
+        "method": "none",
+        "verified": false,
+        "not_estimable_reason": "no_significant_relation"
+      },
+      "evidence_refs": [
+        {
+          "type": "dose_response",
+          "source_file": "02_evidence/dose_response.json",
+          "finding_id": "ccf:solid_content_pct:coat_weight_gsm",
+          "stat": {
+            "r": 0.7632,
+            "p": 3.6613e-06,
+            "fdr_q": 3.0337e-06,
+            "peak_lag": 3,
+            "peak_r": 0.7977
+          }
+        }
+      ],
+      "mechanism_chain": [
+        {
+          "step": "杠杆 solid_content_pct 的物理含义：solid_content_pct（由分析上下文声明；未提供独立物理机理描述）",
+          "ontology_ref": "signals.control_variables[column=solid_content_pct].physical_meaning"
+        },
+        {
+          "step": "目标 KPI coat_weight_gsm 的物理含义：coat_weight_gsm（由分析上下文声明；未提供独立物理机理描述）",
+          "ontology_ref": "signals.inspection_signals[column=coat_weight_gsm].physical_meaning"
+        },
+        {
+          "step": "无方向声明：机制为同域先验（不构成因果边）",
+          "ontology_ref": "ontology.limitations"
+        }
+      ],
+      "mechanism_status": "same_domain",
+      "affected_kpis": [
+        {
+          "metric": "oven1_temp_c",
+          "direction": "decrease",
+          "significant": true
+        },
+        {
+          "metric": "oven2_temp_c",
+          "direction": "decrease",
+          "significant": true
+        },
+        {
+          "metric": "substrate_gsm",
+          "direction": "decrease",
+          "significant": true
+        },
+        {
+          "metric": "tension_n",
+          "direction": "decrease",
+          "significant": true
+        },
+        {
+          "metric": "defect_rate_pct",
+          "direction": "decrease",
+          "significant": true
+        }
+      ],
+      "grade": "C",
+      "grade_reasons": [
+        "dead_time 缺省：时间先后 not_assessable（禁假设 0 放行）",
+        "机制为同域先验（无方向边），封顶 B",
+        "无动作日志：观察数据最高 B",
+        "dead_time 缺省，相关动作封顶 B",
+        "预期收益 CI 跨 0 或不可估"
+      ],
+      "priority_score": 0.05724,
+      "risk": {
+        "assumptions": [
+          "线性剂量响应假设（分箱中位斜率）",
+          "dead_time 未提供：时间先后条件未评估（禁假设 0）",
+          "无动作日志归因"
+        ],
+        "confidence_cap": 50
+      },
+      "preconditions": [
+        "工况与本次数据窗一致（物料/批次/设备状态）"
+      ],
+      "side_effects": [
+        "oven1_temp_c 将下降",
+        "oven2_temp_c 将下降",
+        "substrate_gsm 将下降",
+        "tension_n 将下降",
+        "defect_rate_pct 将下降"
+      ],
+      "verification_plan": {
+        "metric": "coat_weight_gsm",
+        "window": "在线连续 ≥24h 对比基线窗",
+        "threshold": "方向验证：监控目标 KPI 变化方向，连续 3 批同向视为初步有效"
+      },
+      "rollback_condition": "若调整后 solid_content_pct 输出未按预期改善或任一受约束指标恶化，回退至 60.0（调整前中位），并复核工况前提",
+      "prescription_tags": [],
+      "advisory": true,
+      "grade_inputs": {
+        "data": {
+          "lever_variance_ok": true,
+          "samples_ok": true,
+          "temporal_ok": null,
+          "fdr_ok": true,
+          "confound_ok": true,
+          "regime_stable_ok": true
+        },
+        "physics": {
+          "status": "same_domain"
+        },
+        "attribution": {
+          "status": "absent",
+          "ci_excludes_zero": null
+        },
+        "flags": {
+          "objective_inferred": false,
+          "conflict": false,
+          "extrapolated": false,
+          "dead_time_missing": true,
+          "tradeoff_declared": false,
+          "designed_window": false,
+          "designed_effect": false,
+          "gain_ci_excludes_zero": false
+        }
+      },
+      "interpretation": null
+    },
+    {
+      "action_id": "ACT-tension_n-462",
+      "lever_param": "tension_n",
+      "lever_column": "tension_n",
+      "direction": "decrease",
+      "magnitude": {
+        "from": 350.0,
+        "to": 329.1987425,
+        "delta": -20.8012575,
+        "unit": [
+          300,
+          350,
+          400
+        ]
+      },
+      "expected_gain": {
+        "metric": "coat_weight_gsm",
+        "current": 4.205,
+        "point": null,
+        "ci95": null,
+        "method": "none",
+        "verified": false,
+        "not_estimable_reason": "no_significant_relation"
+      },
+      "evidence_refs": [
+        {
+          "type": "dose_response",
+          "source_file": "02_evidence/dose_response.json",
+          "finding_id": "ccf:tension_n:coat_weight_gsm",
+          "stat": {
+            "r": 0.7632,
+            "p": 3.6613e-06,
+            "fdr_q": 3.0337e-06,
+            "peak_lag": 3,
+            "peak_r": 0.7977
+          }
+        }
+      ],
+      "mechanism_chain": [
+        {
+          "step": "杠杆 tension_n 的物理含义：tension_n（由分析上下文声明；未提供独立物理机理描述）",
+          "ontology_ref": "signals.control_variables[column=tension_n].physical_meaning"
+        },
+        {
+          "step": "目标 KPI coat_weight_gsm 的物理含义：coat_weight_gsm（由分析上下文声明；未提供独立物理机理描述）",
+          "ontology_ref": "signals.inspection_signals[column=coat_weight_gsm].physical_meaning"
+        },
+        {
+          "step": "无方向声明：机制为同域先验（不构成因果边）",
+          "ontology_ref": "ontology.limitations"
+        }
+      ],
+      "mechanism_status": "same_domain",
+      "affected_kpis": [
+        {
+          "metric": "oven1_temp_c",
+          "direction": "decrease",
+          "significant": true
+        },
+        {
+          "metric": "oven2_temp_c",
+          "direction": "decrease",
+          "significant": true
+        },
+        {
+          "metric": "solid_content_pct",
+          "direction": "decrease",
+          "significant": true
+        },
+        {
+          "metric": "substrate_gsm",
+          "direction": "decrease",
+          "significant": true
+        },
+        {
+          "metric": "defect_rate_pct",
+          "direction": "decrease",
+          "significant": true
+        }
+      ],
+      "grade": "C",
+      "grade_reasons": [
+        "dead_time 缺省：时间先后 not_assessable（禁假设 0 放行）",
+        "机制为同域先验（无方向边），封顶 B",
+        "无动作日志：观察数据最高 B",
+        "dead_time 缺省，相关动作封顶 B",
+        "预期收益 CI 跨 0 或不可估"
+      ],
+      "priority_score": 0.05724,
+      "risk": {
+        "assumptions": [
+          "线性剂量响应假设（分箱中位斜率）",
+          "dead_time 未提供：时间先后条件未评估（禁假设 0）",
+          "无动作日志归因"
+        ],
+        "confidence_cap": 50
+      },
+      "preconditions": [
+        "工况与本次数据窗一致（物料/批次/设备状态）"
+      ],
+      "side_effects": [
+        "oven1_temp_c 将下降",
+        "oven2_temp_c 将下降",
+        "solid_content_pct 将下降",
+        "substrate_gsm 将下降",
+        "defect_rate_pct 将下降"
+      ],
+      "verification_plan": {
+        "metric": "coat_weight_gsm",
+        "window": "在线连续 ≥24h 对比基线窗",
+        "threshold": "方向验证：监控目标 KPI 变化方向，连续 3 批同向视为初步有效"
+      },
+      "rollback_condition": "若调整后 tension_n 输出未按预期改善或任一受约束指标恶化，回退至 350.0（调整前中位），并复核工况前提",
+      "prescription_tags": [],
+      "advisory": true,
+      "grade_inputs": {
+        "data": {
+          "lever_variance_ok": true,
+          "samples_ok": true,
+          "temporal_ok": null,
+          "fdr_ok": true,
+          "confound_ok": true,
+          "regime_stable_ok": true
+        },
+        "physics": {
+          "status": "same_domain"
+        },
+        "attribution": {
+          "status": "absent",
+          "ci_excludes_zero": null
+        },
+        "flags": {
+          "objective_inferred": false,
+          "conflict": false,
+          "extrapolated": false,
+          "dead_time_missing": true,
+          "tradeoff_declared": false,
+          "designed_window": false,
+          "designed_effect": false,
+          "gain_ci_excludes_zero": false
+        }
+      },
+      "interpretation": null
+    }
+  ],
+  "prescriptions": [],
+  "excluded_levers": [
+    {
+      "param": "coat_speed_mpm",
+      "reason": "no_variance",
+      "detail": "cv=0.0 nunique=1"
+    },
+    {
+      "param": "gap_um",
+      "reason": "no_variance",
+      "detail": "cv=0.0 nunique=1"
+    },
+    {
+      "param": "humidity_rh",
+      "reason": "no_variance",
+      "detail": "cv=0.0 nunique=1"
+    },
+    {
+      "param": "oven2_temp_c",
+      "reason": "reverse_causality",
+      "detail": "KPI leads lever (neg_lag=-1 r=-0.8004 > pos r=-0.7872)"
+    },
+    {
+      "param": "substrate_gsm",
+      "reason": "reverse_causality",
+      "detail": "KPI leads lever (neg_lag=-1 r=-0.8004 > pos r=-0.7872)"
+    }
+  ],
+  "degradations": [
+    {
+      "leg": "doe_windows",
+      "status": "used",
+      "reason": "used"
+    },
+    {
+      "leg": "tuning_memory_attribution",
+      "status": "skipped",
+      "reason": "no action_log supplied"
+    },
+    {
+      "leg": "temporal_precedence",
+      "status": "not_estimable",
+      "reason": "dead_time 缺省：时间先后条件 not_assessable（禁假设 0 放行），相关动作封顶 B"
+    }
+  ],
+  "provenance": {
+    "authored_by": "imacore",
+    "engine": "industrial-improvement-advisor",
+    "ontology": null,
+    "reuses": [
+      "core_stats: ok",
+      "doestats: ok",
+      "lstcore_io: ok",
+      "closedloop_enums: ok",
+      "ontology_common: ok",
+      "tune_stats: ok",
+      "anti_spurious: ok"
+    ],
+    "data_source": "raw"
+  },
+  "limitations": [
+    "线性剂量响应假设（分箱中位 OLS 斜率）；非线性/阈值效应需设计试验确认。",
+    "观察性结论为相关级；A 级需归因或设计窗的干预性证据。",
+    "dead_time 未提供：时间先后条件未评估，滞后关系可能错配。"
+  ],
+  "evidence": {
+    "dose_response": [],
+    "window_notes": [],
+    "pairs": [
+      {
+        "lever": "oven1_temp_c",
+        "metric": "coat_weight_gsm",
+        "status": "emitted",
+        "r": 0.7632,
+        "p": 3.6613e-06,
+        "fdr_q": 3.0337e-06,
+        "temporal_ok": null,
+        "n_eff": 69.0,
+        "rho_lag1": -0.439824,
+        "gates": {
+          "lever_variance_ok": true,
+          "samples_ok": true,
+          "temporal_ok": null,
+          "fdr_ok": true,
+          "confound_ok": true,
+          "regime_stable_ok": true
+        },
+        "physics": {
+          "status": "same_domain"
+        },
+        "attribution": {
+          "status": "absent",
+          "ci_excludes_zero": null
+        },
+        "flags": {
+          "objective_inferred": false,
+          "conflict": false,
+          "extrapolated": false,
+          "dead_time_missing": true,
+          "tradeoff_declared": false,
+          "designed_window": false,
+          "designed_effect": false,
+          "gain_ci_excludes_zero": false
+        },
+        "dose": {
+          "status": "not_estimable",
+          "slope": null,
+          "slope_ci95": null,
+          "monotone": null,
+          "verified": null,
+          "reason": "no_significant_relation",
+          "detail": "n=27 below binning floor",
+          "bins": null,
+          "r": null,
+          "p": null,
+          "n_pairs": null
+        },
+        "doe": null,
+        "window": null,
+        "action_id": "ACT-oven1_temp_c-064"
+      },
+      {
+        "lever": "solid_content_pct",
+        "metric": "coat_weight_gsm",
+        "status": "emitted",
+        "r": 0.7632,
+        "p": 3.6613e-06,
+        "fdr_q": 3.0337e-06,
+        "temporal_ok": null,
+        "n_eff": 69.0,
+        "rho_lag1": -0.439824,
+        "gates": {
+          "lever_variance_ok": true,
+          "samples_ok": true,
+          "temporal_ok": null,
+          "fdr_ok": true,
+          "confound_ok": true,
+          "regime_stable_ok": true
+        },
+        "physics": {
+          "status": "same_domain"
+        },
+        "attribution": {
+          "status": "absent",
+          "ci_excludes_zero": null
+        },
+        "flags": {
+          "objective_inferred": false,
+          "conflict": false,
+          "extrapolated": false,
+          "dead_time_missing": true,
+          "tradeoff_declared": false,
+          "designed_window": false,
+          "designed_effect": false,
+          "gain_ci_excludes_zero": false
+        },
+        "dose": {
+          "status": "not_estimable",
+          "slope": null,
+          "slope_ci95": null,
+          "monotone": null,
+          "verified": null,
+          "reason": "no_significant_relation",
+          "detail": "n=27 below binning floor",
+          "bins": null,
+          "r": null,
+          "p": null,
+          "n_pairs": null
+        },
+        "doe": null,
+        "window": null,
+        "action_id": "ACT-solid_content_pct-270"
+      },
+      {
+        "lever": "tension_n",
+        "metric": "coat_weight_gsm",
+        "status": "emitted",
+        "r": 0.7632,
+        "p": 3.6613e-06,
+        "fdr_q": 3.0337e-06,
+        "temporal_ok": null,
+        "n_eff": 69.0,
+        "rho_lag1": -0.439824,
+        "gates": {
+          "lever_variance_ok": true,
+          "samples_ok": true,
+          "temporal_ok": null,
+          "fdr_ok": true,
+          "confound_ok": true,
+          "regime_stable_ok": true
+        },
+        "physics": {
+          "status": "same_domain"
+        },
+        "attribution": {
+          "status": "absent",
+          "ci_excludes_zero": null
+        },
+        "flags": {
+          "objective_inferred": false,
+          "conflict": false,
+          "extrapolated": false,
+          "dead_time_missing": true,
+          "tradeoff_declared": false,
+          "designed_window": false,
+          "designed_effect": false,
+          "gain_ci_excludes_zero": false
+        },
+        "dose": {
+          "status": "not_estimable",
+          "slope": null,
+          "slope_ci95": null,
+          "monotone": null,
+          "verified": null,
+          "reason": "no_significant_relation",
+          "detail": "n=27 below binning floor",
+          "bins": null,
+          "r": null,
+          "p": null,
+          "n_pairs": null
+        },
+        "doe": null,
+        "window": null,
+        "action_id": "ACT-tension_n-462"
+      }
+    ],
+    "window_contrasts": []
+  }
+}

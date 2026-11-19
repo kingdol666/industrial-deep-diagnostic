@@ -1,0 +1,479 @@
+{
+  "contract_version": "1.0",
+  "causal_claim": "none",
+  "n_rows": 27,
+  "n_pairs": 24,
+  "design_adjusted": false,
+  "alpha": 0.05,
+  "responses": [
+    "coat_weight_gsm",
+    "coating_thick_um",
+    "defect_rate_pct"
+  ],
+  "design_columns": [
+    "coat_speed_mpm",
+    "gap_um",
+    "humidity_rh",
+    "oven1_temp_c",
+    "oven2_temp_c",
+    "solid_content_pct",
+    "substrate_gsm",
+    "tension_n"
+  ],
+  "model_columns": [],
+  "adjustment_method": "每对 (response, variable) 回归：y ~ 设计列(该变量自身列除外) + 该变量；报告该变量系数与双侧 t 检验 p（秩亏则不报告）",
+  "window_emission": "forbidden (gate G8: association pairs never enter a window)",
+  "n_confounded_pairs": 0,
+  "excluded": [
+    {
+      "column": "run_id",
+      "reason": "identifier-like column name"
+    },
+    {
+      "column": "coat_weight_gsm",
+      "reason": "design/model metadata column"
+    },
+    {
+      "column": "coating_thick_um",
+      "reason": "design/model metadata column"
+    },
+    {
+      "column": "defect_rate_pct",
+      "reason": "design/model metadata column"
+    }
+  ],
+  "pairs": [
+    {
+      "factor": "coat_speed_mpm",
+      "response": "coat_weight_gsm",
+      "kind": "held_constant",
+      "marginal": {
+        "r": null,
+        "p": null,
+        "n": 27,
+        "method": "not_computable_constant"
+      },
+      "design_adjusted": null,
+      "verdict": "held_constant",
+      "note": "方差≈0 或与设计列共线：不可单独筛选（结构性结论，不含因果含义）；边际相关不可计算（not_computable_constant）",
+      "confounded": false,
+      "marginal_significant": false,
+      "adjusted_significant": false,
+      "evidence_level": "L3"
+    },
+    {
+      "factor": "gap_um",
+      "response": "coat_weight_gsm",
+      "kind": "held_constant",
+      "marginal": {
+        "r": null,
+        "p": null,
+        "n": 27,
+        "method": "not_computable_constant"
+      },
+      "design_adjusted": null,
+      "verdict": "held_constant",
+      "note": "方差≈0 或与设计列共线：不可单独筛选（结构性结论，不含因果含义）；边际相关不可计算（not_computable_constant）",
+      "confounded": false,
+      "marginal_significant": false,
+      "adjusted_significant": false,
+      "evidence_level": "L3"
+    },
+    {
+      "factor": "humidity_rh",
+      "response": "coat_weight_gsm",
+      "kind": "held_constant",
+      "marginal": {
+        "r": null,
+        "p": null,
+        "n": 27,
+        "method": "not_computable_constant"
+      },
+      "design_adjusted": null,
+      "verdict": "held_constant",
+      "note": "方差≈0 或与设计列共线：不可单独筛选（结构性结论，不含因果含义）；边际相关不可计算（not_computable_constant）",
+      "confounded": false,
+      "marginal_significant": false,
+      "adjusted_significant": false,
+      "evidence_level": "L3"
+    },
+    {
+      "factor": "oven1_temp_c",
+      "response": "coat_weight_gsm",
+      "kind": "held_constant",
+      "marginal": {
+        "r": 0.7632,
+        "p": 0.0,
+        "n": 27,
+        "method": "core_stats.pearson"
+      },
+      "design_adjusted": null,
+      "verdict": "held_constant",
+      "note": "方差≈0 或与设计列共线：不可单独筛选（结构性结论，不含因果含义）；边际 r=0.7632 (p=0.0, n=27, core_stats)；与设计列 solid_content_pct[55] 共线 (|r|=1.0) — 不可单独估计，按 held_constant 处理",
+      "confounded": false,
+      "marginal_significant": true,
+      "adjusted_significant": false,
+      "evidence_level": "L3"
+    },
+    {
+      "factor": "oven2_temp_c",
+      "response": "coat_weight_gsm",
+      "kind": "held_constant",
+      "marginal": {
+        "r": 0.3345,
+        "p": 0.0881,
+        "n": 27,
+        "method": "core_stats.pearson"
+      },
+      "design_adjusted": null,
+      "verdict": "held_constant",
+      "note": "方差≈0 或与设计列共线：不可单独筛选（结构性结论，不含因果含义）；边际 r=0.3345 (p=0.0881, n=27, core_stats)；与设计列 oven1_temp_c[80] 共线 (|r|=1.0) — 不可单独估计，按 held_constant 处理",
+      "confounded": false,
+      "marginal_significant": false,
+      "adjusted_significant": false,
+      "evidence_level": "L3"
+    },
+    {
+      "factor": "solid_content_pct",
+      "response": "coat_weight_gsm",
+      "kind": "held_constant",
+      "marginal": {
+        "r": 0.7632,
+        "p": 0.0,
+        "n": 27,
+        "method": "core_stats.pearson"
+      },
+      "design_adjusted": null,
+      "verdict": "held_constant",
+      "note": "方差≈0 或与设计列共线：不可单独筛选（结构性结论，不含因果含义）；边际 r=0.7632 (p=0.0, n=27, core_stats)；与设计列 substrate_gsm[105] 共线 (|r|=1.0) — 不可单独估计，按 held_constant 处理",
+      "confounded": false,
+      "marginal_significant": true,
+      "adjusted_significant": false,
+      "evidence_level": "L3"
+    },
+    {
+      "factor": "substrate_gsm",
+      "response": "coat_weight_gsm",
+      "kind": "held_constant",
+      "marginal": {
+        "r": 0.3345,
+        "p": 0.0881,
+        "n": 27,
+        "method": "core_stats.pearson"
+      },
+      "design_adjusted": null,
+      "verdict": "held_constant",
+      "note": "方差≈0 或与设计列共线：不可单独筛选（结构性结论，不含因果含义）；边际 r=0.3345 (p=0.0881, n=27, core_stats)；与设计列 oven1_temp_c[80] 共线 (|r|=1.0) — 不可单独估计，按 held_constant 处理",
+      "confounded": false,
+      "marginal_significant": false,
+      "adjusted_significant": false,
+      "evidence_level": "L3"
+    },
+    {
+      "factor": "tension_n",
+      "response": "coat_weight_gsm",
+      "kind": "held_constant",
+      "marginal": {
+        "r": 0.7632,
+        "p": 0.0,
+        "n": 27,
+        "method": "core_stats.pearson"
+      },
+      "design_adjusted": null,
+      "verdict": "held_constant",
+      "note": "方差≈0 或与设计列共线：不可单独筛选（结构性结论，不含因果含义）；边际 r=0.7632 (p=0.0, n=27, core_stats)；与设计列 solid_content_pct[55] 共线 (|r|=1.0) — 不可单独估计，按 held_constant 处理",
+      "confounded": false,
+      "marginal_significant": true,
+      "adjusted_significant": false,
+      "evidence_level": "L3"
+    },
+    {
+      "factor": "coat_speed_mpm",
+      "response": "coating_thick_um",
+      "kind": "held_constant",
+      "marginal": {
+        "r": null,
+        "p": null,
+        "n": 27,
+        "method": "not_computable_constant"
+      },
+      "design_adjusted": null,
+      "verdict": "held_constant",
+      "note": "方差≈0 或与设计列共线：不可单独筛选（结构性结论，不含因果含义）；边际相关不可计算（not_computable_constant）",
+      "confounded": false,
+      "marginal_significant": false,
+      "adjusted_significant": false,
+      "evidence_level": "L3"
+    },
+    {
+      "factor": "gap_um",
+      "response": "coating_thick_um",
+      "kind": "held_constant",
+      "marginal": {
+        "r": null,
+        "p": null,
+        "n": 27,
+        "method": "not_computable_constant"
+      },
+      "design_adjusted": null,
+      "verdict": "held_constant",
+      "note": "方差≈0 或与设计列共线：不可单独筛选（结构性结论，不含因果含义）；边际相关不可计算（not_computable_constant）",
+      "confounded": false,
+      "marginal_significant": false,
+      "adjusted_significant": false,
+      "evidence_level": "L3"
+    },
+    {
+      "factor": "humidity_rh",
+      "response": "coating_thick_um",
+      "kind": "held_constant",
+      "marginal": {
+        "r": null,
+        "p": null,
+        "n": 27,
+        "method": "not_computable_constant"
+      },
+      "design_adjusted": null,
+      "verdict": "held_constant",
+      "note": "方差≈0 或与设计列共线：不可单独筛选（结构性结论，不含因果含义）；边际相关不可计算（not_computable_constant）",
+      "confounded": false,
+      "marginal_significant": false,
+      "adjusted_significant": false,
+      "evidence_level": "L3"
+    },
+    {
+      "factor": "oven1_temp_c",
+      "response": "coating_thick_um",
+      "kind": "held_constant",
+      "marginal": {
+        "r": 0.2572,
+        "p": 0.1952,
+        "n": 27,
+        "method": "core_stats.pearson"
+      },
+      "design_adjusted": null,
+      "verdict": "held_constant",
+      "note": "方差≈0 或与设计列共线：不可单独筛选（结构性结论，不含因果含义）；边际 r=0.2572 (p=0.1952, n=27, core_stats)；与设计列 solid_content_pct[55] 共线 (|r|=1.0) — 不可单独估计，按 held_constant 处理",
+      "confounded": false,
+      "marginal_significant": false,
+      "adjusted_significant": false,
+      "evidence_level": "L3"
+    },
+    {
+      "factor": "oven2_temp_c",
+      "response": "coating_thick_um",
+      "kind": "held_constant",
+      "marginal": {
+        "r": 0.0579,
+        "p": 0.7743,
+        "n": 27,
+        "method": "core_stats.pearson"
+      },
+      "design_adjusted": null,
+      "verdict": "held_constant",
+      "note": "方差≈0 或与设计列共线：不可单独筛选（结构性结论，不含因果含义）；边际 r=0.0579 (p=0.7743, n=27, core_stats)；与设计列 oven1_temp_c[80] 共线 (|r|=1.0) — 不可单独估计，按 held_constant 处理",
+      "confounded": false,
+      "marginal_significant": false,
+      "adjusted_significant": false,
+      "evidence_level": "L3"
+    },
+    {
+      "factor": "solid_content_pct",
+      "response": "coating_thick_um",
+      "kind": "held_constant",
+      "marginal": {
+        "r": 0.2572,
+        "p": 0.1952,
+        "n": 27,
+        "method": "core_stats.pearson"
+      },
+      "design_adjusted": null,
+      "verdict": "held_constant",
+      "note": "方差≈0 或与设计列共线：不可单独筛选（结构性结论，不含因果含义）；边际 r=0.2572 (p=0.1952, n=27, core_stats)；与设计列 substrate_gsm[105] 共线 (|r|=1.0) — 不可单独估计，按 held_constant 处理",
+      "confounded": false,
+      "marginal_significant": false,
+      "adjusted_significant": false,
+      "evidence_level": "L3"
+    },
+    {
+      "factor": "substrate_gsm",
+      "response": "coating_thick_um",
+      "kind": "held_constant",
+      "marginal": {
+        "r": 0.0579,
+        "p": 0.7743,
+        "n": 27,
+        "method": "core_stats.pearson"
+      },
+      "design_adjusted": null,
+      "verdict": "held_constant",
+      "note": "方差≈0 或与设计列共线：不可单独筛选（结构性结论，不含因果含义）；边际 r=0.0579 (p=0.7743, n=27, core_stats)；与设计列 oven1_temp_c[80] 共线 (|r|=1.0) — 不可单独估计，按 held_constant 处理",
+      "confounded": false,
+      "marginal_significant": false,
+      "adjusted_significant": false,
+      "evidence_level": "L3"
+    },
+    {
+      "factor": "tension_n",
+      "response": "coating_thick_um",
+      "kind": "held_constant",
+      "marginal": {
+        "r": 0.2572,
+        "p": 0.1952,
+        "n": 27,
+        "method": "core_stats.pearson"
+      },
+      "design_adjusted": null,
+      "verdict": "held_constant",
+      "note": "方差≈0 或与设计列共线：不可单独筛选（结构性结论，不含因果含义）；边际 r=0.2572 (p=0.1952, n=27, core_stats)；与设计列 solid_content_pct[55] 共线 (|r|=1.0) — 不可单独估计，按 held_constant 处理",
+      "confounded": false,
+      "marginal_significant": false,
+      "adjusted_significant": false,
+      "evidence_level": "L3"
+    },
+    {
+      "factor": "coat_speed_mpm",
+      "response": "defect_rate_pct",
+      "kind": "held_constant",
+      "marginal": {
+        "r": null,
+        "p": null,
+        "n": 27,
+        "method": "not_computable_constant"
+      },
+      "design_adjusted": null,
+      "verdict": "held_constant",
+      "note": "方差≈0 或与设计列共线：不可单独筛选（结构性结论，不含因果含义）；边际相关不可计算（not_computable_constant）",
+      "confounded": false,
+      "marginal_significant": false,
+      "adjusted_significant": false,
+      "evidence_level": "L3"
+    },
+    {
+      "factor": "gap_um",
+      "response": "defect_rate_pct",
+      "kind": "held_constant",
+      "marginal": {
+        "r": null,
+        "p": null,
+        "n": 27,
+        "method": "not_computable_constant"
+      },
+      "design_adjusted": null,
+      "verdict": "held_constant",
+      "note": "方差≈0 或与设计列共线：不可单独筛选（结构性结论，不含因果含义）；边际相关不可计算（not_computable_constant）",
+      "confounded": false,
+      "marginal_significant": false,
+      "adjusted_significant": false,
+      "evidence_level": "L3"
+    },
+    {
+      "factor": "humidity_rh",
+      "response": "defect_rate_pct",
+      "kind": "held_constant",
+      "marginal": {
+        "r": null,
+        "p": null,
+        "n": 27,
+        "method": "not_computable_constant"
+      },
+      "design_adjusted": null,
+      "verdict": "held_constant",
+      "note": "方差≈0 或与设计列共线：不可单独筛选（结构性结论，不含因果含义）；边际相关不可计算（not_computable_constant）",
+      "confounded": false,
+      "marginal_significant": false,
+      "adjusted_significant": false,
+      "evidence_level": "L3"
+    },
+    {
+      "factor": "oven1_temp_c",
+      "response": "defect_rate_pct",
+      "kind": "held_constant",
+      "marginal": {
+        "r": 0.8212,
+        "p": 0.0,
+        "n": 27,
+        "method": "core_stats.pearson"
+      },
+      "design_adjusted": null,
+      "verdict": "held_constant",
+      "note": "方差≈0 或与设计列共线：不可单独筛选（结构性结论，不含因果含义）；边际 r=0.8212 (p=0.0, n=27, core_stats)；与设计列 solid_content_pct[55] 共线 (|r|=1.0) — 不可单独估计，按 held_constant 处理",
+      "confounded": false,
+      "marginal_significant": true,
+      "adjusted_significant": false,
+      "evidence_level": "L3"
+    },
+    {
+      "factor": "oven2_temp_c",
+      "response": "defect_rate_pct",
+      "kind": "held_constant",
+      "marginal": {
+        "r": -0.0,
+        "p": 1.0,
+        "n": 27,
+        "method": "core_stats.pearson"
+      },
+      "design_adjusted": null,
+      "verdict": "held_constant",
+      "note": "方差≈0 或与设计列共线：不可单独筛选（结构性结论，不含因果含义）；边际 r=-0.0 (p=1.0, n=27, core_stats)；与设计列 oven1_temp_c[80] 共线 (|r|=1.0) — 不可单独估计，按 held_constant 处理",
+      "confounded": false,
+      "marginal_significant": false,
+      "adjusted_significant": false,
+      "evidence_level": "L3"
+    },
+    {
+      "factor": "solid_content_pct",
+      "response": "defect_rate_pct",
+      "kind": "held_constant",
+      "marginal": {
+        "r": 0.8212,
+        "p": 0.0,
+        "n": 27,
+        "method": "core_stats.pearson"
+      },
+      "design_adjusted": null,
+      "verdict": "held_constant",
+      "note": "方差≈0 或与设计列共线：不可单独筛选（结构性结论，不含因果含义）；边际 r=0.8212 (p=0.0, n=27, core_stats)；与设计列 substrate_gsm[105] 共线 (|r|=1.0) — 不可单独估计，按 held_constant 处理",
+      "confounded": false,
+      "marginal_significant": true,
+      "adjusted_significant": false,
+      "evidence_level": "L3"
+    },
+    {
+      "factor": "substrate_gsm",
+      "response": "defect_rate_pct",
+      "kind": "held_constant",
+      "marginal": {
+        "r": -0.0,
+        "p": 1.0,
+        "n": 27,
+        "method": "core_stats.pearson"
+      },
+      "design_adjusted": null,
+      "verdict": "held_constant",
+      "note": "方差≈0 或与设计列共线：不可单独筛选（结构性结论，不含因果含义）；边际 r=-0.0 (p=1.0, n=27, core_stats)；与设计列 oven1_temp_c[80] 共线 (|r|=1.0) — 不可单独估计，按 held_constant 处理",
+      "confounded": false,
+      "marginal_significant": false,
+      "adjusted_significant": false,
+      "evidence_level": "L3"
+    },
+    {
+      "factor": "tension_n",
+      "response": "defect_rate_pct",
+      "kind": "held_constant",
+      "marginal": {
+        "r": 0.8212,
+        "p": 0.0,
+        "n": 27,
+        "method": "core_stats.pearson"
+      },
+      "design_adjusted": null,
+      "verdict": "held_constant",
+      "note": "方差≈0 或与设计列共线：不可单独筛选（结构性结论，不含因果含义）；边际 r=0.8212 (p=0.0, n=27, core_stats)；与设计列 solid_content_pct[55] 共线 (|r|=1.0) — 不可单独估计，按 held_constant 处理",
+      "confounded": false,
+      "marginal_significant": true,
+      "adjusted_significant": false,
+      "evidence_level": "L3"
+    }
+  ]
+}

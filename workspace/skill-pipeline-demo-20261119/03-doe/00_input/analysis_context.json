@@ -1,0 +1,140 @@
+{
+  "scene": {
+    "name": "lithium_coating_doe",
+    "process_type": "coating",
+    "equipment": [
+      "coater",
+      "oven1",
+      "oven2"
+    ]
+  },
+  "factors": [
+    {
+      "col": "coat_speed_mpm",
+      "unit": [
+        120,
+        150,
+        180
+      ],
+      "min": "/",
+      "max": "n",
+      "levels": "m/min"
+    },
+    {
+      "col": "oven1_temp_c",
+      "unit": [
+        80,
+        90,
+        100
+      ],
+      "min": "℃",
+      "max": "℃",
+      "levels": "℃"
+    },
+    {
+      "col": "oven2_temp_c",
+      "unit": [
+        70,
+        80,
+        90
+      ],
+      "min": "℃",
+      "max": "℃",
+      "levels": "℃"
+    },
+    {
+      "col": "gap_um",
+      "unit": [
+        150,
+        180,
+        210
+      ],
+      "min": "m",
+      "max": "µ",
+      "levels": "µm"
+    },
+    {
+      "col": "solid_content_pct",
+      "unit": [
+        55,
+        60,
+        65
+      ],
+      "min": "%",
+      "max": "%",
+      "levels": "%"
+    },
+    {
+      "col": "substrate_gsm",
+      "unit": [
+        95,
+        105,
+        115
+      ],
+      "min": "/",
+      "max": "²",
+      "levels": "g/m²"
+    },
+    {
+      "col": "humidity_rh",
+      "unit": [
+        35,
+        50,
+        65
+      ],
+      "min": "%",
+      "max": "R",
+      "levels": "%RH"
+    },
+    {
+      "col": "tension_n",
+      "unit": [
+        300,
+        350,
+        400
+      ],
+      "min": "N",
+      "max": "N",
+      "levels": "N"
+    }
+  ],
+  "responses": [
+    {
+      "col": "coat_weight_gsm",
+      "unit": "g/m²",
+      "goal": "target",
+      "target": 4.0,
+      "lsl": 3.8,
+      "usl": 4.2
+    },
+    {
+      "col": "coating_thick_um",
+      "unit": "µm",
+      "goal": "target",
+      "target": 10.5,
+      "lsl": 9.5,
+      "usl": 11.5
+    },
+    {
+      "col": "defect_rate_pct",
+      "unit": "%",
+      "goal": "minimize",
+      "usl": 0.5
+    }
+  ],
+  "design_type_declared": "partial_factorial_3level",
+  "data_stage": "collected",
+  "inference": {
+    "assigned_by": "user"
+  },
+  "_predictor_cols": [
+    "coat_speed_mpm",
+    "oven1_temp_c",
+    "oven2_temp_c",
+    "gap_um",
+    "solid_content_pct",
+    "substrate_gsm",
+    "humidity_rh",
+    "tension_n"
+  ]
+}

@@ -18,6 +18,8 @@
 <img src="https://img.shields.io/badge/%E7%BB%93%E6%9E%9C%E5%BA%93-%E8%87%AA%E5%8A%A8%E6%91%98%E8%A6%81%20%C2%B7%20%E5%88%86%E7%B1%BB%E7%AE%A1%E7%90%86-9b7bd4?style=flat-square" alt="分析结果库">
 <img src="https://img.shields.io/badge/%E5%9F%BA%E5%87%86-Rubric%2094.6-8fbf6a?style=flat-square" alt="基准 Rubric 94.6">
 <img src="https://img.shields.io/badge/%E5%90%8E%E7%AB%AF%E6%B5%8B%E8%AF%95-434%20%E9%80%9A%E8%BF%87-8fbf6a?style=flat-square" alt="后端测试">
+<img src="https://img.shields.io/badge/Skill%20%E5%A5%97%E4%BB%B6-784%20%E9%80%9A%E8%BF%87-8fbf6a?style=flat-square" alt="Skill 套件">
+<img src="https://img.shields.io/badge/%E5%AE%9E%E6%B5%8B%E9%AA%8C%E6%94%B6-8%20%E5%9C%BA%E6%99%AF%20%2B%2033%20API-8fbf6a?style=flat-square" alt="实测验收">
 <img src="https://img.shields.io/badge/%E9%89%B4%E6%9D%83-%E5%A4%9A%E7%A7%9F%E6%88%B7%20%C2%B7%20RBAC%20%C2%B7%20CSRF-6ba8b8?style=flat-square" alt="鉴权与多租户">
 <img src="https://img.shields.io/badge/%E5%90%AF%E5%8A%A8-%E4%B8%80%E6%9D%A1%E5%91%BD%E4%BB%A4-f4b65a?style=flat-square" alt="一键启动">
 <img src="https://img.shields.io/badge/Node-%E2%89%A518-339933?style=flat-square&logo=nodedotjs&logoColor=white" alt="Node">
@@ -1098,7 +1100,8 @@ ls -la workspace/diagnostic-runs/<run>/                         # 检查各步�
 | 验证 | 范围 | 结果 | 证据 |
 |------|------|------|------|
 | 后端测试套件 | 路由 · 服务 · 引擎适配器 · HTTP e2e（fake CLI / fake ACP / codex app-server）——含租户隔离、CSRF/CORS、限流、迁移框架 | **434/434 通过** | `app/backend npm test` |
-| Skill 测试套件 | 稳定性报告 181 · 哨兵 183 · 改善建议 52（含篡改密封门禁）· DOE 分析器 199 | **615/615 通过** | 各 skill `uv run … tests/run_tests.py` |
+| Skill 测试套件 | 稳定性报告 181 · 哨兵 183 · 改善建议 52（含篡改密封门禁）· DOE 分析器 199 · 调优经验库 169 | **784/784 通过** | 各 skill `uv run … tests/run_tests.py` |
+| Skill 管线实测验收 · 2026-11-19 | 7 个 skill 的 8 个真实数据场景——稳定性 folder 档案 86.2/A · 哨兵 22 告警+第二拍风暴压制 · DOE 观察性 B 与设计型 A · 建议经物理门处方后 B · 闭环归因+收敛 verified · 深诊断 9 步 DETERMINED（Judge 91, ENDORSED）——外加 7 意图 API 全生命周期 33 项验收（两步制、chat 语义、越权 404、CSRF、限流 429） | **全部通过** | [`workspace/skill-pipeline-demo-20261119/integration_report.html`](workspace/skill-pipeline-demo-20261119/integration_report.html) |
 | Skill 设计静态审计 | 25 skills / 17 agents · frontmatter · 协议引用 · JSON Schema · 脚本路径 | **0 failures** | `node scripts/audit/skill-design.mjs` |
 | API 契约（只读） | harness · capabilities · history · 有界快照 · 报告/资产 · 鉴权/404 | **22/22 通过** | `node scripts/e2e/api-contract-final.mjs` |
 | 结果库 API | 索引过滤/brief/分页 · 详情（summary_json/sources/report_md）· PATCH 规则 · capabilities | **37/37 通过** | `node scripts/e2e/results-api-acceptance.mjs --base http://127.0.0.1:3210` |

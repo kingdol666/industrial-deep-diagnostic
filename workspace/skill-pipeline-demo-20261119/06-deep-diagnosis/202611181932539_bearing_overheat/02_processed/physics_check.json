@@ -1,0 +1,82 @@
+{
+  "generated_at": "2026-11-19T03:47:21.714250",
+  "scenario": "rotating_equipment_cooling",
+  "checks_summary": {
+    "arrhenius_kinetics": "ARRHENIUS_PLAUSIBLE",
+    "vibration_threshold": "VIBRATION_ACCEPTABLE",
+    "heat_transfer": "FOULING_PROGRESSION"
+  },
+  "physical_checks": {
+    "arrhenius_kinetics": {
+      "check": "arrhenius_kinetics",
+      "Ea_J_per_mol": 80000,
+      "R_J_per_mol_K": 8.314,
+      "T_low_C": 26.9,
+      "T_high_C": 73.4,
+      "predicted_rate_ratio": 74.1006,
+      "observed_rate_ratio": 1.1407,
+      "conclusion": "ARRHENIUS_PLAUSIBLE",
+      "explanation": "Rate ratio 7.41e+01 is physically observable — temperature-driven degradation is plausible",
+      "observational_consistency": "INCONSISTENT",
+      "observational_detail": "Observed rate ratio (1.14) deviates significantly from Arrhenius prediction (7.41e+01) — other mechanisms may dominate",
+      "Ea_assumed_default": true,
+      "Ea_note": "No activation energy supplied via --ea-kj-mol/ontology — 80 kJ/mol neutral prior used; conclusion is a plausibility band, not a quantitative law"
+    },
+    "vibration_threshold": {
+      "check": "vibration_threshold",
+      "iso_10816_zones": [
+        0,
+        1.8,
+        4.5,
+        11.2,
+        null
+      ],
+      "zones": {
+        "A (good)": {
+          "count": 0,
+          "mean": null
+        },
+        "B (acceptable)": {
+          "count": 120,
+          "mean": 68.8862,
+          "std": 4.0333
+        },
+        "C (unsatisfactory)": {
+          "count": 0,
+          "mean": null
+        },
+        "D (unacceptable)": {
+          "count": 0,
+          "mean": null
+        }
+      },
+      "vibration_range": [
+        1.86,
+        2.521
+      ],
+      "quality_range": [
+        64.37,
+        73.43
+      ],
+      "cliff_detected": false,
+      "cliff_threshold_mm_s": null,
+      "iso_10816_applicable": true,
+      "equipment_class": "产线关键风机(电机驱动端轴承) 轴承冷却水回路 rotating_equipment_cooling",
+      "unit_note": "ISO 10816 zones are defined in mm/s velocity — verify the vibration column unit before zone interpretation",
+      "conclusion": "VIBRATION_ACCEPTABLE",
+      "explanation": "Vibration within acceptable range (max=2.5mm/s) — not the primary root cause"
+    },
+    "heat_transfer": {
+      "check": "heat_transfer",
+      "energy_proxy_mean": 401.6478,
+      "energy_proxy_cv": 0.11,
+      "proxy_first_half_mean": 444.2526,
+      "proxy_second_half_mean": 359.0429,
+      "fouling_decline_pct": 19.18,
+      "quantitative": false,
+      "dimension_note": "flow treated as MASS flow for Q=m·cp·ΔT; if the flow column is volumetric, any U scale shifts by fluid density — relative trend conclusions unaffected",
+      "conclusion": "FOULING_PROGRESSION",
+      "explanation": "Energy proxy declined 19.2% from first to second half of data — consistent with progressive fouling"
+    }
+  }
+}

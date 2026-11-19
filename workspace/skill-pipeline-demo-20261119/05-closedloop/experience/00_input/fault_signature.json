@@ -1,0 +1,17 @@
+{
+  "signature_version": "1.0",
+  "source_ref": "manual-observation-20261119-IMM07",
+  "anomalous_params": [
+    {
+      "parameter": "barrel_temp_c",
+      "direction": "low",
+      "severity": 1.6
+    }
+  ],
+  "regime": {
+    "product": "PP-Cup-330ml",
+    "machine": "IMM-07",
+    "regime_label": "normal"
+  },
+  "degraded_metric": "energy_kwh_per_kg"
+}

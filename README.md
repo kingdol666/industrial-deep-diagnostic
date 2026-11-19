@@ -18,6 +18,8 @@
 <img src="https://img.shields.io/badge/Results%20library-auto%20summary%20·%20categories-9b7bd4?style=flat-square" alt="Results library">
 <img src="https://img.shields.io/badge/Benchmark-Rubric%2094.6-8fbf6a?style=flat-square" alt="Benchmark rubric 94.6">
 <img src="https://img.shields.io/badge/Backend%20tests-434%20passed-8fbf6a?style=flat-square" alt="Backend tests">
+<img src="https://img.shields.io/badge/Skill%20suites-784%20passed-8fbf6a?style=flat-square" alt="Skill suites">
+<img src="https://img.shields.io/badge/Live%20acceptance-8%20scenarios%20%2B%2033%20API%20checks-8fbf6a?style=flat-square" alt="Live acceptance">
 <img src="https://img.shields.io/badge/Auth-multi%20tenant%20·%20RBAC%20·%20CSRF-6ba8b8?style=flat-square" alt="Auth and tenancy">
 <img src="https://img.shields.io/badge/Setup-one%20command-f4b65a?style=flat-square" alt="One-command setup">
 <img src="https://img.shields.io/badge/Node-%E2%89%A518-339933?style=flat-square&logo=nodedotjs&logoColor=white" alt="Node">
@@ -1237,7 +1239,8 @@ Every release-quality claim traces to a repeatable check, not to a paragraph of 
 | Verification | Scope | Result | Evidence |
 |------|------|------|------|
 | Backend test suite | routes · services · engine adapters · HTTP e2e (fake CLI / fake ACP / codex app-server) — incl. tenancy isolation, CSRF/CORS, rate limits, migration framework | **434/434 pass** | `app/backend npm test` |
-| Skill suites | stability report 181 · sentinel 183 · improvement advisor 52 (incl. tamper-sealed gate) · DOE analyzer 199 | **615/615 pass** | `uv run … tests/run_tests.py` per skill |
+| Skill suites | stability report 181 · sentinel 183 · improvement advisor 52 (incl. tamper-sealed gate) · DOE analyzer 199 · tuning memory 169 | **784/784 pass** | `uv run … tests/run_tests.py` per skill |
+| Live skill-pipeline acceptance · 2026-11-19 | 8 real-data scenarios across 7 skills — stability folder profile 86.2/A · sentinel 22-alert second tick (storm suppression) · DOE observational B **and** designed A · advisor B after a real physics-gate prescription · closed-loop attribution+convergence verified · deep-diagnosis 9-step DETERMINED (Judge 91, ENDORSED) — plus a 33-check API lifecycle on all 7 intents (two-step start/execute, chat semantics, no-existence-leak 404s, CSRF, rate-limit 429) | **all pass** | [`workspace/skill-pipeline-demo-20261119/integration_report.html`](workspace/skill-pipeline-demo-20261119/integration_report.html) |
 | Static skill design | 25 skills / 17 agents · frontmatter · protocol refs · JSON schemas · script refs | **0 failures** | `node scripts/audit/skill-design.mjs` |
 | API contract (GET-only) | harness · capabilities · history · bounded snapshot · report/assets · auth/404 | **22/22 pass** | `node scripts/e2e/api-contract-final.mjs` |
 | Results library API | index filters/brief/paging · detail (summary_json/sources/report_md) · PATCH rules · capabilities | **37/37 pass** | `node scripts/e2e/results-api-acceptance.mjs --base http://127.0.0.1:3210` |

@@ -1,0 +1,43 @@
+{
+  "contract_version": "1.0",
+  "artifact": "ontology_coverage",
+  "scene_key": "packaging_line_oven",
+  "profile": "stability",
+  "data_stage": "collected",
+  "context_fp": "sha256:51b8cd3a70dd455d564ae26d0f0589d0da193c5006064288c11e06eece54ee37",
+  "ontology_version": 2,
+  "ontology_sha256": "sha256:ee81bd8f7aa5d30a0bc3f5c165d6fa966cf57ec95731e11db1ff154d1244e47b",
+  "generated_by": "ontology_prepare.py",
+  "columns": [
+    {
+      "col": "scrap_rate_pct",
+      "watch_role": "inspection",
+      "status": "matched",
+      "reason": "上下文声明为inspection列（report_context declaration）",
+      "unit": "%",
+      "unit_status": "declared",
+      "knowledge_source": "user_provided"
+    }
+  ],
+  "column_mapping": {
+    "matched": [
+      {
+        "col": "scrap_rate_pct",
+        "reason": "上下文声明为inspection列（report_context declaration）"
+      }
+    ],
+    "inferred": [],
+    "unmatched": []
+  },
+  "coverage": {
+    "n_columns_total": 1,
+    "n_columns_mapped": 1,
+    "n_matched": 1,
+    "n_inferred": 0,
+    "n_unmatched": 0,
+    "ratio": 1.0,
+    "matched_ratio": 1.0
+  },
+  "elapsed_ms": 199,
+  "generated_at": "2026-11-18T19:27:39.599457+00:00"
+}

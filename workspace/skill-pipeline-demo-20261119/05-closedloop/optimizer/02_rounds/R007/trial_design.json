@@ -1,0 +1,198 @@
+{
+  "design_version": "1.0",
+  "campaign_id": "OPT-20261119-001",
+  "round_id": "R007",
+  "phase": "explore",
+  "method": "rsm_augment",
+  "trials": [
+    {
+      "trial_id": "R007-T01",
+      "setpoints": {
+        "barrel_temp_c": 184.980584,
+        "cooling_time_s": 28.609994
+      },
+      "extrapolation": false,
+      "safety_checked": true,
+      "distance_to_incumbent_coded": 0.344192,
+      "expected": {
+        "energy_kwh_per_kg": {
+          "mean": 2.278101,
+          "ci95": [
+            1.778299,
+            2.777902
+          ]
+        }
+      },
+      "predicted_D": 0.86635,
+      "selection_reason": "rsm_augment: axial/corner augmentation, quadratic stationary-centered (class=min); rsm_augment; dup_to_existing=False; nearest_data_coded=0.327"
+    },
+    {
+      "trial_id": "R007-T02",
+      "setpoints": {
+        "barrel_temp_c": 195.480584,
+        "cooling_time_s": 28.609994
+      },
+      "extrapolation": false,
+      "safety_checked": true,
+      "distance_to_incumbent_coded": 0.410012,
+      "expected": {
+        "energy_kwh_per_kg": {
+          "mean": 2.810495,
+          "ci95": [
+            2.141683,
+            3.479308
+          ]
+        }
+      },
+      "predicted_D": 0.554406,
+      "selection_reason": "rsm_augment: axial/corner augmentation, quadratic stationary-centered (class=min); rsm_augment; dup_to_existing=False; nearest_data_coded=0.344"
+    },
+    {
+      "trial_id": "R007-T03",
+      "setpoints": {
+        "barrel_temp_c": 174.480584,
+        "cooling_time_s": 28.609994
+      },
+      "extrapolation": false,
+      "safety_checked": true,
+      "distance_to_incumbent_coded": 0.888159,
+      "expected": {
+        "energy_kwh_per_kg": {
+          "mean": 2.629979,
+          "ci95": [
+            2.248088,
+            3.01187
+          ]
+        }
+      },
+      "predicted_D": 0.660175,
+      "selection_reason": "rsm_augment: axial/corner augmentation, quadratic stationary-centered (class=min); rsm_augment; dup_to_existing=False; nearest_data_coded=0.391"
+    },
+    {
+      "trial_id": "R007-T04",
+      "setpoints": {
+        "barrel_temp_c": 184.980584,
+        "cooling_time_s": 37.609994
+      },
+      "extrapolation": false,
+      "safety_checked": true,
+      "distance_to_incumbent_coded": 0.453806,
+      "expected": {
+        "energy_kwh_per_kg": {
+          "mean": 2.272705,
+          "ci95": [
+            1.600479,
+            2.944932
+          ]
+        }
+      },
+      "predicted_D": 0.869511,
+      "selection_reason": "rsm_augment: axial/corner augmentation, quadratic stationary-centered (class=min); rsm_augment; dup_to_existing=False; nearest_data_coded=0.454"
+    },
+    {
+      "trial_id": "R007-T05",
+      "setpoints": {
+        "barrel_temp_c": 184.980584,
+        "cooling_time_s": 19.609994
+      },
+      "extrapolation": false,
+      "safety_checked": true,
+      "distance_to_incumbent_coded": 0.8666,
+      "expected": {
+        "energy_kwh_per_kg": {
+          "mean": 2.399493,
+          "ci95": [
+            2.138255,
+            2.660731
+          ]
+        }
+      },
+      "predicted_D": 0.795223,
+      "selection_reason": "rsm_augment: axial/corner augmentation, quadratic stationary-centered (class=min); rsm_augment; dup_to_existing=False; nearest_data_coded=0.273"
+    },
+    {
+      "trial_id": "R007-T06",
+      "setpoints": {
+        "barrel_temp_c": 174.480584,
+        "cooling_time_s": 19.609994
+      },
+      "extrapolation": false,
+      "safety_checked": true,
+      "distance_to_incumbent_coded": 1.192205,
+      "expected": {
+        "energy_kwh_per_kg": {
+          "mean": 2.630662,
+          "ci95": [
+            2.411449,
+            2.849874
+          ]
+        }
+      },
+      "predicted_D": 0.659775,
+      "selection_reason": "rsm_augment: axial/corner augmentation, quadratic stationary-centered (class=min); rsm_augment; dup_to_existing=False; nearest_data_coded=0.209"
+    },
+    {
+      "trial_id": "R007-T07",
+      "setpoints": {
+        "barrel_temp_c": 174.480584,
+        "cooling_time_s": 37.609994
+      },
+      "extrapolation": true,
+      "safety_checked": true,
+      "distance_to_incumbent_coded": 0.936108,
+      "expected": {
+        "energy_kwh_per_kg": {
+          "mean": 2.629858,
+          "ci95": [
+            1.805349,
+            3.454368
+          ]
+        }
+      },
+      "predicted_D": 0.660246,
+      "selection_reason": "rsm_augment: axial/corner augmentation, quadratic stationary-centered (class=min); rsm_augment; dup_to_existing=False; nearest_data_coded=0.936"
+    },
+    {
+      "trial_id": "R007-T08",
+      "setpoints": {
+        "barrel_temp_c": 195.480584,
+        "cooling_time_s": 19.609994
+      },
+      "extrapolation": false,
+      "safety_checked": true,
+      "distance_to_incumbent_coded": 0.894784,
+      "expected": {
+        "energy_kwh_per_kg": {
+          "mean": 2.966312,
+          "ci95": [
+            2.446606,
+            3.486018
+          ]
+        }
+      },
+      "predicted_D": 0.463109,
+      "selection_reason": "rsm_augment: axial/corner augmentation, quadratic stationary-centered (class=min); rsm_augment; dup_to_existing=False; nearest_data_coded=0.267"
+    }
+  ],
+  "model_summary": {
+    "kind": "gp_ard_rbf",
+    "log_ml": -6.186422,
+    "lengthscales": {
+      "x0": -1.18068,
+      "x1": 0.175826
+    },
+    "sigma_noise": 0.028357,
+    "fallback_active": false
+  },
+  "gating": {
+    "domain_ok": true,
+    "safety_ok": true,
+    "duplication_ratio": 0.0
+  },
+  "provenance": {
+    "input_sha256": "dbab2c1420c5f49278f128ded37db86fdba8bddb327854a970497eab22b71de9",
+    "script_version": "1.0.0",
+    "seed": 42,
+    "authored_by": "script"
+  }
+}

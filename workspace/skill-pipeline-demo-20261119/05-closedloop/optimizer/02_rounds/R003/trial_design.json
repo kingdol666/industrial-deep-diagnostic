@@ -1,0 +1,32 @@
+{
+  "design_version": "1.0",
+  "campaign_id": "OPT-20261119-001",
+  "round_id": "R003",
+  "phase": "explore",
+  "method": "poly_refine",
+  "trials": [
+    {
+      "trial_id": "R003-T01",
+      "setpoints": {
+        "barrel_temp_c": 190.059573,
+        "cooling_time_s": 30.854734
+      },
+      "extrapolation": true,
+      "safety_checked": true,
+      "distance_to_incumbent_coded": 1.05093,
+      "selection_reason": "poly_refine fallback: insufficient data for quadratic — LHS filler; poly_refine; dup_to_existing=False; nearest_data_coded=0.982"
+    }
+  ],
+  "model_summary": null,
+  "gating": {
+    "domain_ok": true,
+    "safety_ok": true,
+    "duplication_ratio": 0.0
+  },
+  "provenance": {
+    "input_sha256": "dbab2c1420c5f49278f128ded37db86fdba8bddb327854a970497eab22b71de9",
+    "script_version": "1.0.0",
+    "seed": 42,
+    "authored_by": "script"
+  }
+}

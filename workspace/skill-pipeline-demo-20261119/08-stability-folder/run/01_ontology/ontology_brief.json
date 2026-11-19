@@ -1,0 +1,59 @@
+{
+  "contract_version": "1.0",
+  "artifact": "ontology_brief",
+  "profile": "stability",
+  "scene_key": "packaging_folder_profile",
+  "data_stage": "collected",
+  "ontology_version": 1,
+  "ontology_sha256": "sha256:1c97d8c542f8cfedfd71e508a5135de0cfa6130982c8f51428c1f90db19c1c63",
+  "context_fp": "sha256:5938a212cd72d69a4a6cd3d95501bd0c773a4943bda1032d1fcc266a272dffef",
+  "scene": {
+    "name": "offline-data_diag",
+    "process_type": "挤出/注塑式热工艺产线（PROTO3-B3 文档驱动接入线）时序数据稳定性评估",
+    "production_goal": "评估 2026-11-01 11:03 ~ 12:03 窗口内该产线 7 个标量节点的运行稳定性，给出评分与分级、证据链与中文落地报告",
+    "objectives": [
+      "评估 2026-11-01 11:03 ~ 12:03 窗口内该产线 7 个标量节点的运行稳定性，给出评分与分级、证据链与中文落地报告"
+    ],
+    "line_id": null,
+    "product": null,
+    "scenario": null
+  },
+  "columns": [],
+  "specs_user": [],
+  "reference_bands": [],
+  "units_declared": {},
+  "units_undeclared": [],
+  "limitations": [
+    "声明先验本体：全部字段来自 report_context 声明、数据表头探测或物理词典唯一命中，不含任何实测行为（observed_data_behavior=NOT_APPLICABLE / behavior_match=UNVERIFIED）",
+    "词典纪律：parameter_to_physics.json 的 typical_ranges 是参考区间（非规格），只展示在本体 watch.reference_bands 与简报中，永不写入 normal_range/spec/Cpk",
+    "关系边留空：无方向声明不造因果边（relationships=[]），相关性发现的机理校验将按 unknown 处理并打 [MECHANISM_UNKNOWN]",
+    "数据表头不可探测（缺失或非 CSV/TSV）：先验仅来自上下文声明"
+  ],
+  "column_mapping": {
+    "matched": [],
+    "inferred": [],
+    "unmatched": []
+  },
+  "unresolved": [],
+  "coverage": {
+    "n_columns_total": 0,
+    "n_columns_mapped": 0,
+    "n_matched": 0,
+    "n_inferred": 0,
+    "n_unmatched": 0,
+    "ratio": 1.0,
+    "matched_ratio": 1.0
+  },
+  "provenance": {
+    "build_mode": "prior_knowledge",
+    "build_seconds": 0.224,
+    "rag_used": false,
+    "web_used": false,
+    "physics_prior_used": true,
+    "engine": "industrial-ontology-builder",
+    "store_version": 1,
+    "store_profile": "stability",
+    "source_note": "reused store asset offline-data_diag/stability/v1/ontology.json",
+    "lookup_status": "exact"
+  }
+}

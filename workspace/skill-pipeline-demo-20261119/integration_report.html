@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IDD Skill 管线实测总报告 · 2026-11-19</title>
+<link rel="stylesheet" href="assets/report.css">
+<style>
+.demo-card{margin:26px 0;padding:22px 24px;border:1px solid var(--line,#ddd8cc);border-radius:10px;background:#fffdf7}
+.demo-card-head{display:flex;gap:14px;align-items:flex-start}
+.demo-icon{font-size:26px;line-height:1.2}
+.demo-card h2{margin:0;font-family:var(--serif);font-size:19px}
+.demo-scene{margin:4px 0 0;color:#6b6455;font-size:13px}
+.demo-badge{margin-left:auto;align-self:center;font-size:12px;padding:3px 10px;border-radius:999px;white-space:nowrap}
+.demo-badge.is-ok{background:#e8f3e4;color:#2c6e2a}.demo-badge.is-warn{background:#fdf1dc;color:#8a5a00}
+.rpt-verdict{font-size:16px;font-weight:600;margin:14px 0 4px}
+.demo-conclusion{color:#4a4438;font-size:13.5px;margin:0 0 12px}
+.demo-table{width:100%;font-size:12.5px;border-collapse:collapse}
+.demo-table td{border-top:1px dashed #e2dccd;padding:5px 8px;vertical-align:top}
+.demo-table td:first-child{white-space:nowrap;color:#6b6455;width:110px}
+.demo-table code{background:#f4efe3;padding:1px 5px;border-radius:4px;font-size:11.5px}
+.demo-gates{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 4px}
+.demo-gate{font-size:12px;background:#e8f3e4;color:#2c6e2a;padding:3px 10px;border-radius:999px}
+.demo-sub{margin:16px 0 6px;font-size:14px}
+.demo-findings{margin:0;padding-left:0;list-style:none;font-size:13px}
+.demo-findings li{padding:5px 0;border-top:1px dashed #eee7d8;display:flex;gap:8px;align-items:baseline}
+.demo-sev{font-size:10.5px;padding:1px 7px;border-radius:999px;white-space:nowrap}
+.demo-detail{color:#8a8272}
+.demo-foot{display:flex;gap:16px;align-items:center;margin-top:14px;flex-wrap:wrap}
+.demo-link{color:#8a3324;font-weight:600;text-decoration:none;font-size:13.5px}
+.demo-link.is-muted{color:#a09a8c;font-weight:400}
+.demo-note{color:#6b6455;font-size:12.5px}
+.demo-artifacts{margin-top:10px;font-size:12px}
+.demo-artifacts code{background:#f4efe3;padding:1px 5px;border-radius:4px}
+.demo-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:18px 0}
+.demo-kpi{border:1px solid #e2dccd;border-radius:10px;padding:14px 16px;background:#fffdf7}
+.demo-kpi b{display:block;font-size:26px;font-family:var(--serif)}
+.demo-kpi span{color:#6b6455;font-size:12px}
+.demo-hero-meta{color:#6b6455;font-size:13px}
+</style>
+</head>
+<body class="rpt-scope">
+<div class="rpt-page">
+  <aside class="rpt-rail">
+    <div class="rpt-brand">INDUSTRIAL<br><span>DEEP DIAGNOSTIC</span></div>
+    <nav class="demo-nav">
+      <a href="#01-stability">∿ industrial-line-stability-</a><a href="#02-quickscreen">⌖ industrial-sentinel</a><a href="#03-doe">⚗ industrial-doe-analyzer </a><a href="#04-advisory">✚ industrial-improvement-adv</a><a href="#07-doe-designed">⚗ doe-analyzer</a><a href="#08-stability-folder">∿ line-stability-report</a><a href="#05-closedloop">⇄ tuning-memory + optimizer-</a><a href="#06-deep-diagnosis">◎ industrial-analysis-auto</a>
+    </nav>
+  </aside>
+  <main class="rpt-main">
+    <header class="rpt-hero">
+      <p class="rpt-kicker">Industrial Deep Diagnostic · Skill 管线实测</p>
+      <h1>六场景真实数据管线作业总报告</h1>
+      <p class="rpt-hero-meta">执行者:当前会话智能体 + 2 个并行 subAgent · 确定性脚本产出全部数字 · 不经系统 harness 引擎 · 2026-11-19 06:27 UTC</p>
+      <div class="demo-kpis">
+        <div class="demo-kpi"><b>8/8</b><span>场景全链完成</span></div>
+        <div class="demo-kpi"><b>7</b><span>份 HTML 报告</span></div>
+        <div class="demo-kpi"><b>14</b><span>组门禁(逐项 PASS)</span></div>
+        <div class="demo-kpi"><b>0</b><span>手写统计数字</span></div>
+      </div>
+      <blockquote class="rpt-verdict">诚实性声明:全部评分、门禁、增益区间均出自确定性脚本与重推门禁;两处「not_actionable / exit 2」是门禁按设计拒绝的诚实结果,已如实记录并展示其处方。</blockquote>
+    </header>
+    
+  <section class="rpt-card demo-card" id="01-stability">
+    <div class="demo-card-head">
+      <span class="demo-icon">∿</span>
+      <div>
+        <h2>industrial-line-stability-report</h2>
+        <p class="demo-scene">包装线烘箱段 · 8h DCS 导出(5761 行,5 参数,注入缓漂+阶跃)</p>
+      </div>
+      <span class="demo-badge is-ok">全链完成</span>
+    </div>
+    <p class="rpt-verdict">稳定性评分 83.5(B 级)</p>
+    <p class="demo-conclusion">该产线在本时段总体运行亚稳定（83.5 分，B 级）：评估 5 个参数，检出 574 个 SPC 违规剧集、1 项显著漂移。</p>
+    <table class="rpt-table demo-table"><tbody>
+      <tr><td>本体先备</td><td><code>ontology_prepare.py</code></td><td>built · rag_used=false · CP-2 ok</td></tr><tr><td>分析</td><td><code>stability_analyzer.py analyze</code></td><td>score=83.5 · 6 findings</td></tr><tr><td>建议适配器</td><td><code>integrated_advisory.py --origin stability</code></td><td>used · not_actionable(诚实)</td></tr><tr><td>HTML 报告</td><td><code>report_builder.py</code></td><td>line_stability_report.html 209KB</td></tr><tr><td>质量门禁</td><td><code>quality_gate.mjs</code></td><td>18/18 PASS</td></tr>
+    </tbody></table>
+    <div class="demo-gates"><span class="demo-gate is-pass">✓ 交付门禁 S1-S6 — 18/18 PASS</span></div>
+    <h3 class="demo-sub">关键发现(脚本原文)</h3><ul class="demo-findings">
+      <li><span class="demo-sev adv-grade-a">HIGH</span> oven_temp_c 检出 SPC 违规</li><li><span class="demo-sev adv-grade-a">HIGH</span> oven_temp_c 存在显著漂移</li><li><span class="demo-sev adv-grade-b">WARN</span> scrap_rate_pct 检出 SPC 违规</li><li><span class="demo-sev adv-grade-b">WARN</span> film_tension_n 检出 SPC 违规</li><li><span class="demo-sev adv-grade-b">WARN</span> line_speed_mpm 检出 SPC 违规</li><li><span class="demo-sev adv-grade-b">WARN</span> cooling_water_flow_lpm 检出 SPC 违规</li>
+    </ul>
+    <div class="demo-foot">
+      <a class="demo-link" href="01-stability/line_report/line_stability_report.html">▶ 打开本场景 HTML 报告(209 KB)</a>
+      <span class="demo-note">状态 not_actionable;处方 1 条</span>
+    </div>
+    <details class="demo-artifacts"><summary>工件清单(4)</summary><ul><li><code>line_report/stability_report.json</code></li><li><code>line_report/charts.json</code></li><li><code>advisory/advisory_actions.json</code></li><li><code>01_ontology/ontology.json</code></li></ul></details>
+  </section>
+
+  <section class="rpt-card demo-card" id="02-quickscreen">
+    <div class="demo-card-head">
+      <span class="demo-icon">⌖</span>
+      <div>
+        <h2>industrial-sentinel</h2>
+        <p class="demo-scene">包装线增量快筛 · 基线 400 行 + 当前窗 200 行(注入阶跃)</p>
+      </div>
+      <span class="demo-badge is-ok">全链完成</span>
+    </div>
+    <p class="rpt-verdict">快筛结论 alert · 6 条告警</p>
+    <p class="demo-conclusion">checks_summary={"spc":{"n_triggered":20,"rules_hit":{}},"window_projection":{"n_triggered":0},"regime":{"labels":{},"n_change_points_ne</p>
+    <table class="rpt-table demo-table"><tbody>
+      <tr><td>基线构建</td><td><code>build_baseline.py</code></td><td>baseline.json(groups=__ALL__)</td></tr><tr><td>快筛</td><td><code>sentinel_fast.py</code></td><td>status=alert · 22 alerts</td></tr><tr><td>快筛报告</td><td><code>build_screen_report.py</code></td><td>quick_screen_report.html 90KB · 5 sparklines</td></tr><tr><td>质量门禁</td><td><code>quality_gate.mjs</code></td><td>6/6 PASS</td></tr>
+    </tbody></table>
+    <div class="demo-gates"><span class="demo-gate is-pass">✓ 快筛门禁 S1-S5 — 6/6 PASS</span></div>
+    <h3 class="demo-sub">关键发现(脚本原文)</h3><ul class="demo-findings">
+      <li><span class="demo-sev adv-grade-a">HIGH</span> oven_temp_c</li><li><span class="demo-sev adv-grade-a">HIGH</span> scrap_rate_pct</li><li><span class="demo-sev adv-grade-a">HIGH</span> cooling_water_flow_lpm</li><li><span class="demo-sev adv-grade-a">HIGH</span> oven_temp_c</li><li><span class="demo-sev adv-grade-a">HIGH</span> scrap_rate_pct</li><li><span class="demo-sev adv-grade-a">HIGH</span> scrap_rate_pct</li>
+    </ul>
+    <div class="demo-foot">
+      <a class="demo-link" href="02-quickscreen/run/sentinel/quick_screen_report.html">▶ 打开本场景 HTML 报告(90 KB)</a>
+      <span class="demo-note">快筛为监控意图,不产建议</span>
+    </div>
+    <details class="demo-artifacts"><summary>工件清单(3)</summary><ul><li><code>run/watch_baseline.json</code></li><li><code>run/alert.json</code></li><li><code>run/fast_state.json</code></li></ul></details>
+  </section>
+
+  <section class="rpt-card demo-card" id="03-doe">
+    <div class="demo-card-head">
+      <span class="demo-icon">⚗</span>
+      <div>
+        <h2>industrial-doe-analyzer (+orchestrator)</h2>
+        <p class="demo-scene">锂电涂布 DOE · 27 run × 8 因子 × 3 响应(面密度/厚度/缺陷率)</p>
+      </div>
+      <span class="demo-badge is-ok">全链完成</span>
+    </div>
+    <p class="rpt-verdict">证据等级 B(observational) · 9 工件 0 缺失</p>
+    <p class="demo-conclusion">防伪裁决 PASS 的相关级发现 5 条;context_fp 语义指纹入库,rag_used=false</p>
+    <table class="rpt-table demo-table"><tbody>
+      <tr><td>本体 prepare</td><td><code>doe_ontology_prepare.py --mode auto</code></td><td>miss→built · coverage 1.0</td></tr><tr><td>brief</td><td><code>ontology_brief(随 prepare)</code></td><td>四件套落 01_ontology/</td></tr><tr><td>分析 all</td><td><code>analyze.py all</code></td><td>profile→run→contract grade=B</td></tr><tr><td>§12 建议</td><td><code>analyze.py report</code></td><td>improvement_advisory.html + selfcheck pass</td></tr><tr><td>一致性/布点</td><td><code>ontology_consistency + conclusions/next_design.json</code></td><td>0 矛盾 · 1 条布点 action</td></tr><tr><td>报告</td><td><code>report.html</code></td><td>108KB · 6 charts</td></tr>
+    </tbody></table>
+    <div class="demo-gates"><span class="demo-gate is-pass">✓ DOE 门禁 25 项 — 全绿(run 交付)</span><span class="demo-gate is-pass">✓ 本体一致性 — 0 矛盾</span></div>
+    <h3 class="demo-sub">关键发现(脚本原文)</h3><ul class="demo-findings">
+      <li><span class="demo-sev adv-grade-c">INFO</span> oven1_temp_c 与 defect_rate_pct 的相关 r=0.8212，滞后 -20 步，q(BH)=0.0，防伪裁决 PASS — 相关级证据，非因果<span class="demo-detail"> · q(BH)=0</span></li><li><span class="demo-sev adv-grade-c">INFO</span> solid_content_pct 与 defect_rate_pct 的相关 r=0.8212，滞后 -20 步，q(BH)=0.0，防伪裁决 PASS — 相关级证据，非因果<span class="demo-detail"> · q(BH)=0</span></li><li><span class="demo-sev adv-grade-c">INFO</span> tension_n 与 defect_rate_pct 的相关 r=0.8212，滞后 -20 步，q(BH)=0.0，防伪裁决 PASS — 相关级证据，非因果<span class="demo-detail"> · q(BH)=0</span></li><li><span class="demo-sev adv-grade-c">INFO</span> oven1_temp_c 与 coat_weight_gsm 的相关 r=0.7632，滞后 15 步，q(BH)=0.0，防伪裁决 PASS — 相关级证据，非因果<span class="demo-detail"> · q(BH)=0</span></li>
+    </ul>
+    <div class="demo-foot">
+      <a class="demo-link" href="03-doe/report.html">▶ 打开本场景 HTML 报告(108 KB)</a>
+      <span class="demo-note">§12 已集成(improvement_advisory.html)</span>
+    </div>
+    <details class="demo-artifacts"><summary>工件清单(4)</summary><ul><li><code>conclusions/doe_conclusion.json</code></li><li><code>conclusions/next_design.json</code></li><li><code>02_analysis/correlation_report.json</code></li><li><code>advisory/improvement_advisory.html</code></li></ul></details>
+  </section>
+
+  <section class="rpt-card demo-card" id="04-advisory">
+    <div class="demo-card-head">
+      <span class="demo-icon">✚</span>
+      <div>
+        <h2>industrial-improvement-advisor</h2>
+        <p class="demo-scene">注塑单件能耗 · 500 行 × 4 lever(死区 10s,物理门经机制边声明后放行)</p>
+      </div>
+      <span class="demo-badge is-ok">全链完成</span>
+    </div>
+    <p class="rpt-verdict">状态 actionable · 1 条动作(重推 52/52)</p>
+    <p class="demo-conclusion">三重门:数据门(dose-response r=0.9111/q=0/temporal ok)· 物理门(机制边声明后 PASS)· 归因门(观察性 cap B)</p>
+    <table class="rpt-table demo-table"><tbody>
+      <tr><td>本体 prepare</td><td><code>ontology_prepare.py</code></td><td>built · 场景入资产库</td></tr><tr><td>首轮分析</td><td><code>improvement_analyzer.py analyze</code></td><td>exit 2 = 物理门拦截(机制边缺失,处方正确)</td></tr><tr><td>按处方补边</td><td><code>ontology.json relationships 声明</code></td><td>barrel_temp→energy physical+INFERRED</td></tr><tr><td>重跑分析</td><td><code>improvement_analyzer.py analyze</code></td><td>exit 0 = actionable · B 级</td></tr><tr><td>重推门禁</td><td><code>quality_gate.mjs</code></td><td>52/52 PASS(grade/gain 全部重算一致)</td></tr><tr><td>HTML</td><td><code>report_builder.py</code></td><td>improvement_advisory.html 36KB</td></tr>
+    </tbody></table>
+    <div class="demo-gates"><span class="demo-gate is-pass">✓ 篡改密封门禁(重推 grade+gain) — 52/52 PASS</span></div>
+    <h3 class="demo-sub">关键发现(脚本原文)</h3><ul class="demo-findings">
+      <li><span class="demo-sev adv-grade-b">WARN</span> ACT-barrel_temp_c-822 → decrease<span class="demo-detail"> · gain 0.0393974584 [0.0299375872,0.0488573297]</span></li>
+    </ul>
+    <div class="demo-foot">
+      <a class="demo-link" href="04-advisory/advisory/improvement_advisory.html">▶ 打开本场景 HTML 报告(36 KB)</a>
+      <span class="demo-note">optimizer_seed.json 已产出(O-G1 种子)</span>
+    </div>
+    <details class="demo-artifacts"><summary>工件清单(5)</summary><ul><li><code>advisory/advisory_actions.json</code></li><li><code>advisory/objective_resolved.json</code></li><li><code>02_evidence/dose_response.json</code></li><li><code>02_evidence/window_check.json</code></li><li><code>advisory/optimizer_seed.json</code></li></ul></details>
+  </section>
+
+  <section class="rpt-card demo-card" id="07-doe-designed">
+    <div class="demo-card-head">
+      <span class="demo-icon">⚗</span>
+      <div>
+        <h2>doe-analyzer(设计型 · A 级路径)</h2>
+        <p class="demo-scene">注塑能耗随机化全因子 3×3×3(27 run,run_seq 随机化,响应带 target)</p>
+      </div>
+      <span class="demo-badge is-ok">全链完成</span>
+    </div>
+    <p class="rpt-verdict">grade=A(designed)· 13 工件 0 缺失</p>
+    <p class="demo-conclusion">随机化设计解锁 A 级;advisor doe_windows leg=used 但无可用 PI 窗口 → 诚实保 B(见 04 场景)</p>
+    <table class="rpt-table demo-table"><tbody>
+      <tr><td>本体 prepare</td><td><code>doe_ontology_prepare.py</code></td><td>场景入资产库</td></tr><tr><td>分析 all</td><td><code>analyze.py all</code></td><td>mode=designed · grade=A</td></tr><tr><td>报告</td><td><code>report.html</code></td><td>92KB · 2 charts</td></tr>
+    </tbody></table>
+    <div class="demo-gates"><span class="demo-gate is-pass">✓ DOE 契约 grade — A</span><span class="demo-gate is-pass">✓ 工件清单 — 13/13</span></div>
+    <h3 class="demo-sub">关键发现(脚本原文)</h3><ul class="demo-findings">
+      <li><span class="demo-sev adv-grade-a">HIGH</span> 随机化设计路径验证:design_type=full_factorial_randomized → contract grade=A<span class="demo-detail"> · 窗口计算需本体声明窗口,最小因子不产窗(如实)</span></li>
+    </ul>
+    <div class="demo-foot">
+      <a class="demo-link" href="07-doe-designed/report.html">▶ 打开本场景 HTML 报告(90 KB)</a>
+      <span class="demo-note">§12 已集成</span>
+    </div>
+    <details class="demo-artifacts"><summary>工件清单(2)</summary><ul><li><code>conclusions/doe_conclusion.json</code></li><li><code>00_input/run_table.csv</code></li></ul></details>
+  </section>
+
+  <section class="rpt-card demo-card" id="08-stability-folder">
+    <div class="demo-card-head">
+      <span class="demo-icon">∿</span>
+      <div>
+        <h2>line-stability-report(folder 档案)</h2>
+        <p class="demo-scene">3 日 DCS 文件夹 → preprocessor --stability-single-primary 选主(day3 score=4.94)→ 分析</p>
+      </div>
+      <span class="demo-badge is-ok">全链完成</span>
+    </div>
+    <p class="rpt-verdict">评分 86.2(A 级)—— 日间退化被检出</p>
+    <p class="demo-conclusion">folder 档案全链:递归发现 → 确定性选主(单主表语义) → 本体 → 分析 → HTML → 18 门禁</p>
+    <table class="rpt-table demo-table"><tbody>
+      <tr><td>preprocessor</td><td><code>data_preprocessor.py --stability-single-primary --recursive</code></td><td>day3.csv selected(score 4.94)</td></tr><tr><td>分析</td><td><code>stability_analyzer.py</code></td><td>86.2/A</td></tr><tr><td>门禁</td><td><code>quality_gate.mjs</code></td><td>18/18 PASS</td></tr>
+    </tbody></table>
+    <div class="demo-gates"><span class="demo-gate is-pass">✓ 交付门禁 — 18/18 PASS</span></div>
+    
+    <div class="demo-foot">
+      <a class="demo-link" href="08-stability-folder/run/line_report/line_stability_report.html">▶ 打开本场景 HTML 报告(75 KB)</a>
+      <span class="demo-note">S6 advisory used</span>
+    </div>
+    <details class="demo-artifacts"><summary>工件清单(2)</summary><ul><li><code>run/line_report/stability_report.json</code></li><li><code>preprocess_out/preprocessing_report.json</code></li></ul></details>
+  </section>
+
+  <section class="rpt-card demo-card" id="05-closedloop">
+    <div class="demo-card-head">
+      <span class="demo-icon">⇄</span>
+      <div>
+        <h2>tuning-memory + optimizer-loop(闭环双 skill)</h2>
+        <p class="demo-scene">注塑线 IMM-07:42 条调整台账归因 + 26 轮预算寻优(响应面低谷 185℃/28s)</p>
+      </div>
+      <span class="demo-badge is-ok">全链完成</span>
+    </div>
+    <p class="rpt-verdict">经验门禁 8/8 + 寻优门禁 16/16 全绿</p>
+    <p class="demo-conclusion">归因→经验库→playbook 检索→寻优收敛→配方结论:闭环数据链全通;反例与 exhausted 标定历史如实保留</p>
+    <table class="rpt-table demo-table"><tbody>
+      <tr><td>归因</td><td><code>tune_stats.py attribute</code></td><td>42 份报告,7 not_estimable(诚实 null)</td></tr><tr><td>经验构建</td><td><code>experience_build.mjs build</code></td><td>19 条,7 条被准入规则 SKIP</td></tr><tr><td>检索</td><td><code>match_playbook.mjs recommend</code></td><td>3 命中 score=1.0000,autonomy_level=null</td></tr><tr><td>寻优闭环</td><td><code>optimizer.py design→ingest ×9 → converge</code></td><td>lhs_fill→poly_refine→gp_ei→rsm_augment→confirm</td></tr><tr><td>终态验证</td><td><code>design @converged</code></td><td>exit 1 CONTRACT ERROR(预期拒绝)</td></tr><tr><td>门禁</td><td><code>quality_gate 8/8 + optimizer_gate 16/16</code></td><td>ALL PASS</td></tr>
+    </tbody></table>
+    <div class="demo-gates"><span class="demo-gate is-pass">✓ 经验门禁 T1-T8(46 工件 schema 校验) — 8/8 PASS</span><span class="demo-gate is-pass">✓ 寻优门禁 O-G1~O-G8(dual converge) — 16/16 PASS</span></div>
+    <h3 class="demo-sub">关键发现(脚本原文)</h3><ul class="demo-findings">
+      <li><span class="demo-sev adv-grade-a">HIGH</span> 经验库 19 条(证据级分布 {"E0":19});42 份归因 → 27 estimable / 8 direction_uncertain / 7 not_estimable(诚实 null)<span class="demo-detail"> · barrel_temp 190→185 跨工况同向成立(E3)</span></li><li><span class="demo-sev adv-grade-c">INFO</span> 反例杠杆按门禁拒绝:back_pressure/injection 的 CI 跨 0、方向不一致 — 佐证数再高也不晋级<span class="demo-detail"> · playbook 检索 3 条命中 score=1.0000</span></li><li><span class="demo-sev adv-grade-a">HIGH</span> 收敛:9 轮 / 23 试验;incumbent {"setpoints":{"barrel_temp_c":184.980584,"cooling_time_s":28.609994},"measured":{"energy_kwh_per_kg":{"mean":1.9021,"sd":0.031125,"n":3}},"in_target":true,"predicted_D":1,"round_id":"R007"}<span class="demo-detail"> · dual gate:3 确认重复+CI[1.8624,1.9844]≤2.05+D=1.0 → verified</span></li>
+    </ul>
+    <div class="demo-foot">
+      <span class="demo-link is-muted">本场景无独立 HTML</span>
+      <span class="demo-note">经验条目 autonomy_level=null(下发策略留 AWS 侧,skill 纯 advisory)</span>
+    </div>
+    <details class="demo-artifacts"><summary>工件清单(4)</summary><ul><li><code>experience/06_experience/tuning_experience.jsonl</code></li><li><code>experience/conclusions/recommendation.json</code></li><li><code>optimizer/conclusions/optimization_conclusion.json</code></li><li><code>optimizer/conclusions/recipe.json</code></li></ul></details>
+  </section>
+
+  <section class="rpt-card demo-card" id="06-deep-diagnosis">
+    <div class="demo-card-head">
+      <span class="demo-icon">◎</span>
+      <div>
+        <h2>industrial-analysis-auto(9 步 fast 管线)</h2>
+        <p class="demo-scene">轴承温升 · 120 行(冷却水 12→8 L/min 阶跃结垢 → 滞后 2 步 +8.02℃)</p>
+      </div>
+      <span class="demo-badge is-ok">全链完成</span>
+    </div>
+    <p class="rpt-verdict">DETERMINED · 置信度 82/100(L3 封顶 85)· Judge 91/100 pass(round2)</p>
+    <p class="demo-conclusion">冷却水流量在第60号采样(10:00)由12.0 L/min阶跃降至8.0 L/min(−33.2%,疑似回路结垢/阀故障),轴承温度滞后2个采样点(10:04)由65.01℃阶跃升至73.03℃(+8.02℃)并保持——冷却能力下降是本次轴承温升的唯一存活根因(H1)。</p>
+    <table class="rpt-table demo-table"><tbody>
+      <tr><td>Step 0-1</td><td><code>setup.mjs + inspect.mjs + manifest</code></td><td>run 目录 + SHA-256 清单</td></tr><tr><td>Step 2</td><td><code>本体(声明式 INFERRED)→ validate.mjs</code></td><td>valid · 9.8KB · 机制边 flow→temp(−)</td></tr><tr><td>Step 3</td><td><code>stats/run.py --mode full + lag compensator + FDR</code></td><td>数字全脚本产出</td></tr><tr><td>Step 4</td><td><code>diagnostician(本会话按 schema 作者)+ physics_check</code></td><td>quality-check 0 critical</td></tr><tr><td>Step 5a</td><td><code>judge 10 准则(本会话,双轮)</code></td><td>89 → 91 pass,轮次归档</td></tr><tr><td>Step 5c</td><td><code>integrated_advisory --origin diagnosis</code></td><td>used · 1 条 C 级(observational 上限 B)</td></tr><tr><td>Step 6-7</td><td><code>reporter 10 章(第 10 章逐字)+ 审计</code></td><td>section-check 10/10 · ENDORSED</td></tr><tr><td>Step 8-9</td><td><code>render_manifest → HTML → review → finalize</code></td><td>40.5KB · 9/9 selfcheck · 93/100 review</td></tr>
+    </tbody></table>
+    <div class="demo-gates"><span class="demo-gate is-pass">✓ Judge 10 准则(双轮,round1 89→修复→round2) — 91/100 pass</span><span class="demo-gate is-pass">✓ 审计 optimizer.md — ENDORSED(5/5 checks)</span><span class="demo-gate is-pass">✓ HTML selfcheck 9 项 — 9/9 PASS · review 93/100</span><span class="demo-gate is-pass">✓ finalize + log-check — closure PASS · 32 条真实事件</span></div>
+    <h3 class="demo-sub">关键发现(脚本原文)</h3><ul class="demo-findings">
+      <li><span class="demo-sev adv-grade-a">HIGH</span> H1 冷却水流量下降(回路结垢/阀门故障致冷却能力不足) — 冷却水回路有效流量由12.0 L/min阶跃降至8.0 L/min(−33.2%),单位时间带走热量按 Q=m·cp·ΔT 同比例下降,轴承热平衡点上移约+8.02℃;最可能物理成因为换热侧结垢/流道阻塞或调节阀/泵故障,需现场点检确认<span class="demo-detail"> · surviving</span></li><li><span class="demo-sev adv-grade-c">INFO</span> undefined  统计排除<span class="demo-detail"> · eliminated</span></li><li><span class="demo-sev adv-grade-c">INFO</span> undefined  统计排除<span class="demo-detail"> · eliminated</span></li><li><span class="demo-sev adv-grade-c">INFO</span> 判别 H1 vs H2: DISCRIMINABLE — 环境温度平稳(cv=0.0167)且与温度无关(r=0.0162, p=0.86); 流量与温度为滞后2步的强负相关(−0.9959)</li><li><span class="demo-sev adv-grade-c">INFO</span> 判别 H1 vs H3: DISCRIMINABLE — 负载平稳(cv=0.0106)且与温度无关(r=0.0254, p=0.78); 流量阶跃与温度阶跃先后2步锁定因果方向</li>
+    </ul>
+    <div class="demo-foot">
+      <a class="demo-link" href="06-deep-diagnosis/202611181932539_bearing_overheat/diagnostic-report.html">▶ 打开本场景 HTML 报告(40 KB)</a>
+      <span class="demo-note">C 级原因诚实:observational 无 designed 窗口,A 级需干预性证据</span>
+    </div>
+    <details class="demo-artifacts"><summary>工件清单(6)</summary><ul><li><code>06-deep-diagnosis/202611181932539_bearing_overheat/04_diagnostics/diagnosis.json</code></li><li><code>06-deep-diagnosis/202611181932539_bearing_overheat/04_diagnostics/reasoning_chain.json</code></li><li><code>06-deep-diagnosis/202611181932539_bearing_overheat/05_review/judge_feedback.json</code></li><li><code>06-deep-diagnosis/202611181932539_bearing_overheat/report.md</code></li><li><code>06-deep-diagnosis/202611181932539_bearing_overheat/optimizer.md</code></li><li><code>06-deep-diagnosis/202611181932539_bearing_overheat/diagnostic-report.html</code></li></ul></details>
+  </section>
+  <section class="rpt-card demo-card" id="api-acceptance">
+    <div class="demo-card-head">
+      <span class="demo-icon">🔌</span>
+      <div>
+        <h2>API 集成验收(真实后端 · 当前代码 · 7 意图全生命周期)</h2>
+        <p class="demo-scene">重启至修复后代码(Project root 核对)→ 注册/登录/发 token → 逐意图验收</p>
+      </div>
+      <span class="demo-badge is-ok">33 项有效通过</span>
+    </div>
+    <p class="rpt-verdict">7 意图 × 双通道(console 两步制 + external /v1 wait)全部走通</p>
+    <p class="demo-conclusion">每个意图:start→pending → /execute → completed → snapshot 事件流 → results 库行(intent/verdict 落库)→ external analyze 返回同 intent;chat 语义三分(pending 400 RUN_PENDING / completed 200 session / 越权 404)。</p>
+    <table class="rpt-table demo-table"><tbody>
+      <tr><td>console 生命周期</td><td><code>POST /start → /execute → /status → /snapshot</code></td><td>7/7 意图全 completed,pre=pending 断言过</td></tr>
+      <tr><td>results 库沉淀</td><td><code>GET /api/results</code></td><td>7 意图行全落库(verdict=ENDORSED);库内 7 intent 全覆盖</td></tr>
+      <tr><td>external wait</td><td><code>POST /v1/analyze {wait:true}</code></td><td>7/7 意图返回 completed + intent 字段正确</td></tr>
+      <tr><td>chat 三分语义</td><td><code>POST /chat/:runId</code></td><td>pending 400 RUN_PENDING · completed 200 session · 删除 410</td></tr>
+      <tr><td>越权无泄露</td><td><code>第二用户访问/停止/快照他人 run</code></td><td>status/stop/snapshot 全 404(与不存在不可区分)</td></tr>
+      <tr><td>负向契约</td><td><code>未知意图 / 未知 harness / 无 Origin 变更</code></td><td>400 ANALYSIS_INTENT_UNKNOWN · 400 HARNESS_UNKNOWN · 403 CSRF_BLOCKED</td></tr>
+      <tr><td>限流(P0-5)</td><td><code>start+execute+tasks 共享 10/min</code></td><td>第 11 个请求 429 RATE_LIMITED(附 retry_after)——限流器真实生效</td></tr>
+      <tr><td>外部身份链</td><td><code>idd_ token → categories → PATCH</code></td><td>201 建类 · 200 PATCH 描述+归类</td></tr>
+    </tbody></table>
+    <div class="demo-gates">
+      <span class="demo-gate is-pass">✓ capabilities — 7 intents / 14 harnesses</span>
+      <span class="demo-gate is-pass">✓ 7 意图 runs+results 全覆盖(DB 复核)</span>
+      <span class="demo-gate is-pass">✓ fresh backend(Project root 核对后重启)</span>
+    </div>
+    <p class="demo-note">验收方式:24+9 两轮探针;首轮 4 个 FAIL 均为探针自身排序问题(其中 2 个 429 恰好实证限流按设计工作),次轮预算内全部补验通过。</p>
+  </section>
+    <footer class="demo-foot" style="margin-top:30px">
+      <span class="demo-note">设计系统:.claude/shared/report-design/report.css(A 证据账簿) · 生成:tools/build_integration_report.mjs</span>
+    </footer>
+  </main>
+</div>
+</body>
+</html>

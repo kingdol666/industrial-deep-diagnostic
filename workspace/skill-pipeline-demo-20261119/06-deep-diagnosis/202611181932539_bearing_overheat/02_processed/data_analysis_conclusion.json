@@ -1,0 +1,227 @@
+{
+  "run_id": "202611181932539_bearing_overheat",
+  "generated_at": "2026-11-18T19:37:39.597Z",
+  "analysis_mode": "baseline_plus_custom",
+  "baseline_script_results": {
+    "scripts_run": [
+      "convert.mjs",
+      "dp_toolkit.py preprocess",
+      "stats.mjs / stats_analysis.py",
+      "stats_validate.mjs",
+      "dp_toolkit.py anomaly",
+      "physics_check.py"
+    ],
+    "key_findings": [
+      {
+        "finding": "Baseline statistical scripts completed, but no high-confidence correlation summary was automatically extracted.",
+        "source": "02_processed/feature_summary.json",
+        "evidence_rank": 3
+      }
+    ],
+    "limitations": [
+      "Aggregate patterns should not be treated as causal without subgroup and physics confirmation.",
+      "Temporal reasoning depends on the detected time column remaining valid after preprocessing."
+    ]
+  },
+  "expert_custom_analysis": {
+    "custom_scripts_written": true,
+    "script_inventory": [
+      {
+        "script": "06_scripts/build_manifest.mjs",
+        "purpose": "Scenario-specific custom analysis or plotting generated during the run.",
+        "inputs": [
+          "02_processed/cleaned_data.csv",
+          "01_ontology/ontology.json"
+        ],
+        "outputs": []
+      },
+      {
+        "script": "06_scripts/gen_input.mjs",
+        "purpose": "Scenario-specific custom analysis or plotting generated during the run.",
+        "inputs": [
+          "02_processed/cleaned_data.csv",
+          "01_ontology/ontology.json"
+        ],
+        "outputs": []
+      }
+    ],
+    "analysis_questions": [
+      "Which process-side abnormalities remain after validation and grouping checks?",
+      "Do inspection anomalies align with process-side instability in the same product or time context?"
+    ],
+    "custom_outputs": [
+      "06_scripts/build_manifest.mjs",
+      "06_scripts/gen_input.mjs"
+    ],
+    "why_needed": "Custom scripts were needed to answer scenario-specific questions beyond the baseline statistical pipeline."
+  },
+  "ontology_industry_interpretation": [
+    {
+      "parameter_or_pattern": "motor_load_pct",
+      "ontology_role": "predictor",
+      "industry_knowledge": "Physical meaning: 电机负载率,决定轴承机械发热量; Governing law: 轴承发热量与负载/转速正相关; Unit: %",
+      "interpretation": "This process-side data pattern should be interpreted through its ontology role before being promoted to a root-cause hypothesis.",
+      "confidence": "medium"
+    },
+    {
+      "parameter_or_pattern": "ambient_temp_c",
+      "ontology_role": "confounder",
+      "industry_knowledge": "Physical meaning: 环境温度,影响散热终温,是轴承温度的潜在混杂因素; Governing law: 换热器端差受环境温度影响; Unit: degC",
+      "interpretation": "This process-side data pattern should be interpreted through its ontology role before being promoted to a root-cause hypothesis.",
+      "confidence": "medium"
+    }
+  ],
+  "adaptive_decision_audit": {
+    "data_view_mode": "process_plus_inspection",
+    "mode_justification": "Detected 4 process-parameter fluctuation summaries and 1 inspection/quality target summaries.",
+    "data_shapes_detected": [
+      "time_series",
+      "process_parameters",
+      "inspection_or_quality_targets"
+    ],
+    "selected_analyses": [
+      {
+        "analysis": "pure_process_fluctuation_and_drift",
+        "reason": "Process parameters were available, so independent process stability screening is required before causal interpretation.",
+        "evidence_artifacts": [
+          "02_processed/anomaly_report.json"
+        ],
+        "coverage_status": "covered"
+      },
+      {
+        "analysis": "process_inspection_dual_drive",
+        "reason": "Both process and inspection/quality signals were available, so cross-domain linkage must be tested.",
+        "evidence_artifacts": [
+          "02_processed/anomaly_report.json"
+        ],
+        "coverage_status": "partial"
+      },
+      {
+        "analysis": "temporal_regime_event_analysis",
+        "reason": "Detected time column timestamp; time-aligned overlays, lag/sequence review, and transition analysis are applicable.",
+        "evidence_artifacts": [
+          "03_figures/fig_adaptive_overlay.png"
+        ],
+        "coverage_status": "covered"
+      },
+      {
+        "analysis": "scenario_specific_expert_analysis",
+        "reason": "Detected data structures or custom scripts requiring analysis beyond the universal baseline.",
+        "evidence_artifacts": [
+          "06_scripts/build_manifest.mjs",
+          "06_scripts/gen_input.mjs"
+        ],
+        "coverage_status": "covered"
+      }
+    ],
+    "skipped_or_not_applicable": [
+      {
+        "analysis": "grouping_and_confounding_checks",
+        "status": "not_applicable",
+        "reason": "No product/lot/batch-style grouping column was detected in Step 3 artifacts."
+      }
+    ],
+    "custom_analysis_required": true,
+    "custom_analysis_reason": "Custom scripts were present for scenario-specific analysis.",
+    "expert_review_summary": "Adaptive review classified the run as process_plus_inspection, detected time_series, process_parameters, inspection_or_quality_targets, and selected 4 analysis families with 1 skipped/not-applicable decisions."
+  },
+  "analysis_coverage_matrix": {
+    "pure_process_analysis": {
+      "status": "covered",
+      "evidence_artifacts": [
+        "02_processed/anomaly_report.json"
+      ],
+      "summary": "Screened 4 process parameters for fluctuation, drift, span, and abrupt behavior.",
+      "gaps": []
+    },
+    "process_inspection_dual_drive": {
+      "status": "partial",
+      "evidence_artifacts": [
+        "02_processed/anomaly_report.json"
+      ],
+      "summary": "Process and inspection targets exist, but no strong cross-domain link was extracted.",
+      "gaps": [
+        "Review whether target/process column selection is correct and whether timing/group windows are too sparse."
+      ]
+    },
+    "grouping_confounding": {
+      "status": "not_applicable",
+      "evidence_artifacts": [],
+      "summary": "No product/lot/batch-style grouping column was detected.",
+      "gaps": []
+    },
+    "temporal_regime_event": {
+      "status": "covered",
+      "evidence_artifacts": [
+        "03_figures/fig_adaptive_overlay.png"
+      ],
+      "summary": "Temporal/regime analysis is applicable through time column timestamp.",
+      "gaps": []
+    },
+    "scenario_specific": {
+      "status": "covered",
+      "evidence_artifacts": [
+        "06_scripts/build_manifest.mjs",
+        "06_scripts/gen_input.mjs"
+      ],
+      "summary": "Scenario-specific artifacts/custom scripts were generated for the detected data structure.",
+      "gaps": []
+    }
+  },
+  "analysis_boundary": {
+    "missing": "Phase 0.4 analysis_parameter_selection.json not found — analysis ran without ontology-guided filtering"
+  },
+  "time_lag_analysis": {
+    "applicable": false,
+    "pairs_analyzed": 0,
+    "significant_lags_found": 0,
+    "key_recommendations": [
+      {
+        "pair": "N/A",
+        "recommended_lag_steps": 0,
+        "recommended_lag_seconds": 0,
+        "action": "Time-lag analysis not performed — no physical lag justification detected."
+      }
+    ],
+    "status": "not_computed",
+    "reason": "Time-lag analysis was not performed (no time column or physical lag justification)."
+  },
+  "data_cleaning_provenance": {
+    "data_source": "cleaned",
+    "data_source_reason": "cleaning_integrity not recorded (Phase 2.2.5 did not run or pre-dates the gate) — provenance incomplete, data-processor must enrich",
+    "integrity_checks": {},
+    "cleaning_operations": [],
+    "repair_attempts": []
+  },
+  "data_supported_conclusions": [
+    {
+      "conclusion": "按无产品分组执行了工艺参数波动与检测指标异常的联合分析；识别到0条工艺-检测联动线索。",
+      "supporting_sources": [
+        "02_processed/anomaly_report.json"
+      ],
+      "evidence_strength": "weak",
+      "diagnostic_relevance": "Use this as process-plus-inspection linkage evidence in the competing-hypothesis stage.",
+      "known_caveats": [
+        "No strong integrated process-inspection links were extracted automatically."
+      ]
+    }
+  ],
+  "handoff_to_diagnostician": {
+    "priority_hypothesis_inputs": [
+      {
+        "candidate": "candidate_1",
+        "why_prioritized": "按无产品分组执行了工艺参数波动与检测指标异常的联合分析；识别到0条工艺-检测联动线索。",
+        "supporting_artifacts": [
+          "02_processed/anomaly_report.json"
+        ]
+      }
+    ],
+    "evidence_gaps": [
+      "Need final competing-hypothesis testing before turning data patterns into root-cause claims."
+    ],
+    "recommended_diagnostic_focus": [
+      "Cross-check statistical patterns against physics plausibility and ontology roles.",
+      "Verify whether product-group differences or event transitions explain the anomaly better than a universal process drift."
+    ]
+  }
+}

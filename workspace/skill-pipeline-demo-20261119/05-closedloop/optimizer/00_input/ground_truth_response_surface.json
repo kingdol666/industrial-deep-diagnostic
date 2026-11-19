@@ -1,0 +1,11 @@
+{
+  "purpose": "scenario ground truth used ONLY by the simulated executor in run_optimizer_campaign.py; optimizer.py never reads this file",
+  "seed": 42,
+  "sigma": 0.04,
+  "floor": 1.9,
+  "t_star": 185.0,
+  "c_star": 28.0,
+  "quad_barrel_temp_c": 0.005,
+  "quad_cooling_time_s": 0.004,
+  "replicates_per_trial": 3
+}
