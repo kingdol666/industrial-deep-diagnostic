@@ -314,6 +314,10 @@ export const api = {
   // User-editable fields only (summary/summary_json are server-managed).
   patchResult: (resultId, body) =>
     request(`/results/${encodeURIComponent(resultId)}`, { method: 'PATCH', body: JSON.stringify(body) }),
+  listReviewedMemory: (params) => request(`/line-memory/reviews${buildQuery(params)}`),
+  getResultReview: (id) => request(`/results/${encodeURIComponent(id)}/review`),
+  patchResultReview: (id, body) => request(`/results/${encodeURIComponent(id)}/review`, { method: 'PATCH', body: JSON.stringify(body) }),
+  listResultReviewHistory: (id, before) => requestEnvelope(`/results/${encodeURIComponent(id)}/review/history${buildQuery({ before })}`),
   // Category management on the results surface (same service as /history).
   listResultCategories: () => request('/results/categories'),
   createResultCategory: (name) =>

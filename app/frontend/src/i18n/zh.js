@@ -1223,6 +1223,17 @@ export default {
     },
   },
 
+  review: {
+    title: '人工复核与记忆', status: '实际效果', unreviewed: '未确认', confirmed: '人工确认有效', ineffective: '人工判定无效',
+    hint: '记录现场验证结果。无效结论仍可追溯，但不进入后续诊断参考。确认内容也须用新数据重新验证。',
+    comment: '验证反馈（结果、依据或限制）', takeaway: '可复用经验', allowReuse: '允许作为后续同产线诊断的历史参考',
+    summary: '人工修订二次摘要', summaryHint: '留空时，系统整理原分析要点和人工反馈；原报告不变。',
+    derived: '二次摘要 · 系统归纳', human: '二次摘要 · 人工修订', revision: '版本 {n} · {user}',
+    reload: '重新加载', save: '保存复核', undo: '撤销人工判定', history: '修订历史', more: '加载更多', saved: '已保存',
+    conflict: '这条复核已由其他操作更新。请复制尚未保存的内容，再重新加载。',
+    unavailable: '仅已完成且非模拟的分析可复核。', all: '全部', empty: '还没有符合条件的复核记录。',
+    stale: '诊断已重新完成，旧判定暂停复用，请重新核对并保存。',
+  },
   memory: {
     title: '产线记忆',
     subtitle: '跨 run 共性结论 · 本体版本链 · 提案审批',

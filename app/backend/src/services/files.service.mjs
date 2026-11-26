@@ -48,6 +48,18 @@ const runByWorkspaceName = db.prepare(`
   LIMIT 1
 `);
 
+const reviewRunByExactWorkspace = db.prepare(`SELECT run_id, status, harness, owner_user_id, deleted_at
+  FROM diagnostic_runs WHERE workspace_path IN (?, ?, ?, ?) LIMIT 2`);
+
+function workspaceReviewId(name, viewer) {
+  const rel = `workspace/diagnostic-runs/${name}`;
+  const abs = join(PROJECT_ROOT, rel);
+  const rows = reviewRunByExactWorkspace.all(rel, rel.replaceAll('/', '\\'), abs, abs.replaceAll('\\', '/'));
+  const row = rows.length === 1 ? rows[0] : null;
+  return row && !row.deleted_at && row.status === 'completed' && row.harness !== 'mock'
+    && canView(viewer, row.owner_user_id) ? row.run_id : null;
+}
+
 /** The diagnostic_runs row behind a workspace directory name, or undefined. */
 export function workspaceRunRow(runName) {
   const name = String(runName || '');
@@ -229,6 +241,7 @@ export async function listWorkspaceRuns(viewer = INTERNAL) {
       runs.push({
         name: entry,
         path: `workspace/diagnostic-runs/${entry}`,
+        review_run_id: workspaceReviewId(entry, viewer),
         hasReport: existsSync(reportPath),
         hasOptimizer: existsSync(optimizerPath),
         hasHtml: existsSync(join(fullPath, 'diagnostic-report.html')),

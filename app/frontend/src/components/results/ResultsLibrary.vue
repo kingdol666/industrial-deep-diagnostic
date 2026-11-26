@@ -155,6 +155,7 @@
       </div>
 
       <ResultSummaryCard ref="summaryCard" :result-id="selectedId" @updated="onDetailUpdated" />
+      <HumanReviewPanel v-if="detailMeta && detailMeta.harness !== 'mock'" :key="selectedId" :run-id="selectedId" @updated="load" />
 
       <div v-if="detailMeta" class="results-meta-block">
         <div class="detail-grid">
@@ -218,6 +219,7 @@ import { ref, reactive, computed, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { api } from '../../api/index.js';
 import ResultSummaryCard from './ResultSummaryCard.vue';
+import HumanReviewPanel from './HumanReviewPanel.vue';
 
 const { t } = useI18n();
 const emit = defineEmits(['open-report']);

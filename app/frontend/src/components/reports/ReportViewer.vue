@@ -142,6 +142,8 @@
       </div>
     </div>
 
+    <HumanReviewPanel v-if="reviewRunId" :key="reviewRunId" :run-id="reviewRunId" />
+
     <!-- Chart panel -->
     <div v-if="showChartPanel && chartData" class="card" style="margin-top:12px">
       <div class="card-title" style="display:flex;align-items:center;justify-content:space-between">
@@ -177,6 +179,7 @@ import { api } from '../../api/index.js';
 import { marked } from 'marked';
 import DOMPurify from 'dompurify';
 import { HeatmapChart, GaugeChart } from '../charts/index.js';
+import HumanReviewPanel from '../results/HumanReviewPanel.vue';
 import {
   getRunStatusBadgeClass,
   getRunStatusLabel,
@@ -195,6 +198,7 @@ const runs = ref([]);
 const loadingRuns = ref(false);
 const selectedRun = ref(null);
 const selectedRunSummary = ref(null);
+const reviewRunId = computed(() => runs.value.find((r) => r.name === selectedRun.value)?.review_run_id || null);
 const reportContent = ref(null);
 const optimizerContent = ref(null);
 const hasOptimizer = ref(false);

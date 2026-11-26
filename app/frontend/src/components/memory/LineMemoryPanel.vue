@@ -12,6 +12,9 @@
         </button>
       </div>
 
+      <button class="lm-line-pill" :class="{ active: showReviewed }" data-testid="lm-open-reviewed" @click="openReviewed()">
+        <span class="lm-line-name">{{ $t('review.title') }}</span>
+      </button>
       <div v-if="linesError" class="lm-error">{{ linesError }}</div>
       <div v-else-if="!lines.length && !loadingLines" class="lm-empty">
         {{ $t('memory.noLines') }}
@@ -44,7 +47,27 @@
 
     <!-- ── 右栏:选中产线详情 ── -->
     <section class="lm-detail">
-      <div v-if="detailError" class="lm-error">{{ detailError }}</div>
+      <div v-if="showReviewed" class="card lm-entry" data-testid="lm-reviewed">
+        <strong>{{ $t('review.title') }}</strong>
+        <label class="lm-version-row">{{ $t('review.status') }}
+          <select v-model="reviewFilter" @change="openReviewed()" data-testid="lm-review-filter">
+            <option value="">{{ $t('review.all') }}</option>
+            <option v-for="s in ['confirmed', 'ineffective', 'unreviewed']" :key="s" :value="s">{{ $t(`review.${s}`) }}</option>
+          </select>
+        </label>
+        <p v-if="reviewError" role="alert">{{ reviewError }}</p>
+        <p v-if="reviewLoading">{{ $t('common.loadingEllipsis') }}</p>
+        <p v-if="!reviewLoading && !reviewError && !reviewItems.length">{{ $t('review.empty') }}</p>
+        <div v-for="item in reviewItems" :key="item.run_id" class="lm-version-row">
+          <span class="lm-badge">{{ $t(`review.${item.status}`) }}</span>
+          <span v-if="item.stale">{{ $t('review.stale') }}</span>
+          <button class="lm-link" @click="reviewSelection = item.run_id" :aria-pressed="reviewSelection === item.run_id">{{ item.title }}</button>
+          <span>{{ item.scene }}</span>
+        </div>
+        <button v-if="reviewNext !== null" class="btn btn-sm" :disabled="reviewLoading" @click="openReviewed(reviewNext)">{{ $t('review.more') }}</button>
+        <HumanReviewPanel v-if="reviewSelection" :key="reviewSelection" :run-id="reviewSelection" @updated="refreshReviewedItem" />
+      </div>
+      <div v-else-if="detailError" class="lm-error">{{ detailError }}</div>
       <div v-else-if="!selectedKey" class="lm-empty card">{{ $t('memory.selectLine') }}</div>
 
       <template v-else-if="detail">
@@ -215,6 +238,36 @@
 import { ref, computed, onMounted } from 'vue';
 import { api } from '../../api/index.js';
 import i18n from '../../i18n/index.js';
+import HumanReviewPanel from '../results/HumanReviewPanel.vue';
+
+const showReviewed = ref(false);
+const reviewItems = ref([]);
+const reviewFilter = ref('');
+const reviewError = ref('');
+const reviewLoading = ref(false);
+const reviewSelection = ref(null);
+const reviewNext = ref(null);
+let reviewRequest = 0;
+
+async function openReviewed(offset = 0) {
+  const request = ++reviewRequest;
+  showReviewed.value = true;
+  reviewError.value = '';
+  reviewLoading.value = true;
+  if (!offset) { reviewSelection.value = null; reviewItems.value = []; reviewNext.value = null; }
+  try {
+    const { items, next_offset } = await api.listReviewedMemory({ status: reviewFilter.value, offset });
+    if (request !== reviewRequest) return;
+    reviewItems.value = offset ? [...reviewItems.value, ...items] : items;
+    reviewNext.value = next_offset;
+  } catch (err) { if (request === reviewRequest) reviewError.value = err.message; }
+  finally { if (request === reviewRequest) reviewLoading.value = false; }
+}
+
+function refreshReviewedItem(value) {
+  reviewItems.value = reviewItems.value.map((item) => item.run_id === value.run_id ? { ...item, ...value } : item)
+    .filter((item) => !reviewFilter.value || item.status === reviewFilter.value || item.run_id === reviewSelection.value);
+}
 
 const emit = defineEmits(['open-run']);
 const t = (k, args) => i18n.global.t(k, args);
@@ -313,6 +366,7 @@ async function loadLines(keepSelection = false) {
 }
 
 async function selectLine(key) {
+  showReviewed.value = false;
   selectedKey.value = key;
   loadingDetail.value = true;
   detailError.value = '';

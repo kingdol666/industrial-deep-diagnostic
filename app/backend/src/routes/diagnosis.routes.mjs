@@ -14,6 +14,7 @@ import {
   assertRunHarnessUsable, getDiagTaskView,
 } from '../services/diagnosis.service.mjs';
 import { sessionMap } from '../services/session-integrity.service.mjs';
+import { getRunReviewContext } from '../services/line-memory.service.mjs';
 import { stmts } from '../db/database.mjs';
 import { userRateLimit } from '../services/tenancy.mjs';
 import { config } from '../../../../config/loader.mjs';
@@ -52,6 +53,14 @@ function sendError(res, err, { fallbackCode = 'DIAGNOSIS_INTERNAL_ERROR', status
     error: err?.message || '请求无效',
   });
 }
+
+router.get('/review-context/:runId', (req, res) => {
+  try {
+    res.json({ success: true, data: getRunReviewContext(req.params.runId, req.user) });
+  } catch (err) {
+    sendError(res, err);
+  }
+});
 
 // Start a new diagnosis
 router.post('/start', startRateLimit, async (req, res) => {

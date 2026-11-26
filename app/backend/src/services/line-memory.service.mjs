@@ -14,9 +14,11 @@ import { stmts } from '../db/database.mjs';
 import { PROJECT_ROOT } from '../../../../config/loader.mjs';
 import logger from '../utils/logger.mjs';
 import { resolveRunDir } from './artifact-manifest.service.mjs';
+import { requireRun } from './history.service.mjs';
+import { canReuseFinding, getConfirmedContext, renderConfirmedContext } from './human-review.service.mjs';
 import {
   defaultStoreDir, ensureStore, readRegistry, readConsensus, readFindings, readProposalLog,
-  findLineByAlias, retrieveForRun, ingestRun, consolidate, mergeLines, overrideEntry,
+  findLineByAlias, buildMemoryBrief, ingestRun, consolidate, mergeLines, overrideEntry,
   ingestProposals, decideProposal, readProposalsForRun, slugify,
 } from '../../../../.claude/shared/scripts/line_memory.mjs';
 import {
@@ -106,34 +108,44 @@ export function listLineFindings(lineKey, { limit = 50, offset = 0, subject = nu
  */
 export function buildStartMemory(row, { ontology = null } = {}) {
   if (!row) return null;
+  briefByRun.delete(row.run_id);
   ensureStore(storeDir());
-  const aliases = [];
-  if (row.scene_name) aliases.push(row.scene_name);
-  if (ontology && ontology.scene_key) aliases.push(ontology.scene_key);
-  if (ontology && ontology.source && existsSync(ontology.source)) {
+  const aliases = [row.scene_name, ontology?.scene_key].filter(Boolean);
+  if (ontology?.source && existsSync(ontology.source)) {
     try {
       const o = JSON.parse(readFileSync(ontology.source, 'utf-8'));
-      if (o && o.scene && o.scene.name) aliases.push(o.scene.name);
-    } catch { /* 读不到就当无别名 */ }
+      if (o?.scene?.name) aliases.push(o.scene.name);
+    } catch { /* 可选来源 */ }
   }
+  const hitAlias = aliases.find((alias) => findLineByAlias(storeDir(), alias));
+  const hit = hitAlias ? findLineByAlias(storeDir(), hitAlias) : null;
+  const reviewed = getConfirmedContext(row, hit?.entry?.aliases || []);
   let brief = null;
-  let hitAlias = null;
-  for (const alias of aliases) {
-    const hit = findLineByAlias(storeDir(), alias);
-    if (!hit) continue;
-    brief = retrieveForRun({ storeDir: storeDir(), sceneKey: alias, sceneName: row.scene_name });
-    hitAlias = alias;
-    break;
+  if (hit) {
+    const allowed = new Map();
+    const projected = consolidate(storeDir(), hit.lineKey, {
+      persist: false,
+      filterFinding(f) {
+        if (!allowed.has(f.run_id)) allowed.set(f.run_id, canReuseFinding(row, f.run_id));
+        return allowed.get(f.run_id);
+      },
+    });
+    brief = buildMemoryBrief(projected);
   }
-  if (!brief || !brief.text) return { lineKey: brief ? brief.lineKey : null, text: '', payload: null, hit: false, tried: aliases };
-  briefByRun.set(row.run_id, {
-    collected_at: new Date().toISOString(),
-    line_key: brief.lineKey,
-    text: brief.text,
-    payload: brief.payload,
-    matched_alias: hitAlias,
+  const text = [renderConfirmedContext(reviewed), brief?.text].filter(Boolean).join('\n\n');
+  const response = { lineKey: hit?.lineKey ?? null, text, payload: brief?.payload ?? null, reviewed, hit: Boolean(text), tried: aliases };
+  if (text) briefByRun.set(row.run_id, {
+    collected_at: new Date().toISOString(), line_key: response.lineKey,
+    text, payload: response.payload, reviewed, matched_alias: hitAlias,
   });
-  return { ...brief, hit: true, tried: aliases };
+  return response;
+}
+
+export function getRunReviewContext(runId, viewer) {
+  const row = requireRun(runId, viewer);
+  if (row.deleted_at) throw httpError(404, 'RUN_NOT_FOUND', `Run not found: ${runId}`);
+  const hit = findLineByAlias(storeDir(), row.scene_name);
+  return getConfirmedContext(row, hit?.entry?.aliases || []);
 }
 
 function writeMemoryContext(runDir, brief) {
@@ -148,6 +160,7 @@ function writeMemoryContext(runDir, brief) {
       stats: brief.payload ? brief.payload.stats : null,
       latest_state: brief.payload ? brief.payload.latest_state : null,
       entries: brief.payload ? brief.payload.entries : [],
+      human_reviewed: brief.reviewed || [],
       injected_text: brief.text,
     }, null, 2));
   } catch (err) {

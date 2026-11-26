@@ -1223,6 +1223,17 @@ export default {
     },
   },
 
+  review: {
+    title: 'Human review & memory', status: 'Observed effectiveness', unreviewed: 'Unreviewed', confirmed: 'Human-confirmed', ineffective: 'Marked ineffective',
+    hint: 'Record what was verified on the line. Ineffective results remain traceable but are excluded from future diagnostic context. Verify confirmed findings against new data, too.',
+    comment: 'Verification feedback (outcome, evidence, or limitations)', takeaway: 'Reusable takeaway', allowReuse: 'Allow reuse as historical context for later diagnoses on this line',
+    summary: 'Edit the reviewed summary', summaryHint: 'Leave blank to combine the original summary with your feedback. The original report is unchanged.',
+    derived: 'Reviewed summary · system-generated', human: 'Reviewed summary · human-edited', revision: 'Revision {n} · {user}',
+    reload: 'Reload', save: 'Save review', undo: 'Clear manual decision', history: 'Revision history', more: 'Load more', saved: 'Saved',
+    conflict: 'This review was updated elsewhere. Copy any unsaved edits before reloading.',
+    unavailable: 'Only completed, non-simulated analyses can be reviewed.', all: 'All', empty: 'No matching reviews.',
+    stale: 'The run has been completed again. Review the new result before allowing reuse.',
+  },
   memory: {
     title: 'Line Memory',
     subtitle: 'Cross-run consensus · ontology versions · proposal approvals',

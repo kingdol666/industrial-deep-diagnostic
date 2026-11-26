@@ -13,6 +13,7 @@
 // service functions — one implementation, two mounts. Category mutations
 // delegate to the history service (per-user isolation, single truth).
 import { Router } from 'express';
+import humanReviewRouter from './human-review.routes.mjs';
 
 import {
   listResults, getResultDetail, updateResult,
@@ -67,6 +68,8 @@ router.get('/categories/:id/results', wrap((req, res) => {
   });
   res.json({ success: true, data: view });
 }));
+
+router.use(humanReviewRouter);
 
 router.get('/:resultId', wrap((req, res) => {
   const includeMd = req.query.include_md !== 'false' && req.query.include_md !== '0';

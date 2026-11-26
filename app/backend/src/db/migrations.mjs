@@ -412,6 +412,39 @@ export const MIGRATIONS = [
       `);
     },
   },
+  {
+    version: 5,
+    name: 'human-diagnosis-review',
+    detect: (db) => tableExists(db, 'diagnosis_review_revisions'),
+    up: (db) => {
+      db.exec(`
+        CREATE TABLE IF NOT EXISTS diagnosis_review_revisions (
+          run_id TEXT NOT NULL REFERENCES diagnostic_runs(run_id) ON DELETE CASCADE,
+          revision INTEGER NOT NULL CHECK (revision > 0),
+          status TEXT NOT NULL CHECK (status IN ('unreviewed', 'confirmed', 'ineffective')),
+          comment TEXT,
+          takeaway TEXT,
+          manual_summary TEXT,
+          original_summary TEXT NOT NULL,
+          reuse_enabled INTEGER NOT NULL CHECK (reuse_enabled IN (0, 1)),
+          actor_id INTEGER NOT NULL,
+          actor_username TEXT NOT NULL,
+          created_at TEXT NOT NULL,
+          PRIMARY KEY (run_id, revision)
+        );
+      `);
+    },
+  },
+  {
+    version: 6,
+    name: 'review-completion-lineage',
+    detect: (db) => columnExists(db, 'diagnosis_review_revisions', 'source_completed_at'),
+    up: (db) => {
+      if (!columnExists(db, 'diagnosis_review_revisions', 'source_completed_at')) {
+        db.exec('ALTER TABLE diagnosis_review_revisions ADD COLUMN source_completed_at TEXT');
+      }
+    },
+  },
 ];
 
 export const LATEST_SCHEMA_VERSION = MIGRATIONS.reduce((max, m) => Math.max(max, m.version), 0);

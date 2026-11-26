@@ -18,6 +18,7 @@
 // historical 409.
 
 import { Router } from 'express';
+import humanReviewRouter from './human-review.routes.mjs';
 import { config } from '../../../../config/loader.mjs';
 
 import { listHarnesses } from '../harness/registry.mjs';
@@ -279,6 +280,8 @@ router.get('/v1/results/categories/:id/results', (req, res) => {
 
 // Detail: summary_json (auditable key numbers + sources), metadata (report /
 // artifacts / fingerprint), report_md full text (include_md=false to skip).
+router.use('/v1/results', humanReviewRouter);
+
 router.get('/v1/results/:resultId', (req, res) => {
   try {
     const includeMd = req.query.include_md !== 'false' && req.query.include_md !== '0';

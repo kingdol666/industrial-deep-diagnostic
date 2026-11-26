@@ -761,7 +761,7 @@ export function consolidate(storeDir, lineKey, opts = {}) {
   const staleDays = Number.isFinite(Number(opts.staleDays)) ? Number(opts.staleDays) : DEFAULT_STALE_DAYS;
   const minIndependent = Number.isFinite(Number(opts.minIndependent)) ? Number(opts.minIndependent) : DEFAULT_MIN_INDEPENDENT;
   const overrides = opts.overrides || readOverrides(storeDir, lineKey);
-  const findings = readFindings(storeDir, lineKey);
+  const findings = opts.filterFinding ? readFindings(storeDir, lineKey).filter(opts.filterFinding) : readFindings(storeDir, lineKey);
 
   const groups = new Map();
   // `line_state` is a time series (one snapshot per run), not a stable claim:
@@ -882,7 +882,7 @@ export function consolidate(storeDir, lineKey, opts = {}) {
     latest_state: latestState,
     entries,
   };
-  writeConsensus(storeDir, lineKey, consensus);
+  if (opts.persist !== false) writeConsensus(storeDir, lineKey, consensus);
   return consensus;
 }
 

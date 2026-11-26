@@ -19,7 +19,7 @@ import { stmts } from '../db/database.mjs';
 import { resolveRunDir, buildArtifactManifest } from './artifact-manifest.service.mjs';
 import { enrichRunOutcome } from './intent-outcome.service.mjs';
 import { engineSupportsSessionChat } from './session-integrity.service.mjs';
-import { renameRun, setRunCategory, createCategory, renameCategory, deleteCategory } from './history.service.mjs';
+import { requireRun, renameRun, setRunCategory, createCategory, renameCategory, deleteCategory } from './history.service.mjs';
 import { PROJECT_ROOT } from '../../../../config/loader.mjs';
 import logger from '../utils/logger.mjs';
 
@@ -831,10 +831,11 @@ export function deriveResultForApi(run, { includeMd } = {}) {
 }
 
 export function getResultDetail(resultId, { user = null, includeMd = true } = {}) {
-  const run = stmts.getRunById.get(resultId);
-  if (!run || run.deleted_at) {
-    throw httpError(404, 'RESULT_NOT_FOUND', `Result not found: ${resultId}`);
-  }
+  const notFound = () => httpError(404, 'RESULT_NOT_FOUND', `Result not found: ${resultId}`);
+  let run;
+  try { run = requireRun(resultId, user); }
+  catch (err) { if (err.status === 404) throw notFound(); throw err; }
+  if (run.deleted_at) throw notFound();
   const row = stmts.getResultByRunId.get(resultId);
   if (row) return detailFromRow(row, run, { includeMd });
   if (run.status !== 'completed') {

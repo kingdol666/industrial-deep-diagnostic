@@ -13,6 +13,7 @@
 //   GET  /proposals?status&line_key               提案台账
 //   POST /proposals/:id/approve|reject            人工批准/拒绝（removal / 挂起修正）
 import { Router } from 'express';
+import { listReviewedMemory } from '../services/human-review.service.mjs';
 
 import {
   listLines, getLineDetail, listLineFindings, ontologyVersionsForLine,
@@ -42,6 +43,10 @@ function wrap(handler) {
 // as the other destructive management surfaces. Auth-gated GETs stay open to
 // every authenticated user.
 import { adminOnly } from '../services/tenancy.mjs';
+
+router.get('/reviews', wrap((req, res) => {
+  res.json({ success: true, data: listReviewedMemory(req.user, req.query) });
+}));
 
 router.get('/lines', wrap((req, res) => {
   res.json({ success: true, data: listLines() });
