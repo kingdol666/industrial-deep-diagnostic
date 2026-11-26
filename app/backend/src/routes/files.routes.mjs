@@ -6,16 +6,16 @@
 
 import { Router } from 'express';
 import multer from 'multer';
-import { join, basename, resolve, relative, isAbsolute, sep } from 'path';
-import { existsSync } from 'fs';
+import { join, basename, relative, sep } from 'path';
+import { rename, rm } from 'fs/promises';
 import { config, PROJECT_ROOT, data as dataConfig } from '../../../../config/loader.mjs';
 import {
-  listDataDir, listDataFolder, createDataFolder, deleteDataFolder,
+  listDataFolder, requireDataPath, createDataFolder, deleteDataFolder,
   listWorkspaceRuns, getWorkspaceReport, getWorkspaceOptimizer,
-  listWorkspaceFiles, listWorkspaceHtml, getWorkspaceAsset, readDataFile, isSystemDatabaseFile, DATA_DIR,
+  listWorkspaceFiles, listWorkspaceHtml, getWorkspaceAsset, readDataFile, isSystemDatabaseFile,
 } from '../services/files.service.mjs';
 import { rewriteHtmlAssetUrls, callerToken, isHtmlContentType } from '../utils/html-assets.mjs';
-import { resolveInside, sanitizeFileName } from '../utils/pathGuard.mjs';
+import { sanitizeFileName } from '../utils/pathGuard.mjs';
 import { userRateLimit } from '../services/tenancy.mjs';
 import logger from '../utils/logger.mjs';
 
@@ -23,6 +23,10 @@ const UPLOAD_DIR = join(PROJECT_ROOT, dataConfig.upload_dir);
 const FOLDER_NAME_RE = new RegExp(dataConfig.folder_name_pattern);
 
 const router = Router();
+router.use((req, res, next) => {
+  if (req.user) res.setHeader('Cache-Control', 'private, no-store');
+  next();
+});
 
 // 文件上传限流（P0-6）：config.security.upload_rate_limit（默认 20 次/分钟/用户）。
 // 放在 multer 之前 —— 被限流的请求连 multipart 正文都不必解析。
@@ -60,7 +64,7 @@ const upload = multer({
 // Browse a nested data folder using a safely resolved relative path.
 router.get('/data/browse', async (req, res) => {
   try {
-    const entries = await listDataFolder(req.query.path || '');
+    const entries = await listDataFolder(req.query.path || '', req.user);
     res.json({ success: true, data: entries });
   } catch (err) {
     sendError(res, err);
@@ -70,7 +74,7 @@ router.get('/data/browse', async (req, res) => {
 // List all data files and folders
 router.get('/data', async (req, res) => {
   try {
-    const entries = await listDataDir(DATA_DIR);
+    const entries = await listDataFolder('', req.user);
     res.json({ success: true, data: entries });
   } catch (err) {
     sendError(res, err);
@@ -80,13 +84,7 @@ router.get('/data', async (req, res) => {
 // List files in a subfolder
 router.get('/data/:folder', async (req, res) => {
   try {
-    // resolveInside proves containment segment-wise: a string prefix check let
-    // `../data-evil` (a sibling whose name starts with "data") through.
-    const folderPath = resolveInside(DATA_DIR, req.params.folder, { label: 'folder' });
-    if (!existsSync(folderPath)) {
-      return res.status(404).json({ success: false, error: 'Folder not found' });
-    }
-    const entries = await listDataDir(folderPath);
+    const entries = await listDataFolder(req.params.folder, req.user);
     res.json({ success: true, data: entries });
   } catch (err) {
     sendError(res, err);
@@ -127,13 +125,7 @@ router.post('/data/upload', uploadRateLimit, upload.array('files', dataConfig.up
     if (String(folder).split(/[\\/]+/).some((s) => s.startsWith('.') && s !== '.' && s !== '..')) {
       return res.status(400).json({ success: false, error: 'Dot folders are not valid upload targets' });
     }
-    const targetDir = folder
-      ? resolveInside(DATA_DIR, folder, { label: 'folder' })
-      : DATA_DIR;
-    if (!existsSync(targetDir)) {
-      const { mkdir } = await import('fs/promises');
-      await mkdir(targetDir, { recursive: true });
-    }
+    const targetDir = await requireDataPath(folder, req.user, { directory: true });
 
     const uploaded = [];
     for (const file of req.files || []) {
@@ -157,17 +149,18 @@ router.post('/data/upload', uploadRateLimit, upload.array('files', dataConfig.up
       // sanitizeFileName returns a bare leaf name (no separators, not `.`/`..`),
       // so joining it onto the already-verified targetDir cannot escape.
       const destPath = join(targetDir, safeName);
-      const { rename } = await import('fs/promises');
       await rename(file.path, destPath);
       uploaded.push({
         name: safeName,
         size: file.size,
-        path: folder ? `data/${folder}/${safeName}` : `data/${safeName}`,
+        path: relative(PROJECT_ROOT, destPath).split(sep).join('/'),
       });
     }
     res.json({ success: true, data: uploaded });
   } catch (err) {
     sendError(res, err);
+  } finally {
+    await Promise.allSettled((req.files || []).map(({ path }) => rm(path, { force: true })));
   }
 });
 
@@ -253,7 +246,7 @@ router.get('/workspace/asset/:runName/*', async (req, res) => {
     if (!asset) return res.status(404).json({ success: false, error: 'File not found' });
 
     res.setHeader('Content-Type', asset.contentType);
-    res.setHeader('Cache-Control', `public, max-age=${dataConfig.asset_cache_max_age}`);
+    if (!req.user) res.setHeader('Cache-Control', `public, max-age=${dataConfig.asset_cache_max_age}`);
 
     // A generated report references its figures with run-relative paths. This
     // route has no static handler, so those URLs must be rewritten before the

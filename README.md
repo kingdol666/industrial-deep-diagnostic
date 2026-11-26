@@ -216,12 +216,11 @@
 <tr>
 <td colspan="2" valign="top">
 
-### 🧠 Line memory — the more you run, the smarter it gets
-- **Cross-run memory per production line** — every completed analysis deterministically deposits findings (each carries `run_id` + artifact `sha256`); the same data window is one incident, so reruns deduplicate and can never inflate the memory
-- **Consensus mining with honest grades** — a claim is promoted only after **≥3 independent data windows with no directional conflict**; contradictions stay side-by-side as `competing`, strong repeated counter-evidence `refutes` a weak claim, 90-day staleness decay
-- **Injected as advisory priors (L5)** — the next run of the same line gets a consensus-first memory block and its report must reconcile every prior against fresh data — *"inconsistent with memory → the fresh data wins"* is enforced by the injected discipline itself
-- **Ontology self-refinement** — agents file `05_review/ontology_proposals.json` when the ontology mismatches reality; a deterministic validator applies **additive changes automatically**, corrections need corroboration from ≥2 independent runs, removals wait for a human — every revision lands as a new parent-linked version with full provenance and an in-ontology audit trail
-- **Human operations console** — the Memory tab shows per-line consensus with grade badges, per-observation provenance (click a run id → its report), ontology version chains, line merge, manual refute and proposal approvals
+### 🧠 Line knowledge — human-reviewed memory, retrieved on demand
+- **Stable line identity** — jobs bind to a line ID, not a name or alias. The knowledge service scopes a job’s private references to that line and its owner. Historical jobs are not automatically assigned to a line.
+- **Versioned sharing** — publish a curated experience or memory excerpt, or a separately prepared dataset. Directory visibility, reading, reuse, downloading and analysis are distinct permissions. Withdrawal blocks future retrieval.
+- **No startup history** — Claude SDK gets in-process read-only `memory_search` / `memory_get`; `codex`, `opencode` and `omp` get the same two tools through an ephemeral loopback MCP transport under the same policy, budget and audit. Retrieved material is an L5 historical reference, not new evidence. The console distinguishes its own previews from Agent retrievals.
+- **Release boundary** — cross-line references and comparison datasets are preview-only until engine isolation passes acceptance. Local Claude tools are for explicitly enabled trusted development. Historical consensus and ontology revisions remain available for administration. See the [API contract](docs/line-knowledge-api.md) and [verification record](docs/line-knowledge-acceptance.md).
 
 </td>
 </tr>

@@ -3,6 +3,7 @@
 // mapping, approval requests (auto-approve / fail-closed), error paths.
 import { test, describe, before, after } from 'node:test';
 import assert from 'node:assert/strict';
+import { createHash, randomBytes } from 'node:crypto';
 import { mkdtempSync, readFileSync } from 'fs';
 import { tmpdir } from 'os';
 import { join, dirname } from 'path';
@@ -32,7 +33,10 @@ describe('dsh (standard ACP v1) — handshake, 单飞 prompt, permission 放行'
       analysisTarget: { mode: 'resume' }, userQuestion: 'q', sceneName: 't',
       runId: `dsh_${Date.now()}`, reportLanguage: 'en',
     });
-    const events = await drain(result.query);
+    // Subprocess tests: a cmd.exe shim + node child can take 8–17s to boot on a
+    // loaded machine — well past the 15s default. Give every real-stdio drain
+    // an explicit, generous cap (hard-capped by helpers.drain).
+    const events = await drain(result.query, { timeoutMs: 45000 });
 
     const ready = findEvent(events, 'system', (e) => e.subtype === 'session_ready');
     assert.ok(ready, 'session_ready emitted');
@@ -76,7 +80,7 @@ describe('dsh (standard ACP v1) — handshake, 单飞 prompt, permission 放行'
 
 describe('codex (app-server JSON-RPC) — thread/start + turn/start + approval', () => {
   before(() => {
-    process.env[commandEnvKey('codex')] = makeCliShim(CODEX_FIXTURE, 'codex', { name: 'fake-codex' });
+    process.env[commandEnvKey('codex')] = makeCliShim(CODEX_FIXTURE, 'codex', { name: 'fake-codex', dir: work });
     invalidateBinaryCache('codex');
   });
   after(() => { delete process.env[commandEnvKey('codex')]; });
@@ -87,7 +91,7 @@ describe('codex (app-server JSON-RPC) — thread/start + turn/start + approval',
       analysisTarget: { mode: 'resume' }, userQuestion: 'q', sceneName: 't',
       runId: `codex_${Date.now()}`, reportLanguage: 'en',
     });
-    const events = await drain(result.query);
+    const events = await drain(result.query, { timeoutMs: 45000 });
 
     const ready = findEvent(events, 'system', (e) => e.subtype === 'session_ready');
     assert.equal(ready.data.threadId, 'thr_fake_1');
@@ -110,6 +114,80 @@ describe('codex (app-server JSON-RPC) — thread/start + turn/start + approval',
     const resultMsg = findResult(events);
     assert.equal(resultMsg.subtype, 'success');
     assert.equal(resultMsg.session_id, 'codex:thr_fake_1');
+  });
+
+  const startKnowledgeTestRun = (codex, runId, knowledgeTransport) => codex.startDiagnosis({
+    analysisTarget: { mode: 'resume' }, userQuestion: 'q', sceneName: 't',
+    runId, reportLanguage: 'en', knowledgeTransport,
+  });
+
+  test('passes MCP config and bearer only to the requesting app-server child', async () => {
+    const codex = await import('../src/engine/codex-client.mjs');
+    const { config } = await import('../../../config/loader.mjs');
+    const baseArgs = config.harness?.engines?.codex?.server_args || ['app-server'];
+    const token = randomBytes(24).toString('base64url');
+    const url = 'http://127.0.0.1:14257/mcp';
+    const previousTrace = readFileSync(traceFile, 'utf-8').length;
+    const attached = startKnowledgeTestRun(codex, 'codex_knowledge', { url, token });
+    try {
+      assert.equal(process.env.IDD_CODEX_MEMORY_TOKEN, undefined, 'parent environment is unchanged');
+      assert.equal(attached.prompt.includes(token), false, 'prompt does not carry the bearer');
+      const [attachedEvents, legacyEvents] = await Promise.all([
+        drain(attached.query, { timeoutMs: 60000 }),
+        drain(startKnowledgeTestRun(codex, 'codex_no_knowledge').query, { timeoutMs: 60000 }),
+      ]);
+      assert.equal(findResult(attachedEvents)?.subtype, 'success');
+      assert.equal(findResult(legacyEvents)?.subtype, 'success');
+      const launches = readFileSync(traceFile, 'utf-8').slice(previousTrace).split(/\r?\n/)
+        .filter((line) => line.startsWith('CODEX_LAUNCH '));
+      assert.equal(launches.some((line) => line.includes(token)), false, 'argv does not carry the bearer');
+      assert.deepEqual(launches.map((line) => JSON.parse(line.slice('CODEX_LAUNCH '.length))).sort((a, b) => a.args.length - b.args.length), [
+        { args: baseArgs, tokenHash: null },
+        {
+          args: [...baseArgs, '-c', `mcp_servers.idd_memory={url='${url}',bearer_token_env_var='IDD_CODEX_MEMORY_TOKEN',enabled=true}`],
+          tokenHash: createHash('sha256').update(token).digest('hex'),
+        },
+      ]);
+    } finally {
+      codex.closeQuery('codex_knowledge');
+      codex.closeQuery('codex_no_knowledge');
+    }
+  });
+
+  test('rejects a credential-bearing URL without echoing the URL in the error', async () => {
+    const codex = await import('../src/engine/codex-client.mjs');
+    const token = randomBytes(24).toString('base64url');
+    try {
+      for (const url of [`http://127.0.0.1:14258/mcp?token=${token}`, `http://127.0.0.1:14258/mcp/${token}`]) {
+        assert.throws(
+          () => startKnowledgeTestRun(codex, 'codex_bad_knowledge_url', { url, token }),
+          (err) => /invalid Codex knowledge transport URL/.test(err.message) && !err.message.includes(token),
+        );
+      }
+    } finally {
+      codex.closeQuery('codex_bad_knowledge_url');
+    }
+  });
+
+  test('redacts the bearer when app-server echoes it in an RPC error', async (t) => {
+    const codex = await import('../src/engine/codex-client.mjs');
+    const { default: logger } = await import('../src/utils/logger.mjs');
+    const loggedError = t.mock.method(logger, 'error', () => {});
+    const token = randomBytes(24).toString('base64url');
+    process.env.FAKE_CODEX_KNOWLEDGE_ERROR = '1';
+    try {
+      const { query } = startKnowledgeTestRun(codex, 'codex_knowledge_error', { url: 'http://127.0.0.1:14258/mcp', token });
+      const result = findResult(await drain(query, { timeoutMs: 45000 }));
+      assert.equal(result?.subtype, 'error_during_execution');
+      assert.equal(result.stop_reason.includes(token), false);
+      assert.match(result.stop_reason, /MCP rejected bearer \[redacted\]/);
+      const message = loggedError.mock.calls.at(-1)?.arguments[0];
+      assert.equal(message?.includes(token), false);
+      assert.match(message, /MCP rejected bearer \[redacted\]/);
+    } finally {
+      delete process.env.FAKE_CODEX_KNOWLEDGE_ERROR;
+      codex.closeQuery('codex_knowledge_error');
+    }
   });
 });
 

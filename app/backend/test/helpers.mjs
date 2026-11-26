@@ -25,21 +25,25 @@ export function makeCliShim(fixtureScript, fixtureArg, { name, dir = join(tmpdir
   return file;
 }
 
-/** Collect every standardized message a query emits until it closes. */
+/** Collect every standardized message a query emits until it closes.
+ *  Hard-capped at timeoutMs: the old absolute check only fired when a new
+ *  event arrived, so a stalled engine child hung the drain forever. */
 export async function drain(query, { timeoutMs = 15000 } = {}) {
   const events = [];
-  const deadline = Date.now() + timeoutMs;
+  const iterator = query[Symbol.asyncIterator]();
+  let timer = null;
+  const deadline = new Promise((resolve) => { timer = setTimeout(() => resolve(false), timeoutMs); });
   try {
-    for await (const msg of query) {
-      events.push(msg);
-      if (Date.now() > deadline) {
-        throw new Error(`drain timeout — ${events.length} events collected`);
-      }
+    while (true) {
+      const next = await Promise.race([iterator.next(), deadline.then(() => null)]);
+      if (next === null) throw new Error(`drain timeout — ${events.length} events collected`);
+      if (next.done) return events;
+      events.push(next.value);
     }
   } finally {
+    clearTimeout(timer);
     try { query.close(); } catch { /* already closed */ }
   }
-  return events;
 }
 
 export function findEvent(events, type, predicate = () => true) {

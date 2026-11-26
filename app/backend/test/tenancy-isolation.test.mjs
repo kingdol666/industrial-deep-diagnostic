@@ -50,6 +50,7 @@ let bobExtTask = null;  // { taskId, runId }
 let aliceChatId = null;
 let legacyRunId = null;
 let bobUploadFolder = '';
+let aliceUploadFolder = '';
 
 const createdDataDirs = new Set();
 
@@ -464,9 +465,15 @@ describe('quota + RBAC', () => {
     const folder = await api('POST', '/api/files/data/folder', { token: tok.bob, body: { name: bobUploadFolder } });
     assert.equal(folder.status, 200, JSON.stringify(folder.body));
 
-    const uploadOnce = async (token) => {
+    // Uploads are owner-scoped now: each user bursts against their OWN folder.
+    aliceUploadFolder = `iso_uploads_alice_${process.pid}`;
+    createdDataDirs.add(join(DATA_DIR, aliceUploadFolder));
+    const aliceFolderRow = await api('POST', '/api/files/data/folder', { token: tok.alice, body: { name: aliceUploadFolder } });
+    assert.equal(aliceFolderRow.status, 200, JSON.stringify(aliceFolderRow.body));
+
+    const uploadOnce = async (token, folderName) => {
       const form = new FormData();
-      form.append('folder', bobUploadFolder);
+      form.append('folder', folderName);
       form.append('files', new Blob([`x,u\n1,2\n`], { type: 'text/csv' }), `iso_${Math.random().toString(36).slice(2)}.csv`);
       const res = await fetch(`${BASE}/api/files/data/upload`, {
         method: 'POST',
@@ -481,7 +488,7 @@ describe('quota + RBAC', () => {
 
     let blocked = null;
     for (let i = 0; i < 30 && !blocked; i += 1) {
-      const r = await uploadOnce(tok.bob);
+      const r = await uploadOnce(tok.bob, bobUploadFolder);
       if (r.status === 429) blocked = r;
       else assert.equal(r.status, 200, `upload ${i + 1} → ${r.status} ${JSON.stringify(r.body)}`);
     }
@@ -491,7 +498,7 @@ describe('quota + RBAC', () => {
     assert.equal(blocked.body.success, false);
 
     // Per-user budget: alice is not affected by bob's exhausted window.
-    const aliceUpload = await uploadOnce(tok.alice);
+    const aliceUpload = await uploadOnce(tok.alice, aliceUploadFolder);
     assert.equal(aliceUpload.status, 200, `alice upload → ${aliceUpload.status} ${JSON.stringify(aliceUpload.body)}`);
   });
 

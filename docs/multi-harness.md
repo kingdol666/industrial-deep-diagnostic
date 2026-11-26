@@ -103,6 +103,7 @@ harness:
 - 一次性引擎的 `maxTurns` 由引擎内部循环决定，平台侧的回合预算 = 超时时间（`harness.timeout_minutes`）。
 - 真实 LLM 诊断需要各引擎自身的凭据（环境变量，见 `/api/harness` 返回的 `authEnv`）；凭据缺失时引擎会以明确的错误事件失败（联调用 `mock` 引擎，恒可用、零依赖）。
 - Web Chat 的 `harness` 列已入库但 chat 引擎分发仅 claude/omp 两路。
+- **按需产线知识**：Claude SDK 走进程内 MCP；`codex`/`opencode`/`omp` 走同一策略层的临时回环 MCP 传输（bearer 只进子进程环境，argv/日志/错误脱敏，权限、预算、审计与 Claude 同层）；其余引擎未适配，`409 KNOWLEDGE_UNAVAILABLE_ON_HARNESS`，不回退启动历史注入。本线工具仅在显式受信开发配置下启用；总能力不等于隔离验证。跨线资产与对照数据运行在所有引擎上保持关闭；按需作业不恢复旧模型会话。完整作业还要求模型端点上下文装得下该 harness 的基线上下文（OpenCode 1.19.6 空目录实测 ≈62.7k tokens，与仓库/提示词无关；8k ctx 端点会 `exceed_context_size_error` 失败）。见[产线知识 API](line-knowledge-api.md)。
 
 ## 7. 测试
 

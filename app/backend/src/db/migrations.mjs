@@ -22,6 +22,8 @@
 
 import { config, PROJECT_ROOT } from '../../../../config/loader.mjs';
 import logger from '../utils/logger.mjs';
+import { migrateKnowledgePublication } from './knowledge-publication.schema.mjs';
+import { migrateKnowledgeRetrieval } from './knowledge-retrieval.schema.mjs';
 
 function sqlQuote(str) {
   return String(str).replace(/'/g, "''");
@@ -444,6 +446,80 @@ export const MIGRATIONS = [
         db.exec('ALTER TABLE diagnosis_review_revisions ADD COLUMN source_completed_at TEXT');
       }
     },
+  },
+  {
+    version: 7,
+    name: 'production-lines-and-run-knowledge-scope',
+    detect: (db) => tableExists(db, 'production_lines')
+      && tableExists(db, 'production_line_members') && tableExists(db, 'production_line_run_bindings')
+      && ['line_id', 'knowledge_policy_json', 'dataset_refs_json'].every((c) => columnExists(db, 'diagnostic_runs', c)),
+    up: (db) => {
+      // Production-line identity is deliberately separate from display names and
+      // aliases. Existing rows remain unbound: v7 never guesses a line from a
+      // scene/name/path and never rewrites historical evidence.
+      db.exec(`
+        CREATE TABLE IF NOT EXISTS production_lines (
+          line_id TEXT PRIMARY KEY,
+          name TEXT NOT NULL,
+          aliases_json TEXT NOT NULL DEFAULT '[]',
+          created_by_user_id INTEGER NOT NULL,
+          created_at TEXT NOT NULL DEFAULT (datetime('now')),
+          updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+          FOREIGN KEY (created_by_user_id) REFERENCES users(id) ON DELETE RESTRICT
+        );
+
+        CREATE TABLE IF NOT EXISTS production_line_members (
+          line_id TEXT NOT NULL,
+          user_id INTEGER NOT NULL,
+          role TEXT NOT NULL CHECK (role IN ('read', 'run', 'manage')),
+          created_at TEXT NOT NULL DEFAULT (datetime('now')),
+          updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+          PRIMARY KEY (line_id, user_id),
+          FOREIGN KEY (line_id) REFERENCES production_lines(line_id) ON DELETE CASCADE,
+          FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        );
+
+        CREATE TABLE IF NOT EXISTS production_line_run_bindings (
+          id INTEGER PRIMARY KEY,
+          run_id TEXT NOT NULL,
+          prior_line_id TEXT,
+          line_id TEXT NOT NULL,
+          actor_user_id INTEGER NOT NULL,
+          created_at TEXT NOT NULL DEFAULT (datetime('now'))
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_production_lines_created_by
+          ON production_lines(created_by_user_id);
+        CREATE INDEX IF NOT EXISTS idx_production_line_members_user
+          ON production_line_members(user_id, line_id);
+      `);
+
+      if (!columnExists(db, 'diagnostic_runs', 'line_id')) {
+        db.exec(`ALTER TABLE diagnostic_runs ADD COLUMN line_id TEXT REFERENCES production_lines(line_id) ON DELETE SET NULL`);
+      }
+      if (!columnExists(db, 'diagnostic_runs', 'knowledge_policy_json')) {
+        db.exec('ALTER TABLE diagnostic_runs ADD COLUMN knowledge_policy_json TEXT');
+      }
+      if (!columnExists(db, 'diagnostic_runs', 'dataset_refs_json')) {
+        db.exec('ALTER TABLE diagnostic_runs ADD COLUMN dataset_refs_json TEXT');
+      }
+      db.exec(`CREATE INDEX IF NOT EXISTS idx_diagnostic_runs_line_id ON diagnostic_runs(line_id)`);
+    },
+  },
+  {
+    version: 8,
+    name: 'versioned-knowledge-publication',
+    detect: (db) => ['knowledge_assets', 'knowledge_asset_versions', 'knowledge_asset_grants', 'knowledge_publication_audit']
+      .every((t) => tableExists(db, t)),
+    up: migrateKnowledgePublication,
+  },
+  {
+    version: 9,
+    name: 'scoped-knowledge-retrieval-and-completion-lineage',
+    detect: (db) => tableExists(db, 'knowledge_retrieval_refs') && tableExists(db, 'knowledge_observation_fts')
+      && columnExists(db, 'diagnostic_runs', 'completion_revision')
+      && columnExists(db, 'diagnosis_review_revisions', 'source_completion_revision'),
+    up: migrateKnowledgeRetrieval,
   },
 ];
 

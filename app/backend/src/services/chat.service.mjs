@@ -60,6 +60,20 @@ function canViewChat(viewer, stored) {
   return canView(viewer, stored.owner_user_id);
 }
 
+function chatNotFoundError() {
+  const err = new Error('Chat session not found');
+  err.status = 404;
+  err.code = 'CHAT_NOT_FOUND';
+  return err;
+}
+
+function externalResumeError() {
+  const err = new Error('客户端提供的 Claude session 不能直接恢复，请先从所属 Chat 继续对话');
+  err.status = 400;
+  err.code = 'CHAT_RESUME_FORBIDDEN';
+  return err;
+}
+
 // A stored chat is OMP-backed when its harness column says so or its
 // session marker is an OMP opaque id (omp:chat:<chatId>).
 function storedChatIsOmp(stored) {
@@ -180,9 +194,18 @@ function deleteClaudeSessionArtifacts(sessionIds = []) {
  */
 export async function startChat(params = {}) {
   const ownerUserId = resolveOwnerId(params.ownerUserId);
+  const viewer = params.viewer ?? INTERNAL;
   const requestedChatId = params.chatId;
   const earlyChatId = requestedChatId || `chat_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
   const earlyStored = stmts.getChatSessionByChatId.get(earlyChatId);
+  if (earlyStored && !canViewChat(viewer, earlyStored)) throw chatNotFoundError();
+
+  const requestedSessionId = normalizeClaudeSessionId(params.originSessionId)
+    || normalizeClaudeSessionId(params.sessionId);
+  const trustedStoredSessionId = getEffectiveResumeSessionId(earlyStored);
+  if (requestedSessionId && (!earlyStored || requestedSessionId !== trustedStoredSessionId)) {
+    throw externalResumeError();
+  }
 
   // Harness resolution: an existing chat is sticky to its original engine —
   // the global selector only decides the engine for NEW chats.
@@ -240,7 +263,6 @@ export async function startChat(params = {}) {
     permissionMode = 'default',
     maxTurns,
     cwd,
-    sessionId: rawSessionId, // resume existing Claude session UUID
     extraArgs,      // additional CLI args
     systemPrompt,   // system prompt override
     tools,          // allowed tools list
@@ -256,10 +278,20 @@ export async function startChat(params = {}) {
   }
 
   const chatId = earlyChatId;
-  const sessionId = normalizeClaudeSessionId(rawSessionId);
+  const existingSession = earlyStored;
+  const sessionId = getEffectiveResumeSessionId(existingSession);
   const emitter = new EventEmitter();
   const normalizedPermissionMode = normalizePermissionMode(permissionMode, 'default');
   const normalizedCwd = normalizeChatCwd(cwd, PROJECT_ROOT);
+  if (sessionId && existingSession) {
+    const existingCwd = normalizeChatCwd(existingSession.cwd || PROJECT_ROOT, PROJECT_ROOT);
+    if ((sessionId || isStartedChatSession(existingSession)) && normalizedCwd !== existingCwd) {
+      const err = new Error('当前聊天已经绑定到既有 Claude session，不能在续聊时切换工作目录。请新建 Chat 后再选择新的工作目录。');
+      err.status = 400;
+      err.code = 'CHAT_CWD_IMMUTABLE';
+      throw err;
+    }
+  }
 
   // Build SDK options
   const options = {
@@ -293,16 +325,6 @@ export async function startChat(params = {}) {
     originSessionId: sessionId || null,
   });
 
-  const existingSession = stmts.getChatSessionByChatId.get(chatId);
-  if (sessionId && existingSession) {
-    const existingResumeSessionId = getEffectiveResumeSessionId(existingSession);
-    const existingCwd = normalizeChatCwd(existingSession.cwd || PROJECT_ROOT, PROJECT_ROOT);
-    if ((existingResumeSessionId || isStartedChatSession(existingSession)) && normalizedCwd !== existingCwd) {
-      const err = new Error('当前聊天已经绑定到既有 Claude session，不能在续聊时切换工作目录。请新建 Chat 后再选择新的工作目录。');
-      err.status = 400;
-      throw err;
-    }
-  }
   if (existingSession) {
     stmts.updateChatSession.run({
       chatId,
@@ -902,11 +924,13 @@ export async function sendChatMessage(chatId, followUpMessage, params = {}) {
   const viewer = params.viewer ?? INTERNAL;
   const ownerUserId = resolveOwnerId(params.ownerUserId);
   const stored = stmts.getChatSessionByChatId.get(chatId);
-  if (stored && !canViewChat(viewer, stored)) {
-    const err = new Error('Chat session not found');
-    err.status = 404;
-    err.code = 'CHAT_NOT_FOUND';
-    throw err;
+  if (stored && !canViewChat(viewer, stored)) throw chatNotFoundError();
+
+  const requestedSessionId = normalizeClaudeSessionId(params.originSessionId)
+    || normalizeClaudeSessionId(params.sessionId);
+  const trustedStoredSessionId = getEffectiveResumeSessionId(stored);
+  if (requestedSessionId && (!stored || requestedSessionId !== trustedStoredSessionId)) {
+    throw externalResumeError();
   }
 
   // ── OMP harness: continue the chat's own OMP session ──
@@ -948,22 +972,19 @@ export async function sendChatMessage(chatId, followUpMessage, params = {}) {
   }
 
   const entry = activeChats.get(chatId);
-  let sessionId = normalizeClaudeSessionId(params.originSessionId)
-    || normalizeClaudeSessionId(params.sessionId);
+  const sessionId = getEffectiveResumeSessionId(stored);
 
   if (entry) {
-    // Extract from stored entry first, then from query object
-    if (!sessionId && getOriginSessionId(entry)) sessionId = getOriginSessionId(entry);
-    if (!sessionId && entry.sessionId) sessionId = normalizeClaudeSessionId(entry.sessionId);
-    if (!sessionId && entry.query?.sessionId) sessionId = normalizeClaudeSessionId(entry.query.sessionId);
     try { entry.query.close(); } catch {}
     activeChats.delete(chatId);
   }
 
-  if (!sessionId && getOriginSessionId(stored)) sessionId = getOriginSessionId(stored);
-  if (!sessionId && stored?.session_id) sessionId = normalizeClaudeSessionId(stored.session_id);
-
-  if (!sessionId) throw new Error('No active session to continue — provide sessionId parameter or use /start first');
+  if (!sessionId) {
+    const err = new Error('No active session to continue — use /start first');
+    err.status = 409;
+    err.code = 'CHAT_SESSION_NOT_RESUMABLE';
+    throw err;
+  }
 
   const inheritedPermissionMode = normalizePermissionMode(
     params.permissionMode,

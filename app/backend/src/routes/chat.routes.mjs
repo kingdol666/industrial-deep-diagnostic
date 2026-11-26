@@ -25,7 +25,11 @@ function sendError(res, err, fallbackCode = 'CHAT_ERROR') {
 // POST /api/chat/start — launch new chat, returns chatId + stream URL
 router.post('/start', async (req, res) => {
   try {
-    const result = await startChat({ ...req.body, ownerUserId: resolveOwnerId(req.user) });
+    const result = await startChat({
+      ...req.body,
+      viewer: req.user,
+      ownerUserId: resolveOwnerId(req.user),
+    });
     res.json({
       success: true,
       data: {

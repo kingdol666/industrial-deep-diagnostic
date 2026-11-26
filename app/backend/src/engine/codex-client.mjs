@@ -79,9 +79,34 @@ export function mapCodexNotification(method, params, ctx) {
   ctx.unknown(m || 'notification');
 }
 
+const KNOWLEDGE_TOKEN_ENV = 'IDD_CODEX_MEMORY_TOKEN';
+
+function knowledgeMcpOverride(url, token) {
+  const endpoint = typeof url === 'string' ? URL.parse(url) : null;
+  // The URL is logged by the shared launcher. Accept credential-free HTTP
+  // endpoints and only characters safe in TOML literal strings and .cmd argv.
+  if (!endpoint || !['http:', 'https:'].includes(endpoint.protocol) || endpoint.username || endpoint.password
+    || endpoint.href.includes(token) || /[?'"%#]/.test(endpoint.href)) {
+    throw new Error('invalid Codex knowledge transport URL');
+  }
+  return `mcp_servers.idd_memory={url='${endpoint.href}',bearer_token_env_var='${KNOWLEDGE_TOKEN_ENV}',enabled=true}`;
+}
+
 // ── Query wrapper ──
-function createCodexQuery({ turnKey, prompt, model = null, approvalPolicy = null, timeoutMinutes = 0 }) {
+function createCodexQuery({ turnKey, prompt, model = null, approvalPolicy = null, timeoutMinutes = 0, knowledgeTransport = null }) {
   const engCfg = config.harness?.engines?.codex || {};
+  let args = engCfg.server_args || ['app-server'];
+  let env;
+  let token;
+  if (knowledgeTransport != null) {
+    token = knowledgeTransport.token;
+    if (typeof token !== 'string' || !/^[A-Za-z0-9._~+/-]+=*$/.test(token)) {
+      throw new Error('invalid Codex knowledge transport bearer token');
+    }
+    args = [...args, '-c', knowledgeMcpOverride(knowledgeTransport.url, token)];
+    env = { [KNOWLEDGE_TOKEN_ENV]: token };
+  }
+  const redact = (text) => token && typeof text === 'string' ? text.replaceAll(token, '[redacted]') : text;
   const queue = [];
   let wake = null;
   let closed = false;
@@ -108,7 +133,7 @@ function createCodexQuery({ turnKey, prompt, model = null, approvalPolicy = null
       duration_ms: Date.now() - startedAt,
       num_turns: numTurns,
       total_cost_usd: null,
-      stop_reason: stopReason || subtype,
+      stop_reason: redact(stopReason || subtype),
       session_id: threadId ? `codex:${threadId}` : `codex:run:${turnKey}`,
     });
     end();
@@ -123,13 +148,13 @@ function createCodexQuery({ turnKey, prompt, model = null, approvalPolicy = null
     unknown: () => {},
   };
 
-  const proc = spawnCli('codex', engCfg.server_args || ['app-server'], { cwd: PROJECT_ROOT });
+  const proc = spawnCli('codex', args, { cwd: PROJECT_ROOT, env });
   state.proc = proc;
   const getStderrTail = stderrTailRef(proc);
 
   proc.on('exit', (code) => {
     if (!finished) {
-      const tail = getStderrTail().split(/\r?\n/).filter(Boolean).slice(-3).join(' | ');
+      const tail = redact(getStderrTail()).split(/\r?\n/).filter(Boolean).slice(-3).join(' | ');
       result('error_during_execution', `CODEX_EXIT_${code ?? 'null'}${tail ? `: ${tail.slice(0, 300)}` : ''}`);
     }
   });
@@ -168,7 +193,7 @@ function createCodexQuery({ turnKey, prompt, model = null, approvalPolicy = null
       await rpc.request('initialize', {
         clientInfo: { name: 'industrial-deep-diagnostic', title: 'IDD Console', version: '1.0.0' },
       }, { timeoutMs: 20000 }).catch((e) => {
-        logger.warn(`[codex] initialize not accepted (continuing): ${e.message}`, { context: 'Codex', turnKey });
+        logger.warn(`[codex] initialize not accepted (continuing): ${redact(e.message)}`, { context: 'Codex', turnKey });
         return null;
       });
 
@@ -195,7 +220,7 @@ function createCodexQuery({ turnKey, prompt, model = null, approvalPolicy = null
       }, { timeoutMs: 0 })
         .catch((e) => result('error_during_execution', `codex_turn_failed: ${e.message}`));
     } catch (e) {
-      logger.error(`[codex] session setup failed: ${e.message}`, { context: 'Codex', turnKey });
+      logger.error(`[codex] session setup failed: ${redact(e.message)}`, { context: 'Codex', turnKey });
       result('error_during_execution', `codex_session_failed: ${e.message}`);
     }
   })();
@@ -264,7 +289,7 @@ export function startDiagnosis({
   ontology = null, enhancement = null,
   model = null, permissionMode = null,
   analysisIntent = 'deep-diagnosis', preprocessingMode = null,
-  lineMemory = null,
+  lineMemory = null, knowledgeTransport = null,
 }) {
   void maxTurns; void sessionId; // codex threads don't resume cross-process here
   const engCfg = config.harness?.engines?.codex || {};
@@ -278,6 +303,7 @@ export function startDiagnosis({
     model: model || engCfg.model || undefined,
     approvalPolicy: permissionMode || engCfg.approval_policy || undefined,
     timeoutMinutes,
+    knowledgeTransport,
   });
   activeQueries.set(runId, query);
   return { query, dataPaths: built.dataPaths, prompt: built.prompt, getSessionId: () => query.sessionId, runId, isResume: false };

@@ -7,16 +7,16 @@ const statuses = new Set(['unreviewed', 'confirmed', 'ineffective']);
 const latest = db.prepare('SELECT * FROM diagnosis_review_revisions WHERE run_id = ? ORDER BY revision DESC LIMIT 1');
 const history = db.prepare('SELECT * FROM diagnosis_review_revisions WHERE run_id = ? AND revision < ? ORDER BY revision DESC LIMIT 51');
 const insert = db.prepare(`INSERT INTO diagnosis_review_revisions
-  (run_id, revision, status, comment, takeaway, manual_summary, original_summary, source_completed_at, reuse_enabled, actor_id, actor_username, created_at)
-  VALUES (@run_id, @revision, @status, @comment, @takeaway, @manual_summary, @original_summary, @source_completed_at, @reuse_enabled, @actor_id, @actor_username, @created_at)`);
-const reviewIndex = db.prepare(`SELECT h.*, d.scene_name, COALESCE(d.title, d.name) AS title, d.completed_at
+  (run_id, revision, status, comment, takeaway, manual_summary, original_summary, source_completed_at, source_completion_revision, reuse_enabled, actor_id, actor_username, created_at)
+  VALUES (@run_id, @revision, @status, @comment, @takeaway, @manual_summary, @original_summary, @source_completed_at, @source_completion_revision, @reuse_enabled, @actor_id, @actor_username, @created_at)`);
+const reviewIndex = db.prepare(`SELECT h.*, d.scene_name, COALESCE(d.title, d.name) AS title, d.completed_at, d.completion_revision
   FROM diagnostic_runs d JOIN diagnosis_review_revisions h ON h.run_id = d.run_id
     AND h.revision = (SELECT MAX(revision) FROM diagnosis_review_revisions WHERE run_id = d.run_id)
   WHERE d.deleted_at IS NULL AND d.status = 'completed' AND d.harness != 'mock'
     AND (@userId IS NULL OR d.user_id = @userId OR CAST(d.owner_user_id AS TEXT) = @userId)
     AND (@status IS NULL OR h.status = @status)
   ORDER BY h.created_at DESC, h.run_id LIMIT 51 OFFSET @offset`);
-const candidates = db.prepare(`SELECT h.*, d.completed_at, d.scene_name, d.harness FROM diagnostic_runs d
+const candidates = db.prepare(`SELECT h.*, d.completed_at, d.completion_revision, d.scene_name, d.harness FROM diagnostic_runs d
   JOIN diagnosis_review_revisions h ON h.run_id = d.run_id
     AND h.revision = (SELECT MAX(revision) FROM diagnosis_review_revisions WHERE run_id = d.run_id)
   WHERE d.status = 'completed' AND d.deleted_at IS NULL AND d.run_id != ?
@@ -37,6 +37,9 @@ function reviewableRun(id, user) {
   return run;
 }
 
+const reviewIsStale = (r, run) => r.source_completed_at !== (run.completed_at ?? null)
+  || (r.source_completion_revision ?? 0) !== run.completion_revision;
+
 function view(runId, row, run) {
   const r = row ?? { revision: 0, status: 'unreviewed', reuse_enabled: 1 };
   const original = r.original_summary || '';
@@ -46,7 +49,7 @@ function view(runId, row, run) {
     run_id: runId, revision: r.revision, status: r.status,
     comment: r.comment ?? null, takeaway: r.takeaway ?? null,
     reuse_enabled: Boolean(r.reuse_enabled),
-    stale: Boolean(run && r.revision && r.source_completed_at !== (run.completed_at ?? null)),
+    stale: Boolean(run && r.revision && reviewIsStale(r, run)),
     actor: r.revision ? { id: r.actor_id, username: r.actor_username } : null,
     created_at: r.created_at ?? null,
     synthesis: { text: r.manual_summary ?? derived, source: r.manual_summary ? 'human' : 'derived' },
@@ -96,7 +99,7 @@ export const updateReview = db.transaction((runId, patch, user, authType) => {
   }
   const prev = latest.get(runId);
   if (patch.revision !== (prev?.revision ?? 0)) fail(409, 'REVIEW_REVISION_CONFLICT', '复核已更新，请重新加载后再保存');
-  const stale = prev && prev.source_completed_at !== (run.completed_at ?? null);
+  const stale = prev && reviewIsStale(prev, run);
   const status = Object.hasOwn(patch, 'status') ? patch.status : (stale ? 'unreviewed' : (prev?.status ?? 'unreviewed'));
   if (!statuses.has(status)) fail(400, 'REVIEW_STATUS_INVALID', '无效的复核状态');
   const reuse = Object.hasOwn(patch, 'reuse_enabled') ? patch.reuse_enabled : Boolean(prev?.reuse_enabled ?? 1);
@@ -110,6 +113,7 @@ export const updateReview = db.transaction((runId, patch, user, authType) => {
     manual_summary: field(patch, 'summary', changed ? null : prev?.manual_summary, 6000),
     original_summary: String(getResultDetail(runId, { user, includeMd: false }).summary || '').slice(0, 2000),
     source_completed_at: run.completed_at ?? null,
+    source_completion_revision: run.completion_revision,
     reuse_enabled: Number(reuse), actor_id: user.id, actor_username: user.username, created_at: new Date().toISOString(),
   };
   insert.run(row);
@@ -127,7 +131,7 @@ export function getConfirmedContext(target, aliases = []) {
   if (!sceneKeys.size) return [];
   const entries = [];
   for (const row of candidates.iterate(target.run_id, String(owner), String(owner))) {
-    if (row.harness === 'mock' || row.source_completed_at !== (row.completed_at ?? null) || !sceneKeys.has(sceneKey(row.scene_name))) continue;
+    if (row.harness === 'mock' || reviewIsStale(row, row) || !sceneKeys.has(sceneKey(row.scene_name))) continue;
     const takeaway = cleanExcerpt(row.takeaway || row.manual_summary || row.original_summary);
     if (!takeaway) continue;
     entries.push({ run_id: row.run_id, revision: row.revision, status: row.status, takeaway });

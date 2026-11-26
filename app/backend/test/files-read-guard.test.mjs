@@ -172,14 +172,16 @@ describe('GET /api/files/data/file/* — the HTTP contract (preview and ?ext=bin
   });
 });
 
-describe('the data listing is unchanged by the read guard', () => {
-  test('hides the system database family and dot names, shows ordinary entries', async () => {
+describe('the data listing hides system areas and keeps ordinary entries', () => {
+  test('hides the system database family, dot names and the ontology store', async () => {
     const entries = await listDataDir(DATA_DIR);
     // `notes.db` is listed on purpose: only the CONFIGURED database name (plus
     // its -wal/-shm siblings) is infrastructure — an unrelated .db file is
-    // ordinary user data, in the listing and on the read path alike.
-    assert.deepEqual(entries.map((e) => e.name), ['nested', 'ontology_store', 'notes.db', 'report.csv']);
-    for (const hidden of [DB_FILE, `${DB_FILE}-wal`, `${DB_FILE}-shm`, '.hidden', '.hiddendir']) {
+    // ordinary user data, in the listing and on the read path alike. The
+    // ontology store and dot names are system areas: hidden from listings and
+    // refused on the read path alike (contract updated with the folder ACL).
+    assert.deepEqual(entries.map((e) => e.name), ['nested', 'notes.db', 'report.csv']);
+    for (const hidden of [DB_FILE, `${DB_FILE}-wal`, `${DB_FILE}-shm`, '.hidden', '.hiddendir', 'ontology_store']) {
       assert.ok(!entries.some((entry) => entry.name === hidden), `${hidden} must stay hidden`);
     }
   });

@@ -3,6 +3,7 @@
 // (item/completed agentMessage, commandExecution approval request) → turn/completed.
 // Traces the approval decision to FAKE_TRACE.
 import { appendFileSync } from 'fs';
+import { createHash } from 'node:crypto';
 
 const trace = (line) => {
   if (process.env.FAKE_TRACE) {
@@ -14,6 +15,12 @@ if (process.argv.includes('--version')) {
   process.stdout.write('fake-codex 1.0.0\n');
   process.exit(0);
 }
+
+const knowledgeToken = process.env.IDD_CODEX_MEMORY_TOKEN;
+trace(`CODEX_LAUNCH ${JSON.stringify({
+  args: process.argv.slice(3),
+  tokenHash: knowledgeToken ? createHash('sha256').update(knowledgeToken).digest('hex') : null,
+})}`);
 
 let buf = '';
 const respond = (id, result) => process.stdout.write(`${JSON.stringify({ jsonrpc: '2.0', id, result })}\n`);
@@ -34,6 +41,11 @@ function handleLine(line) {
   if (method === 'initialize') {
     respond(id, { userAgent: { name: 'fake-codex', version: '1.0.0' } });
   } else if (method === 'thread/start') {
+    if (process.env.FAKE_CODEX_KNOWLEDGE_ERROR === '1' && knowledgeToken) {
+      const error = { code: -32000, message: `MCP rejected bearer ${knowledgeToken}` };
+      process.stdout.write(`${JSON.stringify({ jsonrpc: '2.0', id, error })}\n`);
+      return;
+    }
     respond(id, { threadId: 'thr_fake_1' });
   } else if (method === 'turn/start') {
     notify('item/completed', { threadId: 'thr_fake_1', item: { id: 'i1', type: 'agentMessage', text: 'hi from codex' } });

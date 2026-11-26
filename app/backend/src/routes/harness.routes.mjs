@@ -22,6 +22,7 @@ import { resolveBestAvailableHarness } from '../harness/engines.mjs';
 import { HarnessNotFoundError, HarnessNotSupportedError } from '../harness/base.mjs';
 import { rewriteHtmlAssetUrls, callerToken } from '../utils/html-assets.mjs';
 import { getProviderError } from '../services/provider-error.service.mjs';
+import { supportsMemoryTools } from '../services/knowledge-runtime.service.mjs';
 
 const router = Router();
 
@@ -47,7 +48,7 @@ function resolve(res, id) {
 }
 
 /** GET /api/harness — list all engines */
-router.get('/', (req, res) => ok(res, listHarnesses()));
+router.get('/', (req, res) => ok(res, listHarnesses().map((h) => ({ ...h, memory_tools: supportsMemoryTools(h.id) }))));
 
 /** GET /api/harness/default — the default harness (best-adapted available).
  *  Returns 503 HARNESS_NONE_AVAILABLE when even the in-process fallback fails. */

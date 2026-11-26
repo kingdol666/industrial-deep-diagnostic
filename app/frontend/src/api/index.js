@@ -78,6 +78,13 @@ async function request(path, options = {}) {
   return (await requestEnvelope(path, options)).data;
 }
 
+function jsonRequest(path, method, body) {
+  return request(path, { method, ...(body === undefined ? {} : { body: JSON.stringify(body) }) });
+}
+
+const versionPath = ({ asset_id, version }) => `/knowledge/assets/${encodeURIComponent(asset_id)}/versions/${encodeURIComponent(version)}`;
+const runKnowledgePath = (id) => `/knowledge/runs/${encodeURIComponent(id)}`;
+
 export const api = {
   // ── Auth（register/login 为公开端点，其余需认证）──
   // login 成功即由服务端 Set-Cookie 下发 HttpOnly 会话 cookie；响应体本身
@@ -126,6 +133,19 @@ export const api = {
   // HTML reports inside a run dir (run-relative paths, any subdirectory)
   listRunHtml: (name) => request(`/files/workspace/html/${encodeURIComponent(name)}`),
   getChartData: (dirName) => request(`/analysis/chart-data/${encodeURIComponent(dirName)}`),
+
+  // Production lines and versioned knowledge. Catalog discovery is not an access check.
+  listProductionLines: () => request('/lines'),
+  createProductionLine: (body) => jsonRequest('/lines', 'POST', body),
+  createKnowledgeAsset: (lineId, body) => jsonRequest(`/lines/${encodeURIComponent(lineId)}/assets`, 'POST', body),
+  listKnowledgeCatalog: (params) => request(`/knowledge/catalog${buildQuery(params)}`),
+  publishKnowledgeVersion: (ref, body) => jsonRequest(`${versionPath(ref)}/publish`, 'POST', body),
+  withdrawKnowledgeVersion: (ref) => jsonRequest(`${versionPath(ref)}/withdraw`, 'POST', {}),
+  setKnowledgeGrant: (ref, userId, rights) => jsonRequest(`${versionPath(ref)}/grants/${encodeURIComponent(userId)}`, 'PUT', { rights }),
+  revokeKnowledgeGrant: (ref, userId) => jsonRequest(`${versionPath(ref)}/grants/${encodeURIComponent(userId)}`, 'DELETE'),
+  searchRunKnowledge: (id, query) => jsonRequest(`${runKnowledgePath(id)}/search`, 'POST', { query }),
+  getRunKnowledgeItem: (id, refId) => request(`${runKnowledgePath(id)}/items/${encodeURIComponent(refId)}`),
+  listRunRetrievals: (id) => request(`${runKnowledgePath(id)}/retrievals`),
 
   // Diagnosis
   startDiagnosis: (params) =>

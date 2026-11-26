@@ -83,7 +83,7 @@ router.post('/start', startRateLimit, async (req, res) => {
 
     // Both ownership columns: user_id drives the run-management filters
     // (listRunsForUser/requireRun), owner_user_id drives tenancy (canView).
-    const result = createDiagnosisRun({ ...req.body, userId: req.user?.id ?? null, ownerUserId: req.user });
+    const result = createDiagnosisRun({ ...req.body, executeImmediately: false, userId: req.user?.id ?? null, ownerUserId: req.user });
     res.json({ success: true, data: result });
   } catch (err) {
     sendError(res, err, { fallbackCode: 'DIAGNOSIS_START_FAILED' });
@@ -334,7 +334,7 @@ router.post('/tasks', startRateLimit, async (req, res) => {
     } else if (dataPath) {
       await validateDataPath(dataPath);
     }
-    const created = createDiagnosisRun({ ...req.body, userId: req.user?.id ?? null, ownerUserId: req.user });
+    const created = createDiagnosisRun({ ...req.body, executeImmediately: true, userId: req.user?.id ?? null, ownerUserId: req.user });
     const taskId = created.runId ?? created.id ?? '';
     if (!taskId) {
       return res.status(500).json({ success: false, code: 'TASK_CREATE_FAILED', error: 'createDiagnosisRun 未返回 runId' });

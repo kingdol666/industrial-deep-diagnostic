@@ -110,9 +110,50 @@
             </div>
           </details>
 
+          <section class="line-scope" :aria-label="$t('lines.lineScope')">
+            <div class="scope-head">
+              <h3>{{ $t('lines.lineScope') }}</h3>
+              <button type="button" class="btn btn-sm" @click="$emit('go-lines')">{{ $t('lines.changeLine') }}</button>
+            </div>
+            <label class="scope-field">
+              {{ $t('lines.pickLine') }}
+              <select v-model="lineId" class="ctrl-input ctrl-select" :disabled="creatingRun">
+                <option value="">{{ $t('lines.unbound') }}</option>
+                <option v-if="lineId && !selectedLine" :value="lineId">{{ lineId }}</option>
+                <option v-for="line in productionLines" :key="line.line_id" :value="line.line_id" :disabled="line.member_role === 'read'">
+                  {{ line.name }} · {{ line.line_id }}{{ line.member_role === 'read' ? ` · ${$t('lines.readOnly')}` : '' }}
+                </option>
+              </select>
+            </label>
+            <p v-if="loadingLines" role="status">{{ $t('common.loading') }}</p>
+            <div v-if="lineLoadError" class="scope-head">
+              <p role="alert">{{ $t('lines.loadLinesError') }}</p>
+              <button type="button" class="btn btn-sm" @click="loadProductionLines">{{ $t('common.refresh') }}</button>
+            </div>
+            <p v-else-if="!loadingLines && lineId && (!selectedLine || selectedLine.member_role === 'read')" role="alert">{{ $t('lines.actionUnavailable') }}</p>
+            <template v-if="selectedLine && selectedLine.member_role !== 'read'">
+              <label class="scope-field">
+                {{ $t('lines.knowledgeMode') }}
+                <select v-model="knowledgeMode" class="ctrl-input ctrl-select" :disabled="creatingRun">
+                  <option value="disabled">{{ $t('lines.disabled') }}</option>
+                  <option value="on_demand">{{ $t('lines.onDemand') }}</option>
+                </select>
+              </label>
+              <label v-if="knowledgeMode === 'on_demand'" class="scope-check">
+                <input v-model="ownLine" type="checkbox" :disabled="creatingRun" /> {{ $t('lines.includeOwn') }}
+              </label>
+              <details class="wb-advanced">
+                <summary>{{ $t('lines.catalog') }} · {{ effectiveReferences.length + datasets.length }}</summary>
+                <KnowledgeReferencePicker v-model:references="references" v-model:datasets="datasets" select :allow-text="knowledgeMode === 'on_demand'" />
+              </details>
+              <p>{{ $t('lines.pinnedHint') }}</p>
+              <p v-if="formShared" class="scope-warning">{{ $t('lines.isolationGate') }}</p>
+            </template>
+          </section>
+          <p v-if="createError" role="alert" class="rb-error">{{ createError }}</p>
           <div class="ctrl-row">
-            <button class="ctrl-btn ctrl-btn-go" @click="start" :disabled="!analysisTarget">
-              {{ $t('diagnosis.startDiagnosis') }}
+            <button class="ctrl-btn ctrl-btn-go" type="button" @click="start" :disabled="!canCreate">
+              {{ $t(creatingRun ? 'common.loading' : lineId ? 'lines.createPending' : 'diagnosis.startDiagnosis') }}
             </button>
           </div>
         </div>
@@ -160,7 +201,7 @@
           </div>
 
           <!-- Phase Indicator -->
-          <div class="phase-bar" v-if="currentPhase">
+          <div class="phase-bar" v-if="currentPhase && !pending">
             <div class="phase-icon">{{ phaseIcon }}</div>
             <span class="phase-text">{{ currentPhase }}</span>
             <div class="phase-progress-track">
@@ -170,7 +211,25 @@
         </div>
 
         <div class="run-body">
-          <div class="run-message-region">
+          <div v-if="pending || boundRun" class="run-knowledge-region" :class="{ 'run-knowledge-pending': pending }">
+            <div v-if="pending" class="line-scope pending-controls">
+              <p>{{ $t('lines.pendingHint') }}</p>
+              <p v-if="executionGate" class="scope-warning" role="status">{{ $t(executionGate) }}</p>
+              <button type="button" class="btn btn-primary" :disabled="executing || !!executionGate || !run?.run_id" @click="executePending">
+                {{ $t(executing ? 'common.loading' : 'lines.execute') }}
+              </button>
+            </div>
+            <p v-if="runActionError" class="rb-error" role="alert">{{ runActionError }}</p>
+            <RunKnowledgePanel v-if="pending && boundRun && runId" :key="runId" :run-id="runId" :line-id="boundRun"
+              :policy="savedPolicy" :datasets="savedDatasets" :status="liveStatus" />
+            <details v-else-if="boundRun && runId" class="wb-advanced run-knowledge-disclosure">
+              <summary>{{ $t('lines.runKnowledge') }} · {{ $t('lines.audit') }}</summary>
+              <RunKnowledgePanel :key="runId" :run-id="runId" :line-id="boundRun" :policy="savedPolicy"
+                :datasets="savedDatasets" :status="liveStatus" />
+            </details>
+          </div>
+          <div v-else-if="runActionError" class="rb-error" role="alert">{{ runActionError }}</div>
+          <div v-if="!pending" class="run-message-region">
             <MessageStream
               :key="runId || 'diagnosis-run'"
               :events="events"
@@ -194,7 +253,7 @@
                 <div class="rb-actions">
                   <button v-if="reportPath" class="rb-btn rb-btn-primary" @click="openReport">{{ $t('diagnosis.viewFullReport') }}</button>
                   <button v-if="reportPath" class="rb-btn rb-btn-md" @click="downloadReportMD">{{ $t('diagnosis.downloadMarkdown') }}</button>
-                  <button v-if="failed && runId" class="rb-btn rb-btn-retry" @click="retryDiagnosis">{{ $t('diagnosis.continueDiagnosis') }}</button>
+                  <button v-if="failed && runId && !sharedRun" class="rb-btn rb-btn-retry" @click="retryDiagnosis">{{ $t('diagnosis.continueDiagnosis') }}</button>
                 </div>
                 <div class="rb-hint" v-if="failed">
                   {{ $t('diagnosis.failedHint') }}
@@ -250,7 +309,7 @@
 
           <!-- Chat Input — fixed at the bottom of the live run layout -->
           <ChatInput
-            v-if="viewingRun"
+            v-if="viewingRun && !pending && !sharedRun"
             ref="chatInputRef"
             class="run-input-dock"
             :isRunning="isRunning"
@@ -294,6 +353,8 @@ import TaskList from './TaskList.vue';
 import MessageStream from './MessageStream.vue';
 import AnswerBar from './AnswerBar.vue';
 import ChatInput from './ChatInput.vue';
+import KnowledgeReferencePicker from '../lines/KnowledgeReferencePicker.vue';
+import RunKnowledgePanel from '../lines/RunKnowledgePanel.vue';
 import { HeatmapChart, GaugeChart } from '../charts/index.js';
 
 const { t } = useI18n();
@@ -303,6 +364,7 @@ const props = defineProps({
   autoRunId: { type: String, default: null },
   harness: { type: String, default: 'claude' },
   harnessName: { type: String, default: '' },
+  initialLineId: { type: String, default: '' },
 });
 
 // The run started from this view runs on the harness selected in the sidebar;
@@ -313,6 +375,7 @@ const startedHarness = ref(props.harness || 'claude');
 // Fed by the harness manifest (GET /api/harness → options); empty arrays hide
 // the dropdown because that dimension is fixed by the engine's design.
 const engineOptions = ref({ models: [], permissionModes: [] });
+const memoryHarnesses = ref(new Set());
 const modelSel = ref('');
 const permSel = ref('');
 
@@ -322,6 +385,7 @@ async function loadEngineOptions() {
   try {
     const list = await api.listHarnesses();
     const h = (list || []).find(x => x.id === (props.harness || 'claude'));
+    memoryHarnesses.value = new Set((list || []).filter((engine) => engine.memory_tools).map((engine) => engine.id));
     engineOptions.value = h?.options || { models: [], permissionModes: [] };
   } catch {
     engineOptions.value = { models: [], permissionModes: [] };
@@ -344,7 +408,7 @@ const runEngineLabel = computed(() => {
   return String(runHarnessId.value || 'claude').toUpperCase();
 });
 
-const emit = defineEmits(['started', 'view-report', 'go-data']);
+const emit = defineEmits(['started', 'view-report', 'go-data', 'go-lines', 'close-run']);
 
 const {
   state: realtimeState,
@@ -365,6 +429,45 @@ const ontologyMode = ref('auto');
 const enhancement = ref('auto');
 const ontologyScenes = ref([]);
 const started = ref(false);
+const productionLines = ref([]);
+const loadingLines = ref(false);
+const lineLoadError = ref(false);
+const lineId = ref(props.initialLineId);
+const knowledgeMode = ref('disabled');
+const ownLine = ref(true);
+const references = ref([]);
+const datasets = ref([]);
+const creatingRun = ref(false);
+const createError = ref('');
+const executing = ref(false);
+const runActionError = ref('');
+const selectedLine = computed(() => productionLines.value.find((line) => line.line_id === lineId.value));
+const canCreate = computed(() => !!props.analysisTarget && !creatingRun.value
+  && (!lineId.value || (!loadingLines.value && !lineLoadError.value && !!selectedLine.value && selectedLine.value.member_role !== 'read')));
+const effectiveReferences = computed(() => knowledgeMode.value === 'on_demand' ? references.value : []);
+const formShared = computed(() => effectiveReferences.value.length > 0 || datasets.value.length > 0);
+
+watch(lineId, () => {
+  knowledgeMode.value = 'disabled';
+  ownLine.value = true;
+  references.value = [];
+  datasets.value = [];
+  createError.value = '';
+});
+
+async function loadProductionLines() {
+  if (loadingLines.value) return;
+  loadingLines.value = true;
+  lineLoadError.value = false;
+  try {
+    const result = await api.listProductionLines();
+    productionLines.value = Array.isArray(result) ? result : result.items ?? result.lines ?? [];
+  } catch {
+    lineLoadError.value = true;
+  } finally {
+    loadingLines.value = false;
+  }
+}
 
 // ── Analysis intents — every task is executed by the real integrated agent.
 // The ids mirror ANALYSIS_INTENTS in the backend (claude-client.mjs); a
@@ -406,6 +509,21 @@ const connected = computed(() => realtimeState.wsConnected);
 const isHydrating = computed(() => !!snapshot.value?.isHydrating);
 const events = computed(() => snapshot.value?.events || []);
 const isRunning = computed(() => liveStatus.value === 'running');
+const pending = computed(() => liveStatus.value === 'pending');
+const boundRun = computed(() => run.value?.line_id || '');
+function savedValue(value) {
+  if (typeof value !== 'string') return value;
+  try { return JSON.parse(value); } catch { return null; }
+}
+const savedPolicy = computed(() => savedValue(run.value?.knowledge_policy ?? run.value?.knowledge_policy_json));
+const savedDatasets = computed(() => savedValue(run.value?.dataset_refs ?? run.value?.dataset_refs_json) ?? []);
+const sharedRun = computed(() => (savedPolicy.value?.references?.length ?? 0) > 0 || savedDatasets.value.length > 0);
+const executionGate = computed(() => {
+  if (sharedRun.value) return 'lines.isolationGate';
+  if (boundRun.value && !savedPolicy.value) return 'lines.actionUnavailable';
+  if (savedPolicy.value?.mode === 'on_demand' && !memoryHarnesses.value.has(runHarnessId.value)) return 'lines.engineGate';
+  return '';
+});
 const isAwaitingInput = computed(() => liveStatus.value === 'awaiting_input');
 const canStop = computed(() => isRunning.value || isAwaitingInput.value);
 const completed = computed(() => liveStatus.value === 'completed');
@@ -591,16 +709,10 @@ function loadCharts() {
 }
 
 async function start() {
-  if (!props.analysisTarget) return;
-
-  window.scrollTo({ top: 0, behavior: 'auto' });
-  viewingRun.value = true;
-  started.value = true;
-  chartData.value = null;
-  showCharts.value = true;
-  currentPhase.value = t('diagnosis.initializing');
-  progressPct.value = 5;
-
+  if (!canCreate.value) return;
+  creatingRun.value = true;
+  createError.value = '';
+  runActionError.value = '';
   const target = props.analysisTarget;
   const payload = {
     userQuestion: userQuestion.value,
@@ -628,24 +740,77 @@ async function start() {
     payload.dataPath = target.file.path;
   }
 
+  if (lineId.value) {
+    const asRef = ({ asset_id, version }) => ({ asset_id, version });
+    payload.lineId = lineId.value;
+    payload.knowledgePolicy = {
+      mode: knowledgeMode.value,
+      own_line: knowledgeMode.value === 'on_demand' && ownLine.value,
+      references: effectiveReferences.value.map(asRef),
+    };
+    payload.datasetRefs = datasets.value.map(asRef);
+  }
+
   try {
     const data = await api.startDiagnosis(payload);
-    emit('started', data.runId);
+    window.scrollTo({ top: 0, behavior: 'auto' });
+    viewingRun.value = true;
+    started.value = true;
+    chartData.value = null;
+    showCharts.value = true;
+    currentPhase.value = '';
+    progressPct.value = 0;
     setRunStatusLocally(data.runId, {
       name: data.name,
       scene_name: data.name,
+      harness: payload.harness,
+      line_id: payload.lineId ?? null,
+      knowledge_policy: payload.knowledgePolicy ?? null,
+      dataset_refs: payload.datasetRefs ?? [],
       status: 'pending',
       engineStatus: 'pending',
-      score: null,
-      judge_verdict: null,
-      report_path: null,
-      error_message: '',
     });
+    // The WebSocket subscription only observes snapshots/events. The legacy
+    // SSE stream starts pending runs, so do not use it for this preview flow.
     subscribeRun(data.runId);
-    await hydrateRun(data.runId);
-    await api.executeDiagnosis(data.runId);
+    emit('started', data.runId);
+    try {
+      await hydrateRun(data.runId);
+    } catch (err) {
+      runActionError.value = runErrorText(err);
+    }
+    if (!payload.lineId) await executePending();
   } catch (err) {
-    console.error('Failed to start diagnosis:', err);
+    createError.value = runErrorText(err);
+  } finally {
+    creatingRun.value = false;
+  }
+}
+
+function runErrorText(err) {
+  const messages = {
+    KNOWLEDGE_SOURCE_UNAVAILABLE: 'lines.runSourceUnavailable',
+    KNOWLEDGE_ISOLATION_REQUIRED: 'lines.localGate',
+    KNOWLEDGE_UNAVAILABLE_ON_HARNESS: 'lines.engineGate',
+    KNOWLEDGE_RESUME_UNSUPPORTED: 'lines.resumeUnsupported',
+    LINE_FORBIDDEN: 'lines.actionUnavailable',
+    LINE_INPUT_UNAVAILABLE: 'lines.inputUnavailable',
+  };
+  return t(messages[err.code] || 'lines.runActionError');
+}
+
+async function executePending() {
+  if (executing.value || executionGate.value || !pending.value || !run.value?.run_id) return;
+  const id = run.value.run_id;
+  executing.value = true;
+  runActionError.value = '';
+  try {
+    await api.executeDiagnosis(id);
+    await hydrateRun(id);
+  } catch (err) {
+    if (runId.value === id) runActionError.value = runErrorText(err);
+  } finally {
+    executing.value = false;
   }
 }
 
@@ -656,9 +821,14 @@ async function stop() {
 }
 
 async function retryDiagnosis() {
-  if (!runId.value) return;
-  await api.continueDiagnosis(runId.value);
-  markRunContinuing();
+  if (!runId.value || sharedRun.value) return;
+  runActionError.value = '';
+  try {
+    await api.continueDiagnosis(runId.value);
+    markRunContinuing();
+  } catch (err) {
+    runActionError.value = runErrorText(err);
+  }
 }
 
 function respondHITL(approved) {
@@ -724,6 +894,7 @@ function markRunContinuing() {
 }
 
 async function openRun(rid) {
+  runActionError.value = '';
   window.scrollTo({ top: 0, behavior: 'auto' });
   viewingRun.value = true;
   started.value = true;
@@ -744,7 +915,9 @@ async function openRun(rid) {
 }
 
 function goBack() {
+  emit('close-run');
   clearActiveRun();
+  runActionError.value = '';
   viewingRun.value = false;
   started.value = false;
   currentPhase.value = '';
@@ -767,7 +940,9 @@ watch(() => props.analysisTarget, (target) => {
   chartData.value = null;
   currentPhase.value = '';
   progressPct.value = 0;
+  createError.value = '';
   clearActiveRun();
+  if (target) loadProductionLines();
   if (target?.mode === 'file' && !sceneName.value) {
     sceneName.value = target.file.name.replace(/\.[^.]+$/, '').replace(/[^a-zA-Z0-9]/g, '_');
   } else if (target?.mode === 'folder' && !sceneName.value) {
@@ -775,12 +950,8 @@ watch(() => props.analysisTarget, (target) => {
   }
 }, { immediate: true });
 
-watch(() => props.autoRunId, async (newRunId) => {
-  if (!newRunId) return;
-  viewingRun.value = true;
-  started.value = true;
-  await hydrateRun(newRunId);
-  subscribeRun(newRunId);
+watch(() => props.autoRunId, (newRunId) => {
+  if (newRunId && (!viewingRun.value || run.value?.run_id !== newRunId)) openRun(newRunId);
 }, { immediate: true });
 
 watch(events, (nextEvents) => {
@@ -866,6 +1037,19 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+.line-scope { display: grid; gap: .55rem; padding: .8rem; border: 1px solid var(--border-strong); border-radius: 7px; background: var(--surface); }
+.line-scope :is(h3, p) { margin: 0; }
+.line-scope p { color: var(--text2); font-size: .85rem; }
+.scope-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .45rem; }
+.scope-field { display: grid; gap: .3rem; font-size: .85rem; }
+.scope-field select { width: 100%; min-width: 0; }
+.scope-check { display: flex; align-items: baseline; gap: .4rem; font-size: .85rem; }
+.line-scope .scope-warning { color: var(--accent); }
+.run-knowledge-region { flex-shrink: 0; min-height: 0; max-height: 48%; overflow: auto; }
+.run-knowledge-pending { flex: 1; max-height: none; }
+.pending-controls { margin-bottom: .65rem; }
+.pending-controls .btn { justify-self: start; }
+.run-knowledge-disclosure[open] :deep(.knowledge-panel) { margin-top: .45rem; }
 .diagnosis-view {
   display: flex;
   flex-direction: column;

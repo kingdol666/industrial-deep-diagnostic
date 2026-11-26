@@ -6,6 +6,7 @@
 // 事件映射抽取为纯函数 mapOpenCodeEvent 供单测使用。
 
 import { createServer } from 'net';
+import { randomBytes } from 'crypto';
 import { EventEmitter } from 'events';
 import { config, PROJECT_ROOT } from '../../../../config/loader.mjs';
 import logger from '../utils/logger.mjs';
@@ -13,7 +14,7 @@ import { resolveCliBinary, spawnResolvedCli, killTree, withTimeout, resolveEngin
 import {
   resolveAnalysisTarget, buildRuntimeProtocol,
   buildPrompt as buildDataPrompt,
-  buildOntologyDirective, buildEnhancementDirective, buildLineMemoryDirective,
+  buildOntologyDirective, buildEnhancementDirective, buildLineMemoryDirective, buildMemoryToolDirective,
   ANALYSIS_INTENTS, resolveAnalysisIntent, buildIntentDirective,
 } from './claude-client.mjs';
 import { existsSync } from 'fs';
@@ -67,7 +68,13 @@ export function mapOpenCodeEvent(evt, ctx) {
   }
   if (type === 'session.error' || type === 'session.failed') {
     ctx.flushAll();
-    ctx.result('error_during_execution', props.error?.message || props.message || 'opencode_error');
+    // The provider error may arrive as {error:{name,message}}, a bare string,
+    // or flat top-level fields — surface whichever carries detail so a failed
+    // run is diagnosable from its stop_reason instead of a bare opencode_error.
+    const detail = props.error?.message || props.message
+      || (typeof props.error === 'string' ? props.error : '')
+      || props.error?.name || props.name || props.code || 'opencode_error';
+    ctx.result('error_during_execution', String(detail).slice(0, 300));
     return;
   }
   if (type === 'message.updated' || type === 'session.updated' || type === 'storage.write' || type === 'file.edited') {
@@ -89,22 +96,109 @@ function findFreePort() {
   });
 }
 
-async function waitForServer(baseUrl, timeoutMs = 30000) {
+const LOCAL_PROVIDER = 'idd-lmstudio';
+const LOCAL_BASE_URL = 'http://127.0.0.1:1234/v1';
+const LOCAL_DEFAULT_MODEL = 'google/gemma-4-12b-qat';
+const LOCAL_SDK = '@ai-sdk/openai-compatible';
+
+function parseInlineConfig(raw) {
+  if (!raw?.trim()) return {};
+  try {
+    // Match complete JSON strings first; comment markers and commas inside them
+    // belong to the operator's settings. OpenCode accepts JSONC in this env var.
+    const stringsOrComments = /"(?:\\.|[^"\\])*"|\/\*[\s\S]*?\*\/|\/\/[^\r\n]*/g;
+    const stringsOrTrailingCommas = /"(?:\\.|[^"\\])*"|,(?=\s*[}\]])/g;
+    const parsed = JSON.parse(raw.replace(/^\uFEFF/, '')
+      .replace(stringsOrComments, (match) => match.startsWith('"') ? match : ' ')
+      .replace(stringsOrTrailingCommas, (match) => match === ',' ? '' : match));
+    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) return parsed;
+  } catch { /* parsing errors can contain configured credentials */ }
+  throw new Error('opencode_inline_config_invalid');
+}
+
+function buildLaunchConfig(engCfg, knowledgeTransport) {
+  const local = process.env.IDD_OPENCODE_LMSTUDIO === '1';
+  const env = { ...(engCfg.env || {}) };
+  const model = local
+    ? { modelID: process.env.IDD_OPENCODE_LMSTUDIO_MODEL?.trim() || LOCAL_DEFAULT_MODEL, providerID: LOCAL_PROVIDER }
+    : engCfg.model ? { modelID: engCfg.model, providerID: engCfg.provider || 'opencode' } : undefined;
+  const modelRef = local ? `${LOCAL_PROVIDER}/${model.modelID}` : null;
+  if (local || knowledgeTransport) {
+    const overlay = parseInlineConfig(env.OPENCODE_CONFIG_CONTENT ?? process.env.OPENCODE_CONFIG_CONTENT);
+    if (knowledgeTransport) {
+      const { url, token } = knowledgeTransport;
+      if (typeof url !== 'string' || !url || typeof token !== 'string' || !token || /\s/.test(token)) {
+        throw new Error('opencode_memory_transport_invalid');
+      }
+      overlay.mcp = {
+        ...overlay.mcp,
+        idd_memory: { type: 'remote', url, enabled: true, headers: { Authorization: `Bearer ${token}` }, oauth: false },
+      };
+    }
+    if (local) {
+      const { modelID } = model;
+      overlay.model = overlay.small_model = modelRef;
+      overlay.enabled_providers = [LOCAL_PROVIDER];
+      overlay.disabled_providers = [];
+      overlay.provider = {
+        ...overlay.provider,
+        [LOCAL_PROVIDER]: {
+          name: 'LM Studio (local)', npm: LOCAL_SDK,
+          options: { baseURL: LOCAL_BASE_URL, apiKey: 'lm-studio' },
+          whitelist: [modelID],
+          models: { [modelID]: { id: modelID, name: modelID, tool_call: true } },
+        },
+      };
+      env.OPENCODE_DISABLE_MODELS_FETCH = '1';
+      env.OPENCODE_DISABLE_AUTOUPDATE = '1';
+    }
+    env.OPENCODE_CONFIG_CONTENT = JSON.stringify(overlay);
+    // /config serves the resolved child config. Protect it when carrying an
+    // attempt credential, and authenticate the owned server in local-only mode.
+    env.OPENCODE_SERVER_USERNAME = 'idd';
+    env.OPENCODE_SERVER_PASSWORD = randomBytes(32).toString('hex');
+  }
+  const password = env.OPENCODE_SERVER_PASSWORD ?? process.env.OPENCODE_SERVER_PASSWORD;
+  const username = (env.OPENCODE_SERVER_USERNAME ?? process.env.OPENCODE_SERVER_USERNAME) || 'opencode';
+  const headers = password ? { authorization: `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}` } : {};
+  return { env, headers, model, modelRef };
+}
+
+function isLocalConfig(config, model, modelRef) {
+  const provider = config?.provider?.[LOCAL_PROVIDER];
+  const models = provider?.whitelist;
+  const configuredModel = provider?.models?.[model.modelID];
+  const enabled = config?.enabled_providers;
+  return Array.isArray(enabled) && enabled.length === 1 && enabled[0] === LOCAL_PROVIDER
+    && !config.disabled_providers?.includes(LOCAL_PROVIDER)
+    && config.model === modelRef && config.small_model === modelRef
+    && provider?.npm === LOCAL_SDK && provider.options?.baseURL === LOCAL_BASE_URL
+    && Array.isArray(models) && models.length === 1 && models[0] === model.modelID
+    && !provider.blacklist?.includes(model.modelID)
+    && configuredModel?.id === model.modelID && configuredModel.tool_call === true
+    && (configuredModel.provider?.npm ?? LOCAL_SDK) === LOCAL_SDK;
+}
+
+async function waitForServer(baseUrl, headers, state, requireConfig, timeoutMs = 30000) {
   const deadline = Date.now() + timeoutMs;
-  while (Date.now() < deadline) {
+  while (!state.finished && Date.now() < deadline) {
     try {
-      const res = await fetch(`${baseUrl}/config`, { signal: AbortSignal.timeout(2000) });
-      if (res.ok || res.status === 404) return true; // server answers — version-dependent route
+      const res = await fetch(`${baseUrl}/config`, { headers, signal: AbortSignal.timeout(2000) });
+      if (res.ok && requireConfig) return await res.json().catch(() => null);
+      await res.body?.cancel();
+      if (res.ok || res.status === 404) return null; // older versions may lack this route
     } catch { /* not ready yet */ }
     await new Promise((r) => setTimeout(r, 300));
   }
-  throw new Error(`opencode server not ready after ${timeoutMs}ms`);
+  if (!state.finished) throw new Error(`opencode server not ready after ${timeoutMs}ms`);
 }
 
 // ── Query wrapper: one resident serve process per run ──
-async function startOpenCodeRun({ turnKey, prompt, emit, result, state }) {
+async function startOpenCodeRun({ turnKey, prompt, emit, result, state, knowledgeTransport }) {
   const engCfg = config.harness?.engines?.opencode || {};
+  const { env, headers, model, modelRef } = buildLaunchConfig(engCfg, knowledgeTransport);
   const port = engCfg.port || await findFreePort();
+  if (state.finished) return;
   const baseUrl = `http://127.0.0.1:${port}`;
   state.baseUrl = baseUrl;
 
@@ -112,27 +206,42 @@ async function startOpenCodeRun({ turnKey, prompt, emit, result, state }) {
   // spawnResolvedCli wraps Windows .cmd/.bat shims in `cmd.exe /d /s /c` — a
   // raw spawn of the resolved .cmd shim throws EINVAL on Windows. It merges
   // process.env itself and keeps windowsHide.
-  const proc = spawnResolvedCli(binary, ['serve', '--port', String(port), '--hostname', '127.0.0.1'], {
-    cwd: PROJECT_ROOT,
-    env: { ...(engCfg.env || {}) },
-    context: 'OpenCode',
-  });
+  const args = ['serve', '--port', String(port), '--hostname', '127.0.0.1'];
+  if (modelRef) args.push('--pure'); // no external plugins can reroute local model calls
+  const proc = spawnResolvedCli(binary, args, { cwd: PROJECT_ROOT, env, context: 'OpenCode' });
   state.proc = proc;
+  // The bearer must never reach a log or error surface, but dropping the whole
+  // stderr tail made exit failures undiagnosable — redact instead.
+  const redact = (text) => knowledgeTransport?.token && typeof text === 'string'
+    ? text.replaceAll(knowledgeTransport.token, '[redacted]') : text;
   let stderrTail = '';
   proc.stderr.on('data', (d) => { stderrTail = (stderrTail + d.toString()).slice(-4000); });
   proc.on('exit', (code) => {
     if (!state.finished) {
       state.finished = true;
-      result('error_during_execution', `OPENCODE_EXIT_${code ?? 'null'}: ${stderrTail.split(/\r?\n/).filter(Boolean).slice(-2).join(' | ').slice(0, 300)}`);
+      // A config error in the CLI may echo the string containing the bearer.
+      const details = redact(stderrTail).split(/\r?\n/).filter(Boolean).slice(-2).join(' | ').slice(0, 300);
+      result('error_during_execution', `OPENCODE_EXIT_${code ?? 'null'}${details ? `: ${details}` : ''}`);
     }
   });
+  proc.on('error', (err) => {
+    if (state.finished) return;
+    state.finished = true;
+    result('error_during_execution', `opencode_spawn_failed: ${err.code || 'unknown'}`);
+  });
 
-  await waitForServer(baseUrl);
+  const effectiveConfig = await waitForServer(baseUrl, headers, state, !!modelRef);
+  if (state.finished) return;
+  // Managed config may take precedence over the environment. Do not deliver
+  // a prompt if the actual CLI cannot honor the local-only policy.
+  if (modelRef && !isLocalConfig(effectiveConfig, model, modelRef)) {
+    throw new Error('opencode_lmstudio_config_mismatch');
+  }
 
   // 1) create session
   const sessionRes = await fetch(`${baseUrl}/session`, {
     method: 'POST',
-    headers: { 'content-type': 'application/json' },
+    headers: { ...headers, 'content-type': 'application/json' },
     body: JSON.stringify({ title: `idd-${turnKey}` }),
   });
   if (!sessionRes.ok) throw new Error(`opencode session create failed: HTTP ${sessionRes.status}`);
@@ -179,7 +288,7 @@ async function startOpenCodeRun({ turnKey, prompt, emit, result, state }) {
         if (permId) {
           fetch(`${baseUrl}/session/${sid}/permissions/${permId}`, {
             method: 'POST',
-            headers: { 'content-type': 'application/json' },
+            headers: { ...headers, 'content-type': 'application/json' },
             body: JSON.stringify({ response: autoApprove ? 'once' : 'reject' }),
           }).catch(() => {});
         }
@@ -197,7 +306,7 @@ async function startOpenCodeRun({ turnKey, prompt, emit, result, state }) {
   const controller = new AbortController();
   state.sseAbort = controller;
   const ssePromise = (async () => {
-    const res = await fetch(`${baseUrl}/event`, { signal: controller.signal });
+    const res = await fetch(`${baseUrl}/event`, { headers, signal: controller.signal });
     if (!res.ok || !res.body) throw new Error(`opencode /event failed: HTTP ${res.status}`);
     const decoder = new TextDecoder();
     let buf = '';
@@ -205,6 +314,11 @@ async function startOpenCodeRun({ turnKey, prompt, emit, result, state }) {
     emitter.on('event', (evt) => {
       if (state.finished) return;
       try {
+        if (evt?.type === 'session.error' || evt?.type === 'session.failed') {
+          // Keep the raw provider error for diagnosis (bearer redacted); the
+          // mapped stop_reason alone can be an empty-message event.
+          logger.warn(`[opencode] session error event: ${redact(JSON.stringify(evt)).slice(0, 600)}`, { context: 'OpenCode', turnKey });
+        }
         mapOpenCodeEvent(evt, makeCtx());
       } catch (e) {
         logger.warn(`[opencode] event mapping error (counted): ${e.message}`, { context: 'OpenCode', turnKey });
@@ -239,14 +353,14 @@ async function startOpenCodeRun({ turnKey, prompt, emit, result, state }) {
   // 3) deliver the prompt — prompt_async first, sync message fallback
   const payload = JSON.stringify({
     parts: [{ type: 'text', text: prompt }],
-    model: engCfg.model ? { modelID: engCfg.model, providerID: engCfg.provider || 'opencode' } : undefined,
+    model,
   });
   let delivered = false;
   for (const endpoint of ['/prompt_async', '/message_async', '/message', '/prompt']) {
     try {
       const res = await fetch(`${baseUrl}/session/${sessionId}${endpoint}`, {
         method: 'POST',
-        headers: { 'content-type': 'application/json' },
+        headers: { ...headers, 'content-type': 'application/json' },
         body: payload,
       });
       if (res.status === 404 || res.status === 405) continue; // try next route shape
@@ -286,7 +400,7 @@ async function startOpenCodeRun({ turnKey, prompt, emit, result, state }) {
   }
 }
 
-function createOpenCodeQuery({ turnKey, prompt, timeoutMinutes = 0 }) {
+function createOpenCodeQuery({ turnKey, prompt, timeoutMinutes = 0, knowledgeTransport }) {
   const queue = [];
   let wake = null;
   let closed = false;
@@ -339,7 +453,8 @@ function createOpenCodeQuery({ turnKey, prompt, timeoutMinutes = 0 }) {
     },
   });
 
-  startOpenCodeRun({ turnKey, prompt, emit: push, result, state }).catch((e) => {
+  startOpenCodeRun({ turnKey, prompt, emit: push, result, state, knowledgeTransport }).catch((e) => {
+    if (state.finished) return;
     logger.error(`[opencode] run failed: ${e.message}`, { context: 'OpenCode', turnKey });
     state.finished = true;
     result('error_during_execution', `opencode_run_failed: ${e.message}`);
@@ -349,6 +464,7 @@ function createOpenCodeQuery({ turnKey, prompt, timeoutMinutes = 0 }) {
     engine: 'opencode',
     sessionId: `opencode:run:${turnKey || Date.now()}`,
     close() {
+      state.finished = true;
       timeoutGuard.cancel();
       try { state.sseAbort?.abort(); } catch { /* ignore */ }
       killTree(state.proc);
@@ -376,7 +492,7 @@ function createOpenCodeQuery({ turnKey, prompt, timeoutMinutes = 0 }) {
 // ── Shared prompt assembly (exported for the intent-injection contract test) ──
 export function buildOpenCodePrompt({
   analysisTarget, userQuestion, sceneName, reportLanguage, followUpMessage, ontology, enhancement, lineMemory,
-  analysisIntent = 'deep-diagnosis', preprocessingMode = null,
+  analysisIntent = 'deep-diagnosis', preprocessingMode = null, knowledgeTransport = null,
 }) {
   const lang = reportLanguage || config.diagnosis.default_language;
   const { dataPaths, promptTarget } = resolveAnalysisTarget(analysisTarget);
@@ -398,7 +514,7 @@ export function buildOpenCodePrompt({
 
 ${skillRef}
 
-${buildDataPrompt(sceneName, userQuestion, promptTarget, lang, followUpMessage)}${buildIntentDirective(analysisIntent, sceneName, { preprocessingMode })}${buildOntologyDirective(ontology)}${buildEnhancementDirective(enhancement)}${buildLineMemoryDirective(lineMemory)}`;
+${buildDataPrompt(sceneName, userQuestion, promptTarget, lang, followUpMessage)}${buildIntentDirective(analysisIntent, sceneName, { preprocessingMode })}${buildOntologyDirective(ontology)}${buildEnhancementDirective(enhancement)}${buildLineMemoryDirective(lineMemory)}${knowledgeTransport ? buildMemoryToolDirective({}) : ''}`;
   return { dataPaths, prompt };
 }
 
@@ -411,14 +527,14 @@ export function startDiagnosis({
   reportLanguage, followUpMessage, sessionId = null,
   ontology = null, enhancement = null,
   analysisIntent = 'deep-diagnosis', preprocessingMode = null,
-  lineMemory = null,
+  lineMemory = null, knowledgeTransport = null,
 }) {
   void maxTurns; void sessionId;
   const built = buildOpenCodePrompt({
     analysisTarget, userQuestion, sceneName, reportLanguage, followUpMessage, ontology, enhancement, lineMemory,
-    analysisIntent, preprocessingMode,
+    analysisIntent, preprocessingMode, knowledgeTransport,
   });
-  const query = createOpenCodeQuery({ turnKey: runId, prompt: built.prompt, timeoutMinutes });
+  const query = createOpenCodeQuery({ turnKey: runId, prompt: built.prompt, timeoutMinutes, knowledgeTransport });
   activeQueries.set(runId, query);
   return { query, dataPaths: built.dataPaths, prompt: built.prompt, getSessionId: () => query.sessionId, runId, isResume: false };
 }

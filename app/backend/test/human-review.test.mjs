@@ -65,6 +65,10 @@ before(async () => {
       VALUES (?, ?, 'Demo Line', 'demo.csv', ?, ?, ?, 'claude')`);
     for (const [id, status, user] of [['hitl-source', 'completed', owner.id], ['hitl-target', 'pending', owner.id],
       ['hitl-foreign-target', 'pending', other.id]]) insert.run(id, id, status, user, String(user));
+    db.prepare("INSERT INTO production_lines(line_id,name,created_by_user_id) VALUES ('f4e22699-c647-4a57-8b1d-705913f4fb7b','Demo Line',?)").run(owner.id);
+    db.prepare("INSERT INTO production_line_members(line_id,user_id,role) VALUES ('f4e22699-c647-4a57-8b1d-705913f4fb7b',?,'manage')").run(owner.id);
+    db.prepare(`UPDATE diagnostic_runs SET line_id='f4e22699-c647-4a57-8b1d-705913f4fb7b',knowledge_policy_json=?,dataset_refs_json='[]'
+      WHERE run_id IN ('hitl-source','hitl-target')`).run(JSON.stringify({ mode: 'on_demand', own_line: true, references: [] }));
     db.prepare(`INSERT INTO analysis_results (result_id, run_id, intent, summary) VALUES
       ('hitl-source', 'hitl-source', 'deep-diagnosis', '自动报告：温度漂移与缺陷相关')`).run();
   } finally { db.close(); }

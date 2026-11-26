@@ -35,6 +35,7 @@ import { resolveOwnerId } from '../services/tenancy.mjs';
 import { ANALYSIS_INTENTS } from '../engine/claude-client.mjs';
 import { supportedIntentsFor } from '../services/intent-capability.service.mjs';
 import { engineSupportsSessionChat } from '../services/session-integrity.service.mjs';
+import { supportsMemoryTools } from '../services/knowledge-runtime.service.mjs';
 import {
   listResults, getResultDetail, updateResult,
   listResultCategories, createResultCategory, renameResultCategory,
@@ -79,6 +80,8 @@ router.get('/v1/capabilities', async (req, res) => {
         runs_capable: Array.isArray(h.capabilities) && h.capabilities.includes('runs'),
         // Honest capability surface: exact engine support, not a guess.
         session_resume: engineSupportsSessionChat(h.id),
+        memory_tools: supportsMemoryTools(h.id),
+        shared_knowledge_execution: false,
         supported_intents: supportedIntentsFor(h.id),
       }));
     } catch { /* harness listing is advisory for callers */ }
@@ -137,6 +140,12 @@ router.post('/v1/analyze', analyzeRateLimit, async (req, res) => {
       sceneName: body.sceneName,
       harness,
       analysisIntent: intent,
+      // The run's identity is a service-owned line UUID, never a display alias.
+      // Version references and dataset references are persisted independently.
+      lineId: body.lineId,
+      knowledgePolicy: body.knowledgePolicy,
+      datasetRefs: body.datasetRefs,
+      executeImmediately: true,
       // DOE ontology-first policy (contracts §7.3). Omitted fields fall back to
       // mode=auto/data_stage=collected; `off` is refused unless the dev override
       // is explicitly set (an external caller can never silently skip the gate).

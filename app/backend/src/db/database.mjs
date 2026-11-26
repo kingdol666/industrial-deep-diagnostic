@@ -49,6 +49,10 @@ const stmts = {
     INSERT INTO diagnostic_runs (run_id, name, title, scene_name, data_path, data_folder, user_question, model, max_turns, report_language, harness, ontology_hit, enhancement_policy, enhancement_triggered, analysis_intent, user_id, timeout_minutes, owner_user_id)
     VALUES (@runId, @name, @title, @sceneName, @dataPath, @dataFolder, @userQuestion, @model, @maxTurns, @reportLanguage, @harness, @ontologyHit, @enhancementPolicy, @enhancementTriggered, @analysisIntent, @userId, @timeoutMinutes, @ownerUserId)
   `),
+  insertRunWithKnowledge: db.prepare(`
+    INSERT INTO diagnostic_runs (run_id, name, title, scene_name, data_path, data_folder, user_question, model, max_turns, report_language, harness, ontology_hit, enhancement_policy, enhancement_triggered, analysis_intent, user_id, timeout_minutes, owner_user_id, line_id, knowledge_policy_json, dataset_refs_json)
+    VALUES (@runId, @name, @title, @sceneName, @dataPath, @dataFolder, @userQuestion, @model, @maxTurns, @reportLanguage, @harness, @ontologyHit, @enhancementPolicy, @enhancementTriggered, @analysisIntent, @userId, @timeoutMinutes, @ownerUserId, @lineId, @knowledgePolicyJson, @datasetRefsJson)
+  `),
   setRunOntologyHit: db.prepare(`
     UPDATE diagnostic_runs SET ontology_hit = @ontologyHit, updated_at = datetime('now') WHERE run_id = @runId
   `),
@@ -93,6 +97,7 @@ const stmts = {
            session_id, workspace_path, report_path, score, judge_verdict, harness,
            ontology_hit, enhancement_policy, enhancement_triggered, analysis_intent,
            user_id, category_id, deleted_at, owner_user_id,
+           line_id, knowledge_policy_json, dataset_refs_json,
            created_at, updated_at, completed_at, error_message
     FROM diagnostic_runs ORDER BY created_at DESC
   `),
@@ -103,6 +108,7 @@ const stmts = {
            session_id, workspace_path, report_path, score, judge_verdict, harness,
            ontology_hit, enhancement_policy, enhancement_triggered, analysis_intent,
            user_id, category_id, deleted_at, owner_user_id,
+           line_id, knowledge_policy_json, dataset_refs_json,
            created_at, updated_at, completed_at, error_message
     FROM diagnostic_runs
     -- Visibility (matches getRunStatus/requireRun): own rows, plus rows that

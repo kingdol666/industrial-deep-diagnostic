@@ -20,6 +20,7 @@ import {
   refuteEntry, mergeLine, consolidateLine, decideProposalById,
 } from '../services/line-memory.service.mjs';
 import { readProposalLog } from '../../../../.claude/shared/scripts/line_memory.mjs';
+import { adminOnly } from '../services/tenancy.mjs';
 
 const router = Router();
 
@@ -38,25 +39,22 @@ function wrap(handler) {
   };
 }
 
-// Mutating endpoints (refute / unrefute / merge / consolidate / proposal
-// approve-reject) rewrite CROSS-TENANT shared memory — admin-only, same rule
-// as the other destructive management surfaces. Auth-gated GETs stay open to
-// every authenticated user.
-import { adminOnly } from '../services/tenancy.mjs';
+// The legacy alias-backed store is a global governance surface, not a source
+// of production-line membership. Only the separate reviews route is owner-scoped.
 
 router.get('/reviews', wrap((req, res) => {
   res.json({ success: true, data: listReviewedMemory(req.user, req.query) });
 }));
 
-router.get('/lines', wrap((req, res) => {
+router.get('/lines', adminOnly, wrap((req, res) => {
   res.json({ success: true, data: listLines() });
 }));
 
-router.get('/lines/:key', wrap((req, res) => {
+router.get('/lines/:key', adminOnly, wrap((req, res) => {
   res.json({ success: true, data: getLineDetail(req.params.key) });
 }));
 
-router.get('/lines/:key/findings', wrap((req, res) => {
+router.get('/lines/:key/findings', adminOnly, wrap((req, res) => {
   const { limit, offset, subject, claim_type } = req.query;
   res.json({
     success: true,
@@ -64,7 +62,7 @@ router.get('/lines/:key/findings', wrap((req, res) => {
   });
 }));
 
-router.get('/lines/:key/ontology', wrap((req, res) => {
+router.get('/lines/:key/ontology', adminOnly, wrap((req, res) => {
   res.json({ success: true, data: ontologyVersionsForLine(req.params.key) });
 }));
 
@@ -100,7 +98,7 @@ router.post('/lines/:key/consolidate', adminOnly, wrap((req, res) => {
   res.json({ success: true, data: { line_key: consensus.line_key, stats: consensus.stats } });
 }));
 
-router.get('/proposals', wrap((req, res) => {
+router.get('/proposals', adminOnly, wrap((req, res) => {
   const { status, line_key, scene_key } = req.query;
   let rows = readProposalLog();
   if (status) rows = rows.filter((p) => p.status === status);

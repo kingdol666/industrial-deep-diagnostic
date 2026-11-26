@@ -147,6 +147,7 @@
 
       <main :class="['app-content', contentClass]">
         <div v-if="currentTab === 'data'" class="app-view-frame">
+          <p v-if="intendedLineId" class="line-data-hint">{{ $t('lines.pickLineFirst') }}</p>
           <DataBrowser
             @select-file="onSelectFile"
             @select-folder="onSelectFolder"
@@ -160,9 +161,12 @@
           :autoRunId="autoOpenRunId"
           :harness="harness"
           :harness-name="activeHarnessMeta.name"
+          :initial-line-id="intendedLineId"
           @started="onDiagnosisStarted"
           @view-report="onViewReport"
-          @go-data="currentTab = 'data'"
+          @go-data="selectTab('data')"
+          @go-lines="selectTab('lines')"
+          @close-run="autoOpenRunId = null"
         />
 
         <ChatView v-else-if="currentTab === 'chat'" :harness="harness" :harness-name="activeHarnessMeta.name" />
@@ -176,6 +180,11 @@
 
         <div v-else-if="currentTab === 'results'" class="app-view-frame">
           <ResultsLibrary @open-report="onOpenReport" />
+        </div>
+
+        <div v-else-if="currentTab === 'lines'" class="app-view-frame">
+          <ProductionLineView v-model:versions="knowledgeVersionReceipts" :user-id="authUser?.id"
+            :initial-line-id="intendedLineId" @prepare-run="onPrepareLineRun" />
         </div>
 
         <div v-else-if="currentTab === 'memory'" class="app-view-frame">
@@ -248,6 +257,7 @@ const OntologyView = defineAsyncComponent(() => import('./components/ontology/On
 // 结果库 / 产线记忆 / 设置（run-management + line-memory 融合新增）走同一条
 // 异步 chunk 规则 —— 设置页的 i18n 体积不小，没必要进首屏。
 const ResultsLibrary = defineAsyncComponent(() => import('./components/results/ResultsLibrary.vue'));
+const ProductionLineView = defineAsyncComponent(() => import('./components/lines/ProductionLineView.vue'));
 const LineMemoryPanel = defineAsyncComponent(() => import('./components/memory/LineMemoryPanel.vue'));
 const SettingsView = defineAsyncComponent(() => import('./components/settings/SettingsView.vue'));
 
@@ -275,6 +285,7 @@ function onUnauthorized() {
   authed.value = false;
   authUser.value = null;
   authNotice.value = '';   // 会话过期是正常路径，登录页不需要多余解释
+  clearLineWorkspace();
   teardown();
 }
 async function logout() {
@@ -288,6 +299,7 @@ async function logout() {
   authUser.value = null;
   authed.value = false;
   authNotice.value = '';
+  clearLineWorkspace();
   teardown();
 }
 
@@ -364,6 +376,8 @@ function reloadPage() {
 
 const currentTab = ref('data');
 const analysisTarget = ref(null);
+const intendedLineId = ref('');
+const knowledgeVersionReceipts = ref([]);
 const autoOpenRunId = ref(null);
 const openReportPath = ref(null);
 const sidebarCollapsed = ref(false);
@@ -398,6 +412,7 @@ const tabs = computed(() => [
   { key: 'chat', label: t('tabs.chat.label'), icon: '⌘', kicker: t('tabs.chat.kicker'), title: t('tabs.chat.title'), description: t('tabs.chat.description'), caption: t('tabs.chat.caption') },
   { key: 'reports', label: t('tabs.reports.label'), icon: '▣', kicker: t('tabs.reports.kicker'), title: t('tabs.reports.title'), description: t('tabs.reports.description'), caption: t('tabs.reports.caption') },
   { key: 'results', label: t('tabs.results.label'), icon: '▤', kicker: t('tabs.results.kicker'), title: t('tabs.results.title'), description: t('tabs.results.description'), caption: t('tabs.results.caption') },
+  { key: 'lines', label: t('tabs.lines.label'), icon: '▦', kicker: t('tabs.lines.kicker'), title: t('tabs.lines.title'), description: t('tabs.lines.description'), caption: t('tabs.lines.caption') },
   { key: 'memory', label: t('tabs.memory.label'), icon: '◈', kicker: t('tabs.memory.kicker'), title: t('tabs.memory.title'), description: t('tabs.memory.description'), caption: t('tabs.memory.caption') },
   { key: 'ontology', label: t('tabs.ontology.label'), icon: '⬡', kicker: t('tabs.ontology.kicker'), title: t('tabs.ontology.title'), description: t('tabs.ontology.description'), caption: t('tabs.ontology.caption') },
   { key: 'history', label: t('tabs.history.label'), icon: '◌', kicker: t('tabs.history.kicker'), title: t('tabs.history.title'), description: t('tabs.history.description'), caption: t('tabs.history.caption') },
@@ -568,19 +583,35 @@ function onToggleLocale() {
   toggleLocale();
 }
 
+function clearLineWorkspace() {
+  intendedLineId.value = '';
+  knowledgeVersionReceipts.value = [];
+  analysisTarget.value = null;
+  autoOpenRunId.value = null;
+}
+
+function onPrepareLineRun(lineId) {
+  intendedLineId.value = lineId;
+  autoOpenRunId.value = null;
+  selectTab(analysisTarget.value ? 'diagnose' : 'data');
+}
+
 function onSelectFile(file) {
+  autoOpenRunId.value = null;
   analysisTarget.value = { mode: 'file', file };
-  currentTab.value = 'diagnose';
+  selectTab('diagnose');
 }
 
 function onSelectFolder(folderInfo) {
+  autoOpenRunId.value = null;
   analysisTarget.value = { mode: 'folder', ...folderInfo };
-  currentTab.value = 'diagnose';
+  selectTab('diagnose');
 }
 
 function onSelectFiles(files) {
+  autoOpenRunId.value = null;
   analysisTarget.value = { mode: 'multi', files };
-  currentTab.value = 'diagnose';
+  selectTab('diagnose');
 }
 
 function onDiagnosisStarted(runId) {
@@ -636,6 +667,8 @@ onUnmounted(() => {
 
 <style>
 @import './styles/global.css';
+
+.line-data-hint { color: var(--text2); padding: .7rem .9rem; border-inline-start: 2px solid var(--accent); background: var(--surface); }
 
 /* ─── 启动态：/me 探针进行中（与登录页同底，避免任何色彩跳变）─── */
 .app-boot {

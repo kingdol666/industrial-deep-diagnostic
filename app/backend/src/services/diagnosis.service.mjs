@@ -3,9 +3,9 @@
 // admission (queued runs), questions
 
 import { v4 as uuid } from 'uuid';
-import { readdir, stat, realpath } from 'fs/promises';
+import { readdir, stat, realpath, lstat } from 'fs/promises';
 import { existsSync, readFileSync, readdirSync } from 'fs';
-import { join, basename, relative, isAbsolute } from 'path';
+import { join, basename, relative, isAbsolute, resolve } from 'path';
 import {
   startDiagnosis as claudeStartDiagnosis, startSessionChat as claudeStartSessionChat,
   parseStreamEvent as claudeParseStreamEvent, isDangerousCommand,
@@ -128,7 +128,12 @@ import {
 } from './session-integrity.service.mjs';
 import { extractIntentOutcome, enrichRunOutcome } from './intent-outcome.service.mjs';
 import { upsertResultFromRun } from './results-library.service.mjs';
-import { buildStartMemory, ingestCompletedRun as ingestLineMemory } from './line-memory.service.mjs';
+import { assertKnowledgeExecutionPolicy, assertKnowledgeHarness, bindKnowledgeTools, bindKnowledgeTransport, preflightKnowledgeRun, validateKnowledgeSelection } from './knowledge-runtime.service.mjs';
+import { recordRunLocalObservations } from './knowledge-writeback.service.mjs';
+import { authorizeBoundInputs } from './line-input.service.mjs';
+import {
+  normalizeKnowledgeBinding,
+} from './production-line.service.mjs';
 import { classifyProviderError, tagProviderError } from './provider-error.service.mjs';
 import {
   config, diagnosis as diagConfig, security as secConfig,
@@ -350,6 +355,16 @@ export function createDiagnosisRun(params) {
   const { dataPath, folderPath, dataPaths, userQuestion, sceneName, maxTurns, timeoutMinutes, reportLanguage,
           model, permissionMode } = params;
   const harness = normalizeHarness(params.harness);
+  const knowledgeActor = params.ownerUserId && { id: resolveOwnerId(params.ownerUserId) };
+  const knowledgeBinding = normalizeKnowledgeBinding(knowledgeActor, params.lineId, params.knowledgePolicy, params.datasetRefs);
+  if (knowledgeBinding.lineId) {
+    assertKnowledgeHarness(harness, knowledgeBinding.knowledgePolicy);
+    validateKnowledgeSelection(knowledgeActor, knowledgeBinding.lineId, knowledgeBinding.knowledgePolicy, knowledgeBinding.datasetRefs);
+    if (params.executeImmediately === true) assertKnowledgeExecutionPolicy(knowledgeBinding.knowledgePolicy, knowledgeBinding.datasetRefs);
+    const input = { line_id: knowledgeBinding.lineId, owner_user_id: knowledgeActor.id, harness };
+    authorizeBoundInputs({ ...input, data_path: Array.isArray(dataPaths) && dataPaths.length ? JSON.stringify(dataPaths) : (folderPath || dataPath) });
+    if (params.ontologySource) authorizeBoundInputs({ ...input, data_path: params.ontologySource });
+  }
 
   // Analysis intent — every intent is executed by the real agent; a
   // non-default one re-points the run at its skill protocol (buildIntentDirective).
@@ -464,7 +479,7 @@ export function createDiagnosisRun(params) {
   const runId = uuid().slice(0, diagConfig.run_id_length);
   const name = `${scene}_${runId}`;
 
-  stmts.insertRun.run({
+  stmts.insertRunWithKnowledge.run({
     runId,
     name,
     title: name,
@@ -482,7 +497,7 @@ export function createDiagnosisRun(params) {
     enhancementPolicy: enhancement.policy,
     enhancementTriggered: enhancement.intentHit ? 1 : 0,
     analysisIntent,
-    userId: params.userId ? String(params.userId) : null,
+    userId: knowledgeBinding.lineId ? String(knowledgeActor.id) : (params.userId ? String(params.userId) : null),
     // Persisted (not in-memory meta): executeDiagnosis passes the row's value
     // to the engine, so the knob survives /execute, Continue and queued drains.
     // Only the caller's explicit positive choice is recorded (nullable) — a
@@ -492,6 +507,9 @@ export function createDiagnosisRun(params) {
       ? Number(timeoutMinutes)
       : null,
     ownerUserId: resolveOwnerId(params.ownerUserId),
+    lineId: knowledgeBinding.lineId,
+    knowledgePolicyJson: knowledgeBinding.knowledgePolicy == null ? null : JSON.stringify(knowledgeBinding.knowledgePolicy),
+    datasetRefsJson: knowledgeBinding.datasetRefs == null ? null : JSON.stringify(knowledgeBinding.datasetRefs),
   });
 
   createRun(runId);
@@ -504,7 +522,8 @@ export function createDiagnosisRun(params) {
     permissionMode: effectivePermissionMode,
   });
 
-  return { runId, name, status: 'pending', mode, harness, analysisIntent, ontologyHit: ontology?.hit ?? 0, enhancementPolicy: enhancement.policy, enhancementIntent: enhancement.intentHit };
+  return { runId, name, status: 'pending', mode, harness, analysisIntent, ontologyHit: ontology?.hit ?? 0, enhancementPolicy: enhancement.policy, enhancementIntent: enhancement.intentHit,
+    line_id: knowledgeBinding.lineId, knowledge_policy: knowledgeBinding.knowledgePolicy, dataset_refs: knowledgeBinding.datasetRefs };
 }
 
 // ── Zombie pending hygiene ──────────────────────────────────────────────
@@ -538,6 +557,18 @@ function expireStalePendingRuns(runs) {
   }
 }
 
+function describeRunKnowledge(run) {
+  function parse(value) {
+    try { return value == null ? null : JSON.parse(value); }
+    catch { return null; }
+  }
+  return {
+    line_id: run.line_id ?? null,
+    knowledge_policy: parse(run.knowledge_policy_json),
+    dataset_refs: parse(run.dataset_refs_json),
+  };
+}
+
 // List all runs enriched with engine status.
 // `viewer` = req.user for API callers (own runs, or all for an admin; legacy
 // NULL-owner runs are admin-only); INTERNAL for trusted service-internal calls.
@@ -546,6 +577,7 @@ export function listRuns(viewer = INTERNAL) {
   expireStalePendingRuns(runs);
   return runs.map(r => ({
     ...r,
+    ...describeRunKnowledge(r),
     engineStatus: getStatus(r.run_id) || r.status,
   }));
 }
@@ -624,7 +656,7 @@ export function getRunStatus(runId, viewer = INTERNAL) {
   if (!run) return null;
   if (!canView(viewer, run.owner_user_id)) return null;
   const engineStatus = getStatus(runId);
-  return { ...run, engineStatus: engineStatus || run.status };
+  return { ...run, ...describeRunKnowledge(run), engineStatus: engineStatus || run.status };
 }
 
 /** Cheap ownership probe for callers that only need a yes/no (external API). */
@@ -828,6 +860,13 @@ function missingRequiredArtifacts(runDir, analysisIntent, harness = null) {
 // Return contract: `false` = run missing or not visible to the caller (the
 // route answers 404); otherwise `{ mode: 'session' | 'rebuild', reason? }` so
 // callers can report honestly.
+function assertLineRunActor(run, viewer) {
+  if (!run.line_id || viewer === INTERNAL) return;
+  if (!viewer?.id || String(viewer.id) !== String(run.owner_user_id)) {
+    throw Object.assign(new Error('Run not found'), { status: 404, code: 'NOT_FOUND' });
+  }
+}
+
 export async function sendChatMessage(runId, message, viewer = INTERNAL, { maxTurns } = {}) {
   const run = stmts.getRunById.get(runId);
   if (!run) return false;
@@ -839,6 +878,8 @@ export async function sendChatMessage(runId, message, viewer = INTERNAL, { maxTu
     err.code = 'RUN_DELETED';
     throw err;
   }
+  assertLineRunActor(run, viewer);
+  preflightKnowledgeRun(run, { resuming: true });
   // B0.4: never let a chat cross harnesses — the stored session id must belong
   // to the run's engine or the resume would look up a missing session.
   assertSessionHarnessMatch(run);
@@ -1098,6 +1139,8 @@ export function continueDiagnosis(runId, followUpMessage, options = {}) {
     throw err;
   }
 
+  assertLineRunActor(run, options.viewer ?? INTERNAL);
+  preflightKnowledgeRun(run, { resuming: Boolean(run.session_id) });
   // Clear execution guard from previous run (enables re-entry)
   executingRuns.delete(runId);
   // A run that leaves the queued state must not keep a FIFO slot either.
@@ -1287,6 +1330,7 @@ async function executeDiagnosis(runId, run, isRetry = false) {
   let shouldCloseRun = true;
   let pausedForQuestion = false;
   let resumeSessionId = null;
+  let knowledgeTransport = null;
 
   try {
     const followUpMessage = meta.followUpMessage || null;
@@ -1298,23 +1342,27 @@ async function executeDiagnosis(runId, run, isRetry = false) {
 
     const engine = resolveEngine(run.harness);
     const runIntent = meta.analysisIntent || 'deep-diagnosis';
-    // Line memory (2026-11-03): cross-run consensus priors for this line.
-    // Advisory L5 only — retrieval failures must never block the run.
-    // Resume sessions already carry their context in the transcript, so memory
-    // is only injected on fresh spawns (the resume prompt never includes it).
-    let lineMemory = null;
-    if (!resumeSessionId) {
-      try {
-        lineMemory = buildStartMemory(run, { ontology: meta.ontology || null });
-        if (!lineMemory || !lineMemory.text) lineMemory = null;
-      } catch (e) {
-        logger.warn(`line-memory retrieve failed for ${runId}: ${e.message}`, { context: 'LineMemory', runId });
-      }
+    const runtimeActor = preflightKnowledgeRun(run, { resuming: Boolean(resumeSessionId) });
+    const canonicalPaths = authorizeBoundInputs(run);
+    if (canonicalPaths && !isSessionResume) {
+      if (analysisTarget.mode === 'multi') analysisTarget.files = canonicalPaths;
+      else if (analysisTarget.mode === 'folder') analysisTarget.folderPath = canonicalPaths[0];
+      else analysisTarget.dataPath = canonicalPaths[0];
+      if (meta.ontology?.source) authorizeBoundInputs({ ...run, data_path: meta.ontology.source });
     }
+    let attemptQuery;
+    const isActiveAttempt = () => Boolean(attemptQuery && executingRuns.has(runId) && getChild(runId) === attemptQuery);
+    const memoryServer = run.harness === 'claude' ? await bindKnowledgeTools(run, runtimeActor, isActiveAttempt) : null;
+    knowledgeTransport = await bindKnowledgeTransport(run, runtimeActor, isActiveAttempt);
+    if (stoppingRuns.has(runId)) throw new Error('Run stopped before engine launch');
+    const hasKnowledgeTools = Boolean(memoryServer || knowledgeTransport);
+    const workspaceScene = run.line_id
+      ? `iddline_${runId.replace(/[^a-z0-9]/gi, '')}`
+      : run.scene_name;
     const result = engine.startDiagnosis({
       analysisTarget,
       userQuestion: run.user_question,
-      sceneName: run.scene_name,
+      sceneName: workspaceScene,
       runId,
       maxTurns: run.max_turns,
       // Prefer the persisted per-run value (diagnostic_runs.timeout_minutes,
@@ -1333,14 +1381,17 @@ async function executeDiagnosis(runId, run, isRetry = false) {
       enhancement: runIntent === 'deep-diagnosis' ? (meta.enhancement || null) : null,
       analysisIntent: runIntent,
       preprocessingMode: meta.preprocessingMode || 'single_primary',
-      lineMemory,
+      memoryServer,
+      knowledgeTransport,
       // Forward ONLY an explicitly selected model — run.model is display data
       // (may hold a legacy claude default) and must not reach other engines.
       model: meta.model || null,
       permissionMode: meta.permissionMode || null,
     });
 
+    const privateToolUses = new Set();
     const query = result.query;
+    attemptQuery = query;
     setChild(runId, query);
     engine.registerChild(runId, query);
 
@@ -1379,6 +1430,16 @@ async function executeDiagnosis(runId, run, isRetry = false) {
             stmts.insertLog.run({ runId, role: 'assistant', content: block.text, messageType: 'text', toolName: null });
             emit(runId, { type: 'message', data: { role: 'assistant', content: block.text } });
           } else if (block.type === 'tool_use') {
+            // Naming per harness: Claude SDK `mcp__idd_memory__memory_search`,
+            // OMP `mcp__idd_memory_memory_search`, OpenCode `idd_memory_memory_search`,
+            // codex `idd_memory.memory_search` — all must match or retrieval
+            // bodies leak into the event stream.
+            if (hasKnowledgeTools && /^(?:mcp__idd_memory[._]|mcp__idd_memory__|idd_memory[_:. -]+)?memory_(search|get)$/.test(block.name)) {
+              privateToolUses.add(block.id);
+              stmts.insertLog.run({ runId, role: 'assistant', content: '{}', messageType: 'tool_use', toolName: block.name });
+              emit(runId, { type: 'tool_use', data: { name: block.name, id: block.id, input: {} } });
+              continue;
+            }
             stmts.insertLog.run({ runId, role: 'assistant', content: JSON.stringify(block.input), messageType: 'tool_use', toolName: block.name });
 
             // Dangerous Bash command — informational notice only. There is no
@@ -1447,9 +1508,10 @@ async function executeDiagnosis(runId, run, isRetry = false) {
         for (const block of userContent) {
           if (block.type === 'tool_result') {
             const resultContent = block.content;
-            const summary = typeof resultContent === 'string'
-              ? resultContent.slice(0, 300)
-              : (resultContent?.map?.(c => typeof c === 'string' ? c : c?.text).join('').slice(0, 300) || '');
+            const summary = privateToolUses.has(block.tool_use_id) ? 'Knowledge retrieval (see retrieval audit)'
+              : typeof resultContent === 'string'
+                ? resultContent.slice(0, 300)
+                : (resultContent?.map?.(c => typeof c === 'string' ? c : c?.text).join('').slice(0, 300) || '');
             stmts.insertLog.run({ runId, role: 'tool', content: summary, messageType: 'tool_result', toolName: block.tool_use_id || null });
             emit(runId, { type: 'tool_result', data: { toolUseId: block.tool_use_id, summary, isError: block.is_error || false } });
           }
@@ -1474,7 +1536,7 @@ async function executeDiagnosis(runId, run, isRetry = false) {
         }
         // Handle completion
         try {
-          const runDir = await findLatestRunDir(run.scene_name, preExistingDirs);
+          const runDir = await findLatestRunDir(workspaceScene, preExistingDirs, Boolean(run.line_id));
           let workspacePath = null, reportPath = null, score = null, verdict = null;
           let outcomeSource = null;
           if (runDir) {
@@ -1551,11 +1613,10 @@ async function executeDiagnosis(runId, run, isRetry = false) {
               try { upsertResultFromRun(runId); } catch (e) {
                 logger.warn(`Results-library upsert failed for ${runId}: ${e.message}`, { context: 'Results', runId });
               }
-              // Line memory (2026-11-03): deterministic findings ingestion +
-              // consensus re-mining + tiered ontology proposals. Same choke-point
-              // contract as the results library: failures only warn.
-              try { ingestLineMemory(runId); } catch (e) {
-                logger.warn(`Line-memory ingest failed for ${runId}: ${e.message}`, { context: 'LineMemory', runId });
+              // Only exact, bound workspaces contribute local observations. Legacy
+              // alias-based ingestion is not a production line write path.
+              try { recordRunLocalObservations(runId); } catch (e) {
+                logger.warn(`Local observation projection failed for ${runId}: ${e.code || e.name}`, { context: 'Knowledge', runId });
               }
             }
           } else {
@@ -1599,6 +1660,7 @@ async function executeDiagnosis(runId, run, isRetry = false) {
         break;
       } else if (parsed.type === 'stream_event') {
         const ev = parsed.event;
+        if (hasKnowledgeTools && ev?.delta?.type === 'input_json_delta') continue;
         if (ev?.type === 'task_progress') {
           const raw = ev.events || ev.task?.events || [];
           emit(runId, { type: 'task_progress', data: { taskId: ev.task?.id || ev.task_id || '', agentName: ev.task?.name || ev.name || '', status: ev.task?.status || ev.status || '', currentStep: ev.message || ev.current_step || '', progress: ev.progress || null, events: raw.slice(0, 50) } });
@@ -1661,6 +1723,8 @@ async function executeDiagnosis(runId, run, isRetry = false) {
     // Terminal state (failed) recorded above — the slot is free, admit the
     // next FIFO run.
     releaseExecutionSlot(runId);
+  } finally {
+    await knowledgeTransport?.close();
   }
 }
 
@@ -1702,7 +1766,7 @@ export function snapshotWorkspaceDirs() {
   return new Set(readdirSync(WORKSPACE_DIR));
 }
 
-async function findLatestRunDir(sceneName, knownDirs = new Set()) {
+async function findLatestRunDir(sceneName, knownDirs = new Set(), exact = false) {
   if (!existsSync(WORKSPACE_DIR)) return null;
   const entries = await readdir(WORKSPACE_DIR);
   const escapedName = sceneName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -1720,20 +1784,22 @@ async function findLatestRunDir(sceneName, knownDirs = new Set()) {
 
   // Collect all matching dirs, excluding known ones (from snapshot)
   // and directories already claimed by other runs in the DB
-  const claimedDirs = new Set(
-    stmts.getClaimedWorkspacePaths.all().map(r => r.workspace_path),
-  );
-
-  const relPath = (entry) => `workspace/diagnostic-runs/${entry}`;
+  const pathKey = (path) => {
+    const full = resolve(PROJECT_ROOT, path);
+    return process.platform === 'win32' ? full.toLowerCase() : full;
+  };
+  const claimedDirs = new Set(stmts.getClaimedWorkspacePaths.all().map((r) => pathKey(r.workspace_path)));
   let latest = null, latestTime = 0;
   const unmatchedNew = [];
   for (const entry of entries) {
     const fullPath = join(WORKSPACE_DIR, entry);
     // Skip directories that existed before this run started or are claimed by others
-    if (knownDirs.has(entry) || claimedDirs.has(relPath(entry))) continue;
+    if (knownDirs.has(entry) || claimedDirs.has(pathKey(fullPath))) continue;
+    // The legacy suffix/fallback must never adopt a generated line workspace.
+    if (!exact && /_iddline_[a-z0-9]+$/i.test(entry)) continue;
     try {
-      const s = await stat(fullPath);
-      if (!s.isDirectory()) continue;
+      const s = await lstat(fullPath);
+      if (!s.isDirectory() || s.isSymbolicLink()) continue;
       if (dirMatches(entry)) {
         if (s.mtimeMs > latestTime) {
           latestTime = s.mtimeMs;
@@ -1744,7 +1810,7 @@ async function findLatestRunDir(sceneName, knownDirs = new Set()) {
       }
     } catch {}
   }
-  if (latest) return latest;
+  if (latest || exact) return latest;
   // Scene-name fallback: the agent may name the run dir after its own scene key
   // instead of the DB scene_name (e.g. "_eval_cnc_spindle_wear" vs "_data").
   // Only accept it when it is UNAMBIGUOUS — exactly one unclaimed directory was
@@ -1823,6 +1889,9 @@ export function triggerDiagnosis(runId, viewer = INTERNAL) {
     throw err;
   }
 
+  assertLineRunActor(run, viewer);
+  preflightKnowledgeRun(run);
+  authorizeBoundInputs(run);
   // Already waiting in the FIFO — a repeated /execute is idempotent and must
   // not consume a second slot or lose the run's position.
   const isQueuedRow = run.status === 'queued';

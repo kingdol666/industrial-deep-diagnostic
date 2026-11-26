@@ -17,11 +17,12 @@ import {
 import logger from '../utils/logger.mjs';
 import { recordProviderError } from '../services/provider-error.service.mjs';
 import { whereLookup, spawnResolvedCli, killTree, withTimeout, resolveEngineTimeoutMinutes, resolveCliBinary } from './cli-common.mjs';
-import { existsSync, mkdirSync, rmSync, readFileSync, readdirSync, statSync } from 'fs';
+import { existsSync, mkdirSync, mkdtempSync, rmSync, readdirSync, statSync, writeFileSync } from 'fs';
 import { join, isAbsolute } from 'path';
+import { tmpdir } from 'os';
 import {
   buildRuntimeProtocol, buildPrompt, resolveAnalysisTarget,
-  isDangerousCommand, buildOntologyDirective, buildEnhancementDirective, buildLineMemoryDirective,
+  isDangerousCommand, buildOntologyDirective, buildEnhancementDirective, buildLineMemoryDirective, buildMemoryToolDirective,
   ANALYSIS_INTENTS, resolveAnalysisIntent, buildIntentDirective,
   DATA_DIR, WORKSPACE_DIR,
 } from './claude-client.mjs';
@@ -131,7 +132,69 @@ export function resolveOmpSessionFile(sessionDir) {
   }
 }
 
-function spawnOmpRpc({ sessionDir, resume = false, label = 'omp', timeoutMinutes = 0 }) {
+const KNOWLEDGE_PROVIDER = 'lm-studio';
+// Model pin for knowledge-transport attempts: these runs verify the resolved
+// provider/model before prompting, so the declared and served model must
+// match. Override with IDD_OMP_KNOWLEDGE_MODEL (e.g. a small remote model).
+const KNOWLEDGE_MODEL = process.env.IDD_OMP_KNOWLEDGE_MODEL?.trim() || 'google/gemma-4-12b-qat';
+const KNOWLEDGE_BASE_URL = 'http://127.0.0.1:1234/v1';
+const KNOWLEDGE_TOOLS = ['mcp__idd_memory_memory_search', 'mcp__idd_memory_memory_get'];
+const KNOWLEDGE_AUTH_ENV = 'IDD_OMP_KNOWLEDGE_AUTH';
+const KNOWLEDGE_STATE_ID = 'idd-knowledge-startup';
+
+function validateKnowledgeTransport(transport, resume) {
+  if (resume) throw new Error('OMP knowledge transport does not support session resume');
+  if (typeof transport.url !== 'string' || !/^http:\/\/127\.0\.0\.1:[1-9]\d{0,4}\/mcp(?![\s\S])/.test(transport.url)) {
+    throw new Error('OMP knowledge transport must use the loopback MCP endpoint');
+  }
+  try { new URL(transport.url); } catch { throw new Error('Invalid OMP knowledge transport URL'); }
+  if (typeof transport.token !== 'string' || !transport.token || /[^A-Za-z0-9._~+/=-]/.test(transport.token)) {
+    throw new Error('Invalid OMP knowledge transport token');
+  }
+}
+
+function prepareKnowledgeAttempt({ url, token }) {
+  const dir = mkdtempSync(join(tmpdir(), 'idd-omp-knowledge-'));
+  const cleanup = () => {
+    try { rmSync(dir, { recursive: true, force: true, maxRetries: 3, retryDelay: 50 }); }
+    catch { logger.warn('Could not remove OMP knowledge attempt directory', { context: 'OmpClient' }); }
+  };
+  const write = (file, value) => writeFileSync(join(dir, file), JSON.stringify(value), { mode: 0o600, flag: 'wx' });
+  try {
+    // OMP reads servers from the agent directory's mcp.json (not --config).
+    // In 18.12.2 a bare header value naming an env var resolves at connection
+    // time. Keep the actual bearer out of files, argv, and the prompt.
+    write('mcp.json', { mcpServers: { idd_memory: { type: 'http', url,
+      headers: { Authorization: KNOWLEDGE_AUTH_ENV } } } });
+    // A cold OMP profile can miss LM Studio's discovery deadline. Declare
+    // the exact model under the native provider rather than relying on cache.
+    write('models.yml', { providers: { [KNOWLEDGE_PROVIDER]: {
+      baseUrl: KNOWLEDGE_BASE_URL, api: 'openai-completions', apiKey: KNOWLEDGE_PROVIDER,
+      models: [{ id: KNOWLEDGE_MODEL, name: KNOWLEDGE_MODEL, reasoning: false,
+        input: ['text', 'image'], contextWindow: 65536, maxTokens: 8192,
+        cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 } }],
+    } } });
+    write('idd-config.yml', {
+      enabledProviders: [KNOWLEDGE_PROVIDER],
+      retry: { modelFallback: false },
+      mcp: { enableProjectConfig: false, startupTimeoutMs: 0 },
+    });
+  } catch (error) {
+    cleanup();
+    throw error;
+  }
+  return {
+    args: [`--config=${join(dir, 'idd-config.yml')}`, `--model=${KNOWLEDGE_PROVIDER}/${KNOWLEDGE_MODEL}`,
+      '--no-prewalk', '--no-title', '--no-extensions'],
+    env: {
+      PI_CODING_AGENT_DIR: dir, OMP_PROFILE: 'default', PI_PROFILE: 'default',
+      LM_STUDIO_BASE_URL: KNOWLEDGE_BASE_URL, [KNOWLEDGE_AUTH_ENV]: `Bearer ${token}`,
+    },
+    cleanup,
+  };
+}
+
+function spawnOmpRpc({ sessionDir, resume = false, label = 'omp', timeoutMinutes = 0, knowledgeTransport }) {
   const binary = resolveOmpBinary();
   const args = ['--mode=rpc', '-p'];
 
@@ -146,13 +209,21 @@ function spawnOmpRpc({ sessionDir, resume = false, label = 'omp', timeoutMinutes
     else args.push('-c');
   }
 
-  logger.info(`Spawning ${label}: ${binary} ${args.join(' ')}`, { context: 'OmpClient' });
-
-  const proc = spawnResolvedCli(binary, args, { cwd: PROJECT_ROOT, context: 'OmpClient' });
+  const attempt = knowledgeTransport && prepareKnowledgeAttempt(knowledgeTransport);
+  if (attempt) args.push(...attempt.args);
+  let proc;
+  try {
+    logger.info(`Spawning ${label}: ${binary} ${args.join(' ')}`, { context: 'OmpClient' });
+    proc = spawnResolvedCli(binary, args, { cwd: PROJECT_ROOT, context: 'OmpClient', env: attempt?.env });
+  } catch (error) {
+    attempt?.cleanup();
+    throw error;
+  }
+  if (attempt) proc.once('close', attempt.cleanup);
 
   let stderrTail = '';
   proc.stderr.on('data', (d) => {
-    stderrTail = (stderrTail + d.toString()).slice(-4000);
+    if (!attempt) stderrTail = (stderrTail + d.toString()).slice(-4000);
   });
 
   return { proc, stderrTailRef: () => stderrTail };
@@ -162,11 +233,14 @@ function spawnOmpRpc({ sessionDir, resume = false, label = 'omp', timeoutMinutes
 // Wraps an OMP RPC process as an async iterable of standardized messages
 // (Claude-SDK-compatible shapes), plus a close() handle.
 // Exported for tests (spawned with a directly-owned fake RPC process).
-export function createOmpQuery(proc, { runKey, maxTurns = 0, label = 'omp', timeoutMinutes = 0 }) {
+export function createOmpQuery(proc, { runKey, maxTurns = 0, label = 'omp', timeoutMinutes = 0, knowledgeToken }) {
   const queue = [];
   let wake = null;
   let closed = false;
   let sawReady = false;
+  let knowledgeVerified = !knowledgeToken;
+  let wakeStartup;
+  const startup = new Promise((resolve) => { wakeStartup = resolve; });
   let sawAgentEnd = false;
   let sawResult = false;
   let turnCount = 0;
@@ -175,7 +249,9 @@ export function createOmpQuery(proc, { runKey, maxTurns = 0, label = 'omp', time
   const emittedToolResults = new Set(); // toolCallId already emitted (protocol reports results twice)
 
   const push = (msg) => { queue.push(msg); if (wake) { wake(); wake = null; } };
-  const end = () => { closed = true; if (wake) { wake(); wake = null; } };
+  const end = () => { closed = true; wakeStartup(); if (wake) { wake(); wake = null; } };
+
+  const redact = (text) => knowledgeToken && typeof text === 'string' ? text.replaceAll(knowledgeToken, '[redacted]') : text;
 
   const emitToolResultOnce = (toolCallId, text, isError) => {
     if (emittedToolResults.has(toolCallId)) return;
@@ -237,16 +313,46 @@ export function createOmpQuery(proc, { runKey, maxTurns = 0, label = 'omp', time
     });
   };
 
+  const failStartup = (reason) => {
+    if (closed) return;
+    emitResult('error_during_execution', reason);
+    end();
+    killTree(proc);
+  };
   const handleLine = (line) => {
+    if (knowledgeToken && closed) return;
     let evt;
     try { evt = JSON.parse(line); } catch { return; }
     if (!evt || typeof evt !== 'object') return;
 
     switch (evt.type) {
       case 'ready':
+        if (sawReady) break;
         sawReady = true;
+        if (knowledgeToken) {
+          proc.stdin.write(`${JSON.stringify({ type: 'get_state', id: KNOWLEDGE_STATE_ID })}\n`);
+        } else wakeStartup();
         break;
       case 'response':
+        if (knowledgeToken && !knowledgeVerified && evt.id === KNOWLEDGE_STATE_ID && evt.command === 'get_state') {
+          const { model, dumpTools, systemPrompt } = evt.data ?? {};
+          if (!evt.success || model?.provider !== KNOWLEDGE_PROVIDER || model?.id !== KNOWLEDGE_MODEL
+            || model?.baseUrl !== KNOWLEDGE_BASE_URL) {
+            failStartup('omp_knowledge_model_mismatch');
+            break;
+          }
+          const names = new Set((dumpTools ?? []).map(tool => tool.name));
+          // Default OMP 18.12.2 exposes MCP via eval's mounted-device catalog,
+          // not as native model tools. get_state carries that in systemPrompt.
+          const catalog = new Set((systemPrompt ?? []).join('\n').match(/\bmcp__\w+\b/g));
+          if (!KNOWLEDGE_TOOLS.every(name => names.has(name) || (names.has('eval') && catalog.has(name)))) {
+            failStartup('omp_knowledge_tools_unavailable');
+            break;
+          }
+          knowledgeVerified = true;
+          wakeStartup();
+          break;
+        }
         if (evt.command === 'prompt' && evt.success === false) {
           logger.error(`OMP rejected prompt [${label}]: ${evt.error || 'unknown'}`, { context: 'OmpClient', runKey });
           emitResult('error_during_execution', `omp_prompt_rejected: ${evt.error || 'unknown'}`);
@@ -275,8 +381,8 @@ export function createOmpQuery(proc, { runKey, maxTurns = 0, label = 'omp', time
           // with empty content and stopReason=error. Surfacing it beats a
           // silently empty reply the user cannot distinguish from success.
           if (evt.message.stopReason === 'error') {
-            const detail = evt.message.errorMessage || evt.message.errorStatus || 'provider error';
-            const provider = recordProviderError('omp', detail);
+            const detail = redact(evt.message.errorMessage || evt.message.errorStatus || 'provider error');
+            const provider = recordProviderError('omp', evt.message.errorMessage || evt.message.errorStatus || 'provider error');
             push({
               type: 'system',
               subtype: 'notice',
@@ -309,8 +415,10 @@ export function createOmpQuery(proc, { runKey, maxTurns = 0, label = 'omp', time
         end();
         break;
       case 'notice':
+        // Real OMP connection errors can echo the resolved header value —
+        // never let the bearer reach events or logs.
         if (evt.level === 'error') {
-          push({ type: 'system', subtype: 'notice', data: { message: evt.message } });
+          push({ type: 'system', subtype: 'notice', data: { message: redact(evt.message) } });
         }
         break;
       default:
@@ -359,28 +467,31 @@ export function createOmpQuery(proc, { runKey, maxTurns = 0, label = 'omp', time
     child: proc,
   });
 
+  if (knowledgeToken) proc.stdin.on('error', () => failStartup('omp_knowledge_rpc_write_failed'));
+
   return {
     async sendPrompt(message) {
       if (closed) throw new Error('OMP process already closed');
-      if (!sawReady) {
-        // The handshake timeout timer must not outlive the race — a pending
-        // 30s timer would hold the event loop open for every finished turn.
-        let handshakeTimer = null;
-        await Promise.race([
-          new Promise(resolve => {
-            const check = () => { if (sawReady || closed) resolve(); else setTimeout(check, 50); };
-            check();
-          }),
-          new Promise((_, reject) => {
-            handshakeTimer = setTimeout(() => reject(new Error('OMP RPC handshake timeout (no ready event)')), 30000);
-          }),
-        ]).finally(() => clearTimeout(handshakeTimer));
+      if (!sawReady || !knowledgeVerified) {
+        let timer;
+        try {
+          await Promise.race([
+            startup,
+            new Promise((_, reject) => {
+              timer = setTimeout(() => reject(new Error('OMP RPC startup timeout')), 30000);
+            }),
+          ]);
+        } catch (error) {
+          if (!knowledgeToken) throw error;
+          failStartup('omp_knowledge_startup_timeout');
+        } finally { clearTimeout(timer); }
       }
+      if (closed) return;
       proc.stdin.write(`${JSON.stringify({ type: 'prompt', message })}\n`);
     },
     close() {
       timeoutGuard.cancel();
-      closed = true;
+      end();
       killTree(proc);
     },
     get killed() { return proc.killed || proc.exitCode !== null; },
@@ -405,20 +516,14 @@ export function startDiagnosis({
   ontology = null, enhancement = null,
   analysisIntent = 'deep-diagnosis',
   preprocessingMode = null,
-  lineMemory = null,
+  lineMemory = null, knowledgeTransport = null,
 }) {
   const lang = reportLanguage || config.diagnosis.default_language;
   const ompSession = parseOmpSessionId(sessionId);
   const isResume = !!ompSession;
+  if (knowledgeTransport !== null) validateKnowledgeTransport(knowledgeTransport, isResume);
 
   const { dataPaths, promptTarget } = resolveAnalysisTarget(isResume ? { mode: 'resume' } : analysisTarget);
-
-  const sessionDir = runSessionDir(runId);
-  // timeoutMinutes goes to BOTH layers: spawnOmpRpc turns it into the CLI-side
-  // --max-time cap; createOmpQuery arms the JS-side withTimeout process-tree
-  // guard (resolveEngineTimeoutMinutes) that owns the kill as a backstop.
-  const { proc } = spawnOmpRpc({ sessionDir, resume: isResume, label: `omp-diagnosis:${runId}`, timeoutMinutes });
-  const query = createOmpQuery(proc, { runKey: runId, maxTurns, label: `omp-diagnosis:${runId}`, timeoutMinutes });
 
   let prompt;
   if (isResume) {
@@ -448,6 +553,16 @@ ${skillRef}
 
 ${buildPrompt(sceneName, userQuestion, promptTarget, lang, followUpMessage)}${buildIntentDirective(analysisIntent, sceneName, { preprocessingMode })}${buildOntologyDirective(ontology)}${buildEnhancementDirective(enhancement)}${buildLineMemoryDirective(lineMemory)}`;
   }
+  if (knowledgeTransport) {
+    prompt += buildMemoryToolDirective(knowledgeTransport)
+      .replace('memory_search', KNOWLEDGE_TOOLS[0]).replace('memory_get', KNOWLEDGE_TOOLS[1]);
+  }
+
+  const sessionDir = runSessionDir(runId);
+  // The CLI cap and the JS process-tree guard remain in force for both modes.
+  const label = `omp-diagnosis:${runId}`;
+  const { proc } = spawnOmpRpc({ sessionDir, resume: isResume, label, timeoutMinutes, knowledgeTransport });
+  const query = createOmpQuery(proc, { runKey: runId, maxTurns, label, timeoutMinutes, knowledgeToken: knowledgeTransport?.token });
 
   query.sendPrompt(prompt).catch(err => {
     logger.error(`OMP sendPrompt failed for ${runId}: ${err.message}`, { context: 'OmpClient', runId });

@@ -14,7 +14,7 @@ import { stmts } from '../db/database.mjs';
 import { PROJECT_ROOT } from '../../../../config/loader.mjs';
 import logger from '../utils/logger.mjs';
 import { resolveRunDir } from './artifact-manifest.service.mjs';
-import { requireRun } from './history.service.mjs';
+import { listLocalReviewedContext } from './knowledge.service.mjs';
 import { canReuseFinding, getConfirmedContext, renderConfirmedContext } from './human-review.service.mjs';
 import {
   defaultStoreDir, ensureStore, readRegistry, readConsensus, readFindings, readProposalLog,
@@ -142,10 +142,7 @@ export function buildStartMemory(row, { ontology = null } = {}) {
 }
 
 export function getRunReviewContext(runId, viewer) {
-  const row = requireRun(runId, viewer);
-  if (row.deleted_at) throw httpError(404, 'RUN_NOT_FOUND', `Run not found: ${runId}`);
-  const hit = findLineByAlias(storeDir(), row.scene_name);
-  return getConfirmedContext(row, hit?.entry?.aliases || []);
+  return listLocalReviewedContext({ actor: viewer, run_id: runId });
 }
 
 function writeMemoryContext(runDir, brief) {
