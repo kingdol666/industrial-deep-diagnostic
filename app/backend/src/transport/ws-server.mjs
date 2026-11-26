@@ -706,7 +706,7 @@ export function initWebSocket(httpServer) {
           }
 
           case 'chat_start': {
-            startChat({ ...(msg.payload || {}), ownerUserId: resolveOwnerId(viewer) })
+            startChat({ ...(msg.payload || {}), viewer, ownerUserId: resolveOwnerId(viewer) })
               .then((result) => {
                 safeSend(ws, {
                   type: 'chat_started',
